@@ -6,7 +6,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
 
-    <title>datumaro.components.algorithms.hash_key_inference.hashkey_util &#8212; Datumaro 1.4.0rc2 documentation</title>
+    <title>datumaro.components.algorithms.hash_key_inference.hashkey_util &#8212; Datumaro 1.4.1 documentation</title>
   
   
   
@@ -445,6 +445,7 @@
 <li class="toctree-l4"><a class="reference internal" href="datumaro.components.comparator.html">datumaro.components.comparator</a></li>
 <li class="toctree-l4"><a class="reference internal" href="datumaro.components.config.html">datumaro.components.config</a></li>
 <li class="toctree-l4"><a class="reference internal" href="datumaro.components.config_model.html">datumaro.components.config_model</a></li>
+<li class="toctree-l4"><a class="reference internal" href="datumaro.components.contexts.html">datumaro.components.contexts</a></li>
 <li class="toctree-l4"><a class="reference internal" href="datumaro.components.crypter.html">datumaro.components.crypter</a></li>
 <li class="toctree-l4"><a class="reference internal" href="datumaro.components.dataset.html">datumaro.components.dataset</a></li>
 <li class="toctree-l4"><a class="reference internal" href="datumaro.components.dataset_base.html">datumaro.components.dataset_base</a></li>
@@ -585,6 +586,12 @@
 </dl>
 </p></td>
 </tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#datumaro.components.algorithms.hash_key_inference.hashkey_util.check_and_convert_to_list" title="datumaro.components.algorithms.hash_key_inference.hashkey_util.check_and_convert_to_list"><code class="xref py py-obj docutils literal notranslate"><span class="pre">check_and_convert_to_list</span></code></a>(paths)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#datumaro.components.algorithms.hash_key_inference.hashkey_util.match_query_subset" title="datumaro.components.algorithms.hash_key_inference.hashkey_util.match_query_subset"><code class="xref py py-obj docutils literal notranslate"><span class="pre">match_query_subset</span></code></a>(query_id, dataset[, subset])</p></td>
+<td><p></p></td>
+</tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#datumaro.components.algorithms.hash_key_inference.hashkey_util.select_uninferenced_dataset" title="datumaro.components.algorithms.hash_key_inference.hashkey_util.select_uninferenced_dataset"><code class="xref py py-obj docutils literal notranslate"><span class="pre">select_uninferenced_dataset</span></code></a>(dataset)</p></td>
 <td><p></p></td>
 </tr>
@@ -610,6 +617,16 @@
 </dd>
 </dl>
 </dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="datumaro.components.algorithms.hash_key_inference.hashkey_util.match_query_subset">
+<span class="sig-prename descclassname"><span class="pre">datumaro.components.algorithms.hash_key_inference.hashkey_util.</span></span><span class="sig-name descname"><span class="pre">match_query_subset</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">query_id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dataset</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">subset</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/datumaro/components/algorithms/hash_key_inference/hashkey_util.html#match_query_subset"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.components.algorithms.hash_key_inference.hashkey_util.match_query_subset" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="datumaro.components.algorithms.hash_key_inference.hashkey_util.check_and_convert_to_list">
+<span class="sig-prename descclassname"><span class="pre">datumaro.components.algorithms.hash_key_inference.hashkey_util.</span></span><span class="sig-name descname"><span class="pre">check_and_convert_to_list</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">paths</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/datumaro/components/algorithms/hash_key_inference/hashkey_util.html#check_and_convert_to_list"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.components.algorithms.hash_key_inference.hashkey_util.check_and_convert_to_list" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
 
 </section>
 
@@ -665,6 +682,24 @@
    <code class="docutils literal notranslate">
     <span class="pre">
      calculate_hamming()
+    </span>
+   </code>
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#datumaro.components.algorithms.hash_key_inference.hashkey_util.match_query_subset">
+   <code class="docutils literal notranslate">
+    <span class="pre">
+     match_query_subset()
+    </span>
+   </code>
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#datumaro.components.algorithms.hash_key_inference.hashkey_util.check_and_convert_to_list">
+   <code class="docutils literal notranslate">
+    <span class="pre">
+     check_and_convert_to_list()
     </span>
    </code>
   </a>

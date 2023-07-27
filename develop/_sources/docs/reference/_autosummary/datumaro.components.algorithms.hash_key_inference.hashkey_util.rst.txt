@@ -14,6 +14,8 @@ datumaro.components.algorithms.hash\_key\_inference.hashkey\_util
    .. autosummary::
    
       calculate_hamming
+      check_and_convert_to_list
+      match_query_subset
       select_uninferenced_dataset
    
    

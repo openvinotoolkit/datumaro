@@ -6,7 +6,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
 
-    <title>datumaro.plugins.data_formats.coco.exporter &#8212; Datumaro 1.4.0rc2 documentation</title>
+    <title>datumaro.plugins.data_formats.coco.exporter &#8212; Datumaro 1.4.1 documentation</title>
   
   
   
@@ -49,7 +49,7 @@
     <script>DOCUMENTATION_OPTIONS.pagename = 'docs/reference/_autosummary/datumaro.plugins.data_formats.coco.exporter';</script>
     <link rel="index" title="Index" href="../../../genindex.html" />
     <link rel="search" title="Search" href="../../../search.html" />
-    <link rel="next" title="datumaro.plugins.data_formats.coco.format" href="datumaro.plugins.data_formats.coco.format.html" />
+    <link rel="next" title="datumaro.plugins.data_formats.coco.extractor_merger" href="datumaro.plugins.data_formats.coco.extractor_merger.html" />
     <link rel="prev" title="datumaro.plugins.data_formats.coco.base" href="datumaro.plugins.data_formats.coco.base.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="docsearch:language" content="en">
@@ -445,6 +445,7 @@
 <li class="toctree-l4"><a class="reference internal" href="datumaro.components.comparator.html">datumaro.components.comparator</a></li>
 <li class="toctree-l4"><a class="reference internal" href="datumaro.components.config.html">datumaro.components.config</a></li>
 <li class="toctree-l4"><a class="reference internal" href="datumaro.components.config_model.html">datumaro.components.config_model</a></li>
+<li class="toctree-l4"><a class="reference internal" href="datumaro.components.contexts.html">datumaro.components.contexts</a></li>
 <li class="toctree-l4"><a class="reference internal" href="datumaro.components.crypter.html">datumaro.components.crypter</a></li>
 <li class="toctree-l4"><a class="reference internal" href="datumaro.components.dataset.html">datumaro.components.dataset</a></li>
 <li class="toctree-l4"><a class="reference internal" href="datumaro.components.dataset_base.html">datumaro.components.dataset_base</a></li>
@@ -604,6 +605,9 @@
 <tr class="row-odd"><td><p><a class="reference internal" href="#datumaro.plugins.data_formats.coco.exporter.SegmentationMode" title="datumaro.plugins.data_formats.coco.exporter.SegmentationMode"><code class="xref py py-obj docutils literal notranslate"><span class="pre">SegmentationMode</span></code></a>(value)</p></td>
 <td><p>An enumeration.</p></td>
 </tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#datumaro.plugins.data_formats.coco.exporter.TemporaryWriters" title="datumaro.plugins.data_formats.coco.exporter.TemporaryWriters"><code class="xref py py-obj docutils literal notranslate"><span class="pre">TemporaryWriters</span></code></a>(subset, task, ann_dir)</p></td>
+<td><p></p></td>
+</tr>
 </tbody>
 </table>
 <dl class="py class">
@@ -629,8 +633,54 @@
 </dd></dl>
 
 <dl class="py class">
+<dt class="sig sig-object py" id="datumaro.plugins.data_formats.coco.exporter.TemporaryWriters">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">datumaro.plugins.data_formats.coco.exporter.</span></span><span class="sig-name descname"><span class="pre">TemporaryWriters</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">subset</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">task</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="datumaro.plugins.data_formats.coco.format.html#datumaro.plugins.data_formats.coco.format.CocoTask" title="datumaro.plugins.data_formats.coco.format.CocoTask"><span class="pre">CocoTask</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">ann_dir</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/datumaro/plugins/data_formats/coco/exporter.html#TemporaryWriters"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.plugins.data_formats.coco.exporter.TemporaryWriters" title="Permalink to this definition">#</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.11)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<dl class="py method">
+<dt class="sig sig-object py" id="datumaro.plugins.data_formats.coco.exporter.TemporaryWriters.close">
+<span class="sig-name descname"><span class="pre">close</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/datumaro/plugins/data_formats/coco/exporter.html#TemporaryWriters.close"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.plugins.data_formats.coco.exporter.TemporaryWriters.close" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="datumaro.plugins.data_formats.coco.exporter.TemporaryWriters.remove">
+<span class="sig-name descname"><span class="pre">remove</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/datumaro/plugins/data_formats/coco/exporter.html#TemporaryWriters.remove"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.plugins.data_formats.coco.exporter.TemporaryWriters.remove" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="datumaro.plugins.data_formats.coco.exporter.TemporaryWriters.reset">
+<span class="sig-name descname"><span class="pre">reset</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/datumaro/plugins/data_formats/coco/exporter.html#TemporaryWriters.reset"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.plugins.data_formats.coco.exporter.TemporaryWriters.reset" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="datumaro.plugins.data_formats.coco.exporter.TemporaryWriters.imgs">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">imgs</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">_Writer</span></em><a class="headerlink" href="#datumaro.plugins.data_formats.coco.exporter.TemporaryWriters.imgs" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="datumaro.plugins.data_formats.coco.exporter.TemporaryWriters.anns">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">anns</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">_Writer</span></em><a class="headerlink" href="#datumaro.plugins.data_formats.coco.exporter.TemporaryWriters.anns" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="datumaro.plugins.data_formats.coco.exporter.TemporaryWriters.add_item">
+<span class="sig-name descname"><span class="pre">add_item</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Dict" title="(in Python v3.11)"><span class="pre">Dict</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.11)"><span class="pre">None</span></a></span></span><a class="reference internal" href="../../../_modules/datumaro/plugins/data_formats/coco/exporter.html#TemporaryWriters.add_item"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.plugins.data_formats.coco.exporter.TemporaryWriters.add_item" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="datumaro.plugins.data_formats.coco.exporter.TemporaryWriters.add_anns">
+<span class="sig-name descname"><span class="pre">add_anns</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Dict" title="(in Python v3.11)"><span class="pre">Dict</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.11)"><span class="pre">None</span></a></span></span><a class="reference internal" href="../../../_modules/datumaro/plugins/data_formats/coco/exporter.html#TemporaryWriters.add_anns"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.plugins.data_formats.coco.exporter.TemporaryWriters.add_anns" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="datumaro.plugins.data_formats.coco.exporter.TemporaryWriters.merge">
+<span class="sig-name descname"><span class="pre">merge</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">header</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Dict" title="(in Python v3.11)"><span class="pre">Dict</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">min_ann_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Optional" title="(in Python v3.11)"><span class="pre">Optional</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.11)"><span class="pre">int</span></a><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.11)"><span class="pre">None</span></a></span></span><a class="reference internal" href="../../../_modules/datumaro/plugins/data_formats/coco/exporter.html#TemporaryWriters.merge"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.plugins.data_formats.coco.exporter.TemporaryWriters.merge" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
 <dt class="sig sig-object py" id="datumaro.plugins.data_formats.coco.exporter.CocoExporter">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">datumaro.plugins.data_formats.coco.exporter.</span></span><span class="sig-name descname"><span class="pre">CocoExporter</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">extractor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">save_dir</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tasks</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">segmentation_mode</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">crop_covered</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">allow_attributes</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">reindex</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">merge_images</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/datumaro/plugins/data_formats/coco/exporter.html#CocoExporter"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.plugins.data_formats.coco.exporter.CocoExporter" title="Permalink to this definition">#</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">datumaro.plugins.data_formats.coco.exporter.</span></span><span class="sig-name descname"><span class="pre">CocoExporter</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">extractor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">save_dir</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tasks</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">segmentation_mode</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">crop_covered</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">allow_attributes</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">reindex</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">merge_images</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stream</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.11)"><span class="pre">bool</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/datumaro/plugins/data_formats/coco/exporter.html#CocoExporter"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.plugins.data_formats.coco.exporter.CocoExporter" title="Permalink to this definition">#</a></dt>
 <dd><p>Bases: <a class="reference internal" href="datumaro.components.exporter.html#datumaro.components.exporter.Exporter" title="datumaro.components.exporter.Exporter"><code class="xref py py-class docutils literal notranslate"><span class="pre">Exporter</span></code></a></p>
 <dl class="py method">
 <dt class="sig sig-object py" id="datumaro.plugins.data_formats.coco.exporter.CocoExporter.build_cmdline_parser">
@@ -646,6 +696,12 @@
 <dt class="sig sig-object py" id="datumaro.plugins.data_formats.coco.exporter.CocoExporter.patch">
 <em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">patch</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dataset</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">patch</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">save_dir</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/datumaro/plugins/data_formats/coco/exporter.html#CocoExporter.patch"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.plugins.data_formats.coco.exporter.CocoExporter.patch" title="Permalink to this definition">#</a></dt>
 <dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="datumaro.plugins.data_formats.coco.exporter.CocoExporter.can_stream">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">can_stream</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.11)"><span class="pre">bool</span></a></em><a class="headerlink" href="#datumaro.plugins.data_formats.coco.exporter.CocoExporter.can_stream" title="Permalink to this definition">#</a></dt>
+<dd><p>Flag to indicate whether the exporter can export the dataset in a stream manner or not.</p>
+</dd></dl>
 
 </dd></dl>
 
@@ -708,10 +764,10 @@
           <p class="prev-next-title">datumaro.plugins.data_formats.coco.base</p>
       </div>
   </a>
-  <a class='right-next' id="next-link" href="datumaro.plugins.data_formats.coco.format.html" title="next page">
+  <a class='right-next' id="next-link" href="datumaro.plugins.data_formats.coco.extractor_merger.html" title="next page">
   <div class="prev-next-info">
       <p class="prev-next-subtitle">next</p>
-      <p class="prev-next-title">datumaro.plugins.data_formats.coco.format</p>
+      <p class="prev-next-title">datumaro.plugins.data_formats.coco.extractor_merger</p>
   </div>
   <i class="fa-solid fa-angle-right"></i>
   </a>
@@ -770,6 +826,89 @@
   </ul>
  </li>
  <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#datumaro.plugins.data_formats.coco.exporter.TemporaryWriters">
+   <code class="docutils literal notranslate">
+    <span class="pre">
+     TemporaryWriters
+    </span>
+   </code>
+  </a>
+  <ul class="nav section-nav flex-column">
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#datumaro.plugins.data_formats.coco.exporter.TemporaryWriters.close">
+     <code class="docutils literal notranslate">
+      <span class="pre">
+       TemporaryWriters.close()
+      </span>
+     </code>
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#datumaro.plugins.data_formats.coco.exporter.TemporaryWriters.remove">
+     <code class="docutils literal notranslate">
+      <span class="pre">
+       TemporaryWriters.remove()
+      </span>
+     </code>
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#datumaro.plugins.data_formats.coco.exporter.TemporaryWriters.reset">
+     <code class="docutils literal notranslate">
+      <span class="pre">
+       TemporaryWriters.reset()
+      </span>
+     </code>
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#datumaro.plugins.data_formats.coco.exporter.TemporaryWriters.imgs">
+     <code class="docutils literal notranslate">
+      <span class="pre">
+       TemporaryWriters.imgs
+      </span>
+     </code>
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#datumaro.plugins.data_formats.coco.exporter.TemporaryWriters.anns">
+     <code class="docutils literal notranslate">
+      <span class="pre">
+       TemporaryWriters.anns
+      </span>
+     </code>
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#datumaro.plugins.data_formats.coco.exporter.TemporaryWriters.add_item">
+     <code class="docutils literal notranslate">
+      <span class="pre">
+       TemporaryWriters.add_item()
+      </span>
+     </code>
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#datumaro.plugins.data_formats.coco.exporter.TemporaryWriters.add_anns">
+     <code class="docutils literal notranslate">
+      <span class="pre">
+       TemporaryWriters.add_anns()
+      </span>
+     </code>
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#datumaro.plugins.data_formats.coco.exporter.TemporaryWriters.merge">
+     <code class="docutils literal notranslate">
+      <span class="pre">
+       TemporaryWriters.merge()
+      </span>
+     </code>
+    </a>
+   </li>
+  </ul>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
   <a class="reference internal nav-link" href="#datumaro.plugins.data_formats.coco.exporter.CocoExporter">
    <code class="docutils literal notranslate">
     <span class="pre">
@@ -801,6 +940,15 @@
      <code class="docutils literal notranslate">
       <span class="pre">
        CocoExporter.patch()
+      </span>
+     </code>
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#datumaro.plugins.data_formats.coco.exporter.CocoExporter.can_stream">
+     <code class="docutils literal notranslate">
+      <span class="pre">
+       CocoExporter.can_stream
       </span>
      </code>
     </a>

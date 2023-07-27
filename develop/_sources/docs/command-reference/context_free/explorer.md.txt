@@ -12,14 +12,18 @@ The command can be applied to a dataset. And if you want to use multiple dataset
 
 Usage:
 ```console
-datum explore [target] -q <path/to/image> or <text_query>
-              [-topk TOPK] [-p PROJECT_DIR] [-s SAVE] [--stage STAGE]
+datum explore [target] [--query-img-path <path/to/image>]
+              [--query-item-id </id/of/image/datasetitem> --query-item-subset <subset/of/image>]
+              [--query-str <text_query>] [-topk TOPK] [-p PROJECT_DIR] [-s SAVE] [--stage STAGE]
 ```
 
 Parameters:
 - `<target>` (string) - Target [dataset revpath](../../user-manual/how_to_use_datumaro.md#dataset-path-concepts).
   By default, prints info about the joined `project` dataset.
-- `-q, --query` (string) - Image path or text to use as query.
+- `--query-img-path` (string) - Image path to use as query or list of it.
+- `--query-item-id` (string) - Datasetitem id of Image to use as query or list of it.
+- `--query-item-subset` (string) - Datasetitem subset of Image to use as query or list of it. (default: None)
+- `--query-str` (string) - Test to use as query or list of it.
 - `-topk` (int) - Number how much you want to find similar data.
 - `-p, --project` (string) - Directory of the project to operate on (default: current directory).
 - `-s, --save` (bool) - Save explorer result files on explore_result folder.
@@ -30,29 +34,39 @@ Parameters:
   and the `project` target, but not intermediate stages). Enabled by default.
 
 Examples:
-- Explore top10 similar images of image query
+- Explore top10 similar images of image path query.
   ```console
-  datum search -q <path/to/image> -topk 10 <path/to/dataset/>
+  datum explore -query-img-path <path/to/image> -topk 10 <path/to/dataset/>
   ```
 
-- Explore top10 similar images of image query within project
+- Explore top10 similar images using image datasetitem id query. Setting the subset of a DatasetItem is not mandatory.
+  ```console
+  datum explore --query-item-id <id/of/image/datasetitem> -topk 10 <path/to/dataset/>
+  ```
+
+- Explore top10 similar images using image datasetitem id and subset query.
+  ```console
+  datum explore --query-item-id <id/of/image/datasetitem> --query-item-subset <subset/of/image/datasetitem> -topk 10 <path/to/dataset/>
+  ```
+
+- Explore top10 similar images of image query within project.
   ```console
   datum project create <...>
   datum project import -f <format> <path/to/dataset/>
-  datum explore -q <path/to/image> -topk 10
+  datum explore -query-img-path <path/to/image> -topk 10
   ```
 
 - Explore top10 similar images of text query, elephant
   ```console
-  datum search -q elephant -topk 10 <path/to/dataset/>
+  datum explore --query-str elephant -topk 10 <path/to/dataset/>
   ```
 
 - Explore top50 similar images of image query list
   ```console
-  datum search -q <path/to/image1> <path/to/image2> <path/to/image3> -topk 50 <path/to/dataset/>
+  datum explore --query-img-path <path/to/image1> <path/to/image2> <path/to/image3> -topk 50 <path/to/dataset/>
   ```
 
 - Explore top50 similar images of text query list
   ```console
-  datum search -q motorcycle bus train -topk 50 <path/to/dataset/>
+  datum explore --query-str motorcycle bus train -topk 50 <path/to/dataset/>
   ```

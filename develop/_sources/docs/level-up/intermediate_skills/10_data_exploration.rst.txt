@@ -39,17 +39,31 @@ The Python example for the usage of explorer is described in :doc:`here <../../j
 
     .. tab-item:: CLI
 
-        Without the project declaration, we can simply ``explore`` dataset by
+        Without the project declaration, we can simply ``explore`` dataset like below.
+
+        You can set the query using one of the following options: ``QUERY_PATH``, ``QUERY_ID``, or ``QUERY_STR``
 
         .. code-block:: bash
 
-            datum explore <target> --query QUERY -topk TOPK_NUM
+            datum explore <target> --query-img-path QUERY_PATH -topk TOPK_NUM
 
-        ``QUERY`` could be image file path, text description, list of both of them
+        ``QUERY_PATH`` could be image file path or list of them
 
         ``TOPK_NUM`` is an integer that you want to find the number of similar results for query
 
-        Exploration result would be printed by log and result files would be copied into ``explore_result`` folder
+        Exploration result would be printed by log and result files would be copied into ``explore_result`` folder.
+
+        .. code-block:: bash
+
+            datum explore <target> --query-item-id QUERY_ID -topk TOPK_NUM
+
+        ``QUERY_ID`` could be datasetitem id or list of them
+
+        .. code-block:: bash
+
+            datum explore <target> --query-str QUERY_STR -topk TOPK_NUM
+
+        ``QUERY_STR`` could be text description or list of them
 
     .. tab-item:: ProjectCLI
 
@@ -65,14 +79,28 @@ The Python example for the usage of explorer is described in :doc:`here <../../j
 
             datum project import --project <path/to/project> <path/to/data>
 
-        We can ``explore`` similar items for the query
+        We can ``explore`` similar items for the query.
+
+        You can set the query using one of the following options: ``QUERY_PATH``, ``QUERY_ID``, or ``QUERY_STR``
 
         .. code-block:: bash
 
-            datum explore --query QUERY -topk TOPK_NUM -p <path/to/project>
+            datum explore --query-img-path QUERY_PATH -topk TOPK_NUM -p <path/to/project>
 
-        ``QUERY`` could be image file path, text description, list of both of them
+        ``QUERY_PATH`` could be image file path or list of them
 
         ``TOPK_NUM`` is an integer that you want to find the number of similar results for query
 
-        Exploration result would be printed by log and result files would be copied into ``explore_result`` folder
+        Exploration result would be printed by log and result files would be copied into ``explore_result`` folder.
+
+        .. code-block:: bash
+
+            datum explore <target> --query-item-id QUERY_ID -topk TOPK_NUM -p <path/to/project>
+
+        ``QUERY_ID`` could be datasetitem id or list of them
+
+        .. code-block:: bash
+
+            datum explore <target> --query-str QUERY_STR -topk TOPK_NUM -p <path/to/project>
+
+        ``QUERY_STR`` could be text description or list of them

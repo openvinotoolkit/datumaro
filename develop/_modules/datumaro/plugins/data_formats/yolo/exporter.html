@@ -5,7 +5,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>datumaro.plugins.data_formats.yolo.exporter &#8212; Datumaro 1.4.0rc2 documentation</title>
+    <title>datumaro.plugins.data_formats.yolo.exporter &#8212; Datumaro 1.4.1 documentation</title>
   
   
   
@@ -466,7 +466,11 @@
 
             <span class="n">ann_path</span> <span class="o">=</span> <span class="n">osp</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">subset_dir</span><span class="p">,</span> <span class="s2">&quot;</span><span class="si">%s</span><span class="s2">.txt&quot;</span> <span class="o">%</span> <span class="n">item</span><span class="o">.</span><span class="n">id</span><span class="p">)</span>
             <span class="k">if</span> <span class="n">osp</span><span class="o">.</span><span class="n">isfile</span><span class="p">(</span><span class="n">ann_path</span><span class="p">):</span>
-                <span class="n">os</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">ann_path</span><span class="p">)</span></div></div>
+                <span class="n">os</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">ann_path</span><span class="p">)</span></div>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">can_stream</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">True</span></div>
 
 
 <div class="viewcode-block" id="YoloUltralyticsExporter"><a class="viewcode-back" href="../../../../../docs/reference/_autosummary/datumaro.plugins.data_formats.yolo.exporter.html#datumaro.plugins.data_formats.yolo.exporter.YoloUltralyticsExporter">[docs]</a><span class="k">class</span> <span class="nc">YoloUltralyticsExporter</span><span class="p">(</span><span class="n">YoloExporter</span><span class="p">):</span>

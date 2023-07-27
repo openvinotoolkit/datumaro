@@ -5,7 +5,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>datumaro.components.dataset &#8212; Datumaro 1.4.0rc2 documentation</title>
+    <title>datumaro.components.dataset &#8212; Datumaro 1.4.1 documentation</title>
   
   
   
@@ -866,6 +866,7 @@
 
         <span class="k">assert</span> <span class="s2">&quot;ctx&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">kwargs</span>
         <span class="n">exporter_kwargs</span> <span class="o">=</span> <span class="n">copy</span><span class="p">(</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="n">exporter_kwargs</span><span class="p">[</span><span class="s2">&quot;stream&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_stream</span>
         <span class="n">exporter_kwargs</span><span class="p">[</span><span class="s2">&quot;ctx&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">ExportContext</span><span class="p">(</span>
             <span class="n">progress_reporter</span><span class="o">=</span><span class="n">progress_reporter</span><span class="p">,</span> <span class="n">error_policy</span><span class="o">=</span><span class="n">error_policy</span>
         <span class="p">)</span>
@@ -911,7 +912,8 @@
             <span class="k">raise</span> <span class="n">e</span><span class="o">.</span><span class="n">__cause__</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">bind</span><span class="p">(</span><span class="n">save_dir</span><span class="p">,</span> <span class="nb">format</span><span class="p">,</span> <span class="n">options</span><span class="o">=</span><span class="n">copy</span><span class="p">(</span><span class="n">kwargs</span><span class="p">))</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">flush_changes</span><span class="p">()</span></div>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_stream</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">flush_changes</span><span class="p">()</span></div>
 
 <div class="viewcode-block" id="Dataset.save"><a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.components.hl_ops.html#datumaro.components.dataset.Dataset.save">[docs]</a>    <span class="k">def</span> <span class="nf">save</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">save_dir</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">options</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_options</span><span class="p">)</span>
@@ -1023,7 +1025,7 @@
                     <span class="p">)</span>
 
             <span class="n">dataset</span> <span class="o">=</span> <span class="p">(</span>
-                <span class="bp">cls</span><span class="p">(</span><span class="n">source</span><span class="o">=</span><span class="n">extractor_merger</span><span class="p">(</span><span class="o">*</span><span class="n">extractors</span><span class="p">),</span> <span class="n">env</span><span class="o">=</span><span class="n">env</span><span class="p">)</span>
+                <span class="bp">cls</span><span class="p">(</span><span class="n">source</span><span class="o">=</span><span class="n">extractor_merger</span><span class="p">(</span><span class="n">extractors</span><span class="p">),</span> <span class="n">env</span><span class="o">=</span><span class="n">env</span><span class="p">)</span>
                 <span class="k">if</span> <span class="n">extractor_merger</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
                 <span class="k">else</span> <span class="bp">cls</span><span class="o">.</span><span class="n">from_extractors</span><span class="p">(</span><span class="o">*</span><span class="n">extractors</span><span class="p">,</span> <span class="n">env</span><span class="o">=</span><span class="n">env</span><span class="p">,</span> <span class="n">merge_policy</span><span class="o">=</span><span class="n">merge_policy</span><span class="p">)</span>
             <span class="p">)</span>

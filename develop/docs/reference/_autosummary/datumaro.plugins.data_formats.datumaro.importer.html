@@ -6,7 +6,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
 
-    <title>datumaro.plugins.data_formats.datumaro.importer &#8212; Datumaro 1.4.0rc2 documentation</title>
+    <title>datumaro.plugins.data_formats.datumaro.importer &#8212; Datumaro 1.4.1 documentation</title>
   
   
   
@@ -445,6 +445,7 @@
 <li class="toctree-l4"><a class="reference internal" href="datumaro.components.comparator.html">datumaro.components.comparator</a></li>
 <li class="toctree-l4"><a class="reference internal" href="datumaro.components.config.html">datumaro.components.config</a></li>
 <li class="toctree-l4"><a class="reference internal" href="datumaro.components.config_model.html">datumaro.components.config_model</a></li>
+<li class="toctree-l4"><a class="reference internal" href="datumaro.components.contexts.html">datumaro.components.contexts</a></li>
 <li class="toctree-l4"><a class="reference internal" href="datumaro.components.crypter.html">datumaro.components.crypter</a></li>
 <li class="toctree-l4"><a class="reference internal" href="datumaro.components.dataset.html">datumaro.components.dataset</a></li>
 <li class="toctree-l4"><a class="reference internal" href="datumaro.components.dataset_base.html">datumaro.components.dataset_base</a></li>
@@ -610,14 +611,17 @@
 
 <dl class="py method">
 <dt class="sig sig-object py" id="datumaro.plugins.data_formats.datumaro.importer.DatumaroImporter.get_extractor_merger">
-<span class="sig-name descname"><span class="pre">get_extractor_merger</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Type" title="(in Python v3.11)"><span class="pre">Type</span></a><span class="p"><span class="pre">[</span></span><a class="reference internal" href="datumaro.components.dataset_base.html#datumaro.components.dataset_base.ExtractorMerger" title="datumaro.components.dataset_base.ExtractorMerger"><span class="pre">ExtractorMerger</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../../_modules/datumaro/plugins/data_formats/datumaro/importer.html#DatumaroImporter.get_extractor_merger"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.plugins.data_formats.datumaro.importer.DatumaroImporter.get_extractor_merger" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">get_extractor_merger</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Type" title="(in Python v3.11)"><span class="pre">Type</span></a><span class="p"><span class="pre">[</span></span><a class="reference internal" href="datumaro.components.merge.extractor_merger.html#datumaro.components.merge.extractor_merger.ExtractorMerger" title="datumaro.components.merge.extractor_merger.ExtractorMerger"><span class="pre">ExtractorMerger</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../../_modules/datumaro/plugins/data_formats/datumaro/importer.html#DatumaroImporter.get_extractor_merger"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.plugins.data_formats.datumaro.importer.DatumaroImporter.get_extractor_merger" title="Permalink to this definition">#</a></dt>
 <dd><p>Extractor merger dedicated for the data format</p>
 <p>Datumaro import process spawns multiple <cite>DatasetBase</cite> for the detected sources.
 We can find a bunch of the detected sources from the given directory path.
 It is usually each detected source is corresponded to the subset of dataset in many data formats.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Returns<span class="colon">:</span></dt>
-<dd class="field-odd"><p>If None, use <cite>Dataset.from_extractors()</cite> to merge the extractors,
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>stream</strong> – There can exist a branch according to <cite>stream</cite> flag</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>If None, use <cite>Dataset.from_extractors()</cite> to merge the extractors,
 Otherwise, use the return type to merge the extractors.</p>
 </dd>
 </dl>

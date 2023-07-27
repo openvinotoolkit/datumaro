@@ -5,7 +5,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>datumaro.components.merge.exact_merge &#8212; Datumaro 1.4.0rc2 documentation</title>
+    <title>datumaro.components.merge.exact_merge &#8212; Datumaro 1.4.1 documentation</title>
   
   
   
@@ -316,14 +316,15 @@
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">options</span><span class="p">):</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">**</span><span class="n">options</span><span class="p">)</span>
 
-<div class="viewcode-block" id="ExactMerge.merge"><a class="viewcode-back" href="../../../../docs/reference/_autosummary/datumaro.components.merge.exact_merge.html#datumaro.components.merge.exact_merge.ExactMerge.merge">[docs]</a>    <span class="k">def</span> <span class="nf">merge</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sources</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">IDataset</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">DatasetItemStorage</span><span class="p">:</span>
+<div class="viewcode-block" id="ExactMerge.merge"><a class="viewcode-back" href="../../../../docs/reference/_autosummary/datumaro.components.merge.exact_merge.html#datumaro.components.merge.exact_merge.ExactMerge.merge">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">merge</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">sources</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">IDataset</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">DatasetItemStorage</span><span class="p">:</span>
         <span class="n">items</span> <span class="o">=</span> <span class="n">DatasetItemStorage</span><span class="p">()</span>
         <span class="k">for</span> <span class="n">source_idx</span><span class="p">,</span> <span class="n">source</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">sources</span><span class="p">):</span>
             <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">source</span><span class="p">:</span>
                 <span class="n">existing_item</span> <span class="o">=</span> <span class="n">items</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">item</span><span class="o">.</span><span class="n">id</span><span class="p">,</span> <span class="n">item</span><span class="o">.</span><span class="n">subset</span><span class="p">)</span>
                 <span class="k">if</span> <span class="n">existing_item</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
                     <span class="k">try</span><span class="p">:</span>
-                        <span class="n">item</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_merge_items</span><span class="p">(</span><span class="n">existing_item</span><span class="p">,</span> <span class="n">item</span><span class="p">)</span>
+                        <span class="n">item</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="n">merge_items</span><span class="p">(</span><span class="n">existing_item</span><span class="p">,</span> <span class="n">item</span><span class="p">)</span>
                     <span class="k">except</span> <span class="n">DatasetMergeError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
                         <span class="n">e</span><span class="o">.</span><span class="n">sources</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="n">source_idx</span><span class="p">))</span>
                         <span class="k">raise</span> <span class="n">e</span>
@@ -331,7 +332,8 @@
                 <span class="n">items</span><span class="o">.</span><span class="n">put</span><span class="p">(</span><span class="n">item</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">items</span></div>
 
-    <span class="k">def</span> <span class="nf">_match_annotations_equal</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">):</span>
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">_match_annotations_equal</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">):</span>
         <span class="n">matches</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="n">a_unmatched</span> <span class="o">=</span> <span class="n">a</span><span class="p">[:]</span>
         <span class="n">b_unmatched</span> <span class="o">=</span> <span class="n">b</span><span class="p">[:]</span>
@@ -347,22 +349,25 @@
 
         <span class="k">return</span> <span class="n">matches</span><span class="p">,</span> <span class="n">a_unmatched</span><span class="p">,</span> <span class="n">b_unmatched</span>
 
-    <span class="k">def</span> <span class="nf">_merge_annotations_equal</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">):</span>
-        <span class="n">matches</span><span class="p">,</span> <span class="n">a_unmatched</span><span class="p">,</span> <span class="n">b_unmatched</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_match_annotations_equal</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">)</span>
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">_merge_annotations_equal</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">):</span>
+        <span class="n">matches</span><span class="p">,</span> <span class="n">a_unmatched</span><span class="p">,</span> <span class="n">b_unmatched</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="n">_match_annotations_equal</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">)</span>
         <span class="k">return</span> <span class="p">[</span><span class="n">ann_a</span> <span class="k">for</span> <span class="p">(</span><span class="n">ann_a</span><span class="p">,</span> <span class="n">_</span><span class="p">)</span> <span class="ow">in</span> <span class="n">matches</span><span class="p">]</span> <span class="o">+</span> <span class="n">a_unmatched</span> <span class="o">+</span> <span class="n">b_unmatched</span>
 
-    <span class="k">def</span> <span class="nf">_merge_items</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">existing_item</span><span class="p">:</span> <span class="n">DatasetItem</span><span class="p">,</span> <span class="n">current_item</span><span class="p">:</span> <span class="n">DatasetItem</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">DatasetItem</span><span class="p">:</span>
+<div class="viewcode-block" id="ExactMerge.merge_items"><a class="viewcode-back" href="../../../../docs/reference/_autosummary/datumaro.components.merge.exact_merge.html#datumaro.components.merge.exact_merge.ExactMerge.merge_items">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">merge_items</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">existing_item</span><span class="p">:</span> <span class="n">DatasetItem</span><span class="p">,</span> <span class="n">current_item</span><span class="p">:</span> <span class="n">DatasetItem</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">DatasetItem</span><span class="p">:</span>
         <span class="k">return</span> <span class="n">existing_item</span><span class="o">.</span><span class="n">wrap</span><span class="p">(</span>
-            <span class="n">media</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_merge_media</span><span class="p">(</span><span class="n">existing_item</span><span class="p">,</span> <span class="n">current_item</span><span class="p">),</span>
-            <span class="n">attributes</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_merge_attrs</span><span class="p">(</span>
+            <span class="n">media</span><span class="o">=</span><span class="bp">cls</span><span class="o">.</span><span class="n">_merge_media</span><span class="p">(</span><span class="n">existing_item</span><span class="p">,</span> <span class="n">current_item</span><span class="p">),</span>
+            <span class="n">attributes</span><span class="o">=</span><span class="bp">cls</span><span class="o">.</span><span class="n">_merge_attrs</span><span class="p">(</span>
                 <span class="n">existing_item</span><span class="o">.</span><span class="n">attributes</span><span class="p">,</span>
                 <span class="n">current_item</span><span class="o">.</span><span class="n">attributes</span><span class="p">,</span>
                 <span class="n">item_id</span><span class="o">=</span><span class="p">(</span><span class="n">existing_item</span><span class="o">.</span><span class="n">id</span><span class="p">,</span> <span class="n">existing_item</span><span class="o">.</span><span class="n">subset</span><span class="p">),</span>
             <span class="p">),</span>
-            <span class="n">annotations</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_merge_anno</span><span class="p">(</span><span class="n">existing_item</span><span class="o">.</span><span class="n">annotations</span><span class="p">,</span> <span class="n">current_item</span><span class="o">.</span><span class="n">annotations</span><span class="p">),</span>
-        <span class="p">)</span>
+            <span class="n">annotations</span><span class="o">=</span><span class="bp">cls</span><span class="o">.</span><span class="n">_merge_anno</span><span class="p">(</span><span class="n">existing_item</span><span class="o">.</span><span class="n">annotations</span><span class="p">,</span> <span class="n">current_item</span><span class="o">.</span><span class="n">annotations</span><span class="p">),</span>
+        <span class="p">)</span></div>
 
-    <span class="k">def</span> <span class="nf">_merge_attrs</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">a</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">],</span> <span class="n">b</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">],</span> <span class="n">item_id</span><span class="p">:</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">:</span>
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">_merge_attrs</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">a</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">],</span> <span class="n">b</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">],</span> <span class="n">item_id</span><span class="p">:</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">:</span>
         <span class="n">merged</span> <span class="o">=</span> <span class="p">{}</span>
 
         <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">a</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span> <span class="o">|</span> <span class="n">b</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
@@ -382,25 +387,26 @@
 
         <span class="k">return</span> <span class="n">merged</span>
 
+    <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">_merge_media</span><span class="p">(</span>
-        <span class="bp">self</span><span class="p">,</span> <span class="n">item_a</span><span class="p">:</span> <span class="n">DatasetItem</span><span class="p">,</span> <span class="n">item_b</span><span class="p">:</span> <span class="n">DatasetItem</span>
+        <span class="bp">cls</span><span class="p">,</span> <span class="n">item_a</span><span class="p">:</span> <span class="n">DatasetItem</span><span class="p">,</span> <span class="n">item_b</span><span class="p">:</span> <span class="n">DatasetItem</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Union</span><span class="p">[</span><span class="n">Image</span><span class="p">,</span> <span class="n">PointCloud</span><span class="p">,</span> <span class="n">Video</span><span class="p">]:</span>
         <span class="k">if</span> <span class="p">(</span><span class="ow">not</span> <span class="n">item_a</span><span class="o">.</span><span class="n">media</span> <span class="ow">or</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">item_a</span><span class="o">.</span><span class="n">media</span><span class="p">,</span> <span class="n">Image</span><span class="p">))</span> <span class="ow">and</span> <span class="p">(</span>
             <span class="ow">not</span> <span class="n">item_b</span><span class="o">.</span><span class="n">media</span> <span class="ow">or</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">item_b</span><span class="o">.</span><span class="n">media</span><span class="p">,</span> <span class="n">Image</span><span class="p">)</span>
         <span class="p">):</span>
-            <span class="n">media</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_merge_images</span><span class="p">(</span><span class="n">item_a</span><span class="p">,</span> <span class="n">item_b</span><span class="p">)</span>
+            <span class="n">media</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="n">_merge_images</span><span class="p">(</span><span class="n">item_a</span><span class="p">,</span> <span class="n">item_b</span><span class="p">)</span>
         <span class="k">elif</span> <span class="p">(</span><span class="ow">not</span> <span class="n">item_a</span><span class="o">.</span><span class="n">media</span> <span class="ow">or</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">item_a</span><span class="o">.</span><span class="n">media</span><span class="p">,</span> <span class="n">PointCloud</span><span class="p">))</span> <span class="ow">and</span> <span class="p">(</span>
             <span class="ow">not</span> <span class="n">item_b</span><span class="o">.</span><span class="n">media</span> <span class="ow">or</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">item_b</span><span class="o">.</span><span class="n">media</span><span class="p">,</span> <span class="n">PointCloud</span><span class="p">)</span>
         <span class="p">):</span>
-            <span class="n">media</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_merge_point_clouds</span><span class="p">(</span><span class="n">item_a</span><span class="p">,</span> <span class="n">item_b</span><span class="p">)</span>
+            <span class="n">media</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="n">_merge_point_clouds</span><span class="p">(</span><span class="n">item_a</span><span class="p">,</span> <span class="n">item_b</span><span class="p">)</span>
         <span class="k">elif</span> <span class="p">(</span><span class="ow">not</span> <span class="n">item_a</span><span class="o">.</span><span class="n">media</span> <span class="ow">or</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">item_a</span><span class="o">.</span><span class="n">media</span><span class="p">,</span> <span class="n">Video</span><span class="p">))</span> <span class="ow">and</span> <span class="p">(</span>
             <span class="ow">not</span> <span class="n">item_b</span><span class="o">.</span><span class="n">media</span> <span class="ow">or</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">item_b</span><span class="o">.</span><span class="n">media</span><span class="p">,</span> <span class="n">Video</span><span class="p">)</span>
         <span class="p">):</span>
-            <span class="n">media</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_merge_videos</span><span class="p">(</span><span class="n">item_a</span><span class="p">,</span> <span class="n">item_b</span><span class="p">)</span>
+            <span class="n">media</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="n">_merge_videos</span><span class="p">(</span><span class="n">item_a</span><span class="p">,</span> <span class="n">item_b</span><span class="p">)</span>
         <span class="k">elif</span> <span class="p">(</span><span class="ow">not</span> <span class="n">item_a</span><span class="o">.</span><span class="n">media</span> <span class="ow">or</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">item_a</span><span class="o">.</span><span class="n">media</span><span class="p">,</span> <span class="n">MultiframeImage</span><span class="p">))</span> <span class="ow">and</span> <span class="p">(</span>
             <span class="ow">not</span> <span class="n">item_b</span><span class="o">.</span><span class="n">media</span> <span class="ow">or</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">item_b</span><span class="o">.</span><span class="n">media</span><span class="p">,</span> <span class="n">MultiframeImage</span><span class="p">)</span>
         <span class="p">):</span>
-            <span class="n">media</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_merge_multiframe_images</span><span class="p">(</span><span class="n">item_a</span><span class="p">,</span> <span class="n">item_b</span><span class="p">)</span>
+            <span class="n">media</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="n">_merge_multiframe_images</span><span class="p">(</span><span class="n">item_a</span><span class="p">,</span> <span class="n">item_b</span><span class="p">)</span>
         <span class="k">elif</span> <span class="p">(</span><span class="ow">not</span> <span class="n">item_a</span><span class="o">.</span><span class="n">media</span> <span class="ow">or</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">item_a</span><span class="o">.</span><span class="n">media</span><span class="p">,</span> <span class="n">MediaElement</span><span class="p">))</span> <span class="ow">and</span> <span class="p">(</span>
             <span class="ow">not</span> <span class="n">item_b</span><span class="o">.</span><span class="n">media</span> <span class="ow">or</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">item_b</span><span class="o">.</span><span class="n">media</span><span class="p">,</span> <span class="n">MediaElement</span><span class="p">)</span>
         <span class="p">):</span>
@@ -427,7 +433,8 @@
             <span class="k">raise</span> <span class="n">MismatchingMediaError</span><span class="p">((</span><span class="n">item_a</span><span class="o">.</span><span class="n">id</span><span class="p">,</span> <span class="n">item_a</span><span class="o">.</span><span class="n">subset</span><span class="p">),</span> <span class="n">item_a</span><span class="o">.</span><span class="n">media</span><span class="p">,</span> <span class="n">item_b</span><span class="o">.</span><span class="n">media</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">media</span>
 
-    <span class="k">def</span> <span class="nf">_merge_images</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">item_a</span><span class="p">:</span> <span class="n">DatasetItem</span><span class="p">,</span> <span class="n">item_b</span><span class="p">:</span> <span class="n">DatasetItem</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Image</span><span class="p">:</span>
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">_merge_images</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">item_a</span><span class="p">:</span> <span class="n">DatasetItem</span><span class="p">,</span> <span class="n">item_b</span><span class="p">:</span> <span class="n">DatasetItem</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Image</span><span class="p">:</span>
         <span class="n">media</span> <span class="o">=</span> <span class="kc">None</span>
 
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">item_a</span><span class="o">.</span><span class="n">media</span><span class="p">,</span> <span class="n">Image</span><span class="p">)</span> <span class="ow">and</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">item_b</span><span class="o">.</span><span class="n">media</span><span class="p">,</span> <span class="n">Image</span><span class="p">):</span>
@@ -493,7 +500,8 @@
 
         <span class="k">return</span> <span class="n">media</span>
 
-    <span class="k">def</span> <span class="nf">_merge_point_clouds</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">item_a</span><span class="p">:</span> <span class="n">DatasetItem</span><span class="p">,</span> <span class="n">item_b</span><span class="p">:</span> <span class="n">DatasetItem</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">PointCloud</span><span class="p">:</span>
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">_merge_point_clouds</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">item_a</span><span class="p">:</span> <span class="n">DatasetItem</span><span class="p">,</span> <span class="n">item_b</span><span class="p">:</span> <span class="n">DatasetItem</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">PointCloud</span><span class="p">:</span>
         <span class="n">media</span> <span class="o">=</span> <span class="kc">None</span>
 
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">item_a</span><span class="o">.</span><span class="n">media</span><span class="p">,</span> <span class="n">PointCloud</span><span class="p">)</span> <span class="ow">and</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">item_b</span><span class="o">.</span><span class="n">media</span><span class="p">,</span> <span class="n">PointCloud</span><span class="p">):</span>
@@ -532,7 +540,8 @@
 
         <span class="k">return</span> <span class="n">media</span>
 
-    <span class="k">def</span> <span class="nf">_merge_videos</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">item_a</span><span class="p">:</span> <span class="n">DatasetItem</span><span class="p">,</span> <span class="n">item_b</span><span class="p">:</span> <span class="n">DatasetItem</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Video</span><span class="p">:</span>
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">_merge_videos</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">item_a</span><span class="p">:</span> <span class="n">DatasetItem</span><span class="p">,</span> <span class="n">item_b</span><span class="p">:</span> <span class="n">DatasetItem</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Video</span><span class="p">:</span>
         <span class="n">media</span> <span class="o">=</span> <span class="kc">None</span>
 
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">item_a</span><span class="o">.</span><span class="n">media</span><span class="p">,</span> <span class="n">Video</span><span class="p">)</span> <span class="ow">and</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">item_b</span><span class="o">.</span><span class="n">media</span><span class="p">,</span> <span class="n">Video</span><span class="p">):</span>
@@ -552,7 +561,8 @@
 
         <span class="k">return</span> <span class="n">media</span>
 
-    <span class="k">def</span> <span class="nf">_merge_multiframe_images</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">item_a</span><span class="p">:</span> <span class="n">DatasetItem</span><span class="p">,</span> <span class="n">item_b</span><span class="p">:</span> <span class="n">DatasetItem</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">MultiframeImage</span><span class="p">:</span>
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">_merge_multiframe_images</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">item_a</span><span class="p">:</span> <span class="n">DatasetItem</span><span class="p">,</span> <span class="n">item_b</span><span class="p">:</span> <span class="n">DatasetItem</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">MultiframeImage</span><span class="p">:</span>
         <span class="n">media</span> <span class="o">=</span> <span class="kc">None</span>
 
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">item_a</span><span class="o">.</span><span class="n">media</span><span class="p">,</span> <span class="n">MultiframeImage</span><span class="p">)</span> <span class="ow">and</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">item_b</span><span class="o">.</span><span class="n">media</span><span class="p">,</span> <span class="n">MultiframeImage</span><span class="p">):</span>
@@ -583,8 +593,9 @@
 
         <span class="k">return</span> <span class="n">media</span>
 
-    <span class="k">def</span> <span class="nf">_merge_anno</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">a</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="n">Annotation</span><span class="p">],</span> <span class="n">b</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="n">Annotation</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">Annotation</span><span class="p">]:</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_merge_annotations_equal</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">)</span></div>
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">_merge_anno</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">a</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="n">Annotation</span><span class="p">],</span> <span class="n">b</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="n">Annotation</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">Annotation</span><span class="p">]:</span>
+        <span class="k">return</span> <span class="bp">cls</span><span class="o">.</span><span class="n">_merge_annotations_equal</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">)</span></div>
 </pre></div>
 
             </article>

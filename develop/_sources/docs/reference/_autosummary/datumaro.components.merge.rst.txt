@@ -35,6 +35,7 @@ datumaro.components.merge
 
    datumaro.components.merge.base
    datumaro.components.merge.exact_merge
+   datumaro.components.merge.extractor_merger
    datumaro.components.merge.intersect_merge
    datumaro.components.merge.union_merge
 

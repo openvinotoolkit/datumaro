@@ -5,7 +5,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>datumaro.plugins.data_formats.voc.exporter &#8212; Datumaro 1.4.0rc2 documentation</title>
+    <title>datumaro.plugins.data_formats.voc.exporter &#8212; Datumaro 1.4.1 documentation</title>
   
   
   
@@ -1072,7 +1072,11 @@
 
                 <span class="n">path</span> <span class="o">=</span> <span class="n">osp</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">save_dir</span><span class="p">,</span> <span class="n">VocPath</span><span class="o">.</span><span class="n">INSTANCES_DIR</span><span class="p">,</span> <span class="n">item</span><span class="o">.</span><span class="n">id</span> <span class="o">+</span> <span class="n">VocPath</span><span class="o">.</span><span class="n">SEGM_EXT</span><span class="p">)</span>
                 <span class="k">if</span> <span class="n">osp</span><span class="o">.</span><span class="n">isfile</span><span class="p">(</span><span class="n">path</span><span class="p">):</span>
-                    <span class="n">os</span><span class="o">.</span><span class="n">unlink</span><span class="p">(</span><span class="n">path</span><span class="p">)</span></div></div>
+                    <span class="n">os</span><span class="o">.</span><span class="n">unlink</span><span class="p">(</span><span class="n">path</span><span class="p">)</span></div>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">can_stream</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">True</span></div>
 
 
 <div class="viewcode-block" id="VocClassificationExporter"><a class="viewcode-back" href="../../../../../docs/reference/_autosummary/datumaro.plugins.data_formats.voc.exporter.html#datumaro.plugins.data_formats.voc.exporter.VocClassificationExporter">[docs]</a><span class="k">class</span> <span class="nc">VocClassificationExporter</span><span class="p">(</span><span class="n">VocExporter</span><span class="p">):</span>

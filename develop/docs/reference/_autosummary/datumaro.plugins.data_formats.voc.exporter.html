@@ -6,7 +6,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
 
-    <title>datumaro.plugins.data_formats.voc.exporter &#8212; Datumaro 1.4.0rc2 documentation</title>
+    <title>datumaro.plugins.data_formats.voc.exporter &#8212; Datumaro 1.4.1 documentation</title>
   
   
   
@@ -445,6 +445,7 @@
 <li class="toctree-l4"><a class="reference internal" href="datumaro.components.comparator.html">datumaro.components.comparator</a></li>
 <li class="toctree-l4"><a class="reference internal" href="datumaro.components.config.html">datumaro.components.config</a></li>
 <li class="toctree-l4"><a class="reference internal" href="datumaro.components.config_model.html">datumaro.components.config_model</a></li>
+<li class="toctree-l4"><a class="reference internal" href="datumaro.components.contexts.html">datumaro.components.contexts</a></li>
 <li class="toctree-l4"><a class="reference internal" href="datumaro.components.crypter.html">datumaro.components.crypter</a></li>
 <li class="toctree-l4"><a class="reference internal" href="datumaro.components.dataset.html">datumaro.components.dataset</a></li>
 <li class="toctree-l4"><a class="reference internal" href="datumaro.components.dataset_base.html">datumaro.components.dataset_base</a></li>
@@ -723,6 +724,12 @@
 <dt class="sig sig-object py" id="datumaro.plugins.data_formats.voc.exporter.VocExporter.patch">
 <em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">patch</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dataset</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">patch</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">save_dir</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/datumaro/plugins/data_formats/voc/exporter.html#VocExporter.patch"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.plugins.data_formats.voc.exporter.VocExporter.patch" title="Permalink to this definition">#</a></dt>
 <dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="datumaro.plugins.data_formats.voc.exporter.VocExporter.can_stream">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">can_stream</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.11)"><span class="pre">bool</span></a></em><a class="headerlink" href="#datumaro.plugins.data_formats.voc.exporter.VocExporter.can_stream" title="Permalink to this definition">#</a></dt>
+<dd><p>Flag to indicate whether the exporter can export the dataset in a stream manner or not.</p>
+</dd></dl>
 
 </dd></dl>
 
@@ -1016,6 +1023,15 @@
      <code class="docutils literal notranslate">
       <span class="pre">
        VocExporter.patch()
+      </span>
+     </code>
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#datumaro.plugins.data_formats.voc.exporter.VocExporter.can_stream">
+     <code class="docutils literal notranslate">
+      <span class="pre">
+       VocExporter.can_stream
       </span>
      </code>
     </a>

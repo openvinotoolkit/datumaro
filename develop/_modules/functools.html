@@ -5,7 +5,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>functools &#8212; Datumaro 1.4.0rc2 documentation</title>
+    <title>functools &#8212; Datumaro 1.4.1 documentation</title>
   
   
   
@@ -341,7 +341,7 @@
     <span class="c1"># Return the wrapper so this can be used as a decorator via partial()</span>
     <span class="k">return</span> <span class="n">wrapper</span>
 
-<span class="k">def</span> <span class="nf">wraps</span><span class="p">(</span><span class="n">wrapped</span><span class="p">,</span>
+<div class="viewcode-block" id="wraps"><a class="viewcode-back" href="../docs/reference/_autosummary/datumaro.components.importer.html#datumaro.components.importer.wraps">[docs]</a><span class="k">def</span> <span class="nf">wraps</span><span class="p">(</span><span class="n">wrapped</span><span class="p">,</span>
           <span class="n">assigned</span> <span class="o">=</span> <span class="n">WRAPPER_ASSIGNMENTS</span><span class="p">,</span>
           <span class="n">updated</span> <span class="o">=</span> <span class="n">WRAPPER_UPDATES</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Decorator factory to apply update_wrapper() to a wrapper function</span>
@@ -353,7 +353,7 @@
 <span class="sd">       update_wrapper().</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">return</span> <span class="n">partial</span><span class="p">(</span><span class="n">update_wrapper</span><span class="p">,</span> <span class="n">wrapped</span><span class="o">=</span><span class="n">wrapped</span><span class="p">,</span>
-                   <span class="n">assigned</span><span class="o">=</span><span class="n">assigned</span><span class="p">,</span> <span class="n">updated</span><span class="o">=</span><span class="n">updated</span><span class="p">)</span>
+                   <span class="n">assigned</span><span class="o">=</span><span class="n">assigned</span><span class="p">,</span> <span class="n">updated</span><span class="o">=</span><span class="n">updated</span><span class="p">)</span></div>
 
 
 <span class="c1">################################################################################</span>
@@ -552,7 +552,7 @@
 <span class="c1">################################################################################</span>
 
 <span class="c1"># Purely functional, no descriptor behaviour</span>
-<div class="viewcode-block" id="partial"><a class="viewcode-back" href="../docs/reference/_autosummary/datumaro.plugins.data_formats.arrow.mapper.html#datumaro.plugins.data_formats.arrow.mapper.partial">[docs]</a><span class="k">class</span> <span class="nc">partial</span><span class="p">:</span>
+<div class="viewcode-block" id="partial"><a class="viewcode-back" href="../docs/reference/_autosummary/datumaro.plugins.data_formats.arrow.mapper.html#datumaro.components.importer.partial">[docs]</a><span class="k">class</span> <span class="nc">partial</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;New function with partial application of the given arguments</span>
 <span class="sd">    and keywords.</span>
 <span class="sd">    &quot;&quot;&quot;</span>

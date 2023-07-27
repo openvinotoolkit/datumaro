@@ -6,7 +6,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
 
-    <title>datumaro.plugins.data_formats.coco.page_mapper &#8212; Datumaro 1.4.0rc2 documentation</title>
+    <title>datumaro.plugins.data_formats.coco.page_mapper &#8212; Datumaro 1.4.1 documentation</title>
   
   
   
@@ -445,6 +445,7 @@
 <li class="toctree-l4"><a class="reference internal" href="datumaro.components.comparator.html">datumaro.components.comparator</a></li>
 <li class="toctree-l4"><a class="reference internal" href="datumaro.components.config.html">datumaro.components.config</a></li>
 <li class="toctree-l4"><a class="reference internal" href="datumaro.components.config_model.html">datumaro.components.config_model</a></li>
+<li class="toctree-l4"><a class="reference internal" href="datumaro.components.contexts.html">datumaro.components.contexts</a></li>
 <li class="toctree-l4"><a class="reference internal" href="datumaro.components.crypter.html">datumaro.components.crypter</a></li>
 <li class="toctree-l4"><a class="reference internal" href="datumaro.components.dataset.html">datumaro.components.dataset</a></li>
 <li class="toctree-l4"><a class="reference internal" href="datumaro.components.dataset_base.html">datumaro.components.dataset_base</a></li>
@@ -614,8 +615,29 @@ in stream manner after constructing the page map.</p>
 <dd></dd></dl>
 
 <dl class="py method">
+<dt class="sig sig-object py" id="datumaro.plugins.data_formats.coco.page_mapper.COCOPageMapper.stream_parse_categories_data">
+<span class="sig-name descname"><span class="pre">stream_parse_categories_data</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Dict" title="(in Python v3.11)"><span class="pre">Dict</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.11)"><span class="pre">Any</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../../_modules/datumaro/plugins/data_formats/coco/page_mapper.html#COCOPageMapper.stream_parse_categories_data"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.plugins.data_formats.coco.page_mapper.COCOPageMapper.stream_parse_categories_data" title="Permalink to this definition">#</a></dt>
+<dd><p>Parse “categories” section from the given JSON file using the stream json parser</p>
+</dd></dl>
+
+<dl class="py method">
 <dt class="sig sig-object py" id="datumaro.plugins.data_formats.coco.page_mapper.COCOPageMapper.update">
 <em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">update</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">braket</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">brace</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">c</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cursor</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/datumaro/plugins/data_formats/coco/page_mapper.html#COCOPageMapper.update"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.plugins.data_formats.coco.page_mapper.COCOPageMapper.update" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="datumaro.plugins.data_formats.coco.page_mapper.COCOPageMapper.get_item_dict">
+<span class="sig-name descname"><span class="pre">get_item_dict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">item_key</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.11)"><span class="pre">int</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Optional" title="(in Python v3.11)"><span class="pre">Optional</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Dict" title="(in Python v3.11)"><span class="pre">Dict</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../../_modules/datumaro/plugins/data_formats/coco/page_mapper.html#COCOPageMapper.get_item_dict"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.plugins.data_formats.coco.page_mapper.COCOPageMapper.get_item_dict" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="datumaro.plugins.data_formats.coco.page_mapper.COCOPageMapper.get_anns_dict">
+<span class="sig-name descname"><span class="pre">get_anns_dict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">item_key</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.11)"><span class="pre">int</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Optional" title="(in Python v3.11)"><span class="pre">Optional</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.List" title="(in Python v3.11)"><span class="pre">List</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Dict" title="(in Python v3.11)"><span class="pre">Dict</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../../_modules/datumaro/plugins/data_formats/coco/page_mapper.html#COCOPageMapper.get_anns_dict"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.plugins.data_formats.coco.page_mapper.COCOPageMapper.get_anns_dict" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="datumaro.plugins.data_formats.coco.page_mapper.COCOPageMapper.iter_item_ids">
+<span class="sig-name descname"><span class="pre">iter_item_ids</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Iterator" title="(in Python v3.11)"><span class="pre">Iterator</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.11)"><span class="pre">int</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../../_modules/datumaro/plugins/data_formats/coco/page_mapper.html#COCOPageMapper.iter_item_ids"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.plugins.data_formats.coco.page_mapper.COCOPageMapper.iter_item_ids" title="Permalink to this definition">#</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
@@ -741,6 +763,23 @@ item_n,</p>
 <span class="sig-name descname"><span class="pre">ANNOTATIONS</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">b'&quot;annotations&quot;'</span></em><a class="headerlink" href="#datumaro.plugins.data_formats.coco.page_mapper.COCOSection.ANNOTATIONS" title="Permalink to this definition">#</a></dt>
 <dd></dd></dl>
 
+<dl class="py attribute">
+<dt class="sig sig-object py" id="datumaro.plugins.data_formats.coco.page_mapper.COCOSection.CATEGORIES">
+<span class="sig-name descname"><span class="pre">CATEGORIES</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">b'&quot;categories&quot;'</span></em><a class="headerlink" href="#datumaro.plugins.data_formats.coco.page_mapper.COCOSection.CATEGORIES" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="datumaro.plugins.data_formats.coco.page_mapper.COCOSection.is_necessary">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">is_necessary</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.11)"><span class="pre">bool</span></a></em><a class="headerlink" href="#datumaro.plugins.data_formats.coco.page_mapper.COCOSection.is_necessary" title="Permalink to this definition">#</a></dt>
+<dd><p>Flat to indicate whether the section is necessary or not</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py exception">
+<dt class="sig sig-object py" id="datumaro.plugins.data_formats.coco.page_mapper.DatasetImportError">
+<em class="property"><span class="pre">exception</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">datumaro.plugins.data_formats.coco.page_mapper.</span></span><span class="sig-name descname"><span class="pre">DatasetImportError</span></span><a class="reference internal" href="../../../_modules/datumaro/components/errors.html#DatasetImportError"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.plugins.data_formats.coco.page_mapper.DatasetImportError" title="Permalink to this definition">#</a></dt>
+<dd><p>Bases: <a class="reference internal" href="datumaro.components.errors.html#datumaro.components.errors.DatumaroError" title="datumaro.components.errors.DatumaroError"><code class="xref py py-class docutils literal notranslate"><span class="pre">DatumaroError</span></code></a></p>
 </dd></dl>
 
 <dl class="py class">
@@ -843,6 +882,11 @@ __init__().</p>
 <span class="sig-prename descclassname"><span class="pre">datumaro.plugins.data_formats.coco.page_mapper.</span></span><span class="sig-name descname"><span class="pre">parse_json</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Union" title="(in Python v3.11)"><span class="pre">Union</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#bytes" title="(in Python v3.11)"><span class="pre">bytes</span></a><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/datumaro/util.html#parse_json"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.plugins.data_formats.coco.page_mapper.parse_json" title="Permalink to this definition">#</a></dt>
 <dd></dd></dl>
 
+<dl class="py function">
+<dt class="sig sig-object py" id="datumaro.plugins.data_formats.coco.page_mapper.to_dict_from_streaming_json">
+<span class="sig-prename descclassname"><span class="pre">datumaro.plugins.data_formats.coco.page_mapper.</span></span><span class="sig-name descname"><span class="pre">to_dict_from_streaming_json</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">obj</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.11)"><span class="pre">Any</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Dict" title="(in Python v3.11)"><span class="pre">Dict</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.11)"><span class="pre">Any</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../../_modules/datumaro/util.html#to_dict_from_streaming_json"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.plugins.data_formats.coco.page_mapper.to_dict_from_streaming_json" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
 </section>
 
 
@@ -902,10 +946,46 @@ __init__().</p>
     </a>
    </li>
    <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#datumaro.plugins.data_formats.coco.page_mapper.COCOPageMapper.stream_parse_categories_data">
+     <code class="docutils literal notranslate">
+      <span class="pre">
+       COCOPageMapper.stream_parse_categories_data()
+      </span>
+     </code>
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
     <a class="reference internal nav-link" href="#datumaro.plugins.data_formats.coco.page_mapper.COCOPageMapper.update">
      <code class="docutils literal notranslate">
       <span class="pre">
        COCOPageMapper.update()
+      </span>
+     </code>
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#datumaro.plugins.data_formats.coco.page_mapper.COCOPageMapper.get_item_dict">
+     <code class="docutils literal notranslate">
+      <span class="pre">
+       COCOPageMapper.get_item_dict()
+      </span>
+     </code>
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#datumaro.plugins.data_formats.coco.page_mapper.COCOPageMapper.get_anns_dict">
+     <code class="docutils literal notranslate">
+      <span class="pre">
+       COCOPageMapper.get_anns_dict()
+      </span>
+     </code>
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#datumaro.plugins.data_formats.coco.page_mapper.COCOPageMapper.iter_item_ids">
+     <code class="docutils literal notranslate">
+      <span class="pre">
+       COCOPageMapper.iter_item_ids()
       </span>
      </code>
     </a>
@@ -1089,7 +1169,34 @@ __init__().</p>
      </code>
     </a>
    </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#datumaro.plugins.data_formats.coco.page_mapper.COCOSection.CATEGORIES">
+     <code class="docutils literal notranslate">
+      <span class="pre">
+       COCOSection.CATEGORIES
+      </span>
+     </code>
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#datumaro.plugins.data_formats.coco.page_mapper.COCOSection.is_necessary">
+     <code class="docutils literal notranslate">
+      <span class="pre">
+       COCOSection.is_necessary
+      </span>
+     </code>
+    </a>
+   </li>
   </ul>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#datumaro.plugins.data_formats.coco.page_mapper.DatasetImportError">
+   <code class="docutils literal notranslate">
+    <span class="pre">
+     DatasetImportError
+    </span>
+   </code>
+  </a>
  </li>
  <li class="toc-h2 nav-item toc-entry">
   <a class="reference internal nav-link" href="#datumaro.plugins.data_formats.coco.page_mapper.Enum">
@@ -1219,6 +1326,15 @@ __init__().</p>
    <code class="docutils literal notranslate">
     <span class="pre">
      parse_json()
+    </span>
+   </code>
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#datumaro.plugins.data_formats.coco.page_mapper.to_dict_from_streaming_json">
+   <code class="docutils literal notranslate">
+    <span class="pre">
+     to_dict_from_streaming_json()
     </span>
    </code>
   </a>

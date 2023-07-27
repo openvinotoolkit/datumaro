@@ -5,7 +5,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>datumaro.cli.commands.explore &#8212; Datumaro 1.4.0rc2 documentation</title>
+    <title>datumaro.cli.commands.explore &#8212; Datumaro 1.4.1 documentation</title>
   
   
   
@@ -286,9 +286,16 @@
 <span class="kn">import</span> <span class="nn">os</span>
 <span class="kn">import</span> <span class="nn">os.path</span> <span class="k">as</span> <span class="nn">osp</span>
 <span class="kn">import</span> <span class="nn">shutil</span>
+<span class="kn">import</span> <span class="nn">uuid</span>
 
 <span class="kn">from</span> <span class="nn">datumaro.components.algorithms.hash_key_inference.explorer</span> <span class="kn">import</span> <span class="n">Explorer</span>
+<span class="kn">from</span> <span class="nn">datumaro.components.algorithms.hash_key_inference.hashkey_util</span> <span class="kn">import</span> <span class="p">(</span>
+    <span class="n">check_and_convert_to_list</span><span class="p">,</span>
+    <span class="n">match_query_subset</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span> <span class="nn">datumaro.components.dataset_base</span> <span class="kn">import</span> <span class="n">DatasetItem</span>
 <span class="kn">from</span> <span class="nn">datumaro.components.errors</span> <span class="kn">import</span> <span class="n">ProjectNotFoundError</span>
+<span class="kn">from</span> <span class="nn">datumaro.components.media</span> <span class="kn">import</span> <span class="n">Image</span>
 <span class="kn">from</span> <span class="nn">datumaro.util</span> <span class="kn">import</span> <span class="n">str_to_bool</span>
 <span class="kn">from</span> <span class="nn">datumaro.util.scope</span> <span class="kn">import</span> <span class="n">scope_add</span><span class="p">,</span> <span class="n">scoped</span>
 
@@ -309,24 +316,42 @@
 <span class="s2">        |n</span>
 <span class="s2">        Examples:|n</span>
 <span class="s2">        - Explore top50 similar images of image query in COCO dataset:|n</span>
-<span class="s2">        |s|s</span><span class="si">%(prog)s</span><span class="s2"> -q path/to/image.jpg -topk 50|n</span>
+<span class="s2">        |s|s</span><span class="si">%(prog)s</span><span class="s2"> --query-img-path path/to/image.jpg -topk 50|n</span>
 <span class="s2">        - Explore top50 similar images of text query, elephant, in COCO dataset:|n</span>
-<span class="s2">        |s|s</span><span class="si">%(prog)s</span><span class="s2"> -q elephant -topk 50|n</span>
+<span class="s2">        |s|s</span><span class="si">%(prog)s</span><span class="s2"> --query-str elephant -topk 50|n</span>
 <span class="s2">        - Explore top50 similar images of image query list in COCO dataset:|n</span>
-<span class="s2">        |s|s</span><span class="si">%(prog)s</span><span class="s2"> -q path/to/image1.jpg/ path/to/image2.jpg/ path/to/image3.jpg/ -topk 50|n</span>
+<span class="s2">        |s|s</span><span class="si">%(prog)s</span><span class="s2"> --query-img-path path/to/image1.jpg/ path/to/image2.jpg/ path/to/image3.jpg/ -topk 50|n</span>
 <span class="s2">        - Explore top50 similar images of text query list in COCO dataset:|n</span>
-<span class="s2">        |s|s</span><span class="si">%(prog)s</span><span class="s2"> -q motorcycle/ bus/ train/ -topk 50</span>
+<span class="s2">        |s|s</span><span class="si">%(prog)s</span><span class="s2"> --query-str motorcycle/ bus/ train/ -topk 50</span>
 <span class="s2">        &quot;&quot;&quot;</span><span class="p">,</span>
         <span class="n">formatter_class</span><span class="o">=</span><span class="n">MultilineFormatter</span><span class="p">,</span>
     <span class="p">)</span>
 
     <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;target&quot;</span><span class="p">,</span> <span class="n">nargs</span><span class="o">=</span><span class="s2">&quot;?&quot;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Target dataset&quot;</span><span class="p">)</span>
-    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
-        <span class="s2">&quot;-q&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;--query&quot;</span><span class="p">,</span>
-        <span class="n">dest</span><span class="o">=</span><span class="s2">&quot;query&quot;</span><span class="p">,</span>
-        <span class="n">required</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Image path or id of query to explore similar data&quot;</span><span class="p">,</span>
+    <span class="n">query_parser</span> <span class="o">=</span> <span class="n">parser</span><span class="o">.</span><span class="n">add_mutually_exclusive_group</span><span class="p">(</span><span class="n">required</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">query_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">&quot;--query-img-path&quot;</span><span class="p">,</span>
+        <span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Image path of query to explore similar data&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">query_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">&quot;--query-item-id&quot;</span><span class="p">,</span>
+        <span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Datasetitem id of query to explore similar data&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">query_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">&quot;--query-item-subset&quot;</span><span class="p">,</span>
+        <span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Datasetitem subset of query to explore similar data&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">query_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">&quot;--query-str&quot;</span><span class="p">,</span>
+        <span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Text to explore similar data&quot;</span><span class="p">,</span>
     <span class="p">)</span>
     <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;-topk&quot;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">int</span><span class="p">,</span> <span class="n">dest</span><span class="o">=</span><span class="s2">&quot;topk&quot;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Number of similar results&quot;</span><span class="p">)</span>
     <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
@@ -364,7 +389,6 @@
     <span class="k">return</span> <span class="p">{</span>
         <span class="n">explore_command</span><span class="p">:</span> <span class="p">[</span>
             <span class="s2">&quot;target&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;query&quot;</span><span class="p">,</span>
             <span class="s2">&quot;topk&quot;</span><span class="p">,</span>
             <span class="s2">&quot;project_dir&quot;</span><span class="p">,</span>
         <span class="p">]</span>
@@ -404,20 +428,27 @@
         <span class="n">project</span><span class="o">.</span><span class="n">working_tree</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">build_tree</span><span class="o">.</span><span class="n">config</span><span class="p">)</span>
         <span class="n">project</span><span class="o">.</span><span class="n">working_tree</span><span class="o">.</span><span class="n">save</span><span class="p">()</span>
 
-    <span class="c1"># Get query datasetitem through query path</span>
-    <span class="k">if</span> <span class="n">osp</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">query</span><span class="p">):</span>
-        <span class="n">query_datasetitem</span> <span class="o">=</span> <span class="kc">None</span>
-        <span class="k">for</span> <span class="n">dataset</span> <span class="ow">in</span> <span class="n">source_datasets</span><span class="p">:</span>
-            <span class="k">try</span><span class="p">:</span>
-                <span class="n">query_datasetitem</span> <span class="o">=</span> <span class="n">dataset</span><span class="o">.</span><span class="n">get_datasetitem_by_path</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">query</span><span class="p">)</span>
-            <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
-                <span class="k">continue</span>
-            <span class="k">if</span> <span class="ow">not</span> <span class="n">query_datasetitem</span><span class="p">:</span>
-                <span class="k">break</span>
-    <span class="k">else</span><span class="p">:</span>
-        <span class="n">query_datasetitem</span> <span class="o">=</span> <span class="n">args</span><span class="o">.</span><span class="n">query</span>
+    <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">query_img_path</span><span class="p">:</span>
+        <span class="n">querys</span> <span class="o">=</span> <span class="n">check_and_convert_to_list</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">query_img_path</span><span class="p">)</span>
+        <span class="n">query_datasetitems</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">query_</span> <span class="ow">in</span> <span class="n">querys</span><span class="p">:</span>
+            <span class="n">query_datasetitem</span> <span class="o">=</span> <span class="n">DatasetItem</span><span class="p">(</span><span class="nb">id</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="n">uuid</span><span class="o">.</span><span class="n">uuid4</span><span class="p">()),</span> <span class="n">media</span><span class="o">=</span><span class="n">Image</span><span class="o">.</span><span class="n">from_file</span><span class="p">(</span><span class="n">query_</span><span class="p">))</span>
+            <span class="n">query_datasetitems</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">query_datasetitem</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="n">args</span><span class="o">.</span><span class="n">query_item_id</span><span class="p">:</span>
+        <span class="n">querys</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="p">[</span><span class="n">args</span><span class="o">.</span><span class="n">query_item_id</span><span class="p">]</span> <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">query_item_id</span><span class="p">,</span> <span class="nb">list</span><span class="p">)</span> <span class="k">else</span> <span class="n">args</span><span class="o">.</span><span class="n">query_item_id</span>
+        <span class="p">)</span>
+        <span class="n">query_datasetitems</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">query</span> <span class="ow">in</span> <span class="n">querys</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">dataset</span> <span class="ow">in</span> <span class="n">source_datasets</span><span class="p">:</span>
+                <span class="n">query_datasetitem</span> <span class="o">=</span> <span class="n">match_query_subset</span><span class="p">(</span>
+                    <span class="n">query</span><span class="p">,</span> <span class="n">dataset</span><span class="p">,</span> <span class="n">subset</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">query_item_subset</span>
+                <span class="p">)</span>
+            <span class="n">query_datasetitems</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">query_datasetitem</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="n">args</span><span class="o">.</span><span class="n">query_str</span><span class="p">:</span>
+        <span class="n">query_datasetitems</span> <span class="o">=</span> <span class="n">args</span><span class="o">.</span><span class="n">query_str</span>
 
-    <span class="n">results</span> <span class="o">=</span> <span class="n">explorer</span><span class="o">.</span><span class="n">explore_topk</span><span class="p">(</span><span class="n">query_datasetitem</span><span class="p">,</span> <span class="n">args</span><span class="o">.</span><span class="n">topk</span><span class="p">)</span>
+    <span class="n">results</span> <span class="o">=</span> <span class="n">explorer</span><span class="o">.</span><span class="n">explore_topk</span><span class="p">(</span><span class="n">query_datasetitems</span><span class="p">,</span> <span class="n">args</span><span class="o">.</span><span class="n">topk</span><span class="p">)</span>
 
     <span class="n">result_path_list</span> <span class="o">=</span> <span class="p">[]</span>
     <span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Most similar </span><span class="si">{</span><span class="n">args</span><span class="o">.</span><span class="n">topk</span><span class="si">}</span><span class="s2"> results of query in dataset&quot;</span><span class="p">)</span>

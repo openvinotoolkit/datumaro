@@ -26,6 +26,7 @@ datumaro.plugins.data\_formats.coco.exporter
       CocoPersonKeypointsExporter
       CocoStuffExporter
       SegmentationMode
+      TemporaryWriters
    
    
 

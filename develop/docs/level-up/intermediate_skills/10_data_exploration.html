@@ -6,7 +6,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
 
-    <title>Level 10: Dataset Explorartion from a Query Image/Text &#8212; Datumaro 1.4.0rc2 documentation</title>
+    <title>Level 10: Dataset Explorartion from a Query Image/Text &#8212; Datumaro 1.4.1 documentation</title>
   
   
   
@@ -445,6 +445,7 @@
 <li class="toctree-l4"><a class="reference internal" href="../../reference/_autosummary/datumaro.components.comparator.html">datumaro.components.comparator</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../reference/_autosummary/datumaro.components.config.html">datumaro.components.config</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../reference/_autosummary/datumaro.components.config_model.html">datumaro.components.config_model</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../reference/_autosummary/datumaro.components.contexts.html">datumaro.components.contexts</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../reference/_autosummary/datumaro.components.crypter.html">datumaro.components.crypter</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../reference/_autosummary/datumaro.components.dataset.html">datumaro.components.dataset</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../reference/_autosummary/datumaro.components.dataset_base.html">datumaro.components.dataset_base</a></li>
@@ -606,13 +607,22 @@ Python</label><div class="sd-tab-content docutils">
 <input id="sd-tab-item-1" name="sd-tab-set-0" type="radio">
 </input><label class="sd-tab-label" for="sd-tab-item-1">
 CLI</label><div class="sd-tab-content docutils">
-<p>Without the project declaration, we can simply <code class="docutils literal notranslate"><span class="pre">explore</span></code> dataset by</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>datum<span class="w"> </span>explore<span class="w"> </span>&lt;target&gt;<span class="w"> </span>--query<span class="w"> </span>QUERY<span class="w"> </span>-topk<span class="w"> </span>TOPK_NUM
+<p>Without the project declaration, we can simply <code class="docutils literal notranslate"><span class="pre">explore</span></code> dataset like below.</p>
+<p>You can set the query using one of the following options: <code class="docutils literal notranslate"><span class="pre">QUERY_PATH</span></code>, <code class="docutils literal notranslate"><span class="pre">QUERY_ID</span></code>, or <code class="docutils literal notranslate"><span class="pre">QUERY_STR</span></code></p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>datum<span class="w"> </span>explore<span class="w"> </span>&lt;target&gt;<span class="w"> </span>--query-img-path<span class="w"> </span>QUERY_PATH<span class="w"> </span>-topk<span class="w"> </span>TOPK_NUM
 </pre></div>
 </div>
-<p><code class="docutils literal notranslate"><span class="pre">QUERY</span></code> could be image file path, text description, list of both of them</p>
+<p><code class="docutils literal notranslate"><span class="pre">QUERY_PATH</span></code> could be image file path or list of them</p>
 <p><code class="docutils literal notranslate"><span class="pre">TOPK_NUM</span></code> is an integer that you want to find the number of similar results for query</p>
-<p>Exploration result would be printed by log and result files would be copied into <code class="docutils literal notranslate"><span class="pre">explore_result</span></code> folder</p>
+<p>Exploration result would be printed by log and result files would be copied into <code class="docutils literal notranslate"><span class="pre">explore_result</span></code> folder.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>datum<span class="w"> </span>explore<span class="w"> </span>&lt;target&gt;<span class="w"> </span>--query-item-id<span class="w"> </span>QUERY_ID<span class="w"> </span>-topk<span class="w"> </span>TOPK_NUM
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">QUERY_ID</span></code> could be datasetitem id or list of them</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>datum<span class="w"> </span>explore<span class="w"> </span>&lt;target&gt;<span class="w"> </span>--query-str<span class="w"> </span>QUERY_STR<span class="w"> </span>-topk<span class="w"> </span>TOPK_NUM
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">QUERY_STR</span></code> could be text description or list of them</p>
 </div>
 <input id="sd-tab-item-2" name="sd-tab-set-0" type="radio">
 </input><label class="sd-tab-label" for="sd-tab-item-2">
@@ -625,13 +635,22 @@ ProjectCLI</label><div class="sd-tab-content docutils">
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>datum<span class="w"> </span>project<span class="w"> </span>import<span class="w"> </span>--project<span class="w"> </span>&lt;path/to/project&gt;<span class="w"> </span>&lt;path/to/data&gt;
 </pre></div>
 </div>
-<p>We can <code class="docutils literal notranslate"><span class="pre">explore</span></code> similar items for the query</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>datum<span class="w"> </span>explore<span class="w"> </span>--query<span class="w"> </span>QUERY<span class="w"> </span>-topk<span class="w"> </span>TOPK_NUM<span class="w"> </span>-p<span class="w"> </span>&lt;path/to/project&gt;
+<p>We can <code class="docutils literal notranslate"><span class="pre">explore</span></code> similar items for the query.</p>
+<p>You can set the query using one of the following options: <code class="docutils literal notranslate"><span class="pre">QUERY_PATH</span></code>, <code class="docutils literal notranslate"><span class="pre">QUERY_ID</span></code>, or <code class="docutils literal notranslate"><span class="pre">QUERY_STR</span></code></p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>datum<span class="w"> </span>explore<span class="w"> </span>--query-img-path<span class="w"> </span>QUERY_PATH<span class="w"> </span>-topk<span class="w"> </span>TOPK_NUM<span class="w"> </span>-p<span class="w"> </span>&lt;path/to/project&gt;
 </pre></div>
 </div>
-<p><code class="docutils literal notranslate"><span class="pre">QUERY</span></code> could be image file path, text description, list of both of them</p>
+<p><code class="docutils literal notranslate"><span class="pre">QUERY_PATH</span></code> could be image file path or list of them</p>
 <p><code class="docutils literal notranslate"><span class="pre">TOPK_NUM</span></code> is an integer that you want to find the number of similar results for query</p>
-<p>Exploration result would be printed by log and result files would be copied into <code class="docutils literal notranslate"><span class="pre">explore_result</span></code> folder</p>
+<p>Exploration result would be printed by log and result files would be copied into <code class="docutils literal notranslate"><span class="pre">explore_result</span></code> folder.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>datum<span class="w"> </span>explore<span class="w"> </span>&lt;target&gt;<span class="w"> </span>--query-item-id<span class="w"> </span>QUERY_ID<span class="w"> </span>-topk<span class="w"> </span>TOPK_NUM<span class="w"> </span>-p<span class="w"> </span>&lt;path/to/project&gt;
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">QUERY_ID</span></code> could be datasetitem id or list of them</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>datum<span class="w"> </span>explore<span class="w"> </span>&lt;target&gt;<span class="w"> </span>--query-str<span class="w"> </span>QUERY_STR<span class="w"> </span>-topk<span class="w"> </span>TOPK_NUM<span class="w"> </span>-p<span class="w"> </span>&lt;path/to/project&gt;
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">QUERY_STR</span></code> could be text description or list of them</p>
 </div>
 </div>
 </section>

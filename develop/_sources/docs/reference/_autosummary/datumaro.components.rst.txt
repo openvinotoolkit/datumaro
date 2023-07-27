@@ -35,6 +35,7 @@ datumaro.components
    datumaro.components.comparator
    datumaro.components.config
    datumaro.components.config_model
+   datumaro.components.contexts
    datumaro.components.crypter
    datumaro.components.dataset
    datumaro.components.dataset_base

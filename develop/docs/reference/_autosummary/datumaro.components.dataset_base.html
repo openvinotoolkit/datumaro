@@ -6,7 +6,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
 
-    <title>datumaro.components.dataset_base &#8212; Datumaro 1.4.0rc2 documentation</title>
+    <title>datumaro.components.dataset_base &#8212; Datumaro 1.4.1 documentation</title>
   
   
   
@@ -445,6 +445,7 @@
 <li class="toctree-l4"><a class="reference internal" href="datumaro.components.comparator.html">datumaro.components.comparator</a></li>
 <li class="toctree-l4"><a class="reference internal" href="datumaro.components.config.html">datumaro.components.config</a></li>
 <li class="toctree-l4"><a class="reference internal" href="datumaro.components.config_model.html">datumaro.components.config_model</a></li>
+<li class="toctree-l4"><a class="reference internal" href="datumaro.components.contexts.html">datumaro.components.contexts</a></li>
 <li class="toctree-l4"><a class="reference internal" href="datumaro.components.crypter.html">datumaro.components.crypter</a></li>
 <li class="toctree-l4"><a class="reference internal" href="datumaro.components.dataset.html">datumaro.components.dataset</a></li>
 <li class="toctree-l4 current active"><a class="current reference internal" href="#">datumaro.components.dataset_base</a></li>
@@ -583,13 +584,10 @@
 <tr class="row-even"><td><p><a class="reference internal" href="#datumaro.components.dataset_base.DatasetItem" title="datumaro.components.dataset_base.DatasetItem"><code class="xref py py-obj docutils literal notranslate"><span class="pre">DatasetItem</span></code></a>(id, *[, subset, media, ...])</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#datumaro.components.dataset_base.ExtractorMerger" title="datumaro.components.dataset_base.ExtractorMerger"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ExtractorMerger</span></code></a>(*sources)</p></td>
-<td><p>A simple class to merge single-subset extractors.</p></td>
-</tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#datumaro.components.dataset_base.IDataset" title="datumaro.components.dataset_base.IDataset"><code class="xref py py-obj docutils literal notranslate"><span class="pre">IDataset</span></code></a>()</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#datumaro.components.dataset_base.IDataset" title="datumaro.components.dataset_base.IDataset"><code class="xref py py-obj docutils literal notranslate"><span class="pre">IDataset</span></code></a>()</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#datumaro.components.dataset_base.SubsetBase" title="datumaro.components.dataset_base.SubsetBase"><code class="xref py py-obj docutils literal notranslate"><span class="pre">SubsetBase</span></code></a>(*, length, subset, media_type, ctx)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#datumaro.components.dataset_base.SubsetBase" title="datumaro.components.dataset_base.SubsetBase"><code class="xref py py-obj docutils literal notranslate"><span class="pre">SubsetBase</span></code></a>(*, length, subset, media_type, ctx)</p></td>
 <td><p>A base class for simple, single-subset extractors.</p></td>
 </tr>
 </tbody>
@@ -713,7 +711,7 @@ object construction (i.e. doesn’t require dataset iteration).</p>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="datumaro.components.dataset_base.DatasetBase">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">datumaro.components.dataset_base.</span></span><span class="sig-name descname"><span class="pre">DatasetBase</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">length:</span> <span class="pre">~typing.Optional[int]</span> <span class="pre">=</span> <span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">subsets:</span> <span class="pre">~typing.Optional[~typing.Sequence[str]]</span> <span class="pre">=</span> <span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">media_type:</span> <span class="pre">~typing.Type[~datumaro.components.media.MediaElement]</span> <span class="pre">=</span> <span class="pre">&lt;class</span> <span class="pre">'datumaro.components.media.Image'&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ctx:</span> <span class="pre">~typing.Optional[~datumaro.components.importer.ImportContext]</span> <span class="pre">=</span> <span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/datumaro/components/dataset_base.html#DatasetBase"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.components.dataset_base.DatasetBase" title="Permalink to this definition">#</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">datumaro.components.dataset_base.</span></span><span class="sig-name descname"><span class="pre">DatasetBase</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">length:</span> <span class="pre">~typing.Optional[int]</span> <span class="pre">=</span> <span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">subsets:</span> <span class="pre">~typing.Optional[~typing.Sequence[str]]</span> <span class="pre">=</span> <span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">media_type:</span> <span class="pre">~typing.Type[~datumaro.components.media.MediaElement]</span> <span class="pre">=</span> <span class="pre">&lt;class</span> <span class="pre">'datumaro.components.media.Image'&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ctx:</span> <span class="pre">~typing.Optional[~datumaro.components.contexts.importer.ImportContext]</span> <span class="pre">=</span> <span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/datumaro/components/dataset_base.html#DatasetBase"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.components.dataset_base.DatasetBase" title="Permalink to this definition">#</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">_DatasetBase</span></code>, <a class="reference internal" href="datumaro.components.cli_plugin.html#datumaro.components.cli_plugin.CliPlugin" title="datumaro.components.cli_plugin.CliPlugin"><code class="xref py py-class docutils literal notranslate"><span class="pre">CliPlugin</span></code></a></p>
 <p>A base class for user-defined and built-in extractors.
 Should be used in cases, where SubsetBase is not enough,
@@ -731,7 +729,7 @@ object construction (i.e. doesn’t require dataset iteration).</p>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="datumaro.components.dataset_base.SubsetBase">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">datumaro.components.dataset_base.</span></span><span class="sig-name descname"><span class="pre">SubsetBase</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">length:</span> <span class="pre">~typing.Optional[int]</span> <span class="pre">=</span> <span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">subset:</span> <span class="pre">~typing.Optional[str]</span> <span class="pre">=</span> <span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">media_type:</span> <span class="pre">~typing.Type[~datumaro.components.media.MediaElement]</span> <span class="pre">=</span> <span class="pre">&lt;class</span> <span class="pre">'datumaro.components.media.Image'&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ctx:</span> <span class="pre">~typing.Optional[~datumaro.components.importer.ImportContext]</span> <span class="pre">=</span> <span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/datumaro/components/dataset_base.html#SubsetBase"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.components.dataset_base.SubsetBase" title="Permalink to this definition">#</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">datumaro.components.dataset_base.</span></span><span class="sig-name descname"><span class="pre">SubsetBase</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">length:</span> <span class="pre">~typing.Optional[int]</span> <span class="pre">=</span> <span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">subset:</span> <span class="pre">~typing.Optional[str]</span> <span class="pre">=</span> <span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">media_type:</span> <span class="pre">~typing.Type[~datumaro.components.media.MediaElement]</span> <span class="pre">=</span> <span class="pre">&lt;class</span> <span class="pre">'datumaro.components.media.Image'&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ctx:</span> <span class="pre">~typing.Optional[~datumaro.components.contexts.importer.ImportContext]</span> <span class="pre">=</span> <span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/datumaro/components/dataset_base.html#SubsetBase"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.components.dataset_base.SubsetBase" title="Permalink to this definition">#</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#datumaro.components.dataset_base.DatasetBase" title="datumaro.components.dataset_base.DatasetBase"><code class="xref py py-class docutils literal notranslate"><span class="pre">DatasetBase</span></code></a></p>
 <p>A base class for simple, single-subset extractors.
 Should be used by default for user-defined extractors.</p>
@@ -757,38 +755,6 @@ Should be used by default for user-defined extractors.</p>
 <dt class="sig sig-object py" id="datumaro.components.dataset_base.SubsetBase.subset">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">subset</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a></em><a class="headerlink" href="#datumaro.components.dataset_base.SubsetBase.subset" title="Permalink to this definition">#</a></dt>
 <dd><p>Subset name of this instance.</p>
-</dd></dl>
-
-</dd></dl>
-
-<dl class="py class">
-<dt class="sig sig-object py" id="datumaro.components.dataset_base.ExtractorMerger">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">datumaro.components.dataset_base.</span></span><span class="sig-name descname"><span class="pre">ExtractorMerger</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">sources</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Sequence" title="(in Python v3.11)"><span class="pre">Sequence</span></a><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#datumaro.components.dataset_base.SubsetBase" title="datumaro.components.dataset_base.SubsetBase"><span class="pre">SubsetBase</span></a><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/datumaro/components/dataset_base.html#ExtractorMerger"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.components.dataset_base.ExtractorMerger" title="Permalink to this definition">#</a></dt>
-<dd><p>Bases: <a class="reference internal" href="#datumaro.components.dataset_base.DatasetBase" title="datumaro.components.dataset_base.DatasetBase"><code class="xref py py-class docutils literal notranslate"><span class="pre">DatasetBase</span></code></a></p>
-<p>A simple class to merge single-subset extractors.</p>
-<dl class="py method">
-<dt class="sig sig-object py" id="datumaro.components.dataset_base.ExtractorMerger.infos">
-<span class="sig-name descname"><span class="pre">infos</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/datumaro/components/dataset_base.html#ExtractorMerger.infos"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.components.dataset_base.ExtractorMerger.infos" title="Permalink to this definition">#</a></dt>
-<dd><p>Returns meta-info of dataset.</p>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="datumaro.components.dataset_base.ExtractorMerger.categories">
-<span class="sig-name descname"><span class="pre">categories</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/datumaro/components/dataset_base.html#ExtractorMerger.categories"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.components.dataset_base.ExtractorMerger.categories" title="Permalink to this definition">#</a></dt>
-<dd><p>Returns metainfo about dataset labels.</p>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="datumaro.components.dataset_base.ExtractorMerger.get">
-<span class="sig-name descname"><span class="pre">get</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">subset</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Optional" title="(in Python v3.11)"><span class="pre">Optional</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/datumaro/components/dataset_base.html#ExtractorMerger.get"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.components.dataset_base.ExtractorMerger.get" title="Permalink to this definition">#</a></dt>
-<dd><p>Provides random access to dataset items.</p>
-</dd></dl>
-
-<dl class="py property">
-<dt class="sig sig-object py" id="datumaro.components.dataset_base.ExtractorMerger.is_stream">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">is_stream</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.11)"><span class="pre">bool</span></a></em><a class="headerlink" href="#datumaro.components.dataset_base.ExtractorMerger.is_stream" title="Permalink to this definition">#</a></dt>
-<dd><p>Boolean indicating whether the dataset is a stream</p>
-<p>If the dataset is a stream, the dataset item is generated on demand from its iterator.</p>
 </dd></dl>
 
 </dd></dl>
@@ -1087,53 +1053,6 @@ Should be used by default for user-defined extractors.</p>
      <code class="docutils literal notranslate">
       <span class="pre">
        SubsetBase.subset
-      </span>
-     </code>
-    </a>
-   </li>
-  </ul>
- </li>
- <li class="toc-h2 nav-item toc-entry">
-  <a class="reference internal nav-link" href="#datumaro.components.dataset_base.ExtractorMerger">
-   <code class="docutils literal notranslate">
-    <span class="pre">
-     ExtractorMerger
-    </span>
-   </code>
-  </a>
-  <ul class="nav section-nav flex-column">
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.components.dataset_base.ExtractorMerger.infos">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       ExtractorMerger.infos()
-      </span>
-     </code>
-    </a>
-   </li>
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.components.dataset_base.ExtractorMerger.categories">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       ExtractorMerger.categories()
-      </span>
-     </code>
-    </a>
-   </li>
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.components.dataset_base.ExtractorMerger.get">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       ExtractorMerger.get()
-      </span>
-     </code>
-    </a>
-   </li>
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.components.dataset_base.ExtractorMerger.is_stream">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       ExtractorMerger.is_stream
       </span>
      </code>
     </a>

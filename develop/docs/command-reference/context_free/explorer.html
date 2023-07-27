@@ -6,7 +6,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
 
-    <title>Explore &#8212; Datumaro 1.4.0rc2 documentation</title>
+    <title>Explore &#8212; Datumaro 1.4.1 documentation</title>
   
   
   
@@ -445,6 +445,7 @@
 <li class="toctree-l4"><a class="reference internal" href="../../reference/_autosummary/datumaro.components.comparator.html">datumaro.components.comparator</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../reference/_autosummary/datumaro.components.config.html">datumaro.components.config</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../reference/_autosummary/datumaro.components.config_model.html">datumaro.components.config_model</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../reference/_autosummary/datumaro.components.contexts.html">datumaro.components.contexts</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../reference/_autosummary/datumaro.components.crypter.html">datumaro.components.crypter</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../reference/_autosummary/datumaro.components.dataset.html">datumaro.components.dataset</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../reference/_autosummary/datumaro.components.dataset_base.html">datumaro.components.dataset_base</a></li>
@@ -581,15 +582,19 @@
 <p>To explore similar data in dataset, you need to set query first. Query could be image, text, list of images, list of texts and list of images and texts. The query does not need to be an image that exists in the dataset. You can put in any data that you want to explore similar dataset. And you need to set top-k that how much you want to find similar data. The default value for top-k is 50, so if you hope to find more smaller results, you would set top-k. For single query, we computed hamming distance of hash between whole dataset and query. And we sorted those distance and select top-k data which have short distance. For list query, we repeated computing distance for each query and select top-k data based on distance among all dataset.</p>
 <p>The command can be applied to a dataset. And if you want to use multiple dataset as database, you could use merged dataset. The current project (<code class="docutils literal notranslate"><span class="pre">-p/--project</span></code>) is also used a context for plugins, so it can be useful for dataset paths having custom formats. When not specified, the current project’s working tree is used. To save visualized result (<code class="docutils literal notranslate"><span class="pre">-s/--save</span></code>) is turned off as default. This visualized result is based on <a class="reference internal" href="#../../jupyter_notebook_examples/visualizer"><span class="xref myst">Visualizer</span></a>.</p>
 <p>Usage:</p>
-<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">datum explore [target] -q &lt;path/to/image&gt; or &lt;text_query&gt;</span>
-<span class="go">              [-topk TOPK] [-p PROJECT_DIR] [-s SAVE] [--stage STAGE]</span>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">datum explore [target] [--query-img-path &lt;path/to/image&gt;]</span>
+<span class="go">              [--query-item-id &lt;/id/of/image/datasetitem&gt; --query-item-subset &lt;subset/of/image&gt;]</span>
+<span class="go">              [--query-str &lt;text_query&gt;] [-topk TOPK] [-p PROJECT_DIR] [-s SAVE] [--stage STAGE]</span>
 </pre></div>
 </div>
 <p>Parameters:</p>
 <ul class="simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">&lt;target&gt;</span></code> (string) - Target <a class="reference internal" href="../../user-manual/how_to_use_datumaro.html#dataset-path-concepts"><span class="std std-ref">dataset revpath</span></a>.
 By default, prints info about the joined <code class="docutils literal notranslate"><span class="pre">project</span></code> dataset.</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">-q,</span> <span class="pre">--query</span></code> (string) - Image path or text to use as query.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">--query-img-path</span></code> (string) - Image path to use as query or list of it.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">--query-item-id</span></code> (string) - Datasetitem id of Image to use as query or list of it.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">--query-item-subset</span></code> (string) - Datasetitem subset of Image to use as query or list of it. (default: None)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">--query-str</span></code> (string) - Test to use as query or list of it.</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">-topk</span></code> (int) - Number how much you want to find similar data.</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">-p,</span> <span class="pre">--project</span></code> (string) - Directory of the project to operate on (default: current directory).</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">-s,</span> <span class="pre">--save</span></code> (bool) - Save explorer result files on explore_result folder.</p></li>
@@ -601,30 +606,40 @@ and the <code class="docutils literal notranslate"><span class="pre">project</sp
 </ul>
 <p>Examples:</p>
 <ul>
-<li><p>Explore top10 similar images of image query</p>
-<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">datum search -q &lt;path/to/image&gt; -topk 10 &lt;path/to/dataset/&gt;</span>
+<li><p>Explore top10 similar images of image path query.</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">datum explore -query-img-path &lt;path/to/image&gt; -topk 10 &lt;path/to/dataset/&gt;</span>
 </pre></div>
 </div>
 </li>
-<li><p>Explore top10 similar images of image query within project</p>
+<li><p>Explore top10 similar images using image datasetitem id query. Setting the subset of a DatasetItem is not mandatory.</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">datum explore --query-item-id &lt;id/of/image/datasetitem&gt; -topk 10 &lt;path/to/dataset/&gt;</span>
+</pre></div>
+</div>
+</li>
+<li><p>Explore top10 similar images using image datasetitem id and subset query.</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">datum explore --query-item-id &lt;id/of/image/datasetitem&gt; --query-item-subset &lt;subset/of/image/datasetitem&gt; -topk 10 &lt;path/to/dataset/&gt;</span>
+</pre></div>
+</div>
+</li>
+<li><p>Explore top10 similar images of image query within project.</p>
 <div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">datum project create &lt;...&gt;</span>
 <span class="go">datum project import -f &lt;format&gt; &lt;path/to/dataset/&gt;</span>
-<span class="go">datum explore -q &lt;path/to/image&gt; -topk 10</span>
+<span class="go">datum explore -query-img-path &lt;path/to/image&gt; -topk 10</span>
 </pre></div>
 </div>
 </li>
 <li><p>Explore top10 similar images of text query, elephant</p>
-<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">datum search -q elephant -topk 10 &lt;path/to/dataset/&gt;</span>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">datum explore --query-str elephant -topk 10 &lt;path/to/dataset/&gt;</span>
 </pre></div>
 </div>
 </li>
 <li><p>Explore top50 similar images of image query list</p>
-<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">datum search -q &lt;path/to/image1&gt; &lt;path/to/image2&gt; &lt;path/to/image3&gt; -topk 50 &lt;path/to/dataset/&gt;</span>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">datum explore --query-img-path &lt;path/to/image1&gt; &lt;path/to/image2&gt; &lt;path/to/image3&gt; -topk 50 &lt;path/to/dataset/&gt;</span>
 </pre></div>
 </div>
 </li>
 <li><p>Explore top50 similar images of text query list</p>
-<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">datum search -q motorcycle bus train -topk 50 &lt;path/to/dataset/&gt;</span>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">datum explore --query-str motorcycle bus train -topk 50 &lt;path/to/dataset/&gt;</span>
 </pre></div>
 </div>
 </li>
