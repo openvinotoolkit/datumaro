@@ -4,6 +4,10 @@ Release Notes
 .. toctree::
    :maxdepth: 1
 
+v1.4.1 (2023.07)
+----------------
+- Report errors for COCO (stream) and Datumaro importers
+
 v1.4.0 (2023.07)
 ----------------
 
