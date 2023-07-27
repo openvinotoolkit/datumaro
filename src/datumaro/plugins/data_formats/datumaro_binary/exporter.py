@@ -33,13 +33,14 @@ class _SubsetWriter(__SubsetWriter):
     def __init__(
         self,
         context: Exporter,
+        subset: str,
         ann_file: str,
         export_context: ExportContextComponent,
         secret_key_file: str,
         no_media_encryption: bool = False,
         max_blob_size: int = DatumaroBinaryPath.MAX_BLOB_SIZE,
     ):
-        super().__init__(context, ann_file, export_context)
+        super().__init__(context, subset, ann_file, export_context)
         self._crypter = self.export_context.crypter
         self.secret_key_file = secret_key_file
 
@@ -248,6 +249,7 @@ class DatumaroBinaryExporter(DatumaroExporter):
         encryption: bool = False,
         num_workers: int = 0,
         max_blob_size: int = DatumaroBinaryPath.MAX_BLOB_SIZE,
+        **kwargs,
     ):
         """
         Parameters
@@ -308,6 +310,7 @@ class DatumaroBinaryExporter(DatumaroExporter):
 
         return _SubsetWriter(
             context=self,
+            subset=subset,
             ann_file=osp.join(self._annotations_dir, subset + self.PATH_CLS.ANNOTATION_EXT),
             export_context=export_context,
             secret_key_file=osp.join(self._save_dir, self.PATH_CLS.SECRET_KEY_FILE),

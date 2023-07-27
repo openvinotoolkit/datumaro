@@ -285,7 +285,7 @@ class YoloStrictBase(SubsetBase):
         subsets = self._subsets
         pbars = self._ctx.progress_reporter.split(len(subsets))
         for pbar, (subset_name, subset) in zip(pbars, subsets.items()):
-            for item in pbar.iter(subset, desc=f"Parsing '{subset_name}'"):
+            for item in pbar.iter(subset, desc=f"Importing '{subset_name}'"):
                 yield item
 
     def __len__(self):
@@ -332,7 +332,8 @@ class YoloLooseBase(SubsetBase):
         if label_categories is None:
             raise DatasetImportError("label_categories should be not None.")
 
-        for url in self._urls:
+        pbar = self._ctx.progress_reporter
+        for url in pbar.iter(self._urls, desc=f"Importing '{self._subset}'"):
             try:
                 fname = self._get_fname(url)
                 img = Image.from_file(path=self._img_files[fname])

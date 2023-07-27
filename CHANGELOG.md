@@ -9,21 +9,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Add tabular data import/export
   (<https://github.com/openvinotoolkit/datumaro/pull/1089>)
 
-## 11/07/2023 - Release 1.4.0rc2
+## 27/07/2023 - Release 1.4.1
+### Bug fixes
+- Report errors for COCO (stream) and Datumaro importers
+  (<https://github.com/openvinotoolkit/datumaro/pull/1110>)
+
+## 21/07/2023 - Release 1.4.0
 ### New features
 - Add documentation and notebook example for Prune API
   (<https://github.com/openvinotoolkit/datumaro/pull/1070>)
-
-### Enhancements
-- Give notice that the deprecation works will be done in datumaro==1.5.0
-  (<https://github.com/openvinotoolkit/datumaro/pull/1085>)
-
-### Bug fixes
-- Create cache dir under only writable filesystem
-  (<https://github.com/openvinotoolkit/datumaro/pull/1088>)
-
-## 07/07/2023 - Release 1.4.0rc1
-### New features
 - Changed supported Python version range (>=3.8, <=3.11)
   (<https://github.com/openvinotoolkit/datumaro/pull/1083>)
 - Migrate OpenVINO v2023.0.0
@@ -41,11 +35,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Migrate DVC v3.0.0
   (<https://github.com/openvinotoolkit/datumaro/pull/1072>)
 - Stream dataset import/export
-  (<https://github.com/openvinotoolkit/datumaro/pull/1077>, <https://github.com/openvinotoolkit/datumaro/pull/1081>, <https://github.com/openvinotoolkit/datumaro/pull/1082>, <https://github.com/openvinotoolkit/datumaro/pull/1091>)
+  (<https://github.com/openvinotoolkit/datumaro/pull/1077>, <https://github.com/openvinotoolkit/datumaro/pull/1081>, <https://github.com/openvinotoolkit/datumaro/pull/1082>, <https://github.com/openvinotoolkit/datumaro/pull/1091>, <https://github.com/openvinotoolkit/datumaro/pull/1093>, <https://github.com/openvinotoolkit/datumaro/pull/1098>, <https://github.com/openvinotoolkit/datumaro/pull/1102>)
 - Support mask annotations for CVAT data format
   (<https://github.com/openvinotoolkit/datumaro/pull/1078>)
 
 ### Enhancements
+- Support list query for explorer
+  (<https://github.com/openvinotoolkit/datumaro/pull/1087>)
+- update contributing.md
+  (<https://github.com/openvinotoolkit/datumaro/pull/1094>)
+- Update 3rd-party.txt for release 1.4.0
+  (<https://github.com/openvinotoolkit/datumaro/pull/1099>)
+- Give notice that the deprecation works will be done in datumaro==1.5.0
+  (<https://github.com/openvinotoolkit/datumaro/pull/1085>)
+- Unify COCO, Datumaro, VOC, YOLO importer/exporter progress reporter descriptions
+  (<https://github.com/openvinotoolkit/datumaro/pull/1100>)
 - Enhance import performance for built-in plugins
   (<https://github.com/openvinotoolkit/datumaro/pull/1031>)
 - Change default dtype of load_image() to np.uint8
@@ -64,6 +68,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   (<https://github.com/openvinotoolkit/datumaro/pull/1073>)
 
 ### Bug fixes
+- Create cache dir under only writable filesystem
+  (<https://github.com/openvinotoolkit/datumaro/pull/1088>)
+- Fix: Dataset infos() can be broken if a transform not redefining infos() is stacked on the top
+  (<https://github.com/openvinotoolkit/datumaro/pull/1101>)
 - Fix warnings in test_visualizer.py
   (<https://github.com/openvinotoolkit/datumaro/pull/1039>)
 - Fix LabelMe data format

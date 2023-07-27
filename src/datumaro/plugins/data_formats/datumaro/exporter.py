@@ -4,15 +4,17 @@
 
 # pylint: disable=no-self-use
 
+import json
 import os
 import os.path as osp
 import shutil
 from contextlib import contextmanager
 from multiprocessing.pool import Pool
-from typing import Optional
+from typing import Dict, Optional
 
 import numpy as np
 import pycocotools.mask as mask_utils
+from json_stream.writer import streamable_dict, streamable_list
 
 from datumaro.components.annotation import (
     Annotation,
@@ -33,7 +35,7 @@ from datumaro.components.annotation import (
     _Shape,
 )
 from datumaro.components.crypter import NULL_CRYPTER
-from datumaro.components.dataset_base import DEFAULT_SUBSET_NAME, DatasetItem
+from datumaro.components.dataset_base import DatasetItem
 from datumaro.components.dataset_item_storage import ItemStatus
 from datumaro.components.exporter import ExportContextComponent, Exporter
 from datumaro.components.media import Image, MediaElement, PointCloud
@@ -43,8 +45,15 @@ from .format import DATUMARO_FORMAT_VERSION, DatumaroPath
 
 
 class _SubsetWriter:
-    def __init__(self, context: Exporter, ann_file: str, export_context: ExportContextComponent):
+    def __init__(
+        self,
+        context: Exporter,
+        subset: str,
+        ann_file: str,
+        export_context: ExportContextComponent,
+    ):
         self._context = context
+        self._subset = subset
 
         self._data = {
             "dm_format_version": DATUMARO_FORMAT_VERSION,
@@ -122,7 +131,10 @@ class _SubsetWriter:
         else:
             raise NotImplementedError
 
-    def add_item(self, item: DatasetItem, *args, **kwargs):
+    def add_item(self, item: DatasetItem, *args, **kwargs) -> None:
+        self.items.append(self._gen_item_desc(item))
+
+    def _gen_item_desc(self, item: DatasetItem, *args, **kwargs) -> Dict:
         annotations = []
         item_desc = {
             "id": item.id,
@@ -155,8 +167,6 @@ class _SubsetWriter:
             elif isinstance(item.media, MediaElement):
                 item_desc["media"] = {"path": getattr(item.media, "path", None)}
 
-        self.items.append(item_desc)
-
         for ann in item.annotations:
             if isinstance(ann, Label):
                 converted_ann = self._convert_label_object(ann)
@@ -181,6 +191,8 @@ class _SubsetWriter:
             else:
                 raise NotImplementedError()
             annotations.append(converted_ann)
+
+        return item_desc
 
     def add_infos(self, infos):
         self._data["infos"].update(infos)
@@ -367,6 +379,40 @@ class _SubsetWriter:
         return converted
 
 
+class _StreamSubsetWriter(_SubsetWriter):
+    def __init__(
+        self,
+        context: Exporter,
+        subset: str,
+        ann_file: str,
+        export_context: ExportContextComponent,
+    ):
+        super().__init__(context, subset, ann_file, export_context)
+
+    def write(self, *args, **kwargs):
+        @streamable_list
+        def _item_list():
+            subset = self._context._extractor.get_subset(self._subset)
+            pbar = self._context._ctx.progress_reporter
+            for item in pbar.iter(subset, desc=f"Exporting '{self._subset}'"):
+                yield self._gen_item_desc(item)
+
+        @streamable_dict
+        def _data():
+            yield "dm_format_version", self._data["dm_format_version"]
+            yield "media_type", self._data["media_type"]
+            yield "infos", self._data["infos"]
+            yield "categories", self._data["categories"]
+            yield "items", _item_list()
+
+        with open(self.ann_file, "w", encoding="utf-8") as fp:
+            json.dump(_data(), fp)
+
+    def is_empty(self):
+        # TODO: Force empty to be False, but it should be fixed with refactoring `_SubsetWriter`.`
+        return False
+
+
 class DatumaroExporter(Exporter):
     DEFAULT_IMAGE_EXT = DatumaroPath.IMAGE_EXT
     PATH_CLS = DatumaroPath
@@ -387,10 +433,20 @@ class DatumaroExporter(Exporter):
             default_image_ext=self._default_image_ext,
         )
 
-        return _SubsetWriter(
-            context=self,
-            ann_file=osp.join(self._annotations_dir, subset + self.PATH_CLS.ANNOTATION_EXT),
-            export_context=export_context,
+        return (
+            _SubsetWriter(
+                context=self,
+                subset=subset,
+                ann_file=osp.join(self._annotations_dir, subset + self.PATH_CLS.ANNOTATION_EXT),
+                export_context=export_context,
+            )
+            if not self._stream
+            else _StreamSubsetWriter(
+                context=self,
+                subset=subset,
+                ann_file=osp.join(self._annotations_dir, subset + self.PATH_CLS.ANNOTATION_EXT),
+                export_context=export_context,
+            )
         )
 
     def _apply_impl(self, pool: Optional[Pool] = None, *args, **kwargs):
@@ -419,11 +475,11 @@ class DatumaroExporter(Exporter):
             writer.add_infos(self._extractor.infos())
             writer.add_categories(self._extractor.categories())
 
-        for item in self._extractor:
-            subset = item.subset or DEFAULT_SUBSET_NAME
-            writers[subset].add_item(item, pool)
-
-            self._check_hash_key_existence(item)
+        pbar = self._ctx.progress_reporter
+        for subset_name, subset in self._extractor.subsets().items():
+            if not self._stream:
+                for item in pbar.iter(subset, desc=f"Exporting '{subset_name}'"):
+                    writers[subset_name].add_item(item, pool)
 
         for subset, writer in writers.items():
             if self._patch and subset in self._patch.updated_subsets and writer.is_empty():
@@ -469,3 +525,7 @@ class DatumaroExporter(Exporter):
             related_images_path = osp.join(save_dir, cls.PATH_CLS.IMAGES_DIR, item.subset, item.id)
             if osp.isdir(related_images_path):
                 shutil.rmtree(related_images_path)
+
+    @property
+    def can_stream(self) -> bool:
+        return True

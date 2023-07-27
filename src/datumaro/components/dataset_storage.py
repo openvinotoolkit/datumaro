@@ -612,9 +612,9 @@ class StreamDatasetStorage(DatasetStorage):
     ):
         if not source.is_stream:
             raise ValueError("source should be a stream.")
-        super().__init__(source, infos, categories, media_type)
-        self._subset_names = None
+        self._subset_names = list(source.subsets().keys())
         self._transform_ids_for_latest_subset_names = []
+        super().__init__(source, infos, categories, media_type)
 
     def is_cache_initialized(self) -> bool:
         log.debug("This function has no effect on streaming.")
@@ -660,12 +660,9 @@ class StreamDatasetStorage(DatasetStorage):
 
     @property
     def subset_names(self):
-        if self._subset_names is None:
+        if self._transform_ids_for_latest_subset_names != [id(t) for t in self._transforms]:
             self._subset_names = {item.subset for item in self}
-            self._transforms_for_latest_subset_names = [id(t) for t in self._transforms]
-        elif self._transforms_for_latest_subset_names != [id(t) for t in self._transforms]:
-            self._subset_names = {item.subset for item in self}
-            self._transforms_for_latest_subset_names = [id(t) for t in self._transforms]
+            self._transform_ids_for_latest_subset_names = [id(t) for t in self._transforms]
 
         return self._subset_names
 

@@ -311,7 +311,7 @@ def check_save_and_load(
                 item.media._extra_images = new_images
 
     with TemporaryDirectory(prefix=test_dir) as tmp_dir:
-        converter(source_dataset, test_dir)
+        converter(source_dataset, test_dir, stream=stream)
         if move_save_dir:
             save_dir = tmp_dir
             for file in os.listdir(test_dir):
@@ -326,7 +326,7 @@ def check_save_and_load(
             if not stream
             else StreamDataset.import_from(save_dir, importer, **importer_args)
         )
-        check_is_stream(parsed_dataset)
+        check_is_stream(parsed_dataset, stream)
 
         if post_processing:
             parsed_dataset = post_processing(parsed_dataset)
@@ -420,13 +420,8 @@ def mock_tfds_data(example=None, subsets=("train",)):
             yield
 
 
-def check_is_stream(dataset: IDataset):
-    if type(dataset) == Dataset:
-        assert dataset.is_stream == False
-    elif type(dataset) == StreamDataset:
-        assert dataset.is_stream == True
-    else:
-        raise ValueError(type(dataset))
+def check_is_stream(dataset: IDataset, stream: bool):
+    assert dataset.is_stream == stream
 
 
 class TestCaseHelper:

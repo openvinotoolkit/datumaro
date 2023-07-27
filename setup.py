@@ -19,7 +19,7 @@ def find_version(project_dir=None):
 
     file_path = osp.join(project_dir, "datumaro", "version.py")
 
-    with open(file_path, "r") as version_file:
+    with open(file_path, "r", encoding="utf-8") as version_file:
         version_text = version_file.read()
 
     # PEP440:
@@ -39,7 +39,7 @@ DEFAULT_REQUIREMENTS_FILE = "requirements-default.txt"
 
 
 def parse_requirements(filename=CORE_REQUIREMENTS_FILE):
-    with open(filename) as fh:
+    with open(filename, "r", encoding="utf-8") as fh:
         return fh.readlines()
 
 
@@ -51,7 +51,7 @@ else:
 
 DEFAULT_REQUIREMENTS = parse_requirements(DEFAULT_REQUIREMENTS_FILE)
 
-with open("README.md", "r") as fh:
+with open("README.md", "r", encoding="utf-8") as fh:
     long_description = fh.read()
 
 ext_modules = [

@@ -7,9 +7,16 @@ import logging as log
 import os
 import os.path as osp
 import shutil
+import uuid
 
 from datumaro.components.algorithms.hash_key_inference.explorer import Explorer
+from datumaro.components.algorithms.hash_key_inference.hashkey_util import (
+    check_and_convert_to_list,
+    match_query_subset,
+)
+from datumaro.components.dataset_base import DatasetItem
 from datumaro.components.errors import ProjectNotFoundError
+from datumaro.components.media import Image
 from datumaro.util import str_to_bool
 from datumaro.util.scope import scope_add, scoped
 
@@ -30,24 +37,42 @@ def build_parser(parser_ctor=argparse.ArgumentParser):
         |n
         Examples:|n
         - Explore top50 similar images of image query in COCO dataset:|n
-        |s|s%(prog)s -q path/to/image.jpg -topk 50|n
+        |s|s%(prog)s --query-img-path path/to/image.jpg -topk 50|n
         - Explore top50 similar images of text query, elephant, in COCO dataset:|n
-        |s|s%(prog)s -q elephant -topk 50|n
+        |s|s%(prog)s --query-str elephant -topk 50|n
         - Explore top50 similar images of image query list in COCO dataset:|n
-        |s|s%(prog)s -q path/to/image1.jpg/ path/to/image2.jpg/ path/to/image3.jpg/ -topk 50|n
+        |s|s%(prog)s --query-img-path path/to/image1.jpg/ path/to/image2.jpg/ path/to/image3.jpg/ -topk 50|n
         - Explore top50 similar images of text query list in COCO dataset:|n
-        |s|s%(prog)s -q motorcycle/ bus/ train/ -topk 50
+        |s|s%(prog)s --query-str motorcycle/ bus/ train/ -topk 50
         """,
         formatter_class=MultilineFormatter,
     )
 
     parser.add_argument("target", nargs="?", help="Target dataset")
-    parser.add_argument(
-        "-q",
-        "--query",
-        dest="query",
-        required=True,
-        help="Image path or id of query to explore similar data",
+    query_parser = parser.add_mutually_exclusive_group(required=True)
+    query_parser.add_argument(
+        "--query-img-path",
+        default=None,
+        type=str,
+        help="Image path of query to explore similar data",
+    )
+    query_parser.add_argument(
+        "--query-item-id",
+        default=None,
+        type=str,
+        help="Datasetitem id of query to explore similar data",
+    )
+    query_parser.add_argument(
+        "--query-item-subset",
+        default=None,
+        type=str,
+        help="Datasetitem subset of query to explore similar data",
+    )
+    query_parser.add_argument(
+        "--query-str",
+        default=None,
+        type=str,
+        help="Text to explore similar data",
     )
     parser.add_argument("-topk", type=int, dest="topk", help="Number of similar results")
     parser.add_argument(
@@ -85,7 +110,6 @@ def get_sensitive_args():
     return {
         explore_command: [
             "target",
-            "query",
             "topk",
             "project_dir",
         ]
@@ -125,20 +149,27 @@ def explore_command(args):
         project.working_tree.config.update(build_tree.config)
         project.working_tree.save()
 
-    # Get query datasetitem through query path
-    if osp.exists(args.query):
-        query_datasetitem = None
-        for dataset in source_datasets:
-            try:
-                query_datasetitem = dataset.get_datasetitem_by_path(args.query)
-            except Exception:
-                continue
-            if not query_datasetitem:
-                break
-    else:
-        query_datasetitem = args.query
+    if args.query_img_path:
+        querys = check_and_convert_to_list(args.query_img_path)
+        query_datasetitems = []
+        for query_ in querys:
+            query_datasetitem = DatasetItem(id=str(uuid.uuid4()), media=Image.from_file(query_))
+            query_datasetitems.append(query_datasetitem)
+    elif args.query_item_id:
+        querys = (
+            [args.query_item_id] if not isinstance(args.query_item_id, list) else args.query_item_id
+        )
+        query_datasetitems = []
+        for query in querys:
+            for dataset in source_datasets:
+                query_datasetitem = match_query_subset(
+                    query, dataset, subset=args.query_item_subset
+                )
+            query_datasetitems.append(query_datasetitem)
+    elif args.query_str:
+        query_datasetitems = args.query_str
 
-    results = explorer.explore_topk(query_datasetitem, args.topk)
+    results = explorer.explore_topk(query_datasetitems, args.topk)
 
     result_path_list = []
     log.info(f"Most similar {args.topk} results of query in dataset")

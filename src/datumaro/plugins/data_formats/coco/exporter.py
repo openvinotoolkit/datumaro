@@ -2,14 +2,18 @@
 #
 # SPDX-License-Identifier: MIT
 
+import json
 import logging as log
 import os
 import os.path as osp
+from dataclasses import dataclass
 from enum import Enum, auto
+from io import BufferedWriter
 from itertools import chain, groupby
-from typing import List, Union
+from typing import Dict, List, Optional, Type, Union
 
 import pycocotools.mask as mask_utils
+from json_stream.writer import streamable_dict, streamable_list
 
 import datumaro.util.annotation_util as anno_tools
 import datumaro.util.mask_tools as mask_tools
@@ -25,7 +29,7 @@ from datumaro.components.dataset_item_storage import ItemStatus
 from datumaro.components.errors import MediaTypeError
 from datumaro.components.exporter import Exporter
 from datumaro.components.media import Image
-from datumaro.util import cast, dump_json_file, find, str_to_bool
+from datumaro.util import cast, dump_json, dump_json_file, find, parse_json, str_to_bool
 from datumaro.util.image import save_image
 
 from .format import CocoPath, CocoTask
@@ -37,10 +41,119 @@ class SegmentationMode(Enum):
     mask = auto()
 
 
+@dataclass
+class _Writer:
+    fp: BufferedWriter
+    is_empty: bool
+
+
+class TemporaryWriters:
+    def __init__(self, subset: str, task: CocoTask, ann_dir: str):
+        self._subset = subset
+        self._task = task
+        self._ann_dir = ann_dir
+        self._writers = tuple()
+        self.reset()
+
+    def close(self):
+        for writer in self._writers:
+            if not writer.fp.closed:
+                writer.fp.close()
+
+    def remove(self):
+        self.close()
+
+        for writer in self._writers:
+            fpath = writer.fp.name
+            if osp.exists(fpath):
+                os.remove(fpath)
+
+    def reset(self):
+        self.remove()
+
+        self._writers = tuple(
+            _Writer(
+                fp=open(
+                    osp.join(self._ann_dir, f"__{self._task.name}_{self._subset}_{key}.tmp"), "wb"
+                ),
+                is_empty=True,
+            )
+            for key in ["imgs", "anns"]
+        )
+
+    def __del__(self):
+        self.remove()
+
+    @property
+    def imgs(self) -> _Writer:
+        return self._writers[0]
+
+    @property
+    def anns(self) -> _Writer:
+        return self._writers[1]
+
+    def add_item(self, data: Dict) -> None:
+        self.imgs.is_empty = False
+        writer = self.imgs.fp
+        writer.write(dump_json(data, append_newline=True))
+
+    def add_anns(self, data: Dict) -> None:
+        self.anns.is_empty = False
+        writer = self.anns.fp
+        writer.write(dump_json(data, append_newline=True))
+
+    def merge(self, path: str, header: Dict, min_ann_id: Optional[int]) -> None:
+        self.close()
+
+        @streamable_list
+        def _gen_images():
+            with open(self.imgs.fp.name, "rb") as fp:
+                for line in fp:
+                    yield parse_json(line)
+
+        @streamable_list
+        def _gen_anns():
+            with open(self.anns.fp.name, "rb") as fp:
+                next_id = min_ann_id
+                for line in fp:
+                    ann = parse_json(line)
+                    if min_ann_id is not None and not ann["id"]:
+                        ann["id"] = next_id
+                        next_id += 1
+                    yield ann
+
+        @streamable_dict
+        def _gen():
+            yield "licenses", header["licenses"]
+            yield "info", header["info"]
+            yield "categories", header["categories"]
+
+            if not self.imgs.is_empty:
+                yield "images", _gen_images()
+            else:
+                yield "images", []
+
+            if not self.anns.is_empty:
+                yield "annotations", _gen_anns()
+            else:
+                yield "annotations", []
+
+        with open(path, "w", encoding="utf-8") as fp:
+            json.dump(_gen(), fp)
+
+        self.remove()
+
+
 class _TaskExporter:
-    def __init__(self, context):
+    def __init__(
+        self, context: "CocoExporter", subset: str, task: CocoTask, ann_dir: str, stream: bool
+    ):
         self._min_ann_id = 1
         self._context = context
+        self._subset = subset
+        self._task = task
+        self._ann_dir = ann_dir
+        self._stream = stream
 
         data = {"licenses": [], "info": {}, "categories": [], "images": [], "annotations": []}
 
@@ -55,9 +168,18 @@ class _TaskExporter:
             "year": "",
         }
         self._data = data
+        self._temporary_writers = TemporaryWriters(
+            subset=subset,
+            task=task,
+            ann_dir=ann_dir,
+        )
 
     def is_empty(self):
-        return len(self._data["annotations"]) == 0
+        return (
+            len(self._data["annotations"]) == 0
+            if not self._stream
+            else self._temporary_writers.anns.is_empty
+        )
 
     def _get_image_id(self, item):
         return self._context._get_image_id(item)
@@ -68,18 +190,21 @@ class _TaskExporter:
         if item.media and item.media.size:
             h, w = item.media.size
 
-        self._data["images"].append(
-            {
-                "id": self._get_image_id(item),
-                "width": int(w),
-                "height": int(h),
-                "file_name": cast(filename, str, ""),
-                "license": 0,
-                "flickr_url": "",
-                "coco_url": "",
-                "date_captured": 0,
-            }
-        )
+        item_desc = {
+            "id": self._get_image_id(item),
+            "width": int(w),
+            "height": int(h),
+            "file_name": cast(filename, str, ""),
+            "license": 0,
+            "flickr_url": "",
+            "coco_url": "",
+            "date_captured": 0,
+        }
+
+        if not self._stream:
+            self._data["images"].append(item_desc)
+        else:
+            self._temporary_writers.add_item(item_desc)
 
     def save_categories(self, dataset):
         raise NotImplementedError()
@@ -95,6 +220,9 @@ class _TaskExporter:
                 next_id += 1
 
         dump_json_file(path, self._data)
+
+        if self._stream:
+            self._temporary_writers.merge(path, self._data, self._min_ann_id)
 
     @property
     def annotations(self):
@@ -121,7 +249,11 @@ class _TaskExporter:
 
 class _ImageInfoExporter(_TaskExporter):
     def is_empty(self):
-        return len(self._data["images"]) == 0
+        return (
+            len(self._data["images"]) == 0
+            if not self._stream
+            else self._temporary_writers.imgs.is_empty
+        )
 
     def save_categories(self, dataset):
         pass
@@ -158,7 +290,10 @@ class _CaptionsExporter(_TaskExporter):
                 if attrs:
                     elem["attributes"] = attrs
 
-            self.annotations.append(elem)
+            if not self._stream:
+                self.annotations.append(elem)
+            else:
+                self._temporary_writers.add_anns(elem)
 
 
 class _InstancesExporter(_TaskExporter):
@@ -292,10 +427,16 @@ class _InstancesExporter(_TaskExporter):
 
         for instance in instances:
             elem = self.convert_instance(instance, item)
-            if elem:
-                self.annotations.append(elem)
 
-    def convert_instance(self, instance, item):
+            if elem is None:
+                continue
+
+            if not self._stream:
+                self.annotations.append(elem)
+            else:
+                self._temporary_writers.add_anns(elem)
+
+    def convert_instance(self, instance, item) -> Optional[Dict]:
         ann, polygons, mask, bbox = instance
 
         is_crowd = mask is not None
@@ -387,7 +528,10 @@ class _KeypointsExporter(_InstancesExporter):
             instance = [points, [], None, points.get_bbox()]
             elem = super().convert_instance(instance, item)
             elem.update(self.convert_points_object(points))
-            self.annotations.append(elem)
+            if not self._stream:
+                self.annotations.append(elem)
+            else:
+                self._temporary_writers.add_anns(elem)
 
         # Create annotations for complete instance + keypoints annotations
         super().save_annotations(item)
@@ -421,7 +565,7 @@ class _KeypointsExporter(_InstancesExporter):
             "num_keypoints": num_annotated,
         }
 
-    def convert_instance(self, instance, item):
+    def convert_instance(self, instance, item) -> Optional[Dict]:
         points_ann = find(
             item.annotations,
             lambda x: x.type == AnnotationType.points
@@ -474,7 +618,10 @@ class _LabelsExporter(_TaskExporter):
                 if attrs:
                     elem["attributes"] = attrs
 
-            self.annotations.append(elem)
+            if not self._stream:
+                self.annotations.append(elem)
+            else:
+                self._temporary_writers.add_anns(elem)
 
 
 class _StuffExporter(_InstancesExporter):
@@ -484,6 +631,9 @@ class _StuffExporter(_InstancesExporter):
 class _PanopticExporter(_TaskExporter):
     def write(self, path):
         dump_json_file(path, self._data)
+
+        if self._stream:
+            self._temporary_writers.merge(path, self._data, None)
 
     def save_categories(self, dataset):
         label_categories = dataset.categories().get(AnnotationType.label)
@@ -541,7 +691,11 @@ class _PanopticExporter(_TaskExporter):
             "file_name": ann_filename,
             "segments_info": segments_info,
         }
-        self.annotations.append(elem)
+
+        if not self._stream:
+            self.annotations.append(elem)
+        else:
+            self._temporary_writers.add_anns(elem)
 
 
 class CocoExporter(Exporter):
@@ -621,7 +775,7 @@ class CocoExporter(Exporter):
 
     DEFAULT_IMAGE_EXT = CocoPath.IMAGE_EXT
 
-    _TASK_CONVERTER = {
+    _TASK_CONVERTER: Dict[CocoTask, Type[_TaskExporter]] = {
         CocoTask.image_info: _ImageInfoExporter,
         CocoTask.instances: _InstancesExporter,
         CocoTask.person_keypoints: _KeypointsExporter,
@@ -641,9 +795,10 @@ class CocoExporter(Exporter):
         allow_attributes=True,
         reindex=False,
         merge_images=False,
+        stream: bool = False,
         **kwargs,
     ):
-        super().__init__(extractor, save_dir, **kwargs)
+        super().__init__(extractor, save_dir, stream=stream, **kwargs)
 
         assert tasks is None or isinstance(tasks, (CocoTask, list, str))
         if isinstance(tasks, CocoTask):
@@ -693,14 +848,21 @@ class CocoExporter(Exporter):
         )
         os.makedirs(self._segmentation_dir, exist_ok=True)
 
-    def _make_task_converter(self, task):
+    def _make_task_converter(self, task: CocoTask, subset: str) -> _TaskExporter:
         if task not in self._TASK_CONVERTER:
             raise NotImplementedError()
-        return self._TASK_CONVERTER[task](self)
+        return self._TASK_CONVERTER[task](
+            context=self,
+            subset=subset,
+            task=task,
+            ann_dir=self._ann_dir,
+            stream=self._stream,
+        )
 
-    def _make_task_converters(self):
+    def _make_task_converters(self, subset: str):
         return {
-            task: self._make_task_converter(task) for task in (self._tasks or self._TASK_CONVERTER)
+            task: self._make_task_converter(task, subset)
+            for task in (self._tasks or self._TASK_CONVERTER)
         }
 
     def _get_image_id(self, item):
@@ -725,13 +887,13 @@ class CocoExporter(Exporter):
         subsets = self._extractor.subsets()
         pbars = self._ctx.progress_reporter.split(len(subsets))
         for pbar, (subset_name, subset) in zip(pbars, subsets.items()):
-            task_converters = self._make_task_converters()
+            task_converters = self._make_task_converters(subset_name)
             for task_conv in task_converters.values():
                 task_conv.save_categories(subset)
             if CocoTask.panoptic in task_converters:
                 self._make_segmentation_dir(subset_name)
 
-            for item in pbar.iter(subset, desc=f"Exporting {subset_name}"):
+            for item in pbar.iter(subset, desc=f"Exporting '{subset_name}'"):
                 try:
                     if self._save_media:
                         if item.media:
@@ -794,6 +956,10 @@ class CocoExporter(Exporter):
             image_path = osp.join(images_dir, subset, conv._make_image_filename(item))
             if osp.isfile(image_path):
                 os.unlink(image_path)
+
+    @property
+    def can_stream(self) -> bool:
+        return True
 
 
 class CocoInstancesExporter(CocoExporter):

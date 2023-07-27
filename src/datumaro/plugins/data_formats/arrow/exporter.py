@@ -58,9 +58,13 @@ class _SubsetWriter(__SubsetWriter):
         num_shards: int = 1,
         max_shard_size: Optional[int] = None,
     ):
-        super().__init__(context, "", export_context)
+        super().__init__(
+            context=context,
+            subset=subset,
+            ann_file="",
+            export_context=export_context,
+        )
         self._schema = deepcopy(DatumaroArrow.SCHEMA)
-        self._subset = subset
         self._writers = []
         self._fnames = []
         self._max_chunk_size = max_chunk_size
@@ -370,6 +374,7 @@ class ArrowExporter(Exporter):
         num_shards: int = 1,
         max_shard_size: Optional[int] = None,
         max_chunk_size: int = 1000,
+        **kwargs,
     ):
         super().__init__(
             extractor=extractor,

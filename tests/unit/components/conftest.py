@@ -9,6 +9,7 @@ import pytest
 from datumaro.components.annotation import AnnotationType, Label, LabelCategories
 from datumaro.components.dataset_base import CategoriesInfo, DatasetInfo, DatasetItem, IDataset
 from datumaro.components.media import MediaElement
+from datumaro.util.definitions import DEFAULT_SUBSET_NAME
 
 
 @pytest.fixture
@@ -51,5 +52,7 @@ def fxt_stream_extractor(
     stream_extractor.categories.return_value = fxt_categories
     stream_extractor.media_type.return_value = MediaElement
     stream_extractor.is_stream = True
+
+    stream_extractor.subsets.return_value = {DEFAULT_SUBSET_NAME: stream_extractor}
 
     return stream_extractor

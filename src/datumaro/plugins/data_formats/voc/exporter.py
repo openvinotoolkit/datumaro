@@ -795,6 +795,10 @@ class VocExporter(Exporter):
                 if osp.isfile(path):
                     os.unlink(path)
 
+    @property
+    def can_stream(self) -> bool:
+        return True
+
 
 class VocClassificationExporter(VocExporter):
     def __init__(self, *args, **kwargs):

@@ -3,6 +3,7 @@
 # SPDX-License-Identifier: MIT
 
 import os.path as osp
+import re
 from typing import Dict, List, Optional, Type
 
 import json_stream
@@ -37,12 +38,19 @@ __all__ = ["DatumaroBase"]
 
 class JsonReader:
     def __init__(
-        self, path: str, subset: str, rootpath: str, images_dir: str, pcd_dir: str
+        self,
+        path: str,
+        subset: str,
+        rootpath: str,
+        images_dir: str,
+        pcd_dir: str,
+        ctx: ImportContext,
     ) -> None:
         self._subset = subset
         self._rootpath = rootpath
         self._images_dir = images_dir
         self._pcd_dir = pcd_dir
+        self._ctx = ctx
 
         self._reader = self._init_reader(path)
         self.media_type = self._load_media_type(self._reader)
@@ -103,63 +111,77 @@ class JsonReader:
         return categories
 
     def _load_items(self, parsed) -> List:
-        items = []
-
         item_descs = parsed["items"]
-        while item_descs:
-            item_desc = item_descs.pop()
+        pbar = self._ctx.progress_reporter
+
+        def _gen():
+            while item_descs:
+                yield item_descs.pop()
+
+        items = []
+        for item_desc in pbar.iter(
+            _gen(), desc=f"Importing '{self._subset}'", total=len(item_descs)
+        ):
             item = self._parse_item(item_desc)
-            items.append(item)
+            if item is not None:
+                items.append(item)
 
         return items
 
-    def _parse_item(self, item_desc):
-        item_id = item_desc["id"]
+    def _parse_item(self, item_desc: Dict) -> Optional[DatasetItem]:
+        try:
+            item_id = item_desc["id"]
 
-        media = None
-        image_info = item_desc.get("image")
-        if image_info:
-            image_filename = image_info.get("path") or item_id + DatumaroPath.IMAGE_EXT
-            image_path = osp.join(self._images_dir, self._subset, image_filename)
-            if not osp.isfile(image_path):
-                # backward compatibility
-                old_image_path = osp.join(self._images_dir, image_filename)
-                if osp.isfile(old_image_path):
-                    image_path = old_image_path
+            media = None
+            image_info = item_desc.get("image")
+            if image_info:
+                image_filename = image_info.get("path") or item_id + DatumaroPath.IMAGE_EXT
+                image_path = osp.join(self._images_dir, self._subset, image_filename)
+                if not osp.isfile(image_path):
+                    # backward compatibility
+                    old_image_path = osp.join(self._images_dir, image_filename)
+                    if osp.isfile(old_image_path):
+                        image_path = old_image_path
 
-            media = Image.from_file(path=image_path, size=image_info.get("size"))
-            if self.media_type == MediaElement:
-                self.media_type = Image
+                media = Image.from_file(path=image_path, size=image_info.get("size"))
+                if self.media_type == MediaElement:
+                    self.media_type = Image
 
-        pcd_info = item_desc.get("point_cloud")
-        if media and pcd_info:
-            raise MediaTypeError("Dataset cannot contain multiple media types")
-        if pcd_info:
-            pcd_path = pcd_info.get("path")
-            point_cloud = osp.join(self._pcd_dir, self._subset, pcd_path)
+            pcd_info = item_desc.get("point_cloud")
+            if media and pcd_info:
+                raise MediaTypeError("Dataset cannot contain multiple media types")
+            if pcd_info:
+                pcd_path = pcd_info.get("path")
+                point_cloud = osp.join(self._pcd_dir, self._subset, pcd_path)
 
-            related_images = None
-            ri_info = item_desc.get("related_images")
-            if ri_info:
-                related_images = [
-                    Image.from_file(
-                        size=ri.get("size"),
-                        path=osp.join(self._images_dir, self._subset, ri.get("path")),
-                    )
-                    for ri in ri_info
-                ]
+                related_images = None
+                ri_info = item_desc.get("related_images")
+                if ri_info:
+                    related_images = [
+                        Image.from_file(
+                            size=ri.get("size"),
+                            path=osp.join(self._images_dir, self._subset, ri.get("path")),
+                        )
+                        for ri in ri_info
+                    ]
 
-            media = PointCloud.from_file(path=point_cloud, extra_images=related_images)
-            if self.media_type == MediaElement:
-                self.media_type = PointCloud
+                media = PointCloud.from_file(path=point_cloud, extra_images=related_images)
+                if self.media_type == MediaElement:
+                    self.media_type = PointCloud
 
-        media_desc = item_desc.get("media")
-        if not media and media_desc and media_desc.get("path"):
-            media = MediaElement(path=media_desc.get("path"))
+            media_desc = item_desc.get("media")
+            if not media and media_desc and media_desc.get("path"):
+                media = MediaElement(path=media_desc.get("path"))
+
+        except Exception as e:
+            self._ctx.error_policy.report_item_error(
+                e, item_id=(item_desc.get("id", None), self._subset)
+            )
+            return None
 
         annotations = self._load_annotations(item_desc)
 
-        item = DatasetItem(
+        return DatasetItem(
             id=item_id,
             subset=self._subset,
             annotations=annotations,
@@ -167,125 +189,128 @@ class JsonReader:
             attributes=item_desc.get("attr"),
         )
 
-        return item
-
-    @staticmethod
-    def _load_annotations(item):
-        parsed = item["annotations"]
+    def _load_annotations(self, item: Dict):
         loaded = []
 
-        for ann in parsed:
-            ann_id = ann.get("id")
-            ann_type = AnnotationType[ann["type"]]
-            attributes = ann.get("attributes")
-            group = ann.get("group")
+        for ann in item.get("annotations", []):
+            try:
+                ann_id = ann.get("id")
+                ann_type = AnnotationType[ann["type"]]
+                attributes = ann.get("attributes")
+                group = ann.get("group")
 
-            label_id = ann.get("label_id")
-            z_order = ann.get("z_order")
-            points = ann.get("points")
+                label_id = ann.get("label_id")
+                z_order = ann.get("z_order")
+                points = ann.get("points")
 
-            if ann_type == AnnotationType.label:
-                loaded.append(Label(label=label_id, id=ann_id, attributes=attributes, group=group))
-
-            elif ann_type == AnnotationType.mask:
-                rle = ann["rle"]
-                rle["counts"] = rle["counts"].encode("ascii")
-                loaded.append(
-                    RleMask(
-                        rle=rle,
-                        label=label_id,
-                        id=ann_id,
-                        attributes=attributes,
-                        group=group,
-                        z_order=z_order,
+                if ann_type == AnnotationType.label:
+                    loaded.append(
+                        Label(label=label_id, id=ann_id, attributes=attributes, group=group)
                     )
-                )
 
-            elif ann_type == AnnotationType.polyline:
-                loaded.append(
-                    PolyLine(
-                        points,
-                        label=label_id,
-                        id=ann_id,
-                        attributes=attributes,
-                        group=group,
-                        z_order=z_order,
+                elif ann_type == AnnotationType.mask:
+                    rle = ann["rle"]
+                    rle["counts"] = rle["counts"].encode("ascii")
+                    loaded.append(
+                        RleMask(
+                            rle=rle,
+                            label=label_id,
+                            id=ann_id,
+                            attributes=attributes,
+                            group=group,
+                            z_order=z_order,
+                        )
                     )
-                )
 
-            elif ann_type == AnnotationType.polygon:
-                loaded.append(
-                    Polygon(
-                        points,
-                        label=label_id,
-                        id=ann_id,
-                        attributes=attributes,
-                        group=group,
-                        z_order=z_order,
+                elif ann_type == AnnotationType.polyline:
+                    loaded.append(
+                        PolyLine(
+                            points,
+                            label=label_id,
+                            id=ann_id,
+                            attributes=attributes,
+                            group=group,
+                            z_order=z_order,
+                        )
                     )
-                )
 
-            elif ann_type == AnnotationType.bbox:
-                x, y, w, h = ann["bbox"]
-                loaded.append(
-                    Bbox(
-                        x,
-                        y,
-                        w,
-                        h,
-                        label=label_id,
-                        id=ann_id,
-                        attributes=attributes,
-                        group=group,
-                        z_order=z_order,
+                elif ann_type == AnnotationType.polygon:
+                    loaded.append(
+                        Polygon(
+                            points,
+                            label=label_id,
+                            id=ann_id,
+                            attributes=attributes,
+                            group=group,
+                            z_order=z_order,
+                        )
                     )
-                )
 
-            elif ann_type == AnnotationType.points:
-                loaded.append(
-                    Points(
-                        points,
-                        label=label_id,
-                        id=ann_id,
-                        attributes=attributes,
-                        group=group,
-                        z_order=z_order,
+                elif ann_type == AnnotationType.bbox:
+                    x, y, w, h = ann["bbox"]
+                    loaded.append(
+                        Bbox(
+                            x,
+                            y,
+                            w,
+                            h,
+                            label=label_id,
+                            id=ann_id,
+                            attributes=attributes,
+                            group=group,
+                            z_order=z_order,
+                        )
                     )
-                )
 
-            elif ann_type == AnnotationType.caption:
-                caption = ann.get("caption")
-                loaded.append(Caption(caption, id=ann_id, attributes=attributes, group=group))
-
-            elif ann_type == AnnotationType.cuboid_3d:
-                loaded.append(
-                    Cuboid3d(
-                        ann.get("position"),
-                        ann.get("rotation"),
-                        ann.get("scale"),
-                        label=label_id,
-                        id=ann_id,
-                        attributes=attributes,
-                        group=group,
+                elif ann_type == AnnotationType.points:
+                    loaded.append(
+                        Points(
+                            points,
+                            label=label_id,
+                            id=ann_id,
+                            attributes=attributes,
+                            group=group,
+                            z_order=z_order,
+                        )
                     )
-                )
 
-            elif ann_type == AnnotationType.ellipse:
-                loaded.append(
-                    Ellipse(
-                        *points,
-                        label=label_id,
-                        id=ann_id,
-                        attributes=attributes,
-                        group=group,
-                        z_order=z_order,
+                elif ann_type == AnnotationType.caption:
+                    caption = ann.get("caption")
+                    loaded.append(Caption(caption, id=ann_id, attributes=attributes, group=group))
+
+                elif ann_type == AnnotationType.cuboid_3d:
+                    loaded.append(
+                        Cuboid3d(
+                            ann.get("position"),
+                            ann.get("rotation"),
+                            ann.get("scale"),
+                            label=label_id,
+                            id=ann_id,
+                            attributes=attributes,
+                            group=group,
+                        )
                     )
-                )
 
-            elif ann_type == AnnotationType.hash_key:
-                continue
-            else:
-                raise NotImplementedError()
+                elif ann_type == AnnotationType.ellipse:
+                    loaded.append(
+                        Ellipse(
+                            *points,
+                            label=label_id,
+                            id=ann_id,
+                            attributes=attributes,
+                            group=group,
+                            z_order=z_order,
+                        )
+                    )
+
+                elif ann_type == AnnotationType.hash_key:
+                    continue
+                else:
+                    raise NotImplementedError()
+            except Exception as e:
+                self._ctx.error_policy.report_annotation_error(
+                    e, item_id=(ann.get("id", None), self._subset)
+                )
 
         return loaded
 
@@ -298,9 +323,15 @@ class JsonReader:
 
 class StreamJsonReader(JsonReader):
     def __init__(
-        self, path: str, subset: str, rootpath: str, images_dir: str, pcd_dir: str
+        self,
+        path: str,
+        subset: str,
+        rootpath: str,
+        images_dir: str,
+        pcd_dir: str,
+        ctx: ImportContext,
     ) -> None:
-        super().__init__(path, subset, rootpath, images_dir, pcd_dir)
+        super().__init__(path, subset, rootpath, images_dir, pcd_dir, ctx)
         self._length = None
 
     def __len__(self):
@@ -309,14 +340,15 @@ class StreamJsonReader(JsonReader):
         return self._length
 
     def __iter__(self):
-        with open(self._reader, encoding="utf-8") as fp:
+        pbar = self._ctx.progress_reporter
+        with open(self._reader, "rb") as fp:
             data = json_stream.load(fp)
             items = data.get("items", None)
             if items is None:
                 raise DatasetImportError('Annotation JSON file should have "items" entity.')
 
             length = 0
-            for item in items:
+            for item in pbar.iter(items):
                 item_desc = to_dict_from_streaming_json(item)
                 length += 1
                 yield self._parse_item(item_desc)
@@ -329,10 +361,21 @@ class StreamJsonReader(JsonReader):
 
     @staticmethod
     def _load_media_type(path) -> Type[MediaElement]:
+        # We can assume that the media_type information will be within the first 1 KB of the file.
+        # This is because we are the producer of Datumaro format.
+        search_size = 1024  # 1 KB
+
+        pattern = '"media_type"\s*:\s*(\d+)'
+
         with open(path, "r", encoding="utf-8") as fp:
-            data = json_stream.load(fp)
-            media_type = data.get("media_type", MediaType.IMAGE)
-            return MediaType(media_type).media
+            out = fp.read(search_size)
+            found = re.search(pattern, out)
+
+            if found:
+                int_type = int(found.group(1))
+                return MediaType(int_type).IMAGE.media
+
+        return MediaType.IMAGE.media
 
     @staticmethod
     def _load_infos(path) -> Dict:
@@ -426,10 +469,22 @@ class DatumaroBase(SubsetBase):
     def _load_impl(self, path: str) -> None:
         """Actual implementation of loading Datumaro format."""
         self._reader = (
-            JsonReader(path, self._subset, self._rootpath, self._images_dir, self._pcd_dir)
+            JsonReader(
+                path,
+                self._subset,
+                self._rootpath,
+                self._images_dir,
+                self._pcd_dir,
+                self._ctx,
+            )
             if not self._stream
             else StreamJsonReader(
-                path, self._subset, self._rootpath, self._images_dir, self._pcd_dir
+                path,
+                self._subset,
+                self._rootpath,
+                self._images_dir,
+                self._pcd_dir,
+                self._ctx,
             )
         )
         return self._reader
@@ -441,9 +496,25 @@ class DatumaroBase(SubsetBase):
         Note that the legacy Datumaro doesn't store the version into exported dataset.
         Thus it returns DatumaroBase.LEGACY_VERSION
         """
+        # We can assume that the version information will be within the first 1 KB of the file.
+        # This is because we are the producer of Datumaro format.
+        search_size = 1024  # 1 KB
+
+        pattern = '"dm_format_version"\s*:\s*"(\w+)"'
+
         with open(path, "r", encoding="utf-8") as fp:
-            version = json_stream.load(fp).get("dm_format_version", self.LEGACY_VERSION)
-        return version
+            out = fp.read(search_size)
+            found = re.search(pattern, out)
+
+            if not found:
+                return self.LEGACY_VERSION
+
+        version_str = found.group(1)
+
+        if re.match("\d+\.d+", version_str) is None:
+            raise DatasetImportError(f"Invalid version string: {version_str} ")
+
+        return version_str
 
     def __len__(self) -> int:
         return len(self._reader)
