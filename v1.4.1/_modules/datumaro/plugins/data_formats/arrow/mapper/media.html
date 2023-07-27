@@ -1,0 +1,656 @@
+
+<!DOCTYPE html>
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>datumaro.plugins.data_formats.arrow.mapper.media &#8212; Datumaro 1.4.1 documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "light";
+  </script>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../../../../../_static/styles/theme.css?digest=796348d33e8b1d947c94" rel="stylesheet">
+<link href="../../../../../../_static/styles/bootstrap.css?digest=796348d33e8b1d947c94" rel="stylesheet">
+<link href="../../../../../../_static/styles/pydata-sphinx-theme.css?digest=796348d33e8b1d947c94" rel="stylesheet">
+
+  
+  <link href="../../../../../../_static/vendor/fontawesome/6.1.2/css/all.min.css?digest=796348d33e8b1d947c94" rel="stylesheet">
+  <link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../../../_static/vendor/fontawesome/6.1.2/webfonts/fa-solid-900.woff2">
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../../../_static/vendor/fontawesome/6.1.2/webfonts/fa-brands-400.woff2">
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../../../_static/vendor/fontawesome/6.1.2/webfonts/fa-regular-400.woff2">
+
+    <link rel="stylesheet" type="text/css" href="../../../../../../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../../../../../../_static/copybutton.css" />
+    <link rel="stylesheet" type="text/css" href="../../../../../../_static/graphviz.css" />
+    <link rel="stylesheet" type="text/css" href="../../../../../../_static/design-style.1e8bd061cd6da7fc9cf755528e8ffc24.min.css" />
+    <link rel="stylesheet" type="text/css" href="../../../../../../_static/css/custom.css" />
+  
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../../../../../_static/scripts/bootstrap.js?digest=796348d33e8b1d947c94">
+<link rel="preload" as="script" href="../../../../../../_static/scripts/pydata-sphinx-theme.js?digest=796348d33e8b1d947c94">
+
+    <script data-url_root="../../../../../../" id="documentation_options" src="../../../../../../_static/documentation_options.js"></script>
+    <script src="../../../../../../_static/jquery.js"></script>
+    <script src="../../../../../../_static/underscore.js"></script>
+    <script src="../../../../../../_static/_sphinx_javascript_frameworks_compat.js"></script>
+    <script src="../../../../../../_static/doctools.js"></script>
+    <script src="../../../../../../_static/sphinx_highlight.js"></script>
+    <script src="../../../../../../_static/clipboard.min.js"></script>
+    <script src="../../../../../../_static/copybutton.js"></script>
+    <script src="../../../../../../_static/design-tabs.js"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = '_modules/datumaro/plugins/data_formats/arrow/mapper/media';</script>
+    <link rel="index" title="Index" href="../../../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../../../search.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="docsearch:language" content="en">
+  </head>
+  
+  
+  <body data-spy="scroll" data-target="#bd-toc-nav" data-offset="180" data-default-mode="">
+
+  
+  
+  <a class="skip-link" href="#main-content">Skip to main content</a>
+
+  
+  <input type="checkbox" class="sidebar-toggle" name="__primary" id="__primary">
+  <label class="overlay overlay-primary" for="__primary"></label>
+
+  
+  <input type="checkbox" class="sidebar-toggle" name="__secondary" id="__secondary">
+  <label class="overlay overlay-secondary" for="__secondary"></label>
+
+  
+  <div class="search-button__wrapper">
+    <div class="search-button__overlay"></div>
+    <div class="search-button__search-container">
+      
+<form class="bd-search d-flex align-items-center" action="../../../../../../search.html" method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search" class="form-control" name="q" id="search-input" placeholder="Search the docs ..." aria-label="Search the docs ..." autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+    </div>
+  </div>
+
+  
+  <nav class="bd-header navbar navbar-expand-lg bd-navbar" id="navbar-main"><div class="bd-header__inner bd-page-width">
+  <label class="sidebar-toggle primary-toggle" for="__primary">
+      <span class="fa-solid fa-bars"></span>
+  </label>
+  <div id="navbar-start">
+    
+    
+  
+
+
+<a class="navbar-brand logo" href="../../../../../../index.html">
+
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <img src="../../../../../../_static/datumaro-logo.png" class="logo__image only-light" alt="Logo image">
+    <img src="../../../../../../_static/datumaro-logo.png" class="logo__image only-dark" alt="Logo image">
+  
+  
+</a>
+    
+  </div>
+
+  
+  <div class="col-lg-9 navbar-header-items">
+    <div id="navbar-center" class="mr-auto">
+      
+      <div class="navbar-center-item">
+        <nav class="navbar-nav">
+    <p class="sidebar-header-items__title" role="heading" aria-level="1" aria-label="Site Navigation">
+        Site Navigation
+    </p>
+    <ul id="navbar-main-elements" class="navbar-nav">
+        
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="../../../../../../docs/index.html">
+                        Docs
+                      </a>
+                    </li>
+                
+    </ul>
+</nav>
+      </div>
+      
+    </div>
+
+    <div id="navbar-end">
+      
+        <div class="navbar-end-item navbar-persistent--container">
+          
+<button class="btn btn-sm navbar-btn search-button search-button__button" title="Search" aria-label="Search" data-toggle="tooltip">
+  <i class="fa-solid fa-magnifying-glass"></i>
+</button>
+        </div>
+      
+      
+      <div class="navbar-end-item">
+        <button class="theme-switch-button btn btn-sm btn-outline-primary navbar-btn rounded-circle" title="light/dark" aria-label="light/dark" data-toggle="tooltip">
+    <span class="theme-switch" data-mode="light"><i class="fa-solid fa-sun"></i></span>
+    <span class="theme-switch" data-mode="dark"><i class="fa-solid fa-moon"></i></span>
+    <span class="theme-switch" data-mode="auto"><i class="fa-solid fa-circle-half-stroke"></i></span>
+</button>
+      </div>
+      
+      <div class="navbar-end-item">
+        <ul id="navbar-icon-links" class="navbar-nav" aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/openvinotoolkit/datumaro" title="GitHub" class="nav-link" rel="noopener" target="_blank" data-toggle="tooltip"><img src="../../../../../../_static/github_icon.png" class="icon-link-image" alt="GitHub"/></a>
+        </li>
+      </ul>
+      </div>
+      
+    </div>
+  </div>
+
+
+  
+  
+    <div class="navbar-persistent--mobile">
+<button class="btn btn-sm navbar-btn search-button search-button__button" title="Search" aria-label="Search" data-toggle="tooltip">
+  <i class="fa-solid fa-magnifying-glass"></i>
+</button>
+    </div>
+  
+
+  
+  <label class="sidebar-toggle secondary-toggle" for="__secondary">
+      <span class="fa-solid fa-outdent"></span>
+  </label>
+  
+
+</div>
+  </nav>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      <div class="bd-sidebar-primary bd-sidebar hide-on-wide">
+        
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+      
+      <div class="navbar-center-item">
+        <nav class="navbar-nav">
+    <p class="sidebar-header-items__title" role="heading" aria-level="1" aria-label="Site Navigation">
+        Site Navigation
+    </p>
+    <ul id="navbar-main-elements" class="navbar-nav">
+        
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="../../../../../../docs/index.html">
+                        Docs
+                      </a>
+                    </li>
+                
+    </ul>
+</nav>
+      </div>
+      
+      </div>
+    
+
+    
+    
+    <div class="sidebar-header-items__end">
+      
+      <div class="navbar-end-item">
+        <button class="theme-switch-button btn btn-sm btn-outline-primary navbar-btn rounded-circle" title="light/dark" aria-label="light/dark" data-toggle="tooltip">
+    <span class="theme-switch" data-mode="light"><i class="fa-solid fa-sun"></i></span>
+    <span class="theme-switch" data-mode="dark"><i class="fa-solid fa-moon"></i></span>
+    <span class="theme-switch" data-mode="auto"><i class="fa-solid fa-circle-half-stroke"></i></span>
+</button>
+      </div>
+      
+      <div class="navbar-end-item">
+        <ul id="navbar-icon-links" class="navbar-nav" aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/openvinotoolkit/datumaro" title="GitHub" class="nav-link" rel="noopener" target="_blank" data-toggle="tooltip"><img src="../../../../../../_static/github_icon.png" class="icon-link-image" alt="GitHub"/></a>
+        </li>
+      </ul>
+      </div>
+      
+    </div>
+    
+  </div>
+
+  
+
+  
+  <div class="sidebar-end-items sidebar-primary__section">
+    <div class="sidebar-end-items__item">
+    </div>
+  </div>
+
+  
+  <div id="rtd-footer-container"></div>
+
+      </div>
+      <main id="main-content" class="bd-main">
+        
+        
+        <div class="bd-content">
+          <div class="bd-article-container">
+            
+            <div class="bd-header-article">
+                
+            </div>
+            
+            
+            <article class="bd-article" role="main">
+              
+  <h1>Source code for datumaro.plugins.data_formats.arrow.mapper.media</h1><div class="highlight"><pre>
+<span></span><span class="c1"># Copyright (C) 2023 Intel Corporation</span>
+<span class="c1">#</span>
+<span class="c1"># SPDX-License-Identifier: MIT</span>
+
+
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">struct</span>
+<span class="kn">from</span> <span class="nn">functools</span> <span class="kn">import</span> <span class="n">partial</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Union</span>
+
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">pyarrow</span> <span class="k">as</span> <span class="nn">pa</span>
+
+<span class="kn">from</span> <span class="nn">datumaro.components.errors</span> <span class="kn">import</span> <span class="n">DatumaroError</span>
+<span class="kn">from</span> <span class="nn">datumaro.components.media</span> <span class="kn">import</span> <span class="n">Image</span><span class="p">,</span> <span class="n">MediaElement</span><span class="p">,</span> <span class="n">MediaType</span><span class="p">,</span> <span class="n">PointCloud</span>
+<span class="kn">from</span> <span class="nn">datumaro.plugins.data_formats.datumaro_binary.mapper.common</span> <span class="kn">import</span> <span class="n">DictMapper</span><span class="p">,</span> <span class="n">Mapper</span>
+<span class="kn">from</span> <span class="nn">datumaro.util.image</span> <span class="kn">import</span> <span class="n">decode_image</span><span class="p">,</span> <span class="n">encode_image</span><span class="p">,</span> <span class="n">load_image</span>
+
+<span class="kn">from</span> <span class="nn">.utils</span> <span class="kn">import</span> <span class="n">b64decode</span><span class="p">,</span> <span class="n">b64encode</span><span class="p">,</span> <span class="n">pa_batches_decoder</span>
+
+
+<div class="viewcode-block" id="MediaMapper"><a class="viewcode-back" href="../../../../../../docs/reference/_autosummary/datumaro.plugins.data_formats.arrow.mapper.media.html#datumaro.plugins.data_formats.arrow.mapper.MediaMapper">[docs]</a><span class="k">class</span> <span class="nc">MediaMapper</span><span class="p">(</span><span class="n">Mapper</span><span class="p">):</span>
+<div class="viewcode-block" id="MediaMapper.forward"><a class="viewcode-back" href="../../../../../../docs/reference/_autosummary/datumaro.plugins.data_formats.arrow.mapper.media.html#datumaro.plugins.data_formats.arrow.mapper.MediaMapper.forward">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">forward</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">obj</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">MediaElement</span><span class="p">],</span> <span class="o">**</span><span class="n">options</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
+        <span class="k">if</span> <span class="n">obj</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="nb">int</span><span class="p">(</span><span class="n">MediaType</span><span class="o">.</span><span class="n">NONE</span><span class="p">)}</span>
+        <span class="k">if</span> <span class="n">obj</span><span class="o">.</span><span class="n">_type</span> <span class="o">==</span> <span class="n">MediaType</span><span class="o">.</span><span class="n">IMAGE</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">ImageMapper</span><span class="o">.</span><span class="n">forward</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="o">**</span><span class="n">options</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">obj</span><span class="o">.</span><span class="n">_type</span> <span class="o">==</span> <span class="n">MediaType</span><span class="o">.</span><span class="n">POINT_CLOUD</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">PointCloudMapper</span><span class="o">.</span><span class="n">forward</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="o">**</span><span class="n">options</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">obj</span><span class="o">.</span><span class="n">_type</span> <span class="o">==</span> <span class="n">MediaType</span><span class="o">.</span><span class="n">MEDIA_ELEMENT</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">MediaElementMapper</span><span class="o">.</span><span class="n">forward</span><span class="p">(</span><span class="n">obj</span><span class="p">)</span>
+        <span class="k">raise</span> <span class="n">DatumaroError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">obj</span><span class="o">.</span><span class="n">_type</span><span class="si">}</span><span class="s2"> is not allowed for MediaMapper.&quot;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="MediaMapper.backward"><a class="viewcode-back" href="../../../../../../docs/reference/_autosummary/datumaro.plugins.data_formats.arrow.mapper.media.html#datumaro.plugins.data_formats.arrow.mapper.MediaMapper.backward">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">backward</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">obj</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">MediaElement</span><span class="p">]:</span>
+        <span class="n">media_type</span> <span class="o">=</span> <span class="n">obj</span><span class="p">[</span><span class="s2">&quot;type&quot;</span><span class="p">]</span>
+
+        <span class="k">if</span> <span class="n">media_type</span> <span class="o">==</span> <span class="n">MediaType</span><span class="o">.</span><span class="n">NONE</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">None</span>
+        <span class="k">if</span> <span class="n">media_type</span> <span class="o">==</span> <span class="n">MediaType</span><span class="o">.</span><span class="n">IMAGE</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">ImageMapper</span><span class="o">.</span><span class="n">backward</span><span class="p">(</span><span class="n">obj</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">media_type</span> <span class="o">==</span> <span class="n">MediaType</span><span class="o">.</span><span class="n">POINT_CLOUD</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">PointCloudMapper</span><span class="o">.</span><span class="n">backward</span><span class="p">(</span><span class="n">obj</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">media_type</span> <span class="o">==</span> <span class="n">MediaType</span><span class="o">.</span><span class="n">MEDIA_ELEMENT</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">MediaElementMapper</span><span class="o">.</span><span class="n">backward</span><span class="p">(</span><span class="n">obj</span><span class="p">)</span>
+        <span class="k">raise</span> <span class="n">DatumaroError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">media_type</span><span class="si">}</span><span class="s2"> is not allowed for MediaMapper.&quot;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="MediaMapper.backward_from_batches"><a class="viewcode-back" href="../../../../../../docs/reference/_autosummary/datumaro.plugins.data_formats.arrow.mapper.media.html#datumaro.plugins.data_formats.arrow.mapper.MediaMapper.backward_from_batches">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">backward_from_batches</span><span class="p">(</span>
+        <span class="bp">cls</span><span class="p">,</span>
+        <span class="n">batches</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">pa</span><span class="o">.</span><span class="n">lib</span><span class="o">.</span><span class="n">RecordBatch</span><span class="p">],</span>
+        <span class="n">parent</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">Optional</span><span class="p">[</span><span class="n">MediaElement</span><span class="p">]]:</span>
+        <span class="n">types</span> <span class="o">=</span> <span class="n">pa_batches_decoder</span><span class="p">(</span><span class="n">batches</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">parent</span><span class="si">}</span><span class="s2">.type&quot;</span> <span class="k">if</span> <span class="n">parent</span> <span class="k">else</span> <span class="s2">&quot;type&quot;</span><span class="p">)</span>
+        <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">types</span><span class="p">))</span> <span class="o">==</span> <span class="mi">1</span><span class="p">,</span> <span class="s2">&quot;The types in batch are not identical.&quot;</span>
+
+        <span class="k">if</span> <span class="n">types</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="n">MediaType</span><span class="o">.</span><span class="n">NONE</span><span class="p">:</span>
+            <span class="k">return</span> <span class="p">[</span><span class="kc">None</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="n">types</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">types</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="n">MediaType</span><span class="o">.</span><span class="n">IMAGE</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">ImageMapper</span><span class="o">.</span><span class="n">backward_from_batches</span><span class="p">(</span><span class="n">batches</span><span class="p">,</span> <span class="n">parent</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">types</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="n">MediaType</span><span class="o">.</span><span class="n">POINT_CLOUD</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">PointCloudMapper</span><span class="o">.</span><span class="n">backward_from_batches</span><span class="p">(</span><span class="n">batches</span><span class="p">,</span> <span class="n">parent</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">types</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="n">MediaType</span><span class="o">.</span><span class="n">MEDIA_ELEMENT</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">MediaElementMapper</span><span class="o">.</span><span class="n">backward_from_batches</span><span class="p">(</span><span class="n">batches</span><span class="p">,</span> <span class="n">parent</span><span class="p">)</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span></div></div>
+
+
+<div class="viewcode-block" id="MediaElementMapper"><a class="viewcode-back" href="../../../../../../docs/reference/_autosummary/datumaro.plugins.data_formats.arrow.mapper.media.html#datumaro.plugins.data_formats.arrow.mapper.MediaElementMapper">[docs]</a><span class="k">class</span> <span class="nc">MediaElementMapper</span><span class="p">(</span><span class="n">Mapper</span><span class="p">):</span>
+    <span class="n">MAGIC_PATH</span> <span class="o">=</span> <span class="s2">&quot;/NOT/A/REAL/PATH&quot;</span>
+    <span class="n">MEDIA_TYPE</span> <span class="o">=</span> <span class="n">MediaType</span><span class="o">.</span><span class="n">MEDIA_ELEMENT</span>
+
+<div class="viewcode-block" id="MediaElementMapper.forward"><a class="viewcode-back" href="../../../../../../docs/reference/_autosummary/datumaro.plugins.data_formats.arrow.mapper.media.html#datumaro.plugins.data_formats.arrow.mapper.MediaElementMapper.forward">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">forward</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">obj</span><span class="p">:</span> <span class="n">MediaElement</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
+        <span class="k">return</span> <span class="p">{</span>
+            <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="nb">int</span><span class="p">(</span><span class="n">obj</span><span class="o">.</span><span class="n">type</span><span class="p">),</span>
+            <span class="s2">&quot;path&quot;</span><span class="p">:</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="s2">&quot;path&quot;</span><span class="p">,</span> <span class="bp">cls</span><span class="o">.</span><span class="n">MAGIC_PATH</span><span class="p">),</span>
+        <span class="p">}</span></div>
+
+<div class="viewcode-block" id="MediaElementMapper.backward_dict"><a class="viewcode-back" href="../../../../../../docs/reference/_autosummary/datumaro.plugins.data_formats.arrow.mapper.media.html#datumaro.plugins.data_formats.arrow.mapper.MediaElementMapper.backward_dict">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">backward_dict</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">obj</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
+        <span class="n">obj</span> <span class="o">=</span> <span class="n">obj</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        <span class="n">media_type</span> <span class="o">=</span> <span class="n">obj</span><span class="p">[</span><span class="s2">&quot;type&quot;</span><span class="p">]</span>
+        <span class="k">assert</span> <span class="n">media_type</span> <span class="o">==</span> <span class="bp">cls</span><span class="o">.</span><span class="n">MEDIA_TYPE</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;Expect </span><span class="si">{</span><span class="bp">cls</span><span class="o">.</span><span class="n">MEDIA_TYPE</span><span class="si">}</span><span class="s2"> but actual is </span><span class="si">{</span><span class="n">media_type</span><span class="si">}</span><span class="s2">.&quot;</span>
+        <span class="n">obj</span><span class="p">[</span><span class="s2">&quot;type&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">media_type</span>
+        <span class="k">return</span> <span class="n">obj</span></div>
+
+<div class="viewcode-block" id="MediaElementMapper.backward"><a class="viewcode-back" href="../../../../../../docs/reference/_autosummary/datumaro.plugins.data_formats.arrow.mapper.media.html#datumaro.plugins.data_formats.arrow.mapper.MediaElementMapper.backward">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">backward</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">obj</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">MediaElement</span><span class="p">:</span>
+        <span class="n">_</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="n">backward_dict</span><span class="p">(</span><span class="n">obj</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">MediaElement</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="MediaElementMapper.backward_from_batches"><a class="viewcode-back" href="../../../../../../docs/reference/_autosummary/datumaro.plugins.data_formats.arrow.mapper.media.html#datumaro.plugins.data_formats.arrow.mapper.MediaElementMapper.backward_from_batches">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">backward_from_batches</span><span class="p">(</span>
+        <span class="bp">cls</span><span class="p">,</span>
+        <span class="n">batches</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">pa</span><span class="o">.</span><span class="n">lib</span><span class="o">.</span><span class="n">RecordBatch</span><span class="p">],</span>
+        <span class="n">parent</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">MediaElement</span><span class="p">]:</span>
+        <span class="n">types</span> <span class="o">=</span> <span class="n">pa_batches_decoder</span><span class="p">(</span><span class="n">batches</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">parent</span><span class="si">}</span><span class="s2">.type&quot;</span> <span class="k">if</span> <span class="n">parent</span> <span class="k">else</span> <span class="s2">&quot;type&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="p">[</span><span class="n">MediaElement</span><span class="p">()</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="n">types</span><span class="p">]</span></div></div>
+
+
+<div class="viewcode-block" id="ImageMapper"><a class="viewcode-back" href="../../../../../../docs/reference/_autosummary/datumaro.plugins.data_formats.arrow.mapper.media.html#datumaro.plugins.data_formats.arrow.mapper.ImageMapper">[docs]</a><span class="k">class</span> <span class="nc">ImageMapper</span><span class="p">(</span><span class="n">MediaElementMapper</span><span class="p">):</span>
+    <span class="n">MEDIA_TYPE</span> <span class="o">=</span> <span class="n">MediaType</span><span class="o">.</span><span class="n">IMAGE</span>
+    <span class="n">AVAILABLE_SCHEMES</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;AS-IS&quot;</span><span class="p">,</span> <span class="s2">&quot;PNG&quot;</span><span class="p">,</span> <span class="s2">&quot;TIFF&quot;</span><span class="p">,</span> <span class="s2">&quot;JPEG/95&quot;</span><span class="p">,</span> <span class="s2">&quot;JPEG/75&quot;</span><span class="p">,</span> <span class="s2">&quot;NONE&quot;</span><span class="p">)</span>
+
+<div class="viewcode-block" id="ImageMapper.encode"><a class="viewcode-back" href="../../../../../../docs/reference/_autosummary/datumaro.plugins.data_formats.arrow.mapper.media.html#datumaro.plugins.data_formats.arrow.mapper.ImageMapper.encode">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">encode</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">obj</span><span class="p">:</span> <span class="n">Image</span><span class="p">,</span> <span class="n">scheme</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;PNG&quot;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">bytes</span><span class="p">]:</span>
+        <span class="k">if</span> <span class="n">scheme</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">scheme</span> <span class="o">==</span> <span class="s2">&quot;NONE&quot;</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">None</span>
+        <span class="k">if</span> <span class="n">scheme</span> <span class="o">==</span> <span class="s2">&quot;AS-IS&quot;</span><span class="p">:</span>
+            <span class="n">_bytes</span> <span class="o">=</span> <span class="n">obj</span><span class="o">.</span><span class="n">bytes</span>
+            <span class="k">if</span> <span class="n">_bytes</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">_bytes</span>
+            <span class="c1"># try to encode in PNG</span>
+            <span class="n">scheme</span> <span class="o">=</span> <span class="s2">&quot;PNG&quot;</span>
+
+        <span class="n">options</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">if</span> <span class="n">scheme</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;JPEG&quot;</span><span class="p">):</span>
+            <span class="n">quality</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">scheme</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;/&quot;</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+            <span class="n">options</span><span class="p">[</span><span class="s2">&quot;ext&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;JPEG&quot;</span>
+            <span class="n">options</span><span class="p">[</span><span class="s2">&quot;jpeg_quality&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">quality</span>
+        <span class="k">elif</span> <span class="n">scheme</span> <span class="o">==</span> <span class="s2">&quot;PNG&quot;</span><span class="p">:</span>
+            <span class="n">options</span><span class="p">[</span><span class="s2">&quot;ext&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;PNG&quot;</span>
+        <span class="k">elif</span> <span class="n">scheme</span> <span class="o">==</span> <span class="s2">&quot;TIFF&quot;</span><span class="p">:</span>
+            <span class="n">options</span><span class="p">[</span><span class="s2">&quot;ext&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;TIFF&quot;</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">NotImplementedError</span>
+
+        <span class="n">data</span> <span class="o">=</span> <span class="n">obj</span><span class="o">.</span><span class="n">data</span>
+        <span class="k">if</span> <span class="n">data</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">encode_image</span><span class="p">(</span><span class="n">obj</span><span class="o">.</span><span class="n">data</span><span class="p">,</span> <span class="o">**</span><span class="n">options</span><span class="p">)</span>
+        <span class="k">return</span> <span class="kc">None</span></div>
+
+<div class="viewcode-block" id="ImageMapper.decode"><a class="viewcode-back" href="../../../../../../docs/reference/_autosummary/datumaro.plugins.data_formats.arrow.mapper.media.html#datumaro.plugins.data_formats.arrow.mapper.ImageMapper.decode">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">decode</span><span class="p">(</span>
+        <span class="bp">cls</span><span class="p">,</span> <span class="n">path</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">bytes</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]:</span>
+        <span class="k">if</span> <span class="n">path</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">data</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">None</span>
+        <span class="k">if</span> <span class="n">data</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">decode_image</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">uint8</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">path</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">load_image</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">uint8</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="ImageMapper.forward"><a class="viewcode-back" href="../../../../../../docs/reference/_autosummary/datumaro.plugins.data_formats.arrow.mapper.media.html#datumaro.plugins.data_formats.arrow.mapper.ImageMapper.forward">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">forward</span><span class="p">(</span>
+        <span class="bp">cls</span><span class="p">,</span> <span class="n">obj</span><span class="p">:</span> <span class="n">Image</span><span class="p">,</span> <span class="n">encoder</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Callable</span><span class="p">[[</span><span class="n">Image</span><span class="p">],</span> <span class="nb">bytes</span><span class="p">]]</span> <span class="o">=</span> <span class="s2">&quot;PNG&quot;</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
+        <span class="n">out</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">forward</span><span class="p">(</span><span class="n">obj</span><span class="p">)</span>
+
+        <span class="n">_bytes</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">encoder</span><span class="p">,</span> <span class="n">Callable</span><span class="p">):</span>
+            <span class="n">_bytes</span> <span class="o">=</span> <span class="n">encoder</span><span class="p">(</span><span class="n">obj</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">_bytes</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="n">scheme</span><span class="o">=</span><span class="n">encoder</span><span class="p">)</span>
+        <span class="n">out</span><span class="p">[</span><span class="s2">&quot;bytes&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">_bytes</span>
+
+        <span class="n">out</span><span class="p">[</span><span class="s2">&quot;attributes&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">DictMapper</span><span class="o">.</span><span class="n">forward</span><span class="p">(</span><span class="nb">dict</span><span class="p">(</span><span class="n">size</span><span class="o">=</span><span class="n">obj</span><span class="o">.</span><span class="n">size</span><span class="p">))</span>
+
+        <span class="k">return</span> <span class="n">out</span></div>
+
+<div class="viewcode-block" id="ImageMapper.backward"><a class="viewcode-back" href="../../../../../../docs/reference/_autosummary/datumaro.plugins.data_formats.arrow.mapper.media.html#datumaro.plugins.data_formats.arrow.mapper.ImageMapper.backward">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">backward</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">obj</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">Image</span><span class="p">:</span>
+        <span class="n">media_dict</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="n">backward_dict</span><span class="p">(</span><span class="n">obj</span><span class="p">)</span>
+
+        <span class="n">path</span> <span class="o">=</span> <span class="n">media_dict</span><span class="p">[</span><span class="s2">&quot;path&quot;</span><span class="p">]</span>
+        <span class="n">attributes</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">DictMapper</span><span class="o">.</span><span class="n">backward</span><span class="p">(</span><span class="n">media_dict</span><span class="p">[</span><span class="s2">&quot;attributes&quot;</span><span class="p">],</span> <span class="mi">0</span><span class="p">)</span>
+
+        <span class="n">_bytes</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">if</span> <span class="n">media_dict</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;bytes&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">_bytes</span> <span class="o">=</span> <span class="n">media_dict</span><span class="p">[</span><span class="s2">&quot;bytes&quot;</span><span class="p">]</span>
+
+        <span class="k">if</span> <span class="n">_bytes</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">Image</span><span class="o">.</span><span class="n">from_bytes</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">_bytes</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="n">attributes</span><span class="p">[</span><span class="s2">&quot;size&quot;</span><span class="p">])</span>
+        <span class="k">return</span> <span class="n">Image</span><span class="o">.</span><span class="n">from_file</span><span class="p">(</span><span class="n">path</span><span class="o">=</span><span class="n">path</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="n">attributes</span><span class="p">[</span><span class="s2">&quot;size&quot;</span><span class="p">])</span></div>
+
+<div class="viewcode-block" id="ImageMapper.backward_from_batches"><a class="viewcode-back" href="../../../../../../docs/reference/_autosummary/datumaro.plugins.data_formats.arrow.mapper.media.html#datumaro.plugins.data_formats.arrow.mapper.ImageMapper.backward_from_batches">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">backward_from_batches</span><span class="p">(</span>
+        <span class="bp">cls</span><span class="p">,</span>
+        <span class="n">batches</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">pa</span><span class="o">.</span><span class="n">lib</span><span class="o">.</span><span class="n">RecordBatch</span><span class="p">],</span>
+        <span class="n">parent</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">Image</span><span class="p">]:</span>
+        <span class="n">paths</span> <span class="o">=</span> <span class="n">pa_batches_decoder</span><span class="p">(</span><span class="n">batches</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">parent</span><span class="si">}</span><span class="s2">.path&quot;</span> <span class="k">if</span> <span class="n">parent</span> <span class="k">else</span> <span class="s2">&quot;path&quot;</span><span class="p">)</span>
+        <span class="n">attributes_</span> <span class="o">=</span> <span class="n">pa_batches_decoder</span><span class="p">(</span>
+            <span class="n">batches</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">parent</span><span class="si">}</span><span class="s2">.attributes&quot;</span> <span class="k">if</span> <span class="n">parent</span> <span class="k">else</span> <span class="s2">&quot;attributes&quot;</span>
+        <span class="p">)</span>
+        <span class="n">attributes_</span> <span class="o">=</span> <span class="p">[</span><span class="n">DictMapper</span><span class="o">.</span><span class="n">backward</span><span class="p">(</span><span class="n">attributes</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">attributes</span> <span class="ow">in</span> <span class="n">attributes_</span><span class="p">]</span>
+
+        <span class="n">images</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">idx</span><span class="p">,</span> <span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">attributes</span><span class="p">)</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="n">paths</span><span class="p">,</span> <span class="n">attributes_</span><span class="p">)):</span>
+            <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">path</span><span class="p">):</span>
+                <span class="n">images</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">Image</span><span class="o">.</span><span class="n">from_file</span><span class="p">(</span><span class="n">path</span><span class="o">=</span><span class="n">path</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="n">attributes</span><span class="p">[</span><span class="s2">&quot;size&quot;</span><span class="p">]))</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">images</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                    <span class="n">Image</span><span class="o">.</span><span class="n">from_bytes</span><span class="p">(</span>
+                        <span class="n">data</span><span class="o">=</span><span class="k">lambda</span><span class="p">:</span> <span class="n">pa_batches_decoder</span><span class="p">(</span>
+                            <span class="n">batches</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">parent</span><span class="si">}</span><span class="s2">.bytes&quot;</span> <span class="k">if</span> <span class="n">parent</span> <span class="k">else</span> <span class="s2">&quot;bytes&quot;</span>
+                        <span class="p">)[</span><span class="n">idx</span><span class="p">],</span>
+                        <span class="n">size</span><span class="o">=</span><span class="n">attributes</span><span class="p">[</span><span class="s2">&quot;size&quot;</span><span class="p">],</span>
+                    <span class="p">)</span>
+                <span class="p">)</span>
+        <span class="k">return</span> <span class="n">images</span></div></div>
+
+
+<span class="c1"># TODO: share binary for extra images</span>
+<div class="viewcode-block" id="PointCloudMapper"><a class="viewcode-back" href="../../../../../../docs/reference/_autosummary/datumaro.plugins.data_formats.arrow.mapper.media.html#datumaro.plugins.data_formats.arrow.mapper.PointCloudMapper">[docs]</a><span class="k">class</span> <span class="nc">PointCloudMapper</span><span class="p">(</span><span class="n">MediaElementMapper</span><span class="p">):</span>
+    <span class="n">MEDIA_TYPE</span> <span class="o">=</span> <span class="n">MediaType</span><span class="o">.</span><span class="n">POINT_CLOUD</span>
+    <span class="n">B64_PREFIX</span> <span class="o">=</span> <span class="s2">&quot;//B64_ENCODED//&quot;</span>
+
+<div class="viewcode-block" id="PointCloudMapper.forward"><a class="viewcode-back" href="../../../../../../docs/reference/_autosummary/datumaro.plugins.data_formats.arrow.mapper.media.html#datumaro.plugins.data_formats.arrow.mapper.PointCloudMapper.forward">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">forward</span><span class="p">(</span>
+        <span class="bp">cls</span><span class="p">,</span> <span class="n">obj</span><span class="p">:</span> <span class="n">PointCloud</span><span class="p">,</span> <span class="n">encoder</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Callable</span><span class="p">[[</span><span class="n">PointCloud</span><span class="p">],</span> <span class="nb">bytes</span><span class="p">]]</span> <span class="o">=</span> <span class="s2">&quot;PNG&quot;</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
+        <span class="n">out</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">forward</span><span class="p">(</span><span class="n">obj</span><span class="p">)</span>
+
+        <span class="n">_bytes</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">encoder</span><span class="p">,</span> <span class="n">Callable</span><span class="p">):</span>
+            <span class="n">_bytes</span> <span class="o">=</span> <span class="n">encoder</span><span class="p">(</span><span class="n">obj</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">encoder</span> <span class="o">!=</span> <span class="s2">&quot;NONE&quot;</span><span class="p">:</span>
+            <span class="n">_bytes</span> <span class="o">=</span> <span class="n">obj</span><span class="o">.</span><span class="n">data</span>
+        <span class="n">out</span><span class="p">[</span><span class="s2">&quot;bytes&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">_bytes</span>
+
+        <span class="n">bytes_arr</span> <span class="o">=</span> <span class="nb">bytearray</span><span class="p">()</span>
+        <span class="n">bytes_arr</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">struct</span><span class="o">.</span><span class="n">pack</span><span class="p">(</span><span class="s2">&quot;&lt;I&quot;</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">obj</span><span class="o">.</span><span class="n">extra_images</span><span class="p">)))</span>
+        <span class="k">for</span> <span class="n">img</span> <span class="ow">in</span> <span class="n">obj</span><span class="o">.</span><span class="n">extra_images</span><span class="p">:</span>
+            <span class="n">bytes_arr</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span>
+                <span class="n">DictMapper</span><span class="o">.</span><span class="n">forward</span><span class="p">(</span>
+                    <span class="n">b64encode</span><span class="p">(</span><span class="n">ImageMapper</span><span class="o">.</span><span class="n">forward</span><span class="p">(</span><span class="n">img</span><span class="p">,</span> <span class="n">encoder</span><span class="o">=</span><span class="n">encoder</span><span class="p">),</span> <span class="bp">cls</span><span class="o">.</span><span class="n">B64_PREFIX</span><span class="p">)</span>
+                <span class="p">)</span>
+            <span class="p">)</span>
+        <span class="n">out</span><span class="p">[</span><span class="s2">&quot;attributes&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">bytes</span><span class="p">(</span><span class="n">bytes_arr</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">out</span></div>
+
+<div class="viewcode-block" id="PointCloudMapper.backward"><a class="viewcode-back" href="../../../../../../docs/reference/_autosummary/datumaro.plugins.data_formats.arrow.mapper.media.html#datumaro.plugins.data_formats.arrow.mapper.PointCloudMapper.backward">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">backward</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">obj</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">PointCloud</span><span class="p">:</span>
+        <span class="n">offset</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">media_dict</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="n">backward_dict</span><span class="p">(</span><span class="n">obj</span><span class="p">)</span>
+
+        <span class="n">path</span> <span class="o">=</span> <span class="n">media_dict</span><span class="p">[</span><span class="s2">&quot;path&quot;</span><span class="p">]</span>
+        <span class="p">(</span><span class="n">len_extra_images</span><span class="p">,)</span> <span class="o">=</span> <span class="n">struct</span><span class="o">.</span><span class="n">unpack_from</span><span class="p">(</span><span class="s2">&quot;&lt;I&quot;</span><span class="p">,</span> <span class="n">media_dict</span><span class="p">[</span><span class="s2">&quot;attributes&quot;</span><span class="p">],</span> <span class="n">offset</span><span class="p">)</span>
+        <span class="n">offset</span> <span class="o">+=</span> <span class="mi">4</span>
+
+        <span class="n">_bytes</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">if</span> <span class="n">media_dict</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;bytes&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">_bytes</span> <span class="o">=</span> <span class="n">media_dict</span><span class="p">[</span><span class="s2">&quot;bytes&quot;</span><span class="p">]</span>
+
+        <span class="n">extra_images</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">len_extra_images</span><span class="p">):</span>
+            <span class="n">img</span><span class="p">,</span> <span class="n">offset</span> <span class="o">=</span> <span class="n">DictMapper</span><span class="o">.</span><span class="n">backward</span><span class="p">(</span><span class="n">media_dict</span><span class="p">[</span><span class="s2">&quot;attributes&quot;</span><span class="p">],</span> <span class="n">offset</span><span class="p">)</span>
+            <span class="n">extra_images</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">ImageMapper</span><span class="o">.</span><span class="n">backward</span><span class="p">(</span><span class="n">b64decode</span><span class="p">(</span><span class="n">img</span><span class="p">,</span> <span class="bp">cls</span><span class="o">.</span><span class="n">B64_PREFIX</span><span class="p">)))</span>
+
+        <span class="k">if</span> <span class="n">_bytes</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">PointCloud</span><span class="o">.</span><span class="n">from_bytes</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">_bytes</span><span class="p">,</span> <span class="n">extra_images</span><span class="o">=</span><span class="n">extra_images</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">PointCloud</span><span class="o">.</span><span class="n">from_file</span><span class="p">(</span><span class="n">path</span><span class="o">=</span><span class="n">path</span><span class="p">,</span> <span class="n">extra_images</span><span class="o">=</span><span class="n">extra_images</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="PointCloudMapper.backward_from_batches"><a class="viewcode-back" href="../../../../../../docs/reference/_autosummary/datumaro.plugins.data_formats.arrow.mapper.media.html#datumaro.plugins.data_formats.arrow.mapper.PointCloudMapper.backward_from_batches">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">backward_from_batches</span><span class="p">(</span>
+        <span class="bp">cls</span><span class="p">,</span>
+        <span class="n">batches</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">pa</span><span class="o">.</span><span class="n">lib</span><span class="o">.</span><span class="n">RecordBatch</span><span class="p">],</span>
+        <span class="n">parent</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">PointCloud</span><span class="p">]:</span>
+        <span class="n">paths</span> <span class="o">=</span> <span class="n">pa_batches_decoder</span><span class="p">(</span><span class="n">batches</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">parent</span><span class="si">}</span><span class="s2">.path&quot;</span> <span class="k">if</span> <span class="n">parent</span> <span class="k">else</span> <span class="s2">&quot;path&quot;</span><span class="p">)</span>
+
+        <span class="k">def</span> <span class="nf">extra_images</span><span class="p">(</span><span class="n">idx</span><span class="p">):</span>
+            <span class="n">offset</span> <span class="o">=</span> <span class="mi">0</span>
+            <span class="n">attributes</span> <span class="o">=</span> <span class="n">pa_batches_decoder</span><span class="p">(</span>
+                <span class="n">batches</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">parent</span><span class="si">}</span><span class="s2">.attributes&quot;</span> <span class="k">if</span> <span class="n">parent</span> <span class="k">else</span> <span class="s2">&quot;attributes&quot;</span>
+            <span class="p">)[</span><span class="n">idx</span><span class="p">]</span>
+            <span class="p">(</span><span class="n">len_extra_images</span><span class="p">,)</span> <span class="o">=</span> <span class="n">struct</span><span class="o">.</span><span class="n">unpack_from</span><span class="p">(</span><span class="s2">&quot;&lt;I&quot;</span><span class="p">,</span> <span class="n">attributes</span><span class="p">,</span> <span class="n">offset</span><span class="p">)</span>
+            <span class="n">offset</span> <span class="o">+=</span> <span class="mi">4</span>
+            <span class="n">outs</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">len_extra_images</span><span class="p">):</span>
+                <span class="n">img</span><span class="p">,</span> <span class="n">offset</span> <span class="o">=</span> <span class="n">DictMapper</span><span class="o">.</span><span class="n">backward</span><span class="p">(</span><span class="n">attributes</span><span class="p">,</span> <span class="n">offset</span><span class="p">)</span>
+                <span class="n">outs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">ImageMapper</span><span class="o">.</span><span class="n">backward</span><span class="p">(</span><span class="n">b64decode</span><span class="p">(</span><span class="n">img</span><span class="p">,</span> <span class="bp">cls</span><span class="o">.</span><span class="n">B64_PREFIX</span><span class="p">)))</span>
+            <span class="k">return</span> <span class="n">outs</span>
+
+        <span class="n">point_clouds</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">idx</span><span class="p">,</span> <span class="n">path</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">paths</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">path</span><span class="p">):</span>
+                <span class="n">point_clouds</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                    <span class="n">PointCloud</span><span class="o">.</span><span class="n">from_file</span><span class="p">(</span>
+                        <span class="n">path</span><span class="o">=</span><span class="n">path</span><span class="p">,</span>
+                        <span class="n">extra_images</span><span class="o">=</span><span class="n">partial</span><span class="p">(</span><span class="n">extra_images</span><span class="p">,</span> <span class="n">idx</span><span class="o">=</span><span class="n">idx</span><span class="p">),</span>
+                    <span class="p">)</span>
+                <span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">point_clouds</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                    <span class="n">PointCloud</span><span class="o">.</span><span class="n">from_bytes</span><span class="p">(</span>
+                        <span class="n">data</span><span class="o">=</span><span class="k">lambda</span><span class="p">:</span> <span class="n">pa_batches_decoder</span><span class="p">(</span>
+                            <span class="n">batches</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">parent</span><span class="si">}</span><span class="s2">.bytes&quot;</span> <span class="k">if</span> <span class="n">parent</span> <span class="k">else</span> <span class="s2">&quot;bytes&quot;</span>
+                        <span class="p">)[</span><span class="n">idx</span><span class="p">],</span>
+                        <span class="n">extra_images</span><span class="o">=</span><span class="n">partial</span><span class="p">(</span><span class="n">extra_images</span><span class="p">,</span> <span class="n">idx</span><span class="o">=</span><span class="n">idx</span><span class="p">),</span>
+                    <span class="p">)</span>
+                <span class="p">)</span>
+        <span class="k">return</span> <span class="n">point_clouds</span></div></div>
+</pre></div>
+
+            </article>
+            
+            
+            
+            <footer class="bd-footer-article">
+                <!-- Previous / next buttons -->
+<div class='prev-next-area'>
+</div>
+            </footer>
+            
+          </div>
+          
+          
+          
+            <div class="bd-sidebar-secondary bd-toc">
+              
+<div class="toc-item">
+  
+<div id="searchbox"></div>
+</div>
+
+<div class="toc-item">
+  
+</div>
+
+<div class="toc-item">
+  
+</div>
+
+            </div>
+          
+          
+        </div>
+        <footer class="bd-footer-content">
+          <div class="bd-footer-content__inner">
+            
+          </div>
+        </footer>
+        
+      </main>
+    </div>
+  </div>
+
+  
+    
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="../../../../../../_static/scripts/bootstrap.js?digest=796348d33e8b1d947c94"></script>
+<script src="../../../../../../_static/scripts/pydata-sphinx-theme.js?digest=796348d33e8b1d947c94"></script>
+
+  <footer class="bd-footer"><div class="bd-footer__inner container">
+  
+  <div class="footer-item">
+    
+  </div>
+  
+  <div class="footer-item">
+    <p class="theme-version">
+    Built with the
+    <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">
+        PyData Sphinx Theme
+    </a>
+    0.12.0.
+</p>
+  </div>
+  
+  <div class="footer-item">
+    
+<p class="sphinx-version">
+Created using <a href="http://sphinx-doc.org/">Sphinx</a> 5.3.0.<br>
+</p>
+
+  </div>
+  
+</div>
+  </footer>
+  </body>
+</html>
