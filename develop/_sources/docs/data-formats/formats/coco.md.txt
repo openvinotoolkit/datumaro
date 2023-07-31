@@ -301,7 +301,7 @@ Datumaro supports importing this COCO format dataset available from Roboflow by 
 
 ``` bash
 datum project create
-datum project import --format coco_roboflow <path/to/dataset>
+datum project import --format roboflow_coco <path/to/dataset>
 ```
 
 ### Import using Python API
@@ -309,5 +309,5 @@ datum project import --format coco_roboflow <path/to/dataset>
 ```python
 import datumaro as dm
 
-dataset = dm.Dataset.import_from('<path/to/dataset>', 'coco_roboflow')
+dataset = dm.Dataset.import_from('<path/to/dataset>', 'roboflow_coco')
 ```
