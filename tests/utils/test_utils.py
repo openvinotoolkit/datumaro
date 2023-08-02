@@ -138,7 +138,7 @@ def _compare_annotations(
         setattr(expected, "group", 0)
         setattr(actual, "group", 0)
 
-    if ignored_attrs == None:
+    if ignored_attrs is None:
         pass
     elif ignored_attrs == IGNORE_ALL:
         expected.attributes = {}
@@ -157,7 +157,7 @@ def _compare_annotations(
         setattr(expected, "group", a_group)
         setattr(actual, "group", b_group)
 
-    if ignored_attrs != None:
+    if ignored_attrs is not None:
         expected.attributes = a_attr
         actual.attributes = b_attr
 
