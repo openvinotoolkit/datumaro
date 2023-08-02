@@ -35,7 +35,9 @@ def fxt_dataset():
                 annotations=[
                     Bbox(
                         *np.random.randint(0, h, size=(4,)).tolist(),
+                        id=item_id,
                         label=np.random.randint(0, n_labels),
+                        group=item_id,
                         z_order=0,
                         attributes={},
                     )
@@ -69,14 +71,6 @@ def test_convert_object_detection(
     helper_tc: TestCaseHelper,
     caplog: pytest.LogCaptureFixture,
 ):
-    # TODO: Fix xfail cases...
-    if output_format == "coco":
-        pytest.xfail()
-    elif (
-        output_format == "datumaro_binary" or output_format == "datumaro"
-    ) and input_format == "coco":
-        pytest.xfail()
-
     src_dir = osp.join(test_dir, "src")
     dst_dir = osp.join(test_dir, "dst")
 
@@ -120,6 +114,25 @@ def test_convert_object_detection(
 
     if expected_code == 0:
         actual = Dataset.import_from(dst_dir, format=output_format)
+
+        # COCO and YOLO force reindex annotation's "id" and "group"
+        # because they do not exist in their schemas.
+        # Therefore, we should ignore them when comparison.
+        data_formats_forcing_reindex = {"coco", "yolo"}
+        if (
+            input_format in data_formats_forcing_reindex
+            or output_format in data_formats_forcing_reindex
+        ):
+            ignore_ann_id, ignore_ann_group = True, True
+        else:
+            ignore_ann_id, ignore_ann_group = False, False
+
         compare_datasets(
-            helper_tc, fxt_dataset, actual, require_media=True, ignored_attrs=IGNORE_ALL
+            helper_tc,
+            fxt_dataset,
+            actual,
+            require_media=True,
+            ignored_attrs=IGNORE_ALL,
+            ignore_ann_id=ignore_ann_id,
+            ignore_ann_group=ignore_ann_group,
         )

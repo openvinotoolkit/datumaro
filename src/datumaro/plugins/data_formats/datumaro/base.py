@@ -111,10 +111,12 @@ class JsonReader:
         return categories
 
     def _load_items(self, parsed) -> List:
-        item_descs = parsed["items"]
+        item_descs: List = parsed["items"]
         pbar = self._ctx.progress_reporter
 
         def _gen():
+            # Reverse the list to pop from the front of it
+            item_descs.reverse()
             while item_descs:
                 yield item_descs.pop()
 
