@@ -119,24 +119,47 @@ def compare_categories(test, expected, actual):
 IGNORE_ALL = "*"
 
 
-def _compare_annotations(expected, actual, ignored_attrs=None):
-    if not ignored_attrs:
-        return expected == actual
+def _compare_annotations(
+    expected,
+    actual,
+    ignored_attrs=None,
+    ignore_ann_id: bool = False,
+    ignore_ann_group: bool = False,
+):
+    a_id, b_id = getattr(expected, "id"), getattr(actual, "id")
+    a_group, b_group = getattr(expected, "group"), getattr(actual, "group")
+    a_attr, b_attr = expected.attributes, actual.attributes
 
-    a_attr = expected.attributes
-    b_attr = actual.attributes
+    if ignore_ann_id:
+        setattr(expected, "id", 0)
+        setattr(actual, "id", 0)
 
-    if ignored_attrs != IGNORE_ALL:
-        expected.attributes = filter_dict(a_attr, exclude_keys=ignored_attrs)
-        actual.attributes = filter_dict(b_attr, exclude_keys=ignored_attrs)
-    else:
+    if ignore_ann_group:
+        setattr(expected, "group", 0)
+        setattr(actual, "group", 0)
+
+    if ignored_attrs == None:
+        pass
+    elif ignored_attrs == IGNORE_ALL:
         expected.attributes = {}
         actual.attributes = {}
+    else:
+        expected.attributes = filter_dict(a_attr, exclude_keys=ignored_attrs)
+        actual.attributes = filter_dict(b_attr, exclude_keys=ignored_attrs)
 
     r = expected == actual
 
-    expected.attributes = a_attr
-    actual.attributes = b_attr
+    if ignore_ann_id:
+        setattr(expected, "id", a_id)
+        setattr(actual, "id", b_id)
+
+    if ignore_ann_group:
+        setattr(expected, "group", a_group)
+        setattr(actual, "group", b_group)
+
+    if ignored_attrs != None:
+        expected.attributes = a_attr
+        actual.attributes = b_attr
 
     return r
 
@@ -148,6 +171,8 @@ def compare_datasets(
     ignored_attrs: Union[None, Literal["*"], Collection[str]] = None,
     require_media: bool = False,
     require_images: bool = False,
+    ignore_ann_id: bool = False,
+    ignore_ann_group: bool = False,
     **kwargs,
 ):
     compare_categories(test, expected.categories(), actual.categories())
@@ -195,7 +220,14 @@ def compare_datasets(
             test.assertFalse(len(ann_b_matches) == 0, "ann id: %s" % ann_a.id)
 
             ann_b = find(
-                ann_b_matches, lambda x: _compare_annotations(x, ann_a, ignored_attrs=ignored_attrs)
+                ann_b_matches,
+                lambda x: _compare_annotations(
+                    x,
+                    ann_a,
+                    ignored_attrs=ignored_attrs,
+                    ignore_ann_id=ignore_ann_id,
+                    ignore_ann_group=ignore_ann_group,
+                ),
             )
             if ann_b is None:
                 test.fail("ann %s, candidates %s" % (ann_a, ann_b_matches))
