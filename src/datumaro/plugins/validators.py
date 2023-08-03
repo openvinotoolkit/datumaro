@@ -547,11 +547,30 @@ class ClassificationValidator(_TaskValidator):
 
         stats, filtered_anns = self._compute_common_statistics(dataset)
 
+        label_cat = dataset.categories()[AnnotationType.label]
+        dm_label_groups = label_cat.label_groups
+
+        label_name_to_group = {}
+        for dm_label_group in dm_label_groups:
+            for label_name in dm_label_group.labels:
+                label_name_to_group[label_name] = dm_label_group.name
+
         stats["items_with_multiple_labels"] = []
         for item_key, anns in filtered_anns:
-            ann_count = len(anns)
-            if ann_count > 1:
-                stats["items_with_multiple_labels"].append(item_key)
+            occupied_groups = set()
+            for ann in anns:
+                label_name = label_cat.items[ann.label].name
+                label_group = label_name_to_group.get(label_name, "")
+                if label_group in occupied_groups:
+                    stats["items_with_multiple_labels"].append(item_key)
+                    break
+                occupied_groups.add(label_group)
+
+        # stats["items_with_multiple_labels"] = []
+        # for item_key, anns in filtered_anns:
+        #     ann_count = len(anns)
+        #     if ann_count > 1:
+        #         stats["items_with_multiple_labels"].append(item_key)
 
         return stats
 
