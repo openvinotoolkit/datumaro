@@ -13,6 +13,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Enhancements
 - Remove xfail marks from the convert integration tests
   (<https://github.com/openvinotoolkit/datumaro/pull/1115>)
+- Replace Roboflow `xml.etree` with `defusedxml`
+  (<https://github.com/openvinotoolkit/datumaro/pull/1117>)
 
 ### Bug fixes
 
