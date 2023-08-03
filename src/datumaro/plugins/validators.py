@@ -555,11 +555,15 @@ class ClassificationValidator(_TaskValidator):
             for label_name in dm_label_group.labels:
                 label_name_to_group[label_name] = dm_label_group.name
 
+        undefined_label_name = list(stats["label_distribution"]["undefined_labels"].keys())
+
         stats["items_with_multiple_labels"] = []
         for item_key, anns in filtered_anns:
             occupied_groups = set()
             for ann in anns:
-                label_name = label_cat.items[ann.label].name
+                if ann.label in undefined_label_name:
+                    continue
+                label_name = label_cat[ann.label].name
                 label_group = label_name_to_group.get(label_name, "")
                 if label_group in occupied_groups:
                     stats["items_with_multiple_labels"].append(item_key)
