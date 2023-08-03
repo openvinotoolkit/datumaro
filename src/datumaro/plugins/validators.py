@@ -566,12 +566,6 @@ class ClassificationValidator(_TaskValidator):
                     break
                 occupied_groups.add(label_group)
 
-        # stats["items_with_multiple_labels"] = []
-        # for item_key, anns in filtered_anns:
-        #     ann_count = len(anns)
-        #     if ann_count > 1:
-        #         stats["items_with_multiple_labels"].append(item_key)
-
         return stats
 
     def generate_reports(self, stats):
