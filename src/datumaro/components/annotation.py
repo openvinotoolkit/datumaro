@@ -111,6 +111,12 @@ class Categories:
     attributes: Set[str] = field(factory=set, validator=default_if_none(set), eq=False)
 
 
+class GroupType(IntEnum):
+    EXCLUSIVE = 0
+    INCLUSIVE = 1
+    RESTRICTED = 2
+
+
 @attrs(slots=True, order=False)
 class LabelCategories(Categories):
     @attrs(slots=True, order=False)
@@ -123,7 +129,9 @@ class LabelCategories(Categories):
     class LabelGroup:
         name: str = field(converter=str, validator=not_empty)
         labels: List[str] = field(default=[], validator=default_if_none(list))
-        group_type: str = field(default="exclusive", validator=default_if_none(str))
+        group_type: GroupType = field(
+            default=GroupType.EXCLUSIVE, validator=default_if_none(GroupType)
+        )
 
     items: List[str] = field(factory=list, validator=default_if_none(list))
     label_groups: List[LabelGroup] = field(factory=list, validator=default_if_none(list))
@@ -191,7 +199,7 @@ class LabelCategories(Categories):
         self,
         name: str,
         labels: List[str],
-        group_type: str,
+        group_type: GroupType,
     ) -> int:
         assert name
 

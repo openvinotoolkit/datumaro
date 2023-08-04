@@ -7,7 +7,15 @@ from unittest import TestCase
 
 import numpy as np
 
-from datumaro.components.annotation import Bbox, Ellipse, Label, Mask, Polygon
+from datumaro.components.annotation import (
+    AnnotationType,
+    Bbox,
+    Ellipse,
+    Label,
+    LabelCategories,
+    Mask,
+    Polygon,
+)
 from datumaro.components.dataset import Dataset, DatasetItem
 from datumaro.components.environment import Environment
 from datumaro.components.errors import (
@@ -883,6 +891,104 @@ class TestValidateAnnotations(_TestValidatorBase):
         with self.subTest("Test of summary", i=2):
             actual_summary = actual_results["summary"]
             expected_summary = {"errors": 10, "infos": 4, "warnings": 2}
+
+            self.assertEqual(actual_summary, expected_summary)
+
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
+    def test_validate_multilabel_annotations_classification(self):
+        label_cat = LabelCategories.from_iterable(["car", "bicycle", "dog", "cat", "plate", "pan"])
+        label_cat.add_label_group("vehicle", ["car", "bicycle"], group_type=0)
+        label_cat.add_label_group("animal", ["dog", "cat"], group_type=0)
+        label_cat.add_label_group("kithen", ["plate", "pan"], group_type=1)
+
+        dataset = Dataset.from_iterable(
+            [
+                DatasetItem(
+                    id=0,
+                    annotations=[
+                        Label(
+                            id=0,
+                            label=0,
+                        ),
+                        Label(
+                            id=1,
+                            label=1,
+                        ),
+                    ],
+                ),
+                DatasetItem(
+                    id=1,
+                    annotations=[
+                        Label(
+                            id=0,
+                            label=2,
+                        ),
+                        Label(
+                            id=1,
+                            label=3,
+                        ),
+                    ],
+                ),
+                DatasetItem(
+                    id=2,
+                    annotations=[
+                        Label(
+                            id=0,
+                            label=0,
+                        ),
+                        Label(
+                            id=1,
+                            label=2,
+                        ),
+                    ],
+                ),
+                DatasetItem(
+                    id=3,
+                    annotations=[
+                        Label(
+                            id=0,
+                            label=1,
+                        ),
+                        Label(
+                            id=1,
+                            label=3,
+                        ),
+                    ],
+                ),
+                DatasetItem(
+                    id=4,
+                    annotations=[
+                        Label(
+                            id=0,
+                            label=4,
+                        ),
+                        Label(
+                            id=1,
+                            label=5,
+                        ),
+                    ],
+                ),
+            ],
+            categories={
+                AnnotationType.label: label_cat,
+            },
+        )
+
+        validator = ClassificationValidator(**self.extra_args)
+        actual_results = validator.validate(dataset)
+
+        with self.subTest("Test of validation reports", i=1):
+            actual_reports = actual_results["validation_reports"]
+            multilabel_ids = []
+            for r in actual_reports:
+                if r["anomaly_type"] == "MultiLabelAnnotations":
+                    multilabel_ids.append(r["item_id"])
+
+            self.assertEqual(multilabel_ids, ["0", "1"])
+
+        with self.subTest("Test of summary", i=2):
+            actual_summary = actual_results["summary"]
+            expected_summary = {"errors": 2, "warnings": 0, "infos": 2}
 
             self.assertEqual(actual_summary, expected_summary)
 

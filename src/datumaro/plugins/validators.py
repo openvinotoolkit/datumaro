@@ -548,12 +548,15 @@ class ClassificationValidator(_TaskValidator):
         stats, filtered_anns = self._compute_common_statistics(dataset)
 
         label_cat = dataset.categories()[AnnotationType.label]
-        dm_label_groups = label_cat.label_groups
+        label_groups = label_cat.label_groups
 
         label_name_to_group = {}
-        for dm_label_group in dm_label_groups:
-            for label_name in dm_label_group.labels:
-                label_name_to_group[label_name] = dm_label_group.name
+        for label_group in label_groups:
+            for idx, label_name in enumerate(label_group.labels):
+                if label_group.group_type == 0:
+                    label_name_to_group[label_name] = label_group.name
+                else:
+                    label_name_to_group[label_name] = label_group.name + f"_{idx}"
 
         undefined_label_name = list(stats["label_distribution"]["undefined_labels"].keys())
 

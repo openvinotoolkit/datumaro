@@ -343,7 +343,7 @@ class _SubsetWriter:
             converted["label_groups"].append(
                 {
                     "name": cast(label_group.name, str),
-                    "group_type": cast(label_group.group_type, str),
+                    "group_type": cast(label_group.group_type, int),
                     "labels": self._convert_labels_label_groups(label_group.labels),
                 }
             )
