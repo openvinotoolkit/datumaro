@@ -17,6 +17,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   (<https://github.com/openvinotoolkit/datumaro/pull/1116>)
 - Replace Roboflow `xml.etree` with `defusedxml`
   (<https://github.com/openvinotoolkit/datumaro/pull/1117>)
+- Define `GroupType` with `IntEnum` for multi-label classification, where `0` is `EXCLUSIVE`
+  (<https://github.com/openvinotoolkit/datumaro/pull/1116>)
 
 ### Bug fixes
 
