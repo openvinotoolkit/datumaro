@@ -8,7 +8,7 @@
             "label_groups": [
                 {
                     "name": "manmade",
-                    "group_type": 0,
+                    "group_type": "exclusive",
                     "labels": [
                         "car",
                         "bicycle"
@@ -16,7 +16,7 @@
                 },
                 {
                     "name": "empty_group",
-                    "group_type": 2,
+                    "group_type": "inclusive",
                     "labels": [
                         "tom",
                         "mary"

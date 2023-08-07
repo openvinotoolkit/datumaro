@@ -116,6 +116,16 @@ class GroupType(IntEnum):
     INCLUSIVE = 1
     RESTRICTED = 2
 
+    def to_str(self) -> str:
+        return self.name.lower()
+
+    @classmethod
+    def from_str(cls, text: str) -> GroupType:
+        try:
+            return cls[text.upper()]
+        except KeyError:
+            raise ValueError(f"Invalid GroupType: {text}")
+
 
 @attrs(slots=True, order=False)
 class LabelCategories(Categories):
