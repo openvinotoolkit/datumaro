@@ -33,6 +33,7 @@ datumaro.components.annotation
       DepthAnnotation
       Ellipse
       FeatureVector
+      GroupType
       HashKey
       Label
       LabelCategories
