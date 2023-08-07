@@ -15,6 +15,7 @@ from datumaro.components.annotation import (
     Caption,
     Cuboid3d,
     Ellipse,
+    GroupType,
     Label,
     LabelCategories,
     MaskCategories,
@@ -86,7 +87,9 @@ class JsonReader:
 
             for item in parsed_label_cat.get("label_groups", []):
                 label_categories.add_label_group(
-                    item["name"], labels=item["labels"], group_type=item["group_type"]
+                    item["name"],
+                    labels=item["labels"],
+                    group_type=GroupType.from_str(item["group_type"]),
                 )
 
             categories[AnnotationType.label] = label_categories

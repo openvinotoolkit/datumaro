@@ -21,7 +21,7 @@ class LabelingTest(TestCase):
         label_categories.add("car", parent="")
         label_categories.add("bicycle", parent="")
 
-        label_categories.add_label_group("manmade", ["car", "bicycle"], group_type="exclusive")
+        label_categories.add_label_group("manmade", ["car", "bicycle"], group_type=0)
 
         dataset = Dataset.from_iterable(
             [
