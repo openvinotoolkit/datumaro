@@ -268,14 +268,10 @@ class BoxesToMasks(ItemTransform, CliPlugin):
 
 class BoxesToPolygons(ItemTransform, CliPlugin):
     def transform_item(self, item):
-        annotations = []
-        for ann in item.annotations:
-            if ann.type == AnnotationType.bbox:
-                if not isinstance(item.media, Image):
-                    raise Exception("Image info is required for this transform")
-                annotations.append(self.convert_bbox(ann))
-            else:
-                annotations.append(ann)
+        annotations = [
+            self.convert_bbox(ann) if ann.type == AnnotationType.bbox else ann
+            for ann in item.annotations
+        ]
 
         return self.wrap_item(item, annotations=annotations)
 
