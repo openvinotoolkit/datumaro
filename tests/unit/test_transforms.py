@@ -492,6 +492,45 @@ class TransformsTest(TestCase):
         compare_datasets(self, target_dataset, actual)
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
+    def test_boxes_to_polygons(self):
+        x, y, w, h = 0, 0, 3, 3
+        points = (0, 0, 3, 0, 3, 3, 0, 3)
+        source_dataset = Dataset.from_iterable(
+            [
+                DatasetItem(
+                    id=1,
+                    media=Image.from_numpy(data=np.zeros((5, 5, 3))),
+                    annotations=[
+                        Bbox(x, y, w, h, id=1),
+                        Bbox(x, y, w, h, attributes={"a": 1}),
+                        Bbox(x, y, w, h, group=0),
+                        Bbox(x, y, w, h, label=2),
+                        Bbox(x, y, w, h, z_order=3),
+                    ],
+                ),
+            ]
+        )
+
+        target_dataset = Dataset.from_iterable(
+            [
+                DatasetItem(
+                    id=1,
+                    media=Image.from_numpy(data=np.zeros((5, 5, 3))),
+                    annotations=[
+                        Polygon(points=points, id=1),
+                        Polygon(points=points, attributes={"a": 1}),
+                        Polygon(points=points, group=0),
+                        Polygon(points=points, label=2),
+                        Polygon(points=points, z_order=3),
+                    ],
+                ),
+            ]
+        )
+
+        actual = transforms.BoxesToPolygons(source_dataset)
+        compare_datasets(self, target_dataset, actual)
+
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_random_split(self):
         source_dataset = Dataset.from_iterable(
             [

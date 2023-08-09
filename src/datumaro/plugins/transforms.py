@@ -266,6 +266,27 @@ class BoxesToMasks(ItemTransform, CliPlugin):
         )
 
 
+class BoxesToPolygons(ItemTransform, CliPlugin):
+    def transform_item(self, item):
+        annotations = [
+            self.convert_bbox(ann) if ann.type == AnnotationType.bbox else ann
+            for ann in item.annotations
+        ]
+
+        return self.wrap_item(item, annotations=annotations)
+
+    @staticmethod
+    def convert_bbox(bbox: Bbox):
+        return Polygon(
+            points=bbox.as_polygon(),
+            id=bbox.id,
+            attributes=bbox.attributes,
+            group=bbox.group,
+            label=bbox.label,
+            z_order=bbox.z_order,
+        )
+
+
 class MasksToPolygons(ItemTransform, CliPlugin):
     def transform_item(self, item):
         annotations = []
