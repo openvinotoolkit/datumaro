@@ -1423,6 +1423,12 @@
     "extra_deps": []
   },
   {
+  "import_path": "datumaro.plugins.transforms.BoxesToPolygons",
+  "plugin_name": "boxes_to_polygons",
+  "plugin_type": "Transform",
+  "extra_deps": []
+  },
+  {
     "import_path": "datumaro.plugins.transforms.Correct",
     "plugin_name": "correct",
     "plugin_type": "Transform",
