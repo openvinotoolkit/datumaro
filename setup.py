@@ -11,6 +11,7 @@ from distutils.util import strtobool
 
 import setuptools
 from pybind11.setup_helpers import Pybind11Extension, build_ext
+from setuptools_rust import Binding, RustExtension
 
 
 def find_version(project_dir=None):
@@ -99,4 +100,14 @@ setuptools.setup(
         "datumaro.plugins.openvino_plugin.samples": ["coco.class", "imagenet.class"],
     },
     include_package_data=True,
+    rust_extensions=[
+        RustExtension(
+            "datumaro.rust_api",
+            path=osp.join("rust", "Cargo.toml"),
+            debug=False,
+            binding=Binding.PyO3,
+        ),
+    ],
+    # rust extensions are not zip safe, just like C-extensions.
+    zip_safe=False,
 )
