@@ -9,7 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### New features
 - Add tabular data import/export
   (<https://github.com/openvinotoolkit/datumaro/pull/1089>)
-- Add Rust API to optimize COCOPageMapper
+- Add Rust API to optimize COCOPageMapper performance
   (<https://github.com/openvinotoolkit/datumaro/pull/1120>)
 
 ### Enhancements
