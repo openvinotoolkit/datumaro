@@ -20,6 +20,7 @@ datumaro.plugins.transforms
       AnnsToLabels
       BboxValuesDecrement
       BoxesToMasks
+      BoxesToPolygons
       Correct
       CropCoveredSegments
       IdFromImageName

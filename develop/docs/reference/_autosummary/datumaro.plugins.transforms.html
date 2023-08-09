@@ -587,64 +587,67 @@
 <tr class="row-odd"><td><p><a class="reference internal" href="#datumaro.plugins.transforms.BoxesToMasks" title="datumaro.plugins.transforms.BoxesToMasks"><code class="xref py py-obj docutils literal notranslate"><span class="pre">BoxesToMasks</span></code></a>(extractor)</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#datumaro.plugins.transforms.Correct" title="datumaro.plugins.transforms.Correct"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Correct</span></code></a>(extractor, reports)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#datumaro.plugins.transforms.BoxesToPolygons" title="datumaro.plugins.transforms.BoxesToPolygons"><code class="xref py py-obj docutils literal notranslate"><span class="pre">BoxesToPolygons</span></code></a>(extractor)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#datumaro.plugins.transforms.Correct" title="datumaro.plugins.transforms.Correct"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Correct</span></code></a>(extractor, reports)</p></td>
 <td><p>Correct the dataset from a validation report.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#datumaro.plugins.transforms.CropCoveredSegments" title="datumaro.plugins.transforms.CropCoveredSegments"><code class="xref py py-obj docutils literal notranslate"><span class="pre">CropCoveredSegments</span></code></a>(extractor)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#datumaro.plugins.transforms.CropCoveredSegments" title="datumaro.plugins.transforms.CropCoveredSegments"><code class="xref py py-obj docutils literal notranslate"><span class="pre">CropCoveredSegments</span></code></a>(extractor)</p></td>
 <td><p>Sorts polygons and masks (&quot;segments&quot;) according to <cite>z_order</cite>, crops covered areas of underlying segments.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#datumaro.plugins.transforms.IdFromImageName" title="datumaro.plugins.transforms.IdFromImageName"><code class="xref py py-obj docutils literal notranslate"><span class="pre">IdFromImageName</span></code></a>(extractor)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#datumaro.plugins.transforms.IdFromImageName" title="datumaro.plugins.transforms.IdFromImageName"><code class="xref py py-obj docutils literal notranslate"><span class="pre">IdFromImageName</span></code></a>(extractor)</p></td>
 <td><p>Renames items in the dataset using image file name (without extension).</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#datumaro.plugins.transforms.MapSubsets" title="datumaro.plugins.transforms.MapSubsets"><code class="xref py py-obj docutils literal notranslate"><span class="pre">MapSubsets</span></code></a>(extractor[, mapping])</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#datumaro.plugins.transforms.MapSubsets" title="datumaro.plugins.transforms.MapSubsets"><code class="xref py py-obj docutils literal notranslate"><span class="pre">MapSubsets</span></code></a>(extractor[, mapping])</p></td>
 <td><p>Renames subsets in the dataset.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#datumaro.plugins.transforms.MasksToPolygons" title="datumaro.plugins.transforms.MasksToPolygons"><code class="xref py py-obj docutils literal notranslate"><span class="pre">MasksToPolygons</span></code></a>(extractor)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#datumaro.plugins.transforms.MasksToPolygons" title="datumaro.plugins.transforms.MasksToPolygons"><code class="xref py py-obj docutils literal notranslate"><span class="pre">MasksToPolygons</span></code></a>(extractor)</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#datumaro.plugins.transforms.MergeInstanceSegments" title="datumaro.plugins.transforms.MergeInstanceSegments"><code class="xref py py-obj docutils literal notranslate"><span class="pre">MergeInstanceSegments</span></code></a>(extractor[, ...])</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#datumaro.plugins.transforms.MergeInstanceSegments" title="datumaro.plugins.transforms.MergeInstanceSegments"><code class="xref py py-obj docutils literal notranslate"><span class="pre">MergeInstanceSegments</span></code></a>(extractor[, ...])</p></td>
 <td><p>Replaces instance masks and, optionally, polygons with a single mask.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#datumaro.plugins.transforms.PolygonsToMasks" title="datumaro.plugins.transforms.PolygonsToMasks"><code class="xref py py-obj docutils literal notranslate"><span class="pre">PolygonsToMasks</span></code></a>(extractor)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#datumaro.plugins.transforms.PolygonsToMasks" title="datumaro.plugins.transforms.PolygonsToMasks"><code class="xref py py-obj docutils literal notranslate"><span class="pre">PolygonsToMasks</span></code></a>(extractor)</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#datumaro.plugins.transforms.ProjectInfos" title="datumaro.plugins.transforms.ProjectInfos"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ProjectInfos</span></code></a>(extractor, dst_infos[, overwrite])</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#datumaro.plugins.transforms.ProjectInfos" title="datumaro.plugins.transforms.ProjectInfos"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ProjectInfos</span></code></a>(extractor, dst_infos[, overwrite])</p></td>
 <td><p>Changes the content of infos.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#datumaro.plugins.transforms.ProjectLabels" title="datumaro.plugins.transforms.ProjectLabels"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ProjectLabels</span></code></a>(extractor, dst_labels)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#datumaro.plugins.transforms.ProjectLabels" title="datumaro.plugins.transforms.ProjectLabels"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ProjectLabels</span></code></a>(extractor, dst_labels)</p></td>
 <td><p>Changes the order of labels in the dataset from the existing to the desired one, removes unknown labels and adds new labels.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#datumaro.plugins.transforms.RandomSplit" title="datumaro.plugins.transforms.RandomSplit"><code class="xref py py-obj docutils literal notranslate"><span class="pre">RandomSplit</span></code></a>(extractor, splits[, seed])</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#datumaro.plugins.transforms.RandomSplit" title="datumaro.plugins.transforms.RandomSplit"><code class="xref py py-obj docutils literal notranslate"><span class="pre">RandomSplit</span></code></a>(extractor, splits[, seed])</p></td>
 <td><p>Joins all subsets into one and splits the result into few parts.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#datumaro.plugins.transforms.Reindex" title="datumaro.plugins.transforms.Reindex"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Reindex</span></code></a>(extractor[, start])</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#datumaro.plugins.transforms.Reindex" title="datumaro.plugins.transforms.Reindex"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Reindex</span></code></a>(extractor[, start])</p></td>
 <td><p>Replaces dataset item IDs with sequential indices.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#datumaro.plugins.transforms.ReindexAnnotations" title="datumaro.plugins.transforms.ReindexAnnotations"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ReindexAnnotations</span></code></a>(extractor[, start, ...])</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#datumaro.plugins.transforms.ReindexAnnotations" title="datumaro.plugins.transforms.ReindexAnnotations"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ReindexAnnotations</span></code></a>(extractor[, start, ...])</p></td>
 <td><p>Replaces dataset items' annotations with sequential indices.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#datumaro.plugins.transforms.RemapLabels" title="datumaro.plugins.transforms.RemapLabels"><code class="xref py py-obj docutils literal notranslate"><span class="pre">RemapLabels</span></code></a>(extractor, mapping[, default])</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#datumaro.plugins.transforms.RemapLabels" title="datumaro.plugins.transforms.RemapLabels"><code class="xref py py-obj docutils literal notranslate"><span class="pre">RemapLabels</span></code></a>(extractor, mapping[, default])</p></td>
 <td><p>Changes labels in the dataset.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#datumaro.plugins.transforms.RemoveAnnotations" title="datumaro.plugins.transforms.RemoveAnnotations"><code class="xref py py-obj docutils literal notranslate"><span class="pre">RemoveAnnotations</span></code></a>(extractor, *, ids)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#datumaro.plugins.transforms.RemoveAnnotations" title="datumaro.plugins.transforms.RemoveAnnotations"><code class="xref py py-obj docutils literal notranslate"><span class="pre">RemoveAnnotations</span></code></a>(extractor, *, ids)</p></td>
 <td><p>Allows to remove annotations on specific dataset items.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#datumaro.plugins.transforms.RemoveAttributes" title="datumaro.plugins.transforms.RemoveAttributes"><code class="xref py py-obj docutils literal notranslate"><span class="pre">RemoveAttributes</span></code></a>(extractor[, ids, attributes])</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#datumaro.plugins.transforms.RemoveAttributes" title="datumaro.plugins.transforms.RemoveAttributes"><code class="xref py py-obj docutils literal notranslate"><span class="pre">RemoveAttributes</span></code></a>(extractor[, ids, attributes])</p></td>
 <td><p>Allows to remove item and annotation attributes in a dataset.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#datumaro.plugins.transforms.RemoveItems" title="datumaro.plugins.transforms.RemoveItems"><code class="xref py py-obj docutils literal notranslate"><span class="pre">RemoveItems</span></code></a>(extractor, ids)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#datumaro.plugins.transforms.RemoveItems" title="datumaro.plugins.transforms.RemoveItems"><code class="xref py py-obj docutils literal notranslate"><span class="pre">RemoveItems</span></code></a>(extractor, ids)</p></td>
 <td><p>Allows to remove specific dataset items from dataset by their ids.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#datumaro.plugins.transforms.Rename" title="datumaro.plugins.transforms.Rename"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Rename</span></code></a>(extractor, regex)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#datumaro.plugins.transforms.Rename" title="datumaro.plugins.transforms.Rename"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Rename</span></code></a>(extractor, regex)</p></td>
 <td><p>Renames items in the dataset.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#datumaro.plugins.transforms.ResizeTransform" title="datumaro.plugins.transforms.ResizeTransform"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ResizeTransform</span></code></a>(extractor, width, height)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#datumaro.plugins.transforms.ResizeTransform" title="datumaro.plugins.transforms.ResizeTransform"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ResizeTransform</span></code></a>(extractor, width, height)</p></td>
 <td><p>Resizes images and annotations in the dataset to the specified size.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#datumaro.plugins.transforms.ShapesToBoxes" title="datumaro.plugins.transforms.ShapesToBoxes"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ShapesToBoxes</span></code></a>(extractor)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#datumaro.plugins.transforms.ShapesToBoxes" title="datumaro.plugins.transforms.ShapesToBoxes"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ShapesToBoxes</span></code></a>(extractor)</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#datumaro.plugins.transforms.Sort" title="datumaro.plugins.transforms.Sort"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Sort</span></code></a>(extractor[, key])</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#datumaro.plugins.transforms.Sort" title="datumaro.plugins.transforms.Sort"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Sort</span></code></a>(extractor[, key])</p></td>
 <td><p>Sorts dataset items.</p></td>
 </tr>
 </tbody>
@@ -739,6 +742,25 @@ unexpected problems. Use wrap_item() or item.wrap() to simplify copying.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="datumaro.plugins.transforms.BoxesToMasks.convert_bbox">
 <em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">convert_bbox</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">bbox</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">img_h</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">img_w</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/datumaro/plugins/transforms.html#BoxesToMasks.convert_bbox"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.plugins.transforms.BoxesToMasks.convert_bbox" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="datumaro.plugins.transforms.BoxesToPolygons">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">datumaro.plugins.transforms.</span></span><span class="sig-name descname"><span class="pre">BoxesToPolygons</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">extractor</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="datumaro.components.dataset_base.html#datumaro.components.dataset_base.IDataset" title="datumaro.components.dataset_base.IDataset"><span class="pre">IDataset</span></a></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/datumaro/plugins/transforms.html#BoxesToPolygons"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.plugins.transforms.BoxesToPolygons" title="Permalink to this definition">#</a></dt>
+<dd><p>Bases: <a class="reference internal" href="datumaro.components.transformer.html#datumaro.components.transformer.ItemTransform" title="datumaro.components.transformer.ItemTransform"><code class="xref py py-class docutils literal notranslate"><span class="pre">ItemTransform</span></code></a>, <a class="reference internal" href="datumaro.components.cli_plugin.html#datumaro.components.cli_plugin.CliPlugin" title="datumaro.components.cli_plugin.CliPlugin"><code class="xref py py-class docutils literal notranslate"><span class="pre">CliPlugin</span></code></a></p>
+<dl class="py method">
+<dt class="sig sig-object py" id="datumaro.plugins.transforms.BoxesToPolygons.transform_item">
+<span class="sig-name descname"><span class="pre">transform_item</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">item</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/datumaro/plugins/transforms.html#BoxesToPolygons.transform_item"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.plugins.transforms.BoxesToPolygons.transform_item" title="Permalink to this definition">#</a></dt>
+<dd><p>Returns a modified copy of the input item.</p>
+<p>Avoid changing and returning the input item, because it can lead to
+unexpected problems. Use wrap_item() or item.wrap() to simplify copying.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="datumaro.plugins.transforms.BoxesToPolygons.convert_bbox">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">convert_bbox</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">bbox</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="datumaro.components.annotation.html#datumaro.components.annotation.Bbox" title="datumaro.components.annotation.Bbox"><span class="pre">Bbox</span></a></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/datumaro/plugins/transforms.html#BoxesToPolygons.convert_bbox"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.plugins.transforms.BoxesToPolygons.convert_bbox" title="Permalink to this definition">#</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
@@ -1422,6 +1444,35 @@ This helps to refine the dataset by rejecting undefined labels, missing annotati
      <code class="docutils literal notranslate">
       <span class="pre">
        BoxesToMasks.convert_bbox()
+      </span>
+     </code>
+    </a>
+   </li>
+  </ul>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#datumaro.plugins.transforms.BoxesToPolygons">
+   <code class="docutils literal notranslate">
+    <span class="pre">
+     BoxesToPolygons
+    </span>
+   </code>
+  </a>
+  <ul class="nav section-nav flex-column">
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#datumaro.plugins.transforms.BoxesToPolygons.transform_item">
+     <code class="docutils literal notranslate">
+      <span class="pre">
+       BoxesToPolygons.transform_item()
+      </span>
+     </code>
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#datumaro.plugins.transforms.BoxesToPolygons.convert_bbox">
+     <code class="docutils literal notranslate">
+      <span class="pre">
+       BoxesToPolygons.convert_bbox()
       </span>
      </code>
     </a>

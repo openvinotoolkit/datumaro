@@ -545,6 +545,27 @@
         <span class="p">)</span></div></div>
 
 
+<div class="viewcode-block" id="BoxesToPolygons"><a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.plugins.transforms.html#datumaro.plugins.transforms.BoxesToPolygons">[docs]</a><span class="k">class</span> <span class="nc">BoxesToPolygons</span><span class="p">(</span><span class="n">ItemTransform</span><span class="p">,</span> <span class="n">CliPlugin</span><span class="p">):</span>
+<div class="viewcode-block" id="BoxesToPolygons.transform_item"><a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.plugins.transforms.html#datumaro.plugins.transforms.BoxesToPolygons.transform_item">[docs]</a>    <span class="k">def</span> <span class="nf">transform_item</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">item</span><span class="p">):</span>
+        <span class="n">annotations</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">convert_bbox</span><span class="p">(</span><span class="n">ann</span><span class="p">)</span> <span class="k">if</span> <span class="n">ann</span><span class="o">.</span><span class="n">type</span> <span class="o">==</span> <span class="n">AnnotationType</span><span class="o">.</span><span class="n">bbox</span> <span class="k">else</span> <span class="n">ann</span>
+            <span class="k">for</span> <span class="n">ann</span> <span class="ow">in</span> <span class="n">item</span><span class="o">.</span><span class="n">annotations</span>
+        <span class="p">]</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">wrap_item</span><span class="p">(</span><span class="n">item</span><span class="p">,</span> <span class="n">annotations</span><span class="o">=</span><span class="n">annotations</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="BoxesToPolygons.convert_bbox"><a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.plugins.transforms.html#datumaro.plugins.transforms.BoxesToPolygons.convert_bbox">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">convert_bbox</span><span class="p">(</span><span class="n">bbox</span><span class="p">:</span> <span class="n">Bbox</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">Polygon</span><span class="p">(</span>
+            <span class="n">points</span><span class="o">=</span><span class="n">bbox</span><span class="o">.</span><span class="n">as_polygon</span><span class="p">(),</span>
+            <span class="nb">id</span><span class="o">=</span><span class="n">bbox</span><span class="o">.</span><span class="n">id</span><span class="p">,</span>
+            <span class="n">attributes</span><span class="o">=</span><span class="n">bbox</span><span class="o">.</span><span class="n">attributes</span><span class="p">,</span>
+            <span class="n">group</span><span class="o">=</span><span class="n">bbox</span><span class="o">.</span><span class="n">group</span><span class="p">,</span>
+            <span class="n">label</span><span class="o">=</span><span class="n">bbox</span><span class="o">.</span><span class="n">label</span><span class="p">,</span>
+            <span class="n">z_order</span><span class="o">=</span><span class="n">bbox</span><span class="o">.</span><span class="n">z_order</span><span class="p">,</span>
+        <span class="p">)</span></div></div>
+
+
 <div class="viewcode-block" id="MasksToPolygons"><a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.plugins.transforms.html#datumaro.plugins.transforms.MasksToPolygons">[docs]</a><span class="k">class</span> <span class="nc">MasksToPolygons</span><span class="p">(</span><span class="n">ItemTransform</span><span class="p">,</span> <span class="n">CliPlugin</span><span class="p">):</span>
 <div class="viewcode-block" id="MasksToPolygons.transform_item"><a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.plugins.transforms.html#datumaro.plugins.transforms.MasksToPolygons.transform_item">[docs]</a>    <span class="k">def</span> <span class="nf">transform_item</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">item</span><span class="p">):</span>
         <span class="n">annotations</span> <span class="o">=</span> <span class="p">[]</span>
