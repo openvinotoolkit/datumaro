@@ -15,6 +15,9 @@ For feature requests and issues, please feel free to create a GitHub Issue in th
 - Python (3.8+)
 
 To set up your development environment, please follow the steps below.
+
+0. Because Datumaro has some C++ and Rust implementations to improve Python performance, you should install C++ compiler (`apt-get install build-essential`) and a [Rust toolchain](https://www.rust-lang.org/tools/install) in your system to build the binary extensions.
+
 1. Fork the [repo](https://github.com/openvinotoolkit/datumaro).
 
 2. clone the forked repo.
