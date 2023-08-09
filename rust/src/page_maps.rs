@@ -1,3 +1,7 @@
+//  Copyright (C) 2023 Intel Corporation
+//
+//  SPDX-License-Identifier: MIT
+
 use crate::utils::{
     invalid_data, parse_serde_json_value_from_page, read_skipping_ws, stream_error,
 };

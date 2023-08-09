@@ -1,3 +1,7 @@
+//  Copyright (C) 2023 Intel Corporation
+//
+//  SPDX-License-Identifier: MIT
+
 use std::io::{self};
 
 pub fn read_skipping_ws(mut reader: impl io::Read) -> io::Result<u8> {

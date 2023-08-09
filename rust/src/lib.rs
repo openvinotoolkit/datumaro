@@ -1,3 +1,7 @@
+//  Copyright (C) 2023 Intel Corporation
+//
+//  SPDX-License-Identifier: MIT
+
 mod coco_page_mapper;
 mod page_maps;
 mod utils;
