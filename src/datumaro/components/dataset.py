@@ -13,7 +13,14 @@ from contextlib import contextmanager
 from copy import copy
 from typing import Any, Callable, Dict, Iterable, Iterator, List, Optional, Tuple, Type, Union
 
-from datumaro.components.annotation import AnnotationType, LabelCategories
+from datumaro.components.annotation import (
+    AnnotationType,
+    Bbox,
+    Label,
+    LabelCategories,
+    Mask,
+    Polygon,
+)
 from datumaro.components.config_model import Source
 from datumaro.components.dataset_base import (
     DEFAULT_SUBSET_NAME,
@@ -798,6 +805,9 @@ class Dataset(IDataset):
     def is_stream(self) -> bool:
         return self._data.is_stream
 
+    def to_torch(self, subset, task, transform=None, target_transform=None) -> TorchDataset:
+        return TorchDataset(self._data, subset, task, transform, target_transform)
+
 
 class StreamDataset(Dataset):
     _stream = True
@@ -825,6 +835,43 @@ class StreamDataset(Dataset):
     @property
     def is_eager(self) -> bool:
         return False
+
+
+class TorchDataset(Dataset):
+    def __init__(self, dataset, subset, task, transform=None, target_transform=None):
+        self.dataset = dataset.get_subset(subset)
+        self.subset = subset
+        self.task = task
+        self.transform = transform
+        self.target_transform = target_transform
+        self._ids = []
+        for item in self.dataset:
+            self._ids.append(item.id)
+
+    def __len__(self):
+        return len(self.dataset)
+
+    def __getitem__(self, idx):
+        dataitem = self.dataset.get(id=self._ids[idx], subset=self.subset)
+        image = dataitem.media.data
+
+        label = []
+        for ann in dataitem.annotations:
+            if self.task == "classification" and isinstance(ann, Label):
+                label.append(ann.label)
+            elif self.task == "detection" and isinstance(ann, Bbox):
+                label.append((ann.points, ann.label))
+            elif self.task == "segmentation" and (
+                isinstance(ann, Mask) or isinstance(ann, Polygon)
+            ):
+                label.append((ann.points, ann.label))
+
+        if self.transform:
+            image = self.transform(image)
+        if self.target_transform:
+            label = self.target_transform(label)
+
+        return image, label
 
 
 @contextmanager
