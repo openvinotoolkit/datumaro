@@ -17,13 +17,7 @@ datumaro.plugins.data\_formats.coco.page\_mapper
 
    .. autosummary::
    
-      AnnotationPageMap
-      BraceStatus
-      BracketStatus
       COCOPageMapper
-      COCOSection
-      FileReaderWithCache
-      ItemPage
    
    
 

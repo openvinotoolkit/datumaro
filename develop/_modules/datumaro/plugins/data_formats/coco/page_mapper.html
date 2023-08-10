@@ -281,125 +281,12 @@
 <span class="c1">#</span>
 <span class="c1"># SPDX-License-Identifier: MIT</span>
 
-<span class="kn">import</span> <span class="nn">os</span>
-<span class="kn">import</span> <span class="nn">struct</span>
-<span class="kn">from</span> <span class="nn">dataclasses</span> <span class="kn">import</span> <span class="n">dataclass</span><span class="p">,</span> <span class="n">field</span>
-<span class="kn">from</span> <span class="nn">enum</span> <span class="kn">import</span> <span class="n">Enum</span>
-<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">Iterator</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Tuple</span>
+<span class="kn">import</span> <span class="nn">logging</span> <span class="k">as</span> <span class="nn">log</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">Iterator</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Tuple</span>
 
-<span class="kn">import</span> <span class="nn">json_stream</span>
-
-<span class="kn">from</span> <span class="nn">datumaro.errors</span> <span class="kn">import</span> <span class="n">DatasetImportError</span>
-<span class="kn">from</span> <span class="nn">datumaro.util</span> <span class="kn">import</span> <span class="n">parse_json</span><span class="p">,</span> <span class="n">to_dict_from_streaming_json</span>
+<span class="kn">from</span> <span class="nn">datumaro.rust_api</span> <span class="kn">import</span> <span class="n">CocoPageMapper</span> <span class="k">as</span> <span class="n">CocoPageMapperImpl</span>
 
 <span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;COCOPageMapper&quot;</span><span class="p">]</span>
-
-
-<div class="viewcode-block" id="AnnotationPageMap"><a class="viewcode-back" href="../../../../../docs/reference/_autosummary/datumaro.plugins.data_formats.coco.page_mapper.html#datumaro.plugins.data_formats.coco.page_mapper.AnnotationPageMap">[docs]</a><span class="nd">@dataclass</span>
-<span class="k">class</span> <span class="nc">AnnotationPageMap</span><span class="p">:</span>
-    <span class="n">offsets</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default_factory</span><span class="o">=</span><span class="nb">list</span><span class="p">)</span>
-    <span class="n">sizes</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default_factory</span><span class="o">=</span><span class="nb">list</span><span class="p">)</span>
-    <span class="n">prev_pts</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default_factory</span><span class="o">=</span><span class="nb">list</span><span class="p">)</span></div>
-
-
-<div class="viewcode-block" id="ItemPage"><a class="viewcode-back" href="../../../../../docs/reference/_autosummary/datumaro.plugins.data_formats.coco.page_mapper.html#datumaro.plugins.data_formats.coco.page_mapper.ItemPage">[docs]</a><span class="nd">@dataclass</span>
-<span class="k">class</span> <span class="nc">ItemPage</span><span class="p">:</span>
-    <span class="n">offset</span><span class="p">:</span> <span class="nb">int</span>
-    <span class="n">size</span><span class="p">:</span> <span class="nb">int</span>
-    <span class="n">ann_last_pt</span><span class="p">:</span> <span class="nb">int</span></div>
-
-
-<div class="viewcode-block" id="BracketStatus"><a class="viewcode-back" href="../../../../../docs/reference/_autosummary/datumaro.plugins.data_formats.coco.page_mapper.html#datumaro.plugins.data_formats.coco.page_mapper.BracketStatus">[docs]</a><span class="nd">@dataclass</span>
-<span class="k">class</span> <span class="nc">BracketStatus</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Struct to manage status for the brackets ([, ]) during constructing a page map</span>
-
-<span class="sd">    If `flush` is True, it means that we have extracted all items from the section.</span>
-
-<span class="sd">    &quot;section&quot;: [        &lt;- BracketStatus.flush = False and BracketStatus.level = 1</span>
-<span class="sd">        item_0,</span>
-<span class="sd">        item_1,</span>
-<span class="sd">        ...</span>
-<span class="sd">        item_n,</span>
-<span class="sd">    ]                   &lt;- BracketStatus.flush = True and BracketStatus.level = 0</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-
-    <span class="n">flush</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span>
-    <span class="n">level</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span>
-    <span class="n">get_started</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span></div>
-
-
-<div class="viewcode-block" id="BraceStatus"><a class="viewcode-back" href="../../../../../docs/reference/_autosummary/datumaro.plugins.data_formats.coco.page_mapper.html#datumaro.plugins.data_formats.coco.page_mapper.BraceStatus">[docs]</a><span class="nd">@dataclass</span>
-<span class="k">class</span> <span class="nc">BraceStatus</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Struct to manage status for the braces ({, }) during constructing a page map</span>
-
-<span class="sd">    The braces set the bounds of the items to be extracted.</span>
-<span class="sd">    If `flush` is True, it flushes the bytes in its `buffer` which corresponds to the item.</span>
-
-<span class="sd">    {                               &lt;- BraceStatus.flush = False and BraceStatus.level = 1</span>
-<span class="sd">        &quot;attr1&quot;: 0,</span>
-<span class="sd">        &quot;attr2&quot;: {                  &lt;- BraceStatus.level = 2</span>
-<span class="sd">            &quot;nested_attr&quot;: 1</span>
-<span class="sd">        }                           &lt;- BraceStatus.level = 1</span>
-<span class="sd">    }                               &lt;- BraceStatus.flush = True and BraceStatus.level = 0</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-
-    <span class="n">flush</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span>
-    <span class="n">level</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span>
-    <span class="n">buffer</span><span class="p">:</span> <span class="nb">bytes</span> <span class="o">=</span> <span class="sa">b</span><span class="s2">&quot;&quot;</span>
-    <span class="n">start</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span>
-    <span class="n">end</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span>
-
-<div class="viewcode-block" id="BraceStatus.reset"><a class="viewcode-back" href="../../../../../docs/reference/_autosummary/datumaro.plugins.data_formats.coco.page_mapper.html#datumaro.plugins.data_formats.coco.page_mapper.BraceStatus.reset">[docs]</a>    <span class="k">def</span> <span class="nf">reset</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">flush</span> <span class="o">=</span> <span class="kc">False</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">level</span> <span class="o">=</span> <span class="mi">0</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">buffer</span> <span class="o">=</span> <span class="sa">b</span><span class="s2">&quot;&quot;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">start</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">end</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span></div>
-
-<div class="viewcode-block" id="BraceStatus.to_dict"><a class="viewcode-back" href="../../../../../docs/reference/_autosummary/datumaro.plugins.data_formats.coco.page_mapper.html#datumaro.plugins.data_formats.coco.page_mapper.BraceStatus.to_dict">[docs]</a>    <span class="k">def</span> <span class="nf">to_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">return</span> <span class="n">parse_json</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">buffer</span><span class="p">)</span></div></div>
-
-
-<div class="viewcode-block" id="COCOSection"><a class="viewcode-back" href="../../../../../docs/reference/_autosummary/datumaro.plugins.data_formats.coco.page_mapper.html#datumaro.plugins.data_formats.coco.page_mapper.COCOSection">[docs]</a><span class="k">class</span> <span class="nc">COCOSection</span><span class="p">(</span><span class="n">Enum</span><span class="p">):</span>
-    <span class="n">IMAGES</span> <span class="o">=</span> <span class="sa">b</span><span class="s1">&#39;&quot;images&quot;&#39;</span>
-    <span class="n">ANNOTATIONS</span> <span class="o">=</span> <span class="sa">b</span><span class="s1">&#39;&quot;annotations&quot;&#39;</span>
-    <span class="n">CATEGORIES</span> <span class="o">=</span> <span class="sa">b</span><span class="s1">&#39;&quot;categories&quot;&#39;</span>
-
-    <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">is_necessary</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Flat to indicate whether the section is necessary or not&quot;&quot;&quot;</span>
-        <span class="k">if</span> <span class="bp">self</span> <span class="ow">in</span> <span class="p">{</span><span class="n">COCOSection</span><span class="o">.</span><span class="n">IMAGES</span><span class="p">,</span> <span class="n">COCOSection</span><span class="o">.</span><span class="n">ANNOTATIONS</span><span class="p">}:</span>
-            <span class="k">return</span> <span class="kc">True</span>
-
-        <span class="k">return</span> <span class="kc">False</span></div>
-
-
-<div class="viewcode-block" id="FileReaderWithCache"><a class="viewcode-back" href="../../../../../docs/reference/_autosummary/datumaro.plugins.data_formats.coco.page_mapper.html#datumaro.plugins.data_formats.coco.page_mapper.FileReaderWithCache">[docs]</a><span class="k">class</span> <span class="nc">FileReaderWithCache</span><span class="p">:</span>
-    <span class="c1"># _n_chars = 1024 * 1024 * 16  # 16MB</span>
-    <span class="n">_n_chars</span> <span class="o">=</span> <span class="mi">1024</span> <span class="o">*</span> <span class="mi">64</span>  <span class="c1"># 64KB</span>
-
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">fp</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="s2">&quot;rb&quot;</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">update_buffer</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_n_chars</span><span class="p">)</span>
-
-<div class="viewcode-block" id="FileReaderWithCache.close"><a class="viewcode-back" href="../../../../../docs/reference/_autosummary/datumaro.plugins.data_formats.coco.page_mapper.html#datumaro.plugins.data_formats.coco.page_mapper.FileReaderWithCache.close">[docs]</a>    <span class="k">def</span> <span class="nf">close</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">fp</span><span class="o">.</span><span class="n">close</span><span class="p">()</span></div>
-
-    <span class="k">def</span> <span class="fm">__del__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
-
-<div class="viewcode-block" id="FileReaderWithCache.read"><a class="viewcode-back" href="../../../../../docs/reference/_autosummary/datumaro.plugins.data_formats.coco.page_mapper.html#datumaro.plugins.data_formats.coco.page_mapper.FileReaderWithCache.read">[docs]</a>    <span class="k">def</span> <span class="nf">read</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">offset</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">size</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-        <span class="k">if</span> <span class="n">offset</span> <span class="o">&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">offset</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">offset</span> <span class="o">+</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">buffer</span><span class="p">)</span> <span class="o">&lt;=</span> <span class="n">offset</span> <span class="o">+</span> <span class="n">size</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">update_buffer</span><span class="p">(</span><span class="n">offset</span><span class="p">,</span> <span class="n">size</span><span class="p">)</span>
-
-        <span class="n">_from</span> <span class="o">=</span> <span class="n">offset</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">offset</span>
-        <span class="n">_to</span> <span class="o">=</span> <span class="n">_from</span> <span class="o">+</span> <span class="n">size</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">buffer</span><span class="p">[</span><span class="n">_from</span><span class="p">:</span><span class="n">_to</span><span class="p">]</span></div>
-
-<div class="viewcode-block" id="FileReaderWithCache.update_buffer"><a class="viewcode-back" href="../../../../../docs/reference/_autosummary/datumaro.plugins.data_formats.coco.page_mapper.html#datumaro.plugins.data_formats.coco.page_mapper.FileReaderWithCache.update_buffer">[docs]</a>    <span class="k">def</span> <span class="nf">update_buffer</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">offset</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">size</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">fp</span><span class="o">.</span><span class="n">seek</span><span class="p">(</span><span class="n">offset</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">buffer</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">fp</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="nb">max</span><span class="p">(</span><span class="n">size</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_n_chars</span><span class="p">))</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">offset</span> <span class="o">=</span> <span class="n">offset</span></div></div>
 
 
 <div class="viewcode-block" id="COCOPageMapper"><a class="viewcode-back" href="../../../../../docs/reference/_autosummary/datumaro.plugins.data_formats.coco.page_mapper.html#datumaro.plugins.data_formats.coco.page_mapper.COCOPageMapper">[docs]</a><span class="k">class</span> <span class="nc">COCOPageMapper</span><span class="p">:</span>
@@ -410,235 +297,44 @@
 <span class="sd">    in stream manner after constructing the page map.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="c1"># _n_chars = 1024 * 1024 * 16  # 16MB</span>
-    <span class="n">_n_chars</span> <span class="o">=</span> <span class="mi">1024</span> <span class="o">*</span> <span class="mi">64</span>  <span class="c1"># 64KB</span>
-    <span class="n">cnt</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_path</span> <span class="o">=</span> <span class="n">path</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_impl</span> <span class="o">=</span> <span class="n">CocoPageMapperImpl</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">path</span> <span class="o">=</span> <span class="n">path</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">section_offsets</span> <span class="o">=</span> <span class="p">{</span>
-            <span class="n">section</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_find_section_offset</span><span class="p">(</span><span class="n">section</span><span class="p">)</span>
-            <span class="k">for</span> <span class="n">section</span> <span class="ow">in</span> <span class="p">[</span><span class="n">COCOSection</span><span class="o">.</span><span class="n">IMAGES</span><span class="p">,</span> <span class="n">COCOSection</span><span class="o">.</span><span class="n">ANNOTATIONS</span><span class="p">,</span> <span class="n">COCOSection</span><span class="o">.</span><span class="n">CATEGORIES</span><span class="p">]</span>
-        <span class="p">}</span>
+    <span class="k">def</span> <span class="fm">__iter__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Iterator</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="n">Dict</span><span class="p">,</span> <span class="n">List</span><span class="p">[</span><span class="n">Dict</span><span class="p">]]]:</span>
+        <span class="k">for</span> <span class="n">item_key</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">iter_item_ids</span><span class="p">():</span>
+            <span class="k">yield</span> <span class="bp">self</span><span class="o">.</span><span class="n">_impl</span><span class="o">.</span><span class="n">get_item_dict</span><span class="p">(</span><span class="n">item_key</span><span class="p">),</span> <span class="bp">self</span><span class="o">.</span><span class="n">_impl</span><span class="o">.</span><span class="n">get_anns_dict</span><span class="p">(</span><span class="n">item_key</span><span class="p">)</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">item_page_map</span> <span class="o">=</span> <span class="p">{}</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">ann_page_map</span> <span class="o">=</span> <span class="n">AnnotationPageMap</span><span class="p">()</span>
+<div class="viewcode-block" id="COCOPageMapper.get_item_dict"><a class="viewcode-back" href="../../../../../docs/reference/_autosummary/datumaro.plugins.data_formats.coco.page_mapper.html#datumaro.plugins.data_formats.coco.page_mapper.COCOPageMapper.get_item_dict">[docs]</a>    <span class="k">def</span> <span class="nf">get_item_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">item_key</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Dict</span><span class="p">]:</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_impl</span><span class="o">.</span><span class="n">get_item_dict</span><span class="p">(</span><span class="n">item_key</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="n">log</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="n">e</span><span class="p">)</span>
+            <span class="k">return</span> <span class="kc">None</span></div>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">_create_page_map</span><span class="p">(</span><span class="n">COCOSection</span><span class="o">.</span><span class="n">IMAGES</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_flush_item</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_create_page_map</span><span class="p">(</span><span class="n">COCOSection</span><span class="o">.</span><span class="n">ANNOTATIONS</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_flush_ann</span><span class="p">)</span>
+<div class="viewcode-block" id="COCOPageMapper.get_anns_dict"><a class="viewcode-back" href="../../../../../docs/reference/_autosummary/datumaro.plugins.data_formats.coco.page_mapper.html#datumaro.plugins.data_formats.coco.page_mapper.COCOPageMapper.get_anns_dict">[docs]</a>    <span class="k">def</span> <span class="nf">get_anns_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">item_key</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="n">Dict</span><span class="p">]]:</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_impl</span><span class="o">.</span><span class="n">get_anns_dict</span><span class="p">(</span><span class="n">item_key</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="n">log</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="n">e</span><span class="p">)</span>
+            <span class="k">return</span> <span class="kc">None</span></div>
 
-        <span class="c1"># Since the item and annotations are in different sections,</span>
-        <span class="c1"># we have to maintain caches for both.</span>
-        <span class="c1"># If we use a single `FileReaderWithCache`, the caching will be useless</span>
-        <span class="c1"># because it reads the file and initialize the cache everytime,</span>
-        <span class="c1"># going back and forth between the item and annotation sections.</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">item_reader</span> <span class="o">=</span> <span class="n">FileReaderWithCache</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">path</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">anns_reader</span> <span class="o">=</span> <span class="n">FileReaderWithCache</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">path</span><span class="p">)</span>
+    <span class="k">def</span> <span class="fm">__len__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+        <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_impl</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">__reduce__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">return</span> <span class="n">COCOPageMapper</span><span class="p">,</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">path</span><span class="p">,)</span>
+<div class="viewcode-block" id="COCOPageMapper.iter_item_ids"><a class="viewcode-back" href="../../../../../docs/reference/_autosummary/datumaro.plugins.data_formats.coco.page_mapper.html#datumaro.plugins.data_formats.coco.page_mapper.COCOPageMapper.iter_item_ids">[docs]</a>    <span class="k">def</span> <span class="nf">iter_item_ids</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Iterator</span><span class="p">[</span><span class="nb">int</span><span class="p">]:</span>
+        <span class="k">for</span> <span class="n">item_id</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_impl</span><span class="o">.</span><span class="n">get_img_ids</span><span class="p">():</span>
+            <span class="k">yield</span> <span class="n">item_id</span></div>
 
     <span class="k">def</span> <span class="fm">__del__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">item_reader</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">anns_reader</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+        <span class="k">pass</span>
 
 <div class="viewcode-block" id="COCOPageMapper.stream_parse_categories_data"><a class="viewcode-back" href="../../../../../docs/reference/_autosummary/datumaro.plugins.data_formats.coco.page_mapper.html#datumaro.plugins.data_formats.coco.page_mapper.COCOPageMapper.stream_parse_categories_data">[docs]</a>    <span class="k">def</span> <span class="nf">stream_parse_categories_data</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Parse &quot;categories&quot; section from the given JSON file using the stream json parser&quot;&quot;&quot;</span>
-        <span class="n">section</span> <span class="o">=</span> <span class="n">COCOSection</span><span class="o">.</span><span class="n">CATEGORIES</span>
-        <span class="n">offset</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">section_offsets</span><span class="p">[</span><span class="n">section</span><span class="p">]</span>
-        <span class="k">if</span> <span class="n">offset</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">:</span>
-            <span class="k">return</span> <span class="p">{}</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_impl</span><span class="o">.</span><span class="n">categories</span><span class="p">()</span></div>
 
-        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">path</span><span class="p">,</span> <span class="s2">&quot;rb&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">fp</span><span class="p">:</span>
-
-            <span class="k">def</span> <span class="nf">_gen</span><span class="p">():</span>
-                <span class="n">fp</span><span class="o">.</span><span class="n">seek</span><span class="p">(</span><span class="n">offset</span><span class="p">)</span>
-                <span class="n">not_started</span> <span class="o">=</span> <span class="kc">True</span>
-                <span class="k">while</span> <span class="n">out</span> <span class="o">:=</span> <span class="n">fp</span><span class="o">.</span><span class="n">read</span><span class="p">():</span>
-                    <span class="c1"># This is because we have to put &quot;{&quot; in front of &#39;&quot;categories&quot;: ... }&#39;</span>
-                    <span class="c1"># to make the dictionary parsed properly as &#39;{&quot;categories&quot;: ... }&#39;</span>
-                    <span class="k">if</span> <span class="n">not_started</span><span class="p">:</span>
-                        <span class="n">not_started</span> <span class="o">=</span> <span class="kc">False</span>
-                        <span class="k">yield</span> <span class="sa">b</span><span class="s2">&quot;{&quot;</span> <span class="o">+</span> <span class="n">out</span>
-                    <span class="k">yield</span> <span class="n">out</span>
-
-            <span class="n">data</span> <span class="o">=</span> <span class="n">json_stream</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">_gen</span><span class="p">(),</span> <span class="n">persistent</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
-            <span class="n">categories</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;categories&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
-
-            <span class="k">if</span> <span class="n">categories</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-                <span class="k">raise</span> <span class="n">DatasetImportError</span><span class="p">(</span><span class="s1">&#39;Cannot parse &quot;categories&quot; section.&#39;</span><span class="p">)</span>
-
-        <span class="k">return</span> <span class="n">to_dict_from_streaming_json</span><span class="p">(</span><span class="n">categories</span><span class="p">)</span></div>
-
-    <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">_gen_char_and_cursor</span><span class="p">(</span><span class="n">fp</span><span class="p">,</span> <span class="n">n_chars</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">65536</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Iterator</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="nb">bytes</span><span class="p">,</span> <span class="nb">int</span><span class="p">]]:</span>
-        <span class="k">while</span> <span class="n">out</span> <span class="o">:=</span> <span class="n">fp</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="n">n_chars</span><span class="p">):</span>
-            <span class="n">cursor</span> <span class="o">=</span> <span class="n">fp</span><span class="o">.</span><span class="n">tell</span><span class="p">()</span> <span class="o">-</span> <span class="nb">len</span><span class="p">(</span><span class="n">out</span><span class="p">)</span>
-            <span class="k">for</span> <span class="n">idx</span><span class="p">,</span> <span class="p">(</span><span class="n">c</span><span class="p">,)</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">struct</span><span class="o">.</span><span class="n">iter_unpack</span><span class="p">(</span><span class="s2">&quot;c&quot;</span><span class="p">,</span> <span class="n">out</span><span class="p">)):</span>
-                <span class="k">yield</span> <span class="n">c</span><span class="p">,</span> <span class="n">cursor</span> <span class="o">+</span> <span class="n">idx</span>
-
-    <span class="k">def</span> <span class="nf">_find_section_offset</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">section</span><span class="p">:</span> <span class="n">COCOSection</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
-        <span class="n">pattern</span> <span class="o">=</span> <span class="n">section</span><span class="o">.</span><span class="n">value</span>
-        <span class="n">len_pattern</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">pattern</span><span class="p">)</span>
-        <span class="n">dst</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span>
-        <span class="n">buffer</span> <span class="o">=</span> <span class="sa">b</span><span class="s2">&quot;&quot;</span>
-
-        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">path</span><span class="p">,</span> <span class="s2">&quot;rb&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">fp</span><span class="p">:</span>
-            <span class="k">while</span> <span class="n">out_bytes</span> <span class="o">:=</span> <span class="n">fp</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_n_chars</span><span class="p">):</span>
-                <span class="n">cursor</span> <span class="o">=</span> <span class="n">fp</span><span class="o">.</span><span class="n">tell</span><span class="p">()</span>
-
-                <span class="n">buffer</span> <span class="o">=</span> <span class="n">buffer</span> <span class="o">+</span> <span class="n">out_bytes</span>
-                <span class="n">found</span> <span class="o">=</span> <span class="n">buffer</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="n">pattern</span><span class="p">)</span>
-
-                <span class="k">if</span> <span class="n">found</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="p">:</span>
-                    <span class="n">dst</span> <span class="o">=</span> <span class="n">cursor</span> <span class="o">-</span> <span class="nb">len</span><span class="p">(</span><span class="n">buffer</span><span class="p">)</span> <span class="o">+</span> <span class="n">found</span>
-                    <span class="k">break</span>
-
-                <span class="n">buffer</span> <span class="o">=</span> <span class="n">buffer</span><span class="p">[</span><span class="o">-</span><span class="n">len_pattern</span><span class="p">:]</span>
-
-        <span class="k">if</span> <span class="n">dst</span> <span class="o">&lt;</span> <span class="mi">0</span> <span class="ow">and</span> <span class="n">section</span><span class="o">.</span><span class="n">is_necessary</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="n">DatasetImportError</span><span class="p">(</span>
-                <span class="sa">f</span><span class="s2">&quot;section=</span><span class="si">{</span><span class="n">section</span><span class="si">}</span><span class="s2"> is necessary, but not in the input JSON file.&quot;</span>
-            <span class="p">)</span>
-
-        <span class="k">return</span> <span class="n">dst</span>
-
-    <span class="k">def</span> <span class="nf">_flush_item</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">brace</span><span class="p">:</span> <span class="n">BraceStatus</span><span class="p">):</span>
-        <span class="n">data</span> <span class="o">=</span> <span class="n">brace</span><span class="o">.</span><span class="n">to_dict</span><span class="p">()</span>
-        <span class="n">img_id</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;id&quot;</span><span class="p">)</span>
-
-        <span class="k">if</span> <span class="n">img_id</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Cannot find image id.&quot;</span><span class="p">)</span>
-
-        <span class="bp">self</span><span class="o">.</span><span class="n">item_page_map</span><span class="p">[</span><span class="n">img_id</span><span class="p">]</span> <span class="o">=</span> <span class="n">ItemPage</span><span class="p">(</span><span class="n">brace</span><span class="o">.</span><span class="n">start</span><span class="p">,</span> <span class="n">brace</span><span class="o">.</span><span class="n">end</span> <span class="o">-</span> <span class="n">brace</span><span class="o">.</span><span class="n">start</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span>
-
-    <span class="k">def</span> <span class="nf">_flush_ann</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">brace</span><span class="p">:</span> <span class="n">BraceStatus</span><span class="p">):</span>
-        <span class="n">data</span> <span class="o">=</span> <span class="n">brace</span><span class="o">.</span><span class="n">to_dict</span><span class="p">()</span>
-
-        <span class="n">img_id</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;image_id&quot;</span><span class="p">)</span>
-        <span class="k">if</span> <span class="n">img_id</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="k">return</span>
-        <span class="k">if</span> <span class="n">img_id</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">item_page_map</span><span class="p">:</span>
-            <span class="k">return</span>
-
-        <span class="bp">self</span><span class="o">.</span><span class="n">ann_page_map</span><span class="o">.</span><span class="n">offsets</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">brace</span><span class="o">.</span><span class="n">start</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">ann_page_map</span><span class="o">.</span><span class="n">sizes</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">brace</span><span class="o">.</span><span class="n">end</span> <span class="o">-</span> <span class="n">brace</span><span class="o">.</span><span class="n">start</span><span class="p">)</span>
-
-        <span class="n">item_page</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">item_page_map</span><span class="p">[</span><span class="n">img_id</span><span class="p">]</span>
-        <span class="n">curr_pt</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ann_page_map</span><span class="o">.</span><span class="n">prev_pts</span><span class="p">)</span>
-        <span class="n">prev_pt</span> <span class="o">=</span> <span class="n">item_page</span><span class="o">.</span><span class="n">ann_last_pt</span>
-
-        <span class="bp">self</span><span class="o">.</span><span class="n">ann_page_map</span><span class="o">.</span><span class="n">prev_pts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">prev_pt</span><span class="p">)</span>
-        <span class="n">item_page</span><span class="o">.</span><span class="n">ann_last_pt</span> <span class="o">=</span> <span class="n">curr_pt</span>
-
-    <span class="k">def</span> <span class="nf">_create_page_map</span><span class="p">(</span>
-        <span class="bp">self</span><span class="p">,</span> <span class="n">section</span><span class="p">:</span> <span class="n">COCOSection</span><span class="p">,</span> <span class="n">flush_callback</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[[</span><span class="n">BraceStatus</span><span class="p">],</span> <span class="kc">None</span><span class="p">]</span>
-    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="n">section_offset</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">section_offsets</span><span class="p">[</span><span class="n">section</span><span class="p">]</span>
-        <span class="n">braket</span> <span class="o">=</span> <span class="n">BracketStatus</span><span class="p">()</span>
-        <span class="n">brace</span> <span class="o">=</span> <span class="n">BraceStatus</span><span class="p">()</span>
-
-        <span class="n">cnt</span> <span class="o">=</span> <span class="mi">0</span>
-        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">path</span><span class="p">,</span> <span class="s2">&quot;rb&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">fp</span><span class="p">:</span>
-            <span class="n">fp</span><span class="o">.</span><span class="n">seek</span><span class="p">(</span><span class="n">section_offset</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
-
-            <span class="k">for</span> <span class="n">c</span><span class="p">,</span> <span class="n">cursor</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_gen_char_and_cursor</span><span class="p">(</span><span class="n">fp</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_n_chars</span><span class="p">):</span>
-                <span class="c1"># Continue to the root brace</span>
-                <span class="k">if</span> <span class="ow">not</span> <span class="n">braket</span><span class="o">.</span><span class="n">get_started</span> <span class="ow">and</span> <span class="n">c</span> <span class="o">!=</span> <span class="sa">b</span><span class="s2">&quot;[&quot;</span><span class="p">:</span>
-                    <span class="k">continue</span>
-
-                <span class="c1"># Start the root brace</span>
-                <span class="n">braket</span><span class="o">.</span><span class="n">get_started</span> <span class="o">=</span> <span class="kc">True</span>
-
-                <span class="bp">self</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">braket</span><span class="p">,</span> <span class="n">brace</span><span class="p">,</span> <span class="n">c</span><span class="p">,</span> <span class="n">cursor</span><span class="p">)</span>
-
-                <span class="k">if</span> <span class="n">brace</span><span class="o">.</span><span class="n">flush</span><span class="p">:</span>
-                    <span class="n">flush_callback</span><span class="p">(</span><span class="n">brace</span><span class="p">)</span>
-                    <span class="n">brace</span><span class="o">.</span><span class="n">reset</span><span class="p">()</span>
-                    <span class="n">cnt</span> <span class="o">+=</span> <span class="mi">1</span>
-                <span class="k">if</span> <span class="n">braket</span><span class="o">.</span><span class="n">flush</span><span class="p">:</span>
-                    <span class="k">break</span>
-
-        <span class="k">if</span> <span class="ow">not</span> <span class="n">braket</span><span class="o">.</span><span class="n">get_started</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Cannot find the list from the section=</span><span class="si">{</span><span class="n">section</span><span class="si">}</span><span class="s2">.&quot;</span><span class="p">)</span>
-        <span class="k">if</span> <span class="p">(</span>
-            <span class="n">brace</span><span class="o">.</span><span class="n">buffer</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">linesep</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\t</span><span class="s2">&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot; &quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
-            <span class="o">!=</span> <span class="s2">&quot;&quot;</span>
-        <span class="p">):</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-                <span class="sa">f</span><span class="s2">&quot;The input has a dictionary with no terminating curly braces. Remaining buffer=</span><span class="si">{</span><span class="n">brace</span><span class="o">.</span><span class="n">buffer</span><span class="si">}</span><span class="s2">&quot;</span>
-            <span class="p">)</span>
-
-<div class="viewcode-block" id="COCOPageMapper.update"><a class="viewcode-back" href="../../../../../docs/reference/_autosummary/datumaro.plugins.data_formats.coco.page_mapper.html#datumaro.plugins.data_formats.coco.page_mapper.COCOPageMapper.update">[docs]</a>    <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">update</span><span class="p">(</span><span class="n">braket</span><span class="p">,</span> <span class="n">brace</span><span class="p">,</span> <span class="n">c</span><span class="p">,</span> <span class="n">cursor</span><span class="p">):</span>
-        <span class="k">if</span> <span class="n">c</span> <span class="o">==</span> <span class="sa">b</span><span class="s2">&quot;[&quot;</span><span class="p">:</span>
-            <span class="k">if</span> <span class="n">braket</span><span class="o">.</span><span class="n">level</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
-                <span class="n">braket</span><span class="o">.</span><span class="n">flush</span> <span class="o">=</span> <span class="kc">False</span>
-            <span class="k">else</span><span class="p">:</span>
-                <span class="n">brace</span><span class="o">.</span><span class="n">buffer</span> <span class="o">+=</span> <span class="sa">b</span><span class="s2">&quot;[&quot;</span>
-            <span class="n">braket</span><span class="o">.</span><span class="n">level</span> <span class="o">+=</span> <span class="mi">1</span>
-        <span class="k">elif</span> <span class="n">c</span> <span class="o">==</span> <span class="sa">b</span><span class="s2">&quot;{&quot;</span><span class="p">:</span>
-            <span class="k">if</span> <span class="n">brace</span><span class="o">.</span><span class="n">level</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
-                <span class="n">brace</span><span class="o">.</span><span class="n">flush</span> <span class="o">=</span> <span class="kc">False</span>
-                <span class="n">brace</span><span class="o">.</span><span class="n">buffer</span> <span class="o">=</span> <span class="sa">b</span><span class="s2">&quot;{&quot;</span>
-                <span class="n">brace</span><span class="o">.</span><span class="n">start</span> <span class="o">=</span> <span class="n">cursor</span>
-            <span class="k">else</span><span class="p">:</span>
-                <span class="n">brace</span><span class="o">.</span><span class="n">buffer</span> <span class="o">+=</span> <span class="sa">b</span><span class="s2">&quot;{&quot;</span>
-            <span class="n">brace</span><span class="o">.</span><span class="n">level</span> <span class="o">+=</span> <span class="mi">1</span>
-        <span class="k">elif</span> <span class="n">c</span> <span class="o">==</span> <span class="sa">b</span><span class="s2">&quot;}&quot;</span><span class="p">:</span>
-            <span class="n">brace</span><span class="o">.</span><span class="n">level</span> <span class="o">-=</span> <span class="mi">1</span>
-            <span class="n">brace</span><span class="o">.</span><span class="n">buffer</span> <span class="o">+=</span> <span class="sa">b</span><span class="s2">&quot;}&quot;</span>
-            <span class="k">if</span> <span class="n">brace</span><span class="o">.</span><span class="n">level</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
-                <span class="n">brace</span><span class="o">.</span><span class="n">flush</span> <span class="o">=</span> <span class="kc">True</span>
-                <span class="n">brace</span><span class="o">.</span><span class="n">end</span> <span class="o">=</span> <span class="n">cursor</span> <span class="o">+</span> <span class="mi">1</span>
-        <span class="k">elif</span> <span class="n">c</span> <span class="o">==</span> <span class="sa">b</span><span class="s2">&quot;]&quot;</span><span class="p">:</span>
-            <span class="n">braket</span><span class="o">.</span><span class="n">level</span> <span class="o">-=</span> <span class="mi">1</span>
-            <span class="k">if</span> <span class="n">braket</span><span class="o">.</span><span class="n">level</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
-                <span class="n">braket</span><span class="o">.</span><span class="n">flush</span> <span class="o">=</span> <span class="kc">True</span>
-            <span class="k">else</span><span class="p">:</span>
-                <span class="n">brace</span><span class="o">.</span><span class="n">buffer</span> <span class="o">+=</span> <span class="sa">b</span><span class="s2">&quot;]&quot;</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="n">brace</span><span class="o">.</span><span class="n">buffer</span> <span class="o">+=</span> <span class="n">c</span></div>
-
-    <span class="k">def</span> <span class="fm">__iter__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Iterator</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="n">Dict</span><span class="p">,</span> <span class="n">List</span><span class="p">[</span><span class="n">Dict</span><span class="p">]]]:</span>
-        <span class="k">for</span> <span class="n">item_page</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">item_page_map</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
-            <span class="k">yield</span> <span class="bp">self</span><span class="o">.</span><span class="n">_gen_item_dict</span><span class="p">(</span><span class="n">item_page</span><span class="p">),</span> <span class="bp">self</span><span class="o">.</span><span class="n">_gen_anns_dict</span><span class="p">(</span><span class="n">item_page</span><span class="p">)</span>
-
-<div class="viewcode-block" id="COCOPageMapper.get_item_dict"><a class="viewcode-back" href="../../../../../docs/reference/_autosummary/datumaro.plugins.data_formats.coco.page_mapper.html#datumaro.plugins.data_formats.coco.page_mapper.COCOPageMapper.get_item_dict">[docs]</a>    <span class="k">def</span> <span class="nf">get_item_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">item_key</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Dict</span><span class="p">]:</span>
-        <span class="n">item_page</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">item_page_map</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">item_key</span><span class="p">)</span>
-        <span class="k">if</span> <span class="n">item_page</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="k">return</span> <span class="kc">None</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_gen_item_dict</span><span class="p">(</span><span class="n">item_page</span><span class="p">)</span></div>
-
-<div class="viewcode-block" id="COCOPageMapper.get_anns_dict"><a class="viewcode-back" href="../../../../../docs/reference/_autosummary/datumaro.plugins.data_formats.coco.page_mapper.html#datumaro.plugins.data_formats.coco.page_mapper.COCOPageMapper.get_anns_dict">[docs]</a>    <span class="k">def</span> <span class="nf">get_anns_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">item_key</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="n">Dict</span><span class="p">]]:</span>
-        <span class="n">item_page</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">item_page_map</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">item_key</span><span class="p">)</span>
-        <span class="k">if</span> <span class="n">item_page</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="k">return</span> <span class="kc">None</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_gen_anns_dict</span><span class="p">(</span><span class="n">item_page</span><span class="p">)</span></div>
-
-    <span class="k">def</span> <span class="nf">_gen_item_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">item_page</span><span class="p">:</span> <span class="n">ItemPage</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">:</span>
-        <span class="n">data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">item_reader</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="n">item_page</span><span class="o">.</span><span class="n">offset</span><span class="p">,</span> <span class="n">item_page</span><span class="o">.</span><span class="n">size</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">parse_json</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
-
-    <span class="k">def</span> <span class="nf">_gen_anns_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">item_page</span><span class="p">:</span> <span class="n">ItemPage</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">Dict</span><span class="p">]:</span>
-        <span class="n">curr_pt</span> <span class="o">=</span> <span class="n">item_page</span><span class="o">.</span><span class="n">ann_last_pt</span>
-        <span class="n">to_read</span> <span class="o">=</span> <span class="p">[]</span>
-        <span class="k">while</span> <span class="n">curr_pt</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="p">:</span>
-            <span class="n">ann_offset</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ann_page_map</span><span class="o">.</span><span class="n">offsets</span><span class="p">[</span><span class="n">curr_pt</span><span class="p">]</span>
-            <span class="n">ann_size</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ann_page_map</span><span class="o">.</span><span class="n">sizes</span><span class="p">[</span><span class="n">curr_pt</span><span class="p">]</span>
-            <span class="n">curr_pt</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ann_page_map</span><span class="o">.</span><span class="n">prev_pts</span><span class="p">[</span><span class="n">curr_pt</span><span class="p">]</span>
-            <span class="n">to_read</span> <span class="o">+=</span> <span class="p">[(</span><span class="n">ann_offset</span><span class="p">,</span> <span class="n">ann_size</span><span class="p">)]</span>
-
-        <span class="k">return</span> <span class="p">[</span>
-            <span class="n">parse_json</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">anns_reader</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="n">ann_offset</span><span class="p">,</span> <span class="n">ann_size</span><span class="p">))</span>
-            <span class="k">for</span> <span class="n">ann_offset</span><span class="p">,</span> <span class="n">ann_size</span> <span class="ow">in</span> <span class="nb">reversed</span><span class="p">(</span><span class="n">to_read</span><span class="p">)</span>
-        <span class="p">]</span>
-
-    <span class="k">def</span> <span class="fm">__len__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
-        <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">item_page_map</span><span class="p">)</span>
-
-<div class="viewcode-block" id="COCOPageMapper.iter_item_ids"><a class="viewcode-back" href="../../../../../docs/reference/_autosummary/datumaro.plugins.data_formats.coco.page_mapper.html#datumaro.plugins.data_formats.coco.page_mapper.COCOPageMapper.iter_item_ids">[docs]</a>    <span class="k">def</span> <span class="nf">iter_item_ids</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Iterator</span><span class="p">[</span><span class="nb">int</span><span class="p">]:</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">item_page_map</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span></div></div>
+    <span class="k">def</span> <span class="nf">__reduce__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="p">,</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_path</span><span class="p">,))</span></div>
 </pre></div>
 
             </article>

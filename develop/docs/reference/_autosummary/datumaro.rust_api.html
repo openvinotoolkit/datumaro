@@ -6,7 +6,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
 
-    <title>datumaro.plugins.openvino_plugin.samples.mobilenet_v2_pytorch_interp &#8212; Datumaro 1.4.1 documentation</title>
+    <title>datumaro.rust_api &#8212; Datumaro 1.4.1 documentation</title>
   
   
   
@@ -46,11 +46,11 @@
     <script src="../../../_static/copybutton.js"></script>
     <script src="../../../_static/design-tabs.js"></script>
     <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
-    <script>DOCUMENTATION_OPTIONS.pagename = 'docs/reference/_autosummary/datumaro.plugins.openvino_plugin.samples.mobilenet_v2_pytorch_interp';</script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'docs/reference/_autosummary/datumaro.rust_api';</script>
     <link rel="index" title="Index" href="../../../genindex.html" />
     <link rel="search" title="Search" href="../../../search.html" />
-    <link rel="next" title="datumaro.plugins.openvino_plugin.samples.otx_custom_object_detection_gen3_atss_interp" href="datumaro.plugins.openvino_plugin.samples.otx_custom_object_detection_gen3_atss_interp.html" />
-    <link rel="prev" title="datumaro.plugins.openvino_plugin.samples" href="datumaro.plugins.openvino_plugin.samples.html" />
+    <link rel="next" title="datumaro.util" href="datumaro.util.html" />
+    <link rel="prev" title="datumaro.project" href="datumaro.project.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="docsearch:language" content="en">
   </head>
@@ -476,14 +476,14 @@
 </li>
 <li class="toctree-l3"><a class="reference internal" href="datumaro.errors.html">datumaro.errors</a></li>
 <li class="toctree-l3"><a class="reference internal" href="datumaro.ops.html">datumaro.ops</a></li>
-<li class="toctree-l3 current active has-children"><a class="reference internal" href="datumaro.plugins.html">datumaro.plugins</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-18" name="toctree-checkbox-18" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-18"><i class="fa-solid fa-chevron-down"></i></label><ul class="current">
+<li class="toctree-l3 has-children"><a class="reference internal" href="datumaro.plugins.html">datumaro.plugins</a><input class="toctree-checkbox" id="toctree-checkbox-18" name="toctree-checkbox-18" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-18"><i class="fa-solid fa-chevron-down"></i></label><ul>
 <li class="toctree-l4"><a class="reference internal" href="datumaro.plugins.accuracy_checker_plugin.html">datumaro.plugins.accuracy_checker_plugin</a></li>
 <li class="toctree-l4"><a class="reference internal" href="datumaro.plugins.data_formats.html">datumaro.plugins.data_formats</a></li>
 <li class="toctree-l4"><a class="reference internal" href="datumaro.plugins.explorer.html">datumaro.plugins.explorer</a></li>
 <li class="toctree-l4"><a class="reference internal" href="datumaro.plugins.inference_server_plugin.html">datumaro.plugins.inference_server_plugin</a></li>
 <li class="toctree-l4"><a class="reference internal" href="datumaro.plugins.missing_annotation_detection.html">datumaro.plugins.missing_annotation_detection</a></li>
 <li class="toctree-l4"><a class="reference internal" href="datumaro.plugins.ndr.html">datumaro.plugins.ndr</a></li>
-<li class="toctree-l4 current active"><a class="reference internal" href="datumaro.plugins.openvino_plugin.html">datumaro.plugins.openvino_plugin</a></li>
+<li class="toctree-l4"><a class="reference internal" href="datumaro.plugins.openvino_plugin.html">datumaro.plugins.openvino_plugin</a></li>
 <li class="toctree-l4"><a class="reference internal" href="datumaro.plugins.sampler.html">datumaro.plugins.sampler</a></li>
 <li class="toctree-l4"><a class="reference internal" href="datumaro.plugins.specs.html">datumaro.plugins.specs</a></li>
 <li class="toctree-l4"><a class="reference internal" href="datumaro.plugins.splitter.html">datumaro.plugins.splitter</a></li>
@@ -494,7 +494,7 @@
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="datumaro.project.html">datumaro.project</a></li>
-<li class="toctree-l3"><a class="reference internal" href="datumaro.rust_api.html">datumaro.rust_api</a></li>
+<li class="toctree-l3 current active"><a class="current reference internal" href="#">datumaro.rust_api</a></li>
 <li class="toctree-l3 has-children"><a class="reference internal" href="datumaro.util.html">datumaro.util</a><input class="toctree-checkbox" id="toctree-checkbox-19" name="toctree-checkbox-19" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-19"><i class="fa-solid fa-chevron-down"></i></label><ul>
 <li class="toctree-l4"><a class="reference internal" href="datumaro.util.annotation_util.html">datumaro.util.annotation_util</a></li>
 <li class="toctree-l4"><a class="reference internal" href="datumaro.util.attrs_util.html">datumaro.util.attrs_util</a></li>
@@ -574,39 +574,41 @@
             
             <article class="bd-article" role="main">
               
-  <section id="module-datumaro.plugins.openvino_plugin.samples.mobilenet_v2_pytorch_interp">
-<span id="datumaro-plugins-openvino-plugin-samples-mobilenet-v2-pytorch-interp"></span><h1>datumaro.plugins.openvino_plugin.samples.mobilenet_v2_pytorch_interp<a class="headerlink" href="#module-datumaro.plugins.openvino_plugin.samples.mobilenet_v2_pytorch_interp" title="Permalink to this heading">#</a></h1>
-<p class="rubric">Classes</p>
-<table class="autosummary longtable table autosummary">
-<tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="#datumaro.plugins.openvino_plugin.samples.mobilenet_v2_pytorch_interp.MobilenetV2PytorchModelInterpreter" title="datumaro.plugins.openvino_plugin.samples.mobilenet_v2_pytorch_interp.MobilenetV2PytorchModelInterpreter"><code class="xref py py-obj docutils literal notranslate"><span class="pre">MobilenetV2PytorchModelInterpreter</span></code></a>()</p></td>
-<td><p></p></td>
-</tr>
-</tbody>
-</table>
+  <section id="module-datumaro.rust_api">
+<span id="datumaro-rust-api"></span><h1>datumaro.rust_api<a class="headerlink" href="#module-datumaro.rust_api" title="Permalink to this heading">#</a></h1>
+<p>Datumaro Rust API</p>
 <dl class="py class">
-<dt class="sig sig-object py" id="datumaro.plugins.openvino_plugin.samples.mobilenet_v2_pytorch_interp.MobilenetV2PytorchModelInterpreter">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">datumaro.plugins.openvino_plugin.samples.mobilenet_v2_pytorch_interp.</span></span><span class="sig-name descname"><span class="pre">MobilenetV2PytorchModelInterpreter</span></span><a class="reference internal" href="../../../_modules/datumaro/plugins/openvino_plugin/samples/mobilenet_v2_pytorch_interp.html#MobilenetV2PytorchModelInterpreter"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.plugins.openvino_plugin.samples.mobilenet_v2_pytorch_interp.MobilenetV2PytorchModelInterpreter" title="Permalink to this definition">#</a></dt>
-<dd><p>Bases: <a class="reference internal" href="datumaro.components.abstracts.model_interpreter.html#datumaro.components.abstracts.model_interpreter.IModelInterpreter" title="datumaro.components.abstracts.model_interpreter.IModelInterpreter"><code class="xref py py-class docutils literal notranslate"><span class="pre">IModelInterpreter</span></code></a></p>
+<dt class="sig sig-object py" id="datumaro.rust_api.CocoPageMapper">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">datumaro.rust_api.</span></span><span class="sig-name descname"><span class="pre">CocoPageMapper</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#datumaro.rust_api.CocoPageMapper" title="Permalink to this definition">#</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.11)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
 <dl class="py method">
-<dt class="sig sig-object py" id="datumaro.plugins.openvino_plugin.samples.mobilenet_v2_pytorch_interp.MobilenetV2PytorchModelInterpreter.normalize">
-<span class="sig-name descname"><span class="pre">normalize</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">inputs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/datumaro/plugins/openvino_plugin/samples/mobilenet_v2_pytorch_interp.html#MobilenetV2PytorchModelInterpreter.normalize"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.plugins.openvino_plugin.samples.mobilenet_v2_pytorch_interp.MobilenetV2PytorchModelInterpreter.normalize" title="Permalink to this definition">#</a></dt>
+<dt class="sig sig-object py" id="datumaro.rust_api.CocoPageMapper.categories">
+<span class="sig-name descname"><span class="pre">categories</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#datumaro.rust_api.CocoPageMapper.categories" title="Permalink to this definition">#</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="datumaro.plugins.openvino_plugin.samples.mobilenet_v2_pytorch_interp.MobilenetV2PytorchModelInterpreter.process_outputs">
-<span class="sig-name descname"><span class="pre">process_outputs</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">inputs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">outputs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/datumaro/plugins/openvino_plugin/samples/mobilenet_v2_pytorch_interp.html#MobilenetV2PytorchModelInterpreter.process_outputs"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.plugins.openvino_plugin.samples.mobilenet_v2_pytorch_interp.MobilenetV2PytorchModelInterpreter.process_outputs" title="Permalink to this definition">#</a></dt>
+<dt class="sig sig-object py" id="datumaro.rust_api.CocoPageMapper.get_anns_dict">
+<span class="sig-name descname"><span class="pre">get_anns_dict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">img_id</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#datumaro.rust_api.CocoPageMapper.get_anns_dict" title="Permalink to this definition">#</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="datumaro.plugins.openvino_plugin.samples.mobilenet_v2_pytorch_interp.MobilenetV2PytorchModelInterpreter.get_categories">
-<span class="sig-name descname"><span class="pre">get_categories</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/datumaro/plugins/openvino_plugin/samples/mobilenet_v2_pytorch_interp.html#MobilenetV2PytorchModelInterpreter.get_categories"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.plugins.openvino_plugin.samples.mobilenet_v2_pytorch_interp.MobilenetV2PytorchModelInterpreter.get_categories" title="Permalink to this definition">#</a></dt>
-<dd><p>It should be implemented if the model generate a new categories</p>
-</dd></dl>
+<dt class="sig sig-object py" id="datumaro.rust_api.CocoPageMapper.get_img_ids">
+<span class="sig-name descname"><span class="pre">get_img_ids</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#datumaro.rust_api.CocoPageMapper.get_img_ids" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="datumaro.plugins.openvino_plugin.samples.mobilenet_v2_pytorch_interp.MobilenetV2PytorchModelInterpreter.resize">
-<span class="sig-name descname"><span class="pre">resize</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">inputs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/datumaro/plugins/openvino_plugin/samples/mobilenet_v2_pytorch_interp.html#MobilenetV2PytorchModelInterpreter.resize"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.plugins.openvino_plugin.samples.mobilenet_v2_pytorch_interp.MobilenetV2PytorchModelInterpreter.resize" title="Permalink to this definition">#</a></dt>
+<dt class="sig sig-object py" id="datumaro.rust_api.CocoPageMapper.get_item_dict">
+<span class="sig-name descname"><span class="pre">get_item_dict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">img_id</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#datumaro.rust_api.CocoPageMapper.get_item_dict" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="datumaro.rust_api.CocoPageMapper.info">
+<span class="sig-name descname"><span class="pre">info</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#datumaro.rust_api.CocoPageMapper.info" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="datumaro.rust_api.CocoPageMapper.licenses">
+<span class="sig-name descname"><span class="pre">licenses</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#datumaro.rust_api.CocoPageMapper.licenses" title="Permalink to this definition">#</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
@@ -621,17 +623,17 @@
             <footer class="bd-footer-article">
                 <!-- Previous / next buttons -->
 <div class='prev-next-area'>
-  <a class='left-prev' id="prev-link" href="datumaro.plugins.openvino_plugin.samples.html" title="previous page">
+  <a class='left-prev' id="prev-link" href="datumaro.project.html" title="previous page">
       <i class="fa-solid fa-angle-left"></i>
       <div class="prev-next-info">
           <p class="prev-next-subtitle">previous</p>
-          <p class="prev-next-title">datumaro.plugins.openvino_plugin.samples</p>
+          <p class="prev-next-title">datumaro.project</p>
       </div>
   </a>
-  <a class='right-next' id="next-link" href="datumaro.plugins.openvino_plugin.samples.otx_custom_object_detection_gen3_atss_interp.html" title="next page">
+  <a class='right-next' id="next-link" href="datumaro.util.html" title="next page">
   <div class="prev-next-info">
       <p class="prev-next-subtitle">next</p>
-      <p class="prev-next-title">datumaro.plugins.openvino_plugin.samples.otx_custom_object_detection_gen3_atss_interp</p>
+      <p class="prev-next-title">datumaro.util</p>
   </div>
   <i class="fa-solid fa-angle-right"></i>
   </a>
@@ -652,46 +654,64 @@
 <nav id="bd-toc-nav" class="page-toc">
     <ul class="visible nav section-nav flex-column">
  <li class="toc-h2 nav-item toc-entry">
-  <a class="reference internal nav-link" href="#datumaro.plugins.openvino_plugin.samples.mobilenet_v2_pytorch_interp.MobilenetV2PytorchModelInterpreter">
+  <a class="reference internal nav-link" href="#datumaro.rust_api.CocoPageMapper">
    <code class="docutils literal notranslate">
     <span class="pre">
-     MobilenetV2PytorchModelInterpreter
+     CocoPageMapper
     </span>
    </code>
   </a>
   <ul class="nav section-nav flex-column">
    <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.plugins.openvino_plugin.samples.mobilenet_v2_pytorch_interp.MobilenetV2PytorchModelInterpreter.normalize">
+    <a class="reference internal nav-link" href="#datumaro.rust_api.CocoPageMapper.categories">
      <code class="docutils literal notranslate">
       <span class="pre">
-       MobilenetV2PytorchModelInterpreter.normalize()
+       CocoPageMapper.categories()
       </span>
      </code>
     </a>
    </li>
    <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.plugins.openvino_plugin.samples.mobilenet_v2_pytorch_interp.MobilenetV2PytorchModelInterpreter.process_outputs">
+    <a class="reference internal nav-link" href="#datumaro.rust_api.CocoPageMapper.get_anns_dict">
      <code class="docutils literal notranslate">
       <span class="pre">
-       MobilenetV2PytorchModelInterpreter.process_outputs()
+       CocoPageMapper.get_anns_dict()
       </span>
      </code>
     </a>
    </li>
    <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.plugins.openvino_plugin.samples.mobilenet_v2_pytorch_interp.MobilenetV2PytorchModelInterpreter.get_categories">
+    <a class="reference internal nav-link" href="#datumaro.rust_api.CocoPageMapper.get_img_ids">
      <code class="docutils literal notranslate">
       <span class="pre">
-       MobilenetV2PytorchModelInterpreter.get_categories()
+       CocoPageMapper.get_img_ids()
       </span>
      </code>
     </a>
    </li>
    <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.plugins.openvino_plugin.samples.mobilenet_v2_pytorch_interp.MobilenetV2PytorchModelInterpreter.resize">
+    <a class="reference internal nav-link" href="#datumaro.rust_api.CocoPageMapper.get_item_dict">
      <code class="docutils literal notranslate">
       <span class="pre">
-       MobilenetV2PytorchModelInterpreter.resize()
+       CocoPageMapper.get_item_dict()
+      </span>
+     </code>
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#datumaro.rust_api.CocoPageMapper.info">
+     <code class="docutils literal notranslate">
+      <span class="pre">
+       CocoPageMapper.info()
+      </span>
+     </code>
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#datumaro.rust_api.CocoPageMapper.licenses">
+     <code class="docutils literal notranslate">
+      <span class="pre">
+       CocoPageMapper.licenses()
       </span>
      </code>
     </a>
@@ -715,7 +735,7 @@
 <div class="toc-item">
   
 <div class="tocsection sourcelink">
-    <a href="../../../_sources/docs/reference/_autosummary/datumaro.plugins.openvino_plugin.samples.mobilenet_v2_pytorch_interp.rst.txt">
+    <a href="../../../_sources/docs/reference/_autosummary/datumaro.rust_api.rst.txt">
         <i class="fa-solid fa-file-lines"></i> Show Source
     </a>
 </div>

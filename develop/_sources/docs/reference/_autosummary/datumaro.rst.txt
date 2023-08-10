@@ -33,6 +33,7 @@
    datumaro.ops
    datumaro.plugins
    datumaro.project
+   datumaro.rust_api
    datumaro.util
    datumaro.version
 
