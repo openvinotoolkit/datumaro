@@ -80,3 +80,7 @@ src/**/*.so
 
 # Autosummary generated rst files
 docs/**/_autosummary/
+
+# Rust API
+rust/Cargo.lock
+rust/target/

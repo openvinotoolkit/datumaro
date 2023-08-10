@@ -3,3 +3,6 @@ include requirements-core.txt
 include requirements-default.txt
 include 3rd-party.txt
 include src/datumaro/plugins/specs.json
+
+include rust/Cargo.toml
+recursive-include rust/src *

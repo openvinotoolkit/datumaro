@@ -19,6 +19,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   (<https://github.com/openvinotoolkit/datumaro/pull/1117>)
 - Define `GroupType` with `IntEnum` for, where `0` is `EXCLUSIVE`
   (<https://github.com/openvinotoolkit/datumaro/pull/1116>)
+- Add Rust API to optimize COCOPageMapper performance
+  (<https://github.com/openvinotoolkit/datumaro/pull/1120>)
 
 ### Bug fixes
 
