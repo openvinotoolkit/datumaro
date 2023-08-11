@@ -382,6 +382,7 @@ class TransformsTest(TestCase):
                         Polygon([1, 1, 4, 1, 4, 4, 1, 4], id=2),
                         PolyLine([1, 1, 2, 1, 2, 2, 1, 2], id=3),
                         Points([2, 2, 4, 2, 4, 4, 2, 4], id=4),
+                        Ellipse(0, 1, 5, 4, id=5),
                     ],
                 ),
             ]
@@ -397,6 +398,7 @@ class TransformsTest(TestCase):
                         Bbox(1, 1, 3, 3, id=2),
                         Bbox(1, 1, 1, 1, id=3),
                         Bbox(2, 2, 2, 2, id=4),
+                        Bbox(0, 1, 5, 3, id=5),
                     ],
                 ),
             ]

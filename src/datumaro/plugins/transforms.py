@@ -331,6 +331,7 @@ class ShapesToBoxes(ItemTransform, CliPlugin):
                 AnnotationType.polygon,
                 AnnotationType.polyline,
                 AnnotationType.points,
+                AnnotationType.ellipse,
             }:
                 annotations.append(self.convert_shape(ann))
             else:
