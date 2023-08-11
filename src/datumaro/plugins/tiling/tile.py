@@ -147,7 +147,7 @@ class Tile(Transform, CliPlugin):
     --------
     The following example is the CLI command for a 3x2 tiling with a width and height overlap of 10%::
 
-        $ datum transform -t tile --grid-size 3 2 --overlap 0.1 0.1 --threshold-drop-ann 0.1
+        $ datum transform -t tile -- --grid-size 3 2 --overlap 0.1 0.1 --threshold-drop-ann 0.1
 
     :obj:`--threshold-drop-ann` means an area threshold to remove bboxes and polygons
     when they are in the boundary of the tiled image and cropped by tiling. In this example,

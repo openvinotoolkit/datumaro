@@ -263,7 +263,7 @@ class BytesImageTest(TestCase):
 
 
 class RoIImageTest(TestCase):
-    def _test_ctors(self, img_ctor, args_list, is_bytes=False):
+    def _test_ctors(self, img_ctor, args_list, test_dir, is_bytes=False):
         for args in args_list:
             # Case 1. Retrieve roi_img.data without retrieving the original image
             with self.subTest(**args):
@@ -303,12 +303,18 @@ class RoIImageTest(TestCase):
                 self.assertEqual(roi_img.size, (new_h, new_w))
                 self.assertEqual(roi_img.data.shape[:2], (new_h, new_w))
 
+            with self.subTest(**args):
+                try:
+                    roi_img.save(osp.join(test_dir, "test.png"))
+                except:
+                    self.fail("Cannot save RoIImage")
+
     def test_ctors_from_image(self):
         with TestDir() as test_dir:
             _, args_list = ImageTest._gen_image_and_args_list(test_dir)
-            self._test_ctors(Image, args_list)
+            self._test_ctors(Image, args_list, test_dir, False)
             _, _, args_list = ImageTest._gen_bytes_image_and_args_list()
-            self._test_ctors(Image, args_list, True)
+            self._test_ctors(Image, args_list, test_dir, True)
 
 
 class ImageMetaTest(TestCase):
