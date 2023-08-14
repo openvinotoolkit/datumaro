@@ -252,16 +252,6 @@ class Exporter(CliPlugin):
     def _make_pcd_filename(self, item, *, name=None, subdir=None):
         return self._make_item_filename(item, name=name, subdir=subdir) + ".pcd"
 
-    def _make_video_filename(self, item, *, name=None):
-        if isinstance(item, DatasetItem) and isinstance(item.media, VideoFrame):
-            video_file_name = osp.basename(item.media.video.path)
-        elif isinstance(item, VideoFrame):
-            video_file_name = osp.basename(item.video.path)
-        else:
-            assert "Video item type should be VideoFrame"
-
-        return video_file_name
-
     def _save_image(
         self,
         item,
@@ -297,18 +287,6 @@ class Exporter(CliPlugin):
 
         basedir = basedir or self._save_dir
         path = path or osp.join(basedir, self._make_pcd_filename(item, name=name, subdir=subdir))
-        path = osp.abspath(path)
-
-        os.makedirs(osp.dirname(path), exist_ok=True)
-        item.media.save(path, crypter=NULL_CRYPTER)
-
-    def _save_video(self, item=None, path=None, *, name=None, basedir=None):
-        if not item.media or not isinstance(item.media, VideoFrame):
-            log.warning("Item '%s' has no video", item.id)
-            return
-
-        basedir = basedir or self._save_dir
-        path = path or osp.join(basedir, self._make_video_filename(item, name=name))
         path = osp.abspath(path)
 
         os.makedirs(osp.dirname(path), exist_ok=True)
