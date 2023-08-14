@@ -273,5 +273,4 @@ class VideoAnnotationTest:
             dataset_path = osp.join(test_dir, "test_video")
             expected.export(dataset_path, "datumaro", save_media=True)
             actual = Dataset.import_from(dataset_path)
-            actual.export("test_video", "datumaro", save_media=True)
             compare_datasets(TestCase(), expected, actual)
