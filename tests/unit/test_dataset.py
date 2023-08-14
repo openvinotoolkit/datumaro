@@ -6,8 +6,9 @@ import logging
 import os
 import os.path as osp
 import pickle
+import tempfile
 from typing import List, Sequence  # nosec B403
-from unittest import TestCase, mock
+from unittest import TestCase, mock, skipIf
 
 import numpy as np
 import pytest
@@ -63,6 +64,13 @@ from datumaro.plugins.transforms import ProjectInfos, RemapLabels
 from ..requirements import Requirements, mark_requirement
 
 from tests.utils.test_utils import TestDir, compare_datasets, compare_datasets_strict
+
+try:
+    import torch
+except ImportError:
+    TORCH_AVAILABLE = False
+else:
+    TORCH_AVAILABLE = True
 
 
 class DatasetTest(TestCase):
@@ -2016,6 +2024,71 @@ class DatasetTest(TestCase):
 
         with self.assertRaises(MediaTypeError):
             dataset.init_cache()
+
+    @skipIf(not TORCH_AVAILABLE, reason="PyTorch is not installed")
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
+    def test_can_load_torch_classification_data(self):
+        from torchvision import datasets, transforms
+
+        from tests.utils.assets import get_test_asset_path
+
+        transform = transforms.Compose(
+            [
+                transforms.ToTensor(),
+                transforms.Resize((64, 64)),
+            ]
+        )
+
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            torch_dataset = datasets.MNIST(
+                root=tmp_dir,
+                train=True,
+                download=True,
+                transform=transform,
+            )
+
+            dm_dataset = Dataset.import_from(path=osp.join(tmp_dir, "MNIST"), format="mnist")
+            dm_torch_dataset = dm_dataset.to_torch(
+                subset="train", task="classification", transform=transform
+            )
+
+            for torch_item, dm_item in zip(torch_dataset, dm_torch_dataset):
+                assert torch.equal(torch_item[0], dm_item[0])
+                self.assertEqual(torch_item[1], dm_item[1])
+
+    @skipIf(not TORCH_AVAILABLE, reason="PyTorch is not installed")
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
+    def test_can_load_torch_detection_data(self):
+        from torchvision import datasets, transforms
+
+        from tests.utils.assets import get_test_asset_path
+
+        DUMMY_DATASET_DIR = get_test_asset_path("coco_dataset")
+        format = "coco_instances"
+
+        data_path = osp.join(DUMMY_DATASET_DIR, format)
+
+        transform = transforms.Compose(
+            [
+                transforms.ToTensor(),
+                transforms.Resize((256, 256)),
+            ]
+        )
+
+        torch_dataset = datasets.CocoDetection(
+            root=osp.join(data_path, "images/train/"),
+            annFile=osp.join(data_path, "annotations/instances_train.json"),
+            transform=transform,
+        )
+
+        dm_dataset = Dataset.import_from(data_path, format)
+        dm_torch_dataset = dm_dataset.to_torch(
+            subset="train", task="detection", transform=transform
+        )
+
+        for torch_item, dm_item in zip(torch_dataset, dm_torch_dataset):
+            print(torch_item[0].shape, dm_item[0].shape)
+            assert torch.equal(torch_item[0], dm_item[0])
 
 
 class DatasetItemTest(TestCase):
