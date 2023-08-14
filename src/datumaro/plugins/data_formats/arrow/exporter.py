@@ -288,6 +288,7 @@ class ArrowExporter(Exporter):
             save_media=self._save_media,
             images_dir="",
             pcd_dir="",
+            video_dir="",
             crypter=NULL_CRYPTER,
             image_ext=self._image_ext,
             default_image_ext=self._default_image_ext,

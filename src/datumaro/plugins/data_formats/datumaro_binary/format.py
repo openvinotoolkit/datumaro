@@ -12,6 +12,7 @@ class DatumaroBinaryPath:
     ANNOTATIONS_DIR = "annotations"
     PCD_DIR = "point_clouds"
     MASKS_DIR = "masks"
+    VIDEO_DIR = "videos"
 
     ANNOTATION_EXT = ".datum"
     IMAGE_EXT = ".jpg"

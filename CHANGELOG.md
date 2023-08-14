@@ -9,6 +9,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### New features
 - Add tabular data import/export
   (<https://github.com/openvinotoolkit/datumaro/pull/1089>)
+- Support video annotation import/export
+  (<https://github.com/openvinotoolkit/datumaro/pull/1124>)
 
 ### Enhancements
 - Remove xfail marks from the convert integration tests

@@ -10,6 +10,7 @@ import json_stream
 from json_stream.base import StreamingJSONObject
 
 from datumaro.components.annotation import (
+    NO_OBJECT_ID,
     AnnotationType,
     Bbox,
     Caption,
@@ -28,7 +29,7 @@ from datumaro.components.annotation import (
 from datumaro.components.dataset_base import DatasetItem, SubsetBase
 from datumaro.components.errors import DatasetImportError, MediaTypeError
 from datumaro.components.importer import ImportContext
-from datumaro.components.media import Image, MediaElement, MediaType, PointCloud
+from datumaro.components.media import Image, MediaElement, MediaType, PointCloud, Video, VideoFrame
 from datumaro.util import parse_json_file, to_dict_from_streaming_json
 from datumaro.version import __version__
 
@@ -45,12 +46,15 @@ class JsonReader:
         rootpath: str,
         images_dir: str,
         pcd_dir: str,
+        video_dir: str,
         ctx: ImportContext,
     ) -> None:
         self._subset = subset
         self._rootpath = rootpath
         self._images_dir = images_dir
         self._pcd_dir = pcd_dir
+        self._video_dir = video_dir
+        self._videos = {}
         self._ctx = ctx
 
         self._reader = self._init_reader(path)
@@ -174,6 +178,21 @@ class JsonReader:
                 if self.media_type == MediaElement:
                     self.media_type = PointCloud
 
+            video_frame_info = item_desc.get("video_frame")
+            if media and video_frame_info:
+                raise MediaTypeError("Dataset cannot contain multiple media types")
+            if video_frame_info:
+                video_path = osp.join(self._video_dir, video_frame_info.get("video_path"))
+                if video_path not in self._videos:
+                    self._videos[video_path] = Video(video_path)
+                video = self._videos[video_path]
+
+                frame_index = video_frame_info.get("frame_index")
+
+                media = VideoFrame(video, frame_index)
+                if self.media_type == MediaElement:
+                    self.media_type = VideoFrame
+
             media_desc = item_desc.get("media")
             if not media and media_desc and media_desc.get("path"):
                 media = MediaElement(path=media_desc.get("path"))
@@ -203,6 +222,7 @@ class JsonReader:
                 ann_type = AnnotationType[ann["type"]]
                 attributes = ann.get("attributes")
                 group = ann.get("group")
+                object_id = ann.get("object_id", NO_OBJECT_ID)
 
                 label_id = ann.get("label_id")
                 z_order = ann.get("z_order")
@@ -210,7 +230,13 @@ class JsonReader:
 
                 if ann_type == AnnotationType.label:
                     loaded.append(
-                        Label(label=label_id, id=ann_id, attributes=attributes, group=group)
+                        Label(
+                            label=label_id,
+                            id=ann_id,
+                            attributes=attributes,
+                            group=group,
+                            object_id=object_id,
+                        )
                     )
 
                 elif ann_type == AnnotationType.mask:
@@ -223,6 +249,7 @@ class JsonReader:
                             id=ann_id,
                             attributes=attributes,
                             group=group,
+                            object_id=object_id,
                             z_order=z_order,
                         )
                     )
@@ -235,6 +262,7 @@ class JsonReader:
                             id=ann_id,
                             attributes=attributes,
                             group=group,
+                            object_id=object_id,
                             z_order=z_order,
                         )
                     )
@@ -247,6 +275,7 @@ class JsonReader:
                             id=ann_id,
                             attributes=attributes,
                             group=group,
+                            object_id=object_id,
                             z_order=z_order,
                         )
                     )
@@ -263,6 +292,7 @@ class JsonReader:
                             id=ann_id,
                             attributes=attributes,
                             group=group,
+                            object_id=object_id,
                             z_order=z_order,
                         )
                     )
@@ -275,6 +305,7 @@ class JsonReader:
                             id=ann_id,
                             attributes=attributes,
                             group=group,
+                            object_id=object_id,
                             z_order=z_order,
                         )
                     )
@@ -293,6 +324,7 @@ class JsonReader:
                             id=ann_id,
                             attributes=attributes,
                             group=group,
+                            object_id=object_id,
                         )
                     )
 
@@ -304,6 +336,7 @@ class JsonReader:
                             id=ann_id,
                             attributes=attributes,
                             group=group,
+                            object_id=object_id,
                             z_order=z_order,
                         )
                     )
@@ -334,9 +367,10 @@ class StreamJsonReader(JsonReader):
         rootpath: str,
         images_dir: str,
         pcd_dir: str,
+        video_dir: str,
         ctx: ImportContext,
     ) -> None:
-        super().__init__(path, subset, rootpath, images_dir, pcd_dir, ctx)
+        super().__init__(path, subset, rootpath, images_dir, pcd_dir, video_dir, ctx)
         self._length = None
 
     def __len__(self):
@@ -458,6 +492,11 @@ class DatumaroBase(SubsetBase):
             pcd_dir = osp.join(rootpath, DatumaroPath.PCD_DIR)
         self._pcd_dir = pcd_dir
 
+        video_dir = ""
+        if rootpath and osp.isdir(osp.join(rootpath, DatumaroPath.VIDEO_DIR)):
+            video_dir = osp.join(rootpath, DatumaroPath.VIDEO_DIR)
+        self._video_dir = video_dir
+
     @property
     def is_stream(self) -> bool:
         return self._stream
@@ -480,6 +519,7 @@ class DatumaroBase(SubsetBase):
                 self._rootpath,
                 self._images_dir,
                 self._pcd_dir,
+                self._video_dir,
                 self._ctx,
             )
             if not self._stream
@@ -489,6 +529,7 @@ class DatumaroBase(SubsetBase):
                 self._rootpath,
                 self._images_dir,
                 self._pcd_dir,
+                self._video_dir,
                 self._ctx,
             )
         )

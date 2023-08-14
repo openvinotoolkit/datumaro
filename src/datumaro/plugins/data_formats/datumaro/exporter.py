@@ -38,7 +38,7 @@ from datumaro.components.crypter import NULL_CRYPTER
 from datumaro.components.dataset_base import DatasetItem
 from datumaro.components.dataset_item_storage import ItemStatus
 from datumaro.components.exporter import ExportContextComponent, Exporter
-from datumaro.components.media import Image, MediaElement, PointCloud
+from datumaro.components.media import Image, MediaElement, PointCloud, Video, VideoFrame
 from datumaro.util import cast, dump_json_file
 
 from .format import DATUMARO_FORMAT_VERSION, DatumaroPath
@@ -97,6 +97,17 @@ class _SubsetWriter:
         """
         if item.media is None:
             yield
+        elif isinstance(item.media, VideoFrame):
+            video_frame = item.media_as(VideoFrame)
+
+            if context.save_media:
+                fname = context.make_video_filename(item)
+                if not osp.exists(fname):
+                    context.save_video(item, fname=fname)
+                item.media = VideoFrame(Video(fname), video_frame.index)
+
+            yield
+            item.media = video_frame
         elif isinstance(item.media, Image):
             image = item.media_as(Image)
 
@@ -145,7 +156,14 @@ class _SubsetWriter:
             item_desc["attr"] = item.attributes
 
         with self.context_save_media(item, self.export_context):
-            if isinstance(item.media, Image):
+            # Since VideoFrame is a descendant of Image, this condition should be ahead of Image
+            if isinstance(item.media, VideoFrame):
+                video_frame = item.media_as(VideoFrame)
+                item_desc["video_frame"] = {
+                    "video_path": getattr(video_frame.video, "path", None),
+                    "frame_index": getattr(video_frame, "index", -1),
+                }
+            elif isinstance(item.media, Image):
                 image = item.media_as(Image)
                 item_desc["image"] = {"path": getattr(image, "path", None)}
                 if item.media.has_size:  # avoid occasional loading
@@ -221,6 +239,8 @@ class _SubsetWriter:
             "attributes": obj.attributes,
             "group": cast(obj.group, int, 0),
         }
+        if obj.object_id >= 0:
+            ann_json["object_id"] = cast(obj.object_id, int)
         return ann_json
 
     def _convert_label_object(self, obj):
@@ -422,12 +442,14 @@ class DatumaroExporter(Exporter):
         subset: str,
         images_dir: str,
         pcd_dir: str,
+        video_dir: str,
     ) -> _SubsetWriter:
         export_context = ExportContextComponent(
             save_dir=self._save_dir,
             save_media=self._save_media,
             images_dir=images_dir,
             pcd_dir=pcd_dir,
+            video_dir=video_dir,
             crypter=NULL_CRYPTER,
             image_ext=self._image_ext,
             default_image_ext=self._default_image_ext,
@@ -461,12 +483,14 @@ class DatumaroExporter(Exporter):
         self._annotations_dir = annotations_dir
 
         self._pcd_dir = osp.join(self._save_dir, self.PATH_CLS.PCD_DIR)
+        self._video_dir = osp.join(self._save_dir, self.PATH_CLS.VIDEO_DIR)
 
         writers = {
             subset: self.create_writer(
                 subset,
                 self._images_dir,
                 self._pcd_dir,
+                self._video_dir,
             )
             for subset in self._extractor.subsets()
         }

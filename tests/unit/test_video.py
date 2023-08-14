@@ -9,9 +9,10 @@ from unittest import TestCase, skipIf
 import numpy as np
 import pytest
 
+from datumaro.components.annotation import Bbox, Label
 from datumaro.components.dataset import Dataset
 from datumaro.components.dataset_base import DatasetItem
-from datumaro.components.media import Image, Video
+from datumaro.components.media import Image, Video, VideoFrame
 from datumaro.components.media_manager import MediaManager
 from datumaro.components.project import Project
 from datumaro.util.scope import Scope, on_exit_do, scope_add, scoped
@@ -246,3 +247,31 @@ class ProjectTest:
         project.checkout("HEAD~1")
 
         assert len(project.working_tree.make_dataset()) == 1
+
+
+class VideoAnnotationTest:
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
+    @scoped
+    def test_can_video_annotation_export(self, fxt_sample_video):
+        video = Video(fxt_sample_video)
+        on_exit_do(video.close)
+
+        expected = Dataset.from_iterable(
+            [
+                DatasetItem(
+                    i,
+                    media=VideoFrame(video, i),
+                    annotations=[Label(i % 2), Bbox(1, 2, 3, 4, object_id=1)],
+                    subset="train" if i < 3 else "test",
+                )
+                for i in range(4)
+            ],
+            categories=["a", "b"],
+        )
+
+        with TestDir() as test_dir:
+            dataset_path = osp.join(test_dir, "test_video")
+            expected.export(dataset_path, "datumaro", save_media=True)
+            actual = Dataset.import_from(dataset_path)
+            actual.export("test_video", "datumaro", save_media=True)
+            compare_datasets(TestCase(), expected, actual)
