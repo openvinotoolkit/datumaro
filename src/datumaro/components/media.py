@@ -1045,6 +1045,24 @@ class RoIImage(Image):
             data = data.astype(np.float32)
         return data[y : y + h, x : x + w]
 
+    def save(
+        self,
+        fp: Union[str, io.IOBase],
+        ext: Optional[str] = None,
+        crypter: Crypter = NULL_CRYPTER,
+    ):
+        if not crypter.is_null_crypter:
+            raise NotImplementedError(
+                f"{self.__class__.__name__} does not implement save() with non NullCrypter."
+            )
+        data = self.data
+        if data is None:
+            raise ValueError(f"{self.__class__.__name__} is empty.")
+        new_ext = self._get_ext_to_save(fp, ext)
+        if isinstance(fp, str):
+            os.makedirs(osp.dirname(fp), exist_ok=True)
+        save_image(fp, data, ext=new_ext, crypter=crypter)
+
 
 class RoIImageFromFile(FromFileMixin, RoIImage):
     def __init__(
@@ -1067,23 +1085,7 @@ class RoIImageFromFile(FromFileMixin, RoIImage):
 
 
 class RoIImageFromData(FromDataMixin, RoIImage):
-    def save(
-        self,
-        fp: Union[str, io.IOBase],
-        ext: Optional[str] = None,
-        crypter: Crypter = NULL_CRYPTER,
-    ):
-        if not crypter.is_null_crypter:
-            raise NotImplementedError(
-                f"{self.__class__.__name__} does not implement save() with non NullCrypter."
-            )
-        data = self.data
-        if data is None:
-            raise ValueError(f"{self.__class__.__name__} is empty.")
-        new_ext = self._get_ext_to_save(fp, ext)
-        if isinstance(fp, str):
-            os.makedirs(osp.dirname(fp), exist_ok=True)
-        save_image(fp, data, ext=new_ext, crypter=crypter)
+    pass
 
 
 class RoIImageFromBytes(RoIImageFromData):

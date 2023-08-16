@@ -23,6 +23,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   (<https://github.com/openvinotoolkit/datumaro/pull/1120>)
 
 ### Bug fixes
+- Fix bugs for Tile transform
+  (<https://github.com/openvinotoolkit/datumaro/pull/1123>)
 
 ## 27/07/2023 - Release 1.4.1
 ### Bug fixes
