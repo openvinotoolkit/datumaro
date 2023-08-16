@@ -1150,6 +1150,11 @@ i.e. start frame, end frame and frame step.</p>
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">roi</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Tuple" title="(in Python v3.11)"><span class="pre">Tuple</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.11)"><span class="pre">int</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.11)"><span class="pre">int</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.11)"><span class="pre">int</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.11)"><span class="pre">int</span></a><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#datumaro.components.media.RoIImage.roi" title="Permalink to this definition">#</a></dt>
 <dd></dd></dl>
 
+<dl class="py method">
+<dt class="sig sig-object py" id="datumaro.components.media.RoIImage.save">
+<span class="sig-name descname"><span class="pre">save</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">fp:</span> <span class="pre">~typing.Union[str,</span> <span class="pre">~io.IOBase],</span> <span class="pre">ext:</span> <span class="pre">~typing.Optional[str]</span> <span class="pre">=</span> <span class="pre">None,</span> <span class="pre">crypter:</span> <span class="pre">~datumaro.components.crypter.Crypter</span> <span class="pre">=</span> <span class="pre">&lt;datumaro.components.crypter.NullCrypter</span> <span class="pre">object&gt;</span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/datumaro/components/media.html#RoIImage.save"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.components.media.RoIImage.save" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
 </dd></dl>
 
 <dl class="py class">
@@ -1168,11 +1173,6 @@ i.e. start frame, end frame and frame step.</p>
 <dt class="sig sig-object py" id="datumaro.components.media.RoIImageFromData">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">datumaro.components.media.</span></span><span class="sig-name descname"><span class="pre">RoIImageFromData</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Union" title="(in Python v3.11)"><span class="pre">Union</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Callable" title="(in Python v3.11)"><span class="pre">Callable</span></a><span class="p"><span class="pre">[</span></span><span class="p"><span class="pre">[</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">AnyData</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">AnyData</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/datumaro/components/media.html#RoIImageFromData"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.components.media.RoIImageFromData" title="Permalink to this definition">#</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#datumaro.components.media.FromDataMixin" title="datumaro.components.media.FromDataMixin"><code class="xref py py-class docutils literal notranslate"><span class="pre">FromDataMixin</span></code></a>, <a class="reference internal" href="#datumaro.components.media.RoIImage" title="datumaro.components.media.RoIImage"><code class="xref py py-class docutils literal notranslate"><span class="pre">RoIImage</span></code></a></p>
-<dl class="py method">
-<dt class="sig sig-object py" id="datumaro.components.media.RoIImageFromData.save">
-<span class="sig-name descname"><span class="pre">save</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">fp:</span> <span class="pre">~typing.Union[str,</span> <span class="pre">~io.IOBase],</span> <span class="pre">ext:</span> <span class="pre">~typing.Optional[str]</span> <span class="pre">=</span> <span class="pre">None,</span> <span class="pre">crypter:</span> <span class="pre">~datumaro.components.crypter.Crypter</span> <span class="pre">=</span> <span class="pre">&lt;datumaro.components.crypter.NullCrypter</span> <span class="pre">object&gt;</span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/datumaro/components/media.html#RoIImageFromData.save"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.components.media.RoIImageFromData.save" title="Permalink to this definition">#</a></dt>
-<dd></dd></dl>
-
 </dd></dl>
 
 <dl class="py class">
@@ -2284,6 +2284,15 @@ Otherwise, whole row data will be returned.</p>
      </code>
     </a>
    </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#datumaro.components.media.RoIImage.save">
+     <code class="docutils literal notranslate">
+      <span class="pre">
+       RoIImage.save()
+      </span>
+     </code>
+    </a>
+   </li>
   </ul>
  </li>
  <li class="toc-h2 nav-item toc-entry">
@@ -2314,17 +2323,6 @@ Otherwise, whole row data will be returned.</p>
     </span>
    </code>
   </a>
-  <ul class="nav section-nav flex-column">
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.components.media.RoIImageFromData.save">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       RoIImageFromData.save()
-      </span>
-     </code>
-    </a>
-   </li>
-  </ul>
  </li>
  <li class="toc-h2 nav-item toc-entry">
   <a class="reference internal nav-link" href="#datumaro.components.media.RoIImageFromBytes">

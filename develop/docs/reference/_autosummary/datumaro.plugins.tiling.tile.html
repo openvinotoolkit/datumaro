@@ -597,7 +597,7 @@ to fit each tile image.</p>
 <p><strong>You should set `save_media=True` to save the tiled image also.</strong></p>
 <p class="rubric">Examples</p>
 <p>The following example is the CLI command for a 3x2 tiling with a width and height overlap of 10%:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ datum transform -t tile --grid-size 3 2 --overlap 0.1 0.1 --threshold-drop-ann 0.1
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ datum transform -t tile -- --grid-size 3 2 --overlap 0.1 0.1 --threshold-drop-ann 0.1
 </pre></div>
 </div>
 <p><code class="xref py py-obj docutils literal notranslate"><span class="pre">--threshold-drop-ann</span></code> means an area threshold to remove bboxes and polygons

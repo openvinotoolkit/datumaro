@@ -1322,7 +1322,25 @@
         <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">w</span><span class="p">,</span> <span class="n">h</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_roi</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">):</span>
             <span class="n">data</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">data</span><span class="p">[</span><span class="n">y</span> <span class="p">:</span> <span class="n">y</span> <span class="o">+</span> <span class="n">h</span><span class="p">,</span> <span class="n">x</span> <span class="p">:</span> <span class="n">x</span> <span class="o">+</span> <span class="n">w</span><span class="p">]</span></div>
+        <span class="k">return</span> <span class="n">data</span><span class="p">[</span><span class="n">y</span> <span class="p">:</span> <span class="n">y</span> <span class="o">+</span> <span class="n">h</span><span class="p">,</span> <span class="n">x</span> <span class="p">:</span> <span class="n">x</span> <span class="o">+</span> <span class="n">w</span><span class="p">]</span>
+
+<div class="viewcode-block" id="RoIImage.save"><a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.components.media.html#datumaro.components.abstracts.merger.RoIImage.save">[docs]</a>    <span class="k">def</span> <span class="nf">save</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">fp</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">io</span><span class="o">.</span><span class="n">IOBase</span><span class="p">],</span>
+        <span class="n">ext</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">crypter</span><span class="p">:</span> <span class="n">Crypter</span> <span class="o">=</span> <span class="n">NULL_CRYPTER</span><span class="p">,</span>
+    <span class="p">):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">crypter</span><span class="o">.</span><span class="n">is_null_crypter</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2"> does not implement save() with non NullCrypter.&quot;</span>
+            <span class="p">)</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span>
+        <span class="k">if</span> <span class="n">data</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2"> is empty.&quot;</span><span class="p">)</span>
+        <span class="n">new_ext</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_ext_to_save</span><span class="p">(</span><span class="n">fp</span><span class="p">,</span> <span class="n">ext</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">fp</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+            <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">osp</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">fp</span><span class="p">),</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="n">save_image</span><span class="p">(</span><span class="n">fp</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">ext</span><span class="o">=</span><span class="n">new_ext</span><span class="p">,</span> <span class="n">crypter</span><span class="o">=</span><span class="n">crypter</span><span class="p">)</span></div></div>
 
 
 <div class="viewcode-block" id="RoIImageFromFile"><a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.components.media.html#datumaro.components.abstracts.merger.RoIImageFromFile">[docs]</a><span class="k">class</span> <span class="nc">RoIImageFromFile</span><span class="p">(</span><span class="n">FromFileMixin</span><span class="p">,</span> <span class="n">RoIImage</span><span class="p">):</span>
@@ -1346,23 +1364,7 @@
 
 
 <div class="viewcode-block" id="RoIImageFromData"><a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.components.media.html#datumaro.components.abstracts.merger.RoIImageFromData">[docs]</a><span class="k">class</span> <span class="nc">RoIImageFromData</span><span class="p">(</span><span class="n">FromDataMixin</span><span class="p">,</span> <span class="n">RoIImage</span><span class="p">):</span>
-<div class="viewcode-block" id="RoIImageFromData.save"><a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.components.media.html#datumaro.components.abstracts.merger.RoIImageFromData.save">[docs]</a>    <span class="k">def</span> <span class="nf">save</span><span class="p">(</span>
-        <span class="bp">self</span><span class="p">,</span>
-        <span class="n">fp</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">io</span><span class="o">.</span><span class="n">IOBase</span><span class="p">],</span>
-        <span class="n">ext</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-        <span class="n">crypter</span><span class="p">:</span> <span class="n">Crypter</span> <span class="o">=</span> <span class="n">NULL_CRYPTER</span><span class="p">,</span>
-    <span class="p">):</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="n">crypter</span><span class="o">.</span><span class="n">is_null_crypter</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span>
-                <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2"> does not implement save() with non NullCrypter.&quot;</span>
-            <span class="p">)</span>
-        <span class="n">data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span>
-        <span class="k">if</span> <span class="n">data</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2"> is empty.&quot;</span><span class="p">)</span>
-        <span class="n">new_ext</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_ext_to_save</span><span class="p">(</span><span class="n">fp</span><span class="p">,</span> <span class="n">ext</span><span class="p">)</span>
-        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">fp</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
-            <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">osp</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">fp</span><span class="p">),</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-        <span class="n">save_image</span><span class="p">(</span><span class="n">fp</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">ext</span><span class="o">=</span><span class="n">new_ext</span><span class="p">,</span> <span class="n">crypter</span><span class="o">=</span><span class="n">crypter</span><span class="p">)</span></div></div>
+    <span class="k">pass</span></div>
 
 
 <div class="viewcode-block" id="RoIImageFromBytes"><a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.components.media.html#datumaro.components.abstracts.merger.RoIImageFromBytes">[docs]</a><span class="k">class</span> <span class="nc">RoIImageFromBytes</span><span class="p">(</span><span class="n">RoIImageFromData</span><span class="p">):</span>
