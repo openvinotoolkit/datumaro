@@ -559,6 +559,10 @@ class VideoFrame(ImageFromNumpy):
     def video(self) -> Video:
         return self._video
 
+    @property
+    def path(self) -> str:
+        return self._video.path
+
 
 class _VideoFrameIterator(Iterator[VideoFrame]):
     """
@@ -807,6 +811,20 @@ class Video(MediaElement, Iterable[VideoFrame]):
     def __hash__(self):
         # Required for caching
         return hash((self._path, self._step, self._start_frame, self._end_frame))
+
+    def save(
+        self,
+        fp: Union[str, io.IOBase],
+        crypter: Crypter = NULL_CRYPTER,
+    ):
+        if isinstance(fp, str):
+            os.makedirs(osp.dirname(fp), exist_ok=True)
+        if isinstance(fp, str):
+            if fp != self.path:
+                shutil.copyfile(self.path, fp)
+        elif isinstance(fp, io.IOBase):
+            with open(self.path, "rb") as f_video:
+                fp.write(f_video.read())
 
     @property
     def path(self) -> str:

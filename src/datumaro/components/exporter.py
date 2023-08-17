@@ -23,7 +23,7 @@ from datumaro.components.errors import (
     DatumaroError,
     ItemExportError,
 )
-from datumaro.components.media import Image, PointCloud
+from datumaro.components.media import Image, PointCloud, VideoFrame
 from datumaro.components.progress_reporting import NullProgressReporter, ProgressReporter
 from datumaro.util.meta_file_util import save_hashkey_file, save_meta_file
 from datumaro.util.os_util import rmtree
@@ -323,6 +323,7 @@ class ExportContextComponent:
         save_media: bool,
         images_dir: str,
         pcd_dir: str,
+        video_dir: str,
         crypter: Crypter = NULL_CRYPTER,
         image_ext: Optional[str] = None,
         default_image_ext: Optional[str] = None,
@@ -332,6 +333,7 @@ class ExportContextComponent:
         self._save_media = save_media
         self._images_dir = images_dir
         self._pcd_dir = pcd_dir
+        self._video_dir = video_dir
         self._crypter = crypter
         self._image_ext = image_ext
         self._default_image_ext = default_image_ext
@@ -362,6 +364,14 @@ class ExportContextComponent:
         return self._make_item_filename(
             item, name=name if name else f"{item.id}/extra_image_{idx}", subdir=subdir
         ) + self.find_image_ext(image)
+
+    def make_video_filename(self, item, *, name=None):
+        if isinstance(item, DatasetItem) and isinstance(item.media, VideoFrame):
+            video_file_name = osp.basename(item.media.video.path)
+        else:
+            assert "Video item type should be VideoFrame"
+
+        return video_file_name
 
     def save_image(
         self,
@@ -411,6 +421,26 @@ class ExportContextComponent:
             return {"fp": osp.join(basedir, self.make_pcd_extra_image_filename(item, i, image))}
 
         item.media.save(path, helper, crypter=NULL_CRYPTER)
+
+    def save_video(
+        self,
+        item: DatasetItem,
+        *,
+        basedir: Optional[str] = None,
+        fname: Optional[str] = None,
+    ):
+        if not item.media or not isinstance(item.media, VideoFrame):
+            log.warning("Item '%s' has no video", item.id)
+            return
+        basedir = self._video_dir if basedir is None else basedir
+        fname = self.make_video_filename(item) if fname is None else fname
+
+        path = osp.join(basedir, fname)
+        path = osp.abspath(path)
+
+        os.makedirs(osp.dirname(path), exist_ok=True)
+
+        item.media.video.save(path, crypter=NULL_CRYPTER)
 
     @property
     def images_dir(self) -> str:

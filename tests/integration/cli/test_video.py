@@ -2,7 +2,11 @@ import os
 import os.path as osp
 from unittest import TestCase
 
+import pytest
+
+from datumaro.components.annotation import Bbox
 from datumaro.components.dataset import Dataset, DatasetItem
+from datumaro.components.media import Video, VideoFrame
 
 from ...requirements import Requirements, mark_requirement
 
@@ -135,3 +139,49 @@ class VideoTest(TestCase):
             parsed_dataset = Dataset.import_from(result_dir, "image_dir")
 
             compare_datasets(self, expected, parsed_dataset)
+
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
+    def test_can_export_video_dataset(self):
+        with TestDir() as test_dir:
+            video_path = osp.join(test_dir, "video.avi")
+            make_sample_video(video_path, frame_size=(4, 6), frames=4)
+            video = Video(video_path)
+
+            expected = Dataset.from_iterable(
+                [
+                    DatasetItem(
+                        0,
+                        media=VideoFrame(video, 0),
+                        annotations=[
+                            Bbox(1, 1, 1, 1, label=0, object_id=0),
+                            Bbox(2, 2, 2, 2, label=1, object_id=1),
+                        ],
+                    )
+                ],
+                categories=["a", "b"],
+            )
+
+            project_dir = osp.join(test_dir, "proj")
+            run(self, "project", "create", "-o", project_dir)
+
+            dataset_dir = osp.join(test_dir, "test_video")
+            expected.save(dataset_dir, save_media=True)
+            run(self, "project", "import", "-p", project_dir, "-f", "datumaro", dataset_dir)
+
+            result_dir = osp.join(test_dir, "test_video_result")
+            run(
+                self,
+                "project",
+                "export",
+                "-p",
+                project_dir,
+                "-f",
+                "datumaro",
+                "-o",
+                result_dir,
+                "--",
+                "--save-images",
+            )
+            actual = Dataset.import_from(result_dir, "datumaro")
+
+            compare_datasets(self, actual, expected)

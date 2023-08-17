@@ -34,16 +34,16 @@ class AnnotationMapper(Mapper):
     @classmethod
     def forward(cls, ann: Annotation) -> bytes:
         _bytearray = bytearray()
-        _bytearray.extend(struct.pack("<Bqq", ann.type, ann.id, ann.group))
+        _bytearray.extend(struct.pack("<Bqqi", ann.type, ann.id, ann.group, ann.object_id))
         _bytearray.extend(DictMapper.forward(ann.attributes))
         return bytes(_bytearray)
 
     @classmethod
     def backward_dict(cls, _bytes: bytes, offset: int = 0) -> Tuple[Dict, int]:
-        _, id, group = struct.unpack_from("<Bqq", _bytes, offset)
-        offset += 17  # struct.calcsize("<Bqq") = 17
+        _, id, group, object_id = struct.unpack_from("<Bqqi", _bytes, offset)
+        offset += 21  # struct.calcsize("<Bqqi") = 21
         attributes, offset = DictMapper.backward(_bytes, offset)
-        return {"id": id, "attributes": attributes, "group": group}, offset
+        return {"id": id, "attributes": attributes, "group": group, "object_id": object_id}, offset
 
     @classmethod
     def backward(cls, _bytes: bytes, offset: int = 0) -> Tuple[Annotation, int]:

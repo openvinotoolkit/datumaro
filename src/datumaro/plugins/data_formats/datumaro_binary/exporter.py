@@ -297,12 +297,15 @@ class DatumaroBinaryExporter(DatumaroExporter):
             ctx=ctx,
         )
 
-    def create_writer(self, subset: str, images_dir: str, pcd_dir: str) -> _SubsetWriter:
+    def create_writer(
+        self, subset: str, images_dir: str, pcd_dir: str, video_dir: str
+    ) -> _SubsetWriter:
         export_context = ExportContextComponent(
             save_dir=self._save_dir,
             save_media=self._save_media,
             images_dir=images_dir,
             pcd_dir=pcd_dir,
+            video_dir=video_dir,
             crypter=self._crypter,
             image_ext=self._image_ext,
             default_image_ext=self._default_image_ext,

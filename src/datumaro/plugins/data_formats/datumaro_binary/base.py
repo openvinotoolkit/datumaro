@@ -12,7 +12,7 @@ from datumaro.components.crypter import NULL_CRYPTER, Crypter
 from datumaro.components.dataset_base import DatasetItem
 from datumaro.components.errors import DatasetImportError
 from datumaro.components.importer import ImportContext
-from datumaro.components.media import Image, MediaElement, MediaType, PointCloud
+from datumaro.components.media import Image, MediaElement, MediaType, PointCloud, VideoFrame
 from datumaro.plugins.data_formats.datumaro_binary.format import DatumaroBinaryPath
 from datumaro.plugins.data_formats.datumaro_binary.mapper import DictMapper
 from datumaro.plugins.data_formats.datumaro_binary.mapper.common import IntListMapper
@@ -108,6 +108,8 @@ class DatumaroBinaryBase(DatumaroBase):
             self._media_type = Image
         elif media_type == MediaType.POINT_CLOUD:
             self._media_type = PointCloud
+        elif media_type == MediaType.VIDEO_FRAME:
+            self._media_type = VideoFrame
         elif media_type == MediaType.MEDIA_ELEMENT:
             self._media_type = MediaElement
         else:
@@ -121,6 +123,7 @@ class DatumaroBinaryBase(DatumaroBase):
         media_path_prefix = {
             MediaType.IMAGE: osp.join(self._images_dir, self._subset),
             MediaType.POINT_CLOUD: osp.join(self._pcd_dir, self._subset),
+            MediaType.VIDEO_FRAME: self._video_dir,
         }
 
         if self._num_workers > 0:

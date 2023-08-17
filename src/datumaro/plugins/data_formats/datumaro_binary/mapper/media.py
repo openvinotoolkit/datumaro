@@ -7,7 +7,7 @@ import struct
 from typing import Dict, Optional, Tuple
 
 from datumaro.components.errors import DatumaroError
-from datumaro.components.media import Image, MediaElement, MediaType, PointCloud
+from datumaro.components.media import Image, MediaElement, MediaType, PointCloud, Video, VideoFrame
 
 from .common import Mapper, StringMapper
 
@@ -21,6 +21,8 @@ class MediaMapper(Mapper):
             return ImageMapper.forward(obj)
         elif obj._type == MediaType.POINT_CLOUD:
             return PointCloudMapper.forward(obj)
+        elif obj._type == MediaType.VIDEO_FRAME:
+            return VideoFrameMapper.forward(obj)
         elif obj._type == MediaType.MEDIA_ELEMENT:
             return MediaElementMapper.forward(obj)
         else:
@@ -41,6 +43,8 @@ class MediaMapper(Mapper):
             return ImageMapper.backward(_bytes, offset, media_path_prefix)
         elif media_type == MediaType.POINT_CLOUD:
             return PointCloudMapper.backward(_bytes, offset, media_path_prefix)
+        elif media_type == MediaType.VIDEO_FRAME:
+            return VideoFrameMapper.backward(_bytes, offset, media_path_prefix)
         elif media_type == MediaType.MEDIA_ELEMENT:
             return MediaElementMapper.backward(_bytes, offset, media_path_prefix)
         else:
@@ -120,6 +124,34 @@ class ImageMapper(MediaElementMapper):
             Image.from_file(
                 path=media_dict["path"], size=size if size != cls.MAGIC_SIZE_FOR_NONE else None
             ),
+            offset,
+        )
+
+
+class VideoFrameMapper(MediaElementMapper):
+    MEDIA_TYPE = MediaType.VIDEO_FRAME
+
+    @classmethod
+    def forward(cls, obj: VideoFrame) -> bytes:
+        bytes_arr = bytearray()
+        bytes_arr.extend(super().forward(obj))
+        bytes_arr.extend(struct.pack("<I", obj.index))
+
+        return bytes(bytes_arr)
+
+    @classmethod
+    def backward(
+        cls,
+        _bytes: bytes,
+        offset: int = 0,
+        media_path_prefix: Optional[Dict[MediaType, str]] = None,
+    ) -> Tuple[VideoFrame, int]:
+        media_dict, offset = cls.backward_dict(_bytes, offset, media_path_prefix)
+        (frame_index,) = struct.unpack_from("<I", _bytes, offset)
+        video = Video(media_dict["path"])
+        offset += 4
+        return (
+            VideoFrame(video, frame_index),
             offset,
         )
 

@@ -37,6 +37,7 @@ Dataset/
 │   └── val/
 │       ├── <image_name1.ext>
 │       └── ...
+├── videos/  # directory to store video files
 └── annotations/
     ├── instances_train2017.json
     └── instances_val2017.json
@@ -58,6 +59,7 @@ Supported media types:
 
 - `Image`
 - `PointCloud`
+- `VideoFrame`
 
 Supported annotation types:
 
@@ -103,6 +105,7 @@ A DatumaroBinary dataset directory should have the following structure:
     │       ├── <image_name1.ext>
     │       ├── <image_name2.ext>
     │       └── ...
+    ├── videos/
     └── annotations/
         ├── <subset_name_1>.datum
         ├── <subset_name_2>.datum

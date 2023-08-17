@@ -53,6 +53,7 @@ class AnnotationType(IntEnum):
 COORDINATE_ROUNDING_DIGITS = 2
 CHECK_POLYGON_EQ_EPSILONE = 1e-7
 NO_GROUP = 0
+NO_OBJECT_ID = -1
 
 
 @attrs(slots=True, kw_only=True, order=False)
@@ -82,6 +83,11 @@ class Annotation:
     # Annotations can be grouped, which means they describe parts of a
     # single object. The value of 0 means there is no group.
     group: int = field(default=NO_GROUP, validator=default_if_none(int))
+
+    # obeject identifier over the multiple items
+    # e.g.) in a video, person 'A' could be annotated on the multiple frame images
+    #   the user could assign >=0 value as id of person 'A'.
+    object_id: int = field(default=NO_OBJECT_ID, validator=default_if_none(int))
 
     _type = AnnotationType.unknown
 
