@@ -13,16 +13,7 @@ from contextlib import contextmanager
 from copy import copy
 from typing import Any, Callable, Dict, Iterable, Iterator, List, Optional, Tuple, Type, Union
 
-import numpy as np
-
-from datumaro.components.annotation import (
-    AnnotationType,
-    Bbox,
-    Label,
-    LabelCategories,
-    Mask,
-    Polygon,
-)
+from datumaro.components.annotation import AnnotationType, LabelCategories
 from datumaro.components.config_model import Source
 from datumaro.components.dataset_base import (
     DEFAULT_SUBSET_NAME,
@@ -807,9 +798,6 @@ class Dataset(IDataset):
     def is_stream(self) -> bool:
         return self._data.is_stream
 
-    def to_torch(self, subset, task, transform=None, target_transform=None) -> DmTorchDataset:
-        return DmTorchDataset(self._data, subset, task, transform, target_transform)
-
 
 class StreamDataset(Dataset):
     _stream = True
@@ -837,64 +825,6 @@ class StreamDataset(Dataset):
     @property
     def is_eager(self) -> bool:
         return False
-
-
-try:
-    from torch.utils.data import Dataset as TorchDataset
-
-    class DmTorchDataset(TorchDataset):
-        def __init__(
-            self,
-            dataset: DatasetStorage,
-            subset: str,
-            task: str,
-            transform: Optional[Callable] = None,
-            target_transform: Optional[Callable] = None,
-        ):
-            self.dataset = dataset.get_subset(subset)
-            self.subset = subset
-            self.task = task
-            self.transform = transform
-            self.target_transform = target_transform
-            self._ids = []
-            for item in self.dataset:
-                self._ids.append(item.id)
-
-        def __len__(self):
-            return len(self.dataset)
-
-        def __getitem__(self, idx):
-            dataitem = self.dataset.get(id=self._ids[idx], subset=self.subset)
-            image = dataitem.media.data
-            if image.dtype == np.uint8 or image.max() > 1:
-                image = image.astype(np.float32) / 255
-
-            if len(image.shape) == 2:
-                image = np.expand_dims(image, axis=-1)
-
-            label = []
-            for ann in dataitem.annotations:
-                if self.task == "classification" and isinstance(ann, Label):
-                    label = ann.label
-                elif self.task == "detection" and isinstance(ann, Bbox):
-                    label.append(ann.as_dict())
-                elif self.task == "segmentation" and (
-                    isinstance(ann, Mask) or isinstance(ann, Polygon)
-                ):
-                    label.append(ann.as_dict())
-
-            if self.transform:
-                image = self.transform(image)
-            if self.target_transform:
-                label = self.target_transform(label)
-
-            return image, label
-
-except ImportError:
-
-    class DmTorchDataset:
-        def __init__(self):
-            raise ImportError("PyTorch package not found. Cannot convert to PyTorch dataset.")
 
 
 @contextmanager
