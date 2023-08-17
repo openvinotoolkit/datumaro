@@ -332,6 +332,7 @@
 <span class="n">COORDINATE_ROUNDING_DIGITS</span> <span class="o">=</span> <span class="mi">2</span>
 <span class="n">CHECK_POLYGON_EQ_EPSILONE</span> <span class="o">=</span> <span class="mf">1e-7</span>
 <span class="n">NO_GROUP</span> <span class="o">=</span> <span class="mi">0</span>
+<span class="n">NO_OBJECT_ID</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span>
 
 
 <div class="viewcode-block" id="Annotation"><a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.plugins.openvino_plugin.samples.otx_custom_object_detection_yolox_interp.html#datumaro.components.abstracts.merger.Annotation">[docs]</a><span class="nd">@attrs</span><span class="p">(</span><span class="n">slots</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">kw_only</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">order</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
@@ -361,6 +362,11 @@
     <span class="c1"># Annotations can be grouped, which means they describe parts of a</span>
     <span class="c1"># single object. The value of 0 means there is no group.</span>
     <span class="n">group</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="n">NO_GROUP</span><span class="p">,</span> <span class="n">validator</span><span class="o">=</span><span class="n">default_if_none</span><span class="p">(</span><span class="nb">int</span><span class="p">))</span>
+
+    <span class="c1"># obeject identifier over the multiple items</span>
+    <span class="c1"># e.g.) in a video, person &#39;A&#39; could be annotated on the multiple frame images</span>
+    <span class="c1">#   the user could assign &gt;=0 value as id of person &#39;A&#39;.</span>
+    <span class="n">object_id</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="n">NO_OBJECT_ID</span><span class="p">,</span> <span class="n">validator</span><span class="o">=</span><span class="n">default_if_none</span><span class="p">(</span><span class="nb">int</span><span class="p">))</span>
 
     <span class="n">_type</span> <span class="o">=</span> <span class="n">AnnotationType</span><span class="o">.</span><span class="n">unknown</span>
 

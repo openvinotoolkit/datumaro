@@ -129,7 +129,7 @@ dataset/
 │   |    ├── img002.png
 │   |    └── ...
 │   └── ...
-│
+├── videos/  # directory to store video files
 └── annotations/
     ├── train.json  # annotation file with training data
     ├── val.json  # annotation file with validation data

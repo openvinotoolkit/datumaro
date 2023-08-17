@@ -286,7 +286,7 @@
 <span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Tuple</span>
 
 <span class="kn">from</span> <span class="nn">datumaro.components.errors</span> <span class="kn">import</span> <span class="n">DatumaroError</span>
-<span class="kn">from</span> <span class="nn">datumaro.components.media</span> <span class="kn">import</span> <span class="n">Image</span><span class="p">,</span> <span class="n">MediaElement</span><span class="p">,</span> <span class="n">MediaType</span><span class="p">,</span> <span class="n">PointCloud</span>
+<span class="kn">from</span> <span class="nn">datumaro.components.media</span> <span class="kn">import</span> <span class="n">Image</span><span class="p">,</span> <span class="n">MediaElement</span><span class="p">,</span> <span class="n">MediaType</span><span class="p">,</span> <span class="n">PointCloud</span><span class="p">,</span> <span class="n">Video</span><span class="p">,</span> <span class="n">VideoFrame</span>
 
 <span class="kn">from</span> <span class="nn">.common</span> <span class="kn">import</span> <span class="n">Mapper</span><span class="p">,</span> <span class="n">StringMapper</span>
 
@@ -300,6 +300,8 @@
             <span class="k">return</span> <span class="n">ImageMapper</span><span class="o">.</span><span class="n">forward</span><span class="p">(</span><span class="n">obj</span><span class="p">)</span>
         <span class="k">elif</span> <span class="n">obj</span><span class="o">.</span><span class="n">_type</span> <span class="o">==</span> <span class="n">MediaType</span><span class="o">.</span><span class="n">POINT_CLOUD</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">PointCloudMapper</span><span class="o">.</span><span class="n">forward</span><span class="p">(</span><span class="n">obj</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">obj</span><span class="o">.</span><span class="n">_type</span> <span class="o">==</span> <span class="n">MediaType</span><span class="o">.</span><span class="n">VIDEO_FRAME</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">VideoFrameMapper</span><span class="o">.</span><span class="n">forward</span><span class="p">(</span><span class="n">obj</span><span class="p">)</span>
         <span class="k">elif</span> <span class="n">obj</span><span class="o">.</span><span class="n">_type</span> <span class="o">==</span> <span class="n">MediaType</span><span class="o">.</span><span class="n">MEDIA_ELEMENT</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">MediaElementMapper</span><span class="o">.</span><span class="n">forward</span><span class="p">(</span><span class="n">obj</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
@@ -320,6 +322,8 @@
             <span class="k">return</span> <span class="n">ImageMapper</span><span class="o">.</span><span class="n">backward</span><span class="p">(</span><span class="n">_bytes</span><span class="p">,</span> <span class="n">offset</span><span class="p">,</span> <span class="n">media_path_prefix</span><span class="p">)</span>
         <span class="k">elif</span> <span class="n">media_type</span> <span class="o">==</span> <span class="n">MediaType</span><span class="o">.</span><span class="n">POINT_CLOUD</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">PointCloudMapper</span><span class="o">.</span><span class="n">backward</span><span class="p">(</span><span class="n">_bytes</span><span class="p">,</span> <span class="n">offset</span><span class="p">,</span> <span class="n">media_path_prefix</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">media_type</span> <span class="o">==</span> <span class="n">MediaType</span><span class="o">.</span><span class="n">VIDEO_FRAME</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">VideoFrameMapper</span><span class="o">.</span><span class="n">backward</span><span class="p">(</span><span class="n">_bytes</span><span class="p">,</span> <span class="n">offset</span><span class="p">,</span> <span class="n">media_path_prefix</span><span class="p">)</span>
         <span class="k">elif</span> <span class="n">media_type</span> <span class="o">==</span> <span class="n">MediaType</span><span class="o">.</span><span class="n">MEDIA_ELEMENT</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">MediaElementMapper</span><span class="o">.</span><span class="n">backward</span><span class="p">(</span><span class="n">_bytes</span><span class="p">,</span> <span class="n">offset</span><span class="p">,</span> <span class="n">media_path_prefix</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
@@ -399,6 +403,34 @@
             <span class="n">Image</span><span class="o">.</span><span class="n">from_file</span><span class="p">(</span>
                 <span class="n">path</span><span class="o">=</span><span class="n">media_dict</span><span class="p">[</span><span class="s2">&quot;path&quot;</span><span class="p">],</span> <span class="n">size</span><span class="o">=</span><span class="n">size</span> <span class="k">if</span> <span class="n">size</span> <span class="o">!=</span> <span class="bp">cls</span><span class="o">.</span><span class="n">MAGIC_SIZE_FOR_NONE</span> <span class="k">else</span> <span class="kc">None</span>
             <span class="p">),</span>
+            <span class="n">offset</span><span class="p">,</span>
+        <span class="p">)</span></div></div>
+
+
+<div class="viewcode-block" id="VideoFrameMapper"><a class="viewcode-back" href="../../../../../../docs/reference/_autosummary/datumaro.plugins.data_formats.datumaro_binary.mapper.media.html#datumaro.plugins.data_formats.datumaro_binary.mapper.VideoFrameMapper">[docs]</a><span class="k">class</span> <span class="nc">VideoFrameMapper</span><span class="p">(</span><span class="n">MediaElementMapper</span><span class="p">):</span>
+    <span class="n">MEDIA_TYPE</span> <span class="o">=</span> <span class="n">MediaType</span><span class="o">.</span><span class="n">VIDEO_FRAME</span>
+
+<div class="viewcode-block" id="VideoFrameMapper.forward"><a class="viewcode-back" href="../../../../../../docs/reference/_autosummary/datumaro.plugins.data_formats.datumaro_binary.mapper.media.html#datumaro.plugins.data_formats.datumaro_binary.mapper.VideoFrameMapper.forward">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">forward</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">obj</span><span class="p">:</span> <span class="n">VideoFrame</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bytes</span><span class="p">:</span>
+        <span class="n">bytes_arr</span> <span class="o">=</span> <span class="nb">bytearray</span><span class="p">()</span>
+        <span class="n">bytes_arr</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">forward</span><span class="p">(</span><span class="n">obj</span><span class="p">))</span>
+        <span class="n">bytes_arr</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">struct</span><span class="o">.</span><span class="n">pack</span><span class="p">(</span><span class="s2">&quot;&lt;I&quot;</span><span class="p">,</span> <span class="n">obj</span><span class="o">.</span><span class="n">index</span><span class="p">))</span>
+
+        <span class="k">return</span> <span class="nb">bytes</span><span class="p">(</span><span class="n">bytes_arr</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="VideoFrameMapper.backward"><a class="viewcode-back" href="../../../../../../docs/reference/_autosummary/datumaro.plugins.data_formats.datumaro_binary.mapper.media.html#datumaro.plugins.data_formats.datumaro_binary.mapper.VideoFrameMapper.backward">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">backward</span><span class="p">(</span>
+        <span class="bp">cls</span><span class="p">,</span>
+        <span class="n">_bytes</span><span class="p">:</span> <span class="nb">bytes</span><span class="p">,</span>
+        <span class="n">offset</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
+        <span class="n">media_path_prefix</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="n">MediaType</span><span class="p">,</span> <span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">VideoFrame</span><span class="p">,</span> <span class="nb">int</span><span class="p">]:</span>
+        <span class="n">media_dict</span><span class="p">,</span> <span class="n">offset</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="n">backward_dict</span><span class="p">(</span><span class="n">_bytes</span><span class="p">,</span> <span class="n">offset</span><span class="p">,</span> <span class="n">media_path_prefix</span><span class="p">)</span>
+        <span class="p">(</span><span class="n">frame_index</span><span class="p">,)</span> <span class="o">=</span> <span class="n">struct</span><span class="o">.</span><span class="n">unpack_from</span><span class="p">(</span><span class="s2">&quot;&lt;I&quot;</span><span class="p">,</span> <span class="n">_bytes</span><span class="p">,</span> <span class="n">offset</span><span class="p">)</span>
+        <span class="n">video</span> <span class="o">=</span> <span class="n">Video</span><span class="p">(</span><span class="n">media_dict</span><span class="p">[</span><span class="s2">&quot;path&quot;</span><span class="p">])</span>
+        <span class="n">offset</span> <span class="o">+=</span> <span class="mi">4</span>
+        <span class="k">return</span> <span class="p">(</span>
+            <span class="n">VideoFrame</span><span class="p">(</span><span class="n">video</span><span class="p">,</span> <span class="n">frame_index</span><span class="p">),</span>
             <span class="n">offset</span><span class="p">,</span>
         <span class="p">)</span></div></div>
 

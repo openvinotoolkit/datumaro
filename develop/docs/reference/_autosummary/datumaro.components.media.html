@@ -985,6 +985,11 @@
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">video</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="#datumaro.components.media.Video" title="datumaro.components.media.Video"><span class="pre">Video</span></a></em><a class="headerlink" href="#datumaro.components.media.VideoFrame.video" title="Permalink to this definition">#</a></dt>
 <dd></dd></dl>
 
+<dl class="py property">
+<dt class="sig sig-object py" id="datumaro.components.media.VideoFrame.path">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">path</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a></em><a class="headerlink" href="#datumaro.components.media.VideoFrame.path" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
 </dd></dl>
 
 <dl class="py class">
@@ -1019,6 +1024,11 @@ i.e. start frame, end frame and frame step.</p>
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">frame_size</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Tuple" title="(in Python v3.11)"><span class="pre">Tuple</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.11)"><span class="pre">int</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.11)"><span class="pre">int</span></a><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#datumaro.components.media.Video.frame_size" title="Permalink to this definition">#</a></dt>
 <dd><p>Returns (H, W)</p>
 </dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="datumaro.components.media.Video.save">
+<span class="sig-name descname"><span class="pre">save</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">fp:</span> <span class="pre">~typing.Union[str,</span> <span class="pre">~io.IOBase],</span> <span class="pre">crypter:</span> <span class="pre">~datumaro.components.crypter.Crypter</span> <span class="pre">=</span> <span class="pre">&lt;datumaro.components.crypter.NullCrypter</span> <span class="pre">object&gt;</span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/datumaro/components/media.html#Video.save"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.components.media.Video.save" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="datumaro.components.media.Video.path">
@@ -2009,6 +2019,15 @@ Otherwise, whole row data will be returned.</p>
      </code>
     </a>
    </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#datumaro.components.media.VideoFrame.path">
+     <code class="docutils literal notranslate">
+      <span class="pre">
+       VideoFrame.path
+      </span>
+     </code>
+    </a>
+   </li>
   </ul>
  </li>
  <li class="toc-h2 nav-item toc-entry">
@@ -2052,6 +2071,15 @@ Otherwise, whole row data will be returned.</p>
      <code class="docutils literal notranslate">
       <span class="pre">
        Video.frame_size
+      </span>
+     </code>
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#datumaro.components.media.Video.save">
+     <code class="docutils literal notranslate">
+      <span class="pre">
+       Video.save()
       </span>
      </code>
     </a>

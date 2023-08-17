@@ -11,6 +11,7 @@ Supported media types:
 
 - `Image`
 - `PointCloud`
+- `VideoFrame`
 
 Supported annotation types:
 
@@ -56,6 +57,7 @@ A Datumaro dataset directory should have the following structure:
     │       ├── <image_name1.ext>
     │       ├── <image_name2.ext>
     │       └── ...
+    ├── videos/  # directory to store video files
     └── annotations/
         ├── <subset_name_1>.json
         ├── <subset_name_2>.json

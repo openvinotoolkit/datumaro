@@ -808,7 +808,7 @@
             <span class="n">save_image</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">)</span></div></div>
 
 
-<div class="viewcode-block" id="VideoFrame"><a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.components.media.html#datumaro.components.abstracts.merger.VideoFrame">[docs]</a><span class="k">class</span> <span class="nc">VideoFrame</span><span class="p">(</span><span class="n">ImageFromNumpy</span><span class="p">):</span>
+<div class="viewcode-block" id="VideoFrame"><a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.plugins.data_formats.datumaro_binary.mapper.html#datumaro.components.abstracts.merger.VideoFrame">[docs]</a><span class="k">class</span> <span class="nc">VideoFrame</span><span class="p">(</span><span class="n">ImageFromNumpy</span><span class="p">):</span>
     <span class="n">_type</span> <span class="o">=</span> <span class="n">MediaType</span><span class="o">.</span><span class="n">VIDEO_FRAME</span>
 
     <span class="n">_DEFAULT_EXT</span> <span class="o">=</span> <span class="kc">None</span>
@@ -819,7 +819,7 @@
 
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="k">lambda</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_video</span><span class="o">.</span><span class="n">get_frame_data</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_index</span><span class="p">))</span>
 
-<div class="viewcode-block" id="VideoFrame.as_dict"><a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.components.media.html#datumaro.components.abstracts.merger.VideoFrame.as_dict">[docs]</a>    <span class="k">def</span> <span class="nf">as_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
+<div class="viewcode-block" id="VideoFrame.as_dict"><a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.plugins.data_formats.datumaro_binary.mapper.html#datumaro.components.abstracts.merger.VideoFrame.as_dict">[docs]</a>    <span class="k">def</span> <span class="nf">as_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
         <span class="n">attrs</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">as_dict</span><span class="p">()</span>
         <span class="k">return</span> <span class="p">{</span>
             <span class="s2">&quot;video&quot;</span><span class="p">:</span> <span class="n">attrs</span><span class="p">[</span><span class="s2">&quot;video&quot;</span><span class="p">],</span>
@@ -836,7 +836,11 @@
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">video</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Video</span><span class="p">:</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_video</span></div>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_video</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">path</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_video</span><span class="o">.</span><span class="n">path</span></div>
 
 
 <span class="k">class</span> <span class="nc">_VideoFrameIterator</span><span class="p">(</span><span class="n">Iterator</span><span class="p">[</span><span class="n">VideoFrame</span><span class="p">]):</span>
@@ -917,7 +921,7 @@
         <span class="k">return</span> <span class="n">v</span>
 
 
-<div class="viewcode-block" id="Video"><a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.components.merge.exact_merge.html#datumaro.components.abstracts.merger.Video">[docs]</a><span class="k">class</span> <span class="nc">Video</span><span class="p">(</span><span class="n">MediaElement</span><span class="p">,</span> <span class="n">Iterable</span><span class="p">[</span><span class="n">VideoFrame</span><span class="p">]):</span>
+<div class="viewcode-block" id="Video"><a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.plugins.data_formats.datumaro_binary.mapper.html#datumaro.components.abstracts.merger.Video">[docs]</a><span class="k">class</span> <span class="nc">Video</span><span class="p">(</span><span class="n">MediaElement</span><span class="p">,</span> <span class="n">Iterable</span><span class="p">[</span><span class="n">VideoFrame</span><span class="p">]):</span>
     <span class="n">_type</span> <span class="o">=</span> <span class="n">MediaType</span><span class="o">.</span><span class="n">VIDEO</span>
 
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
@@ -956,7 +960,7 @@
 
         <span class="n">MediaManager</span><span class="o">.</span><span class="n">get_instance</span><span class="p">()</span><span class="o">.</span><span class="n">push</span><span class="p">(</span><span class="n">weakref</span><span class="o">.</span><span class="n">ref</span><span class="p">(</span><span class="bp">self</span><span class="p">),</span> <span class="bp">self</span><span class="p">)</span>
 
-<div class="viewcode-block" id="Video.close"><a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.components.merge.exact_merge.html#datumaro.components.abstracts.merger.Video.close">[docs]</a>    <span class="k">def</span> <span class="nf">close</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="Video.close"><a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.plugins.data_formats.datumaro_binary.mapper.html#datumaro.components.abstracts.merger.Video.close">[docs]</a>    <span class="k">def</span> <span class="nf">close</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_iterator</span> <span class="o">=</span> <span class="kc">None</span>
 
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_reader</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
@@ -969,7 +973,7 @@
 
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_iterator</span><span class="p">()[</span><span class="n">idx</span><span class="p">]</span>
 
-<div class="viewcode-block" id="Video.get_frame_data"><a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.components.merge.exact_merge.html#datumaro.components.abstracts.merger.Video.get_frame_data">[docs]</a>    <span class="k">def</span> <span class="nf">get_frame_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">idx</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">VideoFrame</span><span class="p">:</span>
+<div class="viewcode-block" id="Video.get_frame_data"><a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.plugins.data_formats.datumaro_binary.mapper.html#datumaro.components.abstracts.merger.Video.get_frame_data">[docs]</a>    <span class="k">def</span> <span class="nf">get_frame_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">idx</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">VideoFrame</span><span class="p">:</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_includes_frame</span><span class="p">(</span><span class="n">idx</span><span class="p">):</span>
             <span class="k">raise</span> <span class="ne">IndexError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Video doesn&#39;t contain frame #</span><span class="si">{</span><span class="n">idx</span><span class="si">}</span><span class="s2">.&quot;</span><span class="p">)</span>
 
@@ -1086,6 +1090,20 @@
     <span class="k">def</span> <span class="fm">__hash__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="c1"># Required for caching</span>
         <span class="k">return</span> <span class="nb">hash</span><span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">_path</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_step</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_start_frame</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_end_frame</span><span class="p">))</span>
+
+<div class="viewcode-block" id="Video.save"><a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.plugins.data_formats.datumaro_binary.mapper.html#datumaro.components.abstracts.merger.Video.save">[docs]</a>    <span class="k">def</span> <span class="nf">save</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">fp</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">io</span><span class="o">.</span><span class="n">IOBase</span><span class="p">],</span>
+        <span class="n">crypter</span><span class="p">:</span> <span class="n">Crypter</span> <span class="o">=</span> <span class="n">NULL_CRYPTER</span><span class="p">,</span>
+    <span class="p">):</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">fp</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+            <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">osp</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">fp</span><span class="p">),</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">fp</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">fp</span> <span class="o">!=</span> <span class="bp">self</span><span class="o">.</span><span class="n">path</span><span class="p">:</span>
+                <span class="n">shutil</span><span class="o">.</span><span class="n">copyfile</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">path</span><span class="p">,</span> <span class="n">fp</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">fp</span><span class="p">,</span> <span class="n">io</span><span class="o">.</span><span class="n">IOBase</span><span class="p">):</span>
+            <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">path</span><span class="p">,</span> <span class="s2">&quot;rb&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f_video</span><span class="p">:</span>
+                <span class="n">fp</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">f_video</span><span class="o">.</span><span class="n">read</span><span class="p">())</span></div>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">path</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
