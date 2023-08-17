@@ -8,7 +8,7 @@ import os.path as osp
 import pickle
 import tempfile
 from typing import List, Sequence  # nosec B403
-from unittest import TestCase, mock, skipIf
+from unittest import TestCase, mock
 
 import numpy as np
 import pytest
@@ -64,13 +64,6 @@ from datumaro.plugins.transforms import ProjectInfos, RemapLabels
 from ..requirements import Requirements, mark_requirement
 
 from tests.utils.test_utils import TestDir, compare_datasets, compare_datasets_strict
-
-try:
-    import torch
-except ImportError:
-    TORCH_AVAILABLE = False
-else:
-    TORCH_AVAILABLE = True
 
 
 class DatasetTest(TestCase):
