@@ -368,8 +368,6 @@ class ExportContextComponent:
     def make_video_filename(self, item, *, name=None):
         if isinstance(item, DatasetItem) and isinstance(item.media, VideoFrame):
             video_file_name = osp.basename(item.media.video.path)
-        elif isinstance(item, VideoFrame):
-            video_file_name = osp.basename(item.video.path)
         else:
             assert "Video item type should be VideoFrame"
 

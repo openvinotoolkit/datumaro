@@ -2,6 +2,7 @@
 #
 # SPDX-License-Identifier: MIT
 
+import filecmp
 import os.path as osp
 import platform
 from unittest import TestCase, skipIf
@@ -251,8 +252,9 @@ class ProjectTest:
 
 class VideoAnnotationTest:
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
+    @pytest.mark.parametrize("dataset_format", ["datumaro", "datumaro_binary"])
     @scoped
-    def test_can_video_annotation_export(self, fxt_sample_video):
+    def test_can_video_annotation_export(self, dataset_format, fxt_sample_video):
         video = Video(fxt_sample_video)
         on_exit_do(video.close)
 
@@ -271,6 +273,22 @@ class VideoAnnotationTest:
 
         with TestDir() as test_dir:
             dataset_path = osp.join(test_dir, "test_video")
-            expected.export(dataset_path, "datumaro", save_media=True)
+            expected.export(dataset_path, dataset_format, save_media=True)
             actual = Dataset.import_from(dataset_path)
             compare_datasets(TestCase(), expected, actual)
+
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
+    @scoped
+    def test_can_save_video(self, fxt_sample_video):
+        video = Video(fxt_sample_video)
+        on_exit_do(video.close)
+
+        with TestDir() as test_dir:
+            path_video_save_by_path = osp.join(test_dir, "test_video_save_path.avi")
+            video.save(path_video_save_by_path)
+            assert filecmp.cmp(video.path, path_video_save_by_path)
+
+            path_video_save_by_io = osp.join(test_dir, "test_video_save_io.avi")
+            with open(path_video_save_by_io, "wb") as f_io:
+                video.save(f_io)
+            assert filecmp.cmp(video.path, path_video_save_by_io)

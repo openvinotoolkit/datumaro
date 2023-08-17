@@ -190,8 +190,6 @@ class JsonReader:
                 frame_index = video_frame_info.get("frame_index")
 
                 media = VideoFrame(video, frame_index)
-                if self.media_type == MediaElement:
-                    self.media_type = VideoFrame
 
             media_desc = item_desc.get("media")
             if not media and media_desc and media_desc.get("path"):

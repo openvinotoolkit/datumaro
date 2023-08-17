@@ -559,6 +559,10 @@ class VideoFrame(ImageFromNumpy):
     def video(self) -> Video:
         return self._video
 
+    @property
+    def path(self) -> str:
+        return self._video.path
+
 
 class _VideoFrameIterator(Iterator[VideoFrame]):
     """

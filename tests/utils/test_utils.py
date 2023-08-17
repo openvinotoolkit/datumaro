@@ -22,7 +22,7 @@ from typing_extensions import Literal
 from datumaro.components.annotation import AnnotationType
 from datumaro.components.dataset import Dataset, StreamDataset
 from datumaro.components.dataset_base import IDataset
-from datumaro.components.media import Image, MultiframeImage, PointCloud
+from datumaro.components.media import Image, MultiframeImage, PointCloud, VideoFrame
 from datumaro.util import filter_dict, find
 from datumaro.util.os_util import rmfile, rmtree
 
@@ -211,6 +211,9 @@ def compare_datasets(
             elif isinstance(item_a.media, PointCloud):
                 test.assertEqual(item_a.media.data, item_b.media.data, item_a.id)
                 test.assertEqual(item_a.media.extra_images, item_b.media.extra_images, item_a.id)
+            elif isinstance(item_a.media, VideoFrame):
+                test.assertEqual(item_a.media, item_b.media, item_a.id)
+                test.assertEqual(item_a.index, item_b.index, item_a.id)
             elif isinstance(item_a.media, MultiframeImage):
                 test.assertEqual(item_a.media.data, item_b.media.data, item_a.id)
         test.assertEqual(len(item_a.annotations), len(item_b.annotations), item_a.id)
