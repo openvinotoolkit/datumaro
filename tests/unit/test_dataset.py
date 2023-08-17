@@ -6,7 +6,6 @@ import logging
 import os
 import os.path as osp
 import pickle
-import tempfile
 from typing import List, Sequence  # nosec B403
 from unittest import TestCase, mock
 
