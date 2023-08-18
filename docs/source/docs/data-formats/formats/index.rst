@@ -27,6 +27,7 @@ Supported Data Formats
    kinetics
    kitti
    kitti_raw
+   labelme
    lfw
    mapillary_vistas
    market1501
