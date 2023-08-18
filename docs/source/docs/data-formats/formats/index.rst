@@ -40,6 +40,7 @@ Supported Data Formats
    nyu_depth_v2
    open_images
    pascal_voc
+   roboflow
    segment_anything
    sly_pointcloud
    synthia
