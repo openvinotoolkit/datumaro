@@ -316,6 +316,17 @@ class RoIImageTest(TestCase):
             _, _, args_list = ImageTest._gen_bytes_image_and_args_list()
             self._test_ctors(Image, args_list, test_dir, True)
 
+    def test_invalid_path(self):
+        with TestDir() as test_dir:
+            roi_img = RoIImage.from_image(
+                Image.from_file(path=osp.join(test_dir, "no-exist-path.png"), size=(2, 4)),
+                roi=(0, 0, 1, 1),
+            )
+            self.assertFalse(roi_img.has_data)
+            self.assertTrue(roi_img.data == None)
+            with self.assertRaises(ValueError):
+                roi_img.save(osp.join(test_dir, "test.png"))
+
 
 class ImageMetaTest(TestCase):
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
