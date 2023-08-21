@@ -113,23 +113,36 @@ try:
             dataset: DatasetStorage,
             subset: str,
             task: str,
+            output_signature: Optional[tuple] = None,
         ):
             self.dataset = dataset.get_subset(subset)
             self.task = task
+            self.output_signature = output_signature
 
         def generator_wrapper(self):
             for item in self.dataset:
                 image = item.media.data
-                label = item.annotations[0].label
+                # if len(image.shape) == 2:
+                #     image = np.expand_dims(image, axis=-1)
+
+                label = []
+                for ann in item.annotations:
+                    if self.task == "classification" and isinstance(ann, Label):
+                        label = ann.label
+                        break
+                    elif self.task == "detection" and isinstance(ann, Bbox):
+                        label.append(ann.as_dict())
+                    elif self.task == "segmentation" and isinstance(ann, Polygon):
+                        label.append(ann.as_dict())
+                    elif self.task == "segmentation" and isinstance(ann, Mask):
+                        label = ann.image
+                        break
+
                 yield image, label
 
         def create_tf_dataset(self):
-            output_signature = (
-                tf.TensorSpec(shape=(28, 28), dtype=tf.int32),  # Modify shape and dtype accordingly
-                tf.TensorSpec(shape=(), dtype=tf.int32),
-            )
             tf_dataset = tf.data.Dataset.from_generator(
-                self.generator_wrapper, output_signature=output_signature
+                self.generator_wrapper, output_signature=self.output_signature
             )
             return tf_dataset
 

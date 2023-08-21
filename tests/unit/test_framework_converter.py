@@ -30,6 +30,7 @@ else:
 
 try:
     import tensorflow as tf
+    import tensorflow_datasets as tfds
 except ImportError:
     TF_AVAILABLE = False
 else:
@@ -104,17 +105,31 @@ class FrameworkConverterTest(TestCase):
     @skipIf(not TF_AVAILABLE, reason="Tensorflow is not installed")
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_convert_tf_classification_data(self):
-        with tempfile.TemporaryDirectory() as tmp_dir:
-            (_, _), (test_images, test_labels) = tf.keras.datasets.mnist.load_data()
-            tf_dataset = tf.data.Dataset.from_tensor_slices((test_images, test_labels))
+        output_signature = (
+            tf.TensorSpec(shape=(28, 28), dtype=tf.uint8),  # Modify shape and dtype accordingly
+            tf.TensorSpec(shape=(), dtype=tf.uint8),
+        )
 
-            dm_dataset = Dataset.import_from(path=osp.join(tmp_dir, "MNIST"), format="mnist")
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            (_, _), (x_test, y_test) = tf.keras.datasets.fashion_mnist.load_data()
+            tf_dataset = tf.data.Dataset.from_tensor_slices((x_test, y_test))
+
+            keras_data_dir = osp.expanduser("~/.keras/datasets")
+            dm_dataset = Dataset.import_from(
+                path=osp.join(keras_data_dir, "fashion-mnist"), format="mnist"
+            )
 
             multi_framework_dataset = MultiFrameworkDataset(
-                dm_dataset, subset="train", task="classification"
+                dm_dataset, subset="test", task="classification"
             )
-            dm_torch_dataset = multi_framework_dataset.to_framework(framework="tensorflow")
+            dm_tf_dataset = multi_framework_dataset.to_framework(
+                framework="tf", output_signature=output_signature
+            )
 
-            for torch_item, dm_item in zip(tf_dataset, dm_torch_dataset):
-                assert torch.equal(torch_item[0], dm_item[0])
-                self.assertEqual(torch_item[1], dm_item[1])
+            epoch, batch_size = 1, 16
+            for tf_item, dm_item in zip(
+                tf_dataset.repeat(epoch).batch(batch_size),
+                dm_tf_dataset.repeat(epoch).batch(batch_size),
+            ):
+                assert tf.reduce_all(tf_item[0] == dm_item[0])
+                assert tf.reduce_all(tf_item[1] == dm_item[1])
