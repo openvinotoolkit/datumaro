@@ -27,6 +27,7 @@ Supported Data Formats
    kinetics
    kitti
    kitti_raw
+   labelme
    lfw
    mapillary_vistas
    market1501
@@ -40,6 +41,7 @@ Supported Data Formats
    nyu_depth_v2
    open_images
    pascal_voc
+   roboflow
    segment_anything
    sly_pointcloud
    synthia
@@ -122,6 +124,7 @@ Supported Data Formats
 * LabelMe (``labels``, ``boxes``, ``masks``)
    * `Format specification <http://labelme.csail.mit.edu/Release3.0>`_
    * `Dataset example <https://github.com/openvinotoolkit/datumaro/tree/develop/tests/assets/labelme_dataset>`_
+   * `Format documentation <labelme.md>`_
 * LFW (``classification``, ``person re-identification``, ``landmarks``)
    * `Format specification <http://vis-www.cs.umass.edu/lfw/>`_
    * `Dataset example <https://github.com/openvinotoolkit/datumaro/tree/develop/tests/assets/lfw_dataset>`_
@@ -166,10 +169,10 @@ Supported Data Formats
    * `Dataset example <https://github.com/openvinotoolkit/datumaro/tree/develop/tests/assets/coco_dataset>`_
    * ``labels`` are our extension - like `instances` with only `category_id`
    * `Format documentation <coco.md>`_
-* Roboflow COCO (import-only)
-   * `Format specification <https://roboflow.com/formats/coco-json>`_
-   * `Dataset example <https://github.com/openvinotoolkit/datumaro/tree/develop/tests/assets/coco_dataset/coco_roboflow>`_
-   * `Format documentation <coco#coco-from-roboflow.md>`_
+* Roboflow (import-only)
+   * `Format specification <https://roboflow.com/formats/>`_
+   * `Dataset example <https://github.com/openvinotoolkit/datumaro/tree/develop/tests/assets/roboflow_dataset>`_
+   * `Format documentation <roboflow.md>`_
 * NYU Depth Dataset V2 (``depth estimation``) (import-only)
    * `Format specification <https://cs.nyu.edu/~silberman/datasets/nyu_depth_v2.html>`_
    * `Dataset example <https://github.com/openvinotoolkit/datumaro/tree/develop/tests/assets/nyu_depth_v2_dataset>`_
