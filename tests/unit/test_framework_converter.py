@@ -66,7 +66,7 @@ class TorchConverterTest(TestCase):
         self.mock_media_item = Mock(spec=DatasetItem)
         self.mock_media_item.id = "0"
         self.mock_media_item.subset = "subset"
-        self.mock_media_item.media = Image.from_numpy(np.array([[1, 2], [3, 4]]))
+        self.mock_media_item.media = Image.from_numpy(np.array([[0, 0], [1, 1]]))
         self.mock_media_item.annotations = [self.mock_annotation]
         self.mock_dataset = Dataset.from_iterable([self.mock_media_item])
         self.transform = transforms.ToTensor()
@@ -105,8 +105,8 @@ class TorchConverterTest(TestCase):
         )
         item = dm_torch_dataset[0]
 
-        self.assertIsInstance(item[0], torch.Tensor)
-        self.assertIsInstance(item[1], int)
+        assert torch.equal(item[0], torch.tensor([[[0, 0], [1, 1]]]))
+        self.assertEqual(item[1], 0)
 
     @skipIf(not TORCH_AVAILABLE, reason="PyTorch is not installed")
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
@@ -124,8 +124,8 @@ class TorchConverterTest(TestCase):
         )
         item = dm_torch_dataset[0]
 
-        self.assertIsInstance(item[0], torch.Tensor)
-        self.assertIsInstance(item[1], list)
+        assert torch.equal(item[0], torch.tensor([[[0, 0], [1, 1]]]))
+        self.assertEqual(item[1], [{"bbox": [0, 0, 2, 2]}])
 
     @skipIf(not TORCH_AVAILABLE, reason="PyTorch is not installed")
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
@@ -143,8 +143,8 @@ class TorchConverterTest(TestCase):
         )
         item = dm_torch_dataset[0]
 
-        self.assertIsInstance(item[0], torch.Tensor)
-        self.assertIsInstance(item[1], list)
+        assert torch.equal(item[0], torch.tensor([[[0, 0], [1, 1]]]))
+        self.assertEqual(item[1], [{"polygon": [[0, 0], [2, 0], [2, 2], [0, 2]]}])
 
     @skipIf(not TORCH_AVAILABLE, reason="PyTorch is not installed")
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
@@ -163,8 +163,8 @@ class TorchConverterTest(TestCase):
         )
         item = dm_torch_dataset[0]
 
-        self.assertIsInstance(item[0], torch.Tensor)
-        self.assertIsInstance(item[1], torch.Tensor)
+        assert torch.equal(item[0], torch.tensor([[[0, 0], [1, 1]]]))
+        assert torch.equal(item[1], torch.tensor([[[1, 1], [0, 0]]]))
 
     @skipIf(not TORCH_AVAILABLE, reason="PyTorch is not installed")
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
@@ -236,7 +236,7 @@ class TfConverterTest(TestCase):
         self.mock_media_item = Mock(spec=DatasetItem)
         self.mock_media_item.id = "0"
         self.mock_media_item.subset = "subset"
-        self.mock_media_item.media = Image.from_numpy(np.array([[1, 2], [3, 4]]))
+        self.mock_media_item.media = Image.from_numpy(np.array([[0, 0], [1, 1]]))
         self.mock_media_item.annotations = [self.mock_annotation]
         self.mock_dataset = Dataset.from_iterable([self.mock_media_item])
         self.output_signature = (
@@ -273,7 +273,7 @@ class TfConverterTest(TestCase):
 
         image, label = next(generator)
 
-        assert np.array_equal(image, np.array([[1, 2], [3, 4]]))
+        assert np.array_equal(image, np.array([[0, 0], [1, 1]]))
         self.assertIsInstance(label, dict)
         self.assertEqual(label["key1"], [10])
         self.assertEqual(label["key2"], [3.14])
@@ -301,7 +301,9 @@ class TfConverterTest(TestCase):
 
         for item in tf_dataset:
             self.assertIsInstance(item[0], tf.Tensor)
+            assert np.array_equal(item[0], np.array([[0, 0], [1, 1]]))
             self.assertIsInstance(item[1], tf.Tensor)
+            assert np.array_equal(item[1], 0)
 
     @skipIf(not TF_AVAILABLE, reason="Tensorflow is not installed")
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
@@ -329,7 +331,10 @@ class TfConverterTest(TestCase):
 
         for item in tf_dataset:
             self.assertIsInstance(item[0], tf.Tensor)
+            assert np.array_equal(item[0], np.array([[0, 0], [1, 1]]))
             self.assertIsInstance(item[1], dict)
+            assert np.array_equal(item[1]["bbox"], [[0, 0, 2, 2]])
+            assert np.array_equal(item[1]["category_id"], [0])
 
     @skipIf(not TF_AVAILABLE, reason="Tensorflow is not installed")
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
@@ -360,7 +365,10 @@ class TfConverterTest(TestCase):
 
         for item in tf_dataset:
             self.assertIsInstance(item[0], tf.Tensor)
+            assert np.array_equal(item[0], np.array([[0, 0], [1, 1]]))
             self.assertIsInstance(item[1], dict)
+            assert np.array_equal(item[1]["polygon"], [[[0, 0], [2, 0], [2, 2], [0, 2]]])
+            assert np.array_equal(item[1]["category_id"], [1])
 
     @skipIf(not TF_AVAILABLE, reason="Tensorflow is not installed")
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
@@ -385,7 +393,9 @@ class TfConverterTest(TestCase):
 
         for item in tf_dataset:
             self.assertIsInstance(item[0], tf.Tensor)
+            assert np.array_equal(item[0], np.array([[0, 0], [1, 1]]))
             self.assertIsInstance(item[1], tf.Tensor)
+            assert np.array_equal(item[1], np.array([[1, 1], [0, 0]]))
 
     @skipIf(not TF_AVAILABLE, reason="Tensorflow is not installed")
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
