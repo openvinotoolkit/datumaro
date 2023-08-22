@@ -251,6 +251,35 @@ class TfConverterTest(TestCase):
 
     @skipIf(not TF_AVAILABLE, reason="Tensorflow is not installed")
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
+    def test_tf_dataset_generator_wrapper(self):
+        mock_annotation = Mock()
+        mock_annotation.as_dict.return_value = {"key1": 10, "key2": 3.14}
+        self.mock_media_item.annotations = [mock_annotation]
+        output_signature = (
+            tf.TensorSpec(shape=(None, None), dtype=tf.int32),
+            {
+                "key1": tf.TensorSpec(shape=(), dtype=tf.int32, name="key1"),
+                "key2": tf.TensorSpec(shape=(), dtype=tf.float32, name="key2"),
+            },
+        )
+
+        converter = DmTfDataset(
+            dataset=self.mock_dataset,
+            task="detection",
+            subset="subset",
+            output_signature=output_signature,
+        )
+        generator = converter.generator_wrapper()
+
+        image, label = next(generator)
+
+        assert np.array_equal(image, np.array([[1, 2], [3, 4]]))
+        self.assertIsInstance(label, dict)
+        self.assertEqual(label["key1"], [10])
+        self.assertEqual(label["key2"], [3.14])
+
+    @skipIf(not TF_AVAILABLE, reason="Tensorflow is not installed")
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_tf_dataset_classification(self):
         mock_annotation = Mock(spec=Label)
         mock_annotation.type = AnnotationType.label
