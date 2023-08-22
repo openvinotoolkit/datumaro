@@ -125,18 +125,18 @@ try:
             for item in self.dataset:
                 image = item.media.data
 
-                label = []
-                for ann in item.annotations:
-                    if self.task == "classification" and ann.type == AnnotationType.label:
-                        label = ann.label
-                        break
-                    elif self.task == "detection" and ann.type == AnnotationType.bbox:
-                        label.append(ann.as_dict())
-                    elif self.task == "segmentation" and ann.type == AnnotationType.polygon:
-                        label.append(ann.as_dict())
-                    elif self.task == "segmentation" and ann.type == AnnotationType.mask:
-                        label = ann.image
-                        break
+                if self.task in ["detection", "segmentation"] and isinstance(
+                    self.output_signature[1], dict
+                ):
+                    label = {}
+                    for key, spec in self.output_signature[1].items():
+                        label[key] = tf.convert_to_tensor(
+                            [ann.as_dict().get(spec.name, None) for ann in item.annotations]
+                        )
+                elif self.task == "classification":
+                    label = item.annotations[0].label
+                elif self.task == "segmentation":
+                    label = item.annotations[0].image
 
                 yield image, label
 

@@ -71,6 +71,11 @@ class TorchConverterTest(TestCase):
         self.mock_dataset = Dataset.from_iterable([self.mock_media_item])
         self.transform = transforms.ToTensor()
 
+    # @mark_requirement(Requirements.DATUM_GENERAL_REQ)
+    # def test_torch_dataset_import(self):
+    #     with self.assertRaises(ImportError):
+    #         from datumaro.plugins.framework_converter import DmTorchDataset
+
     @skipIf(not TORCH_AVAILABLE, reason="PyTorch is not installed")
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_torch_dataset_len(self):
@@ -229,69 +234,104 @@ class TfConverterTest(TestCase):
         self.mock_dataset = Mock(spec=Dataset)
         self.mock_annotation = Mock(spec=Annotation)
         self.mock_media_item = Mock(spec=DatasetItem)
+        self.mock_media_item.id = "0"
+        self.mock_media_item.subset = "subset"
         self.mock_media_item.media = Image.from_numpy(np.array([[1, 2], [3, 4]]))
         self.mock_media_item.annotations = [self.mock_annotation]
-        self.mock_dataset = Dataset.from_iterable(
-            [self.mock_media_item]
-        )  # .get_subset.return_value = [self.mock_media_item]
+        self.mock_dataset = Dataset.from_iterable([self.mock_media_item])
         self.output_signature = (
             tf.TensorSpec(shape=(None, None), dtype=tf.int32),
             tf.TensorSpec(shape=(None,), dtype=tf.int32),
         )
+
+    # @mark_requirement(Requirements.DATUM_GENERAL_REQ)
+    # def test_tf_dataset_import(self):
+    #     with self.assertRaises(ImportError):
+    #         from datumaro.plugins.framework_converter import DmTfDataset
 
     @skipIf(not TF_AVAILABLE, reason="Tensorflow is not installed")
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_tf_dataset_classification(self):
         mock_annotation = Mock(spec=Label)
         mock_annotation.type = AnnotationType.label
-        self.mock_annotation.label = 0
+        mock_annotation.label = 0
         self.mock_media_item.annotations = [mock_annotation]
+        output_signature = (
+            tf.TensorSpec(shape=(None, None), dtype=tf.int32),
+            tf.TensorSpec(shape=(), dtype=tf.int32),
+        )
 
         dm_tf_dataset = DmTfDataset(
             dataset=self.mock_dataset,
             subset="subset",
             task="classification",
-            output_signature=self.output_signature,
+            output_signature=output_signature,
         )
         tf_dataset = dm_tf_dataset.create_tf_dataset()
-
         self.assertIsInstance(tf_dataset, tf.data.Dataset)
+
+        for item in tf_dataset:
+            self.assertIsInstance(item[0], tf.Tensor)
+            self.assertIsInstance(item[1], tf.Tensor)
 
     @skipIf(not TF_AVAILABLE, reason="Tensorflow is not installed")
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_tf_dataset_detection(self):
         mock_annotation = Mock(spec=Bbox)
         mock_annotation.type = AnnotationType.bbox
-        self.mock_annotation.as_dict.return_value = {"bbox": [0, 0, 2, 2]}
+        mock_annotation.as_dict.return_value = {"bbox": [0, 0, 2, 2], "category_id": 0}
         self.mock_media_item.annotations = [mock_annotation]
+        output_signature = (
+            tf.TensorSpec(shape=(None, None), dtype=tf.int32),
+            {
+                "bbox": tf.TensorSpec(shape=(None, 4), dtype=tf.float32, name="bbox"),
+                "category_id": tf.TensorSpec(shape=(None,), dtype=tf.int32, name="category_id"),
+            },
+        )
 
         dm_tf_dataset = DmTfDataset(
             dataset=self.mock_dataset,
             subset="subset",
             task="detection",
-            output_signature=self.output_signature,
+            output_signature=output_signature,
         )
         tf_dataset = dm_tf_dataset.create_tf_dataset()
-
         self.assertIsInstance(tf_dataset, tf.data.Dataset)
+
+        for item in tf_dataset:
+            self.assertIsInstance(item[0], tf.Tensor)
+            self.assertIsInstance(item[1], dict)
 
     @skipIf(not TF_AVAILABLE, reason="Tensorflow is not installed")
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_tf_dataset_segmentation_polygon(self):
         mock_annotation = Mock(spec=Polygon)
         mock_annotation.type = AnnotationType.polygon
-        self.mock_annotation.as_dict.return_value = {"polygon": [[0, 0], [2, 0], [2, 2], [0, 2]]}
+        mock_annotation.as_dict.return_value = {
+            "polygon": [[0, 0], [2, 0], [2, 2], [0, 2]],
+            "category_id": 1,
+        }
         self.mock_media_item.annotations = [mock_annotation]
+        output_signature = (
+            tf.TensorSpec(shape=(None, None), dtype=tf.int32),
+            {
+                "polygon": tf.TensorSpec(shape=(None, None, 2), dtype=tf.float32, name="polygon"),
+                "category_id": tf.TensorSpec(shape=(None,), dtype=tf.int32, name="category_id"),
+            },
+        )
 
         dm_tf_dataset = DmTfDataset(
             dataset=self.mock_dataset,
             subset="subset",
             task="segmentation",
-            output_signature=self.output_signature,
+            output_signature=output_signature,
         )
         tf_dataset = dm_tf_dataset.create_tf_dataset()
-
         self.assertIsInstance(tf_dataset, tf.data.Dataset)
+
+        for item in tf_dataset:
+            self.assertIsInstance(item[0], tf.Tensor)
+            self.assertIsInstance(item[1], dict)
 
     @skipIf(not TF_AVAILABLE, reason="Tensorflow is not installed")
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
@@ -300,16 +340,23 @@ class TfConverterTest(TestCase):
         mock_annotation.type = AnnotationType.mask
         mock_annotation.image = np.array([[1, 1], [0, 0]])
         self.mock_media_item.annotations = [mock_annotation]
+        output_signature = (
+            tf.TensorSpec(shape=(None, None), dtype=tf.int32),
+            tf.TensorSpec(shape=(None, None), dtype=tf.int32),
+        )
 
         dm_tf_dataset = DmTfDataset(
             dataset=self.mock_dataset,
             subset="subset",
             task="segmentation",
-            output_signature=self.output_signature,
+            output_signature=output_signature,
         )
         tf_dataset = dm_tf_dataset.create_tf_dataset()
-
         self.assertIsInstance(tf_dataset, tf.data.Dataset)
+
+        for item in tf_dataset:
+            self.assertIsInstance(item[0], tf.Tensor)
+            self.assertIsInstance(item[1], tf.Tensor)
 
     @skipIf(not TF_AVAILABLE, reason="Tensorflow is not installed")
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
