@@ -6,11 +6,11 @@ from typing import Callable, Optional
 
 import numpy as np
 
-from datumaro.components.annotation import Bbox, Label, Mask, Polygon
-from datumaro.components.dataset_storage import DatasetStorage
+from datumaro.components.annotation import AnnotationType
+from datumaro.components.dataset import Dataset
 
 
-class DataConverterFactory:
+class FrameworkConverterFactory:
     @staticmethod
     def create_converter(framework):
         if framework == "torch":
@@ -29,14 +29,14 @@ class DataConverterFactory:
             raise ValueError("Unsupported framework")
 
 
-class MultiFrameworkDataset:
+class FrameworkConverter:
     def __init__(self, dataset, subset, task):
         self._dataset = dataset
         self._subset = subset
         self._task = task
 
     def to_framework(self, framework, **kwargs):
-        converter_cls = DataConverterFactory.create_converter(framework)
+        converter_cls = FrameworkConverterFactory.create_converter(framework)
         return converter_cls(
             dataset=self._dataset,
             subset=self._subset,
@@ -51,7 +51,7 @@ try:
     class DmTorchDataset(torch.utils.data.Dataset):
         def __init__(
             self,
-            dataset: DatasetStorage,
+            dataset: Dataset,
             subset: str,
             task: str,
             transform: Optional[Callable] = None,
@@ -80,14 +80,16 @@ try:
 
             label = []
             for ann in dataitem.annotations:
-                if self.task == "classification" and isinstance(ann, Label):
+                if self.task == "classification" and ann.type == AnnotationType.label:
                     label = ann.label
-                elif self.task == "detection" and isinstance(ann, Bbox):
+                    break
+                elif self.task == "detection" and ann.type == AnnotationType.bbox:
                     label.append(ann.as_dict())
-                elif self.task == "segmentation" and isinstance(ann, Polygon):
+                elif self.task == "segmentation" and ann.type == AnnotationType.polygon:
                     label.append(ann.as_dict())
-                elif self.task == "segmentation" and isinstance(ann, Mask):
+                elif self.task == "segmentation" and ann.type == AnnotationType.mask:
                     label = ann.image
+                    break
 
             if self.transform:
                 image = self.transform(image)
@@ -110,7 +112,7 @@ try:
     class DmTfDataset:
         def __init__(
             self,
-            dataset: DatasetStorage,
+            dataset: Dataset,
             subset: str,
             task: str,
             output_signature: Optional[tuple] = None,
@@ -122,19 +124,17 @@ try:
         def generator_wrapper(self):
             for item in self.dataset:
                 image = item.media.data
-                # if len(image.shape) == 2:
-                #     image = np.expand_dims(image, axis=-1)
 
                 label = []
                 for ann in item.annotations:
-                    if self.task == "classification" and isinstance(ann, Label):
+                    if self.task == "classification" and ann.type == AnnotationType.label:
                         label = ann.label
                         break
-                    elif self.task == "detection" and isinstance(ann, Bbox):
+                    elif self.task == "detection" and ann.type == AnnotationType.bbox:
                         label.append(ann.as_dict())
-                    elif self.task == "segmentation" and isinstance(ann, Polygon):
+                    elif self.task == "segmentation" and ann.type == AnnotationType.polygon:
                         label.append(ann.as_dict())
-                    elif self.task == "segmentation" and isinstance(ann, Mask):
+                    elif self.task == "segmentation" and ann.type == AnnotationType.mask:
                         label = ann.image
                         break
 
