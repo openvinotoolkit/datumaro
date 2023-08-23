@@ -9,6 +9,13 @@ import numpy as np
 from datumaro.components.annotation import AnnotationType
 from datumaro.components.dataset import Dataset
 
+TASK_ANN_TYPE = {
+    "classification": AnnotationType.label,
+    "detection": AnnotationType.bbox,
+    "instance_segmentation": AnnotationType.polygon,
+    "semantic_segmentation": AnnotationType.mask,
+}
+
 
 class FrameworkConverterFactory:
     @staticmethod
@@ -48,6 +55,14 @@ class FrameworkConverter:
 try:
     import torch
 
+except ImportError:
+
+    class DmTorchDataset:
+        def __init__(self):
+            raise ImportError("PyTorch package not found. Cannot convert to PyTorch dataset.")
+
+else:
+
     class DmTorchDataset(torch.utils.data.Dataset):
         def __init__(
             self,
@@ -66,7 +81,7 @@ try:
             for item in self.dataset:
                 self._ids.append(item.id)
 
-        def __len__(self):
+        def __len__(self) -> int:
             return len(self.dataset)
 
         def __getitem__(self, idx):
@@ -78,18 +93,24 @@ try:
             if len(image.shape) == 2:
                 image = np.expand_dims(image, axis=-1)
 
-            label = []
-            for ann in dataitem.annotations:
-                if self.task == "classification" and ann.type == AnnotationType.label:
-                    label = ann.label
-                    break
-                elif self.task == "detection" and ann.type == AnnotationType.bbox:
-                    label.append(ann.as_dict())
-                elif self.task == "segmentation" and ann.type == AnnotationType.polygon:
-                    label.append(ann.as_dict())
-                elif self.task == "segmentation" and ann.type == AnnotationType.mask:
-                    label = ann.image
-                    break
+            if self.task == "classification":
+                label = [
+                    ann.label
+                    for ann in dataitem.annotations
+                    if ann.type == TASK_ANN_TYPE[self.task]
+                ][0]
+            elif self.task in ["detection", "instance_segmentation"]:
+                label = [
+                    ann.as_dict()
+                    for ann in dataitem.annotations
+                    if ann.type == TASK_ANN_TYPE[self.task]
+                ]
+            elif self.task == "semantic_segmentation":
+                label = [
+                    ann.image
+                    for ann in dataitem.annotations
+                    if ann.type == TASK_ANN_TYPE[self.task]
+                ][0]
 
             if self.transform:
                 image = self.transform(image)
@@ -99,15 +120,17 @@ try:
 
             return image, label
 
-except ImportError:
-
-    class DmTorchDataset:
-        def __init__(self):
-            raise ImportError("PyTorch package not found. Cannot convert to PyTorch dataset.")
-
 
 try:
     import tensorflow as tf
+
+except ImportError:
+
+    class DmTfDataset:
+        def __init__(self):
+            raise ImportError("Tensorflow package not found. Cannot convert to Tensorflow dataset.")
+
+else:
 
     class DmTfDataset:
         def __init__(
@@ -125,35 +148,41 @@ try:
             for item in self.dataset:
                 image = item.media.data
 
-                if self.task in ["detection", "segmentation"] and isinstance(
+                if self.task == "classification":
+                    label = [
+                        ann.label
+                        for ann in item.annotations
+                        if ann.type == TASK_ANN_TYPE[self.task]
+                    ][0]
+                elif self.task in ["detection", "instance_segmentation"] and isinstance(
                     self.output_signature[1], dict
                 ):
                     label = {}
                     for key, spec in self.output_signature[1].items():
                         label[key] = tf.convert_to_tensor(
-                            [ann.as_dict().get(spec.name, None) for ann in item.annotations]
+                            [
+                                ann.as_dict().get(spec.name, None)
+                                for ann in item.annotations
+                                if ann.type == TASK_ANN_TYPE[self.task]
+                            ]
                         )
-                elif self.task == "classification":
-                    label = item.annotations[0].label
-                elif self.task == "segmentation":
-                    label = item.annotations[0].image
+                elif self.task == "semantic_segmentation":
+                    label = [
+                        ann.image
+                        for ann in item.annotations
+                        if ann.type == TASK_ANN_TYPE[self.task]
+                    ][0]
 
                 yield image, label
 
-        def create_tf_dataset(self):
+        def create_tf_dataset(self) -> tf.data.Dataset:
             tf_dataset = tf.data.Dataset.from_generator(
                 self.generator_wrapper, output_signature=self.output_signature
             )
             return tf_dataset
 
-        def repeat(self, count=None):
+        def repeat(self, count=None) -> tf.data.Dataset:
             return self.create_tf_dataset().repeat(count)
 
-        def batch(self, batch_size, drop_remainder=False):
+        def batch(self, batch_size, drop_remainder=False) -> tf.data.Dataset:
             return self.create_tf_dataset().batch(batch_size, drop_remainder=drop_remainder)
-
-except ImportError:
-
-    class DmTfDataset:
-        def __init__(self):
-            raise ImportError("Tensorflow package not found. Cannot convert to Tensorflow dataset.")
