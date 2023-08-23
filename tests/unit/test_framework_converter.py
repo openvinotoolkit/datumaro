@@ -262,6 +262,7 @@ class MultiframeworkConverterTest:
                 framework="torch", transform=transform
             )
 
+            assert len(torch_dataset) == len(dm_torch_dataset)
             for torch_item, dm_item in zip(torch_dataset, dm_torch_dataset):
                 assert torch.equal(torch_item[0], dm_item[0])
                 assert torch_item[1] == dm_item[1]
@@ -375,7 +376,7 @@ class MultiframeworkConverterTest:
 
         expected_dataset = fxt_dataset.get_subset(fxt_subset)
 
-        for exp_item, tf_item in zip(expected_dataset, dm_tf_dataset.create_tf_dataset()):
+        for exp_item, tf_item in zip(expected_dataset, dm_tf_dataset.create()):
             image = exp_item.media.data
             if fxt_task == "classification":
                 label = exp_item.annotations[0].label
@@ -411,6 +412,50 @@ class MultiframeworkConverterTest:
 
             elif fxt_task == "semantic_segmentation":
                 assert np.array_equal(label, tf_item[1])
+
+    @pytest.mark.skipif(not TF_AVAILABLE, reason="Tensorflow is not installed")
+    def test_tf_dataset_repeat(self, fxt_dataset: Dataset):
+        output_signature = (
+            tf.TensorSpec(shape=(None, None, None), dtype=tf.int32),
+            tf.TensorSpec(shape=(), dtype=tf.int32),
+        )
+
+        dm_tf_dataset = DmTfDataset(
+            dataset=fxt_dataset,
+            subset="train",
+            task="classification",
+            output_signature=output_signature,
+        )
+        original_dataset = dm_tf_dataset.create()
+        repeated_dataset = dm_tf_dataset.repeat(count=5)
+
+        n_dataset = len(list(original_dataset))
+
+        for idx, item in enumerate(repeated_dataset):
+            assert np.array_equal(item[0], list(original_dataset)[idx % n_dataset][0])
+            assert np.array_equal(item[1], list(original_dataset)[idx % n_dataset][1])
+
+    @pytest.mark.skipif(not TF_AVAILABLE, reason="Tensorflow is not installed")
+    def test_tf_dataset_batch(self, fxt_dataset: Dataset):
+        output_signature = (
+            tf.TensorSpec(shape=(None, None, None), dtype=tf.int32),
+            tf.TensorSpec(shape=(None, None), dtype=tf.int32),
+        )
+
+        dm_tf_dataset = DmTfDataset(
+            dataset=fxt_dataset,
+            subset="val",
+            task="semantic_segmentation",
+            output_signature=output_signature,
+        )
+        original_dataset = dm_tf_dataset.create()
+        batched_dataset = dm_tf_dataset.batch(batch_size=2)
+
+        for idx, item in enumerate(batched_dataset):
+            assert np.array_equal(item[0][0], list(original_dataset)[idx][0])
+            assert np.array_equal(item[0][1], list(original_dataset)[idx + 1][0])
+            assert np.array_equal(item[1][0], list(original_dataset)[idx][1])
+            assert np.array_equal(item[1][1], list(original_dataset)[idx + 1][1])
 
     @pytest.mark.skipif(not TF_AVAILABLE, reason="Tensorflow is not installed")
     def test_can_convert_tf_framework_classification(self):
@@ -700,7 +745,7 @@ class MultiframeworkConverterTest:
 #         task="classification",
 #         output_signature=output_signature,
 #     )
-#     tf_dataset = dm_tf_dataset.create_tf_dataset()
+#     tf_dataset = dm_tf_dataset.create()
 #     self.assertIsInstance(tf_dataset, tf.data.Dataset)
 
 #     for item in tf_dataset:
@@ -729,7 +774,7 @@ class MultiframeworkConverterTest:
 #         task="detection",
 #         output_signature=output_signature,
 #     )
-#     tf_dataset = dm_tf_dataset.create_tf_dataset()
+#     tf_dataset = dm_tf_dataset.create()
 #     self.assertIsInstance(tf_dataset, tf.data.Dataset)
 
 #     for item in tf_dataset:
@@ -762,7 +807,7 @@ class MultiframeworkConverterTest:
 #         task="segmentation",
 #         output_signature=output_signature,
 #     )
-#     tf_dataset = dm_tf_dataset.create_tf_dataset()
+#     tf_dataset = dm_tf_dataset.create()
 #     self.assertIsInstance(tf_dataset, tf.data.Dataset)
 
 #     for item in tf_dataset:
@@ -789,7 +834,7 @@ class MultiframeworkConverterTest:
 #         task="segmentation",
 #         output_signature=output_signature,
 #     )
-#     tf_dataset = dm_tf_dataset.create_tf_dataset()
+#     tf_dataset = dm_tf_dataset.create()
 #     self.assertIsInstance(tf_dataset, tf.data.Dataset)
 
 #     for item in tf_dataset:

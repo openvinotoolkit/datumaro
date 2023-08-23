@@ -21,17 +21,9 @@ class FrameworkConverterFactory:
     @staticmethod
     def create_converter(framework):
         if framework == "torch":
-            try:
-                return DmTorchDataset
-            except ImportError:
-                raise ImportError("PyTorch package not found. Cannot convert to PyTorch dataset.")
+            return DmTorchDataset
         elif framework == "tf":
-            try:
-                return DmTfDataset
-            except ImportError:
-                raise ImportError(
-                    "Tensorflow package not found. Cannot convert to Tensorflow dataset."
-                )
+            return DmTfDataset
         else:
             raise ValueError("Unsupported framework")
 
@@ -165,17 +157,17 @@ try:
 
                 yield image, label
 
-        def create_tf_dataset(self) -> tf.data.Dataset:
+        def create(self) -> tf.data.Dataset:
             tf_dataset = tf.data.Dataset.from_generator(
                 self.generator_wrapper, output_signature=self.output_signature
             )
             return tf_dataset
 
         def repeat(self, count=None) -> tf.data.Dataset:
-            return self.create_tf_dataset().repeat(count)
+            return self.create().repeat(count)
 
         def batch(self, batch_size, drop_remainder=False) -> tf.data.Dataset:
-            return self.create_tf_dataset().batch(batch_size, drop_remainder=drop_remainder)
+            return self.create().batch(batch_size, drop_remainder=drop_remainder)
 
 except ImportError:
 
