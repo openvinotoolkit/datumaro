@@ -178,7 +178,7 @@ class MultiframeworkConverterTest:
                 {},
             ),
             (
-                "train",
+                "val",
                 "semantic_segmentation",
                 {"transform": None, "target_transform": None},
             ),
