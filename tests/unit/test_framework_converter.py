@@ -414,6 +414,72 @@ class MultiframeworkConverterTest:
                 assert np.array_equal(label, tf_item[1])
 
     @pytest.mark.skipif(not TF_AVAILABLE, reason="Tensorflow is not installed")
+    @pytest.mark.parametrize(
+        "fxt_subset,fxt_task,fxt_signature",
+        [
+            (
+                "val",
+                "classification",
+                (
+                    tf.TensorSpec(shape=(None, None, None), dtype=tf.int32),
+                    tf.TensorSpec(shape=(), dtype=tf.int32),
+                ),
+            ),
+            (
+                "train",
+                "detection",
+                (
+                    tf.TensorSpec(shape=(None, None, None), dtype=tf.int32),
+                    {
+                        "bbox": tf.TensorSpec(shape=(None, 4), dtype=tf.float32, name="points"),
+                        "category_id": tf.TensorSpec(shape=(None,), dtype=tf.int32, name="label"),
+                    },
+                ),
+            ),
+            (
+                "val",
+                "instance_segmentation",
+                (
+                    tf.TensorSpec(shape=(None, None, None), dtype=tf.int32),
+                    {
+                        "polygon": tf.TensorSpec(
+                            shape=(None, None), dtype=tf.float32, name="points"
+                        ),
+                        "category_id": tf.TensorSpec(shape=(None,), dtype=tf.int32, name="label"),
+                    },
+                ),
+            ),
+            (
+                "train",
+                "semantic_segmentation",
+                (
+                    tf.TensorSpec(shape=(None, None, None), dtype=tf.int32),
+                    tf.TensorSpec(shape=(None, None), dtype=tf.int32),
+                ),
+            ),
+        ],
+    )
+    def test_tf_generator_wrapper(
+        self, fxt_dataset: Dataset, fxt_subset: str, fxt_task: str, fxt_signature
+    ):
+        dm_tf_dataset = DmTfDataset(
+            dataset=fxt_dataset, subset=fxt_subset, task=fxt_task, output_signature=fxt_signature
+        )
+
+        for image, label in dm_tf_dataset.generator_wrapper():
+            assert isinstance(image, np.ndarray)
+            assert len(image.shape) == len(fxt_signature[0].shape)
+            if fxt_task == "classification":
+                assert isinstance(label, int)
+            if fxt_task in ["detection", "instance_segmentation"]:
+                assert isinstance(label, dict)
+                for key, val in fxt_signature[1].items():
+                    assert len(label[key].shape) == len(val.shape)
+            if fxt_task == "semantic_segmentation":
+                assert isinstance(label, np.ndarray)
+                assert len(label.shape) == len(fxt_signature[1].shape)
+
+    @pytest.mark.skipif(not TF_AVAILABLE, reason="Tensorflow is not installed")
     def test_tf_dataset_repeat(self, fxt_dataset: Dataset):
         output_signature = (
             tf.TensorSpec(shape=(None, None, None), dtype=tf.int32),
