@@ -12,7 +12,6 @@ import numpy as np
 import pytest
 
 from datumaro.components.annotation import (
-    Annotation,
     AnnotationType,
     Bbox,
     Label,
@@ -148,7 +147,7 @@ class FrameworkConverterFactoryTest(TestCase):
 
 @mark_requirement(Requirements.DATUM_GENERAL_REQ)
 class MultiframeworkConverterTest:
-    @pytest.mark.skipIf(not TORCH_AVAILABLE, reason="PyTorch is not installed")
+    @pytest.mark.skipif(not TORCH_AVAILABLE, reason="PyTorch is not installed")
     @pytest.mark.parametrize(
         "fxt_subset,fxt_task,fxt_convert_kwargs",
         [
@@ -237,7 +236,7 @@ class MultiframeworkConverterTest:
             else:
                 assert np.array_equal(label, dm_torch_item[1])
 
-    @pytest.mark.skipIf(not TORCH_AVAILABLE, reason="PyTorch is not installed")
+    @pytest.mark.skipif(not TORCH_AVAILABLE, reason="PyTorch is not installed")
     def test_can_convert_torch_framework_classification(self):
         transform = transforms.Compose(
             [
@@ -267,7 +266,7 @@ class MultiframeworkConverterTest:
                 assert torch.equal(torch_item[0], dm_item[0])
                 assert torch_item[1] == dm_item[1]
 
-    @pytest.mark.skipIf(not TORCH_AVAILABLE, reason="PyTorch is not installed")
+    @pytest.mark.skipif(not TORCH_AVAILABLE, reason="PyTorch is not installed")
     def test_can_convert_torch_framework_detection(self):
         DUMMY_DATASET_DIR = get_test_asset_path("coco_dataset")
         format = "coco_instances"
@@ -304,7 +303,7 @@ class MultiframeworkConverterTest:
                 assert torch_ann["bbox"] == [x1, y1, x2 - x1, y2 - y1]
                 assert torch_ann["iscrowd"] == dm_ann["attributes"]["is_crowd"]
 
-    @pytest.mark.skipIf(not TF_AVAILABLE, reason="Tensorflow is not installed")
+    @pytest.mark.skipif(not TF_AVAILABLE, reason="Tensorflow is not installed")
     @pytest.mark.parametrize(
         "fxt_subset,fxt_task,fxt_convert_kwargs",
         [
@@ -413,7 +412,7 @@ class MultiframeworkConverterTest:
             elif fxt_task == "semantic_segmentation":
                 assert np.array_equal(label, tf_item[1])
 
-    @pytest.mark.skipIf(not TF_AVAILABLE, reason="Tensorflow is not installed")
+    @pytest.mark.skipif(not TF_AVAILABLE, reason="Tensorflow is not installed")
     def test_can_convert_tf_framework_classification(self):
         output_signature = (
             tf.TensorSpec(shape=(28, 28), dtype=tf.uint8),  # Modify shape and dtype accordingly
@@ -444,14 +443,14 @@ class MultiframeworkConverterTest:
                 assert tf.reduce_all(tf_item[0] == dm_item[0])
                 assert tf.reduce_all(tf_item[1] == dm_item[1])
 
-    @pytest.mark.skipIf(TORCH_AVAILABLE, reason="PyTorch is installed")
-    def test_tf_dataset_import(self):
-        with self.assertRaises(ImportError):
+    @pytest.mark.skipif(TORCH_AVAILABLE, reason="PyTorch is installed")
+    def test_torch_dataset_import(self):
+        with pytest.raises(ImportError):
             from datumaro.plugins.framework_converter import DmTorchDataset
 
-    @pytest.mark.skipIf(TF_AVAILABLE, reason="Tensorflow is installed")
+    @pytest.mark.skipif(TF_AVAILABLE, reason="Tensorflow is installed")
     def test_tf_dataset_import(self):
-        with self.assertRaises(ImportError):
+        with pytest.raises(ImportError):
             from datumaro.plugins.framework_converter import DmTfDataset
 
 

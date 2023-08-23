@@ -55,14 +55,6 @@ class FrameworkConverter:
 try:
     import torch
 
-except ImportError:
-
-    class DmTorchDataset:
-        def __init__(self):
-            raise ImportError("PyTorch package not found. Cannot convert to PyTorch dataset.")
-
-else:
-
     class DmTorchDataset(torch.utils.data.Dataset):
         def __init__(
             self,
@@ -120,17 +112,15 @@ else:
 
             return image, label
 
+except ImportError:
+
+    class DmTorchDataset:
+        def __init__(self):
+            raise ImportError("PyTorch package not found. Cannot convert to PyTorch dataset.")
+
 
 try:
     import tensorflow as tf
-
-except ImportError:
-
-    class DmTfDataset:
-        def __init__(self):
-            raise ImportError("Tensorflow package not found. Cannot convert to Tensorflow dataset.")
-
-else:
 
     class DmTfDataset:
         def __init__(
@@ -186,3 +176,9 @@ else:
 
         def batch(self, batch_size, drop_remainder=False) -> tf.data.Dataset:
             return self.create_tf_dataset().batch(batch_size, drop_remainder=drop_remainder)
+
+except ImportError:
+
+    class DmTfDataset:
+        def __init__(self):
+            raise ImportError("Tensorflow package not found. Cannot convert to Tensorflow dataset.")
