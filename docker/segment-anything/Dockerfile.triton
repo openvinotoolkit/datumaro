@@ -1,0 +1,12 @@
+FROM nvcr.io/nvidia/tritonserver:23.07-py3 AS nvidia-triton
+
+ADD triton/sam_encoder /models/sam_encoder
+ADD triton/sam_decoder /models/sam_decoder
+
+RUN mkdir -p /models/sam_encoder/1
+RUN mkdir -p /models/sam_decoder/1
+
+COPY --from=onnx-exporter /ws/output/encoder.onnx /models/sam_encoder/1/model.onnx
+COPY --from=onnx-exporter /ws/output/decoder.onnx /models/sam_decoder/1/model.onnx
+
+ENTRYPOINT [ "tritonserver", "--model-repository=/models" ]

@@ -1,0 +1,45 @@
+ARG model_type
+
+FROM pytorch/pytorch:1.13.1-cuda11.6-cudnn8-runtime AS onnx-exporter-base
+
+ARG http_proxy
+ARG https_proxy
+ARG no_proxy
+
+RUN apt update && apt install -y git curl && \
+    rm -rf /var/lib/apt/lists/*
+
+RUN pip install opencv-python pycocotools matplotlib onnxruntime onnx
+
+WORKDIR /ws
+RUN mkdir -p /ws/output
+RUN git clone https://github.com/facebookresearch/segment-anything.git
+
+WORKDIR /ws/segment-anything
+RUN pip install -e .
+
+# From https://github.com/facebookresearch/segment-anything/tree/main#model-checkpoints
+# vit_h: https://dl.fbaipublicfiles.com/segment_anything/sam_vit_h_4b8939.pth
+# vit_l: https://dl.fbaipublicfiles.com/segment_anything/sam_vit_l_0b3195.pth
+# vit_b: https://dl.fbaipublicfiles.com/segment_anything/sam_vit_b_01ec64.pth
+
+FROM onnx-exporter-base AS onnx-exporter-vit_h
+
+RUN curl -o ckpt.pth https://dl.fbaipublicfiles.com/segment_anything/sam_vit_h_4b8939.pth
+
+FROM onnx-exporter-base AS onnx-exporter-vit_l
+
+RUN curl -o ckpt.pth https://dl.fbaipublicfiles.com/segment_anything/sam_vit_l_0b3195.pth
+
+FROM onnx-exporter-base AS onnx-exporter-vit_b
+
+RUN curl -o ckpt.pth https://dl.fbaipublicfiles.com/segment_anything/sam_vit_b_01ec64.pth
+
+FROM onnx-exporter-${model_type} AS onnx-exporter-final
+ARG model_type
+ARG quantize_out
+
+RUN python scripts/export_onnx_model.py --checkpoint ckpt.pth --model-type ${model_type} --return-single-mask --output /ws/output/decoder.onnx
+
+COPY export_onnx_encoder.py scripts/
+RUN python scripts/export_onnx_encoder.py --checkpoint ckpt.pth --model-type ${model_type} --output /ws/output/encoder.onnx
