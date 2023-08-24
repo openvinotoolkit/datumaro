@@ -11,6 +11,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   (<https://github.com/openvinotoolkit/datumaro/pull/1089>)
 - Support video annotation import/export
   (<https://github.com/openvinotoolkit/datumaro/pull/1124>)
+- Add SAM Triton server Docker image builder
+  (<https://github.com/openvinotoolkit/datumaro/pull/1129>)
 
 ### Enhancements
 - Remove xfail marks from the convert integration tests
