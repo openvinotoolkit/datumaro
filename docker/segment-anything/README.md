@@ -33,6 +33,7 @@ It is not supported for now.
     cd docker/segment-anything
     ./build_triton.sh
     ```
+3. It will create a Docker image to your local repository, which is named as `segment-anything-triton-server:<MODEL_TYPE>`.
 
 ## Launch model server instances
 
