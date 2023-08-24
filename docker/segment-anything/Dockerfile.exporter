@@ -37,7 +37,6 @@ RUN curl -o ckpt.pth https://dl.fbaipublicfiles.com/segment_anything/sam_vit_b_0
 
 FROM onnx-exporter-${model_type} AS onnx-exporter-final
 ARG model_type
-ARG quantize_out
 
 RUN python scripts/export_onnx_model.py --checkpoint ckpt.pth --model-type ${model_type} --return-single-mask --output /ws/output/decoder.onnx
 
