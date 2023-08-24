@@ -2,6 +2,7 @@
 #
 # SPDX-License-Identifier: MIT
 
+import logging as log
 from typing import Callable, Optional
 
 import numpy as np
@@ -11,6 +12,7 @@ from datumaro.components.dataset import Dataset
 
 TASK_ANN_TYPE = {
     "classification": AnnotationType.label,
+    "multilabel_classification": AnnotationType.label,
     "detection": AnnotationType.bbox,
     "instance_segmentation": AnnotationType.polygon,
     "semantic_segmentation": AnnotationType.mask,
@@ -61,16 +63,14 @@ try:
             self.task = task
             self.transform = transform
             self.target_transform = target_transform
-            self._ids = []
-            for item in self.dataset:
-                self._ids.append(item.id)
+            self._ids = [item.id for item in self.dataset]
 
         def __len__(self) -> int:
             return len(self.dataset)
 
         def __getitem__(self, idx):
-            dataitem = self.dataset.get(id=self._ids[idx], subset=self.subset)
-            image = dataitem.media.data
+            item = self.dataset.get(id=self._ids[idx], subset=self.subset)
+            image = item.media.data
             if image.dtype == np.uint8 or image.max() > 1:
                 image = image.astype(np.float32) / 255
 
@@ -79,22 +79,32 @@ try:
 
             if self.task == "classification":
                 label = [
-                    ann.label
-                    for ann in dataitem.annotations
-                    if ann.type == TASK_ANN_TYPE[self.task]
-                ][0]
+                    ann.label for ann in item.annotations if ann.type == TASK_ANN_TYPE[self.task]
+                ]
+                if len(label) > 1:
+                    log.warning(
+                        "Item %s has multiple labels and we choose the first one by default. "
+                        "Please choose task=multilabel_classification for allowing this",
+                        item.id,
+                    )
+                label = label[0]
+            elif self.task == "multilabel_classification":
+                label = [
+                    ann.label for ann in item.annotations if ann.type == TASK_ANN_TYPE[self.task]
+                ]
             elif self.task in ["detection", "instance_segmentation"]:
                 label = [
                     ann.as_dict()
-                    for ann in dataitem.annotations
+                    for ann in item.annotations
                     if ann.type == TASK_ANN_TYPE[self.task]
                 ]
             elif self.task == "semantic_segmentation":
-                label = [
-                    ann.image
-                    for ann in dataitem.annotations
+                masks = [
+                    ann.as_class_mask()
+                    for ann in item.annotations
                     if ann.type == TASK_ANN_TYPE[self.task]
-                ][0]
+                ]
+                label = np.sum(masks, axis=0, dtype=np.uint8)
 
             if self.transform:
                 image = self.transform(image)
@@ -135,7 +145,20 @@ try:
                         ann.label
                         for ann in item.annotations
                         if ann.type == TASK_ANN_TYPE[self.task]
-                    ][0]
+                    ]
+                    if len(label) > 1:
+                        log.warning(
+                            "Item %s has multiple labels and we choose the first one. "
+                            "Please choose task=multilabel_classification for allowing this",
+                            item.id,
+                        )
+                    label = label[0]
+                elif self.task == "multilabel_classification":
+                    label = [
+                        ann.label
+                        for ann in item.annotations
+                        if ann.type == TASK_ANN_TYPE[self.task]
+                    ]
                 elif self.task in ["detection", "instance_segmentation"] and isinstance(
                     self.output_signature[1], dict
                 ):
@@ -149,11 +172,12 @@ try:
                             ]
                         )
                 elif self.task == "semantic_segmentation":
-                    label = [
-                        ann.image
+                    masks = [
+                        ann.as_class_mask()
                         for ann in item.annotations
                         if ann.type == TASK_ANN_TYPE[self.task]
-                    ][0]
+                    ]
+                    label = np.sum(masks, axis=0, dtype=np.uint8)
 
                 yield image, label
 

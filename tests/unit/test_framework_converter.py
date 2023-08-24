@@ -6,7 +6,6 @@ import os.path as osp
 import tempfile
 from typing import Any, Dict
 from unittest import TestCase, skipIf
-from unittest.mock import Mock, patch
 
 import numpy as np
 import pytest
@@ -60,6 +59,8 @@ def fxt_dataset():
                 subset="train",
                 annotations=[
                     Label(0),
+                    Label(1),
+                    Label(2),
                     Bbox(0, 0, 2, 2, label=0, attributes={"occluded": True}),
                     Bbox(2, 2, 4, 4, label=1, attributes={"occluded": False}),
                     Polygon([0, 0, 0, 2, 2, 2, 2, 0], label=0, attributes={"occluded": True}),
@@ -76,11 +77,22 @@ def fxt_dataset():
                 subset="train",
                 annotations=[
                     Label(1),
+                    Label(3),
                     Bbox(1, 1, 2, 2, label=1, attributes={"occluded": True}),
+                    Bbox(0, 0, 1, 1, label=2, attributes={"occluded": False}),
+                    Bbox(2, 2, 4, 4, label=4, attributes={"occluded": True}),
                     Polygon([1, 1, 1, 2, 2, 2, 2, 2], label=1, attributes={"occluded": True}),
                     Mask(
                         image=np.array([[1, 1, 0, 0, 0]] * 5),
                         label=1,
+                    ),
+                    Mask(
+                        image=np.array([[0, 0, 1, 1, 0]] * 5),
+                        label=2,
+                    ),
+                    Mask(
+                        image=np.array([[0, 0, 0, 0, 1]] * 5),
+                        label=3,
                     ),
                 ],
                 media=Image.from_numpy(data=np.ones((5, 5, 3))),
@@ -90,11 +102,18 @@ def fxt_dataset():
                 subset="val",
                 annotations=[
                     Label(2),
-                    Bbox(0, 0, 1, 1, label=2, attributes={"occluded": False}),
+                    Label(3),
+                    Bbox(0, 0, 1, 1, label=1, attributes={"occluded": False}),
+                    Bbox(1, 1, 2, 2, label=2, attributes={"occluded": False}),
+                    Bbox(2, 2, 4, 4, label=3, attributes={"occluded": True}),
                     Polygon([0, 0, 1, 0, 1, 1, 0, 1], label=2, attributes={"occluded": False}),
                     Mask(
                         image=np.array([[0, 1, 0, 0, 0]] * 5),
                         label=2,
+                    ),
+                    Mask(
+                        image=np.array([[0, 0, 0, 0, 1]] * 5),
+                        label=3,
                     ),
                 ],
                 media=Image.from_numpy(data=np.ones((5, 5, 3))),
@@ -109,6 +128,10 @@ def fxt_dataset():
                     Mask(
                         image=np.array([[1, 1, 1, 1, 0]] * 5),
                         label=3,
+                    ),
+                    Mask(
+                        image=np.array([[0, 0, 0, 0, 1]] * 5),
+                        label=2,
                     ),
                 ],
                 media=Image.from_numpy(data=np.ones((5, 5, 3))),
@@ -158,7 +181,7 @@ class MultiframeworkConverterTest:
             ),
             (
                 "val",
-                "classification",
+                "multilabel_classification",
                 {},
             ),
             (
@@ -183,13 +206,8 @@ class MultiframeworkConverterTest:
             ),
             (
                 "train",
-                "classification",
-                {"transform": transforms.ToTensor()},
-            ),
-            (
-                "val",
                 "semantic_segmentation",
-                {"transform": transforms.ToTensor(), "target_transform": transforms.ToTensor()},
+                {"transform": transforms.ToTensor()},
             ),
         ],
     )
@@ -215,6 +233,10 @@ class MultiframeworkConverterTest:
                 label = [
                     ann.label for ann in exp_item.annotations if ann.type == TASK_ANN_TYPE[fxt_task]
                 ][0]
+            elif fxt_task == "multilabel_classification":
+                label = [
+                    ann.label for ann in exp_item.annotations if ann.type == TASK_ANN_TYPE[fxt_task]
+                ]
             elif fxt_task in ["detection", "instance_segmentation"]:
                 label = [
                     ann.as_dict()
@@ -222,9 +244,12 @@ class MultiframeworkConverterTest:
                     if ann.type == TASK_ANN_TYPE[fxt_task]
                 ]
             elif fxt_task == "semantic_segmentation":
-                label = [
-                    ann.image for ann in exp_item.annotations if ann.type == TASK_ANN_TYPE[fxt_task]
-                ][0]
+                masks = [
+                    ann.as_class_mask()
+                    for ann in exp_item.annotations
+                    if ann.type == TASK_ANN_TYPE[fxt_task]
+                ]
+                label = np.sum(masks, axis=0, dtype=np.uint8)
 
             if fxt_convert_kwargs.get("transform", None):
                 assert np.array_equal(image, dm_torch_item[0].reshape(5, 5, 3).numpy())
@@ -320,6 +345,16 @@ class MultiframeworkConverterTest:
             ),
             (
                 "val",
+                "multilabel_classification",
+                {
+                    "output_signature": (
+                        tf.TensorSpec(shape=(None, None, None), dtype=tf.int32),
+                        tf.TensorSpec(shape=(None,), dtype=tf.int32),
+                    )
+                },
+            ),
+            (
+                "train",
                 "detection",
                 {
                     "output_signature": (
@@ -334,7 +369,7 @@ class MultiframeworkConverterTest:
                 },
             ),
             (
-                "train",
+                "val",
                 "instance_segmentation",
                 {
                     "output_signature": (
@@ -351,7 +386,7 @@ class MultiframeworkConverterTest:
                 },
             ),
             (
-                "val",
+                "train",
                 "semantic_segmentation",
                 {
                     "output_signature": (
@@ -380,6 +415,10 @@ class MultiframeworkConverterTest:
             image = exp_item.media.data
             if fxt_task == "classification":
                 label = exp_item.annotations[0].label
+            if fxt_task == "multilabel_classification":
+                label = [
+                    ann.label for ann in exp_item.annotations if ann.type == TASK_ANN_TYPE[fxt_task]
+                ]
             elif fxt_task in ["detection", "instance_segmentation"]:
                 label = [
                     ann.as_dict()
@@ -387,14 +426,20 @@ class MultiframeworkConverterTest:
                     if ann.type == TASK_ANN_TYPE[fxt_task]
                 ]
             elif fxt_task == "semantic_segmentation":
-                label = [
-                    ann.image for ann in exp_item.annotations if ann.type == TASK_ANN_TYPE[fxt_task]
-                ][0]
+                masks = [
+                    ann.as_class_mask()
+                    for ann in exp_item.annotations
+                    if ann.type == TASK_ANN_TYPE[fxt_task]
+                ]
+                label = np.sum(masks, axis=0, dtype=np.uint8)
 
             assert np.array_equal(image, tf_item[0])
 
             if fxt_task == "classification":
                 assert label == tf_item[1]
+
+            if fxt_task == "multilabel_classification":
+                assert np.array_equal(label, tf_item[1])
 
             elif fxt_task == "detection":
                 bboxes = [p["points"] for p in label]
@@ -418,11 +463,19 @@ class MultiframeworkConverterTest:
         "fxt_subset,fxt_task,fxt_signature",
         [
             (
-                "val",
+                "train",
                 "classification",
                 (
                     tf.TensorSpec(shape=(None, None, None), dtype=tf.int32),
                     tf.TensorSpec(shape=(), dtype=tf.int32),
+                ),
+            ),
+            (
+                "val",
+                "multilabel_classification",
+                (
+                    tf.TensorSpec(shape=(None, None, None), dtype=tf.int32),
+                    tf.TensorSpec(shape=(None,), dtype=tf.int32),
                 ),
             ),
             (
@@ -471,6 +524,8 @@ class MultiframeworkConverterTest:
             assert len(image.shape) == len(fxt_signature[0].shape)
             if fxt_task == "classification":
                 assert isinstance(label, int)
+            elif fxt_task == "multilabel_classification":
+                assert isinstance(label, list)
             if fxt_task in ["detection", "instance_segmentation"]:
                 assert isinstance(label, dict)
                 for key, val in fxt_signature[1].items():
