@@ -72,3 +72,7 @@ Execute the following command in your shell to launch the inference server:
 # MODEL_TYPE := "vit_h", "vit_l", or "vit_b"
 docker run --gpus=all -it --shm-size=256m --rm -p8000:8000 -p8001:8001 -p8002:8002 segment-anything-triton-server:<MODEL_TYPE>
 ```
+
+## Can I use the SAM model server I built standalone?
+
+Yes, you can use or test your SAM model server instances. We provide a detailed examples for it in [this notebook example](./test_model_servers.ipynb).
