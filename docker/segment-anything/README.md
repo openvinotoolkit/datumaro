@@ -13,27 +13,38 @@
 
 ### Prerequisite
 
-You should [install Docker](https://docs.docker.com/engine/install/ubuntu/) in your machine.
-In addition, we recommend you to use [Ubuntu](https://ubuntu.com/) since we only provide Linux shell script for the Docker image building.
+1. You should [install Docker](https://docs.docker.com/engine/install/ubuntu/) in your machine.
+    In addition, we recommend you to use [Ubuntu](https://ubuntu.com/) since we only provide Linux shell script for the Docker image building.
 
-### Building Docker image for OpenVINO™ Model Server
-
-It is not supported for now.
-
-### Building Docker image for NVIDIA Triton™ Inference Server
-
-1. At first, clone Datumaro repository to your local:
+2. Clone Datumaro repository to your local:
     ```console
     git clone https://github.com/openvinotoolkit/datumaro
     ```
-2. Then, go to `docker/segment-anything` sub-directory and execute `build_triton.sh` shell script:
+
+3. go to `docker/segment-anything` sub-directory
+    ```console
+    cd docker/segment-anything
+    ```
+
+### Building Docker image for OpenVINO™ Model Server
+
+1. Execute `build_ovms.sh` shell script with `MODEL_TYPE` argument:
     ```console
     # MODEL_TYPE := "vit_h", "vit_l", or "vit_b"
 
-    cd docker/segment-anything
-    ./build_triton.sh
+    ./build_ovms.sh <MODEL_TYPE>
     ```
-3. It will create a Docker image to your local repository, which is named as `segment-anything-triton-server:<MODEL_TYPE>`.
+2. It will create a Docker image to your local repository, which is named as `segment-anything-ovms:<MODEL_TYPE>`.
+
+### Building Docker image for NVIDIA Triton™ Inference Server
+
+1. Execute `build_ovms.sh` shell script with `MODEL_TYPE` argument:
+    ```console
+    # MODEL_TYPE := "vit_h", "vit_l", or "vit_b"
+
+    ./build_triton.sh <MODEL_TYPE>
+    ```
+2. It will create a Docker image to your local repository, which is named as `segment-anything-triton-server:<MODEL_TYPE>`.
 
 ## Launch model server instances
 
@@ -46,7 +57,12 @@ For more details, please see the guide of these model server solutions.
 
 ### Building Docker image for OpenVINO™ Model Server
 
-It is not supported for now.
+Execute the following command in your shell to launch the inference server:
+
+```console
+# MODEL_TYPE := "vit_h", "vit_l", or "vit_b"
+docker run -it --rm -p 9000:9000 segment-anything-ovms:<MODEL_TYPE> --port 9000
+```
 
 ### Building Docker image for NVIDIA Triton™ Inference Server
 
