@@ -46,10 +46,55 @@ class FrameworkConverter:
         )
 
 
+class _MultiFrameworkDataset:
+    def __init__(
+        self,
+        dataset: Dataset,
+        subset: str,
+        task: str,
+    ):
+        self.dataset = dataset.get_subset(subset)
+        self.task = task
+        self.subset = subset
+        self._ids = [item.id for item in self.dataset]
+
+    def __len__(self) -> int:
+        return len(self.dataset)
+
+    def _gen_item(self, idx: int):
+        item = self.dataset.get(id=self._ids[idx], subset=self.subset)
+        image = item.media.data
+
+        if self.task == "classification":
+            label = [ann.label for ann in item.annotations if ann.type == TASK_ANN_TYPE[self.task]]
+            if len(label) > 1:
+                log.warning(
+                    "Item %s has multiple labels and we choose the first one by default. "
+                    "Please choose task=multilabel_classification for allowing this",
+                    item.id,
+                )
+            label = label[0]
+        elif self.task == "multilabel_classification":
+            label = [ann.label for ann in item.annotations if ann.type == TASK_ANN_TYPE[self.task]]
+        elif self.task in ["detection", "instance_segmentation"]:
+            label = [
+                ann.as_dict() for ann in item.annotations if ann.type == TASK_ANN_TYPE[self.task]
+            ]
+        elif self.task == "semantic_segmentation":
+            masks = [
+                ann.as_class_mask()
+                for ann in item.annotations
+                if ann.type == TASK_ANN_TYPE[self.task]
+            ]
+            label = np.sum(masks, axis=0, dtype=np.uint8)
+
+        return image, label
+
+
 try:
     import torch
 
-    class DmTorchDataset(torch.utils.data.Dataset):
+    class DmTorchDataset(_MultiFrameworkDataset, torch.utils.data.Dataset):
         def __init__(
             self,
             dataset: Dataset,
@@ -58,53 +103,19 @@ try:
             transform: Optional[Callable] = None,
             target_transform: Optional[Callable] = None,
         ):
-            self.dataset = dataset.get_subset(subset)
-            self.subset = subset
-            self.task = task
+            super().__init__(dataset=dataset, subset=subset, task=task)
+
             self.transform = transform
             self.target_transform = target_transform
-            self._ids = [item.id for item in self.dataset]
-
-        def __len__(self) -> int:
-            return len(self.dataset)
 
         def __getitem__(self, idx):
-            item = self.dataset.get(id=self._ids[idx], subset=self.subset)
-            image = item.media.data
+            image, label = self._gen_item(idx)
+
             if image.dtype == np.uint8 or image.max() > 1:
                 image = image.astype(np.float32) / 255
 
             if len(image.shape) == 2:
                 image = np.expand_dims(image, axis=-1)
-
-            if self.task == "classification":
-                label = [
-                    ann.label for ann in item.annotations if ann.type == TASK_ANN_TYPE[self.task]
-                ]
-                if len(label) > 1:
-                    log.warning(
-                        "Item %s has multiple labels and we choose the first one by default. "
-                        "Please choose task=multilabel_classification for allowing this",
-                        item.id,
-                    )
-                label = label[0]
-            elif self.task == "multilabel_classification":
-                label = [
-                    ann.label for ann in item.annotations if ann.type == TASK_ANN_TYPE[self.task]
-                ]
-            elif self.task in ["detection", "instance_segmentation"]:
-                label = [
-                    ann.as_dict()
-                    for ann in item.annotations
-                    if ann.type == TASK_ANN_TYPE[self.task]
-                ]
-            elif self.task == "semantic_segmentation":
-                masks = [
-                    ann.as_class_mask()
-                    for ann in item.annotations
-                    if ann.type == TASK_ANN_TYPE[self.task]
-                ]
-                label = np.sum(masks, axis=0, dtype=np.uint8)
 
             if self.transform:
                 image = self.transform(image)
@@ -124,7 +135,7 @@ except ImportError:
 try:
     import tensorflow as tf
 
-    class DmTfDataset:
+    class DmTfDataset(_MultiFrameworkDataset):
         def __init__(
             self,
             dataset: Dataset,
@@ -132,59 +143,37 @@ try:
             task: str,
             output_signature: Optional[tuple] = None,
         ):
-            self.dataset = dataset.get_subset(subset)
-            self.task = task
+            super().__init__(dataset=dataset, subset=subset, task=task)
             self.output_signature = output_signature
 
-        def generator_wrapper(self):
-            for item in self.dataset:
-                image = item.media.data
+        def _get_rawitem(self, item_id):
+            item_id = item_id.numpy() if isinstance(item_id, tf.Tensor) else item_id
+            image, label = self._gen_item(item_id)
 
-                if self.task == "classification":
-                    label = [
-                        ann.label
-                        for ann in item.annotations
-                        if ann.type == TASK_ANN_TYPE[self.task]
-                    ]
-                    if len(label) > 1:
-                        log.warning(
-                            "Item %s has multiple labels and we choose the first one. "
-                            "Please choose task=multilabel_classification for allowing this",
-                            item.id,
-                        )
-                    label = label[0]
-                elif self.task == "multilabel_classification":
-                    label = [
-                        ann.label
-                        for ann in item.annotations
-                        if ann.type == TASK_ANN_TYPE[self.task]
-                    ]
-                elif self.task in ["detection", "instance_segmentation"] and isinstance(
-                    self.output_signature[1], dict
-                ):
-                    label = {}
-                    for key, spec in self.output_signature[1].items():
-                        label[key] = tf.convert_to_tensor(
-                            [
-                                ann.as_dict().get(spec.name, None)
-                                for ann in item.annotations
-                                if ann.type == TASK_ANN_TYPE[self.task]
-                            ]
-                        )
-                elif self.task == "semantic_segmentation":
-                    masks = [
-                        ann.as_class_mask()
-                        for ann in item.annotations
-                        if ann.type == TASK_ANN_TYPE[self.task]
-                    ]
-                    label = np.sum(masks, axis=0, dtype=np.uint8)
+            if len(self.output_signature.keys()) == 2:
+                return image, label
 
-                yield image, label
+            outputs = []
+            for key, spec in self.output_signature.items():
+                if key == "image":
+                    outputs += [image]
+                else:
+                    outputs += [tf.convert_to_tensor([l.get(spec.name, None) for l in label])]
+
+            return outputs
+
+        def _process_item(self, item_id):
+            output_types = [spec.dtype for spec in self.output_signature.values()]
+            outputs = tf.py_function(func=self._get_rawitem, inp=[item_id], Tout=output_types)
+            output_dict = {}
+            for idx, key in enumerate(self.output_signature.keys()):
+                output_dict[key] = outputs[idx]
+
+            return output_dict
 
         def create(self) -> tf.data.Dataset:
-            tf_dataset = tf.data.Dataset.from_generator(
-                self.generator_wrapper, output_signature=self.output_signature
-            )
+            tf_dataset = tf.data.Dataset.range(len(self.dataset)).map(self._process_item)
+            tf_dataset = tf_dataset
             return tf_dataset
 
         def repeat(self, count=None) -> tf.data.Dataset:

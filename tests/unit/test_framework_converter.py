@@ -27,6 +27,7 @@ from datumaro.plugins.framework_converter import (
     DmTorchDataset,
     FrameworkConverter,
     FrameworkConverterFactory,
+    _MultiFrameworkDataset,
 )
 
 from ..requirements import Requirements, mark_requirement
@@ -170,6 +171,48 @@ class FrameworkConverterFactoryTest(TestCase):
 
 @mark_requirement(Requirements.DATUM_GENERAL_REQ)
 class MultiframeworkConverterTest:
+    @pytest.mark.parametrize(
+        "fxt_subset,fxt_task",
+        [
+            (
+                "train",
+                "classification",
+            ),
+            (
+                "val",
+                "multilabel_classification",
+            ),
+            (
+                "train",
+                "detection",
+            ),
+            (
+                "val",
+                "instance_segmentation",
+            ),
+            (
+                "train",
+                "semantic_segmentation",
+            ),
+        ],
+    )
+    def test_multi_framework_dataset(self, fxt_dataset: Dataset, fxt_subset: str, fxt_task: str):
+        dm_multi_framework_dataset = _MultiFrameworkDataset(
+            dataset=fxt_dataset, subset=fxt_subset, task=fxt_task
+        )
+
+        for idx in range(len(dm_multi_framework_dataset)):
+            image, label = dm_multi_framework_dataset._gen_item(idx)
+            assert isinstance(image, np.ndarray)
+            if fxt_task == "classification":
+                assert isinstance(label, int)
+            elif fxt_task == "multilabel_classification":
+                assert isinstance(label, list)
+            if fxt_task in ["detection", "instance_segmentation"]:
+                assert isinstance(label, list)
+            if fxt_task == "semantic_segmentation":
+                assert isinstance(label, np.ndarray)
+
     @pytest.mark.skipif(not TORCH_AVAILABLE, reason="PyTorch is not installed")
     @pytest.mark.parametrize(
         "fxt_subset,fxt_task,fxt_convert_kwargs",
@@ -337,62 +380,54 @@ class MultiframeworkConverterTest:
                 "train",
                 "classification",
                 {
-                    "output_signature": (
-                        tf.TensorSpec(shape=(None, None, None), dtype=tf.int32),
-                        tf.TensorSpec(shape=(), dtype=tf.int32),
-                    )
+                    "output_signature": {
+                        "image": tf.TensorSpec(shape=(None, None, None), dtype=tf.int32),
+                        "label": tf.TensorSpec(shape=(), dtype=tf.int32),
+                    }
                 },
             ),
             (
                 "val",
                 "multilabel_classification",
                 {
-                    "output_signature": (
-                        tf.TensorSpec(shape=(None, None, None), dtype=tf.int32),
-                        tf.TensorSpec(shape=(None,), dtype=tf.int32),
-                    )
+                    "output_signature": {
+                        "image": tf.TensorSpec(shape=(None, None, None), dtype=tf.int32),
+                        "label": tf.TensorSpec(shape=(None,), dtype=tf.int32),
+                    }
                 },
             ),
             (
                 "train",
                 "detection",
                 {
-                    "output_signature": (
-                        tf.TensorSpec(shape=(None, None, None), dtype=tf.int32),
-                        {
-                            "bbox": tf.TensorSpec(shape=(None, 4), dtype=tf.float32, name="points"),
-                            "category_id": tf.TensorSpec(
-                                shape=(None,), dtype=tf.int32, name="label"
-                            ),
-                        },
-                    )
+                    "output_signature": {
+                        "image": tf.TensorSpec(shape=(None, None, None), dtype=tf.int32),
+                        "bbox": tf.TensorSpec(shape=(None, 4), dtype=tf.float32, name="points"),
+                        "category_id": tf.TensorSpec(shape=(None,), dtype=tf.int32, name="label"),
+                    }
                 },
             ),
             (
                 "val",
                 "instance_segmentation",
                 {
-                    "output_signature": (
-                        tf.TensorSpec(shape=(None, None, None), dtype=tf.int32),
-                        {
-                            "polygon": tf.TensorSpec(
-                                shape=(None, None), dtype=tf.float32, name="points"
-                            ),
-                            "category_id": tf.TensorSpec(
-                                shape=(None,), dtype=tf.int32, name="label"
-                            ),
-                        },
-                    )
+                    "output_signature": {
+                        "image": tf.TensorSpec(shape=(None, None, None), dtype=tf.int32),
+                        "polygon": tf.TensorSpec(
+                            shape=(None, None), dtype=tf.float32, name="points"
+                        ),
+                        "category_id": tf.TensorSpec(shape=(None,), dtype=tf.int32, name="label"),
+                    }
                 },
             ),
             (
                 "train",
                 "semantic_segmentation",
                 {
-                    "output_signature": (
-                        tf.TensorSpec(shape=(None, None, None), dtype=tf.int32),
-                        tf.TensorSpec(shape=(None, None), dtype=tf.int32),
-                    )
+                    "output_signature": {
+                        "image": tf.TensorSpec(shape=(None, None, None), dtype=tf.int32),
+                        "label": tf.TensorSpec(shape=(None, None), dtype=tf.int32),
+                    }
                 },
             ),
         ],
@@ -433,113 +468,37 @@ class MultiframeworkConverterTest:
                 ]
                 label = np.sum(masks, axis=0, dtype=np.uint8)
 
-            assert np.array_equal(image, tf_item[0])
+            assert np.array_equal(image, tf_item["image"])
 
             if fxt_task == "classification":
-                assert label == tf_item[1]
+                assert label == tf_item["label"]
 
             if fxt_task == "multilabel_classification":
-                assert np.array_equal(label, tf_item[1])
+                assert np.array_equal(label, tf_item["label"])
 
             elif fxt_task == "detection":
                 bboxes = [p["points"] for p in label]
                 labels = [p["label"] for p in label]
 
-                assert np.array_equal(bboxes, tf_item[1]["bbox"].numpy())
-                assert np.array_equal(labels, tf_item[1]["category_id"].numpy())
+                assert np.array_equal(bboxes, tf_item["bbox"].numpy())
+                assert np.array_equal(labels, tf_item["category_id"].numpy())
 
             elif fxt_task == "instance_segmentation":
                 polygons = [p["points"] for p in label]
                 labels = [p["label"] for p in label]
 
-                assert np.array_equal(polygons, tf_item[1]["polygon"].numpy())
-                assert np.array_equal(labels, tf_item[1]["category_id"].numpy())
+                assert np.array_equal(polygons, tf_item["polygon"].numpy())
+                assert np.array_equal(labels, tf_item["category_id"].numpy())
 
             elif fxt_task == "semantic_segmentation":
-                assert np.array_equal(label, tf_item[1])
-
-    @pytest.mark.skipif(not TF_AVAILABLE, reason="Tensorflow is not installed")
-    @pytest.mark.parametrize(
-        "fxt_subset,fxt_task,fxt_signature",
-        [
-            (
-                "train",
-                "classification",
-                (
-                    tf.TensorSpec(shape=(None, None, None), dtype=tf.int32),
-                    tf.TensorSpec(shape=(), dtype=tf.int32),
-                ),
-            ),
-            (
-                "val",
-                "multilabel_classification",
-                (
-                    tf.TensorSpec(shape=(None, None, None), dtype=tf.int32),
-                    tf.TensorSpec(shape=(None,), dtype=tf.int32),
-                ),
-            ),
-            (
-                "train",
-                "detection",
-                (
-                    tf.TensorSpec(shape=(None, None, None), dtype=tf.int32),
-                    {
-                        "bbox": tf.TensorSpec(shape=(None, 4), dtype=tf.float32, name="points"),
-                        "category_id": tf.TensorSpec(shape=(None,), dtype=tf.int32, name="label"),
-                    },
-                ),
-            ),
-            (
-                "val",
-                "instance_segmentation",
-                (
-                    tf.TensorSpec(shape=(None, None, None), dtype=tf.int32),
-                    {
-                        "polygon": tf.TensorSpec(
-                            shape=(None, None), dtype=tf.float32, name="points"
-                        ),
-                        "category_id": tf.TensorSpec(shape=(None,), dtype=tf.int32, name="label"),
-                    },
-                ),
-            ),
-            (
-                "train",
-                "semantic_segmentation",
-                (
-                    tf.TensorSpec(shape=(None, None, None), dtype=tf.int32),
-                    tf.TensorSpec(shape=(None, None), dtype=tf.int32),
-                ),
-            ),
-        ],
-    )
-    def test_tf_generator_wrapper(
-        self, fxt_dataset: Dataset, fxt_subset: str, fxt_task: str, fxt_signature
-    ):
-        dm_tf_dataset = DmTfDataset(
-            dataset=fxt_dataset, subset=fxt_subset, task=fxt_task, output_signature=fxt_signature
-        )
-
-        for image, label in dm_tf_dataset.generator_wrapper():
-            assert isinstance(image, np.ndarray)
-            assert len(image.shape) == len(fxt_signature[0].shape)
-            if fxt_task == "classification":
-                assert isinstance(label, int)
-            elif fxt_task == "multilabel_classification":
-                assert isinstance(label, list)
-            if fxt_task in ["detection", "instance_segmentation"]:
-                assert isinstance(label, dict)
-                for key, val in fxt_signature[1].items():
-                    assert len(label[key].shape) == len(val.shape)
-            if fxt_task == "semantic_segmentation":
-                assert isinstance(label, np.ndarray)
-                assert len(label.shape) == len(fxt_signature[1].shape)
+                assert np.array_equal(label, tf_item["label"])
 
     @pytest.mark.skipif(not TF_AVAILABLE, reason="Tensorflow is not installed")
     def test_tf_dataset_repeat(self, fxt_dataset: Dataset):
-        output_signature = (
-            tf.TensorSpec(shape=(None, None, None), dtype=tf.int32),
-            tf.TensorSpec(shape=(), dtype=tf.int32),
-        )
+        output_signature = {
+            "image": tf.TensorSpec(shape=(None, None, None), dtype=tf.int32),
+            "label": tf.TensorSpec(shape=(), dtype=tf.int32),
+        }
 
         dm_tf_dataset = DmTfDataset(
             dataset=fxt_dataset,
@@ -553,15 +512,15 @@ class MultiframeworkConverterTest:
         n_dataset = len(list(original_dataset))
 
         for idx, item in enumerate(repeated_dataset):
-            assert np.array_equal(item[0], list(original_dataset)[idx % n_dataset][0])
-            assert np.array_equal(item[1], list(original_dataset)[idx % n_dataset][1])
+            assert np.array_equal(item["image"], list(original_dataset)[idx % n_dataset]["image"])
+            assert np.array_equal(item["label"], list(original_dataset)[idx % n_dataset]["label"])
 
     @pytest.mark.skipif(not TF_AVAILABLE, reason="Tensorflow is not installed")
     def test_tf_dataset_batch(self, fxt_dataset: Dataset):
-        output_signature = (
-            tf.TensorSpec(shape=(None, None, None), dtype=tf.int32),
-            tf.TensorSpec(shape=(None, None), dtype=tf.int32),
-        )
+        output_signature = {
+            "image": tf.TensorSpec(shape=(None, None, None), dtype=tf.int32),
+            "label": tf.TensorSpec(shape=(None, None), dtype=tf.int32),
+        }
 
         dm_tf_dataset = DmTfDataset(
             dataset=fxt_dataset,
@@ -573,17 +532,17 @@ class MultiframeworkConverterTest:
         batched_dataset = dm_tf_dataset.batch(batch_size=2)
 
         for idx, item in enumerate(batched_dataset):
-            assert np.array_equal(item[0][0], list(original_dataset)[idx][0])
-            assert np.array_equal(item[0][1], list(original_dataset)[idx + 1][0])
-            assert np.array_equal(item[1][0], list(original_dataset)[idx][1])
-            assert np.array_equal(item[1][1], list(original_dataset)[idx + 1][1])
+            assert np.array_equal(item["image"][0], list(original_dataset)[idx]["image"])
+            assert np.array_equal(item["image"][1], list(original_dataset)[idx + 1]["image"])
+            assert np.array_equal(item["label"][0], list(original_dataset)[idx]["label"])
+            assert np.array_equal(item["label"][1], list(original_dataset)[idx + 1]["label"])
 
     @pytest.mark.skipif(not TF_AVAILABLE, reason="Tensorflow is not installed")
     def test_can_convert_tf_framework_classification(self):
-        output_signature = (
-            tf.TensorSpec(shape=(28, 28), dtype=tf.uint8),  # Modify shape and dtype accordingly
-            tf.TensorSpec(shape=(), dtype=tf.uint8),
-        )
+        output_signature = {
+            "image": tf.TensorSpec(shape=(28, 28), dtype=tf.uint8),
+            "label": tf.TensorSpec(shape=(), dtype=tf.uint8),
+        }
 
         with tempfile.TemporaryDirectory() as tmp_dir:
             (_, _), (x_test, y_test) = tf.keras.datasets.fashion_mnist.load_data()
@@ -606,8 +565,8 @@ class MultiframeworkConverterTest:
                 tf_dataset.repeat(epoch).batch(batch_size),
                 dm_tf_dataset.repeat(epoch).batch(batch_size),
             ):
-                assert tf.reduce_all(tf_item[0] == dm_item[0])
-                assert tf.reduce_all(tf_item[1] == dm_item[1])
+                assert tf.reduce_all(tf_item[0] == dm_item["image"])
+                assert tf.reduce_all(tf_item[1] == dm_item["label"])
 
     @pytest.mark.skipif(TORCH_AVAILABLE, reason="PyTorch is installed")
     def test_torch_dataset_import(self):
@@ -618,18 +577,3 @@ class MultiframeworkConverterTest:
     def test_tf_dataset_import(self):
         with pytest.raises(ImportError):
             from datumaro.plugins.framework_converter import DmTfDataset
-
-    # def test_torch_dataset_import(self, monkeypatch, fxt_dataset: Dataset):
-    #     # monkeypatch.setattr("datumaro.plugins.framework_converter.torch", None)
-    #     import builtins
-    #     real_import = builtins.__import__
-
-    #     def _patch(name, globals=None, locals=None, fromlist=(), level=0):
-    #         if name == "torch":
-    #             raise ImportError()
-    #         return real_import(name, globals, locals, fromlist, level)
-
-    #     monkeypatch.setattr(builtins, "__import__", _patch)
-
-    #     with pytest.raises(ImportError):
-    #         DmTorchDataset(dataset=fxt_dataset, subset="train", task="classification")
