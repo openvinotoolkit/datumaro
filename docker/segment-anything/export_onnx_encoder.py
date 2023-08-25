@@ -68,5 +68,5 @@ if __name__ == "__main__":
             do_constant_folding=True,
             input_names=list(inputs.keys()),
             output_names=output_names,
-            dynamic_axes=None,
+            dynamic_axes={"img": [2, 3]},
         )
