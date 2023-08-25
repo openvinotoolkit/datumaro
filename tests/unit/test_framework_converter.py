@@ -68,7 +68,7 @@ def fxt_dataset():
                     Polygon([2, 2, 2, 4, 4, 4, 4, 4], label=1, attributes={"occluded": True}),
                     Mask(
                         image=np.array([[0, 0, 0, 1, 1]] * 5),
-                        label=0,
+                        label=1,
                     ),
                 ],
                 media=Image.from_numpy(data=np.ones((5, 5, 3))),
@@ -492,6 +492,126 @@ class MultiframeworkConverterTest:
 
             elif fxt_task == "semantic_segmentation":
                 assert np.array_equal(label, tf_item["label"])
+
+    @pytest.mark.skipif(not TF_AVAILABLE, reason="Tensorflow is not installed")
+    @pytest.mark.parametrize(
+        "fxt_subset,fxt_task,fxt_output_signature",
+        [
+            (
+                "train",
+                "classification",
+                {
+                    "image": tf.TensorSpec(shape=(None, None, None), dtype=tf.int32),
+                    "label": tf.TensorSpec(shape=(), dtype=tf.int32),
+                },
+            ),
+            (
+                "val",
+                "detection",
+                {
+                    "image": tf.TensorSpec(shape=(None, None, None), dtype=tf.int32),
+                    "bbox": tf.TensorSpec(shape=(None, 4), dtype=tf.float32, name="points"),
+                    "category_id": tf.TensorSpec(shape=(None,), dtype=tf.int32, name="label"),
+                },
+            ),
+        ],
+    )
+    def test_tf_get_rawitem(
+        self, fxt_dataset: Dataset, fxt_subset: str, fxt_task: str, fxt_output_signature: dict
+    ):
+        dm_tf_dataset = DmTfDataset(
+            dataset=fxt_dataset,
+            subset=fxt_subset,
+            task=fxt_task,
+            output_signature=fxt_output_signature,
+        )
+
+        expected_dataset = fxt_dataset.get_subset(fxt_subset)
+
+        for idx, exp_item in enumerate(expected_dataset):
+            image = exp_item.media.data
+            if fxt_task == "classification":
+                label = exp_item.annotations[0].label
+            elif fxt_task == "detection":
+                bboxes = [
+                    ann.as_dict()
+                    for ann in exp_item.annotations
+                    if ann.type == TASK_ANN_TYPE[fxt_task]
+                ]
+                label = []
+                for key, spec in fxt_output_signature.items():
+                    if key == "image":
+                        continue
+                    label += [tf.convert_to_tensor([bbox.get(spec.name, None) for bbox in bboxes])]
+
+            tf_item = dm_tf_dataset._get_rawitem(idx)
+
+            assert np.array_equal(image, tf_item[0])
+            if fxt_task == "classification":
+                assert label == tf_item[1]
+            elif fxt_task == "detection":
+                for label_types in range(len(label)):
+                    assert np.array_equal(label[label_types], tf_item[label_types + 1])
+
+    @pytest.mark.skipif(not TF_AVAILABLE, reason="Tensorflow is not installed")
+    @pytest.mark.parametrize(
+        "fxt_subset,fxt_task,fxt_output_signature",
+        [
+            (
+                "train",
+                "classification",
+                {
+                    "image": tf.TensorSpec(shape=(None, None, None), dtype=tf.int32),
+                    "label": tf.TensorSpec(shape=(), dtype=tf.int32),
+                },
+            ),
+            (
+                "val",
+                "detection",
+                {
+                    "image": tf.TensorSpec(shape=(None, None, None), dtype=tf.int32),
+                    "bbox": tf.TensorSpec(shape=(None, 4), dtype=tf.float32, name="points"),
+                    "category_id": tf.TensorSpec(shape=(None,), dtype=tf.int32, name="label"),
+                },
+            ),
+        ],
+    )
+    def test_tf_process_item(
+        self, fxt_dataset: Dataset, fxt_subset: str, fxt_task: str, fxt_output_signature: dict
+    ):
+        dm_tf_dataset = DmTfDataset(
+            dataset=fxt_dataset,
+            subset=fxt_subset,
+            task=fxt_task,
+            output_signature=fxt_output_signature,
+        )
+
+        expected_dataset = fxt_dataset.get_subset(fxt_subset)
+
+        for idx, exp_item in enumerate(expected_dataset):
+            image = exp_item.media.data
+            if fxt_task == "classification":
+                label = exp_item.annotations[0].label
+            elif fxt_task == "detection":
+                bboxes = [
+                    ann.as_dict()
+                    for ann in exp_item.annotations
+                    if ann.type == TASK_ANN_TYPE[fxt_task]
+                ]
+                label = []
+                for key, spec in fxt_output_signature.items():
+                    if key == "image":
+                        continue
+                    label += [tf.convert_to_tensor([bbox.get(spec.name, None) for bbox in bboxes])]
+
+            tf_item = dm_tf_dataset._process_item(idx)
+
+            assert np.array_equal(image, tf_item["image"])
+            if fxt_task == "classification":
+                assert label == tf_item["label"]
+            elif fxt_task == "detection":
+                assert np.array_equal(label[0], tf_item["bbox"])
+                assert np.array_equal(label[1], tf_item["category_id"])
 
     @pytest.mark.skipif(not TF_AVAILABLE, reason="Tensorflow is not installed")
     def test_tf_dataset_repeat(self, fxt_dataset: Dataset):

@@ -7,6 +7,7 @@ from typing import Callable, Optional
 
 import numpy as np
 
+import datumaro.util.mask_tools as mask_tools
 from datumaro.components.annotation import AnnotationType
 from datumaro.components.dataset import Dataset
 
@@ -82,11 +83,11 @@ class _MultiFrameworkDataset:
             ]
         elif self.task == "semantic_segmentation":
             masks = [
-                ann.as_class_mask()
+                (ann.image, ann.label)
                 for ann in item.annotations
                 if ann.type == TASK_ANN_TYPE[self.task]
             ]
-            label = np.sum(masks, axis=0, dtype=np.uint8)
+            label = mask_tools.merge_masks((mask, label_id) for mask, label_id in masks)
 
         return image, label
 
