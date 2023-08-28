@@ -26,8 +26,6 @@ from datumaro.components.importer import ImportContext
 from datumaro.components.media import Image, ImageFromFile
 from datumaro.plugins.data_formats.coco.base import _CocoBase
 from datumaro.plugins.data_formats.coco.format import CocoImporterType, CocoTask
-from datumaro.plugins.data_formats.tf_detection_api.base import TfDetectionApiBase
-from datumaro.plugins.data_formats.tf_detection_api.format import TfrecordImporterType
 from datumaro.plugins.data_formats.voc.base import VocBase
 from datumaro.plugins.data_formats.voc.format import VocImporterType, VocTask
 from datumaro.plugins.data_formats.yolo.base import YoloUltralyticsBase
@@ -321,25 +319,40 @@ class RoboflowMulticlassBase(SubsetBase):
         return items
 
 
-class RoboflowTfrecord(TfDetectionApiBase):
-    def __init__(
-        self,
-        path: str,
-        *,
-        subset: Optional[str] = None,
-        ctx: Optional[ImportContext] = None,
-    ):
-        super().__init__(
-            path=path, subset=subset, tfrecord_importer_type=TfrecordImporterType.roboflow, ctx=ctx
-        )
+try:
+    from datumaro.components.lazy_plugin import extra_deps
+    from datumaro.plugins.data_formats.tf_detection_api.base import TfDetectionApiBase
+    from datumaro.plugins.data_formats.tf_detection_api.format import TfrecordImporterType
 
-    @staticmethod
-    def _parse_labelmap(text):
-        entry_pattern = r'name:\s*"([^"]+)"\s*,\s*id:\s*(\d+)'
-        entry_pattern = re.compile(entry_pattern)
+    @extra_deps("tensorflow")
+    class RoboflowTfrecord(TfDetectionApiBase):
+        def __init__(
+            self,
+            path: str,
+            *,
+            subset: Optional[str] = None,
+            ctx: Optional[ImportContext] = None,
+        ):
+            super().__init__(
+                path=path,
+                subset=subset,
+                tfrecord_importer_type=TfrecordImporterType.roboflow,
+                ctx=ctx,
+            )
 
-        matches = re.findall(entry_pattern, text)
+        @staticmethod
+        def _parse_labelmap(text):
+            entry_pattern = r'name:\s*"([^"]+)"\s*,\s*id:\s*(\d+)'
+            entry_pattern = re.compile(entry_pattern)
 
-        labelmap = {name: int(id) for name, id in matches}
+            matches = re.findall(entry_pattern, text)
 
-        return labelmap
+            labelmap = {name: int(id) for name, id in matches}
+
+            return labelmap
+
+except ImportError:
+
+    class RoboflowTfrecord:
+        def __init__(self):
+            raise ImportError("Tensorflow package not found. Cannot convert to Tensorflow dataset.")
