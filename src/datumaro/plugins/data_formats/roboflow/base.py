@@ -323,7 +323,7 @@ try:
     from datumaro.plugins.data_formats.tf_detection_api.base import TfDetectionApiBase
     from datumaro.plugins.data_formats.tf_detection_api.format import TfrecordImporterType
 
-    class RoboflowTfrecord(TfDetectionApiBase):
+    class RoboflowTfrecordBase(TfDetectionApiBase):
         def __init__(
             self,
             path: str,
@@ -351,6 +351,6 @@ try:
 
 except ImportError:
 
-    class RoboflowTfrecord:
+    class RoboflowTfrecordBase:
         def __init__(self):
             raise ImportError("Tensorflow package not found. Cannot convert to Tensorflow dataset.")

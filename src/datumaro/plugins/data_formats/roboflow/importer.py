@@ -214,13 +214,18 @@ class RoboflowMulticlassImporter(RoboflowCocoImporter):
 
 
 @extra_deps("tensorflow")
-class RoboflowTfrecord(Importer):
+class RoboflowTfrecordImporter(Importer):
     FORMAT = "roboflow_tfrecord"
 
     @classmethod
     def find_sources(cls, path):
+        # sources = cls._find_sources_recursive(path, ".tfrecord", "roboflow_tfrecord")
+        # print(sources)
+        # return sources
         sources = cls._find_sources_recursive(
-            path=path, ext=".tfrecord", extractor_name="roboflow_tfrecord", filename="cells"
+            path=path,
+            ext=".tfrecord",
+            extractor_name="",
         )
         if len(sources) == 0:
             return []

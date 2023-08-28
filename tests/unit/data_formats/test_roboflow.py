@@ -2,9 +2,7 @@
 #
 # SPDX-License-Identifier: MIT
 
-from collections import OrderedDict
 from copy import deepcopy
-from typing import Any, Dict, Optional
 
 import numpy as np
 import pytest
@@ -12,12 +10,14 @@ import pytest
 from datumaro.components.annotation import Bbox, Label, Polygon
 from datumaro.components.dataset import Dataset
 from datumaro.components.dataset_base import DatasetItem
+from datumaro.components.environment import DEFAULT_ENVIRONMENT
 from datumaro.components.importer import Importer
 from datumaro.components.media import Image
 from datumaro.plugins.data_formats.roboflow.importer import (
     RoboflowCocoImporter,
     RoboflowCreateMlImporter,
     RoboflowMulticlassImporter,
+    RoboflowTfrecordImporter,
     RoboflowVocImporter,
     RoboflowYoloImporter,
     RoboflowYoloObbImporter,
@@ -26,6 +26,14 @@ from datumaro.plugins.data_formats.roboflow.importer import (
 from .base import TestDataFormatBase
 
 from tests.utils.assets import get_test_asset_path
+
+try:
+    import tensorflow as tf
+except ImportError:
+    TF_AVAILABLE = False
+else:
+    TF_AVAILABLE = True
+
 
 DUMMY_DATASET_COCO_DIR = get_test_asset_path("roboflow_dataset", "coco")
 DUMMY_DATASET_VOC_DIR = get_test_asset_path("roboflow_dataset", "voc")
@@ -277,6 +285,39 @@ class RoboflowImporterTest(TestDataFormatBase):
         ids=IDS,
     )
     def test_can_import(
+        self,
+        fxt_dataset_dir: str,
+        fxt_expected_dataset: Dataset,
+        request: pytest.FixtureRequest,
+        importer: Importer,
+    ):
+        return super().test_can_import(
+            fxt_dataset_dir=fxt_dataset_dir,
+            fxt_expected_dataset=fxt_expected_dataset,
+            fxt_import_kwargs={},
+            request=request,
+            importer=importer,
+        )
+
+    @pytest.mark.parametrize(
+        ["fxt_dataset_dir", "importer"],
+        [
+            (DUMMY_DATASET_TFRECORD_DIR, RoboflowTfrecordImporter),
+        ],
+    )
+    def test_can_detect_roboflow_tfrecord(self, fxt_dataset_dir: str, importer: Importer):
+        detected_formats = DEFAULT_ENVIRONMENT.detect_dataset(fxt_dataset_dir)
+        assert importer.NAME in detected_formats
+
+    @pytest.mark.skipif(TF_AVAILABLE, reason="Tensorflow is installed")
+    @pytest.mark.parametrize(
+        ["fxt_dataset_dir", "fxt_expected_dataset", "importer"],
+        [
+            (DUMMY_DATASET_TFRECORD_DIR, "fxt_coco_dataset", RoboflowTfrecordImporter),
+        ],
+        indirect=["fxt_expected_dataset"],
+    )
+    def test_can_import_roboflow_tfrecord(
         self,
         fxt_dataset_dir: str,
         fxt_expected_dataset: Dataset,

@@ -1,0 +1,10 @@
+item {
+name: 'label_0'
+id: 1
+display_name: 'label_0'
+}
+item {
+name: 'label_1'
+id: 2
+display_name: 'label_1'
+}
