@@ -103,7 +103,7 @@ class RoboflowVocImporter(Importer):
             dirname=cls.ANN_DIR_NAME,
             file_filter=_filter_ann_file,
             filename="**/*",
-            max_depth=1,
+            max_depth=2,
             recursive=True,
         )
         if len(sources) == 0:
@@ -115,20 +115,20 @@ class RoboflowVocImporter(Importer):
     def find_sources(cls, path: str) -> List[Dict[str, Any]]:
         sources = cls._get_sources(path)
 
-        subsets = defaultdict(list)
+        subsets = {}
         for source in sources:
             subset_name = osp.dirname(source["url"]).split(os.sep)[-1]
-            subsets[subset_name].append(source["url"])
+            subsets[subset_name] = osp.dirname(source["url"])
 
         sources = [
             {
-                "url": osp.join(path, subset),
+                "url": url,
                 "format": cls.FORMAT,
                 "options": {
                     "subset": subset,
                 },
             }
-            for subset, _ in subsets.items()
+            for subset, url in subsets.items()
         ]
 
         return sources
@@ -169,7 +169,7 @@ class RoboflowYoloImporter(RoboflowVocImporter):
 
         sources = [
             {
-                "url": osp.join(path, subset),
+                "url": osp.dirname(osp.dirname(urls[0])),
                 "format": cls.FORMAT,
                 "options": {
                     "subset": subset,
