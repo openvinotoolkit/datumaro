@@ -32,7 +32,7 @@ class RoboflowCocoImporter(Importer):
 
     @classmethod
     def find_sources(cls, path):
-        subset_paths = glob(osp.join(path, "*", cls.ANN_FILE_NAME), recursive=True)
+        subset_paths = glob(osp.join(path, "**", cls.ANN_FILE_NAME), recursive=True)
 
         sources = []
         for subset_path in subset_paths:
