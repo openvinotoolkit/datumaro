@@ -3,28 +3,30 @@
 # SPDX-License-Identifier: MIT
 
 from abc import ABC, abstractmethod
-from typing import Dict, List, Tuple, TypeVar
+from typing import Dict, List, Tuple, TypeVar, Union
 
 import numpy as np
 
 from datumaro.components.annotation import Annotation
+from datumaro.components.dataset_base import DatasetItem
 
-__all__ = ["IModelInterpreter"]
+__all__ = ["IModelInterpreter", "PrepInfo", "ModelPred", "LauncherInputType"]
 
 PrepInfo = TypeVar("PrepInfo")
-ModelPred = Dict[str, np.ndarray]
+ModelPred = Union[Dict[str, np.ndarray], List[Dict[str, np.ndarray]]]
+LauncherInputType = Union[np.ndarray, Dict[str, np.ndarray]]
 
 
 class IModelInterpreter(ABC):
     @abstractmethod
-    def preprocess(self, img: np.ndarray) -> Tuple[np.ndarray, PrepInfo]:
-        """Preprocessing an input image.
+    def preprocess(self, inp: DatasetItem) -> Tuple[LauncherInputType, PrepInfo]:
+        """Preprocessing an dataset item input.
 
         Parameters:
-            img: Input image
+            img: DatasetItem input
 
         Returns:
-            It returns a tuple of preprocessed image and preprocessing information.
+            It returns a tuple of preprocessed input and preprocessing information.
             The preprocessing information will be used in the postprocessing step.
             One use case for this would be an affine transformation of the output bounding box
             obtained by object detection models. Input images for those models are usually resized

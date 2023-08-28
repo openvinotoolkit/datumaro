@@ -38,7 +38,6 @@ RUN curl -o ckpt.pth https://dl.fbaipublicfiles.com/segment_anything/sam_vit_b_0
 FROM onnx-exporter-${model_type} AS onnx-exporter-final
 ARG model_type
 
-RUN python scripts/export_onnx_model.py --checkpoint ckpt.pth --model-type ${model_type} --return-single-mask --output /ws/output/decoder.onnx
-
-COPY export_onnx_encoder.py scripts/
+ADD scripts/* scripts/
 RUN python scripts/export_onnx_encoder.py --checkpoint ckpt.pth --model-type ${model_type} --output /ws/output/encoder.onnx
+RUN python scripts/export_onnx_decoder.py --checkpoint ckpt.pth --model-type ${model_type} --return-single-mask --output /ws/output/decoder.onnx

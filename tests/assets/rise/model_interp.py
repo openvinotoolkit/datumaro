@@ -6,13 +6,21 @@ from typing import List, Tuple
 
 import numpy as np
 
-from datumaro.components.abstracts.model_interpreter import IModelInterpreter, ModelPred, PrepInfo
+from datumaro.components.abstracts.model_interpreter import (
+    IModelInterpreter,
+    LauncherInputType,
+    ModelPred,
+    PrepInfo,
+)
 from datumaro.components.annotation import Annotation, Label
+from datumaro.components.dataset_base import DatasetItem
+from datumaro.components.media import Image
 from datumaro.util.annotation_util import softmax
 
 
 class DummyModelInterpreter(IModelInterpreter):
-    def preprocess(self, img: np.ndarray) -> Tuple[np.ndarray, PrepInfo]:
+    def preprocess(self, inp: DatasetItem) -> Tuple[LauncherInputType, PrepInfo]:
+        img = inp.media_as(Image).data
         return super().preprocess(img)
 
     def postprocess(self, pred: ModelPred, info: PrepInfo) -> List[Annotation]:

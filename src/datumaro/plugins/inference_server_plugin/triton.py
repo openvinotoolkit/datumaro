@@ -3,13 +3,13 @@
 # SPDX-License-Identifier: MIT
 
 import logging as log
-from typing import Dict, List, Type, Union
+from typing import Dict, List, Tuple, Type, Union
 
 import numpy as np
 import tritonclient.grpc as grpcclient
 import tritonclient.http as httpclient
 
-from datumaro.components.abstracts.model_interpreter import ModelPred
+from datumaro.components.abstracts.model_interpreter import LauncherInputType, ModelPred
 from datumaro.components.errors import DatumaroError
 from datumaro.plugins.inference_server_plugin.base import (
     LauncherForDedicatedInferenceServer,
@@ -64,33 +64,57 @@ class TritonLauncher(LauncherForDedicatedInferenceServer[TClient]):
         )
         log.info(f"Received metadata: {self._metadata}")
 
-    def _get_infer_input(self, inputs: np.ndarray) -> TInferInput:
-        def _fix_dynamic_batch_dim(shape):
-            if shape[0] == -1:
-                shape[0] = inputs.shape[0]
-            return shape
+    def _get_infer_input(self, inputs: LauncherInputType) -> TInferInput:
+        def _fill_dynamic_axes_dim(
+            metadata_shape: Tuple[int, ...], np_data: np.ndarray
+        ) -> Tuple[int, ...]:
+            """Triton requires to fill the dynamic axes (dim = -1) with the actual dim value of data (>= 0)"""
+            if len(metadata_shape) != len(np_data.shape):
+                raise ValueError(
+                    "Metadata shape and numpy data's shape should be same, "
+                    f"but shape ({metadata_shape}) != np_data.shape ({np_data.shape})"
+                )
+
+            new_shape = [
+                data_dim if metadata_dim == -1 else metadata_dim
+                for metadata_dim, data_dim in zip(metadata_shape, np_data.shape)
+            ]
+
+            return tuple(new_shape)
+
+        def _get_np_data(input_name: str):
+            if isinstance(inputs, np.ndarray):
+                return inputs
+
+            if isinstance(inputs, dict):
+                np_data = inputs.get(input_name)
+                if np_data is None:
+                    raise ValueError(f"Input key={input_name} should be given.")
+                return np_data
+
+            raise TypeError(inputs)
 
         def _create(infer_input_cls: Type[TInferInput]) -> TInferInput:
             infer_inputs = [
                 infer_input_cls(
                     name=inp.name,
-                    shape=_fix_dynamic_batch_dim(inp.shape),
+                    shape=_fill_dynamic_axes_dim(inp.shape, _get_np_data(inp.name)),
                     datatype=inp.datatype,
                 )
                 for inp in self._metadata.inputs
             ]
-            for infer_input in infer_inputs:
-                infer_input.set_data_from_numpy(inputs)
+            for inp in infer_inputs:
+                inp.set_data_from_numpy(_get_np_data(inp.name()))
             return infer_inputs
 
         if self.protocol_type == ProtocolType.grpc:
             return _create(grpcclient.InferInput)
-        if self.protocol_type == ProtocolType.http:
+        elif self.protocol_type == ProtocolType.http:
             return _create(httpclient.InferInput)
 
         raise NotImplementedError(self.protocol_type)
 
-    def infer(self, inputs: np.ndarray) -> List[ModelPred]:
+    def infer(self, inputs: LauncherInputType) -> List[ModelPred]:
         infer_outputs: TInferOutput = self._client.infer(
             inputs=self._get_infer_input(inputs),
             model_name=self.model_name,

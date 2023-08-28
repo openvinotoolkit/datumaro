@@ -14,6 +14,13 @@ from datumaro.components.launcher import LauncherWithModelInterpreter
 from datumaro.components.media import Image
 
 
+class InferenceServerType(IntEnum):
+    """Types of the dedicated inference server"""
+
+    ovms = 0
+    triton = 1
+
+
 class ProtocolType(IntEnum):
     """Protocol type for communication with dedicated inference server"""
 
