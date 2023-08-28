@@ -320,11 +320,9 @@ class RoboflowMulticlassBase(SubsetBase):
 
 
 try:
-    from datumaro.components.lazy_plugin import extra_deps
     from datumaro.plugins.data_formats.tf_detection_api.base import TfDetectionApiBase
     from datumaro.plugins.data_formats.tf_detection_api.format import TfrecordImporterType
 
-    @extra_deps("tensorflow")
     class RoboflowTfrecord(TfDetectionApiBase):
         def __init__(
             self,
