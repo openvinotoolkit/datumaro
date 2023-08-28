@@ -58,8 +58,8 @@ class ExtractorMerger(DatasetBase):
                 if item is not None:
                     return item
 
-        s = self._subset[subset]
-        return s.get(id)
+        s = self._subsets[subset]
+        return s.get(id, subset)
 
     @property
     def is_stream(self) -> bool:

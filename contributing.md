@@ -34,7 +34,7 @@ To set up your development environment, please follow the steps below.
 4. Install Datumaro with [optional dependencies](#optional-dependencies):
     ``` bash
     cd /path/to/the/cloned/repo/
-    pip install -e .[tf,tfds,default]
+    pip install -e .[tf,tfds,torch,default]
     ```
 
 5. Install dev & test dependencies:
