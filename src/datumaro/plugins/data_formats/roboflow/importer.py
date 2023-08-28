@@ -219,9 +219,6 @@ class RoboflowTfrecordImporter(Importer):
 
     @classmethod
     def find_sources(cls, path):
-        # sources = cls._find_sources_recursive(path, ".tfrecord", "roboflow_tfrecord")
-        # print(sources)
-        # return sources
         sources = cls._find_sources_recursive(
             path=path,
             ext=".tfrecord",
