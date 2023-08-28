@@ -13,6 +13,7 @@ from datumaro.components.dataset_base import DatasetItem
 from datumaro.components.environment import DEFAULT_ENVIRONMENT
 from datumaro.components.importer import Importer
 from datumaro.components.media import Image
+from datumaro.plugins.data_formats.roboflow.base import RoboflowTfrecordBase
 from datumaro.plugins.data_formats.roboflow.importer import (
     RoboflowCocoImporter,
     RoboflowCreateMlImporter,
@@ -26,6 +27,7 @@ from datumaro.plugins.data_formats.roboflow.importer import (
 from .base import TestDataFormatBase
 
 from tests.utils.assets import get_test_asset_path
+from tests.utils.test_utils import compare_datasets
 
 try:
     import tensorflow as tf
@@ -252,6 +254,39 @@ def fxt_multiclass_dataset():
     )
 
 
+@pytest.fixture
+def fxt_tfrecord_dataset():
+    return Dataset.from_iterable(
+        [
+            DatasetItem(
+                id="train_001",
+                subset="train",
+                media=Image.from_numpy(data=np.ones((5, 10, 3))),
+                annotations=[Bbox(2, 1, 3, 1, label=0)],
+                attributes={"source_id": None},
+            ),
+            DatasetItem(
+                id="train_002",
+                subset="train",
+                media=Image.from_numpy(data=np.ones((5, 10, 3))),
+                annotations=[Bbox(0, 0, 2, 4, label=1)],
+                attributes={"source_id": None},
+            ),
+            DatasetItem(
+                id="val_001",
+                subset="val",
+                media=Image.from_numpy(data=np.ones((5, 10, 3))),
+                annotations=[
+                    Bbox(0, 0, 1, 2, label=0),
+                    Bbox(0, 0, 9, 1, label=1),
+                ],
+                attributes={"source_id": None},
+            ),
+        ],
+        categories=["label_0", "label_1"],
+    )
+
+
 IDS = ["COCO", "VOC", "YOLO", "YOLO_OBB", "CREATE_ML", "MULTICLASS"]
 
 
@@ -309,11 +344,11 @@ class RoboflowImporterTest(TestDataFormatBase):
         detected_formats = DEFAULT_ENVIRONMENT.detect_dataset(fxt_dataset_dir)
         assert importer.NAME in detected_formats
 
-    @pytest.mark.skipif(TF_AVAILABLE, reason="Tensorflow is installed")
+    @pytest.mark.skipif(not TF_AVAILABLE, reason="Tensorflow is not installed")
     @pytest.mark.parametrize(
         ["fxt_dataset_dir", "fxt_expected_dataset", "importer"],
         [
-            (DUMMY_DATASET_TFRECORD_DIR, "fxt_coco_dataset", RoboflowTfrecordImporter),
+            (DUMMY_DATASET_TFRECORD_DIR, "fxt_tfrecord_dataset", RoboflowTfrecordImporter),
         ],
         indirect=["fxt_expected_dataset"],
     )
@@ -324,10 +359,21 @@ class RoboflowImporterTest(TestDataFormatBase):
         request: pytest.FixtureRequest,
         importer: Importer,
     ):
-        return super().test_can_import(
-            fxt_dataset_dir=fxt_dataset_dir,
-            fxt_expected_dataset=fxt_expected_dataset,
-            fxt_import_kwargs={},
-            request=request,
-            importer=importer,
-        )
+        helper_tc = request.getfixturevalue("helper_tc")
+        dataset = Dataset.import_from(fxt_dataset_dir, importer.NAME)
+
+        compare_datasets(helper_tc, fxt_expected_dataset, dataset, require_media=False)
+
+    @pytest.mark.skipif(not TF_AVAILABLE, reason="Tensorflow is not installed")
+    def test_parse_labelmap_roboflow_tfrecod(self):
+        test_text = """
+            name: "apple", id: 1
+            name: "banana", id: 2
+            name: "orange", id: 3
+        """
+
+        expected_result = {"apple": 1, "banana": 2, "orange": 3}
+
+        parsed_labelmap = RoboflowTfrecordBase._parse_labelmap(test_text)
+
+        assert parsed_labelmap == expected_result
