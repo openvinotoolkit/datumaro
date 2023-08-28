@@ -13,7 +13,7 @@ from datumaro.components.dataset_base import DatasetItem
 from datumaro.components.environment import DEFAULT_ENVIRONMENT
 from datumaro.components.importer import Importer
 from datumaro.components.media import Image
-from datumaro.plugins.data_formats.roboflow.base import RoboflowTfrecordBase
+from datumaro.plugins.data_formats.roboflow.base_tfrecord import RoboflowTfrecordBase
 from datumaro.plugins.data_formats.roboflow.importer import (
     RoboflowCocoImporter,
     RoboflowCreateMlImporter,

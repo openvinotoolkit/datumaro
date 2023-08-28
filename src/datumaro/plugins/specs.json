@@ -240,7 +240,7 @@
     "extra_deps": []
   },
   {
-    "import_path": "datumaro.plugins.data_formats.roboflow.base.RoboflowTfrecordBase",
+    "import_path": "datumaro.plugins.data_formats.roboflow.base_tfrecord.RoboflowTfrecordBase",
     "plugin_name": "roboflow_tfrecord",
     "plugin_type": "DatasetBase",
     "extra_deps": [
