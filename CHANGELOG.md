@@ -11,6 +11,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   (<https://github.com/openvinotoolkit/datumaro/pull/1089>)
 - Support video annotation import/export
   (<https://github.com/openvinotoolkit/datumaro/pull/1124>)
+- Add multiframework (PyTorch, Tensorflow) converter
+  (<https://github.com/openvinotoolkit/datumaro/pull/1125>)
 - Add SAM OVMS and Triton server Docker image builders
   (<https://github.com/openvinotoolkit/datumaro/pull/1129>)
 
@@ -29,6 +31,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Bug fixes
 - Fix bugs for Tile transform
   (<https://github.com/openvinotoolkit/datumaro/pull/1123>)
+- Disable Roboflow Tfrecord format when Tensorflow is not installed
+  (<https://github.com/openvinotoolkit/datumaro/pull/1130>)
 
 ## 27/07/2023 - Release 1.4.1
 ### Bug fixes
