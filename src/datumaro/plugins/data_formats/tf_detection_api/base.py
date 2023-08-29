@@ -16,6 +16,7 @@ from datumaro.components.importer import ImportContext, Importer
 from datumaro.components.lazy_plugin import extra_deps
 from datumaro.components.media import Image
 from datumaro.util.image import decode_image, lazy_image
+from datumaro.util.tf_util import has_feature
 from datumaro.util.tf_util import import_tf as _import_tf
 
 from .format import DetectionApiPath, TfrecordImporterType
@@ -201,4 +202,30 @@ class TfDetectionApiBase(SubsetBase):
 class TfDetectionApiImporter(Importer):
     @classmethod
     def find_sources(cls, path):
-        return cls._find_sources_recursive(path, ".tfrecord", "tf_detection_api")
+        sources = cls._find_sources_recursive(
+            path=path,
+            ext=".tfrecord",
+            extractor_name="tf_detection_api",
+        )
+        if len(sources) == 0:
+            return []
+
+        desired_feature = {
+            "image/source_id": tf.io.FixedLenFeature([], tf.string),
+        }
+
+        subsets = {}
+        for source in sources:
+            if has_feature(path=source["url"], feature=desired_feature):
+                subset_name = osp.basename(source["url"]).split(".")[-2]
+                subsets[subset_name] = source["url"]
+
+        sources = [
+            {
+                "url": url,
+                "format": "tf_detection_api",
+            }
+            for _, url in subsets.items()
+        ]
+
+        return sources

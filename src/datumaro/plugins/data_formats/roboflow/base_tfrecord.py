@@ -2,12 +2,55 @@
 #
 # SPDX-License-Identifier: MIT
 
+import os
 import re
 from typing import Optional
 
-from datumaro.components.importer import ImportContext
+from datumaro.components.importer import ImportContext, Importer
+from datumaro.components.lazy_plugin import extra_deps
 from datumaro.plugins.data_formats.tf_detection_api.base import TfDetectionApiBase
 from datumaro.plugins.data_formats.tf_detection_api.format import TfrecordImporterType
+from datumaro.util.tf_util import has_feature
+from datumaro.util.tf_util import import_tf as _import_tf
+
+tf = _import_tf()
+
+
+@extra_deps("tensorflow")
+class RoboflowTfrecordImporter(Importer):
+    @classmethod
+    def find_sources(cls, path):
+        sources = cls._find_sources_recursive(
+            path=path,
+            ext=".tfrecord",
+            extractor_name="roboflow_tfrecord",
+        )
+        if len(sources) == 0:
+            return []
+
+        undesired_feature = {
+            "image/source_id": tf.io.FixedLenFeature([], tf.string),
+        }
+
+        subsets = {}
+        for source in sources:
+            if has_feature(path=source["url"], feature=undesired_feature):
+                continue
+            subset_name = os.path.dirname(source["url"]).split(os.sep)[-1]
+            subsets[subset_name] = source["url"]
+
+        sources = [
+            {
+                "url": url,
+                "format": "roboflow_tfrecord",
+                "options": {
+                    "subset": subset,
+                },
+            }
+            for subset, url in subsets.items()
+        ]
+
+        return sources
 
 
 class RoboflowTfrecordBase(TfDetectionApiBase):

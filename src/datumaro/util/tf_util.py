@@ -1,7 +1,9 @@
-# Copyright (C) 2019-2022 Intel Corporation
+# Copyright (C) 2019-2023 Intel Corporation
 #
 # SPDX-License-Identifier: MIT
 
+
+import logging as log
 
 enable_tf_check = False
 
@@ -90,3 +92,19 @@ def import_tf(check=None):
         pass
 
     return tf
+
+
+def has_feature(path: str, feature) -> bool:
+    tf = import_tf()
+
+    dataset = tf.data.TFRecordDataset(path)
+
+    has_feature = False
+    for record in dataset:
+        try:
+            _ = tf.io.parse_single_example(record, feature)
+            has_feature = True
+        except Exception as e:
+            log.warning("Dataset doesn't have feature: %e" % e)
+            break
+    return has_feature

@@ -748,7 +748,7 @@
     "extra_deps": []
   },
   {
-    "import_path": "datumaro.plugins.data_formats.roboflow.importer.RoboflowTfrecordImporter",
+    "import_path": "datumaro.plugins.data_formats.roboflow.base_tfrecord.RoboflowTfrecordImporter",
     "plugin_name": "roboflow_tfrecord",
     "plugin_type": "Importer",
     "extra_deps": [

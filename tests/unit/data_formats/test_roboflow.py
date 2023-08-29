@@ -13,12 +13,14 @@ from datumaro.components.dataset_base import DatasetItem
 from datumaro.components.environment import DEFAULT_ENVIRONMENT
 from datumaro.components.importer import Importer
 from datumaro.components.media import Image
-from datumaro.plugins.data_formats.roboflow.base_tfrecord import RoboflowTfrecordBase
+from datumaro.plugins.data_formats.roboflow.base_tfrecord import (
+    RoboflowTfrecordBase,
+    RoboflowTfrecordImporter,
+)
 from datumaro.plugins.data_formats.roboflow.importer import (
     RoboflowCocoImporter,
     RoboflowCreateMlImporter,
     RoboflowMulticlassImporter,
-    RoboflowTfrecordImporter,
     RoboflowVocImporter,
     RoboflowYoloImporter,
     RoboflowYoloObbImporter,
@@ -334,6 +336,7 @@ class RoboflowImporterTest(TestDataFormatBase):
             importer=importer,
         )
 
+    @pytest.mark.skipif(not TF_AVAILABLE, reason="Tensorflow is not installed")
     @pytest.mark.parametrize(
         ["fxt_dataset_dir", "importer"],
         [
@@ -342,7 +345,7 @@ class RoboflowImporterTest(TestDataFormatBase):
     )
     def test_can_detect_roboflow_tfrecord(self, fxt_dataset_dir: str, importer: Importer):
         detected_formats = DEFAULT_ENVIRONMENT.detect_dataset(fxt_dataset_dir)
-        assert importer.NAME in detected_formats
+        assert [importer.NAME] == detected_formats
 
     @pytest.mark.skipif(not TF_AVAILABLE, reason="Tensorflow is not installed")
     @pytest.mark.parametrize(

@@ -14,7 +14,6 @@ from defusedxml import ElementTree
 from datumaro.components.errors import DatasetImportError
 from datumaro.components.format_detection import FormatDetectionConfidence, FormatDetectionContext
 from datumaro.components.importer import Importer
-from datumaro.components.lazy_plugin import extra_deps
 from datumaro.components.merge.extractor_merger import ExtractorMerger
 
 
@@ -211,36 +210,3 @@ class RoboflowCreateMlImporter(RoboflowCocoImporter):
 class RoboflowMulticlassImporter(RoboflowCocoImporter):
     FORMAT = "roboflow_multiclass"
     ANN_FILE_NAME = "_classes.csv"
-
-
-@extra_deps("tensorflow")
-class RoboflowTfrecordImporter(Importer):
-    FORMAT = "roboflow_tfrecord"
-
-    @classmethod
-    def find_sources(cls, path):
-        sources = cls._find_sources_recursive(
-            path=path,
-            ext=".tfrecord",
-            extractor_name="roboflow_tfrecord",
-        )
-        if len(sources) == 0:
-            return []
-
-        subsets = defaultdict()
-        for source in sources:
-            subset_name = osp.dirname(source["url"]).split(os.sep)[-1]
-            subsets[subset_name] = source["url"]
-
-        sources = [
-            {
-                "url": url,
-                "format": cls.FORMAT,
-                "options": {
-                    "subset": subset,
-                },
-            }
-            for subset, url in subsets.items()
-        ]
-
-        return sources
