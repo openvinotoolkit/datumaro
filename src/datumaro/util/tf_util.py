@@ -105,6 +105,6 @@ def has_feature(path: str, feature) -> bool:
             _ = tf.io.parse_single_example(record, feature)
             has_feature = True
         except Exception as e:
-            log.warning("Dataset doesn't have feature: %e" % e)
+            log.warning("Dataset doesn't have a feature: %s" % str(e))
             break
     return has_feature
