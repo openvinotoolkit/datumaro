@@ -6,7 +6,6 @@ import csv
 import errno
 import os
 import os.path as osp
-import re
 from typing import Dict, List, Optional, Union
 
 from defusedxml import ElementTree
@@ -26,8 +25,6 @@ from datumaro.components.importer import ImportContext
 from datumaro.components.media import Image, ImageFromFile
 from datumaro.plugins.data_formats.coco.base import _CocoBase
 from datumaro.plugins.data_formats.coco.format import CocoImporterType, CocoTask
-from datumaro.plugins.data_formats.tf_detection_api.base import TfDetectionApiBase
-from datumaro.plugins.data_formats.tf_detection_api.format import TfrecordImporterType
 from datumaro.plugins.data_formats.voc.base import VocBase
 from datumaro.plugins.data_formats.voc.format import VocImporterType, VocTask
 from datumaro.plugins.data_formats.yolo.base import YoloUltralyticsBase
@@ -319,27 +316,3 @@ class RoboflowMulticlassBase(SubsetBase):
                 )
 
         return items
-
-
-class RoboflowTfrecord(TfDetectionApiBase):
-    def __init__(
-        self,
-        path: str,
-        *,
-        subset: Optional[str] = None,
-        ctx: Optional[ImportContext] = None,
-    ):
-        super().__init__(
-            path=path, subset=subset, tfrecord_importer_type=TfrecordImporterType.roboflow, ctx=ctx
-        )
-
-    @staticmethod
-    def _parse_labelmap(text):
-        entry_pattern = r'name:\s*"([^"]+)"\s*,\s*id:\s*(\d+)'
-        entry_pattern = re.compile(entry_pattern)
-
-        matches = re.findall(entry_pattern, text)
-
-        labelmap = {name: int(id) for name, id in matches}
-
-        return labelmap

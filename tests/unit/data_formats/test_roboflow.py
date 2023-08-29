@@ -2,9 +2,7 @@
 #
 # SPDX-License-Identifier: MIT
 
-from collections import OrderedDict
 from copy import deepcopy
-from typing import Any, Dict, Optional
 
 import numpy as np
 import pytest
@@ -12,8 +10,13 @@ import pytest
 from datumaro.components.annotation import Bbox, Label, Polygon
 from datumaro.components.dataset import Dataset
 from datumaro.components.dataset_base import DatasetItem
+from datumaro.components.environment import DEFAULT_ENVIRONMENT
 from datumaro.components.importer import Importer
 from datumaro.components.media import Image
+from datumaro.plugins.data_formats.roboflow.base_tfrecord import (
+    RoboflowTfrecordBase,
+    RoboflowTfrecordImporter,
+)
 from datumaro.plugins.data_formats.roboflow.importer import (
     RoboflowCocoImporter,
     RoboflowCreateMlImporter,
@@ -26,6 +29,15 @@ from datumaro.plugins.data_formats.roboflow.importer import (
 from .base import TestDataFormatBase
 
 from tests.utils.assets import get_test_asset_path
+from tests.utils.test_utils import compare_datasets
+
+try:
+    import tensorflow as tf
+except ImportError:
+    TF_AVAILABLE = False
+else:
+    TF_AVAILABLE = True
+
 
 DUMMY_DATASET_COCO_DIR = get_test_asset_path("roboflow_dataset", "coco")
 DUMMY_DATASET_VOC_DIR = get_test_asset_path("roboflow_dataset", "voc")
@@ -244,6 +256,39 @@ def fxt_multiclass_dataset():
     )
 
 
+@pytest.fixture
+def fxt_tfrecord_dataset():
+    return Dataset.from_iterable(
+        [
+            DatasetItem(
+                id="train_001",
+                subset="train",
+                media=Image.from_numpy(data=np.ones((5, 10, 3))),
+                annotations=[Bbox(2, 1, 3, 1, label=0)],
+                attributes={"source_id": None},
+            ),
+            DatasetItem(
+                id="train_002",
+                subset="train",
+                media=Image.from_numpy(data=np.ones((5, 10, 3))),
+                annotations=[Bbox(0, 0, 2, 4, label=1)],
+                attributes={"source_id": None},
+            ),
+            DatasetItem(
+                id="val_001",
+                subset="val",
+                media=Image.from_numpy(data=np.ones((5, 10, 3))),
+                annotations=[
+                    Bbox(0, 0, 1, 2, label=0),
+                    Bbox(0, 0, 9, 1, label=1),
+                ],
+                attributes={"source_id": None},
+            ),
+        ],
+        categories=["label_0", "label_1"],
+    )
+
+
 IDS = ["COCO", "VOC", "YOLO", "YOLO_OBB", "CREATE_ML", "MULTICLASS"]
 
 
@@ -290,3 +335,60 @@ class RoboflowImporterTest(TestDataFormatBase):
             request=request,
             importer=importer,
         )
+
+    @pytest.mark.skipif(not TF_AVAILABLE, reason="Tensorflow is not installed")
+    @pytest.mark.parametrize(
+        ["fxt_dataset_dir", "importer"],
+        [
+            (DUMMY_DATASET_TFRECORD_DIR, RoboflowTfrecordImporter),
+        ],
+    )
+    def test_can_detect_roboflow_tfrecord(self, fxt_dataset_dir: str, importer: Importer):
+        detected_formats = DEFAULT_ENVIRONMENT.detect_dataset(fxt_dataset_dir)
+        assert [importer.NAME] == detected_formats
+
+    @pytest.mark.skipif(not TF_AVAILABLE, reason="Tensorflow is not installed")
+    @pytest.mark.parametrize(
+        ["fxt_dataset_dir", "fxt_expected_dataset", "importer"],
+        [
+            (DUMMY_DATASET_TFRECORD_DIR, "fxt_tfrecord_dataset", RoboflowTfrecordImporter),
+        ],
+        indirect=["fxt_expected_dataset"],
+    )
+    def test_can_import_roboflow_tfrecord(
+        self,
+        fxt_dataset_dir: str,
+        fxt_expected_dataset: Dataset,
+        request: pytest.FixtureRequest,
+        importer: Importer,
+    ):
+        helper_tc = request.getfixturevalue("helper_tc")
+        dataset = Dataset.import_from(fxt_dataset_dir, importer.NAME)
+
+        compare_datasets(helper_tc, fxt_expected_dataset, dataset, require_media=False)
+
+    @pytest.mark.skipif(not TF_AVAILABLE, reason="Tensorflow is not installed")
+    def test_parse_labelmap_roboflow_tfrecod(self):
+        test_text = """
+            item {
+                name: "apple",
+                id: 1,
+                display_name: "apple"
+            }
+            item {
+                name: "banana",
+                id: 2,
+                display_name: "banana"
+            }
+            item {
+                name: "orange",
+                id: 3,
+                display_name: "orange"
+            }
+        """
+
+        expected_result = {"apple": 1, "banana": 2, "orange": 3}
+
+        parsed_labelmap = RoboflowTfrecordBase._parse_labelmap(test_text)
+
+        assert parsed_labelmap == expected_result

@@ -14,7 +14,6 @@ from defusedxml import ElementTree
 from datumaro.components.errors import DatasetImportError
 from datumaro.components.format_detection import FormatDetectionConfidence, FormatDetectionContext
 from datumaro.components.importer import Importer
-from datumaro.components.lazy_plugin import extra_deps
 from datumaro.components.merge.extractor_merger import ExtractorMerger
 
 
@@ -32,7 +31,7 @@ class RoboflowCocoImporter(Importer):
 
     @classmethod
     def find_sources(cls, path):
-        subset_paths = glob(osp.join(path, "*", cls.ANN_FILE_NAME), recursive=True)
+        subset_paths = glob(osp.join(path, "**", cls.ANN_FILE_NAME), recursive=True)
 
         sources = []
         for subset_path in subset_paths:
@@ -103,7 +102,7 @@ class RoboflowVocImporter(Importer):
             dirname=cls.ANN_DIR_NAME,
             file_filter=_filter_ann_file,
             filename="**/*",
-            max_depth=1,
+            max_depth=2,
             recursive=True,
         )
         if len(sources) == 0:
@@ -115,20 +114,20 @@ class RoboflowVocImporter(Importer):
     def find_sources(cls, path: str) -> List[Dict[str, Any]]:
         sources = cls._get_sources(path)
 
-        subsets = defaultdict(list)
+        subsets = {}
         for source in sources:
             subset_name = osp.dirname(source["url"]).split(os.sep)[-1]
-            subsets[subset_name].append(source["url"])
+            subsets[subset_name] = osp.dirname(source["url"])
 
         sources = [
             {
-                "url": osp.join(path, subset),
+                "url": url,
                 "format": cls.FORMAT,
                 "options": {
                     "subset": subset,
                 },
             }
-            for subset, _ in subsets.items()
+            for subset, url in subsets.items()
         ]
 
         return sources
@@ -169,7 +168,7 @@ class RoboflowYoloImporter(RoboflowVocImporter):
 
         sources = [
             {
-                "url": osp.join(path, subset),
+                "url": osp.dirname(osp.dirname(urls[0])),
                 "format": cls.FORMAT,
                 "options": {
                     "subset": subset,
@@ -211,34 +210,3 @@ class RoboflowCreateMlImporter(RoboflowCocoImporter):
 class RoboflowMulticlassImporter(RoboflowCocoImporter):
     FORMAT = "roboflow_multiclass"
     ANN_FILE_NAME = "_classes.csv"
-
-
-@extra_deps("tensorflow")
-class RoboflowTfrecord(Importer):
-    FORMAT = "roboflow_tfrecord"
-
-    @classmethod
-    def find_sources(cls, path):
-        sources = cls._find_sources_recursive(
-            path=path, ext=".tfrecord", extractor_name="roboflow_tfrecord", filename="cells"
-        )
-        if len(sources) == 0:
-            return []
-
-        subsets = defaultdict()
-        for source in sources:
-            subset_name = osp.dirname(source["url"]).split(os.sep)[-1]
-            subsets[subset_name] = source["url"]
-
-        sources = [
-            {
-                "url": url,
-                "format": cls.FORMAT,
-                "options": {
-                    "subset": subset,
-                },
-            }
-            for subset, url in subsets.items()
-        ]
-
-        return sources
