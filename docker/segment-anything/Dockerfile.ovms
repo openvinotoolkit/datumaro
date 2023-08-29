@@ -1,0 +1,15 @@
+FROM openvino/model_server:2023.0-gpu AS ovms
+
+USER root
+
+RUN mkdir -p /models/sam_encoder/1
+RUN mkdir -p /models/sam_decoder/1
+
+COPY --from=onnx-exporter /ws/output/encoder.onnx /models/sam_encoder/1/model.onnx
+COPY --from=onnx-exporter /ws/output/decoder.onnx /models/sam_decoder/1/model.onnx
+
+ADD ovms/model_config_list.json /models/model_config_list.json
+
+USER ovms
+
+ENTRYPOINT ["/ovms/bin/ovms", "--config_path", "/models/model_config_list.json"]
