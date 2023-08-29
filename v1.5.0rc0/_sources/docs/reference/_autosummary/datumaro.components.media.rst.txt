@@ -1,0 +1,58 @@
+datumaro.components.media
+=========================
+
+.. automodule:: datumaro.components.media
+
+   
+   
+   
+
+   
+   
+   
+
+   
+   
+   .. rubric:: Classes
+
+   .. autosummary::
+   
+      ByteImage
+      FromDataMixin
+      FromFileMixin
+      Image
+      ImageFromBytes
+      ImageFromData
+      ImageFromFile
+      ImageFromNumpy
+      MediaElement
+      MediaType
+      MosaicImage
+      MosaicImageFromImageRoIPairs
+      MosiacImageFromData
+      MultiframeImage
+      PointCloud
+      PointCloudFromBytes
+      PointCloudFromData
+      PointCloudFromFile
+      RoIImage
+      RoIImageFromBytes
+      RoIImageFromData
+      RoIImageFromFile
+      RoIImageFromNumpy
+      Table
+      TableFromCSV
+      TableFromDataFrame
+      TableFromListOfDict
+      TableRow
+      Video
+      VideoFrame
+   
+   
+
+   
+   
+   
+
+
+

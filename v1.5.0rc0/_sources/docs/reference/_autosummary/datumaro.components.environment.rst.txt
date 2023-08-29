@@ -1,0 +1,31 @@
+datumaro.components.environment
+===============================
+
+.. automodule:: datumaro.components.environment
+
+   
+   
+   
+
+   
+   
+   
+
+   
+   
+   .. rubric:: Classes
+
+   .. autosummary::
+   
+      Environment
+      PluginRegistry
+      Registry
+   
+   
+
+   
+   
+   
+
+
+
