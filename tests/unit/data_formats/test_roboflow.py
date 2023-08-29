@@ -367,9 +367,21 @@ class RoboflowImporterTest(TestDataFormatBase):
     @pytest.mark.skipif(not TF_AVAILABLE, reason="Tensorflow is not installed")
     def test_parse_labelmap_roboflow_tfrecod(self):
         test_text = """
-            name: "apple", id: 1
-            name: "banana", id: 2
-            name: "orange", id: 3
+            item {
+                name: "apple",
+                id: 1,
+                display_name: "apple"
+            }
+            item {
+                name: "banana",
+                id: 2,
+                display_name: "banana"
+            }
+            item {
+                name: "orange",
+                id: 3,
+                display_name: "orange"
+            }
         """
 
         expected_result = {"apple": 1, "banana": 2, "orange": 3}

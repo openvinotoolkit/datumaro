@@ -222,7 +222,7 @@ class RoboflowTfrecordImporter(Importer):
         sources = cls._find_sources_recursive(
             path=path,
             ext=".tfrecord",
-            extractor_name="",
+            extractor_name="roboflow_tfrecord",
         )
         if len(sources) == 0:
             return []
