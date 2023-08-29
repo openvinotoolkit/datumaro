@@ -49,7 +49,7 @@
     <script>DOCUMENTATION_OPTIONS.pagename = 'docs/reference/_autosummary/datumaro.plugins.data_formats.roboflow.base';</script>
     <link rel="index" title="Index" href="../../../genindex.html" />
     <link rel="search" title="Search" href="../../../search.html" />
-    <link rel="next" title="datumaro.plugins.data_formats.roboflow.importer" href="datumaro.plugins.data_formats.roboflow.importer.html" />
+    <link rel="next" title="datumaro.plugins.data_formats.roboflow.base_tfrecord" href="datumaro.plugins.data_formats.roboflow.base_tfrecord.html" />
     <link rel="prev" title="datumaro.plugins.data_formats.roboflow" href="datumaro.plugins.data_formats.roboflow.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="docsearch:language" content="en">
@@ -591,16 +591,13 @@
 <tr class="row-odd"><td><p><a class="reference internal" href="#datumaro.plugins.data_formats.roboflow.base.RoboflowMulticlassBase" title="datumaro.plugins.data_formats.roboflow.base.RoboflowMulticlassBase"><code class="xref py py-obj docutils literal notranslate"><span class="pre">RoboflowMulticlassBase</span></code></a>(path, *[, subset, ctx])</p></td>
 <td><p>Parses Roboflow Multiclass annotations written in the following format: <a class="reference external" href="https://cocodataset.org/#format-data">https://cocodataset.org/#format-data</a></p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#datumaro.plugins.data_formats.roboflow.base.RoboflowTfrecord" title="datumaro.plugins.data_formats.roboflow.base.RoboflowTfrecord"><code class="xref py py-obj docutils literal notranslate"><span class="pre">RoboflowTfrecord</span></code></a>(path, *[, subset, ctx])</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#datumaro.plugins.data_formats.roboflow.base.RoboflowVocBase" title="datumaro.plugins.data_formats.roboflow.base.RoboflowVocBase"><code class="xref py py-obj docutils literal notranslate"><span class="pre">RoboflowVocBase</span></code></a>(path, *[, subset, ctx])</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#datumaro.plugins.data_formats.roboflow.base.RoboflowVocBase" title="datumaro.plugins.data_formats.roboflow.base.RoboflowVocBase"><code class="xref py py-obj docutils literal notranslate"><span class="pre">RoboflowVocBase</span></code></a>(path, *[, subset, ctx])</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#datumaro.plugins.data_formats.roboflow.base.RoboflowYoloBase" title="datumaro.plugins.data_formats.roboflow.base.RoboflowYoloBase"><code class="xref py py-obj docutils literal notranslate"><span class="pre">RoboflowYoloBase</span></code></a>(config_path[, image_info, urls])</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#datumaro.plugins.data_formats.roboflow.base.RoboflowYoloBase" title="datumaro.plugins.data_formats.roboflow.base.RoboflowYoloBase"><code class="xref py py-obj docutils literal notranslate"><span class="pre">RoboflowYoloBase</span></code></a>(config_path[, image_info, urls])</p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#datumaro.plugins.data_formats.roboflow.base.RoboflowYoloObbBase" title="datumaro.plugins.data_formats.roboflow.base.RoboflowYoloObbBase"><code class="xref py py-obj docutils literal notranslate"><span class="pre">RoboflowYoloObbBase</span></code></a>(config_path[, ...])</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#datumaro.plugins.data_formats.roboflow.base.RoboflowYoloObbBase" title="datumaro.plugins.data_formats.roboflow.base.RoboflowYoloObbBase"><code class="xref py py-obj docutils literal notranslate"><span class="pre">RoboflowYoloObbBase</span></code></a>(config_path[, ...])</p></td>
 <td><p></p></td>
 </tr>
 </tbody>
@@ -647,12 +644,6 @@
 <a class="reference external" href="https://cocodataset.org/#format-data">https://cocodataset.org/#format-data</a></p>
 </dd></dl>
 
-<dl class="py class">
-<dt class="sig sig-object py" id="datumaro.plugins.data_formats.roboflow.base.RoboflowTfrecord">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">datumaro.plugins.data_formats.roboflow.base.</span></span><span class="sig-name descname"><span class="pre">RoboflowTfrecord</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">subset</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Optional" title="(in Python v3.11)"><span class="pre">Optional</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ctx</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Optional" title="(in Python v3.11)"><span class="pre">Optional</span></a><span class="p"><span class="pre">[</span></span><a class="reference internal" href="datumaro.components.contexts.importer.html#datumaro.components.contexts.importer.ImportContext" title="datumaro.components.contexts.importer.ImportContext"><span class="pre">ImportContext</span></a><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/datumaro/plugins/data_formats/roboflow/base.html#RoboflowTfrecord"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.plugins.data_formats.roboflow.base.RoboflowTfrecord" title="Permalink to this definition">#</a></dt>
-<dd><p>Bases: <a class="reference internal" href="datumaro.plugins.data_formats.tf_detection_api.base.html#datumaro.plugins.data_formats.tf_detection_api.base.TfDetectionApiBase" title="datumaro.plugins.data_formats.tf_detection_api.base.TfDetectionApiBase"><code class="xref py py-class docutils literal notranslate"><span class="pre">TfDetectionApiBase</span></code></a></p>
-</dd></dl>
-
 </section>
 
 
@@ -670,10 +661,10 @@
           <p class="prev-next-title">datumaro.plugins.data_formats.roboflow</p>
       </div>
   </a>
-  <a class='right-next' id="next-link" href="datumaro.plugins.data_formats.roboflow.importer.html" title="next page">
+  <a class='right-next' id="next-link" href="datumaro.plugins.data_formats.roboflow.base_tfrecord.html" title="next page">
   <div class="prev-next-info">
       <p class="prev-next-subtitle">next</p>
-      <p class="prev-next-title">datumaro.plugins.data_formats.roboflow.importer</p>
+      <p class="prev-next-title">datumaro.plugins.data_formats.roboflow.base_tfrecord</p>
   </div>
   <i class="fa-solid fa-angle-right"></i>
   </a>
@@ -743,15 +734,6 @@
    <code class="docutils literal notranslate">
     <span class="pre">
      RoboflowMulticlassBase
-    </span>
-   </code>
-  </a>
- </li>
- <li class="toc-h2 nav-item toc-entry">
-  <a class="reference internal nav-link" href="#datumaro.plugins.data_formats.roboflow.base.RoboflowTfrecord">
-   <code class="docutils literal notranslate">
-    <span class="pre">
-     RoboflowTfrecord
     </span>
    </code>
   </a>

@@ -20,7 +20,6 @@ datumaro.plugins.data\_formats.roboflow.base
       RoboflowCocoBase
       RoboflowCreateMlBase
       RoboflowMulticlassBase
-      RoboflowTfrecord
       RoboflowVocBase
       RoboflowYoloBase
       RoboflowYoloObbBase

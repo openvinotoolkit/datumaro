@@ -6,7 +6,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
 
-    <title>datumaro.util.tf_util &#8212; Datumaro 1.5.0rc0 documentation</title>
+    <title>datumaro.plugins.data_formats.roboflow.base_tfrecord &#8212; Datumaro 1.5.0rc0 documentation</title>
   
   
   
@@ -46,11 +46,11 @@
     <script src="../../../_static/copybutton.js"></script>
     <script src="../../../_static/design-tabs.js"></script>
     <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
-    <script>DOCUMENTATION_OPTIONS.pagename = 'docs/reference/_autosummary/datumaro.util.tf_util';</script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'docs/reference/_autosummary/datumaro.plugins.data_formats.roboflow.base_tfrecord';</script>
     <link rel="index" title="Index" href="../../../genindex.html" />
     <link rel="search" title="Search" href="../../../search.html" />
-    <link rel="next" title="datumaro.version" href="datumaro.version.html" />
-    <link rel="prev" title="datumaro.util.telemetry_utils" href="datumaro.util.telemetry_utils.html" />
+    <link rel="next" title="datumaro.plugins.data_formats.roboflow.importer" href="datumaro.plugins.data_formats.roboflow.importer.html" />
+    <link rel="prev" title="datumaro.plugins.data_formats.roboflow.base" href="datumaro.plugins.data_formats.roboflow.base.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="docsearch:language" content="en">
   </head>
@@ -478,9 +478,9 @@
 </li>
 <li class="toctree-l3"><a class="reference internal" href="datumaro.errors.html">datumaro.errors</a></li>
 <li class="toctree-l3"><a class="reference internal" href="datumaro.ops.html">datumaro.ops</a></li>
-<li class="toctree-l3 has-children"><a class="reference internal" href="datumaro.plugins.html">datumaro.plugins</a><input class="toctree-checkbox" id="toctree-checkbox-18" name="toctree-checkbox-18" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-18"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l3 current active has-children"><a class="reference internal" href="datumaro.plugins.html">datumaro.plugins</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-18" name="toctree-checkbox-18" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-18"><i class="fa-solid fa-chevron-down"></i></label><ul class="current">
 <li class="toctree-l4"><a class="reference internal" href="datumaro.plugins.accuracy_checker_plugin.html">datumaro.plugins.accuracy_checker_plugin</a></li>
-<li class="toctree-l4"><a class="reference internal" href="datumaro.plugins.data_formats.html">datumaro.plugins.data_formats</a></li>
+<li class="toctree-l4 current active"><a class="reference internal" href="datumaro.plugins.data_formats.html">datumaro.plugins.data_formats</a></li>
 <li class="toctree-l4"><a class="reference internal" href="datumaro.plugins.explorer.html">datumaro.plugins.explorer</a></li>
 <li class="toctree-l4"><a class="reference internal" href="datumaro.plugins.framework_converter.html">datumaro.plugins.framework_converter</a></li>
 <li class="toctree-l4"><a class="reference internal" href="datumaro.plugins.inference_server_plugin.html">datumaro.plugins.inference_server_plugin</a></li>
@@ -498,7 +498,7 @@
 </li>
 <li class="toctree-l3"><a class="reference internal" href="datumaro.project.html">datumaro.project</a></li>
 <li class="toctree-l3"><a class="reference internal" href="datumaro.rust_api.html">datumaro.rust_api</a></li>
-<li class="toctree-l3 current active has-children"><a class="reference internal" href="datumaro.util.html">datumaro.util</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-19" name="toctree-checkbox-19" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-19"><i class="fa-solid fa-chevron-down"></i></label><ul class="current">
+<li class="toctree-l3 has-children"><a class="reference internal" href="datumaro.util.html">datumaro.util</a><input class="toctree-checkbox" id="toctree-checkbox-19" name="toctree-checkbox-19" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-19"><i class="fa-solid fa-chevron-down"></i></label><ul>
 <li class="toctree-l4"><a class="reference internal" href="datumaro.util.annotation_util.html">datumaro.util.annotation_util</a></li>
 <li class="toctree-l4"><a class="reference internal" href="datumaro.util.attrs_util.html">datumaro.util.attrs_util</a></li>
 <li class="toctree-l4"><a class="reference internal" href="datumaro.util.definitions.html">datumaro.util.definitions</a></li>
@@ -514,7 +514,7 @@
 <li class="toctree-l4"><a class="reference internal" href="datumaro.util.scope.html">datumaro.util.scope</a></li>
 <li class="toctree-l4"><a class="reference internal" href="datumaro.util.telemetry_stub.html">datumaro.util.telemetry_stub</a></li>
 <li class="toctree-l4"><a class="reference internal" href="datumaro.util.telemetry_utils.html">datumaro.util.telemetry_utils</a></li>
-<li class="toctree-l4 current active"><a class="current reference internal" href="#">datumaro.util.tf_util</a></li>
+<li class="toctree-l4"><a class="reference internal" href="datumaro.util.tf_util.html">datumaro.util.tf_util</a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="datumaro.version.html">datumaro.version</a></li>
@@ -577,36 +577,35 @@
             
             <article class="bd-article" role="main">
               
-  <section id="module-datumaro.util.tf_util">
-<span id="datumaro-util-tf-util"></span><h1>datumaro.util.tf_util<a class="headerlink" href="#module-datumaro.util.tf_util" title="Permalink to this heading">#</a></h1>
-<p class="rubric">Functions</p>
+  <section id="module-datumaro.plugins.data_formats.roboflow.base_tfrecord">
+<span id="datumaro-plugins-data-formats-roboflow-base-tfrecord"></span><h1>datumaro.plugins.data_formats.roboflow.base_tfrecord<a class="headerlink" href="#module-datumaro.plugins.data_formats.roboflow.base_tfrecord" title="Permalink to this heading">#</a></h1>
+<p class="rubric">Classes</p>
 <table class="autosummary longtable table autosummary">
 <tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="#datumaro.util.tf_util.check_import" title="datumaro.util.tf_util.check_import"><code class="xref py py-obj docutils literal notranslate"><span class="pre">check_import</span></code></a>()</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#datumaro.plugins.data_formats.roboflow.base_tfrecord.RoboflowTfrecordBase" title="datumaro.plugins.data_formats.roboflow.base_tfrecord.RoboflowTfrecordBase"><code class="xref py py-obj docutils literal notranslate"><span class="pre">RoboflowTfrecordBase</span></code></a>(path, *[, subset, ctx])</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#datumaro.util.tf_util.has_feature" title="datumaro.util.tf_util.has_feature"><code class="xref py py-obj docutils literal notranslate"><span class="pre">has_feature</span></code></a>(path, feature)</p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#datumaro.util.tf_util.import_tf" title="datumaro.util.tf_util.import_tf"><code class="xref py py-obj docutils literal notranslate"><span class="pre">import_tf</span></code></a>([check])</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#datumaro.plugins.data_formats.roboflow.base_tfrecord.RoboflowTfrecordImporter" title="datumaro.plugins.data_formats.roboflow.base_tfrecord.RoboflowTfrecordImporter"><code class="xref py py-obj docutils literal notranslate"><span class="pre">RoboflowTfrecordImporter</span></code></a>()</p></td>
 <td><p></p></td>
 </tr>
 </tbody>
 </table>
-<dl class="py function">
-<dt class="sig sig-object py" id="datumaro.util.tf_util.check_import">
-<span class="sig-prename descclassname"><span class="pre">datumaro.util.tf_util.</span></span><span class="sig-name descname"><span class="pre">check_import</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/datumaro/util/tf_util.html#check_import"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.util.tf_util.check_import" title="Permalink to this definition">#</a></dt>
+<dl class="py class">
+<dt class="sig sig-object py" id="datumaro.plugins.data_formats.roboflow.base_tfrecord.RoboflowTfrecordImporter">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">datumaro.plugins.data_formats.roboflow.base_tfrecord.</span></span><span class="sig-name descname"><span class="pre">RoboflowTfrecordImporter</span></span><a class="reference internal" href="../../../_modules/datumaro/plugins/data_formats/roboflow/base_tfrecord.html#RoboflowTfrecordImporter"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.plugins.data_formats.roboflow.base_tfrecord.RoboflowTfrecordImporter" title="Permalink to this definition">#</a></dt>
+<dd><p>Bases: <a class="reference internal" href="datumaro.components.importer.html#datumaro.components.importer.Importer" title="datumaro.components.importer.Importer"><code class="xref py py-class docutils literal notranslate"><span class="pre">Importer</span></code></a></p>
+<dl class="py method">
+<dt class="sig sig-object py" id="datumaro.plugins.data_formats.roboflow.base_tfrecord.RoboflowTfrecordImporter.find_sources">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">find_sources</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/datumaro/plugins/data_formats/roboflow/base_tfrecord.html#RoboflowTfrecordImporter.find_sources"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.plugins.data_formats.roboflow.base_tfrecord.RoboflowTfrecordImporter.find_sources" title="Permalink to this definition">#</a></dt>
 <dd></dd></dl>
 
-<dl class="py function">
-<dt class="sig sig-object py" id="datumaro.util.tf_util.import_tf">
-<span class="sig-prename descclassname"><span class="pre">datumaro.util.tf_util.</span></span><span class="sig-name descname"><span class="pre">import_tf</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">check</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/datumaro/util/tf_util.html#import_tf"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.util.tf_util.import_tf" title="Permalink to this definition">#</a></dt>
-<dd></dd></dl>
+</dd></dl>
 
-<dl class="py function">
-<dt class="sig sig-object py" id="datumaro.util.tf_util.has_feature">
-<span class="sig-prename descclassname"><span class="pre">datumaro.util.tf_util.</span></span><span class="sig-name descname"><span class="pre">has_feature</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">feature</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.11)"><span class="pre">bool</span></a></span></span><a class="reference internal" href="../../../_modules/datumaro/util/tf_util.html#has_feature"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.util.tf_util.has_feature" title="Permalink to this definition">#</a></dt>
-<dd></dd></dl>
+<dl class="py class">
+<dt class="sig sig-object py" id="datumaro.plugins.data_formats.roboflow.base_tfrecord.RoboflowTfrecordBase">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">datumaro.plugins.data_formats.roboflow.base_tfrecord.</span></span><span class="sig-name descname"><span class="pre">RoboflowTfrecordBase</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">subset</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Optional" title="(in Python v3.11)"><span class="pre">Optional</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ctx</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Optional" title="(in Python v3.11)"><span class="pre">Optional</span></a><span class="p"><span class="pre">[</span></span><a class="reference internal" href="datumaro.components.contexts.importer.html#datumaro.components.contexts.importer.ImportContext" title="datumaro.components.contexts.importer.ImportContext"><span class="pre">ImportContext</span></a><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/datumaro/plugins/data_formats/roboflow/base_tfrecord.html#RoboflowTfrecordBase"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.plugins.data_formats.roboflow.base_tfrecord.RoboflowTfrecordBase" title="Permalink to this definition">#</a></dt>
+<dd><p>Bases: <a class="reference internal" href="datumaro.plugins.data_formats.tf_detection_api.base.html#datumaro.plugins.data_formats.tf_detection_api.base.TfDetectionApiBase" title="datumaro.plugins.data_formats.tf_detection_api.base.TfDetectionApiBase"><code class="xref py py-class docutils literal notranslate"><span class="pre">TfDetectionApiBase</span></code></a></p>
+</dd></dl>
 
 </section>
 
@@ -618,17 +617,17 @@
             <footer class="bd-footer-article">
                 <!-- Previous / next buttons -->
 <div class='prev-next-area'>
-  <a class='left-prev' id="prev-link" href="datumaro.util.telemetry_utils.html" title="previous page">
+  <a class='left-prev' id="prev-link" href="datumaro.plugins.data_formats.roboflow.base.html" title="previous page">
       <i class="fa-solid fa-angle-left"></i>
       <div class="prev-next-info">
           <p class="prev-next-subtitle">previous</p>
-          <p class="prev-next-title">datumaro.util.telemetry_utils</p>
+          <p class="prev-next-title">datumaro.plugins.data_formats.roboflow.base</p>
       </div>
   </a>
-  <a class='right-next' id="next-link" href="datumaro.version.html" title="next page">
+  <a class='right-next' id="next-link" href="datumaro.plugins.data_formats.roboflow.importer.html" title="next page">
   <div class="prev-next-info">
       <p class="prev-next-subtitle">next</p>
-      <p class="prev-next-title">datumaro.version</p>
+      <p class="prev-next-title">datumaro.plugins.data_formats.roboflow.importer</p>
   </div>
   <i class="fa-solid fa-angle-right"></i>
   </a>
@@ -649,28 +648,30 @@
 <nav id="bd-toc-nav" class="page-toc">
     <ul class="visible nav section-nav flex-column">
  <li class="toc-h2 nav-item toc-entry">
-  <a class="reference internal nav-link" href="#datumaro.util.tf_util.check_import">
+  <a class="reference internal nav-link" href="#datumaro.plugins.data_formats.roboflow.base_tfrecord.RoboflowTfrecordImporter">
    <code class="docutils literal notranslate">
     <span class="pre">
-     check_import()
+     RoboflowTfrecordImporter
     </span>
    </code>
   </a>
+  <ul class="nav section-nav flex-column">
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#datumaro.plugins.data_formats.roboflow.base_tfrecord.RoboflowTfrecordImporter.find_sources">
+     <code class="docutils literal notranslate">
+      <span class="pre">
+       RoboflowTfrecordImporter.find_sources()
+      </span>
+     </code>
+    </a>
+   </li>
+  </ul>
  </li>
  <li class="toc-h2 nav-item toc-entry">
-  <a class="reference internal nav-link" href="#datumaro.util.tf_util.import_tf">
+  <a class="reference internal nav-link" href="#datumaro.plugins.data_formats.roboflow.base_tfrecord.RoboflowTfrecordBase">
    <code class="docutils literal notranslate">
     <span class="pre">
-     import_tf()
-    </span>
-   </code>
-  </a>
- </li>
- <li class="toc-h2 nav-item toc-entry">
-  <a class="reference internal nav-link" href="#datumaro.util.tf_util.has_feature">
-   <code class="docutils literal notranslate">
-    <span class="pre">
-     has_feature()
+     RoboflowTfrecordBase
     </span>
    </code>
   </a>
@@ -692,7 +693,7 @@
 <div class="toc-item">
   
 <div class="tocsection sourcelink">
-    <a href="../../../_sources/docs/reference/_autosummary/datumaro.util.tf_util.rst.txt">
+    <a href="../../../_sources/docs/reference/_autosummary/datumaro.plugins.data_formats.roboflow.base_tfrecord.rst.txt">
         <i class="fa-solid fa-file-lines"></i> Show Source
     </a>
 </div>

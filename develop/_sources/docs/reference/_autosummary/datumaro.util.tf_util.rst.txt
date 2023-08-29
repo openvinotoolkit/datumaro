@@ -14,6 +14,7 @@ datumaro.util.tf\_util
    .. autosummary::
    
       check_import
+      has_feature
       import_tf
    
    

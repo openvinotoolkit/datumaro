@@ -285,7 +285,6 @@
 <span class="kn">import</span> <span class="nn">errno</span>
 <span class="kn">import</span> <span class="nn">os</span>
 <span class="kn">import</span> <span class="nn">os.path</span> <span class="k">as</span> <span class="nn">osp</span>
-<span class="kn">import</span> <span class="nn">re</span>
 <span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Union</span>
 
 <span class="kn">from</span> <span class="nn">defusedxml</span> <span class="kn">import</span> <span class="n">ElementTree</span>
@@ -305,8 +304,6 @@
 <span class="kn">from</span> <span class="nn">datumaro.components.media</span> <span class="kn">import</span> <span class="n">Image</span><span class="p">,</span> <span class="n">ImageFromFile</span>
 <span class="kn">from</span> <span class="nn">datumaro.plugins.data_formats.coco.base</span> <span class="kn">import</span> <span class="n">_CocoBase</span>
 <span class="kn">from</span> <span class="nn">datumaro.plugins.data_formats.coco.format</span> <span class="kn">import</span> <span class="n">CocoImporterType</span><span class="p">,</span> <span class="n">CocoTask</span>
-<span class="kn">from</span> <span class="nn">datumaro.plugins.data_formats.tf_detection_api.base</span> <span class="kn">import</span> <span class="n">TfDetectionApiBase</span>
-<span class="kn">from</span> <span class="nn">datumaro.plugins.data_formats.tf_detection_api.format</span> <span class="kn">import</span> <span class="n">TfrecordImporterType</span>
 <span class="kn">from</span> <span class="nn">datumaro.plugins.data_formats.voc.base</span> <span class="kn">import</span> <span class="n">VocBase</span>
 <span class="kn">from</span> <span class="nn">datumaro.plugins.data_formats.voc.format</span> <span class="kn">import</span> <span class="n">VocImporterType</span><span class="p">,</span> <span class="n">VocTask</span>
 <span class="kn">from</span> <span class="nn">datumaro.plugins.data_formats.yolo.base</span> <span class="kn">import</span> <span class="n">YoloUltralyticsBase</span>
@@ -598,30 +595,6 @@
                 <span class="p">)</span>
 
         <span class="k">return</span> <span class="n">items</span></div>
-
-
-<div class="viewcode-block" id="RoboflowTfrecord"><a class="viewcode-back" href="../../../../../docs/reference/_autosummary/datumaro.plugins.data_formats.roboflow.base.html#datumaro.plugins.data_formats.roboflow.base.RoboflowTfrecord">[docs]</a><span class="k">class</span> <span class="nc">RoboflowTfrecord</span><span class="p">(</span><span class="n">TfDetectionApiBase</span><span class="p">):</span>
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
-        <span class="bp">self</span><span class="p">,</span>
-        <span class="n">path</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
-        <span class="o">*</span><span class="p">,</span>
-        <span class="n">subset</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-        <span class="n">ctx</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">ImportContext</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-    <span class="p">):</span>
-        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
-            <span class="n">path</span><span class="o">=</span><span class="n">path</span><span class="p">,</span> <span class="n">subset</span><span class="o">=</span><span class="n">subset</span><span class="p">,</span> <span class="n">tfrecord_importer_type</span><span class="o">=</span><span class="n">TfrecordImporterType</span><span class="o">.</span><span class="n">roboflow</span><span class="p">,</span> <span class="n">ctx</span><span class="o">=</span><span class="n">ctx</span>
-        <span class="p">)</span>
-
-    <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">_parse_labelmap</span><span class="p">(</span><span class="n">text</span><span class="p">):</span>
-        <span class="n">entry_pattern</span> <span class="o">=</span> <span class="sa">r</span><span class="s1">&#39;name:\s*&quot;([^&quot;]+)&quot;\s*,\s*id:\s*(\d+)&#39;</span>
-        <span class="n">entry_pattern</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="n">entry_pattern</span><span class="p">)</span>
-
-        <span class="n">matches</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="n">entry_pattern</span><span class="p">,</span> <span class="n">text</span><span class="p">)</span>
-
-        <span class="n">labelmap</span> <span class="o">=</span> <span class="p">{</span><span class="n">name</span><span class="p">:</span> <span class="nb">int</span><span class="p">(</span><span class="nb">id</span><span class="p">)</span> <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="nb">id</span> <span class="ow">in</span> <span class="n">matches</span><span class="p">}</span>
-
-        <span class="k">return</span> <span class="n">labelmap</span></div>
 </pre></div>
 
             </article>

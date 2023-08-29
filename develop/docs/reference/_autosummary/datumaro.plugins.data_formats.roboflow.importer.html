@@ -50,7 +50,7 @@
     <link rel="index" title="Index" href="../../../genindex.html" />
     <link rel="search" title="Search" href="../../../search.html" />
     <link rel="next" title="datumaro.plugins.data_formats.segment_anything" href="datumaro.plugins.data_formats.segment_anything.html" />
-    <link rel="prev" title="datumaro.plugins.data_formats.roboflow.base" href="datumaro.plugins.data_formats.roboflow.base.html" />
+    <link rel="prev" title="datumaro.plugins.data_formats.roboflow.base_tfrecord" href="datumaro.plugins.data_formats.roboflow.base_tfrecord.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="docsearch:language" content="en">
   </head>
@@ -591,16 +591,13 @@
 <tr class="row-odd"><td><p><a class="reference internal" href="#datumaro.plugins.data_formats.roboflow.importer.RoboflowMulticlassImporter" title="datumaro.plugins.data_formats.roboflow.importer.RoboflowMulticlassImporter"><code class="xref py py-obj docutils literal notranslate"><span class="pre">RoboflowMulticlassImporter</span></code></a>()</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#datumaro.plugins.data_formats.roboflow.importer.RoboflowTfrecord" title="datumaro.plugins.data_formats.roboflow.importer.RoboflowTfrecord"><code class="xref py py-obj docutils literal notranslate"><span class="pre">RoboflowTfrecord</span></code></a>()</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#datumaro.plugins.data_formats.roboflow.importer.RoboflowVocImporter" title="datumaro.plugins.data_formats.roboflow.importer.RoboflowVocImporter"><code class="xref py py-obj docutils literal notranslate"><span class="pre">RoboflowVocImporter</span></code></a>()</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#datumaro.plugins.data_formats.roboflow.importer.RoboflowVocImporter" title="datumaro.plugins.data_formats.roboflow.importer.RoboflowVocImporter"><code class="xref py py-obj docutils literal notranslate"><span class="pre">RoboflowVocImporter</span></code></a>()</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#datumaro.plugins.data_formats.roboflow.importer.RoboflowYoloImporter" title="datumaro.plugins.data_formats.roboflow.importer.RoboflowYoloImporter"><code class="xref py py-obj docutils literal notranslate"><span class="pre">RoboflowYoloImporter</span></code></a>()</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#datumaro.plugins.data_formats.roboflow.importer.RoboflowYoloImporter" title="datumaro.plugins.data_formats.roboflow.importer.RoboflowYoloImporter"><code class="xref py py-obj docutils literal notranslate"><span class="pre">RoboflowYoloImporter</span></code></a>()</p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#datumaro.plugins.data_formats.roboflow.importer.RoboflowYoloObbImporter" title="datumaro.plugins.data_formats.roboflow.importer.RoboflowYoloObbImporter"><code class="xref py py-obj docutils literal notranslate"><span class="pre">RoboflowYoloObbImporter</span></code></a>()</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#datumaro.plugins.data_formats.roboflow.importer.RoboflowYoloObbImporter" title="datumaro.plugins.data_formats.roboflow.importer.RoboflowYoloObbImporter"><code class="xref py py-obj docutils literal notranslate"><span class="pre">RoboflowYoloObbImporter</span></code></a>()</p></td>
 <td><p></p></td>
 </tr>
 </tbody>
@@ -765,22 +762,6 @@ Otherwise, use the return type to merge the extractors.</p>
 
 </dd></dl>
 
-<dl class="py class">
-<dt class="sig sig-object py" id="datumaro.plugins.data_formats.roboflow.importer.RoboflowTfrecord">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">datumaro.plugins.data_formats.roboflow.importer.</span></span><span class="sig-name descname"><span class="pre">RoboflowTfrecord</span></span><a class="reference internal" href="../../../_modules/datumaro/plugins/data_formats/roboflow/importer.html#RoboflowTfrecord"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.plugins.data_formats.roboflow.importer.RoboflowTfrecord" title="Permalink to this definition">#</a></dt>
-<dd><p>Bases: <a class="reference internal" href="datumaro.components.importer.html#datumaro.components.importer.Importer" title="datumaro.components.importer.Importer"><code class="xref py py-class docutils literal notranslate"><span class="pre">Importer</span></code></a></p>
-<dl class="py attribute">
-<dt class="sig sig-object py" id="datumaro.plugins.data_formats.roboflow.importer.RoboflowTfrecord.FORMAT">
-<span class="sig-name descname"><span class="pre">FORMAT</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'roboflow_tfrecord'</span></em><a class="headerlink" href="#datumaro.plugins.data_formats.roboflow.importer.RoboflowTfrecord.FORMAT" title="Permalink to this definition">#</a></dt>
-<dd></dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="datumaro.plugins.data_formats.roboflow.importer.RoboflowTfrecord.find_sources">
-<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">find_sources</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/datumaro/plugins/data_formats/roboflow/importer.html#RoboflowTfrecord.find_sources"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.plugins.data_formats.roboflow.importer.RoboflowTfrecord.find_sources" title="Permalink to this definition">#</a></dt>
-<dd></dd></dl>
-
-</dd></dl>
-
 </section>
 
 
@@ -791,11 +772,11 @@ Otherwise, use the return type to merge the extractors.</p>
             <footer class="bd-footer-article">
                 <!-- Previous / next buttons -->
 <div class='prev-next-area'>
-  <a class='left-prev' id="prev-link" href="datumaro.plugins.data_formats.roboflow.base.html" title="previous page">
+  <a class='left-prev' id="prev-link" href="datumaro.plugins.data_formats.roboflow.base_tfrecord.html" title="previous page">
       <i class="fa-solid fa-angle-left"></i>
       <div class="prev-next-info">
           <p class="prev-next-subtitle">previous</p>
-          <p class="prev-next-title">datumaro.plugins.data_formats.roboflow.base</p>
+          <p class="prev-next-title">datumaro.plugins.data_formats.roboflow.base_tfrecord</p>
       </div>
   </a>
   <a class='right-next' id="next-link" href="datumaro.plugins.data_formats.segment_anything.html" title="next page">
@@ -1079,35 +1060,6 @@ Otherwise, use the return type to merge the extractors.</p>
      <code class="docutils literal notranslate">
       <span class="pre">
        RoboflowMulticlassImporter.ANN_FILE_NAME
-      </span>
-     </code>
-    </a>
-   </li>
-  </ul>
- </li>
- <li class="toc-h2 nav-item toc-entry">
-  <a class="reference internal nav-link" href="#datumaro.plugins.data_formats.roboflow.importer.RoboflowTfrecord">
-   <code class="docutils literal notranslate">
-    <span class="pre">
-     RoboflowTfrecord
-    </span>
-   </code>
-  </a>
-  <ul class="nav section-nav flex-column">
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.plugins.data_formats.roboflow.importer.RoboflowTfrecord.FORMAT">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       RoboflowTfrecord.FORMAT
-      </span>
-     </code>
-    </a>
-   </li>
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.plugins.data_formats.roboflow.importer.RoboflowTfrecord.find_sources">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       RoboflowTfrecord.find_sources()
       </span>
      </code>
     </a>

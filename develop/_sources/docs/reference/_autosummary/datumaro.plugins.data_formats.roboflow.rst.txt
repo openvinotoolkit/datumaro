@@ -28,5 +28,6 @@ datumaro.plugins.data\_formats.roboflow
    :recursive:
 
    datumaro.plugins.data_formats.roboflow.base
+   datumaro.plugins.data_formats.roboflow.base_tfrecord
    datumaro.plugins.data_formats.roboflow.importer
 

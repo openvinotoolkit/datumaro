@@ -277,10 +277,12 @@
             <article class="bd-article" role="main">
               
   <h1>Source code for datumaro.util.tf_util</h1><div class="highlight"><pre>
-<span></span><span class="c1"># Copyright (C) 2019-2022 Intel Corporation</span>
+<span></span><span class="c1"># Copyright (C) 2019-2023 Intel Corporation</span>
 <span class="c1">#</span>
 <span class="c1"># SPDX-License-Identifier: MIT</span>
 
+
+<span class="kn">import</span> <span class="nn">logging</span> <span class="k">as</span> <span class="nn">log</span>
 
 <span class="n">enable_tf_check</span> <span class="o">=</span> <span class="kc">False</span>
 
@@ -369,6 +371,22 @@
         <span class="k">pass</span>
 
     <span class="k">return</span> <span class="n">tf</span></div>
+
+
+<div class="viewcode-block" id="has_feature"><a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.util.tf_util.html#datumaro.util.tf_util.has_feature">[docs]</a><span class="k">def</span> <span class="nf">has_feature</span><span class="p">(</span><span class="n">path</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">feature</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+    <span class="n">tf</span> <span class="o">=</span> <span class="n">import_tf</span><span class="p">()</span>
+
+    <span class="n">dataset</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">TFRecordDataset</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
+
+    <span class="n">has_feature</span> <span class="o">=</span> <span class="kc">False</span>
+    <span class="k">for</span> <span class="n">record</span> <span class="ow">in</span> <span class="n">dataset</span><span class="p">:</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">_</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">io</span><span class="o">.</span><span class="n">parse_single_example</span><span class="p">(</span><span class="n">record</span><span class="p">,</span> <span class="n">feature</span><span class="p">)</span>
+            <span class="n">has_feature</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="n">log</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;Dataset doesn&#39;t have a feature: </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">))</span>
+            <span class="k">break</span>
+    <span class="k">return</span> <span class="n">has_feature</span></div>
 </pre></div>
 
             </article>

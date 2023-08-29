@@ -293,7 +293,6 @@
 <span class="kn">from</span> <span class="nn">datumaro.components.errors</span> <span class="kn">import</span> <span class="n">DatasetImportError</span>
 <span class="kn">from</span> <span class="nn">datumaro.components.format_detection</span> <span class="kn">import</span> <span class="n">FormatDetectionConfidence</span><span class="p">,</span> <span class="n">FormatDetectionContext</span>
 <span class="kn">from</span> <span class="nn">datumaro.components.importer</span> <span class="kn">import</span> <span class="n">Importer</span>
-<span class="kn">from</span> <span class="nn">datumaro.components.lazy_plugin</span> <span class="kn">import</span> <span class="n">extra_deps</span>
 <span class="kn">from</span> <span class="nn">datumaro.components.merge.extractor_merger</span> <span class="kn">import</span> <span class="n">ExtractorMerger</span>
 
 
@@ -311,7 +310,7 @@
 
 <div class="viewcode-block" id="RoboflowCocoImporter.find_sources"><a class="viewcode-back" href="../../../../../docs/reference/_autosummary/datumaro.plugins.data_formats.roboflow.importer.html#datumaro.plugins.data_formats.roboflow.importer.RoboflowCocoImporter.find_sources">[docs]</a>    <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">find_sources</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">path</span><span class="p">):</span>
-        <span class="n">subset_paths</span> <span class="o">=</span> <span class="n">glob</span><span class="p">(</span><span class="n">osp</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="s2">&quot;*&quot;</span><span class="p">,</span> <span class="bp">cls</span><span class="o">.</span><span class="n">ANN_FILE_NAME</span><span class="p">),</span> <span class="n">recursive</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="n">subset_paths</span> <span class="o">=</span> <span class="n">glob</span><span class="p">(</span><span class="n">osp</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="s2">&quot;**&quot;</span><span class="p">,</span> <span class="bp">cls</span><span class="o">.</span><span class="n">ANN_FILE_NAME</span><span class="p">),</span> <span class="n">recursive</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
         <span class="n">sources</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="k">for</span> <span class="n">subset_path</span> <span class="ow">in</span> <span class="n">subset_paths</span><span class="p">:</span>
@@ -382,7 +381,7 @@
             <span class="n">dirname</span><span class="o">=</span><span class="bp">cls</span><span class="o">.</span><span class="n">ANN_DIR_NAME</span><span class="p">,</span>
             <span class="n">file_filter</span><span class="o">=</span><span class="n">_filter_ann_file</span><span class="p">,</span>
             <span class="n">filename</span><span class="o">=</span><span class="s2">&quot;**/*&quot;</span><span class="p">,</span>
-            <span class="n">max_depth</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+            <span class="n">max_depth</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
             <span class="n">recursive</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
         <span class="p">)</span>
         <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">sources</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
@@ -394,20 +393,20 @@
     <span class="k">def</span> <span class="nf">find_sources</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">path</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]:</span>
         <span class="n">sources</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="n">_get_sources</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
 
-        <span class="n">subsets</span> <span class="o">=</span> <span class="n">defaultdict</span><span class="p">(</span><span class="nb">list</span><span class="p">)</span>
+        <span class="n">subsets</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="k">for</span> <span class="n">source</span> <span class="ow">in</span> <span class="n">sources</span><span class="p">:</span>
             <span class="n">subset_name</span> <span class="o">=</span> <span class="n">osp</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">source</span><span class="p">[</span><span class="s2">&quot;url&quot;</span><span class="p">])</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">sep</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
-            <span class="n">subsets</span><span class="p">[</span><span class="n">subset_name</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">source</span><span class="p">[</span><span class="s2">&quot;url&quot;</span><span class="p">])</span>
+            <span class="n">subsets</span><span class="p">[</span><span class="n">subset_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">osp</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">source</span><span class="p">[</span><span class="s2">&quot;url&quot;</span><span class="p">])</span>
 
         <span class="n">sources</span> <span class="o">=</span> <span class="p">[</span>
             <span class="p">{</span>
-                <span class="s2">&quot;url&quot;</span><span class="p">:</span> <span class="n">osp</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">subset</span><span class="p">),</span>
+                <span class="s2">&quot;url&quot;</span><span class="p">:</span> <span class="n">url</span><span class="p">,</span>
                 <span class="s2">&quot;format&quot;</span><span class="p">:</span> <span class="bp">cls</span><span class="o">.</span><span class="n">FORMAT</span><span class="p">,</span>
                 <span class="s2">&quot;options&quot;</span><span class="p">:</span> <span class="p">{</span>
                     <span class="s2">&quot;subset&quot;</span><span class="p">:</span> <span class="n">subset</span><span class="p">,</span>
                 <span class="p">},</span>
             <span class="p">}</span>
-            <span class="k">for</span> <span class="n">subset</span><span class="p">,</span> <span class="n">_</span> <span class="ow">in</span> <span class="n">subsets</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
+            <span class="k">for</span> <span class="n">subset</span><span class="p">,</span> <span class="n">url</span> <span class="ow">in</span> <span class="n">subsets</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
         <span class="p">]</span>
 
         <span class="k">return</span> <span class="n">sources</span></div></div>
@@ -448,7 +447,7 @@
 
         <span class="n">sources</span> <span class="o">=</span> <span class="p">[</span>
             <span class="p">{</span>
-                <span class="s2">&quot;url&quot;</span><span class="p">:</span> <span class="n">osp</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">subset</span><span class="p">),</span>
+                <span class="s2">&quot;url&quot;</span><span class="p">:</span> <span class="n">osp</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">osp</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">urls</span><span class="p">[</span><span class="mi">0</span><span class="p">])),</span>
                 <span class="s2">&quot;format&quot;</span><span class="p">:</span> <span class="bp">cls</span><span class="o">.</span><span class="n">FORMAT</span><span class="p">,</span>
                 <span class="s2">&quot;options&quot;</span><span class="p">:</span> <span class="p">{</span>
                     <span class="s2">&quot;subset&quot;</span><span class="p">:</span> <span class="n">subset</span><span class="p">,</span>
@@ -490,37 +489,6 @@
 <div class="viewcode-block" id="RoboflowMulticlassImporter"><a class="viewcode-back" href="../../../../../docs/reference/_autosummary/datumaro.plugins.data_formats.roboflow.importer.html#datumaro.plugins.data_formats.roboflow.importer.RoboflowMulticlassImporter">[docs]</a><span class="k">class</span> <span class="nc">RoboflowMulticlassImporter</span><span class="p">(</span><span class="n">RoboflowCocoImporter</span><span class="p">):</span>
     <span class="n">FORMAT</span> <span class="o">=</span> <span class="s2">&quot;roboflow_multiclass&quot;</span>
     <span class="n">ANN_FILE_NAME</span> <span class="o">=</span> <span class="s2">&quot;_classes.csv&quot;</span></div>
-
-
-<div class="viewcode-block" id="RoboflowTfrecord"><a class="viewcode-back" href="../../../../../docs/reference/_autosummary/datumaro.plugins.data_formats.roboflow.importer.html#datumaro.plugins.data_formats.roboflow.importer.RoboflowTfrecord">[docs]</a><span class="nd">@extra_deps</span><span class="p">(</span><span class="s2">&quot;tensorflow&quot;</span><span class="p">)</span>
-<span class="k">class</span> <span class="nc">RoboflowTfrecord</span><span class="p">(</span><span class="n">Importer</span><span class="p">):</span>
-    <span class="n">FORMAT</span> <span class="o">=</span> <span class="s2">&quot;roboflow_tfrecord&quot;</span>
-
-<div class="viewcode-block" id="RoboflowTfrecord.find_sources"><a class="viewcode-back" href="../../../../../docs/reference/_autosummary/datumaro.plugins.data_formats.roboflow.importer.html#datumaro.plugins.data_formats.roboflow.importer.RoboflowTfrecord.find_sources">[docs]</a>    <span class="nd">@classmethod</span>
-    <span class="k">def</span> <span class="nf">find_sources</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">path</span><span class="p">):</span>
-        <span class="n">sources</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="n">_find_sources_recursive</span><span class="p">(</span>
-            <span class="n">path</span><span class="o">=</span><span class="n">path</span><span class="p">,</span> <span class="n">ext</span><span class="o">=</span><span class="s2">&quot;.tfrecord&quot;</span><span class="p">,</span> <span class="n">extractor_name</span><span class="o">=</span><span class="s2">&quot;roboflow_tfrecord&quot;</span><span class="p">,</span> <span class="n">filename</span><span class="o">=</span><span class="s2">&quot;cells&quot;</span>
-        <span class="p">)</span>
-        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">sources</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
-            <span class="k">return</span> <span class="p">[]</span>
-
-        <span class="n">subsets</span> <span class="o">=</span> <span class="n">defaultdict</span><span class="p">()</span>
-        <span class="k">for</span> <span class="n">source</span> <span class="ow">in</span> <span class="n">sources</span><span class="p">:</span>
-            <span class="n">subset_name</span> <span class="o">=</span> <span class="n">osp</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">source</span><span class="p">[</span><span class="s2">&quot;url&quot;</span><span class="p">])</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">sep</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
-            <span class="n">subsets</span><span class="p">[</span><span class="n">subset_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">source</span><span class="p">[</span><span class="s2">&quot;url&quot;</span><span class="p">]</span>
-
-        <span class="n">sources</span> <span class="o">=</span> <span class="p">[</span>
-            <span class="p">{</span>
-                <span class="s2">&quot;url&quot;</span><span class="p">:</span> <span class="n">url</span><span class="p">,</span>
-                <span class="s2">&quot;format&quot;</span><span class="p">:</span> <span class="bp">cls</span><span class="o">.</span><span class="n">FORMAT</span><span class="p">,</span>
-                <span class="s2">&quot;options&quot;</span><span class="p">:</span> <span class="p">{</span>
-                    <span class="s2">&quot;subset&quot;</span><span class="p">:</span> <span class="n">subset</span><span class="p">,</span>
-                <span class="p">},</span>
-            <span class="p">}</span>
-            <span class="k">for</span> <span class="n">subset</span><span class="p">,</span> <span class="n">url</span> <span class="ow">in</span> <span class="n">subsets</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
-        <span class="p">]</span>
-
-        <span class="k">return</span> <span class="n">sources</span></div></div>
 </pre></div>
 
             </article>

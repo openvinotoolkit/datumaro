@@ -20,7 +20,6 @@ datumaro.plugins.data\_formats.roboflow.importer
       RoboflowCocoImporter
       RoboflowCreateMlImporter
       RoboflowMulticlassImporter
-      RoboflowTfrecord
       RoboflowVocImporter
       RoboflowYoloImporter
       RoboflowYoloObbImporter
