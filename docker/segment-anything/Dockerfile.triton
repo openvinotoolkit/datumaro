@@ -6,7 +6,7 @@ ADD triton/sam_decoder /models/sam_decoder
 RUN mkdir -p /models/sam_encoder/1
 RUN mkdir -p /models/sam_decoder/1
 
-COPY --from=onnx-exporter /ws/output/encoder.onnx /models/sam_encoder/1/model.onnx
-COPY --from=onnx-exporter /ws/output/decoder.onnx /models/sam_decoder/1/model.onnx
+COPY --from=onnx-exporter /ws/output/encoder/* /models/sam_encoder/1/
+COPY --from=onnx-exporter /ws/output/decoder/* /models/sam_decoder/1/
 
 ENTRYPOINT [ "tritonserver", "--model-repository=/models" ]

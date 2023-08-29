@@ -57,16 +57,15 @@ if __name__ == "__main__":
 
     output_names = ["image_embeddings"]
 
-    with open(args.output, "wb") as f:
-        torch.onnx.export(
-            Encoder(model_type=args.model_type, checkpoint=args.checkpoint),
-            inputs,
-            f,
-            export_params=True,
-            verbose=False,
-            opset_version=args.opset,
-            do_constant_folding=True,
-            input_names=list(inputs.keys()),
-            output_names=output_names,
-            dynamic_axes={"img": [2, 3]},
-        )
+    torch.onnx.export(
+        Encoder(model_type=args.model_type, checkpoint=args.checkpoint),
+        inputs,
+        args.output,
+        export_params=True,
+        verbose=False,
+        opset_version=args.opset,
+        do_constant_folding=True,
+        input_names=list(inputs.keys()),
+        output_names=output_names,
+        dynamic_axes={"img": [2, 3]},
+    )
