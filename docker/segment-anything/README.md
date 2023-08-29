@@ -61,7 +61,7 @@ Execute the following command in your shell to launch the inference server:
 
 ```console
 # MODEL_TYPE := "vit_h", "vit_l", or "vit_b"
-docker run -it --rm -p 9000:9000 segment-anything-ovms:<MODEL_TYPE> --port 9000
+docker run -it --rm -p 8001:8001 segment-anything-ovms:<MODEL_TYPE> --port 8001
 ```
 
 ### Building Docker image for NVIDIA Triton™ Inference Server
