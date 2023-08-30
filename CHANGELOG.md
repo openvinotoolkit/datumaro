@@ -27,6 +27,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   (<https://github.com/openvinotoolkit/datumaro/pull/1116>)
 - Add Rust API to optimize COCOPageMapper performance
   (<https://github.com/openvinotoolkit/datumaro/pull/1120>)
+- Remove unused imports from os_util.py
+  (<https://github.com/openvinotoolkit/datumaro/pull/1139>)
 
 ### Bug fixes
 - Fix bugs for Tile transform
