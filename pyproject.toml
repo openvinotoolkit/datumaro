@@ -24,6 +24,14 @@ omit = [
 [tool.cibuildwheel]
 build = "cp38-*_x86_64 cp39-*_x86_64 cp310-*_x86_64 cp311-*_x86_64 cp38-*_amd64 cp39-*_amd64 cp310-*_amd64 cp311-*_amd64"
 
+[tool.cibuildwheel.linux]
+before-all = [
+    "curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs -o rustup-init.sh",
+    "sh ./rustup-init.sh -y --default-toolchain stable --profile minimal"
+]
+
+environment = { PATH="$HOME/.cargo/bin:$PATH" }
+
 [tool.coverage.report]
 # Regexes for lines to exclude from consideration
 exclude_lines = [
