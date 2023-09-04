@@ -25,7 +25,7 @@ def build_parser(parser_ctor=argparse.ArgumentParser):
         By default, datasets are updated in-place. The '-o/--output-dir'
         option can be used to specify another output directory. When
         updating in-place, use the '--overwrite' parameter along with the
-        '--save-images' export option (in-place updates fail by default
+        '--save-media' export option (in-place updates fail by default
         to prevent data loss).|n
         |n
         Unlike the regular project data source joining, the datasets are not
@@ -39,7 +39,7 @@ def build_parser(parser_ctor=argparse.ArgumentParser):
         The command supports passing extra exporting options for the output
         dataset. The extra options should be passed after the main arguments
         and after the '--' separator. Particularly, this is useful to include
-        images in the output dataset with '--save-images'.|n
+        images in the output dataset with '--save-media'.|n
         |n
         This command can be applied to the current project targets or
         arbitrary datasets outside a project. Note that if the target dataset
@@ -64,7 +64,7 @@ def build_parser(parser_ctor=argparse.ArgumentParser):
         |n
         Examples:|n
         - Update a VOC-like dataset with COCO-like annotations:|n
-        |s|s%(prog)s --overwrite dataset1/:voc dataset2/:coco -- --save-images|n
+        |s|s%(prog)s --overwrite dataset1/:voc dataset2/:coco -- --save-media|n
         |n
         - Generate a patched dataset, based on a project:|n
         |s|s%(prog)s -o patched_proj1/ proj1/ proj2/|n

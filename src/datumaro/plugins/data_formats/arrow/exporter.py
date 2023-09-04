@@ -365,7 +365,6 @@ class ArrowExporter(Exporter):
         extractor: IDataset,
         save_dir: str,
         *,
-        save_images=None,  # Deprecated
         save_media: Optional[bool] = None,
         image_ext: Optional[Union[str, Callable[[str], bytes]]] = None,
         default_image_ext: Optional[str] = None,
@@ -380,7 +379,6 @@ class ArrowExporter(Exporter):
         super().__init__(
             extractor=extractor,
             save_dir=save_dir,
-            save_images=save_images,
             save_media=save_media,
             image_ext=image_ext,
             default_image_ext=default_image_ext,

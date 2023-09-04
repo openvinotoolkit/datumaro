@@ -6,7 +6,6 @@ import importlib
 import os
 import os.path as osp
 import shlex
-import warnings
 import weakref
 from contextlib import contextmanager
 from enum import Enum, auto
@@ -43,22 +42,6 @@ except ModuleNotFoundError:
 
 from datumaro.util.image_cache import ImageCache
 from datumaro.util.os_util import find_files
-
-
-def __getattr__(name: str):
-    if name in {"Image", "ByteImage"}:
-        warnings.warn(
-            f"Using {name} from 'util.image' is deprecated, "
-            "the class is moved to 'components.media' "
-            "It will be deprecated in datumaro==1.5.0.",
-            DeprecationWarning,
-            stacklevel=2,
-        )
-
-        import datumaro.components.media as media_module
-
-        return getattr(media_module, name)
-    raise AttributeError(f"module {__name__} has no attribute {name}")
 
 
 def load_image(path: str, dtype: DTypeLike = np.uint8, crypter: Crypter = NULL_CRYPTER):

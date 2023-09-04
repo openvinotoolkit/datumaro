@@ -402,7 +402,7 @@ class YoloStrictBaseTest:
             ],
             categories=["test"],
         )
-        dataset.export(test_dir, "yolo", save_images=True)
+        dataset.export(test_dir, "yolo", save_media=True)
 
         return dataset
 
