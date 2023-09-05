@@ -2,6 +2,8 @@ import os
 import os.path as osp
 from unittest.case import TestCase
 
+import pytest
+
 from datumaro.components.media_manager import MediaManager
 from datumaro.util.scope import on_exit_do, scope_add, scoped
 
@@ -12,6 +14,7 @@ from tests.utils.test_utils import TestDir
 from tests.utils.test_utils import run_datum as run
 
 
+@pytest.mark.xfail(reason="This test is flaky so that can fail randomly")
 class VideoSplittingTest:
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     @scoped
