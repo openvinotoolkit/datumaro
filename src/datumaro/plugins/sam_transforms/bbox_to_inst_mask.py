@@ -21,6 +21,8 @@ from datumaro.plugins.inference_server_plugin.base import (
 from datumaro.util import take_by
 from datumaro.util.mask_tools import extract_contours
 
+__all__ = ["SAMBboxToInstanceMask"]
+
 
 class SAMBboxToInstanceMask(ModelTransform, CliPlugin):
     """Convert bounding boxes to instance mask using Segment Anything Model.
