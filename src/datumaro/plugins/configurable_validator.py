@@ -86,7 +86,7 @@ class _BaseAnnStats:
                             self.stats[label_name]["attributes"][attr][str(value)] = 1
                     except Exception as e:
                         log.warning(
-                            "Label '%s': failed to get access to attribute %e" % (label_name, e)
+                            "Label '%s': failed to get access to attribute %s" % (label_name, e)
                         )
                         if {UndefinedAttribute} & self.warnings:
                             # attribute is not defined within the label
@@ -157,23 +157,34 @@ class DetStats(_BaseAnnStats):
     def _update_ann_type_stats(self, item_key: tuple, annotation: Annotation):
         if self.BBOX_WARNINGS & self.warnings:
             _, _, w, h = annotation.get_bbox()
+            area = annotation.get_area()
+            if h != 0 and h != float("inf"):
+                ratio = w / h
+            else:
+                ratio = float("nan")
+
+            is_valid = True
 
             if {InvalidValue} & self.warnings:
                 if w == float("inf") or np.isnan(w) or h == float("inf") or np.isnan(h):
                     self.stats["invalid_value"].add(item_key + (annotation.id,))
+                    is_valid = False
 
             if {NegativeLength} & self.warnings:
                 if w < 1 or h < 1:
                     self.stats["negative_length"].add(item_key + (annotation.id,))
+                    is_valid = False
 
-            label_name = self.label_categories[annotation.label].name
-            self.stats[label_name]["pts"].append(item_key + (annotation.id, w, h))
+            if is_valid:
+                label_name = self.label_categories[annotation.label].name
+                self.stats[label_name]["pts"].append(item_key + (annotation.id, w, h, area, ratio))
 
 
 class SegStats(_BaseAnnStats):
     SEG_WARNINGS = {
         FarFromAttrMean,  # annotation level
         FarFromLabelMean,  # annotation level
+        InvalidValue,
         ImbalancedDistInAttribute,  # annotation level: bbox
         ImbalancedDistInLabel,  # annotation level: bbox
     }
@@ -191,9 +202,18 @@ class SegStats(_BaseAnnStats):
     def _update_ann_type_stats(self, item_key: tuple, annotation: Annotation):
         if self.SEG_WARNINGS & self.warnings:
             _, _, w, h = annotation.get_bbox()
+            area = annotation.get_area()
 
-            label_name = self.label_categories[annotation.label].name
-            self.stats[label_name]["pts"].append(item_key + (annotation.id, w, h))
+            is_valid = True
+
+            if {InvalidValue} & self.warnings:
+                if w == float("inf") or np.isnan(w) or h == float("inf") or np.isnan(h):
+                    self.stats["invalid_value"].add(item_key + (annotation.id,))
+                    is_valid = False
+
+            if is_valid:
+                label_name = self.label_categories[annotation.label].name
+                self.stats[label_name]["pts"].append(item_key + (annotation.id, w, h, area, 1))
 
 
 class ConfigurableValidator(Validator, CliPlugin):
@@ -202,6 +222,29 @@ class ConfigurableValidator(Validator, CliPlugin):
     DEFAULT_FAR_FROM_MEAN_THR = 5
     DEFAULT_DOMINANCE_RATIO_THR = 0.8
     DEFAULT_TOPK_BINS = 0.1
+
+    ALL_WARNINGS = {
+        AttributeDefinedButNotFound,  # annotation level
+        FarFromAttrMean,  # annotation level
+        FarFromLabelMean,  # annotation level
+        FewSamplesInAttribute,  # annotation level
+        FewSamplesInLabel,  # annotation level
+        ImbalancedAttribute,  # annotation level
+        ImbalancedDistInAttribute,  # annotation level: bbox
+        ImbalancedDistInLabel,  # annotation level: bbox
+        ImbalancedLabels,  # annotation level
+        InvalidValue,  # annotation level
+        LabelDefinedButNotFound,  # item level
+        MissingAnnotation,  # item level
+        MissingAttribute,  # annotation level
+        MissingLabelCategories,  # dataset level
+        MultiLabelAnnotations,  # item level
+        NegativeLength,  # annotation level
+        OnlyOneAttributeValue,  # annotation level
+        OnlyOneLabel,  # annotation level
+        UndefinedAttribute,  # annotation level
+        UndefinedLabel,  # annotation level
+    }
 
     @classmethod
     def build_cmdline_parser(cls, **kwargs):
@@ -254,8 +297,12 @@ class ConfigurableValidator(Validator, CliPlugin):
 
     def __init__(
         self,
-        tasks: List[TaskType],
-        warnings: Set[DatasetValidationError],
+        tasks: List[TaskType] = [
+            TaskType.classification,
+            TaskType.detection,
+            TaskType.segmentation,
+        ],
+        warnings: Set[DatasetValidationError] = ALL_WARNINGS,
         few_samples_thr=None,
         imbalance_ratio_thr=None,
         far_from_mean_thr=None,
@@ -621,11 +668,11 @@ class ConfigurableValidator(Validator, CliPlugin):
             label_name = label_cat.name
 
             prop = {"width": [], "height": [], "ratio": [], "area": []}
-            for _, _, _, w, h in stats[label_name]["pts"]:
+            for _, _, _, w, h, a, r in stats[label_name]["pts"]:
                 prop["width"].append(w)
                 prop["height"].append(h)
-                prop["ratio"].append(w / h)
-                prop["area"].append(w * h)
+                prop["ratio"].append(r)
+                prop["area"].append(a)
 
             prop_stats = {}
             for p, vals in prop.items():
@@ -633,8 +680,8 @@ class ConfigurableValidator(Validator, CliPlugin):
                 prop_stats[p]["mean"] = np.mean(vals)
                 prop_stats[p]["stdev"] = np.std(vals)
 
-            for item_id, item_subset, ann_id, w, h in stats[label_name]["pts"]:
-                item_prop = {"width": w, "height": h, "ratio": w / h, "area": w * h}
+            for item_id, item_subset, ann_id, w, h, a, r in stats[label_name]["pts"]:
+                item_prop = {"width": w, "height": h, "ratio": r, "area": a}
 
                 for p in prop_stats.keys():
                     if _far_from_mean(item_prop[p], prop_stats[p]["mean"], prop_stats[p]["stdev"]):
@@ -659,11 +706,11 @@ class ConfigurableValidator(Validator, CliPlugin):
             label_name = label_cat.name
 
             prop = {"width": [], "height": [], "ratio": [], "area": []}
-            for _, _, _, w, h in stats[label_name]["pts"]:
+            for _, _, _, w, h, a, r in stats[label_name]["pts"]:
                 prop["width"].append(w)
                 prop["height"].append(h)
-                prop["ratio"].append(w / h)
-                prop["area"].append(w * h)
+                prop["area"].append(a)
+                prop["ratio"].append(r)
 
             for p, vals in prop.items():
                 counts, _ = np.histogram(vals)
