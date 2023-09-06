@@ -12,8 +12,10 @@ import cv2
 import numpy as np
 
 from datumaro.components.abstracts import IModelInterpreter
-from datumaro.components.abstracts.model_interpreter import ModelPred, PrepInfo
+from datumaro.components.abstracts.model_interpreter import LauncherInputType, ModelPred, PrepInfo
 from datumaro.components.annotation import Annotation, AnnotationType, Bbox, LabelCategories
+from datumaro.components.dataset_base import DatasetItem
+from datumaro.components.media import Image
 
 
 class FaceDetectionModelInterpreter(IModelInterpreter):
@@ -21,7 +23,8 @@ class FaceDetectionModelInterpreter(IModelInterpreter):
     width = 600
     conf_threshold = 0.5
 
-    def preprocess(self, img: np.ndarray) -> Tuple[np.ndarray, PrepInfo]:
+    def preprocess(self, inp: DatasetItem) -> Tuple[LauncherInputType, PrepInfo]:
+        img = inp.media_as(Image).data
         assert img.ndim == 3
         h_img, w_img, _ = img.shape
 

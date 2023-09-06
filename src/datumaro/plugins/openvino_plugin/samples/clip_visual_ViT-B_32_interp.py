@@ -9,9 +9,11 @@ import cv2
 import numpy as np
 
 from datumaro.components.abstracts import IModelInterpreter
-from datumaro.components.abstracts.model_interpreter import ModelPred, PrepInfo
+from datumaro.components.abstracts.model_interpreter import LauncherInputType, ModelPred, PrepInfo
 from datumaro.components.annotation import Annotation, AnnotationType, LabelCategories
+from datumaro.components.dataset_base import DatasetItem
 from datumaro.components.errors import DatumaroError
+from datumaro.components.media import Image
 from datumaro.plugins.openvino_plugin.samples.utils import gen_hash_key
 from datumaro.util.samples import get_samples_path
 
@@ -20,7 +22,8 @@ class ClipVisualViTB32ModelInterpreter(IModelInterpreter):
     mean = (255 * np.array([0.485, 0.456, 0.406])).reshape(1, 1, 3)
     std = (255 * np.array([0.229, 0.224, 0.225])).reshape(1, 1, 3)
 
-    def preprocess(self, img: np.ndarray) -> Tuple[np.ndarray, PrepInfo]:
+    def preprocess(self, inp: DatasetItem) -> Tuple[LauncherInputType, PrepInfo]:
+        img = inp.media_as(Image).data
         img = cv2.resize(img, (224, 224))
         img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
         img = (img - self.mean) / self.std

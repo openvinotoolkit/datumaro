@@ -64,19 +64,23 @@ class RescaledImage:
     scale: float
 
 
-def rescale_img_keeping_aspect_ratio(img: np.ndarray, h_model: int, w_model: int) -> RescaledImage:
+def rescale_img_keeping_aspect_ratio(
+    img: np.ndarray, h_model: int, w_model: int, padding: bool = True
+) -> RescaledImage:
     """
     Rescale image while maintaining its aspect ratio.
 
     This function rescales the input image to fit the requirements of the model input.
     It also attempts to preserve the original aspect ratio of the input image.
     If the aspect ratio of the input image does not match the aspect ratio required by the model,
-    the function applies zero padding to the image boundaries to maintain the aspect ratio.
+    the function applies zero padding to the image boundaries to maintain the aspect ratio if `padding` option is true.
 
     Parameters:
         img: The image to be rescaled.
         h_model: The desired height of the image required by the model.
         w_model: The desired width of the image required by the model.
+        padding: If true, pad the output image boundaries to make the output image size `(h_model, w_model).
+            Otherwise, there is no pad, so that the output image size can be different with `(h_model, w_model)`.
     """
     assert len(img.shape) == 3
 
@@ -89,11 +93,19 @@ def rescale_img_keeping_aspect_ratio(img: np.ndarray, h_model: int, w_model: int
 
     num_channel = img.shape[-1]
 
-    resized_inputs = np.zeros((h_model, w_model, num_channel), dtype=np.uint8)
+    if padding:
+        resized_inputs = np.zeros((h_model, w_model, num_channel), dtype=np.uint8)
 
-    resized_inputs[:h_resize, :w_resize, :] = cv2.resize(
-        img,
-        (w_resize, h_resize),
-        interpolation=cv2.INTER_LINEAR,
-    )
+        resized_inputs[:h_resize, :w_resize, :] = cv2.resize(
+            img,
+            (w_resize, h_resize),
+            interpolation=cv2.INTER_LINEAR,
+        )
+    else:
+        resized_inputs = cv2.resize(
+            img,
+            (w_resize, h_resize),
+            interpolation=cv2.INTER_LINEAR,
+        )
+
     return RescaledImage(image=resized_inputs, scale=scale)

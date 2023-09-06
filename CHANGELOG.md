@@ -15,6 +15,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   (<https://github.com/openvinotoolkit/datumaro/pull/1125>)
 - Add SAM OVMS and Triton server Docker image builders
   (<https://github.com/openvinotoolkit/datumaro/pull/1129>)
+- Add SAMBboxToInstanceMask transform
+  (<https://github.com/openvinotoolkit/datumaro/pull/1133>)
 
 ### Enhancements
 - Remove xfail marks from the convert integration tests
@@ -27,6 +29,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   (<https://github.com/openvinotoolkit/datumaro/pull/1116>)
 - Add Rust API to optimize COCOPageMapper performance
   (<https://github.com/openvinotoolkit/datumaro/pull/1120>)
+- Support a dictionary input in addition to a single image input for the model launcher to support Segment Anything Model
+  (<https://github.com/openvinotoolkit/datumaro/pull/1133>)
 - Remove deprecates announced to be removed in 1.5.0
   (<https://github.com/openvinotoolkit/datumaro/pull/1140>)
 

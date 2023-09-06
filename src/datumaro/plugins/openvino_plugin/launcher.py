@@ -16,7 +16,7 @@ import numpy as np
 from openvino.runtime import Core
 from tqdm import tqdm
 
-from datumaro.components.abstracts.model_interpreter import ModelPred
+from datumaro.components.abstracts.model_interpreter import LauncherInputType, ModelPred
 from datumaro.components.cli_plugin import CliPlugin
 from datumaro.components.launcher import LauncherWithModelInterpreter
 from datumaro.errors import DatumaroError
@@ -255,12 +255,15 @@ class OpenvinoLauncher(LauncherWithModelInterpreter):
         )
         self._request = self._net.create_infer_request()
 
-    def infer(self, inputs: np.ndarray) -> List[ModelPred]:
+    def infer(self, inputs: LauncherInputType) -> List[ModelPred]:
         batch_size = len(inputs)
         if self._batch_size < batch_size:
             self._load_executable_net(batch_size)
 
-        results = self._request.infer(inputs={self._input_blob.get_any_name(): inputs})
+        inputs = (
+            {self._input_blob.get_any_name(): inputs} if isinstance(inputs, np.ndarray) else inputs
+        )
+        results = self._request.infer(inputs=inputs)
 
         outputs_group_by_item = [
             {key.any_name: output for key, output in zip(results.keys(), outputs)}

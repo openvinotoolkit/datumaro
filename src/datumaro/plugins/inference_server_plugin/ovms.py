@@ -10,7 +10,7 @@ from ovmsclient import make_grpc_client, make_http_client
 from ovmsclient.tfs_compat.grpc.serving_client import GrpcClient
 from ovmsclient.tfs_compat.http.serving_client import HttpClient
 
-from datumaro.components.abstracts.model_interpreter import ModelPred
+from datumaro.components.abstracts.model_interpreter import LauncherInputType, ModelPred
 from datumaro.components.errors import DatumaroError
 from datumaro.plugins.inference_server_plugin.base import (
     LauncherForDedicatedInferenceServer,
@@ -63,14 +63,15 @@ class OVMSLauncher(LauncherForDedicatedInferenceServer[TClient]):
         )
         log.info(f"Received metadata: {self._metadata}")
 
-    def infer(self, inputs: np.ndarray) -> List[ModelPred]:
+    def infer(self, inputs: LauncherInputType) -> List[ModelPred]:
         # Please see the following link for the input and output type of self._client.predict()
         # https://github.com/openvinotoolkit/model_server/blob/releases/2022/3/client/python/ovmsclient/lib/docs/grpc_client.md#method-predict
         # The input is Dict[str, np.ndarray].
         # The output is Dict[str, np.ndarray] (If the model has multiple outputs),
         # or np.ndarray (If the model has one single output).
+        pred_inputs = {self._input_key: inputs} if isinstance(inputs, np.ndarray) else inputs
         results = self._client.predict(
-            inputs={self._input_key: inputs},
+            inputs=pred_inputs,
             model_name=self.model_name,
             model_version=self.model_version,
             timeout=self.timeout,

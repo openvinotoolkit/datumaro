@@ -275,12 +275,6 @@ class FeatureVector(Annotation):
     _type = AnnotationType.feature_vector
     vector: np.ndarray = field(validator=attr.validators.instance_of(np.ndarray))
 
-    @vector.validator
-    def _validate(self, attribute, value: np.ndarray):
-        """Check whether value is a 1D Numpy array"""
-        if value.ndim != 1:
-            raise ValueError(value)
-
     def __eq__(self, other):
         if not super().__eq__(other):
             return False

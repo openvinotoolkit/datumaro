@@ -5,23 +5,25 @@
 from typing import List, Tuple
 
 import cv2
-import numpy as np
 
 from datumaro.components.abstracts import IModelInterpreter
-from datumaro.components.abstracts.model_interpreter import ModelPred, PrepInfo
+from datumaro.components.abstracts.model_interpreter import LauncherInputType, ModelPred, PrepInfo
 from datumaro.components.annotation import (
     Annotation,
     AnnotationType,
     FeatureVector,
     LabelCategories,
 )
+from datumaro.components.dataset_base import DatasetItem
 from datumaro.components.errors import DatumaroError
+from datumaro.components.media import Image
 
 
 class GooglenetV4TfModelInterpreter(IModelInterpreter):
     FEAT_KEY = "InceptionV4/Logits/PreLogitsFlatten/flatten_1/Reshape:0"
 
-    def preprocess(self, img: np.ndarray) -> Tuple[np.ndarray, PrepInfo]:
+    def preprocess(self, inp: DatasetItem) -> Tuple[LauncherInputType, PrepInfo]:
+        img = inp.media_as(Image).data
         img = cv2.resize(img, (299, 299))
         img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
         return img, None
