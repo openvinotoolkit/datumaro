@@ -35,7 +35,7 @@ def build_parser(parser_ctor=argparse.ArgumentParser):
         options, which are passed after the '--' separator (see examples),
         pass '-- -h' for more info. If not stated otherwise, by default
         only annotations are exported, to include images pass
-        '--save-images' parameter.|n
+        '--save-media' parameter.|n
         |n
         A filter can be passed, check the 'filter' command description for
         more info.|n
@@ -58,7 +58,7 @@ def build_parser(parser_ctor=argparse.ArgumentParser):
         |n
         Examples:|n
         - Export project as a VOC-like dataset, include images:|n
-        |s|s%(prog)s -f voc -- --save-images|n
+        |s|s%(prog)s -f voc -- --save-media|n
         |n
         - Export project as a COCO-like dataset in other directory:|n
         |s|s%(prog)s -f coco -o path/I/like/

@@ -197,7 +197,7 @@ class YoloIntegrationScenarios(TestCase):
                 "-f",
                 "yolo",
                 "--",
-                "--save-image",
+                "--save-media",
             )
 
             parsed_dataset = Dataset.import_from(export_dir, format="yolo")

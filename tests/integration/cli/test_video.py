@@ -180,7 +180,7 @@ class VideoTest(TestCase):
                 "-o",
                 result_dir,
                 "--",
-                "--save-images",
+                "--save-media",
             )
             actual = Dataset.import_from(result_dir, "datumaro")
 

@@ -14,7 +14,7 @@ from datumaro.components.annotation import AnnotationType, LabelCategories
 from datumaro.components.errors import DatasetExportError
 from datumaro.components.exporter import Exporter
 from datumaro.components.lazy_plugin import extra_deps
-from datumaro.components.media import ByteImage, Image, ImageFromBytes
+from datumaro.components.media import Image, ImageFromBytes
 from datumaro.util.annotation_util import find_group_leader, find_instances, max_bbox
 from datumaro.util.image import encode_image
 from datumaro.util.mask_tools import merge_masks
@@ -225,9 +225,7 @@ class TfDetectionApiExporter(Exporter):
 
         buffer = None
         if src_ext == dst_ext:
-            if isinstance(item.media, ByteImage):
-                buffer = item.media.get_bytes()
-            elif isinstance(item.media, ImageFromBytes):
+            if isinstance(item.media, ImageFromBytes):
                 buffer = item.media.bytes
         if buffer is None:
             buffer = encode_image(item.media.data, dst_ext)

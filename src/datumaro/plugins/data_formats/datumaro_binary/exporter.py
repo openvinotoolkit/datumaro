@@ -238,7 +238,6 @@ class DatumaroBinaryExporter(DatumaroExporter):
         extractor: IDataset,
         save_dir: str,
         *,
-        save_images=None,
         save_media: Optional[bool] = None,
         image_ext: Optional[str] = None,
         default_image_ext: Optional[str] = None,
@@ -289,7 +288,6 @@ class DatumaroBinaryExporter(DatumaroExporter):
         super().__init__(
             extractor,
             save_dir,
-            save_images=save_images,
             save_media=save_media,
             image_ext=image_ext,
             default_image_ext=default_image_ext,

@@ -1,4 +1,4 @@
-# Copyright (C) 2019-2022 Intel Corporation
+# Copyright (C) 2019-2023 Intel Corporation
 #
 # SPDX-License-Identifier: MIT
 
@@ -70,6 +70,7 @@ from datumaro.components.errors import (
     UnknownStageError,
     UnknownTargetError,
     UnsavedChangesError,
+    VcsAlreadyExists,
     VcsError,
 )
 from datumaro.components.launcher import Launcher
@@ -1787,8 +1788,16 @@ class Project:
         os.makedirs(osp.join(path, ProjectLayout.cache_dir))
         os.makedirs(osp.join(path, ProjectLayout.tmp_dir))
 
-        on_error_do(rmtree, osp.join(project_dir, ".git"), ignore_errors=True)
-        on_error_do(rmtree, osp.join(project_dir, ".dvc"), ignore_errors=True)
+        git_dir, dvc_dir = osp.join(project_dir, ".git"), osp.join(project_dir, ".dvc")
+
+        if osp.exists(git_dir):
+            raise VcsAlreadyExists(git_dir)
+        if osp.exists(dvc_dir):
+            raise VcsAlreadyExists(dvc_dir)
+
+        on_error_do(rmtree, git_dir, ignore_errors=True)
+        on_error_do(rmtree, dvc_dir, ignore_errors=True)
+
         project = Project(path)
         project._init_vcs()
 
