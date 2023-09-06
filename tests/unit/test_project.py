@@ -1,3 +1,7 @@
+# Copyright (C) 2019-2023 Intel Corporation
+#
+# SPDX-License-Identifier: MIT
+
 import os
 import os.path as osp
 import shutil
@@ -6,6 +10,7 @@ from typing import List, Sequence
 from unittest import TestCase
 
 import numpy as np
+import pytest
 
 from datumaro.components.annotation import Annotation, Bbox, Label
 from datumaro.components.config_model import Model, Source
@@ -26,17 +31,37 @@ from datumaro.components.errors import (
     SourceUrlInsideProjectError,
     UnexpectedUrlError,
     UnknownTargetError,
+    VcsAlreadyExists,
 )
 from datumaro.components.launcher import Launcher
 from datumaro.components.media import Image
 from datumaro.components.project import DiffStatus, Project
 from datumaro.components.transformer import ItemTransform
+from datumaro.util.os_util import find_files
 from datumaro.util.scope import scope_add, scoped
 
 from ..requirements import Requirements, mark_requirement
 
 from tests.utils.assets import get_test_asset_path
 from tests.utils.test_utils import TestDir, compare_datasets, compare_dirs
+
+
+class ProjectNewTest:
+    @pytest.fixture(params=[".git", ".dvc"])
+    def fxt_vcs_exist_dir(self, test_dir, request):
+        vcs_dir = osp.join(test_dir, request.param)
+        os.makedirs(vcs_dir)
+        with open(osp.join(vcs_dir, "dummy.file"), "w") as fp:
+            fp.write("dummy")
+        yield test_dir
+
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
+    def test_project_init_failed_by_vcs_already_exist(self, fxt_vcs_exist_dir):
+        with pytest.raises(VcsAlreadyExists):
+            Project.init(fxt_vcs_exist_dir)
+
+        # Assert Project.init() do not the existing vcs directory
+        assert len(list(find_files(fxt_vcs_exist_dir, ".file", recursive=True))) > 0
 
 
 class ProjectTest(TestCase):

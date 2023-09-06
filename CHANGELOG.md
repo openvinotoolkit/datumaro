@@ -35,6 +35,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   (<https://github.com/openvinotoolkit/datumaro/pull/1123>)
 - Disable Roboflow Tfrecord format when Tensorflow is not installed
   (<https://github.com/openvinotoolkit/datumaro/pull/1130>)
+- Raise VcsAlreadyExists error if vcs directory exists
+  (<https://github.com/openvinotoolkit/datumaro/pull/1138>)
 
 ## 27/07/2023 - Release 1.4.1
 ### Bug fixes
