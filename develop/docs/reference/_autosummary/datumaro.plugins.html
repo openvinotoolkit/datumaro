@@ -383,6 +383,7 @@
 <li class="toctree-l1 has-children"><a class="reference internal" href="../../jupyter_notebook_examples/transform.html">Transform</a><input class="toctree-checkbox" id="toctree-checkbox-10" name="toctree-checkbox-10" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-10"><i class="fa-solid fa-chevron-down"></i></label><ul>
 <li class="toctree-l2"><a class="reference internal" href="../../jupyter_notebook_examples/notebooks/05_transform.html">Transform Dataset: Re-id, Reindexing, Remapping, etc.</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../jupyter_notebook_examples/notebooks/06_tiling.html">Tile your Dataset to Cope with High-Resolution Images</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../jupyter_notebook_examples/notebooks/18_bbox_to_instance_mask_using_sam.html">Transform bounding box to instance mask annotations using Segment Anything Model</a></li>
 </ul>
 </li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../../jupyter_notebook_examples/e2e_example.html">From Datumaro to Model Training</a><input class="toctree-checkbox" id="toctree-checkbox-11" name="toctree-checkbox-11" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-11"><i class="fa-solid fa-chevron-down"></i></label><ul>
@@ -487,6 +488,7 @@
 <li class="toctree-l4"><a class="reference internal" href="datumaro.plugins.missing_annotation_detection.html">datumaro.plugins.missing_annotation_detection</a></li>
 <li class="toctree-l4"><a class="reference internal" href="datumaro.plugins.ndr.html">datumaro.plugins.ndr</a></li>
 <li class="toctree-l4"><a class="reference internal" href="datumaro.plugins.openvino_plugin.html">datumaro.plugins.openvino_plugin</a></li>
+<li class="toctree-l4"><a class="reference internal" href="datumaro.plugins.sam_transforms.html">datumaro.plugins.sam_transforms</a></li>
 <li class="toctree-l4"><a class="reference internal" href="datumaro.plugins.sampler.html">datumaro.plugins.sampler</a></li>
 <li class="toctree-l4"><a class="reference internal" href="datumaro.plugins.specs.html">datumaro.plugins.specs</a></li>
 <li class="toctree-l4"><a class="reference internal" href="datumaro.plugins.splitter.html">datumaro.plugins.splitter</a></li>
@@ -606,25 +608,28 @@
 <tr class="row-even"><td><p><a class="reference internal" href="datumaro.plugins.openvino_plugin.html#module-datumaro.plugins.openvino_plugin" title="datumaro.plugins.openvino_plugin"><code class="xref py py-obj docutils literal notranslate"><span class="pre">datumaro.plugins.openvino_plugin</span></code></a></p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="datumaro.plugins.sampler.html#module-datumaro.plugins.sampler" title="datumaro.plugins.sampler"><code class="xref py py-obj docutils literal notranslate"><span class="pre">datumaro.plugins.sampler</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="datumaro.plugins.sam_transforms.html#module-datumaro.plugins.sam_transforms" title="datumaro.plugins.sam_transforms"><code class="xref py py-obj docutils literal notranslate"><span class="pre">datumaro.plugins.sam_transforms</span></code></a></p></td>
+<td><p>Transforms using Segment Anything Model</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="datumaro.plugins.sampler.html#module-datumaro.plugins.sampler" title="datumaro.plugins.sampler"><code class="xref py py-obj docutils literal notranslate"><span class="pre">datumaro.plugins.sampler</span></code></a></p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="datumaro.plugins.specs.html#module-datumaro.plugins.specs" title="datumaro.plugins.specs"><code class="xref py py-obj docutils literal notranslate"><span class="pre">datumaro.plugins.specs</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="datumaro.plugins.specs.html#module-datumaro.plugins.specs" title="datumaro.plugins.specs"><code class="xref py py-obj docutils literal notranslate"><span class="pre">datumaro.plugins.specs</span></code></a></p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="datumaro.plugins.splitter.html#module-datumaro.plugins.splitter" title="datumaro.plugins.splitter"><code class="xref py py-obj docutils literal notranslate"><span class="pre">datumaro.plugins.splitter</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="datumaro.plugins.splitter.html#module-datumaro.plugins.splitter" title="datumaro.plugins.splitter"><code class="xref py py-obj docutils literal notranslate"><span class="pre">datumaro.plugins.splitter</span></code></a></p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="datumaro.plugins.synthetic_data.html#module-datumaro.plugins.synthetic_data" title="datumaro.plugins.synthetic_data"><code class="xref py py-obj docutils literal notranslate"><span class="pre">datumaro.plugins.synthetic_data</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="datumaro.plugins.synthetic_data.html#module-datumaro.plugins.synthetic_data" title="datumaro.plugins.synthetic_data"><code class="xref py py-obj docutils literal notranslate"><span class="pre">datumaro.plugins.synthetic_data</span></code></a></p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="datumaro.plugins.tiling.html#module-datumaro.plugins.tiling" title="datumaro.plugins.tiling"><code class="xref py py-obj docutils literal notranslate"><span class="pre">datumaro.plugins.tiling</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="datumaro.plugins.tiling.html#module-datumaro.plugins.tiling" title="datumaro.plugins.tiling"><code class="xref py py-obj docutils literal notranslate"><span class="pre">datumaro.plugins.tiling</span></code></a></p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="datumaro.plugins.transforms.html#module-datumaro.plugins.transforms" title="datumaro.plugins.transforms"><code class="xref py py-obj docutils literal notranslate"><span class="pre">datumaro.plugins.transforms</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="datumaro.plugins.transforms.html#module-datumaro.plugins.transforms" title="datumaro.plugins.transforms"><code class="xref py py-obj docutils literal notranslate"><span class="pre">datumaro.plugins.transforms</span></code></a></p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="datumaro.plugins.validators.html#module-datumaro.plugins.validators" title="datumaro.plugins.validators"><code class="xref py py-obj docutils literal notranslate"><span class="pre">datumaro.plugins.validators</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="datumaro.plugins.validators.html#module-datumaro.plugins.validators" title="datumaro.plugins.validators"><code class="xref py py-obj docutils literal notranslate"><span class="pre">datumaro.plugins.validators</span></code></a></p></td>
 <td><p></p></td>
 </tr>
 </tbody>

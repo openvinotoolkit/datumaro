@@ -343,19 +343,23 @@
     <span class="n">scale</span><span class="p">:</span> <span class="nb">float</span></div>
 
 
-<div class="viewcode-block" id="rescale_img_keeping_aspect_ratio"><a class="viewcode-back" href="../../../../../docs/reference/_autosummary/datumaro.plugins.openvino_plugin.samples.utils.html#datumaro.plugins.openvino_plugin.samples.otx_custom_object_detection_gen3_atss_interp.rescale_img_keeping_aspect_ratio">[docs]</a><span class="k">def</span> <span class="nf">rescale_img_keeping_aspect_ratio</span><span class="p">(</span><span class="n">img</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">h_model</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">w_model</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">RescaledImage</span><span class="p">:</span>
+<div class="viewcode-block" id="rescale_img_keeping_aspect_ratio"><a class="viewcode-back" href="../../../../../docs/reference/_autosummary/datumaro.plugins.openvino_plugin.samples.utils.html#datumaro.plugins.openvino_plugin.samples.otx_custom_object_detection_gen3_atss_interp.rescale_img_keeping_aspect_ratio">[docs]</a><span class="k">def</span> <span class="nf">rescale_img_keeping_aspect_ratio</span><span class="p">(</span>
+    <span class="n">img</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">h_model</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">w_model</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">padding</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">RescaledImage</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Rescale image while maintaining its aspect ratio.</span>
 
 <span class="sd">    This function rescales the input image to fit the requirements of the model input.</span>
 <span class="sd">    It also attempts to preserve the original aspect ratio of the input image.</span>
 <span class="sd">    If the aspect ratio of the input image does not match the aspect ratio required by the model,</span>
-<span class="sd">    the function applies zero padding to the image boundaries to maintain the aspect ratio.</span>
+<span class="sd">    the function applies zero padding to the image boundaries to maintain the aspect ratio if `padding` option is true.</span>
 
 <span class="sd">    Parameters:</span>
 <span class="sd">        img: The image to be rescaled.</span>
 <span class="sd">        h_model: The desired height of the image required by the model.</span>
 <span class="sd">        w_model: The desired width of the image required by the model.</span>
+<span class="sd">        padding: If true, pad the output image boundaries to make the output image size `(h_model, w_model).</span>
+<span class="sd">            Otherwise, there is no pad, so that the output image size can be different with `(h_model, w_model)`.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">img</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span> <span class="o">==</span> <span class="mi">3</span>
 
@@ -368,13 +372,21 @@
 
     <span class="n">num_channel</span> <span class="o">=</span> <span class="n">img</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
 
-    <span class="n">resized_inputs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">h_model</span><span class="p">,</span> <span class="n">w_model</span><span class="p">,</span> <span class="n">num_channel</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">uint8</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">padding</span><span class="p">:</span>
+        <span class="n">resized_inputs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">h_model</span><span class="p">,</span> <span class="n">w_model</span><span class="p">,</span> <span class="n">num_channel</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">uint8</span><span class="p">)</span>
 
-    <span class="n">resized_inputs</span><span class="p">[:</span><span class="n">h_resize</span><span class="p">,</span> <span class="p">:</span><span class="n">w_resize</span><span class="p">,</span> <span class="p">:]</span> <span class="o">=</span> <span class="n">cv2</span><span class="o">.</span><span class="n">resize</span><span class="p">(</span>
-        <span class="n">img</span><span class="p">,</span>
-        <span class="p">(</span><span class="n">w_resize</span><span class="p">,</span> <span class="n">h_resize</span><span class="p">),</span>
-        <span class="n">interpolation</span><span class="o">=</span><span class="n">cv2</span><span class="o">.</span><span class="n">INTER_LINEAR</span><span class="p">,</span>
-    <span class="p">)</span>
+        <span class="n">resized_inputs</span><span class="p">[:</span><span class="n">h_resize</span><span class="p">,</span> <span class="p">:</span><span class="n">w_resize</span><span class="p">,</span> <span class="p">:]</span> <span class="o">=</span> <span class="n">cv2</span><span class="o">.</span><span class="n">resize</span><span class="p">(</span>
+            <span class="n">img</span><span class="p">,</span>
+            <span class="p">(</span><span class="n">w_resize</span><span class="p">,</span> <span class="n">h_resize</span><span class="p">),</span>
+            <span class="n">interpolation</span><span class="o">=</span><span class="n">cv2</span><span class="o">.</span><span class="n">INTER_LINEAR</span><span class="p">,</span>
+        <span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">resized_inputs</span> <span class="o">=</span> <span class="n">cv2</span><span class="o">.</span><span class="n">resize</span><span class="p">(</span>
+            <span class="n">img</span><span class="p">,</span>
+            <span class="p">(</span><span class="n">w_resize</span><span class="p">,</span> <span class="n">h_resize</span><span class="p">),</span>
+            <span class="n">interpolation</span><span class="o">=</span><span class="n">cv2</span><span class="o">.</span><span class="n">INTER_LINEAR</span><span class="p">,</span>
+        <span class="p">)</span>
+
     <span class="k">return</span> <span class="n">RescaledImage</span><span class="p">(</span><span class="n">image</span><span class="o">=</span><span class="n">resized_inputs</span><span class="p">,</span> <span class="n">scale</span><span class="o">=</span><span class="n">scale</span><span class="p">)</span></div>
 </pre></div>
 

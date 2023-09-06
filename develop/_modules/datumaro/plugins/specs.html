@@ -335,7 +335,12 @@
     <span class="n">_enroll_to_plugin_specs</span><span class="p">(</span><span class="n">env</span><span class="o">.</span><span class="n">transforms</span><span class="p">,</span> <span class="s2">&quot;Transform&quot;</span><span class="p">)</span>
     <span class="n">_enroll_to_plugin_specs</span><span class="p">(</span><span class="n">env</span><span class="o">.</span><span class="n">validators</span><span class="p">,</span> <span class="s2">&quot;Validator&quot;</span><span class="p">)</span>
 
-    <span class="n">dump_json_file</span><span class="p">(</span><span class="n">_SPECS_JSON_PATH</span><span class="p">,</span> <span class="n">plugin_specs</span><span class="p">,</span> <span class="n">indent</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">append_newline</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">dump_json_file</span><span class="p">(</span>
+        <span class="n">_SPECS_JSON_PATH</span><span class="p">,</span>
+        <span class="nb">sorted</span><span class="p">(</span><span class="n">plugin_specs</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">spec</span><span class="p">:</span> <span class="n">spec</span><span class="p">[</span><span class="s2">&quot;import_path&quot;</span><span class="p">]),</span>
+        <span class="n">indent</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">append_newline</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="p">)</span>
 </pre></div>
 
             </article>

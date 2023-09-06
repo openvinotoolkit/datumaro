@@ -35,6 +35,7 @@ datumaro.plugins
    datumaro.plugins.missing_annotation_detection
    datumaro.plugins.ndr
    datumaro.plugins.openvino_plugin
+   datumaro.plugins.sam_transforms
    datumaro.plugins.sampler
    datumaro.plugins.specs
    datumaro.plugins.splitter

@@ -293,14 +293,21 @@
 <span class="kn">from</span> <span class="nn">datumaro.components.media</span> <span class="kn">import</span> <span class="n">Image</span>
 
 
-<div class="viewcode-block" id="ProtocolType"><a class="viewcode-back" href="../../../../docs/reference/_autosummary/datumaro.plugins.inference_server_plugin.triton.html#datumaro.plugins.inference_server_plugin.base.ProtocolType">[docs]</a><span class="k">class</span> <span class="nc">ProtocolType</span><span class="p">(</span><span class="n">IntEnum</span><span class="p">):</span>
+<div class="viewcode-block" id="InferenceServerType"><a class="viewcode-back" href="../../../../docs/reference/_autosummary/datumaro.plugins.sam_transforms.bbox_to_inst_mask.html#datumaro.plugins.inference_server_plugin.InferenceServerType">[docs]</a><span class="k">class</span> <span class="nc">InferenceServerType</span><span class="p">(</span><span class="n">IntEnum</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Types of the dedicated inference server&quot;&quot;&quot;</span>
+
+    <span class="n">ovms</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">triton</span> <span class="o">=</span> <span class="mi">1</span></div>
+
+
+<div class="viewcode-block" id="ProtocolType"><a class="viewcode-back" href="../../../../docs/reference/_autosummary/datumaro.plugins.sam_transforms.bbox_to_inst_mask.html#datumaro.plugins.inference_server_plugin.ProtocolType">[docs]</a><span class="k">class</span> <span class="nc">ProtocolType</span><span class="p">(</span><span class="n">IntEnum</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Protocol type for communication with dedicated inference server&quot;&quot;&quot;</span>
 
     <span class="n">grpc</span> <span class="o">=</span> <span class="mi">0</span>
     <span class="n">http</span> <span class="o">=</span> <span class="mi">1</span></div>
 
 
-<div class="viewcode-block" id="TLSConfig"><a class="viewcode-back" href="../../../../docs/reference/_autosummary/datumaro.plugins.inference_server_plugin.base.html#datumaro.plugins.inference_server_plugin.base.TLSConfig">[docs]</a><span class="nd">@dataclass</span><span class="p">(</span><span class="n">frozen</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<div class="viewcode-block" id="TLSConfig"><a class="viewcode-back" href="../../../../docs/reference/_autosummary/datumaro.plugins.sam_transforms.bbox_to_inst_mask.html#datumaro.plugins.inference_server_plugin.TLSConfig">[docs]</a><span class="nd">@dataclass</span><span class="p">(</span><span class="n">frozen</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 <span class="k">class</span> <span class="nc">TLSConfig</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;TLS configuration dataclass</span>
 
@@ -314,14 +321,14 @@
     <span class="n">client_cert_path</span><span class="p">:</span> <span class="nb">str</span>
     <span class="n">server_cert_path</span><span class="p">:</span> <span class="nb">str</span>
 
-<div class="viewcode-block" id="TLSConfig.as_dict"><a class="viewcode-back" href="../../../../docs/reference/_autosummary/datumaro.plugins.inference_server_plugin.base.html#datumaro.plugins.inference_server_plugin.base.TLSConfig.as_dict">[docs]</a>    <span class="k">def</span> <span class="nf">as_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]:</span>
+<div class="viewcode-block" id="TLSConfig.as_dict"><a class="viewcode-back" href="../../../../docs/reference/_autosummary/datumaro.plugins.sam_transforms.bbox_to_inst_mask.html#datumaro.plugins.inference_server_plugin.TLSConfig.as_dict">[docs]</a>    <span class="k">def</span> <span class="nf">as_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]:</span>
         <span class="k">return</span> <span class="p">{</span>
             <span class="s2">&quot;client_key_path&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">client_key_path</span><span class="p">,</span>
             <span class="s2">&quot;client_cert_path&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">client_cert_path</span><span class="p">,</span>
             <span class="s2">&quot;server_cert_path&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">server_cert_path</span><span class="p">,</span>
         <span class="p">}</span></div>
 
-<div class="viewcode-block" id="TLSConfig.as_grpc_creds"><a class="viewcode-back" href="../../../../docs/reference/_autosummary/datumaro.plugins.inference_server_plugin.base.html#datumaro.plugins.inference_server_plugin.base.TLSConfig.as_grpc_creds">[docs]</a>    <span class="k">def</span> <span class="nf">as_grpc_creds</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ChannelCredentials</span><span class="p">:</span>
+<div class="viewcode-block" id="TLSConfig.as_grpc_creds"><a class="viewcode-back" href="../../../../docs/reference/_autosummary/datumaro.plugins.sam_transforms.bbox_to_inst_mask.html#datumaro.plugins.inference_server_plugin.TLSConfig.as_grpc_creds">[docs]</a>    <span class="k">def</span> <span class="nf">as_grpc_creds</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ChannelCredentials</span><span class="p">:</span>
         <span class="n">server_cert</span><span class="p">,</span> <span class="n">client_cert</span><span class="p">,</span> <span class="n">client_key</span> <span class="o">=</span> <span class="n">ServingClient</span><span class="o">.</span><span class="n">_prepare_certs</span><span class="p">(</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">server_cert_path</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">client_cert_path</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">client_key_path</span>
         <span class="p">)</span>
@@ -333,7 +340,7 @@
 <span class="n">TClient</span> <span class="o">=</span> <span class="n">TypeVar</span><span class="p">(</span><span class="s2">&quot;TClient&quot;</span><span class="p">)</span>
 
 
-<div class="viewcode-block" id="LauncherForDedicatedInferenceServer"><a class="viewcode-back" href="../../../../docs/reference/_autosummary/datumaro.plugins.inference_server_plugin.triton.html#datumaro.plugins.inference_server_plugin.base.LauncherForDedicatedInferenceServer">[docs]</a><span class="k">class</span> <span class="nc">LauncherForDedicatedInferenceServer</span><span class="p">(</span><span class="n">Generic</span><span class="p">[</span><span class="n">TClient</span><span class="p">],</span> <span class="n">LauncherWithModelInterpreter</span><span class="p">):</span>
+<div class="viewcode-block" id="LauncherForDedicatedInferenceServer"><a class="viewcode-back" href="../../../../docs/reference/_autosummary/datumaro.plugins.inference_server_plugin.triton.html#datumaro.plugins.inference_server_plugin.LauncherForDedicatedInferenceServer">[docs]</a><span class="k">class</span> <span class="nc">LauncherForDedicatedInferenceServer</span><span class="p">(</span><span class="n">Generic</span><span class="p">[</span><span class="n">TClient</span><span class="p">],</span> <span class="n">LauncherWithModelInterpreter</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Inference launcher for dedicated inference server</span>
 
 <span class="sd">    Parameters:</span>
@@ -387,7 +394,7 @@
     <span class="k">def</span> <span class="nf">_init_metadata</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">()</span>
 
-<div class="viewcode-block" id="LauncherForDedicatedInferenceServer.type_check"><a class="viewcode-back" href="../../../../docs/reference/_autosummary/datumaro.plugins.inference_server_plugin.triton.html#datumaro.plugins.inference_server_plugin.base.LauncherForDedicatedInferenceServer.type_check">[docs]</a>    <span class="k">def</span> <span class="nf">type_check</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">item</span><span class="p">):</span>
+<div class="viewcode-block" id="LauncherForDedicatedInferenceServer.type_check"><a class="viewcode-back" href="../../../../docs/reference/_autosummary/datumaro.plugins.inference_server_plugin.triton.html#datumaro.plugins.inference_server_plugin.LauncherForDedicatedInferenceServer.type_check">[docs]</a>    <span class="k">def</span> <span class="nf">type_check</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">item</span><span class="p">):</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">item</span><span class="o">.</span><span class="n">media</span><span class="p">,</span> <span class="n">Image</span><span class="p">):</span>
             <span class="k">raise</span> <span class="n">MediaTypeError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Media type should be Image, Current type=</span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">item</span><span class="o">.</span><span class="n">media</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
         <span class="k">return</span> <span class="kc">True</span></div></div>

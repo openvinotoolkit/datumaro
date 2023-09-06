@@ -383,6 +383,7 @@
 <li class="toctree-l1 has-children"><a class="reference internal" href="../../jupyter_notebook_examples/transform.html">Transform</a><input class="toctree-checkbox" id="toctree-checkbox-10" name="toctree-checkbox-10" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-10"><i class="fa-solid fa-chevron-down"></i></label><ul>
 <li class="toctree-l2"><a class="reference internal" href="../../jupyter_notebook_examples/notebooks/05_transform.html">Transform Dataset: Re-id, Reindexing, Remapping, etc.</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../jupyter_notebook_examples/notebooks/06_tiling.html">Tile your Dataset to Cope with High-Resolution Images</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../jupyter_notebook_examples/notebooks/18_bbox_to_instance_mask_using_sam.html">Transform bounding box to instance mask annotations using Segment Anything Model</a></li>
 </ul>
 </li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../../jupyter_notebook_examples/e2e_example.html">From Datumaro to Model Training</a><input class="toctree-checkbox" id="toctree-checkbox-11" name="toctree-checkbox-11" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-11"><i class="fa-solid fa-chevron-down"></i></label><ul>
@@ -487,6 +488,7 @@
 <li class="toctree-l4"><a class="reference internal" href="datumaro.plugins.missing_annotation_detection.html">datumaro.plugins.missing_annotation_detection</a></li>
 <li class="toctree-l4"><a class="reference internal" href="datumaro.plugins.ndr.html">datumaro.plugins.ndr</a></li>
 <li class="toctree-l4 current active"><a class="reference internal" href="datumaro.plugins.openvino_plugin.html">datumaro.plugins.openvino_plugin</a></li>
+<li class="toctree-l4"><a class="reference internal" href="datumaro.plugins.sam_transforms.html">datumaro.plugins.sam_transforms</a></li>
 <li class="toctree-l4"><a class="reference internal" href="datumaro.plugins.sampler.html">datumaro.plugins.sampler</a></li>
 <li class="toctree-l4"><a class="reference internal" href="datumaro.plugins.specs.html">datumaro.plugins.specs</a></li>
 <li class="toctree-l4"><a class="reference internal" href="datumaro.plugins.splitter.html">datumaro.plugins.splitter</a></li>
@@ -588,7 +590,7 @@
 <tr class="row-even"><td><p><a class="reference internal" href="#datumaro.plugins.openvino_plugin.samples.utils.gen_hash_key" title="datumaro.plugins.openvino_plugin.samples.utils.gen_hash_key"><code class="xref py py-obj docutils literal notranslate"><span class="pre">gen_hash_key</span></code></a>(features)</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#datumaro.plugins.openvino_plugin.samples.utils.rescale_img_keeping_aspect_ratio" title="datumaro.plugins.openvino_plugin.samples.utils.rescale_img_keeping_aspect_ratio"><code class="xref py py-obj docutils literal notranslate"><span class="pre">rescale_img_keeping_aspect_ratio</span></code></a>(img, ...)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#datumaro.plugins.openvino_plugin.samples.utils.rescale_img_keeping_aspect_ratio" title="datumaro.plugins.openvino_plugin.samples.utils.rescale_img_keeping_aspect_ratio"><code class="xref py py-obj docutils literal notranslate"><span class="pre">rescale_img_keeping_aspect_ratio</span></code></a>(img, ...[, ...])</p></td>
 <td><p>Rescale image while maintaining its aspect ratio.</p></td>
 </tr>
 </tbody>
@@ -660,18 +662,20 @@ The scale factor indicates how much the image was scaled to fit the model’s in
 
 <dl class="py function">
 <dt class="sig sig-object py" id="datumaro.plugins.openvino_plugin.samples.utils.rescale_img_keeping_aspect_ratio">
-<span class="sig-prename descclassname"><span class="pre">datumaro.plugins.openvino_plugin.samples.utils.</span></span><span class="sig-name descname"><span class="pre">rescale_img_keeping_aspect_ratio</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">img</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v1.25)"><span class="pre">ndarray</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">h_model</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.11)"><span class="pre">int</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">w_model</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.11)"><span class="pre">int</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#datumaro.plugins.openvino_plugin.samples.utils.RescaledImage" title="datumaro.plugins.openvino_plugin.samples.utils.RescaledImage"><span class="pre">RescaledImage</span></a></span></span><a class="reference internal" href="../../../_modules/datumaro/plugins/openvino_plugin/samples/utils.html#rescale_img_keeping_aspect_ratio"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.plugins.openvino_plugin.samples.utils.rescale_img_keeping_aspect_ratio" title="Permalink to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">datumaro.plugins.openvino_plugin.samples.utils.</span></span><span class="sig-name descname"><span class="pre">rescale_img_keeping_aspect_ratio</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">img</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v1.25)"><span class="pre">ndarray</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">h_model</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.11)"><span class="pre">int</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">w_model</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.11)"><span class="pre">int</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">padding</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.11)"><span class="pre">bool</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#datumaro.plugins.openvino_plugin.samples.utils.RescaledImage" title="datumaro.plugins.openvino_plugin.samples.utils.RescaledImage"><span class="pre">RescaledImage</span></a></span></span><a class="reference internal" href="../../../_modules/datumaro/plugins/openvino_plugin/samples/utils.html#rescale_img_keeping_aspect_ratio"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.plugins.openvino_plugin.samples.utils.rescale_img_keeping_aspect_ratio" title="Permalink to this definition">#</a></dt>
 <dd><p>Rescale image while maintaining its aspect ratio.</p>
 <p>This function rescales the input image to fit the requirements of the model input.
 It also attempts to preserve the original aspect ratio of the input image.
 If the aspect ratio of the input image does not match the aspect ratio required by the model,
-the function applies zero padding to the image boundaries to maintain the aspect ratio.</p>
+the function applies zero padding to the image boundaries to maintain the aspect ratio if <cite>padding</cite> option is true.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>img</strong> – The image to be rescaled.</p></li>
 <li><p><strong>h_model</strong> – The desired height of the image required by the model.</p></li>
 <li><p><strong>w_model</strong> – The desired width of the image required by the model.</p></li>
+<li><p><strong>padding</strong> – If true, pad the output image boundaries to make the output image size <cite>(h_model, w_model).
+Otherwise, there is no pad, so that the output image size can be different with `(h_model, w_model)</cite>.</p></li>
 </ul>
 </dd>
 </dl>

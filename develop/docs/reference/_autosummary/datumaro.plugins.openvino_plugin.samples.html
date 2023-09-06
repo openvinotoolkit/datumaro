@@ -49,7 +49,7 @@
     <script>DOCUMENTATION_OPTIONS.pagename = 'docs/reference/_autosummary/datumaro.plugins.openvino_plugin.samples';</script>
     <link rel="index" title="Index" href="../../../genindex.html" />
     <link rel="search" title="Search" href="../../../search.html" />
-    <link rel="next" title="datumaro.plugins.openvino_plugin.samples.mobilenet_v2_pytorch_interp" href="datumaro.plugins.openvino_plugin.samples.mobilenet_v2_pytorch_interp.html" />
+    <link rel="next" title="datumaro.plugins.openvino_plugin.samples.otx_custom_object_detection_gen3_atss_interp" href="datumaro.plugins.openvino_plugin.samples.otx_custom_object_detection_gen3_atss_interp.html" />
     <link rel="prev" title="datumaro.plugins.openvino_plugin.launcher" href="datumaro.plugins.openvino_plugin.launcher.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="docsearch:language" content="en">
@@ -383,6 +383,7 @@
 <li class="toctree-l1 has-children"><a class="reference internal" href="../../jupyter_notebook_examples/transform.html">Transform</a><input class="toctree-checkbox" id="toctree-checkbox-10" name="toctree-checkbox-10" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-10"><i class="fa-solid fa-chevron-down"></i></label><ul>
 <li class="toctree-l2"><a class="reference internal" href="../../jupyter_notebook_examples/notebooks/05_transform.html">Transform Dataset: Re-id, Reindexing, Remapping, etc.</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../jupyter_notebook_examples/notebooks/06_tiling.html">Tile your Dataset to Cope with High-Resolution Images</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../jupyter_notebook_examples/notebooks/18_bbox_to_instance_mask_using_sam.html">Transform bounding box to instance mask annotations using Segment Anything Model</a></li>
 </ul>
 </li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../../jupyter_notebook_examples/e2e_example.html">From Datumaro to Model Training</a><input class="toctree-checkbox" id="toctree-checkbox-11" name="toctree-checkbox-11" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-11"><i class="fa-solid fa-chevron-down"></i></label><ul>
@@ -487,6 +488,7 @@
 <li class="toctree-l4"><a class="reference internal" href="datumaro.plugins.missing_annotation_detection.html">datumaro.plugins.missing_annotation_detection</a></li>
 <li class="toctree-l4"><a class="reference internal" href="datumaro.plugins.ndr.html">datumaro.plugins.ndr</a></li>
 <li class="toctree-l4 current active"><a class="reference internal" href="datumaro.plugins.openvino_plugin.html">datumaro.plugins.openvino_plugin</a></li>
+<li class="toctree-l4"><a class="reference internal" href="datumaro.plugins.sam_transforms.html">datumaro.plugins.sam_transforms</a></li>
 <li class="toctree-l4"><a class="reference internal" href="datumaro.plugins.sampler.html">datumaro.plugins.sampler</a></li>
 <li class="toctree-l4"><a class="reference internal" href="datumaro.plugins.specs.html">datumaro.plugins.specs</a></li>
 <li class="toctree-l4"><a class="reference internal" href="datumaro.plugins.splitter.html">datumaro.plugins.splitter</a></li>
@@ -591,19 +593,16 @@
 <tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">datumaro.plugins.openvino_plugin.samples.googlenet-v4-tf_interp</span></code></p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="datumaro.plugins.openvino_plugin.samples.mobilenet_v2_pytorch_interp.html#module-datumaro.plugins.openvino_plugin.samples.mobilenet_v2_pytorch_interp" title="datumaro.plugins.openvino_plugin.samples.mobilenet_v2_pytorch_interp"><code class="xref py py-obj docutils literal notranslate"><span class="pre">datumaro.plugins.openvino_plugin.samples.mobilenet_v2_pytorch_interp</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="datumaro.plugins.openvino_plugin.samples.otx_custom_object_detection_gen3_atss_interp.html#module-datumaro.plugins.openvino_plugin.samples.otx_custom_object_detection_gen3_atss_interp" title="datumaro.plugins.openvino_plugin.samples.otx_custom_object_detection_gen3_atss_interp"><code class="xref py py-obj docutils literal notranslate"><span class="pre">datumaro.plugins.openvino_plugin.samples.otx_custom_object_detection_gen3_atss_interp</span></code></a></p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="datumaro.plugins.openvino_plugin.samples.otx_custom_object_detection_gen3_atss_interp.html#module-datumaro.plugins.openvino_plugin.samples.otx_custom_object_detection_gen3_atss_interp" title="datumaro.plugins.openvino_plugin.samples.otx_custom_object_detection_gen3_atss_interp"><code class="xref py py-obj docutils literal notranslate"><span class="pre">datumaro.plugins.openvino_plugin.samples.otx_custom_object_detection_gen3_atss_interp</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="datumaro.plugins.openvino_plugin.samples.otx_custom_object_detection_gen3_ssd_interp.html#module-datumaro.plugins.openvino_plugin.samples.otx_custom_object_detection_gen3_ssd_interp" title="datumaro.plugins.openvino_plugin.samples.otx_custom_object_detection_gen3_ssd_interp"><code class="xref py py-obj docutils literal notranslate"><span class="pre">datumaro.plugins.openvino_plugin.samples.otx_custom_object_detection_gen3_ssd_interp</span></code></a></p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="datumaro.plugins.openvino_plugin.samples.otx_custom_object_detection_gen3_ssd_interp.html#module-datumaro.plugins.openvino_plugin.samples.otx_custom_object_detection_gen3_ssd_interp" title="datumaro.plugins.openvino_plugin.samples.otx_custom_object_detection_gen3_ssd_interp"><code class="xref py py-obj docutils literal notranslate"><span class="pre">datumaro.plugins.openvino_plugin.samples.otx_custom_object_detection_gen3_ssd_interp</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="datumaro.plugins.openvino_plugin.samples.otx_custom_object_detection_yolox_interp.html#module-datumaro.plugins.openvino_plugin.samples.otx_custom_object_detection_yolox_interp" title="datumaro.plugins.openvino_plugin.samples.otx_custom_object_detection_yolox_interp"><code class="xref py py-obj docutils literal notranslate"><span class="pre">datumaro.plugins.openvino_plugin.samples.otx_custom_object_detection_yolox_interp</span></code></a></p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="datumaro.plugins.openvino_plugin.samples.otx_custom_object_detection_yolox_interp.html#module-datumaro.plugins.openvino_plugin.samples.otx_custom_object_detection_yolox_interp" title="datumaro.plugins.openvino_plugin.samples.otx_custom_object_detection_yolox_interp"><code class="xref py py-obj docutils literal notranslate"><span class="pre">datumaro.plugins.openvino_plugin.samples.otx_custom_object_detection_yolox_interp</span></code></a></p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-even"><td><p><a class="reference internal" href="datumaro.plugins.openvino_plugin.samples.utils.html#module-datumaro.plugins.openvino_plugin.samples.utils" title="datumaro.plugins.openvino_plugin.samples.utils"><code class="xref py py-obj docutils literal notranslate"><span class="pre">datumaro.plugins.openvino_plugin.samples.utils</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="datumaro.plugins.openvino_plugin.samples.utils.html#module-datumaro.plugins.openvino_plugin.samples.utils" title="datumaro.plugins.openvino_plugin.samples.utils"><code class="xref py py-obj docutils literal notranslate"><span class="pre">datumaro.plugins.openvino_plugin.samples.utils</span></code></a></p></td>
 <td><p></p></td>
 </tr>
 </tbody>
@@ -625,10 +624,10 @@
           <p class="prev-next-title">datumaro.plugins.openvino_plugin.launcher</p>
       </div>
   </a>
-  <a class='right-next' id="next-link" href="datumaro.plugins.openvino_plugin.samples.mobilenet_v2_pytorch_interp.html" title="next page">
+  <a class='right-next' id="next-link" href="datumaro.plugins.openvino_plugin.samples.otx_custom_object_detection_gen3_atss_interp.html" title="next page">
   <div class="prev-next-info">
       <p class="prev-next-subtitle">next</p>
-      <p class="prev-next-title">datumaro.plugins.openvino_plugin.samples.mobilenet_v2_pytorch_interp</p>
+      <p class="prev-next-title">datumaro.plugins.openvino_plugin.samples.otx_custom_object_detection_gen3_atss_interp</p>
   </div>
   <i class="fa-solid fa-angle-right"></i>
   </a>

@@ -289,7 +289,7 @@
 <span class="kn">from</span> <span class="nn">ovmsclient.tfs_compat.grpc.serving_client</span> <span class="kn">import</span> <span class="n">GrpcClient</span>
 <span class="kn">from</span> <span class="nn">ovmsclient.tfs_compat.http.serving_client</span> <span class="kn">import</span> <span class="n">HttpClient</span>
 
-<span class="kn">from</span> <span class="nn">datumaro.components.abstracts.model_interpreter</span> <span class="kn">import</span> <span class="n">ModelPred</span>
+<span class="kn">from</span> <span class="nn">datumaro.components.abstracts.model_interpreter</span> <span class="kn">import</span> <span class="n">LauncherInputType</span><span class="p">,</span> <span class="n">ModelPred</span>
 <span class="kn">from</span> <span class="nn">datumaro.components.errors</span> <span class="kn">import</span> <span class="n">DatumaroError</span>
 <span class="kn">from</span> <span class="nn">datumaro.plugins.inference_server_plugin.base</span> <span class="kn">import</span> <span class="p">(</span>
     <span class="n">LauncherForDedicatedInferenceServer</span><span class="p">,</span>
@@ -301,7 +301,7 @@
 <span class="n">TClient</span> <span class="o">=</span> <span class="n">Union</span><span class="p">[</span><span class="n">GrpcClient</span><span class="p">,</span> <span class="n">HttpClient</span><span class="p">]</span>
 
 
-<div class="viewcode-block" id="OVMSLauncher"><a class="viewcode-back" href="../../../../docs/reference/_autosummary/datumaro.plugins.inference_server_plugin.ovms.html#datumaro.plugins.inference_server_plugin.OVMSLauncher">[docs]</a><span class="k">class</span> <span class="nc">OVMSLauncher</span><span class="p">(</span><span class="n">LauncherForDedicatedInferenceServer</span><span class="p">[</span><span class="n">TClient</span><span class="p">]):</span>
+<div class="viewcode-block" id="OVMSLauncher"><a class="viewcode-back" href="../../../../docs/reference/_autosummary/datumaro.plugins.sam_transforms.bbox_to_inst_mask.html#datumaro.plugins.inference_server_plugin.OVMSLauncher">[docs]</a><span class="k">class</span> <span class="nc">OVMSLauncher</span><span class="p">(</span><span class="n">LauncherForDedicatedInferenceServer</span><span class="p">[</span><span class="n">TClient</span><span class="p">]):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Inference launcher for OVMS (OpenVINO™ Model Server) (https://github.com/openvinotoolkit/model_server)</span>
 
 <span class="sd">    Parameters:</span>
@@ -342,14 +342,15 @@
         <span class="p">)</span>
         <span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Received metadata: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_metadata</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 
-<div class="viewcode-block" id="OVMSLauncher.infer"><a class="viewcode-back" href="../../../../docs/reference/_autosummary/datumaro.plugins.inference_server_plugin.ovms.html#datumaro.plugins.inference_server_plugin.OVMSLauncher.infer">[docs]</a>    <span class="k">def</span> <span class="nf">infer</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">inputs</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">ModelPred</span><span class="p">]:</span>
+<div class="viewcode-block" id="OVMSLauncher.infer"><a class="viewcode-back" href="../../../../docs/reference/_autosummary/datumaro.plugins.sam_transforms.bbox_to_inst_mask.html#datumaro.plugins.inference_server_plugin.OVMSLauncher.infer">[docs]</a>    <span class="k">def</span> <span class="nf">infer</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">inputs</span><span class="p">:</span> <span class="n">LauncherInputType</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">ModelPred</span><span class="p">]:</span>
         <span class="c1"># Please see the following link for the input and output type of self._client.predict()</span>
         <span class="c1"># https://github.com/openvinotoolkit/model_server/blob/releases/2022/3/client/python/ovmsclient/lib/docs/grpc_client.md#method-predict</span>
         <span class="c1"># The input is Dict[str, np.ndarray].</span>
         <span class="c1"># The output is Dict[str, np.ndarray] (If the model has multiple outputs),</span>
         <span class="c1"># or np.ndarray (If the model has one single output).</span>
+        <span class="n">pred_inputs</span> <span class="o">=</span> <span class="p">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_input_key</span><span class="p">:</span> <span class="n">inputs</span><span class="p">}</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">inputs</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="k">else</span> <span class="n">inputs</span>
         <span class="n">results</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_client</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span>
-            <span class="n">inputs</span><span class="o">=</span><span class="p">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_input_key</span><span class="p">:</span> <span class="n">inputs</span><span class="p">},</span>
+            <span class="n">inputs</span><span class="o">=</span><span class="n">pred_inputs</span><span class="p">,</span>
             <span class="n">model_name</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">model_name</span><span class="p">,</span>
             <span class="n">model_version</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">model_version</span><span class="p">,</span>
             <span class="n">timeout</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">timeout</span><span class="p">,</span>

@@ -17,6 +17,7 @@ datumaro.plugins.inference\_server\_plugin.base
 
    .. autosummary::
    
+      InferenceServerType
       LauncherForDedicatedInferenceServer
       ProtocolType
       TLSConfig

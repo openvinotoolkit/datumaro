@@ -5,7 +5,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>datumaro.plugins.openvino_plugin.samples.mobilenet_v2_pytorch_interp &#8212; Datumaro 1.5.0rc0 documentation</title>
+    <title>datumaro.plugins.sam_transforms.interpreters.sam_encoder &#8212; Datumaro 1.5.0rc0 documentation</title>
   
   
   
@@ -45,7 +45,7 @@
     <script src="../../../../../_static/copybutton.js"></script>
     <script src="../../../../../_static/design-tabs.js"></script>
     <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
-    <script>DOCUMENTATION_OPTIONS.pagename = '_modules/datumaro/plugins/openvino_plugin/samples/mobilenet_v2_pytorch_interp';</script>
+    <script>DOCUMENTATION_OPTIONS.pagename = '_modules/datumaro/plugins/sam_transforms/interpreters/sam_encoder';</script>
     <link rel="index" title="Index" href="../../../../../genindex.html" />
     <link rel="search" title="Search" href="../../../../../search.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -276,51 +276,50 @@
             
             <article class="bd-article" role="main">
               
-  <h1>Source code for datumaro.plugins.openvino_plugin.samples.mobilenet_v2_pytorch_interp</h1><div class="highlight"><pre>
+  <h1>Source code for datumaro.plugins.sam_transforms.interpreters.sam_encoder</h1><div class="highlight"><pre>
 <span></span><span class="c1"># Copyright (C) 2023 Intel Corporation</span>
 <span class="c1">#</span>
 <span class="c1"># SPDX-License-Identifier: MIT</span>
 
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">List</span><span class="p">,</span> <span class="n">Tuple</span>
+
+<span class="kn">import</span> <span class="nn">cv2</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+
 <span class="kn">from</span> <span class="nn">datumaro.components.abstracts</span> <span class="kn">import</span> <span class="n">IModelInterpreter</span>
-<span class="kn">from</span> <span class="nn">datumaro.components.annotation</span> <span class="kn">import</span> <span class="n">AnnotationType</span><span class="p">,</span> <span class="n">Label</span><span class="p">,</span> <span class="n">LabelCategories</span>
-<span class="kn">from</span> <span class="nn">datumaro.util.annotation_util</span> <span class="kn">import</span> <span class="n">softmax</span>
+<span class="kn">from</span> <span class="nn">datumaro.components.abstracts.model_interpreter</span> <span class="kn">import</span> <span class="n">LauncherInputType</span><span class="p">,</span> <span class="n">ModelPred</span><span class="p">,</span> <span class="n">PrepInfo</span>
+<span class="kn">from</span> <span class="nn">datumaro.components.annotation</span> <span class="kn">import</span> <span class="n">Annotation</span><span class="p">,</span> <span class="n">FeatureVector</span>
+<span class="kn">from</span> <span class="nn">datumaro.components.dataset_base</span> <span class="kn">import</span> <span class="n">DatasetItem</span>
+<span class="kn">from</span> <span class="nn">datumaro.components.media</span> <span class="kn">import</span> <span class="n">Image</span>
+<span class="kn">from</span> <span class="nn">datumaro.plugins.openvino_plugin.samples.utils</span> <span class="kn">import</span> <span class="n">rescale_img_keeping_aspect_ratio</span>
 
 
-<div class="viewcode-block" id="MobilenetV2PytorchModelInterpreter"><a class="viewcode-back" href="../../../../../docs/reference/_autosummary/datumaro.plugins.openvino_plugin.samples.mobilenet_v2_pytorch_interp.html#datumaro.plugins.openvino_plugin.samples.mobilenet_v2_pytorch_interp.MobilenetV2PytorchModelInterpreter">[docs]</a><span class="k">class</span> <span class="nc">MobilenetV2PytorchModelInterpreter</span><span class="p">(</span><span class="n">IModelInterpreter</span><span class="p">):</span>
-<div class="viewcode-block" id="MobilenetV2PytorchModelInterpreter.normalize"><a class="viewcode-back" href="../../../../../docs/reference/_autosummary/datumaro.plugins.openvino_plugin.samples.mobilenet_v2_pytorch_interp.html#datumaro.plugins.openvino_plugin.samples.mobilenet_v2_pytorch_interp.MobilenetV2PytorchModelInterpreter.normalize">[docs]</a>    <span class="k">def</span> <span class="nf">normalize</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">inputs</span><span class="p">):</span>
-        <span class="k">return</span> <span class="n">inputs</span></div>
+<div class="viewcode-block" id="SAMEncoderInterpreter"><a class="viewcode-back" href="../../../../../docs/reference/_autosummary/datumaro.plugins.sam_transforms.interpreters.sam_encoder.html#datumaro.plugins.sam_transforms.interpreters.sam_encoder.SAMEncoderInterpreter">[docs]</a><span class="k">class</span> <span class="nc">SAMEncoderInterpreter</span><span class="p">(</span><span class="n">IModelInterpreter</span><span class="p">):</span>
+    <span class="n">h_model</span> <span class="o">=</span> <span class="mi">1024</span>
+    <span class="n">w_model</span> <span class="o">=</span> <span class="mi">1024</span>
 
-<div class="viewcode-block" id="MobilenetV2PytorchModelInterpreter.process_outputs"><a class="viewcode-back" href="../../../../../docs/reference/_autosummary/datumaro.plugins.openvino_plugin.samples.mobilenet_v2_pytorch_interp.html#datumaro.plugins.openvino_plugin.samples.mobilenet_v2_pytorch_interp.MobilenetV2PytorchModelInterpreter.process_outputs">[docs]</a>    <span class="k">def</span> <span class="nf">process_outputs</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">inputs</span><span class="p">,</span> <span class="n">outputs</span><span class="p">):</span>
-        <span class="c1"># inputs = model input; array or images; shape = (B, H, W, C)</span>
-        <span class="c1"># outputs = model output; shape = (1, 1, N, 7); N is the number of detected bounding boxes.</span>
-        <span class="c1"># det = [image_id, label(class id), conf, x_min, y_min, x_max, y_max]</span>
-        <span class="c1"># results = conversion result; [[ Annotation, ... ], ... ]</span>
+<div class="viewcode-block" id="SAMEncoderInterpreter.preprocess"><a class="viewcode-back" href="../../../../../docs/reference/_autosummary/datumaro.plugins.sam_transforms.interpreters.sam_encoder.html#datumaro.plugins.sam_transforms.interpreters.sam_encoder.SAMEncoderInterpreter.preprocess">[docs]</a>    <span class="k">def</span> <span class="nf">preprocess</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">inp</span><span class="p">:</span> <span class="n">DatasetItem</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">LauncherInputType</span><span class="p">,</span> <span class="n">PrepInfo</span><span class="p">]:</span>
+        <span class="n">img</span> <span class="o">=</span> <span class="n">inp</span><span class="o">.</span><span class="n">media_as</span><span class="p">(</span><span class="n">Image</span><span class="p">)</span><span class="o">.</span><span class="n">data</span>
+        <span class="n">output</span> <span class="o">=</span> <span class="n">rescale_img_keeping_aspect_ratio</span><span class="p">(</span><span class="n">img</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">h_model</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">w_model</span><span class="p">,</span> <span class="n">padding</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
 
-        <span class="n">results</span> <span class="o">=</span> <span class="p">[]</span>
-        <span class="k">for</span> <span class="n">input_</span><span class="p">,</span> <span class="n">output</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">inputs</span><span class="p">,</span> <span class="n">outputs</span><span class="p">):</span>  <span class="c1"># pylint: disable=unused-variable</span>
-            <span class="n">image_results</span> <span class="o">=</span> <span class="p">[]</span>
-            <span class="n">output</span> <span class="o">=</span> <span class="n">softmax</span><span class="p">(</span><span class="n">output</span><span class="p">)</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
-            <span class="n">label</span> <span class="o">=</span> <span class="n">output</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="nb">max</span><span class="p">(</span><span class="n">output</span><span class="p">))</span>
-            <span class="n">image_results</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">Label</span><span class="p">(</span><span class="n">label</span><span class="o">=</span><span class="n">label</span><span class="p">,</span> <span class="n">attributes</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;scores&quot;</span><span class="p">:</span> <span class="n">output</span><span class="p">}))</span>
+        <span class="c1"># From BGR to RGB</span>
+        <span class="n">output</span><span class="o">.</span><span class="n">image</span> <span class="o">=</span> <span class="n">cv2</span><span class="o">.</span><span class="n">cvtColor</span><span class="p">(</span><span class="n">output</span><span class="o">.</span><span class="n">image</span><span class="p">,</span> <span class="n">cv2</span><span class="o">.</span><span class="n">COLOR_BGR2RGB</span><span class="p">)</span>
+        <span class="c1"># From HWC to CHW</span>
+        <span class="n">output</span><span class="o">.</span><span class="n">image</span> <span class="o">=</span> <span class="n">output</span><span class="o">.</span><span class="n">image</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="c1"># To FP32</span>
+        <span class="n">output</span><span class="o">.</span><span class="n">image</span> <span class="o">=</span> <span class="n">output</span><span class="o">.</span><span class="n">image</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
 
-            <span class="n">results</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">image_results</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">output</span><span class="o">.</span><span class="n">image</span><span class="p">,</span> <span class="n">output</span><span class="o">.</span><span class="n">scale</span></div>
 
-        <span class="k">return</span> <span class="n">results</span></div>
+<div class="viewcode-block" id="SAMEncoderInterpreter.postprocess"><a class="viewcode-back" href="../../../../../docs/reference/_autosummary/datumaro.plugins.sam_transforms.interpreters.sam_encoder.html#datumaro.plugins.sam_transforms.interpreters.sam_encoder.SAMEncoderInterpreter.postprocess">[docs]</a>    <span class="k">def</span> <span class="nf">postprocess</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">pred</span><span class="p">:</span> <span class="n">ModelPred</span><span class="p">,</span> <span class="n">info</span><span class="p">:</span> <span class="n">PrepInfo</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">Annotation</span><span class="p">]:</span>
+        <span class="n">embed</span> <span class="o">=</span> <span class="n">pred</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;image_embeddings&quot;</span><span class="p">)</span>
 
-<div class="viewcode-block" id="MobilenetV2PytorchModelInterpreter.get_categories"><a class="viewcode-back" href="../../../../../docs/reference/_autosummary/datumaro.plugins.openvino_plugin.samples.mobilenet_v2_pytorch_interp.html#datumaro.plugins.openvino_plugin.samples.mobilenet_v2_pytorch_interp.MobilenetV2PytorchModelInterpreter.get_categories">[docs]</a>    <span class="k">def</span> <span class="nf">get_categories</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="c1"># output categories - label map etc.</span>
+        <span class="k">assert</span> <span class="n">embed</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">,</span> <span class="s1">&#39;Model output should have &quot;image_embeddings&quot;.&#39;</span>
 
-        <span class="n">label_categories</span> <span class="o">=</span> <span class="n">LabelCategories</span><span class="p">()</span>
+        <span class="k">return</span> <span class="p">[</span><span class="n">FeatureVector</span><span class="p">(</span><span class="n">vector</span><span class="o">=</span><span class="n">embed</span><span class="p">)]</span></div>
 
-        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="s2">&quot;samples/imagenet.class&quot;</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">file</span><span class="p">:</span>
-            <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">file</span><span class="o">.</span><span class="n">readlines</span><span class="p">():</span>
-                <span class="n">label</span> <span class="o">=</span> <span class="n">line</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
-                <span class="n">label_categories</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">label</span><span class="p">)</span>
-
-        <span class="k">return</span> <span class="p">{</span><span class="n">AnnotationType</span><span class="o">.</span><span class="n">label</span><span class="p">:</span> <span class="n">label_categories</span><span class="p">}</span></div>
-
-<div class="viewcode-block" id="MobilenetV2PytorchModelInterpreter.resize"><a class="viewcode-back" href="../../../../../docs/reference/_autosummary/datumaro.plugins.openvino_plugin.samples.mobilenet_v2_pytorch_interp.html#datumaro.plugins.openvino_plugin.samples.mobilenet_v2_pytorch_interp.MobilenetV2PytorchModelInterpreter.resize">[docs]</a>    <span class="k">def</span> <span class="nf">resize</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">inputs</span><span class="p">):</span>
-        <span class="k">return</span> <span class="n">inputs</span></div></div>
+<div class="viewcode-block" id="SAMEncoderInterpreter.get_categories"><a class="viewcode-back" href="../../../../../docs/reference/_autosummary/datumaro.plugins.sam_transforms.interpreters.sam_encoder.html#datumaro.plugins.sam_transforms.interpreters.sam_encoder.SAMEncoderInterpreter.get_categories">[docs]</a>    <span class="k">def</span> <span class="nf">get_categories</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="kc">None</span></div></div>
 </pre></div>
 
             </article>
