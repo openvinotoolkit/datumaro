@@ -304,7 +304,7 @@
 <span class="s2">        By default, datasets are updated in-place. The &#39;-o/--output-dir&#39;</span>
 <span class="s2">        option can be used to specify another output directory. When</span>
 <span class="s2">        updating in-place, use the &#39;--overwrite&#39; parameter along with the</span>
-<span class="s2">        &#39;--save-images&#39; export option (in-place updates fail by default</span>
+<span class="s2">        &#39;--save-media&#39; export option (in-place updates fail by default</span>
 <span class="s2">        to prevent data loss).|n</span>
 <span class="s2">        |n</span>
 <span class="s2">        Unlike the regular project data source joining, the datasets are not</span>
@@ -318,7 +318,7 @@
 <span class="s2">        The command supports passing extra exporting options for the output</span>
 <span class="s2">        dataset. The extra options should be passed after the main arguments</span>
 <span class="s2">        and after the &#39;--&#39; separator. Particularly, this is useful to include</span>
-<span class="s2">        images in the output dataset with &#39;--save-images&#39;.|n</span>
+<span class="s2">        images in the output dataset with &#39;--save-media&#39;.|n</span>
 <span class="s2">        |n</span>
 <span class="s2">        This command can be applied to the current project targets or</span>
 <span class="s2">        arbitrary datasets outside a project. Note that if the target dataset</span>
@@ -343,7 +343,7 @@
 <span class="s2">        |n</span>
 <span class="s2">        Examples:|n</span>
 <span class="s2">        - Update a VOC-like dataset with COCO-like annotations:|n</span>
-<span class="s2">        |s|s</span><span class="si">%(prog)s</span><span class="s2"> --overwrite dataset1/:voc dataset2/:coco -- --save-images|n</span>
+<span class="s2">        |s|s</span><span class="si">%(prog)s</span><span class="s2"> --overwrite dataset1/:voc dataset2/:coco -- --save-media|n</span>
 <span class="s2">        |n</span>
 <span class="s2">        - Generate a patched dataset, based on a project:|n</span>
 <span class="s2">        |s|s</span><span class="si">%(prog)s</span><span class="s2"> -o patched_proj1/ proj1/ proj2/|n</span>
