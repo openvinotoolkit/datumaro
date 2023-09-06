@@ -102,7 +102,7 @@ class SlyPointCloudIntegrationScenarios(TestCase):
                 "-o",
                 export_dir,
                 "--",
-                "--save-images",
+                "--save-media",
                 "--allow-attrs",
             )
 

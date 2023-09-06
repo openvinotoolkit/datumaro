@@ -170,7 +170,6 @@ def compare_datasets(
     actual: IDataset,
     ignored_attrs: Union[None, Literal["*"], Collection[str]] = None,
     require_media: bool = False,
-    require_images: bool = False,
     ignore_ann_id: bool = False,
     ignore_ann_group: bool = False,
     **kwargs,
@@ -194,16 +193,6 @@ def compare_datasets(
             )
         elif not ignored_attrs:
             test.assertEqual(item_a.attributes, item_b.attributes, item_a.id)
-
-        if require_images:
-            warnings.warn(
-                "'require_images' is deprecated and will be "
-                "removed in future. Use 'require_media' instead. "
-                "It will be deprecated in datumaro==1.5.0.",
-                DeprecationWarning,
-                stacklevel=2,
-            )
-        require_media = require_media or require_images
 
         if require_media and item_a.media and item_b.media:
             if isinstance(item_a.media, Image):

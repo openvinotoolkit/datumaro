@@ -67,7 +67,7 @@ class Merger(IMergerContext, CliPlugin):
                     media_type, s.media_type()
                 ):
                     # Symmetric comparision is needed in the case of subclasses:
-                    # eg. Image and ByteImage
+                    # eg. Image and RoIImage
                     raise MediaTypeError("Datasets have different media types")
             return media_type
 

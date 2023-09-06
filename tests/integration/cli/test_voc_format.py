@@ -46,7 +46,7 @@ class VocIntegrationScenarios(TestCase):
         )
 
         result_dir = osp.join(project_path, "result")
-        extra_args = ["--", "--save-images"]
+        extra_args = ["--", "--save-media"]
         if label_map:
             extra_args += ["--label-map", label_map]
         run(
@@ -231,7 +231,7 @@ class VocIntegrationScenarios(TestCase):
                 "-o",
                 voc_export,
                 "--",
-                "--save-images",
+                "--save-media",
             )
 
             parsed_dataset = Dataset.import_from(voc_export, format="voc")
@@ -302,7 +302,7 @@ class VocIntegrationScenarios(TestCase):
                 "-o",
                 voc_dir,
                 "--",
-                "--save-images",
+                "--save-media",
             )
 
             target_dataset = Dataset.import_from(voc_dir, format="voc")
@@ -358,7 +358,7 @@ class VocIntegrationScenarios(TestCase):
                 "-o",
                 imagenet_dir,
                 "--",
-                "--save-image",
+                "--save-media",
             )
 
             target_dataset = Dataset.import_from(imagenet_dir, format="imagenet")

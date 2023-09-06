@@ -4,17 +4,15 @@
 
 from __future__ import annotations
 
-import warnings
 from typing import Any, Dict, Iterator, List, Optional, Sequence, Type, TypeVar, Union, cast
 
 import attr
-import numpy as np
 from attr import attrs, field
 
 from datumaro.components.annotation import Annotation, AnnotationType, Categories
 from datumaro.components.cli_plugin import CliPlugin
 from datumaro.components.contexts.importer import ImportContext, NullImportContext
-from datumaro.components.media import Image, MediaElement, PointCloud
+from datumaro.components.media import Image, MediaElement
 from datumaro.util.attrs_util import default_if_none, not_empty
 from datumaro.util.definitions import DEFAULT_SUBSET_NAME
 
@@ -50,117 +48,10 @@ class DatasetItem:
         media: Union[str, MediaElement, None] = None,
         annotations: Optional[List[Annotation]] = None,
         attributes: Dict[str, Any] = None,
-        image=None,
-        point_cloud=None,
-        related_images=None,
     ):
-        if image is not None:
-            warnings.warn(
-                "'image' is deprecated and will be removed in future. Use 'media' instead. "
-                "It will be deprecated in datumaro==1.5.0.",
-                DeprecationWarning,
-                stacklevel=2,
-            )
-            if isinstance(image, str):
-                image = Image.from_file(path=image)
-            elif isinstance(image, np.ndarray):
-                image = Image.from_numpy(data=image)
-            elif isinstance(image, bytes) or callable(image):
-                image = Image.from_bytes(data=image)
-            assert isinstance(image, Image)
-            media = image
-        elif point_cloud is not None:
-            warnings.warn(
-                "'point_cloud' is deprecated and will be "
-                "removed in future. Use 'media' instead. "
-                "It will be deprecated in datumaro==1.5.0.",
-                DeprecationWarning,
-                stacklevel=2,
-            )
-            if related_images is not None:
-                warnings.warn(
-                    "'related_images' is deprecated and will be "
-                    "removed in future. Use 'media' instead. "
-                    "It will be deprecated in datumaro==1.5.0.",
-                    DeprecationWarning,
-                    stacklevel=2,
-                )
-            if isinstance(point_cloud, str):
-                point_cloud = PointCloud.from_file(path=point_cloud, extra_images=related_images)
-            elif isinstance(point_cloud, bytes):
-                point_cloud = PointCloud.from_bytes(data=point_cloud, extra_images=related_images)
-            assert isinstance(point_cloud, PointCloud)
-            media = point_cloud
-
         self.__attrs_init__(
             id=id, subset=subset, media=media, annotations=annotations, attributes=attributes
         )
-
-    # Deprecated. Provided for backward compatibility.
-    @property
-    def image(self) -> Optional[Image]:
-        warnings.warn(
-            "'DatasetItem.image' is deprecated and will be "
-            "removed in future. Use '.media' and '.media_as()' instead. "
-            "It will be deprecated in datumaro==1.5.0.",
-            DeprecationWarning,
-            stacklevel=2,
-        )
-        if not isinstance(self.media, Image):
-            return None
-        return self.media_as(Image)
-
-    # Deprecated. Provided for backward compatibility.
-    @property
-    def point_cloud(self) -> Optional[str]:
-        warnings.warn(
-            "'DatasetItem.point_cloud' is deprecated and will be "
-            "removed in future. Use '.media' and '.media_as()' instead. "
-            "It will be deprecated in datumaro==1.5.0.",
-            DeprecationWarning,
-            stacklevel=2,
-        )
-        if not isinstance(self.media, PointCloud):
-            return None
-        return getattr(self.media_as(PointCloud), "path", None)
-
-    # Deprecated. Provided for backward compatibility.
-    @property
-    def related_images(self) -> List[Image]:
-        warnings.warn(
-            "'DatasetItem.related_images' is deprecated and will be "
-            "removed in future. Use '.media' and '.media_as()' instead. "
-            "It will be deprecated in datumaro==1.5.0.",
-            DeprecationWarning,
-            stacklevel=2,
-        )
-        if not isinstance(self.media, PointCloud):
-            return []
-        return self.media_as(PointCloud).extra_images
-
-    # Deprecated. Provided for backward compatibility.
-    @property
-    def has_image(self):
-        warnings.warn(
-            "'DatasetItem.has_image' is deprecated and will be "
-            "removed in future. Use '.media' and '.media_as()' instead. "
-            "It will be deprecated in datumaro==1.5.0.",
-            DeprecationWarning,
-            stacklevel=2,
-        )
-        return isinstance(self.media, Image)
-
-    # Deprecated. Provided for backward compatibility.
-    @property
-    def has_point_cloud(self):
-        warnings.warn(
-            "'DatasetItem.has_point_cloud' is deprecated and will be "
-            "removed in future. Use '.media' and '.media_as()' instead. "
-            "It will be deprecated in datumaro==1.5.0.",
-            DeprecationWarning,
-            stacklevel=2,
-        )
-        return isinstance(self.media, PointCloud)
 
 
 DatasetInfo = Dict[str, Any]
