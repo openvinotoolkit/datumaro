@@ -9,7 +9,6 @@ import io
 import os
 import os.path as osp
 import shutil
-import warnings
 import weakref
 from copy import deepcopy
 from enum import IntEnum
@@ -67,8 +66,6 @@ class MediaType(IntEnum):
             return MediaElement
         if self == self.IMAGE:
             return Image
-        if self == self.BYTE_IMAGE:
-            return ByteImage
         if self == self.VIDEO_FRAME:
             return VideoFrame
         if self == self.VIDEO:
@@ -436,97 +433,6 @@ class ImageFromBytes(ImageFromData):
                 raise MediaShapeError("An image should have 2 (gray) or 3 (bgra) dims.")
             self._size = tuple(map(int, data.shape[:2]))
         return data
-
-
-class ByteImage(ImageFromBytes):
-    _type = MediaType.BYTE_IMAGE
-
-    _FORMAT_MAGICS = (
-        (b"\x89PNG\r\n\x1a\n", ".png"),
-        (b"\xff\xd8\xff", ".jpg"),
-        (b"BM", ".bmp"),
-    )
-
-    def __init__(
-        self,
-        data: Union[bytes, Callable[[str], bytes], None] = None,
-        *,
-        path: Optional[str] = None,
-        ext: Optional[str] = None,
-        size: Optional[Tuple[int, int]] = None,
-        crypter: Crypter = NULL_CRYPTER,
-    ):
-        warnings.warn(
-            f"Using {self.__class__.__name__} is deprecated. "
-            "Please use 'Image.from_bytes()' instead. "
-            "It will be deprecated in datumaro==1.5.0.",
-            DeprecationWarning,
-            stacklevel=2,
-        )
-
-        if not isinstance(data, bytes):
-            assert path or callable(data), "Image can not be empty"
-            assert data is None or callable(data)
-            if path and osp.isfile(path) or data:
-                data = lazy_image(path, loader=data)
-
-        self._bytes_data = data
-
-        if ext is None:
-            if path:
-                ext = osp.splitext(osp.basename(path))[1]
-            elif isinstance(data, bytes):
-                ext = self._guess_ext(data)
-
-        super().__init__(ext=ext, size=size, data=lambda: decode_image(self.get_bytes()))
-        if data is None:
-            # We don't expect decoder to produce images from nothing,
-            # otherwise using this class makes no sense. We undefine
-            # data to avoid using default image loader for loading binaries
-            # from the path, when no data is provided.
-            self._data = None
-
-        # TODO: do we need this replace?
-        self._path = path.replace("\\", "/") if path else ""
-        self._crypter = crypter
-
-    @property
-    def path(self) -> str:
-        return self._path
-
-    @classmethod
-    def _guess_ext(cls, data: bytes) -> Optional[str]:
-        return next(
-            (ext for magic, ext in cls._FORMAT_MAGICS if data.startswith(magic)),
-            None,
-        )
-
-    def get_bytes(self):
-        if callable(self._bytes_data):
-            return self._bytes_data()
-        return self._bytes_data
-
-    def save(self, path, crypter: Crypter = NULL_CRYPTER):
-        if not crypter.is_null_crypter:
-            raise NotImplementedError(
-                f"{self.__class__.__name__} does not implement save() with non NullCrypter."
-            )
-
-        cur_path = osp.abspath(self.path)
-        path = osp.abspath(path)
-
-        cur_ext = self.ext.lower()
-        new_ext = osp.splitext(osp.basename(path))[1].lower()
-
-        os.makedirs(osp.dirname(path), exist_ok=True)
-        if cur_ext == new_ext and osp.isfile(cur_path):
-            if cur_path != path:
-                shutil.copyfile(cur_path, path)
-        elif cur_ext == new_ext:
-            with open(path, "wb") as f:
-                f.write(self.get_bytes())
-        else:
-            save_image(path, self.data)
 
 
 class VideoFrame(ImageFromNumpy):

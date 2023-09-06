@@ -39,7 +39,7 @@ def build_parser(parser_ctor=argparse.ArgumentParser):
         |n
         Examples:|n
         - Export a dataset as a PASCAL VOC dataset, include images:|n
-        |s|s%(prog)s -i src/path -f voc -- --save-images|n
+        |s|s%(prog)s -i src/path -f voc -- --save-media|n
         |n
         - Export a dataset as a COCO dataset to a specific directory:|n
         |s|s%(prog)s -i src/path -f coco -o path/I/like/

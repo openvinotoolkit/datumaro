@@ -130,7 +130,7 @@ class KittiRawIntegrationScenarios(TestCase):
                 "-o",
                 export_dir,
                 "--",
-                "--save-images",
+                "--save-media",
             )
 
             parsed_dataset = Dataset.import_from(export_dir, format="sly_pointcloud")

@@ -6,7 +6,6 @@ import logging as log
 import os
 import os.path as osp
 import shutil
-import warnings
 from tempfile import mkdtemp
 from typing import NoReturn, Optional, Tuple, TypeVar, Union
 
@@ -100,18 +99,9 @@ class Exporter(CliPlugin):
     def build_cmdline_parser(cls, **kwargs):
         parser = super().build_cmdline_parser(**kwargs)
 
-        # Deprecated
-        parser.add_argument(
-            "--save-images",
-            action="store_true",
-            default=None,
-            help="(Deprecated. Use --save-media instead) " "Save images (default: False)",
-        )
-
         parser.add_argument(
             "--save-media",
             action="store_true",
-            default=None,  # TODO: remove default once save-images is removed
             help="Save media (default: False)",
         )
         parser.add_argument(
@@ -176,7 +166,6 @@ class Exporter(CliPlugin):
         extractor: IDataset,
         save_dir: str,
         *,
-        save_images=None,  # Deprecated
         save_media: Optional[bool] = None,
         image_ext: Optional[str] = None,
         default_image_ext: Optional[str] = None,
@@ -189,23 +178,7 @@ class Exporter(CliPlugin):
         assert default_image_ext
         self._default_image_ext = default_image_ext
 
-        if save_images is not None and save_media is not None:
-            raise DatasetExportError("Can't use both 'save-media' and " "'save-images'")
-
-        if save_media is not None:
-            self._save_media = save_media
-        elif save_images is not None:
-            self._save_media = save_images
-            warnings.warn(
-                "'save-images' is deprecated and will be "
-                "removed in future. Use 'save-media' instead. "
-                "It will be deprecated in datumaro==1.5.0.",
-                DeprecationWarning,
-                stacklevel=2,
-            )
-        else:
-            self._save_media = False
-
+        self._save_media = save_media
         self._image_ext = image_ext
 
         self._extractor = extractor

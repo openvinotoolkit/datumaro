@@ -2,6 +2,8 @@ import os
 import os.path as osp
 from unittest import TestCase
 
+import pytest
+
 import datumaro.util.image as image_module
 
 from ...requirements import Requirements, mark_requirement
@@ -10,6 +12,7 @@ from tests.utils.test_utils import TestDir
 from tests.utils.test_utils import run_datum as run
 
 
+@pytest.mark.xfail(reason="Cannot download the model file from the source")
 class ImageGeneratorTest(TestCase):
     def check_images_shape(self, img_dir, expected_shape):
         exp_h, exp_w, exp_c = expected_shape

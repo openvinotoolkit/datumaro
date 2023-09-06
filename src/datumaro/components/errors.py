@@ -143,6 +143,14 @@ class ProjectAlreadyExists(DatumaroError):
 
 
 @define(auto_exc=False)
+class VcsAlreadyExists(DatumaroError):
+    path = field()
+
+    def __str__(self):
+        return f"Can't create project: a version control system already exists " f"at '{self.path}'"
+
+
+@define(auto_exc=False)
 class UnknownSourceError(DatumaroError):
     name = field()
 
