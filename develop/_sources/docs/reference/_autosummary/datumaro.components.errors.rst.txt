@@ -105,6 +105,7 @@ datumaro.components.errors
       UnknownStageError
       UnknownTargetError
       UnsavedChangesError
+      VcsAlreadyExists
       VcsError
       VideoMergeError
       WrongGroupError

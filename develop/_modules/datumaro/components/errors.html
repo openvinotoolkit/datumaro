@@ -421,6 +421,14 @@
         <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;Can&#39;t create project: a project already exists &quot;</span> <span class="sa">f</span><span class="s2">&quot;at &#39;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">path</span><span class="si">}</span><span class="s2">&#39;&quot;</span></div>
 
 
+<div class="viewcode-block" id="VcsAlreadyExists"><a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.components.errors.html#datumaro.cli.commands.require_project.modification.add.VcsAlreadyExists">[docs]</a><span class="nd">@define</span><span class="p">(</span><span class="n">auto_exc</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+<span class="k">class</span> <span class="nc">VcsAlreadyExists</span><span class="p">(</span><span class="n">DatumaroError</span><span class="p">):</span>
+    <span class="n">path</span> <span class="o">=</span> <span class="n">field</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;Can&#39;t create project: a version control system already exists &quot;</span> <span class="sa">f</span><span class="s2">&quot;at &#39;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">path</span><span class="si">}</span><span class="s2">&#39;&quot;</span></div>
+
+
 <div class="viewcode-block" id="UnknownSourceError"><a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.components.errors.html#datumaro.cli.commands.require_project.modification.add.UnknownSourceError">[docs]</a><span class="nd">@define</span><span class="p">(</span><span class="n">auto_exc</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
 <span class="k">class</span> <span class="nc">UnknownSourceError</span><span class="p">(</span><span class="n">DatumaroError</span><span class="p">):</span>
     <span class="n">name</span> <span class="o">=</span> <span class="n">field</span><span class="p">()</span>

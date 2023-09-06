@@ -277,7 +277,7 @@
             <article class="bd-article" role="main">
               
   <h1>Source code for datumaro.components.project</h1><div class="highlight"><pre>
-<span></span><span class="c1"># Copyright (C) 2019-2022 Intel Corporation</span>
+<span></span><span class="c1"># Copyright (C) 2019-2023 Intel Corporation</span>
 <span class="c1">#</span>
 <span class="c1"># SPDX-License-Identifier: MIT</span>
 
@@ -349,6 +349,7 @@
     <span class="n">UnknownStageError</span><span class="p">,</span>
     <span class="n">UnknownTargetError</span><span class="p">,</span>
     <span class="n">UnsavedChangesError</span><span class="p">,</span>
+    <span class="n">VcsAlreadyExists</span><span class="p">,</span>
     <span class="n">VcsError</span><span class="p">,</span>
 <span class="p">)</span>
 <span class="kn">from</span> <span class="nn">datumaro.components.launcher</span> <span class="kn">import</span> <span class="n">Launcher</span>
@@ -2066,8 +2067,16 @@
         <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">osp</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">ProjectLayout</span><span class="o">.</span><span class="n">cache_dir</span><span class="p">))</span>
         <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">osp</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">ProjectLayout</span><span class="o">.</span><span class="n">tmp_dir</span><span class="p">))</span>
 
-        <span class="n">on_error_do</span><span class="p">(</span><span class="n">rmtree</span><span class="p">,</span> <span class="n">osp</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">project_dir</span><span class="p">,</span> <span class="s2">&quot;.git&quot;</span><span class="p">),</span> <span class="n">ignore_errors</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-        <span class="n">on_error_do</span><span class="p">(</span><span class="n">rmtree</span><span class="p">,</span> <span class="n">osp</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">project_dir</span><span class="p">,</span> <span class="s2">&quot;.dvc&quot;</span><span class="p">),</span> <span class="n">ignore_errors</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="n">git_dir</span><span class="p">,</span> <span class="n">dvc_dir</span> <span class="o">=</span> <span class="n">osp</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">project_dir</span><span class="p">,</span> <span class="s2">&quot;.git&quot;</span><span class="p">),</span> <span class="n">osp</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">project_dir</span><span class="p">,</span> <span class="s2">&quot;.dvc&quot;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">osp</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">git_dir</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="n">VcsAlreadyExists</span><span class="p">(</span><span class="n">git_dir</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">osp</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">dvc_dir</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="n">VcsAlreadyExists</span><span class="p">(</span><span class="n">dvc_dir</span><span class="p">)</span>
+
+        <span class="n">on_error_do</span><span class="p">(</span><span class="n">rmtree</span><span class="p">,</span> <span class="n">git_dir</span><span class="p">,</span> <span class="n">ignore_errors</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="n">on_error_do</span><span class="p">(</span><span class="n">rmtree</span><span class="p">,</span> <span class="n">dvc_dir</span><span class="p">,</span> <span class="n">ignore_errors</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
         <span class="n">project</span> <span class="o">=</span> <span class="n">Project</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
         <span class="n">project</span><span class="o">.</span><span class="n">_init_vcs</span><span class="p">()</span>
 
