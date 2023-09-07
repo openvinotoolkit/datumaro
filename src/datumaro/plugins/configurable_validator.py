@@ -81,23 +81,31 @@ class _BaseAnnStats:
             }
 
         # Create a dictionary that maps warning types to their corresponding update functions
-        self.update_item_functions = {
-            MissingAnnotation: self._update_missing_annotation,
-        }
+        self.update_item_functions = set()
+        self.update_ann_functions = set()
 
-        self.update_ann_functions = {
-            LabelDefinedButNotFound: self._update_label_stats,
-            FewSamplesInLabel: self._update_label_stats,
-            ImbalancedLabels: self._update_label_stats,
-            OnlyOneLabel: self._update_label_stats,
-            AttributeDefinedButNotFound: self._update_attribute_stats,
-            FewSamplesInAttribute: self._update_attribute_stats,
-            ImbalancedAttribute: self._update_attribute_stats,
-            OnlyOneAttributeValue: self._update_attribute_stats,
-            MissingAttribute: self._update_missing_attribute,
-            UndefinedLabel: self._update_undefined_label,
-            UndefinedAttribute: self._update_undefined_attribute,
-        }
+        if {
+            LabelDefinedButNotFound,
+            FewSamplesInLabel,
+            ImbalancedLabels,
+            OnlyOneLabel,
+        } & self.warnings:
+            self.update_ann_functions.add(self._update_label_stats)
+        if {
+            AttributeDefinedButNotFound,
+            FewSamplesInAttribute,
+            ImbalancedAttribute,
+            OnlyOneAttributeValue,
+        } & self.warnings:
+            self.update_ann_functions.add(self._update_attribute_stats)
+        if {MissingAnnotation} & self.warnings:
+            self.update_item_functions.add(self._update_missing_annotation)
+        if {MissingAnnotation} & self.warnings:
+            self.update_ann_functions.add(self._update_missing_attribute)
+        if {UndefinedLabel} & self.warnings:
+            self.update_ann_functions.add(self._update_undefined_label)
+        if {UndefinedAttribute} & self.warnings:
+            self.update_ann_functions.add(self._update_undefined_attribute)
 
     def _update_label_stats(self, item_key, annotation: Annotation):
         if annotation.label in self.label_categories:
@@ -142,20 +150,12 @@ class _BaseAnnStats:
                 self.stats.undefined_attribute.add(item_key + (str(annotation.label), attr))
 
     def update_item(self, item: DatasetItem):
-        for warning_type in self.warnings:
-            if warning_type in self.update_item_functions:
-                self.update_item_functions[warning_type](item)
+        for func in self.update_item_functions:
+            func(item)
 
     def update_ann(self, item_key, annotation: Annotation):
-        for warning_type in self.warnings:
-            if warning_type in self.update_ann_functions:
-                self.update_ann_functions[warning_type](item_key, annotation)
-
-    def _update_item_type_stats(self, item: DatasetItem):
-        NotImplemented
-
-    def _update_ann_type_stats(self, item_key: tuple, annotation: Annotation):
-        NotImplemented
+        for func in self.update_ann_functions:
+            func(item_key, annotation)
 
 
 class ClsStats(_BaseAnnStats):
@@ -163,7 +163,8 @@ class ClsStats(_BaseAnnStats):
         super().__init__(label_categories=label_categories, warnings=warnings)
 
         self.stats.multiple_label = set()
-        self.update_item_functions.update({MultiLabelAnnotations: self._update_multi_label})
+        if {MultiLabelAnnotations} & self.warnings:
+            self.update_item_functions.add(self._update_multi_label)
 
     def _update_multi_label(self, item: DatasetItem):
         item_key = (item.id, item.subset)
@@ -192,16 +193,17 @@ class DetStats(_BaseAnnStats):
         self.stats.invalid_value = set()
         self.stats.negative_length = set()
 
-        self.update_ann_functions.update(
-            {
-                FarFromAttrMean: self._update_bbox_stats,
-                FarFromLabelMean: self._update_bbox_stats,
-                ImbalancedDistInAttribute: self._update_bbox_stats,
-                ImbalancedDistInLabel: self._update_bbox_stats,
-                InvalidValue: self._update_invalid_value,
-                NegativeLength: self._update_negative_length,
-            }
-        )
+        if {
+            FarFromAttrMean,
+            FarFromLabelMean,
+            ImbalancedDistInAttribute,
+            ImbalancedDistInLabel,
+        } & self.warnings:
+            self.update_ann_functions.add(self._update_bbox_stats)
+        if {InvalidValue} & self.warnings:
+            self.update_ann_functions.add(self._update_invalid_value)
+        if {NegativeLength} & self.warnings:
+            self.update_ann_functions.add(self._update_negative_length)
 
     def _update_invalid_value(self, item_key: tuple, annotation: Annotation):
         _, _, w, h = annotation.get_bbox()
@@ -259,15 +261,15 @@ class SegStats(_BaseAnnStats):
 
         self.stats.invalid_value = set()
 
-        self.update_ann_functions.update(
-            {
-                FarFromAttrMean: self._update_mask_stats,
-                FarFromLabelMean: self._update_mask_stats,
-                ImbalancedDistInAttribute: self._update_mask_stats,
-                ImbalancedDistInLabel: self._update_mask_stats,
-                InvalidValue: self._update_invalid_value,
-            }
-        )
+        if {
+            FarFromAttrMean,
+            FarFromLabelMean,
+            ImbalancedDistInAttribute,
+            ImbalancedDistInLabel,
+        } & self.warnings:
+            self.update_ann_functions.add(self._update_mask_stats)
+        if {InvalidValue} & self.warnings:
+            self.update_ann_functions.add(self._update_invalid_value)
 
     def _update_invalid_value(self, item_key: tuple, annotation: Annotation):
         _, _, w, h = annotation.get_bbox()

@@ -350,6 +350,111 @@ def fxt_dataset():
                     ),
                 ],
             ),
+            DatasetItem(
+                id=9,
+                media=Image.from_numpy(data=np.ones((2, 4, 3))),
+                annotations=[
+                    Bbox(
+                        0,
+                        0,
+                        100,
+                        100,
+                        id=1,
+                        label=0,
+                        attributes={
+                            "a": 100,
+                            "b": 100,
+                        },
+                    ),
+                    Polygon(
+                        [1, 1, 1, 100, 100, 100, 100, 1],
+                        label=2,
+                        id=2,
+                        attributes={
+                            "a": 100,
+                            "b": 100,
+                        },
+                    ),
+                ],
+            ),
+            DatasetItem(
+                id=10,
+                media=Image.from_numpy(data=np.ones((2, 4, 3))),
+                annotations=[
+                    Bbox(
+                        0,
+                        0,
+                        0.5,
+                        0.5,
+                        id=1,
+                        label=0,
+                        attributes={
+                            "a": 100,
+                            "b": 100,
+                        },
+                    ),
+                    Bbox(
+                        0,
+                        0,
+                        float("inf"),
+                        10,
+                        id=1,
+                        label=1,
+                        attributes={
+                            "a": 100,
+                            "b": 100,
+                        },
+                    ),
+                    Polygon(
+                        [1, 1, 1, 100, 100, 100, 100, 1],
+                        label=0,
+                        id=2,
+                        attributes={
+                            "a": 1,
+                            "b": 1,
+                        },
+                    ),
+                ],
+            ),
+            DatasetItem(
+                id=11,
+                media=Image.from_numpy(data=np.ones((2, 4, 3))),
+                annotations=[
+                    Bbox(
+                        0,
+                        0,
+                        0.5,
+                        0,
+                        id=1,
+                        label=0,
+                        attributes={
+                            "a": 2,
+                            "b": 2,
+                        },
+                    ),
+                    Bbox(
+                        0,
+                        0,
+                        10,
+                        float("nan"),
+                        id=1,
+                        label=1,
+                        attributes={
+                            "a": 1,
+                            "b": 1,
+                        },
+                    ),
+                    Polygon(
+                        [1, 1, 1, 100, 100, 100, 100, 1],
+                        label=1,
+                        id=2,
+                        attributes={
+                            "a": 1,
+                            "b": 1,
+                        },
+                    ),
+                ],
+            ),
         ],
         categories=[
             [
@@ -388,22 +493,46 @@ class ConfigurableValidatorTest:
                 [TaskType.detection],
                 {MissingAnnotation, UndefinedLabel, OnlyOneLabel, FewSamplesInLabel},
             ),
-            ([TaskType.detection], {InvalidValue, NegativeLength}),
-            ([TaskType.detection], {FarFromLabelMean}),
-            ([TaskType.segmentation], {FarFromLabelMean}),
+            (
+                [TaskType.detection],
+                {FarFromLabelMean, ImbalancedDistInLabel},
+            ),
+            (
+                [TaskType.detection],
+                {InvalidValue, NegativeLength},
+            ),
+            (
+                [TaskType.segmentation],
+                {
+                    AttributeDefinedButNotFound,
+                    OnlyOneAttributeValue,
+                    FewSamplesInAttribute,
+                    ImbalancedAttribute,
+                },
+            ),
+            (
+                [TaskType.segmentation],
+                {FarFromLabelMean, ImbalancedDistInLabel},
+            ),
         ],
     )
-    def test_can_detect(
+    def test_can_validate_configuration(
         self,
         fxt_dataset: Dataset,
         fxt_tasks: List[TaskType],
         fxt_warnings: Set[DatasetValidationError],
     ):
-        validator = ConfigurableValidator(tasks=fxt_tasks, warnings=fxt_warnings)
-        stats = validator.compute_statistics(fxt_dataset)
-        reports = validator.generate_reports(stats)
-
-        print(reports)
+        validator = ConfigurableValidator(tasks=fxt_tasks, warnings=fxt_warnings, few_samples_thr=3)
+        all_stats = validator.compute_statistics(fxt_dataset)
+        all_reports = validator.generate_reports(all_stats)
 
         for task in fxt_tasks:
-            assert stats.get(task)
+            assert all_stats.get(task)
+
+            reports = all_reports[task]
+            reports = list(map(lambda r: r.to_dict(), reports))
+
+            actual = set([r["anomaly_type"] for r in reports])
+            expected = set([s.__name__ for s in fxt_warnings])
+
+            assert actual.intersection(expected)
