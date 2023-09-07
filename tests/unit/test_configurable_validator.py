@@ -367,8 +367,8 @@ def fxt_dataset():
                         },
                     ),
                     Polygon(
-                        [1, 1, 1, 100, 100, 100, 100, 1],
-                        label=2,
+                        [0, 0, 0, 100, 100, 100, 100, 0],
+                        label=0,
                         id=2,
                         attributes={
                             "a": 100,
@@ -406,7 +406,7 @@ def fxt_dataset():
                         },
                     ),
                     Polygon(
-                        [1, 1, 1, 100, 100, 100, 100, 1],
+                        [1, 1, 1, 4, 4, 4, 4, 1],
                         label=0,
                         id=2,
                         attributes={
@@ -445,7 +445,7 @@ def fxt_dataset():
                         },
                     ),
                     Polygon(
-                        [1, 1, 1, 100, 100, 100, 100, 1],
+                        [1, 1, 1, 2, 2, 2, 2, 1],
                         label=1,
                         id=2,
                         attributes={
@@ -515,6 +515,17 @@ class ConfigurableValidatorTest:
                 {FarFromLabelMean, ImbalancedDistInLabel},
             ),
         ],
+        ids=[
+            "cls-label-anomaly",
+            "cls-label",
+            "cls-attr-anomaly",
+            "cls-attr",
+            "det-label",
+            "det-pts",
+            "det-anomaly",
+            "seg-attr",
+            "seg-pts",
+        ],
     )
     def test_can_validate_configuration(
         self,
@@ -527,10 +538,12 @@ class ConfigurableValidatorTest:
         all_reports = validator.generate_reports(all_stats)
 
         for task in fxt_tasks:
-            assert all_stats.get(task)
+            stats = all_stats[task]
+            print(stats.stats)
 
             reports = all_reports[task]
             reports = list(map(lambda r: r.to_dict(), reports))
+            print(reports)
 
             actual = set([r["anomaly_type"] for r in reports])
             expected = set([s.__name__ for s in fxt_warnings])
