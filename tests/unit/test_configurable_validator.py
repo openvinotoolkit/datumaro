@@ -389,6 +389,8 @@ class ConfigurableValidatorTest:
                 {MissingAnnotation, UndefinedLabel, OnlyOneLabel, FewSamplesInLabel},
             ),
             ([TaskType.detection], {InvalidValue, NegativeLength}),
+            ([TaskType.detection], {FarFromLabelMean}),
+            ([TaskType.segmentation], {FarFromLabelMean}),
         ],
     )
     def test_can_detect(
@@ -400,6 +402,8 @@ class ConfigurableValidatorTest:
         validator = ConfigurableValidator(tasks=fxt_tasks, warnings=fxt_warnings)
         stats = validator.compute_statistics(fxt_dataset)
         reports = validator.generate_reports(stats)
+
+        print(reports)
 
         for task in fxt_tasks:
             assert stats.get(task)
