@@ -539,11 +539,9 @@ class ConfigurableValidatorTest:
 
         for task in fxt_tasks:
             stats = all_stats[task]
-            print(stats.stats)
 
             reports = all_reports[task]
             reports = list(map(lambda r: r.to_dict(), reports))
-            print(reports)
 
             actual = set([r["anomaly_type"] for r in reports])
             expected = set([s.__name__ for s in fxt_warnings])
