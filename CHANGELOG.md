@@ -17,6 +17,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   (<https://github.com/openvinotoolkit/datumaro/pull/1129>)
 - Add SAMBboxToInstanceMask transform
   (<https://github.com/openvinotoolkit/datumaro/pull/1133>, <https://github.com/openvinotoolkit/datumaro/pull/1134>)
+- Add ConfigurableValicator
+  (<https://github.com/openvinotoolkit/datumaro/pull/1142>)
 
 ### Enhancements
 - Remove xfail marks from the convert integration tests
