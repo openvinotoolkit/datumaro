@@ -4,7 +4,7 @@
 """Bbox-to-instance mask transform using Segment Anything Model"""
 
 import os.path as osp
-from typing import Generator, List, Optional
+from typing import List, Optional
 
 import datumaro.plugins.sam_transforms.interpreters.sam_decoder_for_bbox as sam_decoder_for_bbox_interp
 import datumaro.plugins.sam_transforms.interpreters.sam_encoder as sam_encoder_interp
@@ -18,7 +18,6 @@ from datumaro.plugins.inference_server_plugin.base import (
     ProtocolType,
     TLSConfig,
 )
-from datumaro.util import take_by
 from datumaro.util.mask_tools import extract_contours
 
 __all__ = ["SAMBboxToInstanceMask"]
@@ -44,6 +43,8 @@ class SAMBboxToInstanceMask(ModelTransform, CliPlugin):
         tls_config: Configuration required if the server instance is in the secure mode
         protocol_type: Communication protocol type with the server instance
         to_polygon: If true, the output `Mask` annotations will be converted to `Polygon` annotations.
+        num_workers: The number of worker threads to use for parallel inference.
+            Set to 0 for single-process mode. Default is 0.
     """
 
     def __init__(
@@ -56,6 +57,7 @@ class SAMBboxToInstanceMask(ModelTransform, CliPlugin):
         tls_config: Optional[TLSConfig] = None,
         protocol_type: ProtocolType = ProtocolType.grpc,
         to_polygon: bool = False,
+        num_workers: int = 0,
     ):
         if inference_server_type == InferenceServerType.ovms:
             launcher_cls = OVMSLauncher
@@ -90,26 +92,35 @@ class SAMBboxToInstanceMask(ModelTransform, CliPlugin):
             launcher=self._sam_encoder_launcher,
             batch_size=1,
             append_annotation=False,
+            num_workers=num_workers,
         )
         self._to_polygon = to_polygon
 
-    def __iter__(self) -> Generator[DatasetItem, None, None]:
-        for batch in take_by(self._extractor, self._batch_size):
-            batch = [item for item in batch if self._launcher.type_check(item)]
-            img_embeds = self._sam_encoder_launcher.launch(batch)
+    def _process_batch(
+        self,
+        batch: List[DatasetItem],
+    ) -> List[DatasetItem]:
+        print("Process batch")
+        img_embeds = self._sam_encoder_launcher.launch(
+            batch=[item for item in batch if self._sam_encoder_launcher.type_check(item)]
+        )
 
-            for item, img_embed in zip(batch, img_embeds):
-                # Nested list of mask [[mask_0, ...]]
-                nested_masks: List[List[Mask]] = self._sam_decoder_launcher.launch(
-                    [item.wrap(annotations=item.annotations + img_embed)],
-                    stack=False,
-                )
+        items = []
+        for item, img_embed in zip(batch, img_embeds):
+            # Nested list of mask [[mask_0, ...]]
+            nested_masks: List[List[Mask]] = self._sam_decoder_launcher.launch(
+                [item.wrap(annotations=item.annotations + img_embed)],
+                stack=False,
+            )
 
-                yield item.wrap(
+            items.append(
+                item.wrap(
                     annotations=self._convert_to_polygon(nested_masks[0])
                     if self._to_polygon
                     else nested_masks[0]
                 )
+            )
+        return items
 
     @staticmethod
     def _convert_to_polygon(masks: List[Mask]):

@@ -195,6 +195,7 @@ class HLOps:
         *,
         batch_size: int = 1,
         append_annotation: bool = False,
+        num_workers: int = 0,
         **kwargs,
     ) -> IDataset:
         """
@@ -207,6 +208,8 @@ class HLOps:
             batch_size: The number of dataset items processed
                 simultaneously by the model
             append_annotation: Whether append new annotation to existed annotations
+            num_workers: The number of worker threads to use for parallel inference.
+                Set to 0 for single-process mode. Default is 0.
             **kwargs: Parameters for the model
 
         Returns: a wrapper around the input dataset, which is computed lazily
@@ -220,11 +223,17 @@ class HLOps:
                 launcher=model,
                 batch_size=batch_size,
                 append_annotation=append_annotation,
+                num_workers=num_workers,
                 **kwargs,
             )
         elif inspect.isclass(model) and issubclass(model, ModelTransform):
             return HLOps.transform(
-                dataset, model, batch_size=batch_size, append_annotation=append_annotation, **kwargs
+                dataset,
+                model,
+                batch_size=batch_size,
+                append_annotation=append_annotation,
+                num_workers=num_workers,
+                **kwargs,
             )
         else:
             raise TypeError(f"Unexpected model argument type: {type(model)}")
