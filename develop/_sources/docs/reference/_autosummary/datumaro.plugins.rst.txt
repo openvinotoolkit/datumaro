@@ -28,6 +28,7 @@ datumaro.plugins
    :recursive:
 
    datumaro.plugins.accuracy_checker_plugin
+   datumaro.plugins.configurable_validator
    datumaro.plugins.data_formats
    datumaro.plugins.explorer
    datumaro.plugins.framework_converter
