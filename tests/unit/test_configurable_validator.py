@@ -9,15 +9,7 @@ from unittest import TestCase
 import numpy as np
 import pytest
 
-from datumaro.components.annotation import (
-    AnnotationType,
-    Bbox,
-    Ellipse,
-    Label,
-    LabelCategories,
-    Mask,
-    Polygon,
-)
+from datumaro.components.annotation import AnnotationType, Bbox, Ellipse, Label, Mask, Polygon
 from datumaro.components.dataset import Dataset, DatasetItem
 from datumaro.components.environment import Environment
 from datumaro.components.errors import (
@@ -46,8 +38,6 @@ from datumaro.components.errors import (
 from datumaro.components.media import Image
 from datumaro.components.validator import TaskType
 from datumaro.plugins.configurable_validator import ConfigurableValidator
-
-from ..requirements import Requirements, mark_requirement
 
 
 @pytest.fixture
@@ -470,6 +460,15 @@ def fxt_dataset():
     )
 
 
+ANN_TASK_MAPPING = {
+    AnnotationType.label: TaskType.classification,
+    AnnotationType.bbox: TaskType.detection,
+    AnnotationType.polygon: TaskType.segmentation,
+    AnnotationType.mask: TaskType.segmentation,
+    AnnotationType.ellipse: TaskType.segmentation,
+}
+
+
 class ConfigurableValidatorTest:
     @pytest.mark.parametrize(
         "fxt_tasks,fxt_warnings",
@@ -538,7 +537,9 @@ class ConfigurableValidatorTest:
         all_reports = validator.generate_reports(all_stats)
 
         for task in fxt_tasks:
-            stats = all_stats[task]
+            for label_name in all_stats[task].stats.categories:
+                for ann_type in all_stats[task].stats.categories[label_name]["type"]:
+                    assert ANN_TASK_MAPPING[ann_type] == task
 
             reports = all_reports[task]
             reports = list(map(lambda r: r.to_dict(), reports))

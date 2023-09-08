@@ -101,6 +101,7 @@ class _BaseAnnStats:
             label_name = label_cat.name
             self.stats.categories[label_name] = {
                 "cnt": 0,
+                "type": set(),
                 "attributes": {attr: {} for attr in label_cat.attributes},
             }
 
@@ -150,6 +151,7 @@ class _BaseAnnStats:
         if annotation.label in self.label_categories:
             label_name = self.label_categories[annotation.label].name
             self.stats.categories[label_name]["cnt"] += 1
+            self.stats.categories[label_name]["type"].add(annotation.type)
 
     def _update_attribute_stats(self, item_key, annotation):
         if annotation.label in self.label_categories:
@@ -415,6 +417,7 @@ class ClsStats(_BaseAnnStats):
             label_name = label_cat.name
             self.stats.categories[label_name] = {
                 "cnt": 0,
+                "type": set(),
                 "attributes": {attr: {} for attr in label_cat.attributes},
             }
 
@@ -474,6 +477,7 @@ class DetStats(_BaseAnnStats):
             label_name = label_cat.name
             self.stats.categories[label_name] = {
                 "cnt": 0,
+                "type": set(),
                 "attributes": {attr: {} for attr in label_cat.attributes},
                 "pts": [],  # (id, subset, ann_id, w, h, a, r)
             }
@@ -669,6 +673,7 @@ class SegStats(_BaseAnnStats):
             label_name = label_cat.name
             self.stats.categories[label_name] = {
                 "cnt": 0,
+                "type": set(),
                 "attributes": {attr: {} for attr in label_cat.attributes},
                 "pts": [],  # (id, subset, ann_id, w, h, a, r)
             }
@@ -888,7 +893,6 @@ class ConfigurableValidator(Validator, CliPlugin):
         self.tasks = tasks
         self.warnings = warnings
 
-        self.init_flag = False
         self.all_stats = {task: None for task in tasks}
 
         self.few_samples_thr = few_samples_thr if few_samples_thr else self.DEFAULT_FEW_SAMPLES_THR
@@ -924,38 +928,33 @@ class ConfigurableValidator(Validator, CliPlugin):
                 self.all_stats[task] = SegStats(
                     label_categories=label_categories, warnings=self.warnings, **kwargs
                 )
-        self.init_flag = True
 
     def _get_stats_collector(self, ann_type):
-        if TaskType.classification in self.tasks and ann_type == AnnotationType.label:
-            return self.all_stats[TaskType.classification]
-        elif TaskType.detection in self.tasks and ann_type == AnnotationType.bbox:
-            return self.all_stats[TaskType.detection]
-        elif TaskType.segmentation in self.tasks and ann_type in [
+        if ann_type == AnnotationType.label:
+            return self.all_stats.get(TaskType.classification, None)
+        elif ann_type == AnnotationType.bbox:
+            return self.all_stats.get(TaskType.detection, None)
+        elif ann_type in [
             AnnotationType.mask,
             AnnotationType.polygon,
             AnnotationType.ellipse,
         ]:
-            return self.all_stats[TaskType.segmentation]
+            return self.all_stats.get(TaskType.segmentation, None)
         else:
             return None
 
     def compute_statistics(self, dataset):
-        if not self.init_flag:
-            self._init_stats_collector(label_categories=dataset.categories()[AnnotationType.label])
+        self._init_stats_collector(label_categories=dataset.categories()[AnnotationType.label])
 
         for item in dataset:
             for stats_collector in self.all_stats.values():
-                if not stats_collector:
-                    continue
                 stats_collector.update_item(item)
 
             item_key = (item.id, item.subset)
             for annotation in item.annotations:
                 stats_collector = self._get_stats_collector(ann_type=annotation.type)
-                if not stats_collector:
-                    continue
-                stats_collector.update_ann(item_key, annotation)
+                if stats_collector:
+                    stats_collector.update_ann(item_key, annotation)
 
         return {task: stats_collector for task, stats_collector in self.all_stats.items()}
 
