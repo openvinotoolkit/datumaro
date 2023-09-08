@@ -48,7 +48,7 @@ jobs:
         uses: actions/upload-artifact@v3
         with:
           name: results-stability-${{ matrix.tox-env-os }}
-          path: .tox/results-stability-${{ matrix.tox-env-os }}.xml
+          path: .tox/results-stability-${{ matrix.tox-env-os }}.csv
   call-notify-to-teams:
     needs: [weekly_stability_test]
     if: |

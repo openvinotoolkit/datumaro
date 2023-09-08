@@ -54,7 +54,7 @@ jobs:
         uses: actions/upload-artifact@v3
         with:
           name: nightly-results-py${{ matrix.tox-env-py }}-${{ matrix.tox-env-os }}
-          path: .tox/results-tests-py${{ matrix.tox-env-py }}-${{ matrix.tox-env-os }}.xml
+          path: .tox/results-tests-py${{ matrix.tox-env-py }}-${{ matrix.tox-env-os }}.csv
   call-notify-to-teams:
     needs: [nightly_regression_test]
     if: |
