@@ -6,6 +6,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## \[Unreleased\]
+
+## 09/2023 - Release 1.5.0
 ### New features
 - Add tabular data import/export
   (<https://github.com/openvinotoolkit/datumaro/pull/1089>)
@@ -17,6 +19,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   (<https://github.com/openvinotoolkit/datumaro/pull/1129>)
 - Add SAMBboxToInstanceMask transform
   (<https://github.com/openvinotoolkit/datumaro/pull/1133>, <https://github.com/openvinotoolkit/datumaro/pull/1134>)
+- Add ConfigurableValicator
+  (<https://github.com/openvinotoolkit/datumaro/pull/1142>)
 
 ### Enhancements
 - Remove xfail marks from the convert integration tests
