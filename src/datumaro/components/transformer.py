@@ -2,7 +2,7 @@
 #
 # SPDX-License-Identifier: MIT
 from multiprocessing.pool import ThreadPool
-from typing import Generator, Iterator, List, Optional
+from typing import Iterator, List, Optional
 
 import numpy as np
 
@@ -134,15 +134,6 @@ class ModelTransform(Transform):
             for item in self._process_batch(batch=batch):
                 yield item
 
-    def _yield_item(
-        self, batch: List[DatasetItem], inference: List[List[Annotation]]
-    ) -> Generator[DatasetItem, None, None]:
-        for item, annotations in zip(batch, inference):
-            self._check_annotations(annotations)
-            if self._append_annotation:
-                annotations = item.annotations + annotations
-            yield self.wrap_item(item, annotations=annotations)
-
     def _process_batch(
         self,
         batch: List[DatasetItem],
@@ -151,8 +142,11 @@ class ModelTransform(Transform):
             batch=[item for item in batch if self._launcher.type_check(item)]
         )
 
+        for annotations in inference:
+            self._check_annotations(annotations)
+
         return [
-            Transform.wrap_item(
+            self.wrap_item(
                 item,
                 annotations=item.annotations + annotations
                 if self._append_annotation
