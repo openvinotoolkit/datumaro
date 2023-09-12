@@ -7,12 +7,14 @@ import os
 import os.path as osp
 import platform
 from contextlib import suppress
+from typing import Iterator
 from unittest import TestCase, mock
 
 import pytest
 
 from datumaro.util import is_method_redefined
 from datumaro.util.definitions import get_datumaro_cache_dir
+from datumaro.util.multi_procs_util import consumer_generator
 from datumaro.util.os_util import walk
 from datumaro.util.scope import Scope, on_error_do, on_exit_do, scoped
 
@@ -242,3 +244,41 @@ class DefinitionsTest:
         with caplog.at_level(logging.ERROR):
             get_datumaro_cache_dir(fxt_non_writable_path)
             assert len(caplog.records) == 1
+
+
+class MultiProcUtilTest:
+    @pytest.fixture
+    def fxt_producer_generator(self):
+        class TestObject:
+            def __init__(self, value: int) -> None:
+                self.value = value
+
+        def test_func() -> Iterator[TestObject]:
+            for i in range(1000):
+                yield TestObject(i)
+
+        return test_func
+
+    def test_succeed(self, fxt_producer_generator):
+        with consumer_generator(producer_generator=fxt_producer_generator()) as f:
+            for expect, actual in enumerate(f):
+                assert expect == actual.value
+
+    def test_raise_exception_in_main_thread(
+        self, fxt_producer_generator, caplog: pytest.LogCaptureFixture
+    ):
+        try:
+            with consumer_generator(
+                producer_generator=fxt_producer_generator(),
+                enqueue_timeout=0.05,
+                join_timeout=0.1,
+            ) as f:
+                for expect, actual in enumerate(f):
+                    assert expect == actual.value
+                    raise Exception()
+        except Exception:
+            assert any(
+                "Item to enqueue is left. However, the main process is terminated."
+                == record.message
+                for record in caplog.records
+            )
