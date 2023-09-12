@@ -6,7 +6,10 @@ on:
       - 'develop'
       - 'releases/*'
   pull_request:
-    types: [edited, ready_for_review, opened, synchronize, reopened]
+    types:
+      - opened
+      - synchronize
+      - reopened
 
 # This is what will cancel the workflow concurrency
 concurrency:
