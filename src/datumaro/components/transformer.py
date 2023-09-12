@@ -1,7 +1,8 @@
 # Copyright (C) 2019-2022 Intel Corporation
 #
 # SPDX-License-Identifier: MIT
-from typing import Generator, List, Optional
+from multiprocessing.pool import ThreadPool
+from typing import Iterator, List, Optional
 
 import numpy as np
 
@@ -10,6 +11,7 @@ from datumaro.components.cli_plugin import CliPlugin
 from datumaro.components.dataset_base import DatasetBase, DatasetItem, IDataset
 from datumaro.components.launcher import Launcher
 from datumaro.util import is_method_redefined, take_by
+from datumaro.util.multi_procs_util import consumer_generator
 
 
 class Transform(DatasetBase, CliPlugin):
@@ -71,35 +73,87 @@ class ItemTransform(Transform):
 
 
 class ModelTransform(Transform):
+    """A transformation class for applying a model's inference to dataset items.
+
+    This class takes an dataset, a launcher, and other optional parameters
+    to transform the dataset item from the model outputs by the launcher.
+    It can process items using multiple processes if specified, making it suitable for
+    parallelized inference tasks.
+
+    Parameters:
+        extractor: The dataset extractor to obtain items from.
+        launcher: The launcher responsible for model inference.
+        batch_size: The batch size for processing items. Default is 1.
+        append_annotation: Whether to append inference annotations to existing annotations.
+            Default is False.
+        num_workers: The number of worker threads to use for parallel inference.
+            Set to 0 for single-process mode. Default is 0.
+    """
+
     def __init__(
         self,
         extractor: IDataset,
         launcher: Launcher,
         batch_size: int = 1,
         append_annotation: bool = False,
+        num_workers: int = 0,
     ):
         super().__init__(extractor)
         self._launcher = launcher
         self._batch_size = batch_size
         self._append_annotation = append_annotation
-
-    def __iter__(self) -> Generator[DatasetItem, None, None]:
-        for batch in take_by(self._extractor, self._batch_size):
-            inference = self._launcher.launch(
-                [item for item in batch if self._launcher.type_check(item)]
+        if not (isinstance(num_workers, int) and num_workers >= 0):
+            raise ValueError(
+                f"num_workers should be a non negative integer, but it is {num_workers}"
             )
+        self._num_workers = num_workers
 
-            for item in self._yield_item(batch, inference):
+    def __iter__(self) -> Iterator[DatasetItem]:
+        if self._num_workers == 0:
+            return self._iter_single_proc()
+        return self._iter_multi_procs()
+
+    def _iter_multi_procs(self):
+        with ThreadPool(processes=self._num_workers) as pool:
+
+            def _producer_gen():
+                for batch in take_by(self._extractor, self._batch_size):
+                    future = pool.apply_async(
+                        func=self._process_batch,
+                        args=(batch,),
+                    )
+                    yield future
+
+            with consumer_generator(producer_generator=_producer_gen()) as consumer_gen:
+                for future in consumer_gen:
+                    for item in future.get():
+                        yield item
+
+    def _iter_single_proc(self) -> Iterator[DatasetItem]:
+        for batch in take_by(self._extractor, self._batch_size):
+            for item in self._process_batch(batch=batch):
                 yield item
 
-    def _yield_item(
-        self, batch: List[DatasetItem], inference: List[List[Annotation]]
-    ) -> Generator[DatasetItem, None, None]:
-        for item, annotations in zip(batch, inference):
+    def _process_batch(
+        self,
+        batch: List[DatasetItem],
+    ) -> List[DatasetItem]:
+        inference = self._launcher.launch(
+            batch=[item for item in batch if self._launcher.type_check(item)]
+        )
+
+        for annotations in inference:
             self._check_annotations(annotations)
-            if self._append_annotation:
-                annotations = item.annotations + annotations
-            yield self.wrap_item(item, annotations=annotations)
+
+        return [
+            self.wrap_item(
+                item,
+                annotations=item.annotations + annotations
+                if self._append_annotation
+                else annotations,
+            )
+            for item, annotations in zip(batch, inference)
+        ]
 
     def get_subset(self, name):
         subset = self._extractor.get_subset(name)

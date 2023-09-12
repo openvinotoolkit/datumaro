@@ -443,6 +443,7 @@ class Dataset(IDataset):
         *,
         batch_size: int = 1,
         append_annotation: bool = False,
+        num_workers: int = 0,
         **kwargs,
     ) -> Dataset:
         """
@@ -454,6 +455,8 @@ class Dataset(IDataset):
             batch_size: The number of dataset items processed
                 simultaneously by the model
             append_annotation: Whether append new annotation to existed annotations
+            num_workers: The number of worker threads to use for parallel inference.
+                Set to 0 for single-process mode. Default is 0.
             **kwargs: Parameters for the model
 
         Returns: self
@@ -465,11 +468,16 @@ class Dataset(IDataset):
                 launcher=model,
                 batch_size=batch_size,
                 append_annotation=append_annotation,
+                num_workers=num_workers,
                 **kwargs,
             )
         elif inspect.isclass(model) and isinstance(model, ModelTransform):
             return self.transform(
-                model, batch_size=batch_size, append_annotation=append_annotation, **kwargs
+                model,
+                batch_size=batch_size,
+                append_annotation=append_annotation,
+                num_workers=num_workers,
+                **kwargs,
             )
         else:
             raise TypeError("Unexpected 'model' argument type: %s" % type(model))

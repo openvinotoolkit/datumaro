@@ -35,6 +35,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   (<https://github.com/openvinotoolkit/datumaro/pull/1133>)
 - Remove deprecates announced to be removed in 1.5.0
   (<https://github.com/openvinotoolkit/datumaro/pull/1140>)
+- Add multi-threading option to ModelTransform and SAMBboxToInstanceMask
+  (<https://github.com/openvinotoolkit/datumaro/pull/1145>)
 
 ### Bug fixes
 - Fix bugs for Tile transform
