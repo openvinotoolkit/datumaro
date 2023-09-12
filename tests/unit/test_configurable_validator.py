@@ -469,6 +469,7 @@ ANN_TASK_MAPPING = {
 }
 
 
+@pytest.mark.new
 class ConfigurableValidatorTest:
     @pytest.mark.parametrize(
         "fxt_tasks,fxt_warnings",

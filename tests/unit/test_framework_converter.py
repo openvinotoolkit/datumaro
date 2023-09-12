@@ -142,6 +142,7 @@ def fxt_dataset():
     )
 
 
+@pytest.mark.new
 @mark_requirement(Requirements.DATUM_GENERAL_REQ)
 class FrameworkConverterFactoryTest(TestCase):
     @skipIf(not TORCH_AVAILABLE, reason="PyTorch is not installed")

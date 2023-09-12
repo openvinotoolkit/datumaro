@@ -20,7 +20,6 @@ from tests.utils.test_utils import TestDir, compare_datasets
 from tests.utils.test_utils import run_datum as run
 
 
-@pytest.mark.v1_3_0
 class MergeTest:
     @pytest.fixture()
     def fxt_homogenous(self, test_dir):
@@ -250,7 +249,6 @@ class MergeTest:
         compare_datasets(helper_tc, expected, actual, require_media=True)
 
 
-@pytest.mark.v1_3_0
 class IntersectMergeTest(TestCase):
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_run_self_merge(self):

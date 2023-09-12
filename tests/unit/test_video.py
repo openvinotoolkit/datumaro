@@ -250,6 +250,7 @@ class ProjectTest:
         assert len(project.working_tree.make_dataset()) == 1
 
 
+@pytest.mark.new
 class VideoAnnotationTest:
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     @pytest.mark.parametrize("dataset_format", ["datumaro", "datumaro_binary"])
