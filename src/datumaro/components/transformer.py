@@ -124,8 +124,8 @@ class ModelTransform(Transform):
                     )
                     yield future
 
-            with consumer_generator(producer_generator=_producer_gen) as consumer_gen:
-                for future in consumer_gen():
+            with consumer_generator(producer_generator=_producer_gen()) as consumer_gen:
+                for future in consumer_gen:
                     for item in future.get():
                         yield item
 

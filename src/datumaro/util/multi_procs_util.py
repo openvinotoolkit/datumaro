@@ -7,7 +7,7 @@ from contextlib import contextmanager
 from enum import IntEnum
 from queue import Full, Queue
 from threading import Condition, Thread
-from typing import Any, Iterator, TypeVar
+from typing import Any, Generator, Iterator, TypeVar
 
 __all__ = ["consumer_generator"]
 
@@ -26,7 +26,7 @@ def consumer_generator(
     queue_size: int = 100,
     enqueue_timeout: float = 5.0,
     join_timeout: float = 10.0,
-) -> Iterator[Item]:
+) -> Generator[Iterator[Item], None, None]:
     """Context manager that creates a generator to consume items produced by another generator.
 
     This context manager sets up a producer thread that generates items from the `producer_generator`
@@ -61,7 +61,7 @@ def consumer_generator(
         try:
             _enqueue(ProducerMessage.START, queue)
 
-            for item in producer_generator():
+            for item in producer_generator:
                 _enqueue(item, queue)
 
             _enqueue(ProducerMessage.END, queue)
@@ -72,7 +72,7 @@ def consumer_generator(
     producer = Thread(target=_target, args=(queue,))
     producer.start()
 
-    def _generator():
+    def _generator() -> Iterator[Item]:
         while True:
             item = queue.get()
 
@@ -84,7 +84,7 @@ def consumer_generator(
             yield item
 
     try:
-        yield _generator
+        yield _generator()
     finally:
         with lock:
             is_terminated = True

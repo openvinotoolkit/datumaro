@@ -260,8 +260,8 @@ class MultiProcUtilTest:
         return test_func
 
     def test_succeed(self, fxt_producer_generator):
-        with consumer_generator(producer_generator=fxt_producer_generator) as f:
-            for expect, actual in enumerate(f()):
+        with consumer_generator(producer_generator=fxt_producer_generator()) as f:
+            for expect, actual in enumerate(f):
                 assert expect == actual.value
 
     def test_raise_exception_in_main_thread(
@@ -269,11 +269,11 @@ class MultiProcUtilTest:
     ):
         try:
             with consumer_generator(
-                producer_generator=fxt_producer_generator,
+                producer_generator=fxt_producer_generator(),
                 enqueue_timeout=0.05,
                 join_timeout=0.1,
             ) as f:
-                for expect, actual in enumerate(f()):
+                for expect, actual in enumerate(f):
                     assert expect == actual.value
                     raise Exception()
         except Exception:

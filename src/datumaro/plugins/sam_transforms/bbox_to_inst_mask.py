@@ -8,7 +8,7 @@ from typing import List, Optional
 
 import datumaro.plugins.sam_transforms.interpreters.sam_decoder_for_bbox as sam_decoder_for_bbox_interp
 import datumaro.plugins.sam_transforms.interpreters.sam_encoder as sam_encoder_interp
-from datumaro.components.annotation import Mask, Polygon
+from datumaro.components.annotation import Bbox, Mask, Polygon
 from datumaro.components.cli_plugin import CliPlugin
 from datumaro.components.dataset_base import DatasetItem, IDataset
 from datumaro.components.transformer import ModelTransform
@@ -100,26 +100,38 @@ class SAMBboxToInstanceMask(ModelTransform, CliPlugin):
         self,
         batch: List[DatasetItem],
     ) -> List[DatasetItem]:
-        print("Process batch")
         img_embeds = self._sam_encoder_launcher.launch(
             batch=[item for item in batch if self._sam_encoder_launcher.type_check(item)]
         )
 
         items = []
         for item, img_embed in zip(batch, img_embeds):
+            item_to_decode = item.wrap(annotations=item.annotations + img_embed)
+
+            if not any(isinstance(ann, Bbox) for ann in item_to_decode.annotations):
+                item_to_decode.annotations.pop()  # Pop the added image embedding
+                items.append(item_to_decode)
+                continue
+
             # Nested list of mask [[mask_0, ...]]
             nested_masks: List[List[Mask]] = self._sam_decoder_launcher.launch(
-                [item.wrap(annotations=item.annotations + img_embed)],
+                [item_to_decode],
                 stack=False,
             )
 
-            items.append(
-                item.wrap(
-                    annotations=self._convert_to_polygon(nested_masks[0])
-                    if self._to_polygon
-                    else nested_masks[0]
-                )
+            # Pop the added image embedding
+            item_to_decode.annotations.pop()
+            # Leave non-bbox annotations only
+            item_to_decode.annotations = [
+                ann for ann in item_to_decode.annotations if not isinstance(ann, Bbox)
+            ]
+
+            item_to_decode.annotations += (
+                self._convert_to_polygon(nested_masks[0]) if self._to_polygon else nested_masks[0]
             )
+
+            items.append(item_to_decode)
+
         return items
 
     @staticmethod
