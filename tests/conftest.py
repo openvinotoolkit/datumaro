@@ -21,6 +21,8 @@ def pytest_configure(config):
     config.addinivalue_line("markers", "reqids(ids): link a test with a requirement")
     config.addinivalue_line("markers", "bugs(ids): link a test with a bug")
 
+    config.addinivalue_line("markers", "new: mark the tests for the new features")
+
 
 @pytest.fixture(scope="function")
 def test_dir():

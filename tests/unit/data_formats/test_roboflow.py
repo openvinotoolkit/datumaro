@@ -292,6 +292,7 @@ def fxt_tfrecord_dataset():
 IDS = ["COCO", "VOC", "YOLO", "YOLO_OBB", "CREATE_ML", "MULTICLASS"]
 
 
+@pytest.mark.new
 class RoboflowImporterTest(TestDataFormatBase):
     @pytest.mark.parametrize(
         ["fxt_dataset_dir", "importer"],

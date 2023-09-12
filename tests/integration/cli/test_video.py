@@ -140,6 +140,7 @@ class VideoTest(TestCase):
 
             compare_datasets(self, expected, parsed_dataset)
 
+    @pytest.mark.new
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_export_video_dataset(self):
         with TestDir() as test_dir:

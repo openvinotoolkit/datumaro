@@ -827,7 +827,6 @@ def fxt_refined_det_dataset(fxt_original_det_dataset):
     return refined
 
 
-@pytest.mark.v1_3_0
 class ValidationCorrectionTest:
     @pytest.mark.parametrize(
         "fxt_original_dataset, fxt_validator, fxt_refined_dataset",

@@ -46,6 +46,7 @@ def create_bbox_item(n_bboxes: int, n_labels: int, idx: int) -> DatasetItem:
     return DatasetItem(id=f"test_{idx}", media=media, annotations=annotations)
 
 
+@pytest.mark.new
 class SAMModelInterpreterTest:
     def test_encoder(self):
         interp = SAMEncoderInterpreter()

@@ -46,6 +46,7 @@ def fxt_buddy(fxt_buddy_path, fxt_buddy_target):
     yield Dataset.import_from(fxt_buddy_path, "tabular", target=fxt_buddy_target)
 
 
+@pytest.mark.new
 class TabularIntegrationTest:
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     @pytest.mark.parametrize(
