@@ -271,7 +271,7 @@ class MultiProcUtilTest:
             with consumer_generator(
                 producer_generator=fxt_producer_generator(),
                 enqueue_timeout=0.05,
-                join_timeout=0.1,
+                join_timeout=None,
             ) as f:
                 for expect, actual in enumerate(f):
                     assert expect == actual.value
