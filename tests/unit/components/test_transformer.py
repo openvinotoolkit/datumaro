@@ -25,6 +25,7 @@ class MockLauncher(Launcher):
         return pred
 
 
+@pytest.mark.new
 class ModelTransformTest:
     @pytest.fixture
     def fxt_dataset(self):
