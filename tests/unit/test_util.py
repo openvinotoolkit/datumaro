@@ -246,6 +246,7 @@ class DefinitionsTest:
             assert len(caplog.records) == 1
 
 
+@pytest.mark.new
 class MultiProcUtilTest:
     @pytest.fixture
     def fxt_producer_generator(self):

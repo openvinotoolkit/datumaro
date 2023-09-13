@@ -127,6 +127,7 @@ class SAMBboxToPolygonTest:
     def fxt_to_polygon(self, request):
         return request.param
 
+    @pytest.mark.new
     @pytest.mark.parametrize("num_workers", [0, 2])
     def test_transform(self, fxt_dataset, fxt_inference_server_type, fxt_to_polygon, num_workers):
         if fxt_inference_server_type == InferenceServerType.ovms:
