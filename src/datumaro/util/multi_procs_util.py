@@ -7,7 +7,7 @@ from contextlib import contextmanager
 from enum import IntEnum
 from queue import Full, Queue
 from threading import Condition, Thread
-from typing import Any, Generator, Iterator, TypeVar
+from typing import Any, Generator, Iterator, Optional, TypeVar
 
 __all__ = ["consumer_generator"]
 
@@ -25,7 +25,7 @@ def consumer_generator(
     producer_generator: Iterator[Item],
     queue_size: int = 100,
     enqueue_timeout: float = 5.0,
-    join_timeout: float = 10.0,
+    join_timeout: Optional[float] = 10.0,
 ) -> Generator[Iterator[Item], None, None]:
     """Context manager that creates a generator to consume items produced by another generator.
 
@@ -37,6 +37,7 @@ def consumer_generator(
         queue_size: The maximum size of the shared queue between the producer and consumer.
         enqueue_timeout: The maximum time to wait for enqueuing an item to the queue if it's full.
         join_timeout: The maximum time to wait for the producer thread to finish when exiting the context.
+            If None, wait until the producer thread terminates.
 
     Returns:
         Iterator: A context for iterating over the generated items.
