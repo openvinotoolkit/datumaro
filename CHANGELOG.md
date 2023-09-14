@@ -7,8 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## \[Unreleased\]
 
-## 09/2023 - Release 1.5.0
+## 15/09/2023 - Release 1.5.0
 ### New features
+- Add multi-threading option to ModelTransform and SAMBboxToInstanceMask
+  (<https://github.com/openvinotoolkit/datumaro/pull/1145>)
 - Add tabular data import/export
   (<https://github.com/openvinotoolkit/datumaro/pull/1089>)
 - Support video annotation import/export
@@ -23,8 +25,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   (<https://github.com/openvinotoolkit/datumaro/pull/1142>)
 
 ### Enhancements
-- Remove xfail marks from the convert integration tests
-  (<https://github.com/openvinotoolkit/datumaro/pull/1115>)
 - Enhance `ClassificationValidator` for multi-label classification datasets with `label_groups`
   (<https://github.com/openvinotoolkit/datumaro/pull/1116>)
 - Replace Roboflow `xml.etree` with `defusedxml`
@@ -41,6 +41,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   (<https://github.com/openvinotoolkit/datumaro/pull/1145>)
 
 ### Bug fixes
+- Fix flaky test by setting the join timeout to infinite
+  (<https://github.com/openvinotoolkit/datumaro/pull/1149>)
 - Fix bugs for Tile transform
   (<https://github.com/openvinotoolkit/datumaro/pull/1123>)
 - Disable Roboflow Tfrecord format when Tensorflow is not installed

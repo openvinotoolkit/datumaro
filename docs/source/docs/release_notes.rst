@@ -4,8 +4,41 @@ Release Notes
 .. toctree::
    :maxdepth: 1
 
+v1.5.0 (2023.09)
+----------------
+
+New features
+^^^^^^^^^^^^
+- Add multi-threading option to ModelTransform and SAMBboxToInstanceMask
+- Add tabular data import/export
+- Support video annotation import/export
+- Add multiframework (PyTorch, Tensorflow) converter
+- Add SAM OVMS and Triton server Docker image builders
+- Add SAMBboxToInstanceMask transform
+- Add ConfigurableValicator
+
+Enhancements
+^^^^^^^^^^^^
+- Enhance `ClassificationValidator` for multi-label classification datasets with `label_groups`
+- Replace Roboflow `xml.etree` with `defusedxml`
+- Define `GroupType` with `IntEnum` for, where `0` is `EXCLUSIVE`
+- Add Rust API to optimize COCOPageMapper performance
+- Support a dictionary input in addition to a single image input for the model launcher to support Segment Anything Model
+- Remove deprecates announced to be removed in 1.5.0
+- Add multi-threading option to ModelTransform and SAMBboxToInstanceMask
+
+Bug fixes
+^^^^^^^^^
+- Fix flaky test by setting the join timeout to infinite
+- Fix bugs for Tile transform
+- Disable Roboflow Tfrecord format when Tensorflow is not installed
+- Raise VcsAlreadyExists error if vcs directory exists
+
 v1.4.1 (2023.07)
 ----------------
+
+Bug fixes
+^^^^^^^^^
 - Report errors for COCO (stream) and Datumaro importers
 
 v1.4.0 (2023.07)
