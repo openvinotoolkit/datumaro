@@ -1,4 +1,5 @@
 # Copyright (C) 2019-2021 Intel Corporation
+# Copyright (C) 2023 CVAT.ai Corporation
 #
 # SPDX-License-Identifier: MIT
 
@@ -56,7 +57,7 @@ def __getattr__(name: str):
     raise AttributeError(f"module {__name__} has no attribute {name}")
 
 
-def load_image(path: str, dtype: DTypeLike = np.float32):
+def load_image(path: str, dtype: DTypeLike = np.float32, **kwargs):
     """
     Reads an image in the HWC Grayscale/BGR(A) float [0; 255] format.
     """
@@ -69,11 +70,18 @@ def load_image(path: str, dtype: DTypeLike = np.float32):
         with open(path, "rb") as f:
             image_bytes = f.read()
 
+        if kwargs.get("keep_exif"):
+            return decode_image(image_bytes, dtype=dtype, cv2_read_flag=1)
+
         return decode_image(image_bytes, dtype=dtype)
     elif _IMAGE_BACKEND == _IMAGE_BACKENDS.PIL:
-        from PIL import Image
+        from PIL import Image, ImageOps
 
         image = Image.open(path)
+
+        if kwargs.get("keep_exif"):
+            image = ImageOps.exif_transpose(image)
+
         image = np.asarray(image, dtype=dtype)
         if len(image.shape) == 3 and image.shape[2] in {3, 4}:
             image[:, :, :3] = image[:, :, 2::-1]  # RGB to BGR
@@ -176,12 +184,12 @@ def encode_image(image: np.ndarray, ext: str, dtype: DTypeLike = np.uint8, **kwa
         raise NotImplementedError()
 
 
-def decode_image(image_bytes: bytes, dtype: DTypeLike = np.float32) -> np.ndarray:
+def decode_image(image_bytes: bytes, dtype: DTypeLike = np.float32, **kwargs) -> np.ndarray:
     if _IMAGE_BACKEND == _IMAGE_BACKENDS.cv2:
         import cv2
 
         image = np.frombuffer(image_bytes, dtype=np.uint8)
-        image = cv2.imdecode(image, cv2.IMREAD_UNCHANGED)
+        image = cv2.imdecode(image, kwargs.get("cv2_read_flag", cv2.IMREAD_UNCHANGED))
         image = image.astype(dtype)
     elif _IMAGE_BACKEND == _IMAGE_BACKENDS.PIL:
         from PIL import Image

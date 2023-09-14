@@ -1,4 +1,5 @@
 # Copyright (C) 2019-2022 Intel Corporation
+# Copyright (C) 2023 CVAT.ai Corporation
 #
 # SPDX-License-Identifier: MIT
 
@@ -18,7 +19,12 @@ from datumaro.components.errors import (
 from datumaro.components.extractor import DatasetItem, Extractor, Importer, SourceExtractor
 from datumaro.components.format_detection import FormatDetectionContext
 from datumaro.components.media import Image
-from datumaro.util.image import DEFAULT_IMAGE_META_FILE_NAME, ImageMeta, load_image_meta_file
+from datumaro.util.image import (
+    DEFAULT_IMAGE_META_FILE_NAME,
+    ImageMeta,
+    load_image,
+    load_image_meta_file,
+)
 from datumaro.util.meta_file_util import has_meta_file, parse_meta_file
 from datumaro.util.os_util import split_path
 
@@ -156,6 +162,10 @@ class YoloExtractor(SourceExtractor):
 
         return osp.splitext(path)[0]
 
+    @classmethod
+    def _image_loader(cls, *args, **kwargs):
+        return load_image(*args, **kwargs, keep_exif=True)
+
     def _get(self, item_id: str, subset_name: str) -> Optional[DatasetItem]:
         subset = self._subsets[subset_name]
         item = subset.items[item_id]
@@ -163,7 +173,12 @@ class YoloExtractor(SourceExtractor):
         if isinstance(item, str):
             try:
                 image_size = self._image_info.get(item_id)
-                image = Image(path=osp.join(self._path, item), size=image_size)
+                image_path = osp.join(self._path, item)
+
+                if image_size:
+                    image = Image(path=image_path, size=image_size)
+                else:
+                    image = Image(path=image_path, data=self._image_loader)
 
                 anno_path = osp.splitext(image.path)[0] + ".txt"
                 annotations = self._parse_annotations(
@@ -228,6 +243,7 @@ class YoloExtractor(SourceExtractor):
                 h = self._parse_field(h, float, "bbox height")
                 x = self._parse_field(xc, float, "bbox center x") - w * 0.5
                 y = self._parse_field(yc, float, "bbox center y") - h * 0.5
+
                 annotations.append(
                     Bbox(
                         x * image_width,

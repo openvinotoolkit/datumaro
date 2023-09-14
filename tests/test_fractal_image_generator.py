@@ -3,6 +3,7 @@ import os.path as osp
 from unittest import TestCase
 
 import numpy as np
+import pytest
 
 from datumaro.plugins.synthetic_data import FractalImageGenerator
 from datumaro.util.image import load_image
@@ -11,6 +12,7 @@ from datumaro.util.test_utils import TestDir
 from .requirements import Requirements, mark_requirement
 
 
+@pytest.mark.xfail(reason="Cannot download the model file from the source")
 class FractalImageGeneratorTest(TestCase):
     @mark_requirement(Requirements.DATUM_677)
     def test_save_image_can_create_dir(self):

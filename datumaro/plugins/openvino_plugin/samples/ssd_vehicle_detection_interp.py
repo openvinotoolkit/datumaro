@@ -41,7 +41,6 @@ def process_outputs(inputs, outputs):
 
     results = []
     for input_, detections in zip(inputs, outputs["detection_out"]):
-
         input_height, input_width = input_.shape[:2]
 
         confs = outputs["Softmax_189/Softmax_"]

@@ -1,9 +1,11 @@
 import os
 import os.path as osp
 import pickle  # nosec - disable B403:import_pickle check
+import shutil
 from unittest import TestCase
 
 import numpy as np
+from PIL import Image as PILImage
 
 from datumaro.components.annotation import Bbox
 from datumaro.components.dataset import Dataset
@@ -289,7 +291,6 @@ class YoloConvertertTest(TestCase):
     @mark_requirement(Requirements.DATUM_565)
     def test_cant_save_with_reserved_subset_name(self):
         for subset in ["backup", "classes"]:
-
             dataset = Dataset.from_iterable(
                 [
                     DatasetItem(
@@ -365,6 +366,38 @@ class YoloImporterTest(TestCase):
         dataset = Dataset.import_from(DUMMY_DATASET_DIR, "yolo")
 
         compare_datasets(self, expected_dataset, dataset)
+
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
+    def test_can_import_with_exif_rotated_images(self):
+        expected_dataset = Dataset.from_iterable(
+            [
+                DatasetItem(
+                    id=1,
+                    subset="train",
+                    media=Image(data=np.ones((15, 10, 3))),
+                    annotations=[
+                        Bbox(0, 3, 2.67, 3.0, label=2),
+                        Bbox(2, 4.5, 1.33, 4.5, label=4),
+                    ],
+                ),
+            ],
+            categories=["label_" + str(i) for i in range(10)],
+        )
+
+        with TestDir() as test_dir:
+            dataset_path = osp.join(test_dir, "dataset")
+            shutil.copytree(DUMMY_DATASET_DIR, dataset_path)
+
+            # Add exif rotation for image
+            image_path = osp.join(dataset_path, "obj_train_data", "1.jpg")
+            img = PILImage.open(image_path)
+            exif = img.getexif()
+            exif.update([(296, 3), (282, 28.0), (531, 1), (274, 6), (283, 28.0)])
+            img.save(image_path, exif=exif)
+
+            dataset = Dataset.import_from(dataset_path, "yolo")
+
+            compare_datasets(self, expected_dataset, dataset, require_media=True)
 
     @mark_requirement(Requirements.DATUM_673)
     def test_can_pickle(self):

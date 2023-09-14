@@ -15,7 +15,7 @@ from ..requirements import Requirements, mark_requirement
 
 def make_zip_archive(src_path, dst_path):
     with ZipFile(dst_path, "w") as archive:
-        for (dirpath, _, filenames) in os.walk(src_path):
+        for dirpath, _, filenames in os.walk(src_path):
             for name in filenames:
                 path = osp.join(dirpath, name)
                 archive.write(path, osp.relpath(path, src_path))

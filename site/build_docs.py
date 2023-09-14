@@ -58,7 +58,7 @@ def git_checkout(tagname, repo, temp_dir):
             repo.git.archive(tagname, "--", subdir, output_stream=archive)
             archive.seek(0)
             with tarfile.open(fileobj=archive) as tar:
-                tar.extractall(temp_dir)
+                tar.extractall(temp_dir)  # nosec
 
 
 def change_version_menu_toml(filename, version):
