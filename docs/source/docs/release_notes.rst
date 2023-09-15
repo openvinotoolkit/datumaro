@@ -9,7 +9,6 @@ v1.5.0 (2023.09)
 
 New features
 ^^^^^^^^^^^^
-- Add multi-threading option to ModelTransform and SAMBboxToInstanceMask
 - Add tabular data import/export
 - Support video annotation import/export
 - Add multiframework (PyTorch, Tensorflow) converter
@@ -29,7 +28,6 @@ Enhancements
 
 Bug fixes
 ^^^^^^^^^
-- Fix flaky test by setting the join timeout to infinite
 - Fix bugs for Tile transform
 - Disable Roboflow Tfrecord format when Tensorflow is not installed
 - Raise VcsAlreadyExists error if vcs directory exists

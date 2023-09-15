@@ -9,8 +9,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## 15/09/2023 - Release 1.5.0
 ### New features
-- Add multi-threading option to ModelTransform and SAMBboxToInstanceMask
-  (<https://github.com/openvinotoolkit/datumaro/pull/1145>)
 - Add tabular data import/export
   (<https://github.com/openvinotoolkit/datumaro/pull/1089>)
 - Support video annotation import/export
@@ -38,11 +36,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Remove deprecates announced to be removed in 1.5.0
   (<https://github.com/openvinotoolkit/datumaro/pull/1140>)
 - Add multi-threading option to ModelTransform and SAMBboxToInstanceMask
-  (<https://github.com/openvinotoolkit/datumaro/pull/1145>)
+  (<https://github.com/openvinotoolkit/datumaro/pull/1145>, <https://github.com/openvinotoolkit/datumaro/pull/1149>)
 
 ### Bug fixes
-- Fix flaky test by setting the join timeout to infinite
-  (<https://github.com/openvinotoolkit/datumaro/pull/1149>)
 - Fix bugs for Tile transform
   (<https://github.com/openvinotoolkit/datumaro/pull/1123>)
 - Disable Roboflow Tfrecord format when Tensorflow is not installed
