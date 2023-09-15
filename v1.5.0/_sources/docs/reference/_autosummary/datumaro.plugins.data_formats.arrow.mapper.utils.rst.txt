@@ -1,0 +1,31 @@
+datumaro.plugins.data\_formats.arrow.mapper.utils
+=================================================
+
+.. automodule:: datumaro.plugins.data_formats.arrow.mapper.utils
+
+   
+   
+   
+
+   
+   
+   .. rubric:: Functions
+
+   .. autosummary::
+   
+      b64decode
+      b64encode
+      pa_batches_decoder
+   
+   
+
+   
+   
+   
+
+   
+   
+   
+
+
+
