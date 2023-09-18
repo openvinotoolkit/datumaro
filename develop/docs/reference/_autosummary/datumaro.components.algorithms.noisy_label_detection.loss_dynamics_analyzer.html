@@ -6,7 +6,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
 
-    <title>datumaro.components.algorithms.noisy_label_detection.loss_dynamics_analyzer &#8212; Datumaro 1.5.0rc0 documentation</title>
+    <title>datumaro.components.algorithms.noisy_label_detection.loss_dynamics_analyzer &#8212; Datumaro 1.5.0 documentation</title>
   
   
   
@@ -511,6 +511,7 @@
 <li class="toctree-l4"><a class="reference internal" href="datumaro.util.log_utils.html">datumaro.util.log_utils</a></li>
 <li class="toctree-l4"><a class="reference internal" href="datumaro.util.mask_tools.html">datumaro.util.mask_tools</a></li>
 <li class="toctree-l4"><a class="reference internal" href="datumaro.util.meta_file_util.html">datumaro.util.meta_file_util</a></li>
+<li class="toctree-l4"><a class="reference internal" href="datumaro.util.multi_procs_util.html">datumaro.util.multi_procs_util</a></li>
 <li class="toctree-l4"><a class="reference internal" href="datumaro.util.os_util.html">datumaro.util.os_util</a></li>
 <li class="toctree-l4"><a class="reference internal" href="datumaro.util.pickle_util.html">datumaro.util.pickle_util</a></li>
 <li class="toctree-l4"><a class="reference internal" href="datumaro.util.samples.html">datumaro.util.samples</a></li>
@@ -707,7 +708,7 @@ by averaging EMA loss dynamics statistics according to the label category</p>
 <dl class="py class">
 <dt class="sig sig-object py" id="datumaro.components.algorithms.noisy_label_detection.loss_dynamics_analyzer.AnnotationType">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">datumaro.components.algorithms.noisy_label_detection.loss_dynamics_analyzer.</span></span><span class="sig-name descname"><span class="pre">AnnotationType</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/datumaro/components/annotation.html#AnnotationType"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.components.algorithms.noisy_label_detection.loss_dynamics_analyzer.AnnotationType" title="Permalink to this definition">#</a></dt>
-<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/enum.html#enum.IntEnum" title="(in Python v3.11)"><code class="xref py py-class docutils literal notranslate"><span class="pre">IntEnum</span></code></a></p>
+<dd><p>Bases: <a class="reference internal" href="datumaro.util.multi_procs_util.html#datumaro.util.multi_procs_util.IntEnum" title="enum.IntEnum"><code class="xref py py-class docutils literal notranslate"><span class="pre">IntEnum</span></code></a></p>
 <p>An enumeration.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="datumaro.components.algorithms.noisy_label_detection.loss_dynamics_analyzer.AnnotationType.unknown">
@@ -845,16 +846,16 @@ layout managers can have significant performance penalties.</p>
 <li><p>’constrained’: The constrained layout solver adjusts axes sizes
 to avoid overlapping axes decorations.  Can handle complex plot
 layouts and colorbars, and is thus recommended.</p>
-<p>See <span class="xref std std-doc">/tutorials/intermediate/constrainedlayout_guide</span>
-for examples.</p>
+<p>See <span class="xref std std-ref">constrainedlayout_guide</span> for examples.</p>
 </li>
 <li><p>’compressed’: uses the same algorithm as ‘constrained’, but
 removes extra space between fixed-aspect-ratio Axes.  Best for
 simple grids of axes.</p></li>
 <li><p>’tight’: Use the tight layout mechanism. This is a relatively
 simple algorithm that adjusts the subplot parameters so that
-decorations do not overlap. See <cite>.Figure.set_tight_layout</cite> for
-further details.</p></li>
+decorations do not overlap.</p>
+<p>See <span class="xref std std-ref">tight_layout_guide</span> for examples.</p>
+</li>
 <li><p>’none’: Do not use a layout engine.</p></li>
 <li><p>A <cite>.LayoutEngine</cite> instance. Builtin layout classes are
 <cite>.ConstrainedLayoutEngine</cite> and <cite>.TightLayoutEngine</cite>, more easily
@@ -870,7 +871,7 @@ agg_filter: a filter function, which takes a (m, n, 3) float array and a dpi val
 alpha: scalar or None
 animated: bool
 canvas: FigureCanvas
-clip_box: <cite>.Bbox</cite>
+clip_box: <cite>~matplotlib.transforms.BboxBase</cite> or None
 clip_on: bool
 clip_path: Patch or (Path, Transform) or None
 constrained_layout: unknown
@@ -879,34 +880,29 @@ dpi: float
 edgecolor: color
 facecolor: color
 figheight: float
-figure: <cite>.Figure</cite>
+figure: <cite>~matplotlib.figure.Figure</cite>
 figwidth: float
 frameon: bool
 gid: str
 in_layout: bool
 label: object
-layout_engine: unknown
+layout_engine: {‘constrained’, ‘compressed’, ‘tight’, ‘none’, <cite>.LayoutEngine</cite>, None}
 linewidth: number
 mouseover: bool
-path_effects: <cite>.AbstractPathEffect</cite>
+path_effects: list of <cite>.AbstractPathEffect</cite>
 picker: None or bool or float or callable
 rasterized: bool
 size_inches: (float, float) or float
 sketch_params: (scale: float, length: float, randomness: float)
 snap: bool or None
 tight_layout: unknown
-transform: <cite>.Transform</cite>
+transform: <cite>~matplotlib.transforms.Transform</cite>
 url: str
 visible: bool
 zorder: float</p></li>
 </ul>
 </dd>
 </dl>
-<dl class="py property">
-<dt class="sig sig-object py" id="datumaro.components.algorithms.noisy_label_detection.loss_dynamics_analyzer.Figure.callbacks">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">callbacks</span></span><a class="headerlink" href="#datumaro.components.algorithms.noisy_label_detection.loss_dynamics_analyzer.Figure.callbacks" title="Permalink to this definition">#</a></dt>
-<dd></dd></dl>
-
 <dl class="py method">
 <dt class="sig sig-object py" id="datumaro.components.algorithms.noisy_label_detection.loss_dynamics_analyzer.Figure.pick">
 <span class="sig-name descname"><span class="pre">pick</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mouseevent</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/matplotlib/figure.html#Figure.pick"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.components.algorithms.noisy_label_detection.loss_dynamics_analyzer.Figure.pick" title="Permalink to this definition">#</a></dt>
@@ -926,7 +922,7 @@ the artist and the artist has picker set.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>layout</strong> ({‘constrained’, ‘compressed’, ‘tight’, ‘none’} or <cite>LayoutEngine</cite> or None) – <ul>
+<li><p><strong>layout</strong> ({‘constrained’, ‘compressed’, ‘tight’, ‘none’, <cite>.LayoutEngine</cite>, None}) – <ul>
 <li><p>‘constrained’ will use <cite>~.ConstrainedLayoutEngine</cite></p></li>
 <li><p>’compressed’ will also use <cite>~.ConstrainedLayoutEngine</cite>, but with
 a correction that attempts to make a good layout for fixed-aspect
@@ -934,6 +930,7 @@ ratio Axes.</p></li>
 <li><p>’tight’ uses <cite>~.TightLayoutEngine</cite></p></li>
 <li><p>’none’ removes layout engine.</p></li>
 </ul>
+<p>If a <cite>.LayoutEngine</cite> instance, that instance will be used.</p>
 <p>If <cite>None</cite>, the behavior is controlled by <a href="#id23"><span class="problematic" id="id24">:rc:`figure.autolayout`</span></a>
 (which if <cite>True</cite> behaves as if ‘tight’ was passed) and
 <a href="#id25"><span class="problematic" id="id26">:rc:`figure.constrained_layout.use`</span></a> (which if <cite>True</cite> behaves as if
@@ -942,7 +939,7 @@ ratio Axes.</p></li>
 <p>Users and libraries can define their own layout engines and pass
 the instance directly as well.</p>
 </p></li>
-<li><p><strong>kwargs</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.11)"><em>dict</em></a>) – The keyword arguments are passed to the layout engine to set things
+<li><p><strong>**kwargs</strong> – The keyword arguments are passed to the layout engine to set things
 like padding and margin sizes.  Only used if <em>layout</em> is a string.</p></li>
 </ul>
 </dd>
@@ -1023,12 +1020,7 @@ equivalent.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="datumaro.components.algorithms.noisy_label_detection.loss_dynamics_analyzer.Figure.set_tight_layout">
 <span class="sig-name descname"><span class="pre">set_tight_layout</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tight</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/matplotlib/figure.html#Figure.set_tight_layout"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.components.algorithms.noisy_label_detection.loss_dynamics_analyzer.Figure.set_tight_layout" title="Permalink to this definition">#</a></dt>
-<dd><p>[<em>Deprecated</em>] [<em>Discouraged</em>] Set whether and how <cite>.tight_layout</cite> is called when
-drawing.</p>
-<div class="admonition-discouraged admonition">
-<p class="admonition-title">Discouraged</p>
-<p>This method is discouraged in favor of <cite>~.set_layout_engine</cite>.</p>
-</div>
+<dd><p>[<em>Deprecated</em>] Set whether and how <cite>.tight_layout</cite> is called when drawing.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>tight</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.11)"><em>bool</em></a><em> or </em><em>dict with keys &quot;pad&quot;</em><em>, </em><em>&quot;w_pad&quot;</em><em>, </em><em>&quot;h_pad&quot;</em><em>, </em><em>&quot;rect&quot;</em><em> or </em><em>None</em>) – If a bool, sets whether to call <cite>.tight_layout</cite> upon drawing.
@@ -1047,23 +1039,18 @@ default paddings.</p>
 <dt class="sig sig-object py" id="datumaro.components.algorithms.noisy_label_detection.loss_dynamics_analyzer.Figure.get_constrained_layout">
 <span class="sig-name descname"><span class="pre">get_constrained_layout</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/matplotlib/figure.html#Figure.get_constrained_layout"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.components.algorithms.noisy_label_detection.loss_dynamics_analyzer.Figure.get_constrained_layout" title="Permalink to this definition">#</a></dt>
 <dd><p>Return whether constrained layout is being used.</p>
-<p>See <span class="xref std std-doc">/tutorials/intermediate/constrainedlayout_guide</span>.</p>
+<p>See <span class="xref std std-ref">constrainedlayout_guide</span>.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="datumaro.components.algorithms.noisy_label_detection.loss_dynamics_analyzer.Figure.set_constrained_layout">
 <span class="sig-name descname"><span class="pre">set_constrained_layout</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">constrained</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/matplotlib/figure.html#Figure.set_constrained_layout"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.components.algorithms.noisy_label_detection.loss_dynamics_analyzer.Figure.set_constrained_layout" title="Permalink to this definition">#</a></dt>
-<dd><p>[<em>Deprecated</em>] [<em>Discouraged</em>] Set whether <code class="docutils literal notranslate"><span class="pre">constrained_layout</span></code> is used upon
-drawing.</p>
+<dd><p>[<em>Deprecated</em>] Set whether <code class="docutils literal notranslate"><span class="pre">constrained_layout</span></code> is used upon drawing.</p>
 <p>If None, <a href="#id31"><span class="problematic" id="id32">:rc:`figure.constrained_layout.use`</span></a> value will be used.</p>
 <p>When providing a dict containing the keys <code class="docutils literal notranslate"><span class="pre">w_pad</span></code>, <code class="docutils literal notranslate"><span class="pre">h_pad</span></code>
 the default <code class="docutils literal notranslate"><span class="pre">constrained_layout</span></code> paddings will be
 overridden.  These pads are in inches and default to 3.0/72.0.
 <code class="docutils literal notranslate"><span class="pre">w_pad</span></code> is the width padding and <code class="docutils literal notranslate"><span class="pre">h_pad</span></code> is the height padding.</p>
-<div class="admonition-discouraged admonition">
-<p class="admonition-title">Discouraged</p>
-<p>This method is discouraged in favor of <cite>~.set_layout_engine</cite>.</p>
-</div>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>constrained</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.11)"><em>bool</em></a><em> or </em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.11)"><em>dict</em></a><em> or </em><em>None</em>) – </p>
@@ -1081,7 +1068,7 @@ overridden.  These pads are in inches and default to 3.0/72.0.
 <dd><p>[<em>Deprecated</em>] Set padding for <code class="docutils literal notranslate"><span class="pre">constrained_layout</span></code>.</p>
 <p>Tip: The parameters can be passed from a dictionary by using
 <code class="docutils literal notranslate"><span class="pre">fig.set_constrained_layout(**pad_dict)</span></code>.</p>
-<p>See <span class="xref std std-doc">/tutorials/intermediate/constrainedlayout_guide</span>.</p>
+<p>See <span class="xref std std-ref">constrainedlayout_guide</span>.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
@@ -1109,7 +1096,7 @@ subplot width. The total padding ends up being h_pad + hspace.</p></li>
 <p>Returns a list of <code class="docutils literal notranslate"><span class="pre">w_pad,</span> <span class="pre">h_pad</span></code> in inches and
 <code class="docutils literal notranslate"><span class="pre">wspace</span></code> and <code class="docutils literal notranslate"><span class="pre">hspace</span></code> as fractions of the subplot.
 All values are None if <code class="docutils literal notranslate"><span class="pre">constrained_layout</span></code> is not used.</p>
-<p>See <span class="xref std std-doc">/tutorials/intermediate/constrainedlayout_guide</span>.</p>
+<p>See <span class="xref std std-ref">constrainedlayout_guide</span>.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>relative</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.11)"><em>bool</em></a>) – If <cite>True</cite>, then convert from inches to figure relative.</p>
@@ -1163,7 +1150,7 @@ used, mapping the lowest value to 0 and the highest to 1.</p>
 <p>If given, this can be one of the following:</p>
 <ul>
 <li><p>An instance of <cite>.Normalize</cite> or one of its subclasses
-(see <span class="xref std std-doc">/tutorials/colors/colormapnorms</span>).</p></li>
+(see <span class="xref std std-ref">colormapnorms</span>).</p></li>
 <li><p>A scale name, i.e. one of “linear”, “log”, “symlog”, “logit”, etc.  For a
 list of available scales, call <cite>matplotlib.scale.get_scale_names()</cite>.
 In that case, a suitable <cite>.Normalize</cite> subclass is dynamically generated
@@ -1344,7 +1331,7 @@ a gui widget is tracking the Axes in the figure.</p>
 returns False).</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>renderer</strong> (<cite>.RendererBase</cite> subclass.) – </p>
+<dd class="field-odd"><p><strong>renderer</strong> (<cite>~matplotlib.backend_bases.RendererBase</cite> subclass.) – </p>
 </dd>
 </dl>
 <p class="rubric">Notes</p>
@@ -1414,10 +1401,17 @@ and defaults depend on the image format and backend:</p>
 <cite>~.FigureCanvasSVG.print_svg</cite>.</p></li>
 <li><p>’eps’ and ‘ps’ with PS backend: Only ‘Creator’ is supported.</p></li>
 </ul>
+<p>Not supported for ‘pgf’, ‘raw’, and ‘rgba’ as those formats do not support
+embedding metadata.
+Does not currently support ‘jpg’, ‘tiff’, or ‘webp’, but may include
+embedding EXIF metadata in the future.</p>
 </p></li>
 <li><p><strong>bbox_inches</strong> (str or <cite>.Bbox</cite>, default: <a href="#id49"><span class="problematic" id="id50">:rc:`savefig.bbox`</span></a>) – Bounding box in inches: only the given portion of the figure is
 saved.  If ‘tight’, try to figure out the tight bbox of the figure.</p></li>
-<li><p><strong>pad_inches</strong> (float, default: <a href="#id51"><span class="problematic" id="id52">:rc:`savefig.pad_inches`</span></a>) – Amount of padding around the figure when bbox_inches is ‘tight’.</p></li>
+<li><p><strong>pad_inches</strong> (float or ‘layout’, default: <a href="#id51"><span class="problematic" id="id52">:rc:`savefig.pad_inches`</span></a>) – Amount of padding in inches around the figure when bbox_inches is
+‘tight’. If ‘layout’ use the padding from the constrained or
+compressed layout engine; ignored if one of those engines is not in
+use.</p></li>
 <li><p><strong>facecolor</strong> (color or ‘auto’, default: <a href="#id53"><span class="problematic" id="id54">:rc:`savefig.facecolor`</span></a>) – The facecolor of the figure.  If ‘auto’, use the current figure
 facecolor.</p></li>
 <li><p><strong>edgecolor</strong> (color or ‘auto’, default: <a href="#id55"><span class="problematic" id="id56">:rc:`savefig.edgecolor`</span></a>) – The edgecolor of the figure.  If ‘auto’, use the current figure
@@ -1505,25 +1499,6 @@ mouse button was pressed and None if no input was given within
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="datumaro.components.algorithms.noisy_label_detection.loss_dynamics_analyzer.Figure.execute_constrained_layout">
-<span class="sig-name descname"><span class="pre">execute_constrained_layout</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">renderer</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/matplotlib/figure.html#Figure.execute_constrained_layout"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.components.algorithms.noisy_label_detection.loss_dynamics_analyzer.Figure.execute_constrained_layout" title="Permalink to this definition">#</a></dt>
-<dd><p>[<em>Deprecated</em>] Use <code class="docutils literal notranslate"><span class="pre">layoutgrid</span></code> to determine pos positions within Axes.</p>
-<p>See also <cite>.set_constrained_layout_pads</cite>.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Returns<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>layoutgrid</strong></p>
-</dd>
-<dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p>private debugging object</p>
-</dd>
-</dl>
-<p class="rubric">Notes</p>
-<div class="deprecated">
-<p><span class="versionmodified deprecated">Deprecated since version 3.6: </span>Use figure.get_layout_engine().execute() instead.</p>
-</div>
-</dd></dl>
-
-<dl class="py method">
 <dt class="sig sig-object py" id="datumaro.components.algorithms.noisy_label_detection.loss_dynamics_analyzer.Figure.tight_layout">
 <span class="sig-name descname"><span class="pre">tight_layout</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pad</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.08</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">h_pad</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">w_pad</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rect</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/matplotlib/figure.html#Figure.tight_layout"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.components.algorithms.noisy_label_detection.loss_dynamics_analyzer.Figure.tight_layout" title="Permalink to this definition">#</a></dt>
 <dd><p>Adjust the padding between and around subplots.</p>
@@ -1560,7 +1535,7 @@ subplots area (including labels) will fit.</p></li>
 alpha: scalar or None
 animated: bool
 canvas: FigureCanvas
-clip_box: <cite>.Bbox</cite>
+clip_box: <cite>~matplotlib.transforms.BboxBase</cite> or None
 clip_on: bool
 clip_path: Patch or (Path, Transform) or None
 constrained_layout: unknown
@@ -1569,23 +1544,23 @@ dpi: float
 edgecolor: color
 facecolor: color
 figheight: float
-figure: <cite>.Figure</cite>
+figure: <cite>~matplotlib.figure.Figure</cite>
 figwidth: float
 frameon: bool
 gid: str
 in_layout: bool
 label: object
-layout_engine: unknown
+layout_engine: {‘constrained’, ‘compressed’, ‘tight’, ‘none’, <cite>.LayoutEngine</cite>, None}
 linewidth: number
 mouseover: bool
-path_effects: <cite>.AbstractPathEffect</cite>
+path_effects: list of <cite>.AbstractPathEffect</cite>
 picker: None or bool or float or callable
 rasterized: bool
 size_inches: (float, float) or float
 sketch_params: (scale: float, length: float, randomness: float)
 snap: bool or None
 tight_layout: unknown
-transform: <cite>.Transform</cite>
+transform: <cite>~matplotlib.transforms.Transform</cite>
 url: str
 visible: bool
 zorder: float</p>
@@ -2158,15 +2133,6 @@ __init__().</p>
     </a>
    </li>
    <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.components.algorithms.noisy_label_detection.loss_dynamics_analyzer.Figure.callbacks">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       Figure.callbacks
-      </span>
-     </code>
-    </a>
-   </li>
-   <li class="toc-h3 nav-item toc-entry">
     <a class="reference internal nav-link" href="#datumaro.components.algorithms.noisy_label_detection.loss_dynamics_analyzer.Figure.pick">
      <code class="docutils literal notranslate">
       <span class="pre">
@@ -2441,15 +2407,6 @@ __init__().</p>
      <code class="docutils literal notranslate">
       <span class="pre">
        Figure.waitforbuttonpress()
-      </span>
-     </code>
-    </a>
-   </li>
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.components.algorithms.noisy_label_detection.loss_dynamics_analyzer.Figure.execute_constrained_layout">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       Figure.execute_constrained_layout()
       </span>
      </code>
     </a>

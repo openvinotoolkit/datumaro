@@ -6,7 +6,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
 
-    <title>Transform bounding box to instance mask annotations using Segment Anything Model &#8212; Datumaro 1.5.0rc0 documentation</title>
+    <title>Transform bounding box to instance mask annotations using Segment Anything Model &#8212; Datumaro 1.5.0 documentation</title>
   
   
   
@@ -514,6 +514,7 @@
 <li class="toctree-l4"><a class="reference internal" href="../../reference/_autosummary/datumaro.util.log_utils.html">datumaro.util.log_utils</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../reference/_autosummary/datumaro.util.mask_tools.html">datumaro.util.mask_tools</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../reference/_autosummary/datumaro.util.meta_file_util.html">datumaro.util.meta_file_util</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../reference/_autosummary/datumaro.util.multi_procs_util.html">datumaro.util.multi_procs_util</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../reference/_autosummary/datumaro.util.os_util.html">datumaro.util.os_util</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../reference/_autosummary/datumaro.util.pickle_util.html">datumaro.util.pickle_util</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../reference/_autosummary/datumaro.util.samples.html">datumaro.util.samples</a></li>
@@ -683,8 +684,12 @@ tutorial. We will use the <code class="docutils literal notranslate"><span class
 <img alt="../../../_images/docs_jupyter_notebook_examples_notebooks_18_bbox_to_instance_mask_using_sam_8_0.png" src="../../../_images/docs_jupyter_notebook_examples_notebooks_18_bbox_to_instance_mask_using_sam_8_0.png" />
 </div>
 </div>
-<p>Now, we apply <code class="docutils literal notranslate"><span class="pre">SAMBboxToInstanceMask</span></code> to the dataset. This transform requires some arguments to execute properly. <code class="docutils literal notranslate"><span class="pre">inference_server_type</span></code> is the type of inference server which SAM encoder and decoder are deployed. In this example, we launched the OpenVINO™ Model Server instance, thus please choose <code class="docutils literal notranslate"><span class="pre">InferenceServerType.ovms</span></code>. The gRPC endpoint address was <code class="docutils literal notranslate"><span class="pre">localhost:8001</span></code>. Therefore, <code class="docutils literal notranslate"><span class="pre">host=&quot;localhost&quot;</span></code>, <code class="docutils literal notranslate"><span class="pre">port=8001</span></code>, and <code class="docutils literal notranslate"><span class="pre">protocol_type=ProtocolType.grpc</span></code> should be given. Lastly, you
-can make <code class="docutils literal notranslate"><span class="pre">Polygon</span></code> output for the instance mask, but this time we assign <code class="docutils literal notranslate"><span class="pre">to_polygon</span></code> to <code class="docutils literal notranslate"><span class="pre">False</span></code>, so that the output will be <code class="docutils literal notranslate"><span class="pre">Mask</span></code> annotation type.</p>
+<p>Now, we apply <code class="docutils literal notranslate"><span class="pre">SAMBboxToInstanceMask</span></code> to the dataset. This transform requires several arguments to execute properly.</p>
+<p><code class="docutils literal notranslate"><span class="pre">inference_server_type</span></code> represents the type of inference server on which SAM encoder and decoder are deployed. In this example, we launched the OpenVINO™ Model Server instance. Therefore, please select <code class="docutils literal notranslate"><span class="pre">InferenceServerType.ovms</span></code>.</p>
+<p>The gRPC endpoint address was <code class="docutils literal notranslate"><span class="pre">localhost:8001</span></code>. To configure this, provide the following parameters: - <code class="docutils literal notranslate"><span class="pre">host=&quot;localhost&quot;</span></code> - <code class="docutils literal notranslate"><span class="pre">port=8001</span></code> - <code class="docutils literal notranslate"><span class="pre">protocol_type=ProtocolType.grpc</span></code></p>
+<p>You can also specify a <code class="docutils literal notranslate"><span class="pre">timeout=60.0</span></code> value, which represents the maximum seconds to wait for a response from the server instance.</p>
+<p>Additionally, you can choose to produce <code class="docutils literal notranslate"><span class="pre">Polygon</span></code> output for the instance mask. However, in this case, we have set <code class="docutils literal notranslate"><span class="pre">to_polygon</span></code> to <code class="docutils literal notranslate"><span class="pre">False</span></code>, resulting in an output of the <code class="docutils literal notranslate"><span class="pre">Mask</span></code> annotation type.</p>
+<p>Lastly, we’ve set <code class="docutils literal notranslate"><span class="pre">num_workers=0</span></code>. This means we will use synchronous iteration to send a model inference request to the server instance and wait for the inference results. If you need to handle multiple inference requests concurrently, you can increase this value to utilize a thread pool. This is particularly useful when dealing with server instances that have high throughput.</p>
 <div class="nbinput nblast docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
 </pre></div>
@@ -698,8 +703,10 @@ can make <code class="docutils literal notranslate"><span class="pre">Polygon</s
         <span class="n">inference_server_type</span><span class="o">=</span><span class="n">InferenceServerType</span><span class="o">.</span><span class="n">ovms</span><span class="p">,</span>
         <span class="n">host</span><span class="o">=</span><span class="s2">&quot;localhost&quot;</span><span class="p">,</span>
         <span class="n">port</span><span class="o">=</span><span class="mi">8001</span><span class="p">,</span>
+        <span class="n">timeout</span><span class="o">=</span><span class="mf">60.0</span><span class="p">,</span>
         <span class="n">protocol_type</span><span class="o">=</span><span class="n">ProtocolType</span><span class="o">.</span><span class="n">grpc</span><span class="p">,</span>
         <span class="n">to_polygon</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="n">num_workers</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
     <span class="p">)</span>
 </pre></div>
 </div>

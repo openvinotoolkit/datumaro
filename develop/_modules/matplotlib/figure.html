@@ -5,7 +5,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>matplotlib.figure &#8212; Datumaro 1.5.0rc0 documentation</title>
+    <title>matplotlib.figure &#8212; Datumaro 1.5.0 documentation</title>
   
   
   
@@ -307,7 +307,6 @@
 <span class="sd">usually inside an application of some sort (see :ref:`user_interfaces` for a</span>
 <span class="sd">list of examples) .  More information about Figures can be found at</span>
 <span class="sd">:ref:`figure_explanation`.</span>
-
 <span class="sd">&quot;&quot;&quot;</span>
 
 <span class="kn">from</span> <span class="nn">contextlib</span> <span class="kn">import</span> <span class="n">ExitStack</span>
@@ -315,6 +314,7 @@
 <span class="kn">import</span> <span class="nn">itertools</span>
 <span class="kn">import</span> <span class="nn">logging</span>
 <span class="kn">from</span> <span class="nn">numbers</span> <span class="kn">import</span> <span class="n">Integral</span>
+<span class="kn">import</span> <span class="nn">threading</span>
 
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 
@@ -479,7 +479,6 @@
         <span class="c1"># axis._get_tick_boxes_siblings</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_align_label_groups</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;x&quot;</span><span class="p">:</span> <span class="n">cbook</span><span class="o">.</span><span class="n">Grouper</span><span class="p">(),</span> <span class="s2">&quot;y&quot;</span><span class="p">:</span> <span class="n">cbook</span><span class="o">.</span><span class="n">Grouper</span><span class="p">()}</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">figure</span> <span class="o">=</span> <span class="bp">self</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_localaxes</span> <span class="o">=</span> <span class="p">[]</span>  <span class="c1"># track all axes</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">artists</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">lines</span> <span class="o">=</span> <span class="p">[]</span>
@@ -580,15 +579,12 @@
 <span class="sd">        -------</span>
 <span class="sd">            bool, {}</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">inside</span><span class="p">,</span> <span class="n">info</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_default_contains</span><span class="p">(</span><span class="n">mouseevent</span><span class="p">,</span> <span class="n">figure</span><span class="o">=</span><span class="bp">self</span><span class="p">)</span>
-        <span class="k">if</span> <span class="n">inside</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="k">return</span> <span class="n">inside</span><span class="p">,</span> <span class="n">info</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_different_canvas</span><span class="p">(</span><span class="n">mouseevent</span><span class="p">):</span>
+            <span class="k">return</span> <span class="kc">False</span><span class="p">,</span> <span class="p">{}</span>
         <span class="n">inside</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">bbox</span><span class="o">.</span><span class="n">contains</span><span class="p">(</span><span class="n">mouseevent</span><span class="o">.</span><span class="n">x</span><span class="p">,</span> <span class="n">mouseevent</span><span class="o">.</span><span class="n">y</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">inside</span><span class="p">,</span> <span class="p">{}</span>
 
-    <span class="nd">@_api</span><span class="o">.</span><span class="n">delete_parameter</span><span class="p">(</span><span class="s2">&quot;3.6&quot;</span><span class="p">,</span> <span class="s2">&quot;args&quot;</span><span class="p">)</span>
-    <span class="nd">@_api</span><span class="o">.</span><span class="n">delete_parameter</span><span class="p">(</span><span class="s2">&quot;3.6&quot;</span><span class="p">,</span> <span class="s2">&quot;kwargs&quot;</span><span class="p">)</span>
-    <span class="k">def</span> <span class="nf">get_window_extent</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">renderer</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">get_window_extent</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">renderer</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="c1"># docstring inherited</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">bbox</span>
 
@@ -682,6 +678,11 @@
                 <span class="s1">&#39;size&#39;</span><span class="p">:</span> <span class="s1">&#39;figure.titlesize&#39;</span><span class="p">,</span> <span class="s1">&#39;weight&#39;</span><span class="p">:</span> <span class="s1">&#39;figure.titleweight&#39;</span><span class="p">}</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_suplabels</span><span class="p">(</span><span class="n">t</span><span class="p">,</span> <span class="n">info</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
 
+    <span class="k">def</span> <span class="nf">get_suptitle</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the suptitle as string or an empty string if not set.&quot;&quot;&quot;</span>
+        <span class="n">text_obj</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_suptitle</span>
+        <span class="k">return</span> <span class="s2">&quot;&quot;</span> <span class="k">if</span> <span class="n">text_obj</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">text_obj</span><span class="o">.</span><span class="n">get_text</span><span class="p">()</span>
+
     <span class="nd">@_docstring</span><span class="o">.</span><span class="n">Substitution</span><span class="p">(</span><span class="n">x0</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span> <span class="n">y0</span><span class="o">=</span><span class="mf">0.01</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;supxlabel&#39;</span><span class="p">,</span> <span class="n">ha</span><span class="o">=</span><span class="s1">&#39;center&#39;</span><span class="p">,</span>
                              <span class="n">va</span><span class="o">=</span><span class="s1">&#39;bottom&#39;</span><span class="p">,</span> <span class="n">rc</span><span class="o">=</span><span class="s1">&#39;label&#39;</span><span class="p">)</span>
     <span class="nd">@_docstring</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">_suplabels</span><span class="p">)</span>
@@ -691,6 +692,11 @@
                 <span class="s1">&#39;ha&#39;</span><span class="p">:</span> <span class="s1">&#39;center&#39;</span><span class="p">,</span> <span class="s1">&#39;va&#39;</span><span class="p">:</span> <span class="s1">&#39;bottom&#39;</span><span class="p">,</span> <span class="s1">&#39;rotation&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
                 <span class="s1">&#39;size&#39;</span><span class="p">:</span> <span class="s1">&#39;figure.labelsize&#39;</span><span class="p">,</span> <span class="s1">&#39;weight&#39;</span><span class="p">:</span> <span class="s1">&#39;figure.labelweight&#39;</span><span class="p">}</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_suplabels</span><span class="p">(</span><span class="n">t</span><span class="p">,</span> <span class="n">info</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">get_supxlabel</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the supxlabel as string or an empty string if not set.&quot;&quot;&quot;</span>
+        <span class="n">text_obj</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_supxlabel</span>
+        <span class="k">return</span> <span class="s2">&quot;&quot;</span> <span class="k">if</span> <span class="n">text_obj</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">text_obj</span><span class="o">.</span><span class="n">get_text</span><span class="p">()</span>
 
     <span class="nd">@_docstring</span><span class="o">.</span><span class="n">Substitution</span><span class="p">(</span><span class="n">x0</span><span class="o">=</span><span class="mf">0.02</span><span class="p">,</span> <span class="n">y0</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;supylabel&#39;</span><span class="p">,</span> <span class="n">ha</span><span class="o">=</span><span class="s1">&#39;left&#39;</span><span class="p">,</span>
                              <span class="n">va</span><span class="o">=</span><span class="s1">&#39;center&#39;</span><span class="p">,</span> <span class="n">rc</span><span class="o">=</span><span class="s1">&#39;label&#39;</span><span class="p">)</span>
@@ -702,6 +708,11 @@
                 <span class="s1">&#39;rotation_mode&#39;</span><span class="p">:</span> <span class="s1">&#39;anchor&#39;</span><span class="p">,</span> <span class="s1">&#39;size&#39;</span><span class="p">:</span> <span class="s1">&#39;figure.labelsize&#39;</span><span class="p">,</span>
                 <span class="s1">&#39;weight&#39;</span><span class="p">:</span> <span class="s1">&#39;figure.labelweight&#39;</span><span class="p">}</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_suplabels</span><span class="p">(</span><span class="n">t</span><span class="p">,</span> <span class="n">info</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">get_supylabel</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the supylabel as string or an empty string if not set.&quot;&quot;&quot;</span>
+        <span class="n">text_obj</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_supylabel</span>
+        <span class="k">return</span> <span class="s2">&quot;&quot;</span> <span class="k">if</span> <span class="n">text_obj</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">text_obj</span><span class="o">.</span><span class="n">get_text</span><span class="p">()</span>
 
     <span class="k">def</span> <span class="nf">get_edgecolor</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Get the edge color of the Figure rectangle.&quot;&quot;&quot;</span>
@@ -799,7 +810,7 @@
         <span class="k">if</span> <span class="ow">not</span> <span class="n">artist</span><span class="o">.</span><span class="n">is_transform_set</span><span class="p">():</span>
             <span class="n">artist</span><span class="o">.</span><span class="n">set_transform</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">transSubfigure</span><span class="p">)</span>
 
-        <span class="k">if</span> <span class="n">clip</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">clip</span> <span class="ow">and</span> <span class="n">artist</span><span class="o">.</span><span class="n">get_clip_path</span><span class="p">()</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">artist</span><span class="o">.</span><span class="n">set_clip_path</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">patch</span><span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">stale</span> <span class="o">=</span> <span class="kc">True</span>
@@ -901,22 +912,26 @@
             <span class="n">args</span> <span class="o">=</span> <span class="p">(</span><span class="n">kwargs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s1">&#39;rect&#39;</span><span class="p">),</span> <span class="p">)</span>
 
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">Axes</span><span class="p">):</span>
-            <span class="n">a</span> <span class="o">=</span> <span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="n">a</span><span class="p">,</span> <span class="o">*</span><span class="n">extra_args</span> <span class="o">=</span> <span class="n">args</span>
             <span class="n">key</span> <span class="o">=</span> <span class="n">a</span><span class="o">.</span><span class="n">_projection_init</span>
             <span class="k">if</span> <span class="n">a</span><span class="o">.</span><span class="n">get_figure</span><span class="p">()</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">self</span><span class="p">:</span>
                 <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
                     <span class="s2">&quot;The Axes must have been created in the present figure&quot;</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="n">rect</span> <span class="o">=</span> <span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="n">rect</span><span class="p">,</span> <span class="o">*</span><span class="n">extra_args</span> <span class="o">=</span> <span class="n">args</span>
             <span class="k">if</span> <span class="ow">not</span> <span class="n">np</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span><span class="n">rect</span><span class="p">)</span><span class="o">.</span><span class="n">all</span><span class="p">():</span>
-                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;all entries in rect must be finite &#39;</span>
-                                 <span class="s1">&#39;not </span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">rect</span><span class="p">))</span>
-            <span class="n">projection_class</span><span class="p">,</span> <span class="n">pkw</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_process_projection_requirements</span><span class="p">(</span>
-                <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;all entries in rect must be finite not </span><span class="si">{</span><span class="n">rect</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+            <span class="n">projection_class</span><span class="p">,</span> <span class="n">pkw</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_process_projection_requirements</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
 
             <span class="c1"># create the new axes using the axes class given</span>
             <span class="n">a</span> <span class="o">=</span> <span class="n">projection_class</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">rect</span><span class="p">,</span> <span class="o">**</span><span class="n">pkw</span><span class="p">)</span>
             <span class="n">key</span> <span class="o">=</span> <span class="p">(</span><span class="n">projection_class</span><span class="p">,</span> <span class="n">pkw</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">extra_args</span><span class="p">:</span>
+            <span class="n">_api</span><span class="o">.</span><span class="n">warn_deprecated</span><span class="p">(</span>
+                <span class="s2">&quot;3.8&quot;</span><span class="p">,</span>
+                <span class="n">name</span><span class="o">=</span><span class="s2">&quot;Passing more than one positional argument to Figure.add_axes&quot;</span><span class="p">,</span>
+                <span class="n">addendum</span><span class="o">=</span><span class="s2">&quot;Any additional positional arguments are currently ignored.&quot;</span><span class="p">)</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_add_axes_internal</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">key</span><span class="p">)</span>
 
     <span class="nd">@_docstring</span><span class="o">.</span><span class="n">dedent_interpd</span>
@@ -1042,8 +1057,7 @@
             <span class="k">if</span> <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">args</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span> <span class="ow">and</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">Integral</span><span class="p">)</span>
                     <span class="ow">and</span> <span class="mi">100</span> <span class="o">&lt;=</span> <span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">&lt;=</span> <span class="mi">999</span><span class="p">):</span>
                 <span class="n">args</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">])))</span>
-            <span class="n">projection_class</span><span class="p">,</span> <span class="n">pkw</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_process_projection_requirements</span><span class="p">(</span>
-                <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+            <span class="n">projection_class</span><span class="p">,</span> <span class="n">pkw</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_process_projection_requirements</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
             <span class="n">ax</span> <span class="o">=</span> <span class="n">projection_class</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">pkw</span><span class="p">)</span>
             <span class="n">key</span> <span class="o">=</span> <span class="p">(</span><span class="n">projection_class</span><span class="p">,</span> <span class="n">pkw</span><span class="p">)</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_add_axes_internal</span><span class="p">(</span><span class="n">ax</span><span class="p">,</span> <span class="n">key</span><span class="p">)</span>
@@ -1150,7 +1164,7 @@
 <span class="sd">            y = np.sin(x**2)</span>
 
 <span class="sd">            # Create a figure</span>
-<span class="sd">            plt.figure()</span>
+<span class="sd">            fig = plt.figure()</span>
 
 <span class="sd">            # Create a subplot</span>
 <span class="sd">            ax = fig.subplots()</span>
@@ -1201,39 +1215,43 @@
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Remove the `~.axes.Axes` *ax* from the figure; update the current Axes.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_remove_axes</span><span class="p">(</span><span class="n">ax</span><span class="p">,</span> <span class="n">owners</span><span class="o">=</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_axstack</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_localaxes</span><span class="p">])</span>
 
-        <span class="k">def</span> <span class="nf">_reset_locators_and_formatters</span><span class="p">(</span><span class="n">axis</span><span class="p">):</span>
-            <span class="c1"># Set the formatters and locators to be associated with axis</span>
-            <span class="c1"># (where previously they may have been associated with another</span>
-            <span class="c1"># Axis instance)</span>
-            <span class="n">axis</span><span class="o">.</span><span class="n">get_major_formatter</span><span class="p">()</span><span class="o">.</span><span class="n">set_axis</span><span class="p">(</span><span class="n">axis</span><span class="p">)</span>
-            <span class="n">axis</span><span class="o">.</span><span class="n">get_major_locator</span><span class="p">()</span><span class="o">.</span><span class="n">set_axis</span><span class="p">(</span><span class="n">axis</span><span class="p">)</span>
-            <span class="n">axis</span><span class="o">.</span><span class="n">get_minor_formatter</span><span class="p">()</span><span class="o">.</span><span class="n">set_axis</span><span class="p">(</span><span class="n">axis</span><span class="p">)</span>
-            <span class="n">axis</span><span class="o">.</span><span class="n">get_minor_locator</span><span class="p">()</span><span class="o">.</span><span class="n">set_axis</span><span class="p">(</span><span class="n">axis</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">_remove_axes</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ax</span><span class="p">,</span> <span class="n">owners</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Common helper for removal of standard axes (via delaxes) and of child axes.</span>
 
-        <span class="k">def</span> <span class="nf">_break_share_link</span><span class="p">(</span><span class="n">ax</span><span class="p">,</span> <span class="n">grouper</span><span class="p">):</span>
-            <span class="n">siblings</span> <span class="o">=</span> <span class="n">grouper</span><span class="o">.</span><span class="n">get_siblings</span><span class="p">(</span><span class="n">ax</span><span class="p">)</span>
-            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">siblings</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
-                <span class="n">grouper</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">ax</span><span class="p">)</span>
-                <span class="k">for</span> <span class="n">last_ax</span> <span class="ow">in</span> <span class="n">siblings</span><span class="p">:</span>
-                    <span class="k">if</span> <span class="n">ax</span> <span class="ow">is</span> <span class="ow">not</span> <span class="n">last_ax</span><span class="p">:</span>
-                        <span class="k">return</span> <span class="n">last_ax</span>
-            <span class="k">return</span> <span class="kc">None</span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        ax : `~.AxesBase`</span>
+<span class="sd">            The Axes to remove.</span>
+<span class="sd">        owners</span>
+<span class="sd">            List of objects (list or _AxesStack) &quot;owning&quot; the axes, from which the Axes</span>
+<span class="sd">            will be remove()d.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">for</span> <span class="n">owner</span> <span class="ow">in</span> <span class="n">owners</span><span class="p">:</span>
+            <span class="n">owner</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">ax</span><span class="p">)</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">_axstack</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">ax</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_axobservers</span><span class="o">.</span><span class="n">process</span><span class="p">(</span><span class="s2">&quot;_axes_change_event&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">stale</span> <span class="o">=</span> <span class="kc">True</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_localaxes</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">ax</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">canvas</span><span class="o">.</span><span class="n">release_mouse</span><span class="p">(</span><span class="n">ax</span><span class="p">)</span>
 
-        <span class="c1"># Break link between any shared axes</span>
-        <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">ax</span><span class="o">.</span><span class="n">_axis_names</span><span class="p">:</span>
-            <span class="n">last_ax</span> <span class="o">=</span> <span class="n">_break_share_link</span><span class="p">(</span><span class="n">ax</span><span class="p">,</span> <span class="n">ax</span><span class="o">.</span><span class="n">_shared_axes</span><span class="p">[</span><span class="n">name</span><span class="p">])</span>
-            <span class="k">if</span> <span class="n">last_ax</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-                <span class="n">_reset_locators_and_formatters</span><span class="p">(</span><span class="nb">getattr</span><span class="p">(</span><span class="n">last_ax</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">axis&quot;</span><span class="p">))</span>
+        <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">ax</span><span class="o">.</span><span class="n">_axis_names</span><span class="p">:</span>  <span class="c1"># Break link between any shared axes</span>
+            <span class="n">grouper</span> <span class="o">=</span> <span class="n">ax</span><span class="o">.</span><span class="n">_shared_axes</span><span class="p">[</span><span class="n">name</span><span class="p">]</span>
+            <span class="n">siblings</span> <span class="o">=</span> <span class="p">[</span><span class="n">other</span> <span class="k">for</span> <span class="n">other</span> <span class="ow">in</span> <span class="n">grouper</span><span class="o">.</span><span class="n">get_siblings</span><span class="p">(</span><span class="n">ax</span><span class="p">)</span> <span class="k">if</span> <span class="n">other</span> <span class="ow">is</span> <span class="ow">not</span> <span class="n">ax</span><span class="p">]</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">siblings</span><span class="p">:</span>  <span class="c1"># Axes was not shared along this axis; we&#39;re done.</span>
+                <span class="k">continue</span>
+            <span class="n">grouper</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">ax</span><span class="p">)</span>
+            <span class="c1"># Formatters and locators may previously have been associated with the now</span>
+            <span class="c1"># removed axis.  Update them to point to an axis still there (we can pick</span>
+            <span class="c1"># any of them, and use the first sibling).</span>
+            <span class="n">remaining_axis</span> <span class="o">=</span> <span class="n">siblings</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">_axis_map</span><span class="p">[</span><span class="n">name</span><span class="p">]</span>
+            <span class="n">remaining_axis</span><span class="o">.</span><span class="n">get_major_formatter</span><span class="p">()</span><span class="o">.</span><span class="n">set_axis</span><span class="p">(</span><span class="n">remaining_axis</span><span class="p">)</span>
+            <span class="n">remaining_axis</span><span class="o">.</span><span class="n">get_major_locator</span><span class="p">()</span><span class="o">.</span><span class="n">set_axis</span><span class="p">(</span><span class="n">remaining_axis</span><span class="p">)</span>
+            <span class="n">remaining_axis</span><span class="o">.</span><span class="n">get_minor_formatter</span><span class="p">()</span><span class="o">.</span><span class="n">set_axis</span><span class="p">(</span><span class="n">remaining_axis</span><span class="p">)</span>
+            <span class="n">remaining_axis</span><span class="o">.</span><span class="n">get_minor_locator</span><span class="p">()</span><span class="o">.</span><span class="n">set_axis</span><span class="p">(</span><span class="n">remaining_axis</span><span class="p">)</span>
 
-        <span class="c1"># Break link between any twinned axes</span>
-        <span class="n">_break_share_link</span><span class="p">(</span><span class="n">ax</span><span class="p">,</span> <span class="n">ax</span><span class="o">.</span><span class="n">_twinned_axes</span><span class="p">)</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">_twinned_axes</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">ax</span><span class="p">)</span>  <span class="c1"># Break link between any twinned axes.</span>
 
     <span class="k">def</span> <span class="nf">clear</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">keep_observers</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
@@ -1401,28 +1419,13 @@
 <span class="sd">        Notes</span>
 <span class="sd">        -----</span>
 <span class="sd">        Some artists are not supported by this function.  See</span>
-<span class="sd">        :doc:`/tutorials/intermediate/legend_guide` for details.</span>
+<span class="sd">        :ref:`legend_guide` for details.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
-        <span class="n">handles</span><span class="p">,</span> <span class="n">labels</span><span class="p">,</span> <span class="n">extra_args</span><span class="p">,</span> <span class="n">kwargs</span> <span class="o">=</span> <span class="n">mlegend</span><span class="o">.</span><span class="n">_parse_legend_args</span><span class="p">(</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">axes</span><span class="p">,</span>
-                <span class="o">*</span><span class="n">args</span><span class="p">,</span>
-                <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
-        <span class="c1"># check for third arg</span>
-        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">extra_args</span><span class="p">):</span>
-            <span class="c1"># _api.warn_deprecated(</span>
-            <span class="c1">#     &quot;2.1&quot;,</span>
-            <span class="c1">#     message=&quot;Figure.legend will accept no more than two &quot;</span>
-            <span class="c1">#     &quot;positional arguments in the future.  Use &quot;</span>
-            <span class="c1">#     &quot;&#39;fig.legend(handles, labels, loc=location)&#39; &quot;</span>
-            <span class="c1">#     &quot;instead.&quot;)</span>
-            <span class="c1"># kwargs[&#39;loc&#39;] = extra_args[0]</span>
-            <span class="c1"># extra_args = extra_args[1:]</span>
-            <span class="k">pass</span>
-        <span class="n">transform</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s1">&#39;bbox_transform&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">transSubfigure</span><span class="p">)</span>
+        <span class="n">handles</span><span class="p">,</span> <span class="n">labels</span><span class="p">,</span> <span class="n">kwargs</span> <span class="o">=</span> <span class="n">mlegend</span><span class="o">.</span><span class="n">_parse_legend_args</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">axes</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
         <span class="c1"># explicitly set the bbox transform if the user hasn&#39;t.</span>
-        <span class="n">l</span> <span class="o">=</span> <span class="n">mlegend</span><span class="o">.</span><span class="n">Legend</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">handles</span><span class="p">,</span> <span class="n">labels</span><span class="p">,</span> <span class="o">*</span><span class="n">extra_args</span><span class="p">,</span>
-                           <span class="n">bbox_transform</span><span class="o">=</span><span class="n">transform</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="n">kwargs</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s2">&quot;bbox_transform&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">transSubfigure</span><span class="p">)</span>
+        <span class="n">l</span> <span class="o">=</span> <span class="n">mlegend</span><span class="o">.</span><span class="n">Legend</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">handles</span><span class="p">,</span> <span class="n">labels</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">legends</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">l</span><span class="p">)</span>
         <span class="n">l</span><span class="o">.</span><span class="n">_remove_method</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">legends</span><span class="o">.</span><span class="n">remove</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">stale</span> <span class="o">=</span> <span class="kc">True</span>
@@ -1532,13 +1535,13 @@
 
 <span class="sd">        The *shrink* kwarg provides a simple way to scale the colorbar with</span>
 <span class="sd">        respect to the axes. Note that if *cax* is specified, it determines the</span>
-<span class="sd">        size of the colorbar and *shrink* and *aspect* kwargs are ignored.</span>
+<span class="sd">        size of the colorbar, and *shrink* and *aspect* are ignored.</span>
 
 <span class="sd">        For more precise control, you can manually specify the positions of the</span>
 <span class="sd">        axes objects in which the mappable and the colorbar are drawn.  In this</span>
 <span class="sd">        case, do not use any of the axes properties kwargs.</span>
 
-<span class="sd">        It is known that some vector graphics viewers (svg and pdf) renders</span>
+<span class="sd">        It is known that some vector graphics viewers (svg and pdf) render</span>
 <span class="sd">        white gaps between segments of the colorbar.  This is due to bugs in</span>
 <span class="sd">        the viewers, not Matplotlib.  As a workaround, the colorbar can be</span>
 <span class="sd">        rendered with overlapping segments::</span>
@@ -1556,41 +1559,36 @@
         <span class="k">if</span> <span class="n">ax</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">ax</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">mappable</span><span class="p">,</span> <span class="s2">&quot;axes&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
 
-        <span class="k">if</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">get_layout_engine</span><span class="p">()</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span>
-                <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_layout_engine</span><span class="p">()</span><span class="o">.</span><span class="n">colorbar_gridspec</span><span class="p">):</span>
-            <span class="n">use_gridspec</span> <span class="o">=</span> <span class="kc">False</span>
-        <span class="c1"># Store the value of gca so that we can set it back later on.</span>
         <span class="k">if</span> <span class="n">cax</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">if</span> <span class="n">ax</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-                <span class="n">_api</span><span class="o">.</span><span class="n">warn_deprecated</span><span class="p">(</span><span class="s2">&quot;3.6&quot;</span><span class="p">,</span> <span class="n">message</span><span class="o">=</span><span class="p">(</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
                     <span class="s1">&#39;Unable to determine Axes to steal space for Colorbar. &#39;</span>
-                    <span class="s1">&#39;Using gca(), but will raise in the future. &#39;</span>
                     <span class="s1">&#39;Either provide the *cax* argument to use as the Axes for &#39;</span>
                     <span class="s1">&#39;the Colorbar, provide the *ax* argument to steal space &#39;</span>
-                    <span class="s1">&#39;from it, or add *mappable* to an Axes.&#39;</span><span class="p">))</span>
-                <span class="n">ax</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">gca</span><span class="p">()</span>
-            <span class="n">current_ax</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">gca</span><span class="p">()</span>
-            <span class="n">userax</span> <span class="o">=</span> <span class="kc">False</span>
+                    <span class="s1">&#39;from it, or add *mappable* to an Axes.&#39;</span><span class="p">)</span>
+            <span class="n">fig</span> <span class="o">=</span> <span class="p">(</span>  <span class="c1"># Figure of first axes; logic copied from make_axes.</span>
+                <span class="p">[</span><span class="o">*</span><span class="n">ax</span><span class="o">.</span><span class="n">flat</span><span class="p">]</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">ax</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span>
+                <span class="k">else</span> <span class="p">[</span><span class="o">*</span><span class="n">ax</span><span class="p">]</span> <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">iterable</span><span class="p">(</span><span class="n">ax</span><span class="p">)</span>
+                <span class="k">else</span> <span class="p">[</span><span class="n">ax</span><span class="p">])[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">figure</span>
+            <span class="n">current_ax</span> <span class="o">=</span> <span class="n">fig</span><span class="o">.</span><span class="n">gca</span><span class="p">()</span>
+            <span class="k">if</span> <span class="p">(</span><span class="n">fig</span><span class="o">.</span><span class="n">get_layout_engine</span><span class="p">()</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span>
+                    <span class="ow">not</span> <span class="n">fig</span><span class="o">.</span><span class="n">get_layout_engine</span><span class="p">()</span><span class="o">.</span><span class="n">colorbar_gridspec</span><span class="p">):</span>
+                <span class="n">use_gridspec</span> <span class="o">=</span> <span class="kc">False</span>
             <span class="k">if</span> <span class="p">(</span><span class="n">use_gridspec</span>
                     <span class="ow">and</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">ax</span><span class="p">,</span> <span class="n">mpl</span><span class="o">.</span><span class="n">axes</span><span class="o">.</span><span class="n">_base</span><span class="o">.</span><span class="n">_AxesBase</span><span class="p">)</span>
                     <span class="ow">and</span> <span class="n">ax</span><span class="o">.</span><span class="n">get_subplotspec</span><span class="p">()):</span>
                 <span class="n">cax</span><span class="p">,</span> <span class="n">kwargs</span> <span class="o">=</span> <span class="n">cbar</span><span class="o">.</span><span class="n">make_axes_gridspec</span><span class="p">(</span><span class="n">ax</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="n">cax</span><span class="p">,</span> <span class="n">kwargs</span> <span class="o">=</span> <span class="n">cbar</span><span class="o">.</span><span class="n">make_axes</span><span class="p">(</span><span class="n">ax</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+            <span class="c1"># make_axes calls add_{axes,subplot} which changes gca; undo that.</span>
+            <span class="n">fig</span><span class="o">.</span><span class="n">sca</span><span class="p">(</span><span class="n">current_ax</span><span class="p">)</span>
             <span class="n">cax</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="n">visible</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">which</span><span class="o">=</span><span class="s1">&#39;both&#39;</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="s1">&#39;both&#39;</span><span class="p">)</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="n">userax</span> <span class="o">=</span> <span class="kc">True</span>
 
-        <span class="c1"># need to remove kws that cannot be passed to Colorbar</span>
-        <span class="n">NON_COLORBAR_KEYS</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;fraction&#39;</span><span class="p">,</span> <span class="s1">&#39;pad&#39;</span><span class="p">,</span> <span class="s1">&#39;shrink&#39;</span><span class="p">,</span> <span class="s1">&#39;aspect&#39;</span><span class="p">,</span> <span class="s1">&#39;anchor&#39;</span><span class="p">,</span>
-                             <span class="s1">&#39;panchor&#39;</span><span class="p">]</span>
-        <span class="n">cb_kw</span> <span class="o">=</span> <span class="p">{</span><span class="n">k</span><span class="p">:</span> <span class="n">v</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="n">k</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">NON_COLORBAR_KEYS</span><span class="p">}</span>
-
-        <span class="n">cb</span> <span class="o">=</span> <span class="n">cbar</span><span class="o">.</span><span class="n">Colorbar</span><span class="p">(</span><span class="n">cax</span><span class="p">,</span> <span class="n">mappable</span><span class="p">,</span> <span class="o">**</span><span class="n">cb_kw</span><span class="p">)</span>
-
-        <span class="k">if</span> <span class="ow">not</span> <span class="n">userax</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">sca</span><span class="p">(</span><span class="n">current_ax</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">stale</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="n">NON_COLORBAR_KEYS</span> <span class="o">=</span> <span class="p">[</span>  <span class="c1"># remove kws that cannot be passed to Colorbar</span>
+            <span class="s1">&#39;fraction&#39;</span><span class="p">,</span> <span class="s1">&#39;pad&#39;</span><span class="p">,</span> <span class="s1">&#39;shrink&#39;</span><span class="p">,</span> <span class="s1">&#39;aspect&#39;</span><span class="p">,</span> <span class="s1">&#39;anchor&#39;</span><span class="p">,</span> <span class="s1">&#39;panchor&#39;</span><span class="p">]</span>
+        <span class="n">cb</span> <span class="o">=</span> <span class="n">cbar</span><span class="o">.</span><span class="n">Colorbar</span><span class="p">(</span><span class="n">cax</span><span class="p">,</span> <span class="n">mappable</span><span class="p">,</span> <span class="o">**</span><span class="p">{</span>
+            <span class="n">k</span><span class="p">:</span> <span class="n">v</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="n">k</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">NON_COLORBAR_KEYS</span><span class="p">})</span>
+        <span class="n">cax</span><span class="o">.</span><span class="n">figure</span><span class="o">.</span><span class="n">stale</span> <span class="o">=</span> <span class="kc">True</span>
         <span class="k">return</span> <span class="n">cb</span>
 
     <span class="k">def</span> <span class="nf">subplots_adjust</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">left</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">bottom</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">right</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">top</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
@@ -1971,9 +1969,8 @@
                 <span class="k">return</span> <span class="n">im</span>
         <span class="k">return</span> <span class="kc">None</span>
 
-    <span class="k">def</span> <span class="nf">_process_projection_requirements</span><span class="p">(</span>
-            <span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="n">axes_class</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">polar</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">projection</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-            <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">_process_projection_requirements</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">axes_class</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">polar</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                                         <span class="n">projection</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Handle the args/kwargs to add_axes/add_subplot/gca, returning::</span>
 
@@ -2015,6 +2012,7 @@
                 <span class="n">bbox_artists</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">ax</span><span class="o">.</span><span class="n">get_default_bbox_extra_artists</span><span class="p">())</span>
         <span class="k">return</span> <span class="n">bbox_artists</span>
 
+    <span class="nd">@_api</span><span class="o">.</span><span class="n">make_keyword_only</span><span class="p">(</span><span class="s2">&quot;3.8&quot;</span><span class="p">,</span> <span class="s2">&quot;bbox_extra_artists&quot;</span><span class="p">)</span>
     <span class="k">def</span> <span class="nf">get_tightbbox</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">renderer</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">bbox_extra_artists</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Return a (tight) bounding box of the figure *in inches*.</span>
@@ -2093,15 +2091,11 @@
             <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">k</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">):</span>
                 <span class="k">for</span> <span class="n">sub_key</span> <span class="ow">in</span> <span class="n">k</span><span class="p">:</span>
                     <span class="k">if</span> <span class="n">sub_key</span> <span class="ow">in</span> <span class="n">expanded</span><span class="p">:</span>
-                        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-                            <span class="sa">f</span><span class="s1">&#39;The key </span><span class="si">{</span><span class="n">sub_key</span><span class="si">!r}</span><span class="s1"> appears multiple times.&#39;</span>
-                            <span class="p">)</span>
+                        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;The key </span><span class="si">{</span><span class="n">sub_key</span><span class="si">!r}</span><span class="s1"> appears multiple times.&#39;</span><span class="p">)</span>
                     <span class="n">expanded</span><span class="p">[</span><span class="n">sub_key</span><span class="p">]</span> <span class="o">=</span> <span class="n">v</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="k">if</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">expanded</span><span class="p">:</span>
-                    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-                        <span class="sa">f</span><span class="s1">&#39;The key </span><span class="si">{</span><span class="n">k</span><span class="si">!r}</span><span class="s1"> appears multiple times.&#39;</span>
-                    <span class="p">)</span>
+                    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;The key </span><span class="si">{</span><span class="n">k</span><span class="si">!r}</span><span class="s1"> appears multiple times.&#39;</span><span class="p">)</span>
                 <span class="n">expanded</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="n">v</span>
         <span class="k">return</span> <span class="n">expanded</span>
 
@@ -2124,7 +2118,7 @@
 
 <span class="sd">        This is a helper function to build complex GridSpec layouts visually.</span>
 
-<span class="sd">        See :doc:`/gallery/subplots_axes_and_figures/mosaic`</span>
+<span class="sd">        See :ref:`mosaic`</span>
 <span class="sd">        for an example and full API documentation</span>
 
 <span class="sd">        Parameters</span>
@@ -2258,13 +2252,11 @@
 
 <span class="sd">            We need to have this internal function rather than</span>
 <span class="sd">            ``np.asarray(..., dtype=object)`` so that a list of lists</span>
-<span class="sd">            of lists does not get converted to an array of dimension &gt;</span>
-<span class="sd">            2</span>
+<span class="sd">            of lists does not get converted to an array of dimension &gt; 2.</span>
 
 <span class="sd">            Returns</span>
 <span class="sd">            -------</span>
 <span class="sd">            2D object array</span>
-
 <span class="sd">            &quot;&quot;&quot;</span>
             <span class="n">r0</span><span class="p">,</span> <span class="o">*</span><span class="n">rest</span> <span class="o">=</span> <span class="n">inp</span>
             <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">r0</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
@@ -2290,13 +2282,13 @@
 
 <span class="sd">            Parameters</span>
 <span class="sd">            ----------</span>
-<span class="sd">            mosaic : 2D numpy object array</span>
+<span class="sd">            mosaic : 2D object array</span>
 
 <span class="sd">            Returns</span>
 <span class="sd">            -------</span>
 <span class="sd">            unique_ids : tuple</span>
 <span class="sd">                The unique non-sub mosaic entries in this mosaic</span>
-<span class="sd">            nested : dict[tuple[int, int]], 2D object array</span>
+<span class="sd">            nested : dict[tuple[int, int], 2D object array]</span>
 <span class="sd">            &quot;&quot;&quot;</span>
             <span class="c1"># make sure we preserve the user supplied order</span>
             <span class="n">unique_ids</span> <span class="o">=</span> <span class="n">cbook</span><span class="o">.</span><span class="n">_OrderedSet</span><span class="p">()</span>
@@ -2320,7 +2312,7 @@
 <span class="sd">            ----------</span>
 <span class="sd">            gs : GridSpec</span>
 <span class="sd">            mosaic : 2D object array</span>
-<span class="sd">                The input converted to a 2D numpy array for this level.</span>
+<span class="sd">                The input converted to a 2D array for this level.</span>
 <span class="sd">            unique_ids : tuple</span>
 <span class="sd">                The identified scalar labels at this level of nesting.</span>
 <span class="sd">            nested : dict[tuple[int, int]], 2D object array</span>
@@ -2360,7 +2352,7 @@
                 <span class="n">this_level</span><span class="p">[(</span><span class="n">start_row</span><span class="p">,</span> <span class="n">start_col</span><span class="p">)]</span> <span class="o">=</span> <span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">slc</span><span class="p">,</span> <span class="s1">&#39;axes&#39;</span><span class="p">)</span>
 
             <span class="c1"># do the same thing for the nested mosaics (simpler because these</span>
-            <span class="c1"># can not be spans yet!)</span>
+            <span class="c1"># cannot be spans yet!)</span>
             <span class="k">for</span> <span class="p">(</span><span class="n">j</span><span class="p">,</span> <span class="n">k</span><span class="p">),</span> <span class="n">nested_mosaic</span> <span class="ow">in</span> <span class="n">nested</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
                 <span class="n">this_level</span><span class="p">[(</span><span class="n">j</span><span class="p">,</span> <span class="n">k</span><span class="p">)]</span> <span class="o">=</span> <span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="n">nested_mosaic</span><span class="p">,</span> <span class="s1">&#39;nested&#39;</span><span class="p">)</span>
 
@@ -2415,10 +2407,10 @@
         <span class="k">for</span> <span class="n">ax</span> <span class="ow">in</span> <span class="n">ret</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
             <span class="k">if</span> <span class="n">sharex</span><span class="p">:</span>
                 <span class="n">ax</span><span class="o">.</span><span class="n">sharex</span><span class="p">(</span><span class="n">ax0</span><span class="p">)</span>
-                <span class="n">ax</span><span class="o">.</span><span class="n">_label_outer_xaxis</span><span class="p">(</span><span class="n">check_patch</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+                <span class="n">ax</span><span class="o">.</span><span class="n">_label_outer_xaxis</span><span class="p">(</span><span class="n">skip_non_rectangular_axes</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
             <span class="k">if</span> <span class="n">sharey</span><span class="p">:</span>
                 <span class="n">ax</span><span class="o">.</span><span class="n">sharey</span><span class="p">(</span><span class="n">ax0</span><span class="p">)</span>
-                <span class="n">ax</span><span class="o">.</span><span class="n">_label_outer_yaxis</span><span class="p">(</span><span class="n">check_patch</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+                <span class="n">ax</span><span class="o">.</span><span class="n">_label_outer_yaxis</span><span class="p">(</span><span class="n">skip_non_rectangular_axes</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">extra</span> <span class="o">:=</span> <span class="nb">set</span><span class="p">(</span><span class="n">per_subplot_kw</span><span class="p">)</span> <span class="o">-</span> <span class="nb">set</span><span class="p">(</span><span class="n">ret</span><span class="p">):</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
                 <span class="sa">f</span><span class="s2">&quot;The keys </span><span class="si">{</span><span class="n">extra</span><span class="si">}</span><span class="s2"> are in *per_subplot_kw* &quot;</span>
@@ -2454,10 +2446,6 @@
 <span class="sd">    .. note::</span>
 <span class="sd">        The *subfigure* concept is new in v3.4, and the API is still provisional.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">callbacks</span> <span class="o">=</span> <span class="n">_api</span><span class="o">.</span><span class="n">deprecated</span><span class="p">(</span>
-            <span class="s2">&quot;3.6&quot;</span><span class="p">,</span> <span class="n">alternative</span><span class="o">=</span><span class="p">(</span><span class="s2">&quot;the &#39;resize_event&#39; signal in &quot;</span>
-                                <span class="s2">&quot;Figure.canvas.callbacks&quot;</span><span class="p">)</span>
-            <span class="p">)(</span><span class="nb">property</span><span class="p">(</span><span class="k">lambda</span> <span class="bp">self</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_fig_callbacks</span><span class="p">))</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">parent</span><span class="p">,</span> <span class="n">subplotspec</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span>
                  <span class="n">facecolor</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
@@ -2476,8 +2464,8 @@
 <span class="sd">            Defines the region in a parent gridspec where the subfigure will</span>
 <span class="sd">            be placed.</span>
 
-<span class="sd">        facecolor : default: :rc:`figure.facecolor`</span>
-<span class="sd">            The figure patch face color.</span>
+<span class="sd">        facecolor : default: ``&quot;none&quot;``</span>
+<span class="sd">            The figure patch face color; transparent by default.</span>
 
 <span class="sd">        edgecolor : default: :rc:`figure.edgecolor`</span>
 <span class="sd">            The figure patch edge color.</span>
@@ -2497,7 +2485,7 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">facecolor</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="n">facecolor</span> <span class="o">=</span> <span class="n">mpl</span><span class="o">.</span><span class="n">rcParams</span><span class="p">[</span><span class="s1">&#39;figure.facecolor&#39;</span><span class="p">]</span>
+            <span class="n">facecolor</span> <span class="o">=</span> <span class="s2">&quot;none&quot;</span>
         <span class="k">if</span> <span class="n">edgecolor</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">edgecolor</span> <span class="o">=</span> <span class="n">mpl</span><span class="o">.</span><span class="n">rcParams</span><span class="p">[</span><span class="s1">&#39;figure.edgecolor&#39;</span><span class="p">]</span>
         <span class="k">if</span> <span class="n">frameon</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
@@ -2506,7 +2494,6 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_subplotspec</span> <span class="o">=</span> <span class="n">subplotspec</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_parent</span> <span class="o">=</span> <span class="n">parent</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">figure</span> <span class="o">=</span> <span class="n">parent</span><span class="o">.</span><span class="n">figure</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_fig_callbacks</span> <span class="o">=</span> <span class="n">parent</span><span class="o">.</span><span class="n">_fig_callbacks</span>
 
         <span class="c1"># subfigures use the parent axstack</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_axstack</span> <span class="o">=</span> <span class="n">parent</span><span class="o">.</span><span class="n">_axstack</span>
@@ -2515,7 +2502,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_axobservers</span> <span class="o">=</span> <span class="n">parent</span><span class="o">.</span><span class="n">_axobservers</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">canvas</span> <span class="o">=</span> <span class="n">parent</span><span class="o">.</span><span class="n">canvas</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">transFigure</span> <span class="o">=</span> <span class="n">parent</span><span class="o">.</span><span class="n">transFigure</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">bbox_relative</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">bbox_relative</span> <span class="o">=</span> <span class="n">Bbox</span><span class="o">.</span><span class="n">null</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_redo_transform_rel_fig</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">figbbox</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_parent</span><span class="o">.</span><span class="n">figbbox</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">bbox</span> <span class="o">=</span> <span class="n">TransformedBbox</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">bbox_relative</span><span class="p">,</span>
@@ -2580,17 +2567,14 @@
         <span class="n">dy</span> <span class="o">=</span> <span class="n">hr</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_subplotspec</span><span class="o">.</span><span class="n">rowspan</span><span class="p">]</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span> <span class="o">/</span> <span class="n">hr</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
         <span class="n">x0</span> <span class="o">=</span> <span class="n">wr</span><span class="p">[:</span><span class="bp">self</span><span class="o">.</span><span class="n">_subplotspec</span><span class="o">.</span><span class="n">colspan</span><span class="o">.</span><span class="n">start</span><span class="p">]</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span> <span class="o">/</span> <span class="n">wr</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
         <span class="n">y0</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">-</span> <span class="n">hr</span><span class="p">[:</span><span class="bp">self</span><span class="o">.</span><span class="n">_subplotspec</span><span class="o">.</span><span class="n">rowspan</span><span class="o">.</span><span class="n">stop</span><span class="p">]</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span> <span class="o">/</span> <span class="n">hr</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">bbox_relative</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">bbox_relative</span> <span class="o">=</span> <span class="n">Bbox</span><span class="o">.</span><span class="n">from_bounds</span><span class="p">(</span><span class="n">x0</span><span class="p">,</span> <span class="n">y0</span><span class="p">,</span> <span class="n">dx</span><span class="p">,</span> <span class="n">dy</span><span class="p">)</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">bbox_relative</span><span class="o">.</span><span class="n">p0</span> <span class="o">=</span> <span class="p">(</span><span class="n">x0</span><span class="p">,</span> <span class="n">y0</span><span class="p">)</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">bbox_relative</span><span class="o">.</span><span class="n">p1</span> <span class="o">=</span> <span class="p">(</span><span class="n">x0</span> <span class="o">+</span> <span class="n">dx</span><span class="p">,</span> <span class="n">y0</span> <span class="o">+</span> <span class="n">dy</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">bbox_relative</span><span class="o">.</span><span class="n">p0</span> <span class="o">=</span> <span class="p">(</span><span class="n">x0</span><span class="p">,</span> <span class="n">y0</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">bbox_relative</span><span class="o">.</span><span class="n">p1</span> <span class="o">=</span> <span class="p">(</span><span class="n">x0</span> <span class="o">+</span> <span class="n">dx</span><span class="p">,</span> <span class="n">y0</span> <span class="o">+</span> <span class="n">dy</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">get_constrained_layout</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Return whether constrained layout is being used.</span>
 
-<span class="sd">        See :doc:`/tutorials/intermediate/constrainedlayout_guide`.</span>
+<span class="sd">        See :ref:`constrainedlayout_guide`.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_parent</span><span class="o">.</span><span class="n">get_constrained_layout</span><span class="p">()</span>
 
@@ -2601,7 +2585,7 @@
 <span class="sd">        Returns a list of ``w_pad, h_pad`` in inches and</span>
 <span class="sd">        ``wspace`` and ``hspace`` as fractions of the subplot.</span>
 
-<span class="sd">        See :doc:`/tutorials/intermediate/constrainedlayout_guide`.</span>
+<span class="sd">        See :ref:`constrainedlayout_guide`.</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
@@ -2667,12 +2651,18 @@
 <span class="sd">        depending on the renderer option_image_nocomposite function.  If</span>
 <span class="sd">        *suppressComposite* is a boolean, this will override the renderer.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="c1"># Remove the self._fig_callbacks properties on figure and subfigure</span>
-    <span class="c1"># after the deprecation expires.</span>
-    <span class="n">callbacks</span> <span class="o">=</span> <span class="n">_api</span><span class="o">.</span><span class="n">deprecated</span><span class="p">(</span>
-        <span class="s2">&quot;3.6&quot;</span><span class="p">,</span> <span class="n">alternative</span><span class="o">=</span><span class="p">(</span><span class="s2">&quot;the &#39;resize_event&#39; signal in &quot;</span>
-                            <span class="s2">&quot;Figure.canvas.callbacks&quot;</span><span class="p">)</span>
-        <span class="p">)(</span><span class="nb">property</span><span class="p">(</span><span class="k">lambda</span> <span class="bp">self</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_fig_callbacks</span><span class="p">))</span>
+
+    <span class="c1"># we want to cache the fonts and mathtext at a global level so that when</span>
+    <span class="c1"># multiple figures are created we can reuse them.  This helps with a bug on</span>
+    <span class="c1"># windows where the creation of too many figures leads to too many open</span>
+    <span class="c1"># file handles and improves the performance of parsing mathtext.  However,</span>
+    <span class="c1"># these global caches are not thread safe.  The solution here is to let the</span>
+    <span class="c1"># Figure acquire a shared lock at the start of the draw, and release it when it</span>
+    <span class="c1"># is done.  This allows multiple renderers to share the cached fonts and</span>
+    <span class="c1"># parsed text, but only one figure can draw at a time and so the font cache</span>
+    <span class="c1"># and mathtext cache are used by only one renderer at a time.</span>
+
+    <span class="n">_render_lock</span> <span class="o">=</span> <span class="n">threading</span><span class="o">.</span><span class="n">RLock</span><span class="p">()</span>
 
     <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="s2">&quot;Figure(</span><span class="si">%g</span><span class="s2">x</span><span class="si">%g</span><span class="s2">)&quot;</span> <span class="o">%</span> <span class="nb">tuple</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">bbox</span><span class="o">.</span><span class="n">size</span><span class="p">)</span>
@@ -2684,10 +2674,10 @@
             <span class="n">naxes</span><span class="o">=</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">axes</span><span class="p">),</span>
         <span class="p">)</span>
 
-    <span class="nd">@_api</span><span class="o">.</span><span class="n">make_keyword_only</span><span class="p">(</span><span class="s2">&quot;3.6&quot;</span><span class="p">,</span> <span class="s2">&quot;facecolor&quot;</span><span class="p">)</span>
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
                  <span class="n">figsize</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                  <span class="n">dpi</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                 <span class="o">*</span><span class="p">,</span>
                  <span class="n">facecolor</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                  <span class="n">edgecolor</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                  <span class="n">linewidth</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span>
@@ -2695,7 +2685,6 @@
                  <span class="n">subplotpars</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>  <span class="c1"># rc figure.subplot.*</span>
                  <span class="n">tight_layout</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>  <span class="c1"># rc figure.autolayout</span>
                  <span class="n">constrained_layout</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>  <span class="c1"># rc figure.constrained_layout.use</span>
-                 <span class="o">*</span><span class="p">,</span>
                  <span class="n">layout</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                  <span class="o">**</span><span class="n">kwargs</span>
                  <span class="p">):</span>
@@ -2752,8 +2741,7 @@
 <span class="sd">              to avoid overlapping axes decorations.  Can handle complex plot</span>
 <span class="sd">              layouts and colorbars, and is thus recommended.</span>
 
-<span class="sd">              See :doc:`/tutorials/intermediate/constrainedlayout_guide`</span>
-<span class="sd">              for examples.</span>
+<span class="sd">              See :ref:`constrainedlayout_guide` for examples.</span>
 
 <span class="sd">            - &#39;compressed&#39;: uses the same algorithm as &#39;constrained&#39;, but</span>
 <span class="sd">              removes extra space between fixed-aspect-ratio Axes.  Best for</span>
@@ -2761,8 +2749,9 @@
 
 <span class="sd">            - &#39;tight&#39;: Use the tight layout mechanism. This is a relatively</span>
 <span class="sd">              simple algorithm that adjusts the subplot parameters so that</span>
-<span class="sd">              decorations do not overlap. See `.Figure.set_tight_layout` for</span>
-<span class="sd">              further details.</span>
+<span class="sd">              decorations do not overlap.</span>
+
+<span class="sd">              See :ref:`tight_layout_guide` for examples.</span>
 
 <span class="sd">            - &#39;none&#39;: Do not use a layout engine.</span>
 
@@ -2782,6 +2771,7 @@
 <span class="sd">            %(Figure:kwdoc)s</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">figure</span> <span class="o">=</span> <span class="bp">self</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_layout_engine</span> <span class="o">=</span> <span class="kc">None</span>
 
         <span class="k">if</span> <span class="n">layout</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
@@ -2814,7 +2804,6 @@
             <span class="c1"># everything is None, so use default:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">set_layout_engine</span><span class="p">(</span><span class="n">layout</span><span class="o">=</span><span class="n">layout</span><span class="p">)</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">_fig_callbacks</span> <span class="o">=</span> <span class="n">cbook</span><span class="o">.</span><span class="n">CallbackRegistry</span><span class="p">(</span><span class="n">signals</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;dpi_changed&quot;</span><span class="p">])</span>
         <span class="c1"># Callbacks traditionally associated with the canvas (and exposed with</span>
         <span class="c1"># a proxy property), but that actually need to be on the figure for</span>
         <span class="c1"># pickling.</span>
@@ -2904,8 +2893,7 @@
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        layout: {&#39;constrained&#39;, &#39;compressed&#39;, &#39;tight&#39;, &#39;none&#39;} or \</span>
-<span class="sd">`LayoutEngine` or None</span>
+<span class="sd">        layout : {&#39;constrained&#39;, &#39;compressed&#39;, &#39;tight&#39;, &#39;none&#39;, `.LayoutEngine`, None}</span>
 
 <span class="sd">            - &#39;constrained&#39; will use `~.ConstrainedLayoutEngine`</span>
 <span class="sd">            - &#39;compressed&#39; will also use `~.ConstrainedLayoutEngine`, but with</span>
@@ -2913,6 +2901,8 @@
 <span class="sd">              ratio Axes.</span>
 <span class="sd">            - &#39;tight&#39; uses `~.TightLayoutEngine`</span>
 <span class="sd">            - &#39;none&#39; removes layout engine.</span>
+
+<span class="sd">            If a `.LayoutEngine` instance, that instance will be used.</span>
 
 <span class="sd">            If `None`, the behavior is controlled by :rc:`figure.autolayout`</span>
 <span class="sd">            (which if `True` behaves as if &#39;tight&#39; was passed) and</span>
@@ -2923,7 +2913,7 @@
 <span class="sd">            Users and libraries can define their own layout engines and pass</span>
 <span class="sd">            the instance directly as well.</span>
 
-<span class="sd">        kwargs: dict</span>
+<span class="sd">        **kwargs</span>
 <span class="sd">            The keyword arguments are passed to the layout engine to set things</span>
 <span class="sd">            like padding and margin sizes.  Only used if *layout* is a string.</span>
 
@@ -3063,7 +3053,6 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">dpi_scale_trans</span><span class="o">.</span><span class="n">clear</span><span class="p">()</span><span class="o">.</span><span class="n">scale</span><span class="p">(</span><span class="n">dpi</span><span class="p">)</span>
         <span class="n">w</span><span class="p">,</span> <span class="n">h</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_size_inches</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">set_size_inches</span><span class="p">(</span><span class="n">w</span><span class="p">,</span> <span class="n">h</span><span class="p">,</span> <span class="n">forward</span><span class="o">=</span><span class="n">forward</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_fig_callbacks</span><span class="o">.</span><span class="n">process</span><span class="p">(</span><span class="s1">&#39;dpi_changed&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span>
 
     <span class="n">dpi</span> <span class="o">=</span> <span class="nb">property</span><span class="p">(</span><span class="n">_get_dpi</span><span class="p">,</span> <span class="n">_set_dpi</span><span class="p">,</span> <span class="n">doc</span><span class="o">=</span><span class="s2">&quot;The resolution in dots per inch.&quot;</span><span class="p">)</span>
 
@@ -3075,12 +3064,7 @@
                      <span class="n">pending</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
     <span class="k">def</span> <span class="nf">set_tight_layout</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tight</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        [*Discouraged*] Set whether and how `.tight_layout` is called when</span>
-<span class="sd">        drawing.</span>
-
-<span class="sd">        .. admonition:: Discouraged</span>
-
-<span class="sd">            This method is discouraged in favor of `~.set_layout_engine`.</span>
+<span class="sd">        Set whether and how `.tight_layout` is called when drawing.</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
@@ -3101,7 +3085,7 @@
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Return whether constrained layout is being used.</span>
 
-<span class="sd">        See :doc:`/tutorials/intermediate/constrainedlayout_guide`.</span>
+<span class="sd">        See :ref:`constrainedlayout_guide`.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">get_layout_engine</span><span class="p">(),</span> <span class="n">ConstrainedLayoutEngine</span><span class="p">)</span></div>
 
@@ -3109,8 +3093,7 @@
                      <span class="n">pending</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
     <span class="k">def</span> <span class="nf">set_constrained_layout</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">constrained</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        [*Discouraged*] Set whether ``constrained_layout`` is used upon</span>
-<span class="sd">        drawing.</span>
+<span class="sd">        Set whether ``constrained_layout`` is used upon drawing.</span>
 
 <span class="sd">        If None, :rc:`figure.constrained_layout.use` value will be used.</span>
 
@@ -3118,10 +3101,6 @@
 <span class="sd">        the default ``constrained_layout`` paddings will be</span>
 <span class="sd">        overridden.  These pads are in inches and default to 3.0/72.0.</span>
 <span class="sd">        ``w_pad`` is the width padding and ``h_pad`` is the height padding.</span>
-
-<span class="sd">        .. admonition:: Discouraged</span>
-
-<span class="sd">            This method is discouraged in favor of `~.set_layout_engine`.</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
@@ -3144,7 +3123,7 @@
 <span class="sd">        Tip: The parameters can be passed from a dictionary by using</span>
 <span class="sd">        ``fig.set_constrained_layout(**pad_dict)``.</span>
 
-<span class="sd">        See :doc:`/tutorials/intermediate/constrainedlayout_guide`.</span>
+<span class="sd">        See :ref:`constrainedlayout_guide`.</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
@@ -3178,7 +3157,7 @@
 <span class="sd">        ``wspace`` and ``hspace`` as fractions of the subplot.</span>
 <span class="sd">        All values are None if ``constrained_layout`` is not used.</span>
 
-<span class="sd">        See :doc:`/tutorials/intermediate/constrainedlayout_guide`.</span>
+<span class="sd">        See :ref:`constrainedlayout_guide`.</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
@@ -3435,33 +3414,33 @@
     <span class="nd">@allow_rasterization</span>
     <span class="k">def</span> <span class="nf">draw</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">renderer</span><span class="p">):</span>
         <span class="c1"># docstring inherited</span>
-
-        <span class="c1"># draw the figure bounding box, perhaps none for white figure</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_visible</span><span class="p">():</span>
             <span class="k">return</span>
 
-        <span class="n">artists</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_draw_artists</span><span class="p">(</span><span class="n">renderer</span><span class="p">)</span>
-        <span class="k">try</span><span class="p">:</span>
-            <span class="n">renderer</span><span class="o">.</span><span class="n">open_group</span><span class="p">(</span><span class="s1">&#39;figure&#39;</span><span class="p">,</span> <span class="n">gid</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">get_gid</span><span class="p">())</span>
-            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">axes</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_layout_engine</span><span class="p">()</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-                <span class="k">try</span><span class="p">:</span>
-                    <span class="bp">self</span><span class="o">.</span><span class="n">get_layout_engine</span><span class="p">()</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
-                <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
-                    <span class="k">pass</span>
-                    <span class="c1"># ValueError can occur when resizing a window.</span>
+        <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">_render_lock</span><span class="p">:</span>
 
-            <span class="bp">self</span><span class="o">.</span><span class="n">patch</span><span class="o">.</span><span class="n">draw</span><span class="p">(</span><span class="n">renderer</span><span class="p">)</span>
-            <span class="n">mimage</span><span class="o">.</span><span class="n">_draw_list_compositing_images</span><span class="p">(</span>
-                <span class="n">renderer</span><span class="p">,</span> <span class="bp">self</span><span class="p">,</span> <span class="n">artists</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">suppressComposite</span><span class="p">)</span>
+            <span class="n">artists</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_draw_artists</span><span class="p">(</span><span class="n">renderer</span><span class="p">)</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">renderer</span><span class="o">.</span><span class="n">open_group</span><span class="p">(</span><span class="s1">&#39;figure&#39;</span><span class="p">,</span> <span class="n">gid</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">get_gid</span><span class="p">())</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">axes</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_layout_engine</span><span class="p">()</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="k">try</span><span class="p">:</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">get_layout_engine</span><span class="p">()</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+                    <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
+                        <span class="k">pass</span>
+                        <span class="c1"># ValueError can occur when resizing a window.</span>
 
-            <span class="k">for</span> <span class="n">sfig</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">subfigs</span><span class="p">:</span>
-                <span class="n">sfig</span><span class="o">.</span><span class="n">draw</span><span class="p">(</span><span class="n">renderer</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">patch</span><span class="o">.</span><span class="n">draw</span><span class="p">(</span><span class="n">renderer</span><span class="p">)</span>
+                <span class="n">mimage</span><span class="o">.</span><span class="n">_draw_list_compositing_images</span><span class="p">(</span>
+                    <span class="n">renderer</span><span class="p">,</span> <span class="bp">self</span><span class="p">,</span> <span class="n">artists</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">suppressComposite</span><span class="p">)</span>
 
-            <span class="n">renderer</span><span class="o">.</span><span class="n">close_group</span><span class="p">(</span><span class="s1">&#39;figure&#39;</span><span class="p">)</span>
-        <span class="k">finally</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">stale</span> <span class="o">=</span> <span class="kc">False</span>
+                <span class="k">for</span> <span class="n">sfig</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">subfigs</span><span class="p">:</span>
+                    <span class="n">sfig</span><span class="o">.</span><span class="n">draw</span><span class="p">(</span><span class="n">renderer</span><span class="p">)</span>
 
-        <span class="n">DrawEvent</span><span class="p">(</span><span class="s2">&quot;draw_event&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">canvas</span><span class="p">,</span> <span class="n">renderer</span><span class="p">)</span><span class="o">.</span><span class="n">_process</span><span class="p">()</span></div>
+                <span class="n">renderer</span><span class="o">.</span><span class="n">close_group</span><span class="p">(</span><span class="s1">&#39;figure&#39;</span><span class="p">)</span>
+            <span class="k">finally</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">stale</span> <span class="o">=</span> <span class="kc">False</span>
+
+            <span class="n">DrawEvent</span><span class="p">(</span><span class="s2">&quot;draw_event&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">canvas</span><span class="p">,</span> <span class="n">renderer</span><span class="p">)</span><span class="o">.</span><span class="n">_process</span><span class="p">()</span></div>
 
 <div class="viewcode-block" id="Figure.draw_without_rendering"><a class="viewcode-back" href="../../docs/reference/_autosummary/datumaro.components.algorithms.noisy_label_detection.loss_dynamics_analyzer.html#datumaro.components.algorithms.noisy_label_detection.loss_dynamics_analyzer.Figure.draw_without_rendering">[docs]</a>    <span class="k">def</span> <span class="nf">draw_without_rendering</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
@@ -3585,12 +3564,20 @@
 <span class="sd">              `~.FigureCanvasSVG.print_svg`.</span>
 <span class="sd">            - &#39;eps&#39; and &#39;ps&#39; with PS backend: Only &#39;Creator&#39; is supported.</span>
 
+<span class="sd">            Not supported for &#39;pgf&#39;, &#39;raw&#39;, and &#39;rgba&#39; as those formats do not support</span>
+<span class="sd">            embedding metadata.</span>
+<span class="sd">            Does not currently support &#39;jpg&#39;, &#39;tiff&#39;, or &#39;webp&#39;, but may include</span>
+<span class="sd">            embedding EXIF metadata in the future.</span>
+
 <span class="sd">        bbox_inches : str or `.Bbox`, default: :rc:`savefig.bbox`</span>
 <span class="sd">            Bounding box in inches: only the given portion of the figure is</span>
 <span class="sd">            saved.  If &#39;tight&#39;, try to figure out the tight bbox of the figure.</span>
 
-<span class="sd">        pad_inches : float, default: :rc:`savefig.pad_inches`</span>
-<span class="sd">            Amount of padding around the figure when bbox_inches is &#39;tight&#39;.</span>
+<span class="sd">        pad_inches : float or &#39;layout&#39;, default: :rc:`savefig.pad_inches`</span>
+<span class="sd">            Amount of padding in inches around the figure when bbox_inches is</span>
+<span class="sd">            &#39;tight&#39;. If &#39;layout&#39; use the padding from the constrained or</span>
+<span class="sd">            compressed layout engine; ignored if one of those engines is not in</span>
+<span class="sd">            use.</span>
 
 <span class="sd">        facecolor : color or &#39;auto&#39;, default: :rc:`savefig.facecolor`</span>
 <span class="sd">            The facecolor of the figure.  If &#39;auto&#39;, use the current figure</span>
@@ -3648,12 +3635,37 @@
 
         <span class="k">with</span> <span class="n">ExitStack</span><span class="p">()</span> <span class="k">as</span> <span class="n">stack</span><span class="p">:</span>
             <span class="k">if</span> <span class="n">transparent</span><span class="p">:</span>
+                <span class="k">def</span> <span class="nf">_recursively_make_subfig_transparent</span><span class="p">(</span><span class="n">exit_stack</span><span class="p">,</span> <span class="n">subfig</span><span class="p">):</span>
+                    <span class="n">exit_stack</span><span class="o">.</span><span class="n">enter_context</span><span class="p">(</span>
+                        <span class="n">subfig</span><span class="o">.</span><span class="n">patch</span><span class="o">.</span><span class="n">_cm_set</span><span class="p">(</span>
+                            <span class="n">facecolor</span><span class="o">=</span><span class="s2">&quot;none&quot;</span><span class="p">,</span> <span class="n">edgecolor</span><span class="o">=</span><span class="s2">&quot;none&quot;</span><span class="p">))</span>
+                    <span class="k">for</span> <span class="n">ax</span> <span class="ow">in</span> <span class="n">subfig</span><span class="o">.</span><span class="n">axes</span><span class="p">:</span>
+                        <span class="n">exit_stack</span><span class="o">.</span><span class="n">enter_context</span><span class="p">(</span>
+                            <span class="n">ax</span><span class="o">.</span><span class="n">patch</span><span class="o">.</span><span class="n">_cm_set</span><span class="p">(</span>
+                                <span class="n">facecolor</span><span class="o">=</span><span class="s2">&quot;none&quot;</span><span class="p">,</span> <span class="n">edgecolor</span><span class="o">=</span><span class="s2">&quot;none&quot;</span><span class="p">))</span>
+                    <span class="k">for</span> <span class="n">sub_subfig</span> <span class="ow">in</span> <span class="n">subfig</span><span class="o">.</span><span class="n">subfigs</span><span class="p">:</span>
+                        <span class="n">_recursively_make_subfig_transparent</span><span class="p">(</span>
+                            <span class="n">exit_stack</span><span class="p">,</span> <span class="n">sub_subfig</span><span class="p">)</span>
+
+                <span class="k">def</span> <span class="nf">_recursively_make_axes_transparent</span><span class="p">(</span><span class="n">exit_stack</span><span class="p">,</span> <span class="n">ax</span><span class="p">):</span>
+                    <span class="n">exit_stack</span><span class="o">.</span><span class="n">enter_context</span><span class="p">(</span>
+                        <span class="n">ax</span><span class="o">.</span><span class="n">patch</span><span class="o">.</span><span class="n">_cm_set</span><span class="p">(</span><span class="n">facecolor</span><span class="o">=</span><span class="s2">&quot;none&quot;</span><span class="p">,</span> <span class="n">edgecolor</span><span class="o">=</span><span class="s2">&quot;none&quot;</span><span class="p">))</span>
+                    <span class="k">for</span> <span class="n">child_ax</span> <span class="ow">in</span> <span class="n">ax</span><span class="o">.</span><span class="n">child_axes</span><span class="p">:</span>
+                        <span class="n">exit_stack</span><span class="o">.</span><span class="n">enter_context</span><span class="p">(</span>
+                            <span class="n">child_ax</span><span class="o">.</span><span class="n">patch</span><span class="o">.</span><span class="n">_cm_set</span><span class="p">(</span>
+                                <span class="n">facecolor</span><span class="o">=</span><span class="s2">&quot;none&quot;</span><span class="p">,</span> <span class="n">edgecolor</span><span class="o">=</span><span class="s2">&quot;none&quot;</span><span class="p">))</span>
+                    <span class="k">for</span> <span class="n">child_childax</span> <span class="ow">in</span> <span class="n">ax</span><span class="o">.</span><span class="n">child_axes</span><span class="p">:</span>
+                        <span class="n">_recursively_make_axes_transparent</span><span class="p">(</span>
+                            <span class="n">exit_stack</span><span class="p">,</span> <span class="n">child_childax</span><span class="p">)</span>
+
                 <span class="n">kwargs</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;facecolor&#39;</span><span class="p">,</span> <span class="s1">&#39;none&#39;</span><span class="p">)</span>
                 <span class="n">kwargs</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;edgecolor&#39;</span><span class="p">,</span> <span class="s1">&#39;none&#39;</span><span class="p">)</span>
+                <span class="c1"># set subfigure to appear transparent in printed image</span>
+                <span class="k">for</span> <span class="n">subfig</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">subfigs</span><span class="p">:</span>
+                    <span class="n">_recursively_make_subfig_transparent</span><span class="p">(</span><span class="n">stack</span><span class="p">,</span> <span class="n">subfig</span><span class="p">)</span>
+                <span class="c1"># set axes to be transparent</span>
                 <span class="k">for</span> <span class="n">ax</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">axes</span><span class="p">:</span>
-                    <span class="n">stack</span><span class="o">.</span><span class="n">enter_context</span><span class="p">(</span>
-                        <span class="n">ax</span><span class="o">.</span><span class="n">patch</span><span class="o">.</span><span class="n">_cm_set</span><span class="p">(</span><span class="n">facecolor</span><span class="o">=</span><span class="s1">&#39;none&#39;</span><span class="p">,</span> <span class="n">edgecolor</span><span class="o">=</span><span class="s1">&#39;none&#39;</span><span class="p">))</span>
-
+                    <span class="n">_recursively_make_axes_transparent</span><span class="p">(</span><span class="n">stack</span><span class="p">,</span> <span class="n">ax</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">canvas</span><span class="o">.</span><span class="n">print_figure</span><span class="p">(</span><span class="n">fname</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="Figure.ginput"><a class="viewcode-back" href="../../docs/reference/_autosummary/datumaro.components.algorithms.noisy_label_detection.loss_dynamics_analyzer.html#datumaro.components.algorithms.noisy_label_detection.loss_dynamics_analyzer.Figure.ginput">[docs]</a>    <span class="k">def</span> <span class="nf">ginput</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">n</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">timeout</span><span class="o">=</span><span class="mi">30</span><span class="p">,</span> <span class="n">show_clicks</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
@@ -3772,21 +3784,6 @@
 
         <span class="k">return</span> <span class="kc">None</span> <span class="k">if</span> <span class="n">event</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">event</span><span class="o">.</span><span class="n">name</span> <span class="o">==</span> <span class="s2">&quot;key_press_event&quot;</span></div>
 
-<div class="viewcode-block" id="Figure.execute_constrained_layout"><a class="viewcode-back" href="../../docs/reference/_autosummary/datumaro.components.algorithms.noisy_label_detection.loss_dynamics_analyzer.html#datumaro.components.algorithms.noisy_label_detection.loss_dynamics_analyzer.Figure.execute_constrained_layout">[docs]</a>    <span class="nd">@_api</span><span class="o">.</span><span class="n">deprecated</span><span class="p">(</span><span class="s2">&quot;3.6&quot;</span><span class="p">,</span> <span class="n">alternative</span><span class="o">=</span><span class="s2">&quot;figure.get_layout_engine().execute()&quot;</span><span class="p">)</span>
-    <span class="k">def</span> <span class="nf">execute_constrained_layout</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">renderer</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Use ``layoutgrid`` to determine pos positions within Axes.</span>
-
-<span class="sd">        See also `.set_constrained_layout_pads`.</span>
-
-<span class="sd">        Returns</span>
-<span class="sd">        -------</span>
-<span class="sd">        layoutgrid : private debugging object</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">get_layout_engine</span><span class="p">(),</span> <span class="n">ConstrainedLayoutEngine</span><span class="p">):</span>
-            <span class="k">return</span> <span class="kc">None</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_layout_engine</span><span class="p">()</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span></div>
-
 <div class="viewcode-block" id="Figure.tight_layout"><a class="viewcode-back" href="../../docs/reference/_autosummary/datumaro.components.algorithms.noisy_label_detection.loss_dynamics_analyzer.html#datumaro.components.algorithms.noisy_label_detection.loss_dynamics_analyzer.Figure.tight_layout">[docs]</a>    <span class="k">def</span> <span class="nf">tight_layout</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">pad</span><span class="o">=</span><span class="mf">1.08</span><span class="p">,</span> <span class="n">h_pad</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">w_pad</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">rect</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Adjust the padding between and around subplots.</span>
@@ -3815,14 +3812,14 @@
         <span class="c1"># note that here we do not permanently set the figures engine to</span>
         <span class="c1"># tight_layout but rather just perform the layout in place and remove</span>
         <span class="c1"># any previous engines.</span>
-        <span class="n">engine</span> <span class="o">=</span> <span class="n">TightLayoutEngine</span><span class="p">(</span><span class="n">pad</span><span class="o">=</span><span class="n">pad</span><span class="p">,</span> <span class="n">h_pad</span><span class="o">=</span><span class="n">h_pad</span><span class="p">,</span> <span class="n">w_pad</span><span class="o">=</span><span class="n">w_pad</span><span class="p">,</span>
-                                   <span class="n">rect</span><span class="o">=</span><span class="n">rect</span><span class="p">)</span>
+        <span class="n">engine</span> <span class="o">=</span> <span class="n">TightLayoutEngine</span><span class="p">(</span><span class="n">pad</span><span class="o">=</span><span class="n">pad</span><span class="p">,</span> <span class="n">h_pad</span><span class="o">=</span><span class="n">h_pad</span><span class="p">,</span> <span class="n">w_pad</span><span class="o">=</span><span class="n">w_pad</span><span class="p">,</span> <span class="n">rect</span><span class="o">=</span><span class="n">rect</span><span class="p">)</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="n">previous_engine</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_layout_engine</span><span class="p">()</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">set_layout_engine</span><span class="p">(</span><span class="n">engine</span><span class="p">)</span>
             <span class="n">engine</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
-            <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">previous_engine</span><span class="p">,</span> <span class="n">TightLayoutEngine</span><span class="p">)</span> \
-                    <span class="ow">and</span> <span class="n">previous_engine</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">previous_engine</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span>
+                <span class="n">previous_engine</span><span class="p">,</span> <span class="p">(</span><span class="n">TightLayoutEngine</span><span class="p">,</span> <span class="n">PlaceHolderLayoutEngine</span><span class="p">)</span>
+            <span class="p">):</span>
                 <span class="n">_api</span><span class="o">.</span><span class="n">warn_external</span><span class="p">(</span><span class="s1">&#39;The figure layout has changed to tight&#39;</span><span class="p">)</span>
         <span class="k">finally</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">set_layout_engine</span><span class="p">(</span><span class="s1">&#39;none&#39;</span><span class="p">)</span></div></div>

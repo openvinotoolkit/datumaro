@@ -5,7 +5,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>datumaro.plugins.missing_annotation_detection &#8212; Datumaro 1.5.0rc0 documentation</title>
+    <title>datumaro.plugins.missing_annotation_detection &#8212; Datumaro 1.5.0 documentation</title>
   
   
   
@@ -281,7 +281,7 @@
 <span class="c1">#</span>
 <span class="c1"># SPDX-License-Identifier: MIT</span>
 
-<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Generator</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Set</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">List</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Set</span>
 
 <span class="kn">from</span> <span class="nn">datumaro.components.abstracts.merger</span> <span class="kn">import</span> <span class="n">IMatcherContext</span>
 <span class="kn">from</span> <span class="nn">datumaro.components.annotation</span> <span class="kn">import</span> <span class="n">Annotation</span><span class="p">,</span> <span class="n">AnnotationType</span><span class="p">,</span> <span class="n">LabelCategories</span>
@@ -362,18 +362,27 @@
             <span class="p">),</span>
         <span class="p">}</span>
 
-    <span class="k">def</span> <span class="nf">_yield_item</span><span class="p">(</span>
-        <span class="bp">self</span><span class="p">,</span> <span class="n">batch</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">DatasetItem</span><span class="p">],</span> <span class="n">inference</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="n">Annotation</span><span class="p">]]</span>
-    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Generator</span><span class="p">[</span><span class="n">DatasetItem</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">]:</span>
-        <span class="k">for</span> <span class="n">item</span><span class="p">,</span> <span class="n">annotations</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">batch</span><span class="p">,</span> <span class="n">inference</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">_process_batch</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">batch</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">DatasetItem</span><span class="p">],</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">DatasetItem</span><span class="p">]:</span>
+        <span class="n">inference</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_launcher</span><span class="o">.</span><span class="n">launch</span><span class="p">(</span>
+            <span class="n">batch</span><span class="o">=</span><span class="p">[</span><span class="n">item</span> <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">batch</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_launcher</span><span class="o">.</span><span class="n">type_check</span><span class="p">(</span><span class="n">item</span><span class="p">)]</span>
+        <span class="p">)</span>
+
+        <span class="k">for</span> <span class="n">annotations</span> <span class="ow">in</span> <span class="n">inference</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_check_annotations</span><span class="p">(</span><span class="n">annotations</span><span class="p">)</span>
-            <span class="k">yield</span> <span class="bp">self</span><span class="o">.</span><span class="n">wrap_item</span><span class="p">(</span>
+
+        <span class="k">return</span> <span class="p">[</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">wrap_item</span><span class="p">(</span>
                 <span class="n">item</span><span class="p">,</span>
                 <span class="n">annotations</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_find_missing_anns</span><span class="p">(</span>
                     <span class="n">gt_anns</span><span class="o">=</span><span class="n">item</span><span class="o">.</span><span class="n">annotations</span><span class="p">,</span>
                     <span class="n">pseudo_anns</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_apply_score_threshold</span><span class="p">(</span><span class="n">annotations</span><span class="p">),</span>
                 <span class="p">),</span>
             <span class="p">)</span>
+            <span class="k">for</span> <span class="n">item</span><span class="p">,</span> <span class="n">annotations</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">batch</span><span class="p">,</span> <span class="n">inference</span><span class="p">)</span>
+        <span class="p">]</span>
 
     <span class="k">def</span> <span class="nf">_apply_score_threshold</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">annotations</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">Annotation</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">Annotation</span><span class="p">]:</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_score_threshold</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
