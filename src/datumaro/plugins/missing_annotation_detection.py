@@ -2,7 +2,7 @@
 #
 # SPDX-License-Identifier: MIT
 
-from typing import Generator, List, Optional, Set
+from typing import List, Optional, Set
 
 from datumaro.components.abstracts.merger import IMatcherContext
 from datumaro.components.annotation import Annotation, AnnotationType, LabelCategories
@@ -83,18 +83,27 @@ class MissingAnnotationDetection(ModelTransform):
             ),
         }
 
-    def _yield_item(
-        self, batch: List[DatasetItem], inference: List[List[Annotation]]
-    ) -> Generator[DatasetItem, None, None]:
-        for item, annotations in zip(batch, inference):
+    def _process_batch(
+        self,
+        batch: List[DatasetItem],
+    ) -> List[DatasetItem]:
+        inference = self._launcher.launch(
+            batch=[item for item in batch if self._launcher.type_check(item)]
+        )
+
+        for annotations in inference:
             self._check_annotations(annotations)
-            yield self.wrap_item(
+
+        return [
+            self.wrap_item(
                 item,
                 annotations=self._find_missing_anns(
                     gt_anns=item.annotations,
                     pseudo_anns=self._apply_score_threshold(annotations),
                 ),
             )
+            for item, annotations in zip(batch, inference)
+        ]
 
     def _apply_score_threshold(self, annotations: List[Annotation]) -> List[Annotation]:
         if self._score_threshold is None:

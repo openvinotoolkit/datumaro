@@ -6,6 +6,7 @@ from collections import Counter
 from unittest import TestCase
 
 import numpy as np
+import pytest
 
 from datumaro.components.annotation import (
     AnnotationType,
@@ -894,6 +895,7 @@ class TestValidateAnnotations(_TestValidatorBase):
 
             self.assertEqual(actual_summary, expected_summary)
 
+    @pytest.mark.new
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_validate_multilabel_annotations_classification(self):
         label_cat = LabelCategories.from_iterable(["car", "bicycle", "dog", "cat", "plate", "pan"])

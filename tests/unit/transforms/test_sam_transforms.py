@@ -46,6 +46,7 @@ def create_bbox_item(n_bboxes: int, n_labels: int, idx: int) -> DatasetItem:
     return DatasetItem(id=f"test_{idx}", media=media, annotations=annotations)
 
 
+@pytest.mark.new
 class SAMModelInterpreterTest:
     def test_encoder(self):
         interp = SAMEncoderInterpreter()
@@ -126,7 +127,9 @@ class SAMBboxToPolygonTest:
     def fxt_to_polygon(self, request):
         return request.param
 
-    def test_transform(self, fxt_dataset, fxt_inference_server_type, fxt_to_polygon):
+    @pytest.mark.new
+    @pytest.mark.parametrize("num_workers", [0, 2])
+    def test_transform(self, fxt_dataset, fxt_inference_server_type, fxt_to_polygon, num_workers):
         if fxt_inference_server_type == InferenceServerType.ovms:
             launcher_str = "OVMSLauncher"
         elif fxt_inference_server_type == InferenceServerType.triton:
@@ -145,6 +148,7 @@ class SAMBboxToPolygonTest:
                 extractor=fxt_dataset,
                 inference_server_type=fxt_inference_server_type,
                 to_polygon=fxt_to_polygon,
+                num_workers=num_workers,
             )
 
             mock_sam_encoder.launch.return_value = [[FeatureVector(vector=np.zeros([10]))]]

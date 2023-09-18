@@ -38,6 +38,7 @@ def fxt_buddy(fxt_tabular_root, fxt_buddy_target):
     yield Dataset.import_from(path, "tabular", target=fxt_buddy_target)
 
 
+@pytest.mark.new
 class TabularImporterTest:
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_import_tabular_file(self, txf_electricity) -> None:
