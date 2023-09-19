@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## \[Unreleased\]
 
+### Enhancements
+- Enhance Datumaro data format stream importer performance
+  (<https://github.com/openvinotoolkit/datumaro/pull/1153>)
+
 ## 15/09/2023 - Release 1.5.0
 ### New features
 - Add tabular data import/export
