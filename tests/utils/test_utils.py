@@ -4,6 +4,7 @@
 
 import contextlib
 import inspect
+import logging as log
 import os
 import os.path as osp
 import shutil
@@ -364,7 +365,14 @@ def check_save_and_load(
             del cmp_kwargs["dimension"]
         elif not compare:
             compare = compare_datasets
-        compare(test, expected=target_dataset, actual=parsed_dataset, **cmp_kwargs)
+
+        try:
+            compare(test, expected=target_dataset, actual=parsed_dataset, **cmp_kwargs)
+        except Exception as e:
+            log.error(e)
+            raise Exception from e
+        finally:
+            del parsed_dataset
 
 
 def compare_dirs(test, expected: str, actual: str):
