@@ -10,6 +10,7 @@ on:
       - opened
       - synchronize
       - reopened
+      - ready_for_review
 
 # This is what will cancel the workflow concurrency
 concurrency:
@@ -23,8 +24,8 @@ jobs:
   pr_test:
     if: |
       github.event.pull_request.draft == false &&
-      !startsWith(github.event.pull_request.title, '[WIP]') &&
-      !startsWith(github.event.pull_request.title, '[Dependent]')
+      !(startsWith(github.event.pull_request.title, '[WIP]')) &&
+      !(startsWith(github.event.pull_request.title, '[Dependent]'))
     strategy:
       fail-fast: false
       matrix:
