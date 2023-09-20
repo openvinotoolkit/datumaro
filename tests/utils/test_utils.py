@@ -4,7 +4,6 @@
 
 import contextlib
 import inspect
-import logging as log
 import os
 import os.path as osp
 import shutil
@@ -335,7 +334,7 @@ def check_save_and_load(
                         new_images.append(image)
                 item.media._extra_images = new_images
 
-    with TemporaryDirectory(prefix=test_dir) as tmp_dir:
+    with TestDir() as tmp_dir:
         converter(source_dataset, test_dir, stream=stream)
         if move_save_dir:
             save_dir = tmp_dir
@@ -368,9 +367,6 @@ def check_save_and_load(
 
         try:
             compare(test, expected=target_dataset, actual=parsed_dataset, **cmp_kwargs)
-        except Exception as e:
-            log.error(e)
-            raise Exception from e
         finally:
             del parsed_dataset
 
