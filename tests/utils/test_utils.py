@@ -10,10 +10,9 @@ import shutil
 import tempfile
 import unittest
 import unittest.mock
-import warnings
 from enum import Enum, auto
 from glob import glob
-from tempfile import TemporaryDirectory
+from time import sleep
 from typing import Any, Collection, List, Optional, Union
 
 import pytest
@@ -45,15 +44,20 @@ class FileRemover:
         return self.path
 
     def __exit__(self, exc_type=None, exc_value=None, traceback=None):
-        if self.is_dir:
-            try:
-                rmtree(self.path)
-            except unittest.SkipTest:
-                # Suppress skip test errors from git.util.rmtree
-                if not exc_type:
-                    raise
-        else:
-            rmfile(self.path)
+        for _ in range(10):
+            if self.is_dir:
+                try:
+                    rmtree(self.path)
+                except unittest.SkipTest:
+                    # Suppress skip test errors from git.util.rmtree
+                    if not exc_type:
+                        raise
+            else:
+                rmfile(self.path)
+
+            if not os.path.exists(self.path):
+                return
+            sleep(0.5)
 
 
 class TestDir(FileRemover):
