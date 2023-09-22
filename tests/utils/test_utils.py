@@ -10,10 +10,9 @@ import shutil
 import tempfile
 import unittest
 import unittest.mock
-import warnings
 from enum import Enum, auto
 from glob import glob
-from tempfile import TemporaryDirectory
+from time import sleep
 from typing import Any, Collection, List, Optional, Union
 
 import pytest
@@ -45,15 +44,20 @@ class FileRemover:
         return self.path
 
     def __exit__(self, exc_type=None, exc_value=None, traceback=None):
-        if self.is_dir:
-            try:
-                rmtree(self.path)
-            except unittest.SkipTest:
-                # Suppress skip test errors from git.util.rmtree
-                if not exc_type:
-                    raise
-        else:
-            rmfile(self.path)
+        for _ in range(10):
+            if self.is_dir:
+                try:
+                    rmtree(self.path)
+                except unittest.SkipTest:
+                    # Suppress skip test errors from git.util.rmtree
+                    if not exc_type:
+                        raise
+            else:
+                rmfile(self.path)
+
+            if not os.path.exists(self.path):
+                return
+            sleep(0.5)
 
 
 class TestDir(FileRemover):
@@ -334,7 +338,7 @@ def check_save_and_load(
                         new_images.append(image)
                 item.media._extra_images = new_images
 
-    with TemporaryDirectory(prefix=test_dir) as tmp_dir:
+    with TestDir() as tmp_dir:
         converter(source_dataset, test_dir, stream=stream)
         if move_save_dir:
             save_dir = tmp_dir
@@ -364,7 +368,11 @@ def check_save_and_load(
             del cmp_kwargs["dimension"]
         elif not compare:
             compare = compare_datasets
-        compare(test, expected=target_dataset, actual=parsed_dataset, **cmp_kwargs)
+
+        try:
+            compare(test, expected=target_dataset, actual=parsed_dataset, **cmp_kwargs)
+        finally:
+            del parsed_dataset
 
 
 def compare_dirs(test, expected: str, actual: str):
