@@ -3136,7 +3136,9 @@ class CocoExporterTest:
             ),
         ],
     )
-    def test_can_export_annotations_without_media(self, annotations, n_expected_anns, stream: bool):
+    def test_can_export_annotations_without_media(
+        self, annotations, n_expected_anns, test_dir, stream: bool
+    ):
         dataset = Dataset.from_iterable(
             [
                 DatasetItem(
@@ -3149,25 +3151,23 @@ class CocoExporterTest:
             categories=[str(i) for i in range(10)],
         )
 
-        with TestDir() as test_dir:
-            dataset.export(test_dir, "coco")
-            anno_file = osp.join(test_dir, "annotations", "instances_default.json")
-            anno = parse_json_file(anno_file)
-            assert len(anno["annotations"]) == 2
+        dataset.export(test_dir, "coco")
+        anno_file = osp.join(test_dir, "annotations", "instances_default.json")
+        anno = parse_json_file(anno_file)
+        assert len(anno["annotations"]) == 2
 
-            if n_expected_anns > 0:  ## importable
-                imported = Dataset.import_from(test_dir, "coco")
-                imported_anns = []
-                for item in imported:
-                    imported_anns.extend(item.annotations)
-                assert len(imported_anns) == n_expected_anns
-            else:
-                with TestCase().assertRaises(AnnotationImportError) as capture:
-                    try:
-                        Dataset.import_from(test_dir, "coco")
-                    except DatasetImportError as e:
-                        if str(e).startswith("Failed to import dataset"):
-                            raise e.__cause__
-                        raise e
-                TestCase().assertIsInstance(capture.exception.__cause__, InvalidAnnotationError)
-                TestCase().assertIn("does not match image size", str(capture.exception.__cause__))
+        if n_expected_anns > 0:  ## importable
+            imported = Dataset.import_from(test_dir, "coco")
+            imported_anns = []
+            for item in imported:
+                imported_anns.extend(item.annotations)
+            assert len(imported_anns) == n_expected_anns
+        else:
+            with pytest.raises(AnnotationImportError) as capture:
+                try:
+                    Dataset.import_from(test_dir, "coco")
+                except DatasetImportError as e:
+                    if str(e).startswith("Failed to import dataset"):
+                        raise e.__cause__
+                    raise e
+            assert "does not match image size" in str(capture.value)
