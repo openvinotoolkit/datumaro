@@ -3070,3 +3070,104 @@ class CocoExporterTest:
                 ignored_attrs={"is_crowd"},
                 stream=stream,
             )
+
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
+    @pytest.mark.parametrize(
+        "annotations, n_expected_anns",
+        [
+            (
+                [
+                    Bbox(0, 0, 20, 10, id=1, label=1, group=1),
+                    Bbox(10, 10, 10, 20, id=2, label=2, group=2),
+                ],
+                2,
+            ),
+            (
+                [
+                    Ellipse(0, 0, 5, 5, id=1, label=1, group=1),
+                    Ellipse(5, 5, 10, 10, id=2, label=2, group=2),
+                ],
+                4,
+            ),
+            (
+                [
+                    Polygon([0, 0, 4, 0, 4, 4], id=1, label=1, group=1),
+                    Polygon([5, 0, 9, 0, 5, 5], id=2, label=2, group=2),
+                ],
+                4,
+            ),
+            (
+                [
+                    Mask(
+                        np.array([[1, 1, 0, 0, 0]] * 10),
+                        id=1,
+                        label=1,
+                        group=1,
+                    ),
+                    Mask(
+                        np.array([[0, 0, 1, 1, 0]] * 10),
+                        id=2,
+                        label=2,
+                        group=2,
+                    ),
+                ],
+                0,
+            ),
+            (
+                [
+                    Polygon([0, 0, 4, 0, 4, 4], id=1, label=1, group=1),
+                    Polygon([5, 0, 9, 0, 5, 5], id=2, label=2, group=2),
+                    Mask(
+                        np.array([[0, 0, 1, 1, 0]] * 10),
+                        id=3,
+                        label=2,
+                        group=2,
+                    ),
+                ],
+                0,
+            ),
+            (
+                [
+                    Polygon([0, 0, 4, 0, 4, 4], id=1, label=1, group=1),
+                    Polygon([0, 5, 0, 0, 2, 0], id=2, label=1, group=1),
+                    Polygon([5, 0, 9, 0, 5, 5], id=3, label=2, group=2),
+                ],
+                5,
+            ),
+        ],
+    )
+    def test_can_export_annotations_without_media(self, annotations, n_expected_anns, stream: bool):
+        dataset = Dataset.from_iterable(
+            [
+                DatasetItem(
+                    id=1,
+                    media=None,
+                    annotations=annotations,
+                    attributes={"id": 1},
+                ),
+            ],
+            categories=[str(i) for i in range(10)],
+        )
+
+        with TestDir() as test_dir:
+            dataset.export(test_dir, "coco")
+            anno_file = osp.join(test_dir, "annotations", "instances_default.json")
+            anno = parse_json_file(anno_file)
+            assert len(anno["annotations"]) == 2
+
+            if n_expected_anns > 0:  ## importable
+                imported = Dataset.import_from(test_dir, "coco")
+                imported_anns = []
+                for item in imported:
+                    imported_anns.extend(item.annotations)
+                assert len(imported_anns) == n_expected_anns
+            else:
+                with TestCase().assertRaises(AnnotationImportError) as capture:
+                    try:
+                        Dataset.import_from(test_dir, "coco")
+                    except DatasetImportError as e:
+                        if str(e).startswith("Failed to import dataset"):
+                            raise e.__cause__
+                        raise e
+                TestCase().assertIsInstance(capture.exception.__cause__, InvalidAnnotationError)
+                TestCase().assertIn("does not match image size", str(capture.exception.__cause__))
