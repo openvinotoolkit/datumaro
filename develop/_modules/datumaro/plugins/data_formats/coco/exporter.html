@@ -660,7 +660,7 @@
             <span class="p">)</span>
 
         <span class="k">if</span> <span class="n">use_masks</span><span class="p">:</span>
-            <span class="k">if</span> <span class="n">polygons</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">polygons</span> <span class="ow">and</span> <span class="n">img_width</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="ow">and</span> <span class="n">img_height</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
                 <span class="n">mask</span> <span class="o">=</span> <span class="n">mask_tools</span><span class="o">.</span><span class="n">rles_to_mask</span><span class="p">(</span><span class="n">polygons</span><span class="p">,</span> <span class="n">img_width</span><span class="p">,</span> <span class="n">img_height</span><span class="p">)</span>
 
             <span class="k">if</span> <span class="n">masks</span><span class="p">:</span>
@@ -694,14 +694,16 @@
             <span class="k">return</span>
 
         <span class="k">if</span> <span class="ow">not</span> <span class="n">item</span><span class="o">.</span><span class="n">media</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">item</span><span class="o">.</span><span class="n">media</span><span class="o">.</span><span class="n">size</span><span class="p">:</span>
+            <span class="n">h</span><span class="p">,</span> <span class="n">w</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span>
             <span class="n">log</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
-                <span class="s2">&quot;Item &#39;</span><span class="si">%s</span><span class="s2">&#39;: skipping writing instances &quot;</span> <span class="s2">&quot;since no image info available&quot;</span> <span class="o">%</span> <span class="n">item</span><span class="o">.</span><span class="n">id</span>
+                <span class="s2">&quot;Item &#39;</span><span class="si">%s</span><span class="s2">&#39;: Mask annotations can be skipped since no image info available&quot;</span> <span class="o">%</span> <span class="n">item</span><span class="o">.</span><span class="n">id</span>
             <span class="p">)</span>
-            <span class="k">return</span>
-        <span class="n">h</span><span class="p">,</span> <span class="n">w</span> <span class="o">=</span> <span class="n">item</span><span class="o">.</span><span class="n">media</span><span class="o">.</span><span class="n">size</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">h</span><span class="p">,</span> <span class="n">w</span> <span class="o">=</span> <span class="n">item</span><span class="o">.</span><span class="n">media</span><span class="o">.</span><span class="n">size</span>
+
         <span class="n">instances</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">find_instance_parts</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">w</span><span class="p">,</span> <span class="n">h</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">instances</span><span class="p">]</span>
 
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_context</span><span class="o">.</span><span class="n">_crop_covered</span><span class="p">:</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_context</span><span class="o">.</span><span class="n">_crop_covered</span> <span class="ow">and</span> <span class="n">w</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="ow">and</span> <span class="n">h</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
             <span class="n">instances</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">crop_segments</span><span class="p">(</span><span class="n">instances</span><span class="p">,</span> <span class="n">w</span><span class="p">,</span> <span class="n">h</span><span class="p">)</span>
 
         <span class="k">for</span> <span class="n">instance</span> <span class="ow">in</span> <span class="n">instances</span><span class="p">:</span>

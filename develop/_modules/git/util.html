@@ -281,7 +281,7 @@
 <span class="c1"># Copyright (C) 2008, 2009 Michael Trier (mtrier@gmail.com) and contributors</span>
 <span class="c1">#</span>
 <span class="c1"># This module is part of GitPython and is released under</span>
-<span class="c1"># the BSD License: http://www.opensource.org/licenses/bsd-license.php</span>
+<span class="c1"># the BSD License: https://opensource.org/license/bsd-3-clause/</span>
 
 <span class="kn">from</span> <span class="nn">abc</span> <span class="kn">import</span> <span class="n">abstractmethod</span>
 <span class="kn">import</span> <span class="nn">os.path</span> <span class="k">as</span> <span class="nn">osp</span>
@@ -429,7 +429,10 @@
 
 <span class="nd">@contextlib</span><span class="o">.</span><span class="n">contextmanager</span>
 <span class="k">def</span> <span class="nf">cwd</span><span class="p">(</span><span class="n">new_dir</span><span class="p">:</span> <span class="n">PathLike</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Generator</span><span class="p">[</span><span class="n">PathLike</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">]:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Context manager to temporarily change directory. Not reentrant.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Context manager to temporarily change directory.</span>
+
+<span class="sd">    This is similar to contextlib.chdir introduced in Python 3.11, but the context</span>
+<span class="sd">    manager object returned by a single call to this function is not reentrant.&quot;&quot;&quot;</span>
     <span class="n">old_dir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">getcwd</span><span class="p">()</span>
     <span class="n">os</span><span class="o">.</span><span class="n">chdir</span><span class="p">(</span><span class="n">new_dir</span><span class="p">)</span>
     <span class="k">try</span><span class="p">:</span>
@@ -1412,7 +1415,7 @@
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">bases</span><span class="p">:</span> <span class="n">Tuple</span><span class="p">,</span> <span class="n">clsdict</span><span class="p">:</span> <span class="n">Dict</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="k">for</span> <span class="n">base</span> <span class="ow">in</span> <span class="n">bases</span><span class="p">:</span>
-            <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">base</span><span class="p">)</span> <span class="o">==</span> <span class="n">IterableClassWatcher</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">base</span><span class="p">)</span> <span class="ow">is</span> <span class="n">IterableClassWatcher</span><span class="p">:</span>
                 <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
                     <span class="sa">f</span><span class="s2">&quot;GitPython Iterable subclassed by </span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">. &quot;</span>
                     <span class="s2">&quot;Iterable is deprecated due to naming clash since v3.1.18&quot;</span>
