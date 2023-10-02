@@ -2,7 +2,7 @@
 
 ## Format specification
 
-The YOLO-Ultralytics dataset format is used for [Ultralytics YOLOv8](https://github.com/ultralytics/ultralytics), developed by [Ultralytics](https://ultralytics.com/). An example for this format is available [here](https://github.com/ultralytics/ultralytics/blob/main/ultralytics/datasets/coco.yaml). This format shares the same annotation bounding box text file format with [YOLO](./yolo.md#bounding-box-annotation-text-file). However, it requires a YAML meta file where `train`, `val`, and `test` (optional) subsets are specified.
+The YOLO-Ultralytics dataset format is used for [Ultralytics YOLOv8](https://github.com/ultralytics/ultralytics), developed by [Ultralytics](https://ultralytics.com/). An example for this format is available [here](https://github.com/ultralytics/ultralytics/blob/main/ultralytics/cfg/datasets/coco.yaml). This format shares the same annotation bounding box text file format with [YOLO](./yolo.md#bounding-box-annotation-text-file). However, it requires a YAML meta file where `train`, `val`, and `test` (optional) subsets are specified.
 
 Supported annotation types:
 - `Bounding boxes`
