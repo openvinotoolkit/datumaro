@@ -224,8 +224,8 @@ Supported Data Formats
    * `Dataset example <https://github.com/openvinotoolkit/datumaro/tree/develop/tests/assets/yolo_dataset>`_
    * `Format documentation <yolo.md>`_
 * YOLO-Ultralytics (``bboxes``)
-   * `Format specification <https://github.com/ultralytics/ultralytics/blob/main/ultralytics/datasets/coco.yaml>`_
-   * `Dataset example <https://github.com/ultralytics/ultralytics/blob/main/ultralytics/datasets/coco.yaml>`_
+   * `Format specification <https://github.com/ultralytics/ultralytics/blob/main/ultralytics/cfg/datasets/coco.yaml>`_
+   * `Dataset example <https://github.com/ultralytics/ultralytics/blob/main/ultralytics/cfg/datasets/coco.yaml>`_
    * `Format documentation <yolo_ultralytics.md>`_
 
 Supported Annotation Types
