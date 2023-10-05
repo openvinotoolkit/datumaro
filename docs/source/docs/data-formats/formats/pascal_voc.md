@@ -114,7 +114,7 @@ for example:
 ```
 # label_map [label : color_rgb : parts : actions]
 helicopter:::
-elephant:0:124:134:head,ear,foot:
+elephant:0,124,134:head,ear,foot:
 ```
 It is also possible to import grayscale (1-channel) PNG masks.
 For grayscale masks provide a list of labels with the number of lines

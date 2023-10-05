@@ -11,6 +11,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Enhance Datumaro data format stream importer performance
   (<https://github.com/openvinotoolkit/datumaro/pull/1153>)
 
+### Bug fixes
+- Fix errata in the voc document. Color values in the labelmap.txt should be separated by commas, not colons.
+  (<https://github.com/openvinotoolkit/datumaro/pull/1162>)
+
 ## 15/09/2023 - Release 1.5.0
 ### New features
 - Add tabular data import/export
