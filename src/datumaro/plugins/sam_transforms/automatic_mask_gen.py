@@ -21,10 +21,10 @@ from datumaro.plugins.inference_server_plugin.base import (
 )
 from datumaro.plugins.sam_transforms.interpreters.sam_decoder_for_amg import AMGMasks, AMGPoints
 
-__all__ = ["AutomaticMaskGeneration"]
+__all__ = ["SAMAutomaticMaskGeneration"]
 
 
-class AutomaticMaskGeneration(ModelTransform, CliPlugin):
+class SAMAutomaticMaskGeneration(ModelTransform, CliPlugin):
     """Produce instance segmentation masks automatically using Segment Anything Model (SAM).
 
     This transform can produce instance segmentation mask annotations for each given image.
@@ -77,7 +77,7 @@ class AutomaticMaskGeneration(ModelTransform, CliPlugin):
         protocol_type: ProtocolType = ProtocolType.grpc,
         num_workers: int = 0,
         points_per_side: int = 32,
-        points_per_batch: int = 64,
+        points_per_batch: int = 128,
         mask_threshold: float = 0.0,
         pred_iou_thresh: float = 0.88,
         stability_score_thresh: float = 0.95,
@@ -142,6 +142,7 @@ class AutomaticMaskGeneration(ModelTransform, CliPlugin):
         points_x = np.tile(points_x[None, :], (points_per_side, 1))
         points_y = np.tile(points_y[:, None], (1, points_per_side))
         self._points_grid = np.stack([points_x, points_y], axis=-1).reshape(-1, 2)
+        self._points_per_side = points_per_side
 
     def _process_batch(
         self,
