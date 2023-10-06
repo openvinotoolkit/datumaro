@@ -243,10 +243,6 @@ class SAMBboxToPolygonTest(TestBase):
 
 
 class SAMAutomaticMaskGenerationTest(TestBase):
-    @pytest.fixture(params=[True, False])
-    def fxt_to_polygon(self, request):
-        return request.param
-
     @pytest.mark.new
     @pytest.mark.parametrize("num_workers", [0, 2])
     def test_transform(self, fxt_dataset, fxt_inference_server_type, num_workers):
