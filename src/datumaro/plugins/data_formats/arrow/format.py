@@ -18,17 +18,17 @@ class DatumaroArrow:
         [
             pa.field("id", pa.string()),
             pa.field("subset", pa.string()),
-            pa.field(
-                "media",
-                pa.struct(
-                    [
-                        pa.field("type", pa.uint32()),
-                        pa.field("path", pa.string()),
-                        pa.field("bytes", pa.binary()),
-                        pa.field("attributes", pa.binary()),
-                    ]
-                ),
-            ),
+            pa.field("media_type", pa.uint32()),
+            pa.field("media_path", pa.string()),
+            pa.field("media_bytes", pa.binary()),
+            pa.field("media_attributes", pa.binary()),
+            # pa.field(
+            #     "media",
+            #     pa.struct(
+            #         [
+            #         ]
+            #     ),
+            # ),
             pa.field("annotations", pa.binary()),
             pa.field("attributes", pa.binary()),
         ]

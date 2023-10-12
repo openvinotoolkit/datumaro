@@ -309,6 +309,15 @@ class ArrowFormatTest:
                 lambda dataset: Sort(dataset, lambda item: int(item.id)),
                 id="test_can_save_and_load_point_cloud_with_max_size",
             ),
+            pytest.param(
+                "fxt_large",
+                compare_datasets_strict,
+                True,
+                True,
+                {"max_chunk_size": 1000, "num_shards": 5},
+                lambda dataset: Sort(dataset, lambda item: int(item.id)),
+                id="test_large",
+            ),
         ],
     )
     def test_can_save_and_load(

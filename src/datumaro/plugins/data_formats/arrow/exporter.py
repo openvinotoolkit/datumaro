@@ -14,6 +14,7 @@ from multiprocessing.pool import ApplyResult, Pool
 from shutil import move, rmtree
 from typing import Any, Callable, Dict, Optional, Union
 
+import memory_profiler
 import pyarrow as pa
 import pytz
 
@@ -155,7 +156,11 @@ class _SubsetWriter(__SubsetWriter):
     def _write(self, batch, max_chunk_size):
         if max_chunk_size == 0:
             max_chunk_size = self._max_chunk_size
-        pa_table = pa.Table.from_arrays(batch, schema=self._schema)
+        # if not hasattr(self, "pa_table"):
+        #     self.pa_table = pa.Table.from_arrays(batch, schema=self._schema)
+        # pa_table = self.pa_table
+        # pa_table = pa.Table.from_arrays(batch, schema=self._schema)
+        pa_table = pa.RecordBatch.from_pylist(batch, schema=self._schema)
         idx = getattr(self, "__writer_idx", 0)
 
         if self._max_shard_size is not None:
@@ -181,7 +186,9 @@ class _SubsetWriter(__SubsetWriter):
             writer, fname = self._init_writer(idx)
             self._writers.append(writer)
             self._fnames.append(fname)
-        self._writers[idx].write_table(pa_table, max_chunk_size)
+        # self._writers[idx].write_table(pa_table, max_chunk_size)
+        self._writers[idx].write_batch(pa_table)
+        pass
 
     def write(self, max_chunk_size: Optional[int] = None, pool: Optional[Pool] = None):
         if max_chunk_size is None:
@@ -199,7 +206,11 @@ class _SubsetWriter(__SubsetWriter):
             if isinstance(item, partial):
                 item = item()
             for j, name in enumerate(self._schema.names):
-                batch[j].append(item[name])
+                if name.startswith("media_"):
+                    suffix = name.replace("media_", "")
+                    batch[j].append(item["media"][suffix])
+                else:
+                    batch[j].append(item[name])
 
             if len(batch[0]) >= max_chunk_size:
                 self._write(batch, max_chunk_size)
