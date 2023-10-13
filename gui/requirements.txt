@@ -1,0 +1,10 @@
+# Core
+streamlit
+pydantic~=1.10.12
+pandas~=1.4.0
+
+# Streamlit components
+streamlit-elements
+
+# Dependencies
+requests
