@@ -255,6 +255,10 @@ class ArrowExporter(Exporter):
 
         self._schema = DatumaroArrow.create_schema_with_metadata(self._extractor)
 
+        self._subsets = {
+            subset_name: idx for idx, subset_name in enumerate(self._extractor.subsets())
+        }
+
     @staticmethod
     def _item_to_dict_record(
         item: DatasetItem,
@@ -263,10 +267,17 @@ class ArrowExporter(Exporter):
     ) -> Dict[str, Any]:
         dict_item = DatasetItemMapper.forward(item, media={"encoder": image_ext})
 
-        if dict_item.get("media_bytes") is not None:
-            # truncate source path since the media is embeded in arrow
-            path = dict_item.get("media_path")
-            if path is not None and source_path is not None:
-                dict_item["media_path"] = path.replace(source_path, "")
+        def _change_path(parent: Dict) -> Dict:
+            for key, child in parent.items():
+                if key == "path" and child is not None:
+                    parent["path"] = child.replace(source_path, "")
+
+                if isinstance(child, dict):
+                    parent[key] = _change_path(child)
+
+            return parent
+
+        if source_path is not None:
+            return _change_path(dict_item)
 
         return dict_item

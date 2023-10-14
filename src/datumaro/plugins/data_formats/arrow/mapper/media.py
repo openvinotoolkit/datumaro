@@ -41,17 +41,19 @@ class MediaMapper(Mapper):
         raise DatumaroError(f"{obj._type} is not allowed for MediaMapper.")
 
     @classmethod
-    def backward(cls, idx: int, table: pa.Table) -> Optional[MediaElement]:
-        media_type = MediaType(table.column("media_type")[idx].as_py())
+    def backward(
+        cls, media_struct: pa.StructScalar, idx: int, table: pa.Table
+    ) -> Optional[MediaElement]:
+        media_type = MediaType(media_struct.get("type").as_py())
 
         if media_type == MediaType.NONE:
             return None
         if media_type == MediaType.IMAGE:
-            return ImageMapper.backward(idx, table)
+            return ImageMapper.backward(media_struct, idx, table)
         if media_type == MediaType.POINT_CLOUD:
-            return PointCloudMapper.backward(idx, table)
+            return PointCloudMapper.backward(media_struct, idx, table)
         if media_type == MediaType.MEDIA_ELEMENT:
-            return MediaElementMapper.backward(idx, table)
+            return MediaElementMapper.backward(media_struct, idx, table)
         raise DatumaroError(f"{media_type} is not allowed for MediaMapper.")
 
 
@@ -61,29 +63,10 @@ class MediaElementMapper(Mapper):
 
     @classmethod
     def forward(cls, obj: MediaElement) -> Dict[str, Any]:
-        return {
-            "type": int(obj.type),
-            "path": getattr(obj, "path", cls.MAGIC_PATH),
-            "has_bytes": False,
-            "attributes": {},
-        }
+        return {"type": int(obj.type)}
 
     @classmethod
-    def backward_common(cls, idx: int, table: pa.Table) -> CommonEntities:
-        media_type = table.column("media_type")[idx].as_py()
-        assert media_type == cls.MEDIA_TYPE, f"Expect {cls.MEDIA_TYPE} but actual is {media_type}."
-        attributes, _ = DictMapper.backward(table.column("media_attributes")[idx].as_py(), 0)
-
-        return CommonEntities(
-            media_type=media_type,
-            path=table.column("media_path")[idx].as_py(),
-            attributes=attributes,
-            has_bytes=table.column("media_has_bytes")[idx].as_py(),
-        )
-
-    @classmethod
-    def backward(cls, idx: int, table: pa.Table) -> MediaElement:
-        _ = cls.backward_common(idx, table)
+    def backward(cls, media_dict: Dict[str, Any], idx: int, table: pa.Table) -> MediaElement:
         return MediaElement()
 
 
@@ -136,43 +119,53 @@ class ImageMapper(MediaElementMapper):
     ) -> Dict[str, Any]:
         out = super().forward(obj)
 
-        _bytes = None
-        if isinstance(encoder, Callable):
-            _bytes = encoder(obj)
-        else:
-            _bytes = cls.encode(obj, scheme=encoder)
-        out["bytes"] = _bytes
-        out["has_bytes"] = _bytes is not None
-        out["attributes"] = DictMapper.forward(dict(size=obj.size))
+        _bytes = encoder(obj) if isinstance(encoder, Callable) else cls.encode(obj, scheme=encoder)
 
+        path = None if _bytes is not None else getattr(obj, "path", None)
+
+        out["image"] = {
+            "has_bytes": _bytes is not None,
+            "bytes": _bytes,
+            "path": path,
+            "size": obj.size,
+        }
         return out
 
     @classmethod
-    def backward_from_dict(cls, obj: Dict[str, Any]) -> Image:
-        media_dict = obj
+    def backward(cls, media_struct: pa.StructScalar, idx: int, table: pa.Table) -> Image:
+        image_struct = media_struct.get("image")
 
-        path = media_dict["path"]
-        attributes, _ = DictMapper.backward(media_dict["attributes"], 0)
-
-        _bytes = None
-        if media_dict.get("bytes", None) is not None:
-            _bytes = media_dict["bytes"]
-
-        if _bytes:
-            return Image.from_bytes(data=_bytes, size=attributes["size"])
-        return Image.from_file(path=path, size=attributes["size"])
-
-    @classmethod
-    def backward(cls, idx: int, table: pa.Table) -> Image:
-        common_entities = cls.backward_common(idx, table)
-
-        if common_entities.has_bytes:
-            return Image.from_bytes(
-                data=lambda: table.column("media_bytes")[idx].as_py(),
-                size=common_entities.attributes["size"],
+        if path := image_struct.get("path").as_py():
+            return Image.from_file(
+                path=path,
+                size=image_struct.get("size").as_py(),
             )
 
-        return Image.from_file(path=common_entities.path, size=common_entities.attributes["size"])
+        return Image.from_bytes(
+            data=lambda: table.column("media")[idx].get("image").get("bytes").as_py(),
+            size=image_struct.get("size").as_py(),
+        )
+
+    @classmethod
+    def backward_extra_image(
+        cls, media_struct: pa.StructScalar, idx: int, table: pa.Table, extra_image_idx: int
+    ) -> Image:
+        image_struct = media_struct
+
+        if path := image_struct.get("path").as_py():
+            return Image.from_file(
+                path=path,
+                size=image_struct.get("size").as_py(),
+            )
+
+        return Image.from_bytes(
+            data=lambda: table.column("media")[idx]
+            .get("point_cloud")
+            .get("extra_images")[extra_image_idx]
+            .get("bytes")
+            .as_py(),
+            size=image_struct.get("size").as_py(),
+        )
 
 
 # TODO: share binary for extra images
@@ -186,36 +179,39 @@ class PointCloudMapper(MediaElementMapper):
     ) -> Dict[str, Any]:
         out = super().forward(obj)
 
-        _bytes = None
         if isinstance(encoder, Callable):
             _bytes = encoder(obj)
         elif encoder != "NONE":
             _bytes = obj.data
-        out["bytes"] = _bytes
+        else:
+            _bytes = None
 
-        out["attributes"] = DictMapper.forward(
-            {
-                str(idx): ImageMapper.forward(img, encoder=encoder)
-                for idx, img in enumerate(obj.extra_images)
-            }
-        )
+        path = None if _bytes is not None else getattr(obj, "path", None)
+
+        out["point_cloud"] = {
+            "has_bytes": _bytes is not None,
+            "bytes": _bytes,
+            "path": path,
+            "extra_images": [
+                ImageMapper.forward(img, encoder=encoder)["image"] for img in obj.extra_images
+            ],
+        }
 
         return out
 
     @classmethod
-    def backward(cls, idx: int, table: pa.Table) -> PointCloud:
-        common_entities = cls.backward_common(idx, table)
-
-        path = common_entities.path
+    def backward(cls, media_struct: pa.StructScalar, idx: int, table: pa.Table) -> PointCloud:
+        point_cloud_struct = media_struct.get("point_cloud")
 
         extra_images = [
-            ImageMapper.backward_from_dict(v) for v in common_entities.attributes.values()
+            ImageMapper.backward_extra_image(image_struct, idx, table, extra_image_idx)
+            for extra_image_idx, image_struct in enumerate(point_cloud_struct.get("extra_images"))
         ]
 
-        if common_entities.has_bytes:
-            return PointCloud.from_bytes(
-                data=lambda: table.column("media_bytes")[idx].as_py(),
-                extra_images=extra_images,
-            )
+        if path := point_cloud_struct.get("path").as_py():
+            return PointCloud.from_file(path=path, extra_images=extra_images)
 
-        return PointCloud.from_file(path=path, extra_images=extra_images)
+        return PointCloud.from_bytes(
+            data=table.column("media")[idx].get("point_cloud").get("bytes").as_py(),
+            extra_images=extra_images,
+        )

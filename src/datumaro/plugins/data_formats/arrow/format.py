@@ -21,19 +21,34 @@ class DatumaroArrow:
     SUBSET_FIELD = "subset"
     MEDIA_FIELD = "media"
 
+    IMAGE_FIELD = pa.struct(
+        [
+            pa.field("has_bytes", pa.bool_()),
+            pa.field("bytes", pa.binary()),
+            pa.field("path", pa.string()),
+            pa.field("size", pa.list_(pa.uint16(), 2)),
+        ]
+    )
+    POINT_CLOUD_FIELD = pa.struct(
+        [
+            pa.field("has_bytes", pa.bool_()),
+            pa.field("bytes", pa.binary()),
+            pa.field("path", pa.string()),
+            pa.field("extra_images", pa.list_(pa.field("image", IMAGE_FIELD))),
+        ]
+    )
+    MEDIA_FIELD = pa.struct(
+        [
+            pa.field("type", pa.uint8()),
+            pa.field("image", IMAGE_FIELD),
+            pa.field("point_cloud", POINT_CLOUD_FIELD),
+        ]
+    )
     SCHEMA = pa.schema(
         [
             pa.field(ID_FIELD, pa.string()),
             pa.field(SUBSET_FIELD, pa.string()),
-            # pa.field("media_type", pa.uint32()),
-            # pa.field("media_path", pa.string()),
-            # pa.field("media_bytes", pa.binary()),
-            # pa.field("media_attributes", pa.binary()),
-            pa.field("media_type", pa.uint32()),
-            pa.field("media_has_bytes", pa.bool_()),
-            pa.field("media_path", pa.string()),
-            pa.field("media_bytes", pa.binary()),
-            pa.field("media_attributes", pa.binary()),
+            pa.field("media", MEDIA_FIELD),
             pa.field("annotations", pa.binary()),
             pa.field("attributes", pa.binary()),
         ]

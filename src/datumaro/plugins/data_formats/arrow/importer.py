@@ -3,7 +3,7 @@
 # SPDX-License-Identifier: MIT
 
 from typing import Dict, List, Optional
-
+import os
 import pyarrow as pa
 from datumaro.components.errors import DatasetImportError
 
@@ -41,7 +41,8 @@ class ArrowImporter(Importer):
                     f"{arrow_file} is not Datumaro arrow format.",
                     is_binary_file=True,
                 ) as f:
-                    _verify_datumaro_arrow_format(f)
+                    f.close()
+                    _verify_datumaro_arrow_format(os.path.join(context.root_path, arrow_file))
 
     @classmethod
     def find_sources(cls, path: str) -> List[Dict]:
