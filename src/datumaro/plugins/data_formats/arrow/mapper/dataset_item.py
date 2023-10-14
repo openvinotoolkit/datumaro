@@ -17,22 +17,26 @@ from .utils import pa_batches_decoder
 class DatasetItemMapper(Mapper):
     @staticmethod
     def forward(obj: DatasetItem, **options) -> Dict[str, Any]:
+        media = {
+            f"media_{k}": v
+            for k, v in MediaMapper.forward(obj.media, **options.get("media", {})).items()
+        }
         return {
             "id": obj.id,
             "subset": obj.subset,
-            "media": MediaMapper.forward(obj.media, **options.get("media", {})),
             "annotations": AnnotationListMapper.forward(obj.annotations),
             "attributes": DictMapper.forward(obj.attributes),
+            **media,
         }
 
     @staticmethod
-    def backward(obj: Dict[str, Any]) -> DatasetItem:
+    def backward(idx: int, table: pa.Table) -> DatasetItem:
         return DatasetItem(
-            id=obj["id"],
-            subset=obj["subset"],
-            media=MediaMapper.backward(obj["media"]),
-            annotations=AnnotationListMapper.backward(obj["annotations"])[0],
-            attributes=DictMapper.backward(obj["attributes"])[0],
+            id=table.column("id")[idx].as_py(),
+            subset=table.column("subset")[idx].as_py(),
+            media=MediaMapper.backward(idx, table),
+            annotations=AnnotationListMapper.backward(table.column("annotations")[idx].as_py())[0],
+            attributes=DictMapper.backward(table.column("attributes")[idx].as_py())[0],
         )
 
     @staticmethod

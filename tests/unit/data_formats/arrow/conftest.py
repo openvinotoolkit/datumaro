@@ -13,7 +13,7 @@ from datumaro.components.dataset_base import DatasetItem
 from datumaro.components.media import Image, PointCloud
 from datumaro.components.project import Dataset
 from datumaro.plugins.data_formats.arrow import ArrowExporter
-from datumaro.plugins.data_formats.arrow.arrow_dataset import ArrowDataset
+# from datumaro.plugins.data_formats.arrow.arrow_dataset import ArrowDataset
 from datumaro.util.image import encode_image
 
 from ..datumaro.conftest import (
@@ -140,14 +140,14 @@ def fxt_point_cloud(test_dir, n=1000):
     yield source_dataset
 
 
-@pytest.fixture
-def fxt_arrow_dataset(fxt_image, test_dir):
-    ArrowExporter.convert(fxt_image, save_dir=test_dir, save_media=True)
-    files = [
-        os.path.join(test_dir, file) for file in os.listdir(test_dir) if file.endswith(".arrow")
-    ]
-    dataset = ArrowDataset(files)
-    yield dataset
+# @pytest.fixture
+# def fxt_arrow_dataset(fxt_image, test_dir):
+#     ArrowExporter.convert(fxt_image, save_dir=test_dir, save_media=True)
+#     files = [
+#         os.path.join(test_dir, file) for file in os.listdir(test_dir) if file.endswith(".arrow")
+#     ]
+#     dataset = ArrowDataset(files)
+#     yield dataset
 
 
 @pytest.fixture

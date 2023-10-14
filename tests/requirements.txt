@@ -7,3 +7,4 @@ pytest-stress
 pytest-html
 coverage
 pytest-csv
+memory-profiler
