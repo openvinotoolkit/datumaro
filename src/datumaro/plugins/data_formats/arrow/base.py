@@ -29,6 +29,8 @@ from .mapper.dataset_item import DatasetItemMapper
 
 
 class ArrowSubsetBase(SubsetBase):
+    __not_plugin__ = True
+
     def __init__(
         self,
         lookup: Dict[str, DatasetItem],
