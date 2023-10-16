@@ -2,40 +2,36 @@
 #
 # SPDX-License-Identifier: MIT
 
-from collections import defaultdict
-from dataclasses import dataclass
-import os.path as osp
 import struct
+from dataclasses import dataclass
 from typing import Any, Dict, Iterator, List, Optional, Type
 
 import pyarrow as pa
-from datumaro.components.annotation import AnnotationType, Categories
 
-from datumaro.components.dataset_base import DatasetBase, DatasetItem, IDataset, SubsetBase
-from datumaro.components.errors import MediaTypeError
+from datumaro.components.annotation import AnnotationType, Categories
+from datumaro.components.dataset_base import (
+    CategoriesInfo,
+    DatasetBase,
+    DatasetInfo,
+    DatasetItem,
+    IDataset,
+    SubsetBase,
+)
 from datumaro.components.importer import ImportContext
 from datumaro.components.media import Image, MediaElement, MediaType
-from datumaro.components.merge import get_merger
 from datumaro.components.merge.extractor_merger import check_identicalness
 from datumaro.plugins.data_formats.arrow.format import DatumaroArrow
 from datumaro.plugins.data_formats.datumaro.base import JsonReader
 from datumaro.plugins.data_formats.datumaro_binary.mapper.common import DictMapper
 from datumaro.util.definitions import DEFAULT_SUBSET_NAME
-import weakref
 
 from .mapper.dataset_item import DatasetItemMapper
 
 
 class ArrowSubsetBase(SubsetBase):
-    """
-    A base class for simple, single-subset extractors.
-    Should be used by default for user-defined extractors.
-    """
-
     def __init__(
         self,
-        lookup: Dict[str, int],
-        table: pa.Table,
+        lookup: Dict[str, DatasetItem],
         infos: Dict[str, Any],
         categories: Dict[AnnotationType, Categories],
         subset: str,
@@ -44,24 +40,22 @@ class ArrowSubsetBase(SubsetBase):
         super().__init__(length=len(lookup), subset=subset, media_type=media_type, ctx=None)
 
         self._lookup = lookup
-        self._table = table
         self._infos = infos
         self._categories = categories
 
     def __iter__(self) -> Iterator[DatasetItem]:
-        for table_idx in self._lookup.values():
-            yield DatasetItemMapper.backward(self._table[table_idx], self._table)
+        for item in self._lookup.values():
+            yield item
 
-    def __len__(self):
+    def __len__(self) -> int:
         return len(self._lookup)
 
-    def get(self, item_id: str, subset: Optional[str] = None):
+    def get(self, item_id: str, subset: Optional[str] = None) -> Optional[DatasetItem]:
         if subset != self._subset:
             return None
 
         try:
-            table_idx = self._lookup[item_id]
-            return DatasetItemMapper.backward(table_idx, self._table)
+            return self._lookup[item_id]
         except KeyError:
             return None
 
@@ -94,7 +88,7 @@ class ArrowBase(DatasetBase):
         self._infos = check_identicalness([metadata.infos for metadata in metadatas])
         self._categories = check_identicalness([metadata.categories for metadata in metadatas])
 
-        self._init_cache(table)
+        self._init_cache(file_paths, subsets)
 
     @staticmethod
     def _load_schema_metadata(table: pa.Table) -> Metadata:
@@ -113,31 +107,38 @@ class ArrowBase(DatasetBase):
 
         return Metadata(infos=infos, categories=categories, media_type=media_type)
 
-    def infos(self):
+    def infos(self) -> DatasetInfo:
         return self._infos
 
-    def categories(self):
+    def categories(self) -> CategoriesInfo:
         return self._categories
 
     def __iter__(self) -> Iterator[DatasetItem]:
-        for idx in range(len(self)):
-            yield DatasetItemMapper.backward(idx, self._table)
+        for lookup in self._lookup.values():
+            for item in lookup.values():
+                yield item
 
-    def _init_cache(self, table: pa.Table):
-        self._lookup = defaultdict(dict)
+    def _init_cache(self, file_paths: List[str], subsets: List[str]):
+        self._lookup: Dict[str, Dict[str, DatasetItem]] = {subset: {} for subset in subsets}
 
-        for idx, (item_id, item_subset) in enumerate(
-            zip(
-                table.column(DatumaroArrow.ID_FIELD),
-                table.column(DatumaroArrow.SUBSET_FIELD),
-            )
-        ):
-            self._lookup[item_subset.as_py()][item_id.as_py()] = idx
+        total = len(self)
+        cnt = 0
+        pbar = self._ctx.progress_reporter
+        pbar.start(total=total, desc="Importing")
+
+        for table_path in file_paths:
+            with pa.OSFile(table_path, "r") as source:
+                with pa.ipc.open_file(source) as reader:
+                    table = reader.read_all()
+                    for idx in range(len(table)):
+                        item = DatasetItemMapper.backward(idx, table, table_path)
+                        self._lookup[item.subset][item.id] = item
+                        pbar.report_status(cnt)
+                        cnt += 1
 
         self._subsets = {
             subset: ArrowSubsetBase(
                 lookup=lookup,
-                table=table,
                 infos=self._infos,
                 categories=self._categories,
                 subset=self._subsets,
@@ -145,14 +146,14 @@ class ArrowBase(DatasetBase):
             )
             for subset, lookup in self._lookup.items()
         }
-        self._table = table
+
+        pbar.finish()
 
     def get(self, item_id: str, subset: Optional[str] = None) -> Optional[DatasetItem]:
         subset = subset or DEFAULT_SUBSET_NAME
 
         try:
-            table_idx = self._lookup[subset][item_id]
-            return DatasetItemMapper.backward(self._table[table_idx], self._table)
+            return self._lookup[subset][item_id]
         except KeyError:
             return None
 

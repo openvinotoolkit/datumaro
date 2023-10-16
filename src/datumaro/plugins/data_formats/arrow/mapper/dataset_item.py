@@ -2,7 +2,7 @@
 #
 # SPDX-License-Identifier: MIT
 
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict
 
 import pyarrow as pa
 
@@ -11,7 +11,6 @@ from datumaro.plugins.data_formats.datumaro_binary.mapper.annotation import Anno
 from datumaro.plugins.data_formats.datumaro_binary.mapper.common import DictMapper, Mapper
 
 from .media import MediaMapper
-from .utils import pa_batches_decoder
 
 
 class DatasetItemMapper(Mapper):
@@ -26,7 +25,7 @@ class DatasetItemMapper(Mapper):
         }
 
     @staticmethod
-    def backward(idx: int, table: pa.Table) -> DatasetItem:
+    def backward(idx: int, table: pa.Table, table_path: str) -> DatasetItem:
         return DatasetItem(
             id=table.column("id")[idx].as_py(),
             subset=table.column("subset")[idx].as_py(),
@@ -34,6 +33,7 @@ class DatasetItemMapper(Mapper):
                 media_struct=table.column("media")[idx],
                 idx=idx,
                 table=table,
+                table_path=table_path,
             ),
             annotations=AnnotationListMapper.backward(table.column("annotations")[idx].as_py())[0],
             attributes=DictMapper.backward(table.column("attributes")[idx].as_py())[0],

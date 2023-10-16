@@ -12,8 +12,6 @@ from datumaro.components.annotation import Cuboid3d, Label
 from datumaro.components.dataset_base import DatasetItem
 from datumaro.components.media import Image, PointCloud
 from datumaro.components.project import Dataset
-from datumaro.plugins.data_formats.arrow import ArrowExporter
-# from datumaro.plugins.data_formats.arrow.arrow_dataset import ArrowDataset
 from datumaro.util.image import encode_image
 
 from ..datumaro.conftest import (
@@ -135,51 +133,6 @@ def fxt_point_cloud(test_dir, n=1000):
         items,
         categories=["label"],
         media_type=PointCloud,
-    )
-
-    yield source_dataset
-
-
-# @pytest.fixture
-# def fxt_arrow_dataset(fxt_image, test_dir):
-#     ArrowExporter.convert(fxt_image, save_dir=test_dir, save_media=True)
-#     files = [
-#         os.path.join(test_dir, file) for file in os.listdir(test_dir) if file.endswith(".arrow")
-#     ]
-#     dataset = ArrowDataset(files)
-#     yield dataset
-
-
-@pytest.fixture
-def fxt_large(test_dir, n=5000):
-    items = []
-    for i in range(n):
-        media = None
-        if i % 3 == 0:
-            media = Image.from_numpy(data=np.random.randint(0, 255, (224, 224, 3)))
-        elif i % 3 == 1:
-            media = Image.from_bytes(
-                data=encode_image(np.random.randint(0, 255, (224, 224, 3)), ".png")
-            )
-        elif i % 3 == 2:
-            Image.from_numpy(data=np.random.randint(0, 255, (224, 224, 3))).save(
-                os.path.join(test_dir, f"test{i}.jpg")
-            )
-            media = Image.from_file(path=os.path.join(test_dir, f"test{i}.jpg"))
-
-        items.append(
-            DatasetItem(
-                id=i,
-                subset="test",
-                media=media,
-                annotations=[Label(np.random.randint(0, 3))],
-            )
-        )
-
-    source_dataset = Dataset.from_iterable(
-        items,
-        categories=["label"],
-        media_type=Image,
     )
 
     yield source_dataset

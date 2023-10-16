@@ -4,7 +4,9 @@
 
 
 import struct
+
 import pyarrow as pa
+
 from datumaro.components.dataset_base import IDataset
 from datumaro.errors import DatasetImportError
 from datumaro.plugins.data_formats.datumaro.exporter import JsonWriter

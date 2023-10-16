@@ -3,28 +3,15 @@
 # SPDX-License-Identifier: MIT
 
 
-from dataclasses import dataclass
-import os
-import struct
-from functools import partial
-from typing import Any, Callable, Dict, List, Optional, Union
+from typing import Any, Callable, Dict, Optional, Union
 
 import numpy as np
 import pyarrow as pa
 
 from datumaro.components.errors import DatumaroError
 from datumaro.components.media import Image, MediaElement, MediaType, PointCloud
-from datumaro.plugins.data_formats.datumaro_binary.mapper.common import DictMapper, Mapper
+from datumaro.plugins.data_formats.datumaro_binary.mapper.common import Mapper
 from datumaro.util.image import decode_image, encode_image, load_image
-from .utils import b64decode, b64encode, pa_batches_decoder
-
-
-@dataclass(frozen=True)
-class CommonEntities:
-    media_type: MediaType
-    path: str
-    attributes: Dict[str, Any]
-    has_bytes: bool
 
 
 class MediaMapper(Mapper):
@@ -42,18 +29,22 @@ class MediaMapper(Mapper):
 
     @classmethod
     def backward(
-        cls, media_struct: pa.StructScalar, idx: int, table: pa.Table
+        cls,
+        media_struct: pa.StructScalar,
+        idx: int,
+        table: pa.Table,
+        table_path: str,
     ) -> Optional[MediaElement]:
         media_type = MediaType(media_struct.get("type").as_py())
 
         if media_type == MediaType.NONE:
             return None
         if media_type == MediaType.IMAGE:
-            return ImageMapper.backward(media_struct, idx, table)
+            return ImageMapper.backward(media_struct, idx, table, table_path)
         if media_type == MediaType.POINT_CLOUD:
-            return PointCloudMapper.backward(media_struct, idx, table)
+            return PointCloudMapper.backward(media_struct, idx, table, table_path)
         if media_type == MediaType.MEDIA_ELEMENT:
-            return MediaElementMapper.backward(media_struct, idx, table)
+            return MediaElementMapper.backward(media_struct, idx, table, table_path)
         raise DatumaroError(f"{media_type} is not allowed for MediaMapper.")
 
 
@@ -66,7 +57,13 @@ class MediaElementMapper(Mapper):
         return {"type": int(obj.type)}
 
     @classmethod
-    def backward(cls, media_dict: Dict[str, Any], idx: int, table: pa.Table) -> MediaElement:
+    def backward(
+        cls,
+        media_dict: Dict[str, Any],
+        idx: int,
+        table: pa.Table,
+        table_path: str,
+    ) -> MediaElement:
         return MediaElement()
 
 
@@ -132,7 +129,13 @@ class ImageMapper(MediaElementMapper):
         return out
 
     @classmethod
-    def backward(cls, media_struct: pa.StructScalar, idx: int, table: pa.Table) -> Image:
+    def backward(
+        cls,
+        media_struct: pa.StructScalar,
+        idx: int,
+        table: pa.Table,
+        table_path: str,
+    ) -> Image:
         image_struct = media_struct.get("image")
 
         if path := image_struct.get("path").as_py():
@@ -142,7 +145,12 @@ class ImageMapper(MediaElementMapper):
             )
 
         return Image.from_bytes(
-            data=lambda: table.column("media")[idx].get("image").get("bytes").as_py(),
+            data=lambda: pa.ipc.open_file(pa.memory_map(table_path, "r"))
+            .read_all()
+            .column("media")[idx]
+            .get("image")
+            .get("bytes")
+            .as_py(),
             size=image_struct.get("size").as_py(),
         )
 
@@ -200,7 +208,13 @@ class PointCloudMapper(MediaElementMapper):
         return out
 
     @classmethod
-    def backward(cls, media_struct: pa.StructScalar, idx: int, table: pa.Table) -> PointCloud:
+    def backward(
+        cls,
+        media_struct: pa.StructScalar,
+        idx: int,
+        table: pa.Table,
+        table_path: str,
+    ) -> PointCloud:
         point_cloud_struct = media_struct.get("point_cloud")
 
         extra_images = [
@@ -212,6 +226,11 @@ class PointCloudMapper(MediaElementMapper):
             return PointCloud.from_file(path=path, extra_images=extra_images)
 
         return PointCloud.from_bytes(
-            data=table.column("media")[idx].get("point_cloud").get("bytes").as_py(),
+            data=pa.ipc.open_file(pa.memory_map(table_path, "r"))
+            .read_all()
+            .column("media")[idx]
+            .get("point_cloud")
+            .get("bytes")
+            .as_py(),
             extra_images=extra_images,
         )

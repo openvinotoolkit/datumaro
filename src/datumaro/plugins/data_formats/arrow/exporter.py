@@ -2,31 +2,18 @@
 #
 # SPDX-License-Identifier: MIT
 
-from collections import defaultdict
-import datetime
 import os
-import platform
-import re
-import struct
 import tempfile
-from copy import deepcopy
-from functools import partial
-from multiprocessing.pool import ApplyResult, AsyncResult, Pool
+from multiprocessing.pool import Pool
 from shutil import move, rmtree
-from typing import Any, Callable, Dict, Iterator, List, Optional, Union
+from typing import Any, Callable, Dict, Iterator, Optional, Union
 
-import memory_profiler
 import numpy as np
 import pyarrow as pa
-import pytz
 
-from datumaro.components.crypter import NULL_CRYPTER
-from datumaro.components.dataset_base import DEFAULT_SUBSET_NAME, DatasetItem, IDataset
+from datumaro.components.dataset_base import DatasetItem, IDataset
 from datumaro.components.errors import DatumaroError
-from datumaro.components.exporter import ExportContext, ExportContextComponent, Exporter
-from datumaro.plugins.data_formats.datumaro.exporter import _SubsetWriter as __SubsetWriter
-from datumaro.plugins.data_formats.datumaro_binary.mapper.common import DictMapper
-from datumaro.util.file_utils import to_bytes
+from datumaro.components.exporter import ExportContext, Exporter
 from datumaro.util.multi_procs_util import consumer_generator
 
 from .format import DatumaroArrow
@@ -58,12 +45,12 @@ class ArrowExporter(Exporter):
         )
 
         parser.add_argument(
-            "--max-chunk-size",
+            "--max-shard-size",
             type=int,
             default=1000,
             help="The maximum number of dataset item can be stored in each shard file. "
-            "'--max-chunk-size' and '--num-shards' are mutually exclusive, "
-            "Therefore, if '--max-chunk-size' is not None, the number of shard files will be determined by "
+            "'--max-shard-size' and '--num-shards' are mutually exclusive, "
+            "Therefore, if '--max-shard-size' is not None, the number of shard files will be determined by "
             "(# of total dataset item) / (max chunk size). "
             "(default: %(default)s)",
         )
@@ -73,7 +60,7 @@ class ArrowExporter(Exporter):
             type=int,
             default=None,
             help="The number of shards to export. "
-            "'--max-chunk-size' and '--num-shards' are mutually exclusive. "
+            "'--max-shard-size' and '--num-shards' are mutually exclusive. "
             "Therefore, if '--num-shards' is not None, the number of dataset item in each shard file "
             "will be determined by (# of total dataset item) / (num shards). "
             "(default: %(default)s)",
@@ -108,6 +95,8 @@ class ArrowExporter(Exporter):
     def _apply(self, pool: Optional[Pool] = None):
         os.makedirs(self._save_dir, exist_ok=True)
 
+        pbar = self._ctx.progress_reporter
+
         if pool is not None:
 
             def _producer_gen():
@@ -119,25 +108,33 @@ class ArrowExporter(Exporter):
                     yield future
 
             with consumer_generator(producer_generator=_producer_gen()) as consumer_gen:
-                self._write_file(consumer_gen)
+
+                def _gen_with_pbar():
+                    for item in pbar.iter(
+                        consumer_gen, desc="Exporting", total=len(self._extractor)
+                    ):
+                        yield item.get()
+
+                self._write_file(_gen_with_pbar())
 
         else:
 
             def create_consumer_gen():
-                for item in self._extractor:
+                for item in pbar.iter(self._extractor, desc="Exporting"):
                     yield self._item_to_dict_record(item, self._image_ext, self._source_path)
 
             self._write_file(create_consumer_gen())
 
     def _write_file(self, consumer_gen: Iterator[Dict[str, Any]]) -> None:
         for file_idx, size in enumerate(self._chunk_sizes):
+            suffix = str(file_idx).zfill(self._max_digits)
+            fname = f"{self._prefix}-{suffix}.arrow"
+            fpath = os.path.join(self._save_dir, fname)
+
             record_batch = pa.RecordBatch.from_pylist(
                 mapping=[next(consumer_gen) for _ in range(size)],
                 schema=self._schema,
             )
-
-            suffix = str(file_idx).zfill(self._max_digits)
-            fpath = os.path.join(self._save_dir, f"{self._prefix}-{suffix}.arrow")
 
             with pa.OSFile(fpath, "wb") as sink:
                 with pa.ipc.new_file(sink, self._schema) as writer:
@@ -173,7 +170,7 @@ class ArrowExporter(Exporter):
         save_dataset_meta: bool = False,
         ctx: Optional[ExportContext] = None,
         num_workers: int = 0,
-        max_chunk_size: Optional[int] = 1000,
+        max_shard_size: Optional[int] = 1000,
         num_shards: Optional[int] = None,
         prefix: str = "datum",
         **kwargs,
@@ -194,23 +191,23 @@ class ArrowExporter(Exporter):
             )
         self._num_workers = num_workers
 
-        if num_shards is not None and max_chunk_size is not None:
+        if num_shards is not None and max_shard_size is not None:
             raise DatumaroError(
-                "Both 'num_shards' or 'max_chunk_size' cannot be provided at the same time."
+                "Both 'num_shards' or 'max_shard_size' cannot be provided at the same time."
             )
         elif num_shards is not None and num_shards < 0:
             raise DatumaroError(f"num_shards should be non-negative but num_shards={num_shards}.")
-        elif max_chunk_size is not None and max_chunk_size < 0:
+        elif max_shard_size is not None and max_shard_size < 0:
             raise DatumaroError(
-                f"max_chunk_size should be non-negative but max_chunk_size={max_chunk_size}."
+                f"max_shard_size should be non-negative but max_shard_size={max_shard_size}."
             )
-        elif num_shards is None and max_chunk_size is None:
+        elif num_shards is None and max_shard_size is None:
             raise DatumaroError(
-                "Either one of 'num_shards' or 'max_chunk_size' should be provided."
+                "Either one of 'num_shards' or 'max_shard_size' should be provided."
             )
 
         self._num_shards = num_shards
-        self._max_chunk_size = max_chunk_size
+        self._max_shard_size = max_shard_size
 
         if self._save_media:
             self._image_ext = (
@@ -234,17 +231,17 @@ class ArrowExporter(Exporter):
         total_len = len(self._extractor)
 
         if self._num_shards is not None:
-            max_chunk_size = int(total_len / self._num_shards) + 1
+            max_shard_size = int(total_len / self._num_shards) + 1
 
-        elif self._max_chunk_size is not None:
-            max_chunk_size = self._max_chunk_size
+        elif self._max_shard_size is not None:
+            max_shard_size = self._max_shard_size
         else:
             raise DatumaroError(
-                "Either one of 'num_shards' or 'max_chunk_size' should be provided."
+                "Either one of 'num_shards' or 'max_shard_size' should be provided."
             )
 
         self._chunk_sizes = np.diff(
-            np.array([size for size in range(0, total_len, max_chunk_size)] + [total_len])
+            np.array([size for size in range(0, total_len, max_shard_size)] + [total_len])
         )
         assert (
             sum(self._chunk_sizes) == total_len

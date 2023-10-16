@@ -2,16 +2,15 @@
 #
 # SPDX-License-Identifier: MIT
 
-from typing import Dict, List, Optional
 import os
-import pyarrow as pa
-from datumaro.components.errors import DatasetImportError
+from typing import Dict, List, Optional
 
+import pyarrow as pa
+
+from datumaro.components.errors import DatasetImportError
 from datumaro.components.format_detection import FormatDetectionConfidence, FormatDetectionContext
 from datumaro.components.importer import Importer
-from datumaro.components.merge.extractor_merger import ExtractorMerger
 
-from .base import ArrowBase
 from .format import DatumaroArrow
 
 __all__ = ["ArrowImporter"]
@@ -72,6 +71,3 @@ class ArrowImporter(Importer):
                 "options": {"file_paths": [source["url"] for source in sources]},
             }
         ]
-
-    # def get_extractor_merger(self) -> Optional[ExtractorMerger]:
-    #     return ArrowBase
