@@ -3,7 +3,6 @@
 # SPDX-License-Identifier: MIT
 
 import contextlib
-import gc
 import inspect
 import os
 import os.path as osp
@@ -16,7 +15,6 @@ from glob import glob
 from time import sleep
 from typing import Any, Collection, List, Optional, Union
 
-import memory_profiler
 import pytest
 from typing_extensions import Literal
 
