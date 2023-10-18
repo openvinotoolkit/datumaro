@@ -156,10 +156,8 @@ class ImageMapper(MediaElementMapper):
 
     @classmethod
     def backward_extra_image(
-        cls, media_struct: pa.StructScalar, idx: int, table: pa.Table, extra_image_idx: int
+        cls, image_struct: pa.StructScalar, idx: int, table: pa.Table, extra_image_idx: int
     ) -> Image:
-        image_struct = media_struct
-
         if path := image_struct.get("path").as_py():
             return Image.from_file(
                 path=path,

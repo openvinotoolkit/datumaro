@@ -16,15 +16,6 @@ from .format import DatumaroArrow
 __all__ = ["ArrowImporter"]
 
 
-def _verify_datumaro_arrow_format(file: str) -> None:
-    with pa.memory_map(file, "r") as mm_file:
-        with pa.ipc.open_file(mm_file) as reader:
-            schema = reader.schema
-    DatumaroArrow.check_signature(schema.metadata.get(b"signature", b"").decode())
-    DatumaroArrow.check_version(schema.metadata.get(b"version", b"").decode())
-    DatumaroArrow.check_schema(schema)
-
-
 class ArrowImporter(Importer):
     @classmethod
     def detect(
@@ -32,7 +23,7 @@ class ArrowImporter(Importer):
         context: FormatDetectionContext,
     ) -> Optional[FormatDetectionConfidence]:
         if context.root_path.endswith(".arrow"):
-            _verify_datumaro_arrow_format(context.root_path)
+            cls._verify_datumaro_arrow_format(context.root_path)
         else:
             for arrow_file in context.require_files("*.arrow"):
                 with context.probe_text_file(
@@ -41,13 +32,13 @@ class ArrowImporter(Importer):
                     is_binary_file=True,
                 ) as f:
                     f.close()
-                    _verify_datumaro_arrow_format(os.path.join(context.root_path, arrow_file))
+                    cls._verify_datumaro_arrow_format(os.path.join(context.root_path, arrow_file))
 
     @classmethod
     def find_sources(cls, path: str) -> List[Dict]:
         def _filter(path: str) -> bool:
             try:
-                _verify_datumaro_arrow_format(path)
+                cls._verify_datumaro_arrow_format(path)
                 return True
             except DatasetImportError:
                 return False
@@ -71,3 +62,12 @@ class ArrowImporter(Importer):
                 "options": {"file_paths": [source["url"] for source in sources]},
             }
         ]
+
+    @staticmethod
+    def _verify_datumaro_arrow_format(file: str) -> None:
+        with pa.memory_map(file, "r") as mm_file:
+            with pa.ipc.open_file(mm_file) as reader:
+                schema = reader.schema
+        DatumaroArrow.check_signature(schema.metadata.get(b"signature", b"").decode())
+        DatumaroArrow.check_version(schema.metadata.get(b"version", b"").decode())
+        DatumaroArrow.check_schema(schema)
