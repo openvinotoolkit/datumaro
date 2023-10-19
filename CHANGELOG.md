@@ -10,6 +10,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Enhancements
 - Enhance Datumaro data format stream importer performance
   (<https://github.com/openvinotoolkit/datumaro/pull/1153>)
+- Change image default dtype from float32 to uint8
+  (<https://github.com/openvinotoolkit/datumaro/pull/1175>)
 
 ### Bug fixes
 - Fix errata in the voc document. Color values in the labelmap.txt should be separated by commas, not colons.
