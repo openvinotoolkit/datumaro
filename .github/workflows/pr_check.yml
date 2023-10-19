@@ -25,7 +25,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: ['macos-11', 'ubuntu-20.04', 'windows-2019']
+        os: ['macos-11', 'ubuntu-20.04', 'windows-2022']
         python-version: ['3.8']
         include:
           - python-version: "3.8"
@@ -34,7 +34,7 @@ jobs:
             tox-env-os: "darwin"
           - os: "ubuntu-20.04"
             tox-env-os: "lin"
-          - os: "windows-2019"
+          - os: "windows-2022"
             tox-env-os: "win"
     name: pr test (${{ matrix.os }}, Python ${{ matrix.python-version }})
     runs-on: ${{ matrix.os }}
