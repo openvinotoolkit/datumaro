@@ -12,6 +12,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   (<https://github.com/openvinotoolkit/datumaro/pull/1153>)
 
 ### Bug fixes
+- Correct explore path in the related document.
+  (<https://github.com/openvinotoolkit/datumaro/pull/1176>)
 - Fix errata in the voc document. Color values in the labelmap.txt should be separated by commas, not colons.
   (<https://github.com/openvinotoolkit/datumaro/pull/1162>)
 - Fix hyperlink errors in the document
