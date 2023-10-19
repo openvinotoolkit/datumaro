@@ -3,20 +3,15 @@
 # SPDX-License-Identifier: MIT
 
 
-import os
-import struct
-from functools import partial
-from typing import Any, Callable, Dict, List, Optional, Union
+from typing import Any, Callable, Dict, Optional, Union
 
 import numpy as np
 import pyarrow as pa
 
 from datumaro.components.errors import DatumaroError
 from datumaro.components.media import Image, MediaElement, MediaType, PointCloud
-from datumaro.plugins.data_formats.datumaro_binary.mapper.common import DictMapper, Mapper
+from datumaro.plugins.data_formats.datumaro_binary.mapper.common import Mapper
 from datumaro.util.image import decode_image, encode_image, load_image
-
-from .utils import b64decode, b64encode, pa_batches_decoder
 
 
 class MediaMapper(Mapper):
@@ -33,37 +28,24 @@ class MediaMapper(Mapper):
         raise DatumaroError(f"{obj._type} is not allowed for MediaMapper.")
 
     @classmethod
-    def backward(cls, obj: Dict[str, Any]) -> Optional[MediaElement]:
-        media_type = obj["type"]
+    def backward(
+        cls,
+        media_struct: pa.StructScalar,
+        idx: int,
+        table: pa.Table,
+        table_path: str,
+    ) -> Optional[MediaElement]:
+        media_type = MediaType(media_struct.get("type").as_py())
 
         if media_type == MediaType.NONE:
             return None
         if media_type == MediaType.IMAGE:
-            return ImageMapper.backward(obj)
+            return ImageMapper.backward(media_struct, idx, table, table_path)
         if media_type == MediaType.POINT_CLOUD:
-            return PointCloudMapper.backward(obj)
+            return PointCloudMapper.backward(media_struct, idx, table, table_path)
         if media_type == MediaType.MEDIA_ELEMENT:
-            return MediaElementMapper.backward(obj)
+            return MediaElementMapper.backward(media_struct, idx, table, table_path)
         raise DatumaroError(f"{media_type} is not allowed for MediaMapper.")
-
-    @classmethod
-    def backward_from_batches(
-        cls,
-        batches: List[pa.lib.RecordBatch],
-        parent: Optional[str] = None,
-    ) -> List[Optional[MediaElement]]:
-        types = pa_batches_decoder(batches, f"{parent}.type" if parent else "type")
-        assert len(set(types)) == 1, "The types in batch are not identical."
-
-        if types[0] == MediaType.NONE:
-            return [None for _ in types]
-        if types[0] == MediaType.IMAGE:
-            return ImageMapper.backward_from_batches(batches, parent)
-        if types[0] == MediaType.POINT_CLOUD:
-            return PointCloudMapper.backward_from_batches(batches, parent)
-        if types[0] == MediaType.MEDIA_ELEMENT:
-            return MediaElementMapper.backward_from_batches(batches, parent)
-        raise NotImplementedError
 
 
 class MediaElementMapper(Mapper):
@@ -72,32 +54,17 @@ class MediaElementMapper(Mapper):
 
     @classmethod
     def forward(cls, obj: MediaElement) -> Dict[str, Any]:
-        return {
-            "type": int(obj.type),
-            "path": getattr(obj, "path", cls.MAGIC_PATH),
-        }
+        return {"type": int(obj.type)}
 
     @classmethod
-    def backward_dict(cls, obj: Dict[str, Any]) -> Dict[str, Any]:
-        obj = obj.copy()
-        media_type = obj["type"]
-        assert media_type == cls.MEDIA_TYPE, f"Expect {cls.MEDIA_TYPE} but actual is {media_type}."
-        obj["type"] = media_type
-        return obj
-
-    @classmethod
-    def backward(cls, obj: Dict[str, Any]) -> MediaElement:
-        _ = cls.backward_dict(obj)
-        return MediaElement()
-
-    @classmethod
-    def backward_from_batches(
+    def backward(
         cls,
-        batches: List[pa.lib.RecordBatch],
-        parent: Optional[str] = None,
-    ) -> List[MediaElement]:
-        types = pa_batches_decoder(batches, f"{parent}.type" if parent else "type")
-        return [MediaElement() for _ in types]
+        media_dict: Dict[str, Any],
+        idx: int,
+        table: pa.Table,
+        table_path: str,
+    ) -> MediaElement:
+        return MediaElement()
 
 
 class ImageMapper(MediaElementMapper):
@@ -149,58 +116,62 @@ class ImageMapper(MediaElementMapper):
     ) -> Dict[str, Any]:
         out = super().forward(obj)
 
-        _bytes = None
-        if isinstance(encoder, Callable):
-            _bytes = encoder(obj)
-        else:
-            _bytes = cls.encode(obj, scheme=encoder)
-        out["bytes"] = _bytes
+        _bytes = encoder(obj) if isinstance(encoder, Callable) else cls.encode(obj, scheme=encoder)
 
-        out["attributes"] = DictMapper.forward(dict(size=obj.size))
+        path = None if _bytes is not None else getattr(obj, "path", None)
 
+        out["image"] = {
+            "has_bytes": _bytes is not None,
+            "bytes": _bytes,
+            "path": path,
+            "size": obj.size,
+        }
         return out
 
     @classmethod
-    def backward(cls, obj: Dict[str, Any]) -> Image:
-        media_dict = cls.backward_dict(obj)
+    def backward(
+        cls,
+        media_struct: pa.StructScalar,
+        idx: int,
+        table: pa.Table,
+        table_path: str,
+    ) -> Image:
+        image_struct = media_struct.get("image")
 
-        path = media_dict["path"]
-        attributes, _ = DictMapper.backward(media_dict["attributes"], 0)
+        if path := image_struct.get("path").as_py():
+            return Image.from_file(
+                path=path,
+                size=image_struct.get("size").as_py(),
+            )
 
-        _bytes = None
-        if media_dict.get("bytes", None) is not None:
-            _bytes = media_dict["bytes"]
-
-        if _bytes:
-            return Image.from_bytes(data=_bytes, size=attributes["size"])
-        return Image.from_file(path=path, size=attributes["size"])
+        return Image.from_bytes(
+            data=lambda: pa.ipc.open_file(pa.memory_map(table_path, "r"))
+            .read_all()
+            .column("media")[idx]
+            .get("image")
+            .get("bytes")
+            .as_py(),
+            size=image_struct.get("size").as_py(),
+        )
 
     @classmethod
-    def backward_from_batches(
-        cls,
-        batches: List[pa.lib.RecordBatch],
-        parent: Optional[str] = None,
-    ) -> List[Image]:
-        paths = pa_batches_decoder(batches, f"{parent}.path" if parent else "path")
-        attributes_ = pa_batches_decoder(
-            batches, f"{parent}.attributes" if parent else "attributes"
-        )
-        attributes_ = [DictMapper.backward(attributes)[0] for attributes in attributes_]
+    def backward_extra_image(
+        cls, image_struct: pa.StructScalar, idx: int, table: pa.Table, extra_image_idx: int
+    ) -> Image:
+        if path := image_struct.get("path").as_py():
+            return Image.from_file(
+                path=path,
+                size=image_struct.get("size").as_py(),
+            )
 
-        images = []
-        for idx, (path, attributes) in enumerate(zip(paths, attributes_)):
-            if os.path.exists(path):
-                images.append(Image.from_file(path=path, size=attributes["size"]))
-            else:
-                images.append(
-                    Image.from_bytes(
-                        data=lambda: pa_batches_decoder(
-                            batches, f"{parent}.bytes" if parent else "bytes"
-                        )[idx],
-                        size=attributes["size"],
-                    )
-                )
-        return images
+        return Image.from_bytes(
+            data=lambda: table.column("media")[idx]
+            .get("point_cloud")
+            .get("extra_images")[extra_image_idx]
+            .get("bytes")
+            .as_py(),
+            size=image_struct.get("size").as_py(),
+        )
 
 
 # TODO: share binary for extra images
@@ -214,85 +185,50 @@ class PointCloudMapper(MediaElementMapper):
     ) -> Dict[str, Any]:
         out = super().forward(obj)
 
-        _bytes = None
         if isinstance(encoder, Callable):
             _bytes = encoder(obj)
         elif encoder != "NONE":
             _bytes = obj.data
-        out["bytes"] = _bytes
+        else:
+            _bytes = None
 
-        bytes_arr = bytearray()
-        bytes_arr.extend(struct.pack("<I", len(obj.extra_images)))
-        for img in obj.extra_images:
-            bytes_arr.extend(
-                DictMapper.forward(
-                    b64encode(ImageMapper.forward(img, encoder=encoder), cls.B64_PREFIX)
-                )
-            )
-        out["attributes"] = bytes(bytes_arr)
+        path = None if _bytes is not None else getattr(obj, "path", None)
+
+        out["point_cloud"] = {
+            "has_bytes": _bytes is not None,
+            "bytes": _bytes,
+            "path": path,
+            "extra_images": [
+                ImageMapper.forward(img, encoder=encoder)["image"] for img in obj.extra_images
+            ],
+        }
 
         return out
 
     @classmethod
-    def backward(cls, obj: Dict[str, Any]) -> PointCloud:
-        offset = 0
-        media_dict = cls.backward_dict(obj)
+    def backward(
+        cls,
+        media_struct: pa.StructScalar,
+        idx: int,
+        table: pa.Table,
+        table_path: str,
+    ) -> PointCloud:
+        point_cloud_struct = media_struct.get("point_cloud")
 
-        path = media_dict["path"]
-        (len_extra_images,) = struct.unpack_from("<I", media_dict["attributes"], offset)
-        offset += 4
+        extra_images = [
+            ImageMapper.backward_extra_image(image_struct, idx, table, extra_image_idx)
+            for extra_image_idx, image_struct in enumerate(point_cloud_struct.get("extra_images"))
+        ]
 
-        _bytes = None
-        if media_dict.get("bytes", None) is not None:
-            _bytes = media_dict["bytes"]
-
-        extra_images = []
-        for _ in range(len_extra_images):
-            img, offset = DictMapper.backward(media_dict["attributes"], offset)
-            extra_images.append(ImageMapper.backward(b64decode(img, cls.B64_PREFIX)))
-
-        if _bytes:
-            return PointCloud.from_bytes(data=_bytes, extra_images=extra_images)
-        else:
+        if path := point_cloud_struct.get("path").as_py():
             return PointCloud.from_file(path=path, extra_images=extra_images)
 
-    @classmethod
-    def backward_from_batches(
-        cls,
-        batches: List[pa.lib.RecordBatch],
-        parent: Optional[str] = None,
-    ) -> List[PointCloud]:
-        paths = pa_batches_decoder(batches, f"{parent}.path" if parent else "path")
-
-        def extra_images(idx):
-            offset = 0
-            attributes = pa_batches_decoder(
-                batches, f"{parent}.attributes" if parent else "attributes"
-            )[idx]
-            (len_extra_images,) = struct.unpack_from("<I", attributes, offset)
-            offset += 4
-            outs = []
-            for _ in range(len_extra_images):
-                img, offset = DictMapper.backward(attributes, offset)
-                outs.append(ImageMapper.backward(b64decode(img, cls.B64_PREFIX)))
-            return outs
-
-        point_clouds = []
-        for idx, path in enumerate(paths):
-            if os.path.exists(path):
-                point_clouds.append(
-                    PointCloud.from_file(
-                        path=path,
-                        extra_images=partial(extra_images, idx=idx),
-                    )
-                )
-            else:
-                point_clouds.append(
-                    PointCloud.from_bytes(
-                        data=lambda: pa_batches_decoder(
-                            batches, f"{parent}.bytes" if parent else "bytes"
-                        )[idx],
-                        extra_images=partial(extra_images, idx=idx),
-                    )
-                )
-        return point_clouds
+        return PointCloud.from_bytes(
+            data=pa.ipc.open_file(pa.memory_map(table_path, "r"))
+            .read_all()
+            .column("media")[idx]
+            .get("point_cloud")
+            .get("bytes")
+            .as_py(),
+            extra_images=extra_images,
+        )

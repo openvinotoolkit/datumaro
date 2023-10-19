@@ -178,13 +178,13 @@ class _DatasetBase(IDataset):
 
         return _DatasetFilter()
 
-    def infos(self):
+    def infos(self) -> DatasetInfo:
         return {}
 
-    def categories(self):
+    def categories(self) -> CategoriesInfo:
         return {}
 
-    def get(self, id, subset=None):
+    def get(self, id, subset=None) -> Optional[DatasetItem]:
         subset = subset or DEFAULT_SUBSET_NAME
         for item in self:
             if item.id == id and item.subset == subset:
