@@ -2,75 +2,169 @@
 #
 # SPDX-License-Identifier: MIT
 
-import os.path as osp
 import struct
-from typing import List, Optional
+from dataclasses import dataclass
+from typing import Any, Dict, Iterator, List, Optional, Type
 
 import pyarrow as pa
 
-from datumaro.components.dataset_base import SubsetBase
-from datumaro.components.errors import MediaTypeError
+from datumaro.components.annotation import AnnotationType, Categories
+from datumaro.components.dataset_base import (
+    CategoriesInfo,
+    DatasetBase,
+    DatasetInfo,
+    DatasetItem,
+    IDataset,
+    SubsetBase,
+)
 from datumaro.components.importer import ImportContext
-from datumaro.components.media import MediaType
-from datumaro.components.merge import get_merger
+from datumaro.components.media import Image, MediaElement, MediaType
+from datumaro.components.merge.extractor_merger import check_identicalness
+from datumaro.plugins.data_formats.arrow.format import DatumaroArrow
 from datumaro.plugins.data_formats.datumaro.base import JsonReader
 from datumaro.plugins.data_formats.datumaro_binary.mapper.common import DictMapper
+from datumaro.util.definitions import DEFAULT_SUBSET_NAME
 
-from .arrow_dataset import ArrowDataset
 from .mapper.dataset_item import DatasetItemMapper
 
 
-class ArrowBase(SubsetBase):
+class ArrowSubsetBase(SubsetBase):
+    __not_plugin__ = True
+
     def __init__(
         self,
-        path: str,
-        additional_paths: Optional[List[str]] = None,
+        lookup: Dict[str, DatasetItem],
+        infos: Dict[str, Any],
+        categories: Dict[AnnotationType, Categories],
+        subset: str,
+        media_type: Type[MediaElement] = Image,
+    ):
+        super().__init__(length=len(lookup), subset=subset, media_type=media_type, ctx=None)
+
+        self._lookup = lookup
+        self._infos = infos
+        self._categories = categories
+
+    def __iter__(self) -> Iterator[DatasetItem]:
+        for item in self._lookup.values():
+            yield item
+
+    def __len__(self) -> int:
+        return len(self._lookup)
+
+    def get(self, item_id: str, subset: Optional[str] = None) -> Optional[DatasetItem]:
+        if subset != self._subset:
+            return None
+
+        try:
+            return self._lookup[item_id]
+        except KeyError:
+            return None
+
+
+@dataclass(frozen=True)
+class Metadata:
+    infos: Dict
+    categories: Dict
+    media_type: Type[MediaElement]
+
+
+class ArrowBase(DatasetBase):
+    def __init__(
+        self,
+        root_path: str,
         *,
-        subset: Optional[str] = None,
+        file_paths: List[str],
         ctx: Optional[ImportContext] = None,
     ):
-        super().__init__(subset=subset, ctx=ctx)
+        self._root_path = root_path
+        tables = [pa.ipc.open_file(pa.memory_map(path, "r")).read_all() for path in file_paths]
+        metadatas = [self._load_schema_metadata(table) for table in tables]
 
-        self._paths = [path]
-        if additional_paths:
-            self._paths += additional_paths
+        table = pa.concat_tables(tables)
+        subsets = table.column(DatumaroArrow.SUBSET_FIELD).unique().to_pylist()
+        media_type = check_identicalness([metadata.media_type for metadata in metadatas])
 
-        self._load()
+        super().__init__(length=len(table), subsets=subsets, media_type=media_type, ctx=ctx)
 
-    def _load(self):
-        infos = []
-        categories = []
-        media_types = set()
+        self._infos = check_identicalness([metadata.infos for metadata in metadatas])
+        self._categories = check_identicalness([metadata.categories for metadata in metadatas])
 
-        for path in self._paths:
-            with pa.ipc.open_stream(path) as reader:
-                schema = reader.schema
+        self._init_cache(file_paths, subsets)
 
-                _infos, _ = DictMapper.backward(schema.metadata.get(b"infos", b"\x00\x00\x00\x00"))
-                infos.append(JsonReader._load_infos({"infos": _infos}))
+    @staticmethod
+    def _load_schema_metadata(table: pa.Table) -> Metadata:
+        schema = table.schema
 
-                _categories, _ = DictMapper.backward(
-                    schema.metadata.get(b"categories", b"\x00\x00\x00\x00")
-                )
-                categories.append(JsonReader._load_categories({"categories": _categories}))
+        _infos, _ = DictMapper.backward(schema.metadata.get(b"infos", b"\x00\x00\x00\x00"))
+        infos = JsonReader._load_infos({"infos": _infos})
 
-                (media_type,) = struct.unpack(
-                    "<I", schema.metadata.get(b"media_type", b"\x00\x00\x00\x00")
-                )
-                media_types.add(MediaType(media_type).media)
+        _categories, _ = DictMapper.backward(
+            schema.metadata.get(b"categories", b"\x00\x00\x00\x00")
+        )
+        categories = JsonReader._load_categories({"categories": _categories})
 
-                dataset = ArrowDataset(path)
-                dataset = dataset.flatten()
+        (media_type,) = struct.unpack("<I", schema.metadata.get(b"media_type", b"\x00\x00\x00\x00"))
+        media_type = MediaType(media_type).media
 
-                for i in self._ctx.progress_reporter.iter(
-                    range(len(dataset)), desc=f"Reading arrow from '{osp.basename(path)}'"
-                ):
-                    batches = dataset.get_batches(i, 1)
-                    self._items.extend(DatasetItemMapper.backward_from_batches(batches))
+        return Metadata(infos=infos, categories=categories, media_type=media_type)
 
-        if len(media_types) > 1:
-            raise MediaTypeError("Datasets have different media types")
-        merger = get_merger("exact")
-        self._infos = merger.merge_infos(infos)
-        self._categories = merger.merge_categories(categories)
-        self._media_type = list(media_types)[0]
+    def infos(self) -> DatasetInfo:
+        return self._infos
+
+    def categories(self) -> CategoriesInfo:
+        return self._categories
+
+    def __iter__(self) -> Iterator[DatasetItem]:
+        for lookup in self._lookup.values():
+            for item in lookup.values():
+                yield item
+
+    def _init_cache(self, file_paths: List[str], subsets: List[str]):
+        self._lookup: Dict[str, Dict[str, DatasetItem]] = {subset: {} for subset in subsets}
+
+        total = len(self)
+        cnt = 0
+        pbar = self._ctx.progress_reporter
+        pbar.start(total=total, desc="Importing")
+
+        for table_path in file_paths:
+            with pa.OSFile(table_path, "r") as source:
+                with pa.ipc.open_file(source) as reader:
+                    table = reader.read_all()
+                    for idx in range(len(table)):
+                        item = DatasetItemMapper.backward(idx, table, table_path)
+                        self._lookup[item.subset][item.id] = item
+                        pbar.report_status(cnt)
+                        cnt += 1
+
+        self._subsets = {
+            subset: ArrowSubsetBase(
+                lookup=lookup,
+                infos=self._infos,
+                categories=self._categories,
+                subset=self._subsets,
+                media_type=self._media_type,
+            )
+            for subset, lookup in self._lookup.items()
+        }
+
+        pbar.finish()
+
+    def get(self, item_id: str, subset: Optional[str] = None) -> Optional[DatasetItem]:
+        subset = subset or DEFAULT_SUBSET_NAME
+
+        try:
+            return self._lookup[subset][item_id]
+        except KeyError:
+            return None
+
+    @property
+    def lookup(self) -> Dict[str, Dict[str, int]]:
+        return self._lookup
+
+    def subsets(self) -> Dict[str, IDataset]:
+        return self._subsets
+
+    def get_subset(self, name: str) -> IDataset:
+        return self._subsets[name]

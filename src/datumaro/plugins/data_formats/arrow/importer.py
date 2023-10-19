@@ -3,15 +3,17 @@
 # SPDX-License-Identifier: MIT
 
 import os
-import re
 from typing import Dict, List, Optional
 
 import pyarrow as pa
 
+from datumaro.components.errors import DatasetImportError
 from datumaro.components.format_detection import FormatDetectionConfidence, FormatDetectionContext
 from datumaro.components.importer import Importer
 
 from .format import DatumaroArrow
+
+__all__ = ["ArrowImporter"]
 
 
 class ArrowImporter(Importer):
@@ -20,14 +22,8 @@ class ArrowImporter(Importer):
         cls,
         context: FormatDetectionContext,
     ) -> Optional[FormatDetectionConfidence]:
-        def verify_datumaro_arrow_format(file):
-            with pa.ipc.open_stream(file) as reader:
-                schema = reader.schema
-            DatumaroArrow.check_signature(schema.metadata.get(b"signature", b"").decode())
-            DatumaroArrow.check_schema(schema)
-
         if context.root_path.endswith(".arrow"):
-            verify_datumaro_arrow_format(context.root_path)
+            cls._verify_datumaro_arrow_format(context.root_path)
         else:
             for arrow_file in context.require_files("*.arrow"):
                 with context.probe_text_file(
@@ -35,31 +31,43 @@ class ArrowImporter(Importer):
                     f"{arrow_file} is not Datumaro arrow format.",
                     is_binary_file=True,
                 ) as f:
-                    verify_datumaro_arrow_format(f)
+                    f.close()
+                    cls._verify_datumaro_arrow_format(os.path.join(context.root_path, arrow_file))
 
     @classmethod
-    def find_sources(cls, path) -> List[Dict]:
-        sources = cls._find_sources_recursive(
-            path,
-            ".arrow",
-            cls.NAME,
+    def find_sources(cls, path: str) -> List[Dict]:
+        def _filter(path: str) -> bool:
+            try:
+                cls._verify_datumaro_arrow_format(path)
+                return True
+            except DatasetImportError:
+                return False
+
+        return cls._find_sources_recursive(
+            path=path,
+            ext=".arrow",
+            extractor_name=cls.NAME,
+            file_filter=_filter,
+            max_depth=0,
         )
 
-        # handle sharded arrow files
-        _sources = []
-        for source in sources:
-            match = re.match(r"(.*?)(-[0-9]+-of-[0-9]+)?\.arrow", source["url"])
-            found = False
-            prefix = match.group(1)
-            for _source in _sources:
-                if _source["url"].startswith(prefix):
-                    _source["options"]["additional_paths"].append(source["url"])
-                    found = True
-                    break
-            if not found:
-                source["options"] = {
-                    "additional_paths": [],
-                    "subset": os.path.basename(prefix),
-                }
-                _sources.append(source)
-        return _sources
+    @classmethod
+    def find_sources_with_params(cls, path: str, **extra_params) -> List[Dict]:
+        sources = cls.find_sources(path)
+        # Merge sources into one config but multiple file_paths
+        return [
+            {
+                "url": path,
+                "format": cls.NAME,
+                "options": {"file_paths": [source["url"] for source in sources]},
+            }
+        ]
+
+    @staticmethod
+    def _verify_datumaro_arrow_format(file: str) -> None:
+        with pa.memory_map(file, "r") as mm_file:
+            with pa.ipc.open_file(mm_file) as reader:
+                schema = reader.schema
+        DatumaroArrow.check_signature(schema.metadata.get(b"signature", b"").decode())
+        DatumaroArrow.check_version(schema.metadata.get(b"version", b"").decode())
+        DatumaroArrow.check_schema(schema)

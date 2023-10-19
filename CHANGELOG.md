@@ -16,6 +16,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   (<https://github.com/openvinotoolkit/datumaro/pull/1162>)
 - Fix hyperlink errors in the document
   (<https://github.com/openvinotoolkit/datumaro/pull/1159>, <https://github.com/openvinotoolkit/datumaro/pull/1161>)
+- Fix memory unbounded Arrow data format export/import
+  (<https://github.com/openvinotoolkit/datumaro/pull/1169>)
 
 ## 15/09/2023 - Release 1.5.0
 ### New features
