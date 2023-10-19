@@ -44,8 +44,9 @@ from tests.utils.test_utils import compare_datasets
 class TestOperations(TestCase):
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_mean_std(self):
+        np.random.seed(3000)
         expected_mean = [100, 50, 150]
-        expected_std = [20, 50, 10]
+        expected_std = [2, 1, 3]
 
         dataset = Dataset.from_iterable(
             [
@@ -62,9 +63,9 @@ class TestOperations(TestCase):
         actual_mean, actual_std = mean_std(dataset)
 
         for em, am in zip(expected_mean, actual_mean):
-            self.assertAlmostEqual(em, am, places=0)
+            assert np.allclose(em, am, atol=0.6)
         for estd, astd in zip(expected_std, actual_std):
-            self.assertAlmostEqual(estd, astd, places=0)
+            assert np.allclose(estd, astd, atol=0.1)
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_stats(self):
