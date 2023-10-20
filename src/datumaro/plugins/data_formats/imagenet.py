@@ -6,8 +6,8 @@ import errno
 import logging as log
 import os
 import os.path as osp
-from typing import Optional
 import warnings
+from typing import Optional
 
 from datumaro.components.annotation import AnnotationType, Label, LabelCategories
 from datumaro.components.dataset_base import DatasetItem, SubsetBase
@@ -44,7 +44,7 @@ class ImagenetBase(SubsetBase):
     def _load_categories(self, path):
         label_cat = LabelCategories()
         for dirname in sorted(os.listdir(path)):
-            if not os.path.isdir(os.path.join(path, dirname)):                
+            if not os.path.isdir(os.path.join(path, dirname)):
                 warnings.warn(
                     f"{dirname} is not a directory in the folder {path}, so this will"
                     "be skipped when declaring the cateogries of `imagenet` dataset."
