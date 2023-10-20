@@ -309,7 +309,7 @@ class ImageFromFile(FromFileMixin, Image):
 
     @property
     def data(self) -> Optional[np.ndarray]:
-        """Image data in BGRA HWC [0; 255] (float) format"""
+        """Image data in BGRA HWC [0; 255] (uint8) format"""
 
         if not self.has_data:
             return None
@@ -375,12 +375,12 @@ class ImageFromNumpy(ImageFromData):
 
     @property
     def data(self) -> Optional[np.ndarray]:
-        """Image data in BGRA HWC [0; 255] (float) format"""
+        """Image data in BGRA HWC [0; 255] (uint8) format"""
 
         data = super().data
 
-        if isinstance(data, np.ndarray):
-            data = data.astype(np.float32)
+        if isinstance(data, np.ndarray) and data.dtype != np.uint8:
+            data = np.clip(data, 0.0, 255.0).astype(np.uint8)
         if self._size is None and data is not None:
             if not 2 <= data.ndim <= 3:
                 raise MediaShapeError("An image should have 2 (gray) or 3 (bgra) dims.")
@@ -420,14 +420,12 @@ class ImageFromBytes(ImageFromData):
 
     @property
     def data(self) -> Optional[np.ndarray]:
-        """Image data in BGRA HWC [0; 255] (float) format"""
+        """Image data in BGRA HWC [0; 255] (uint8) format"""
 
         data = super().data
 
         if isinstance(data, bytes):
-            data = decode_image(data)
-        if isinstance(data, np.ndarray):
-            data = data.astype(np.float32)
+            data = decode_image(data, dtype=np.uint8)
         if self._size is None and data is not None:
             if not 2 <= data.ndim <= 3:
                 raise MediaShapeError("An image should have 2 (gray) or 3 (bgra) dims.")

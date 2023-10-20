@@ -10,6 +10,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Enhancements
 - Enhance Datumaro data format stream importer performance
   (<https://github.com/openvinotoolkit/datumaro/pull/1153>)
+- Change image default dtype from float32 to uint8
+  (<https://github.com/openvinotoolkit/datumaro/pull/1175>)
 
 ### Bug fixes
 - Correct explore path in the related document.
