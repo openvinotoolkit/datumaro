@@ -7,7 +7,7 @@ from streamlit_elements import mui, nivo
 from .dashboard import Dashboard
 
 
-class Pie(Dashboard.Item):
+class Bar(Dashboard.Item):
     def __init__(self, name, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.name = name
@@ -52,7 +52,7 @@ class Pie(Dashboard.Item):
                 mui.Typography(self.name, sx={"flex": 1})
 
             with mui.Box(sx={"flex": 1, "minHeight": 0}):
-                nivo.Pie(
+                nivo.Bar(
                     data=data,
                     theme=self._theme["dark" if self._dark_mode else "light"],
                     margin={"top": 40, "right": 80, "bottom": 80, "left": 80},
