@@ -89,7 +89,7 @@ class VisualizerTestBase:
             visualizer.vis_one_sample("unknown", self.subset)
 
         # Unknown subset
-        for idx, item in enumerate(self.items):
+        for item in self.items:
             with self.assertRaises(Exception):
                 visualizer.vis_one_sample(item.id, "unknown")
 
