@@ -19,8 +19,9 @@ from tests.requirements import Requirements, mark_requirement
 
 @pytest.fixture
 def fxt_image_dataset_expected_mean_std():
+    np.random.seed(3003)
     expected_mean = [100, 50, 150]
-    expected_std = [20, 50, 10]
+    expected_std = [2, 1, 3]
 
     return expected_mean, expected_std
 
@@ -90,9 +91,9 @@ class ImageStatisticsTest:
         actual_std = actual["subsets"]["default"]["image std"][::-1]
 
         for em, am in zip(expected_mean, actual_mean):
-            assert am == pytest.approx(em, 1e-2)
+            assert am == pytest.approx(em, 5e-1)
         for estd, astd in zip(expected_std, actual_std):
-            assert astd == pytest.approx(estd, 1e-2)
+            assert astd == pytest.approx(estd, 1e-1)
 
     @mark_requirement(Requirements.DATUM_BUG_873)
     def test_invalid_media_type(

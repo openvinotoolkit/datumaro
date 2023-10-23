@@ -3,6 +3,11 @@
 //  SPDX-License-Identifier: MIT
 
 use std::io::{self};
+use pyo3::{
+    exceptions::PyValueError,
+    prelude::*,
+    types::{PyBool, PyDict, PyFloat, PyList, PyUnicode},
+};
 
 pub fn read_skipping_ws(mut reader: impl io::Read) -> io::Result<u8> {
     loop {
@@ -59,5 +64,40 @@ pub fn parse_serde_json_value(
             let msg = format!("Parse error: {} at pos: {}", e, cur_pos);
             Err(invalid_data(msg.as_str()))
         }
+    }
+}
+
+pub fn convert_to_py_object(value: &serde_json::Value, py: Python<'_>) -> PyResult<PyObject> {
+    if value.is_array() {
+        let list = PyList::empty(py);
+
+        for child in value.as_array().unwrap() {
+            list.append(convert_to_py_object(child, py)?)?;
+        }
+
+        return Ok(list.into());
+    } else if value.is_object() {
+        let dict = PyDict::new(py);
+
+        for (key, child) in value.as_object().unwrap().iter() {
+            let child = convert_to_py_object(child, py)?;
+            dict.set_item(key, child)?;
+        }
+
+        return Ok(dict.into());
+    } else if value.is_boolean() {
+        return Ok(PyBool::new(py, value.as_bool().unwrap()).into());
+    } else if value.is_f64() {
+        return Ok(PyFloat::new(py, value.as_f64().unwrap()).into());
+    } else if value.is_i64() {
+        return Ok(value.as_i64().unwrap().to_object(py));
+    } else if value.is_u64() {
+        return Ok(value.as_u64().unwrap().to_object(py));
+    } else if value.is_string() {
+        return Ok(PyUnicode::new(py, value.as_str().unwrap()).into());
+    } else if value.is_null() {
+        return Ok(py.None());
+    } else {
+        return Err(PyValueError::new_err("Unknown value type"));
     }
 }

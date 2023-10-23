@@ -6,6 +6,24 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## \[Unreleased\]
+
+### Enhancements
+- Enhance Datumaro data format stream importer performance
+  (<https://github.com/openvinotoolkit/datumaro/pull/1153>)
+- Change image default dtype from float32 to uint8
+  (<https://github.com/openvinotoolkit/datumaro/pull/1175>)
+
+### Bug fixes
+- Correct explore path in the related document.
+  (<https://github.com/openvinotoolkit/datumaro/pull/1176>)
+- Fix errata in the voc document. Color values in the labelmap.txt should be separated by commas, not colons.
+  (<https://github.com/openvinotoolkit/datumaro/pull/1162>)
+- Fix hyperlink errors in the document
+  (<https://github.com/openvinotoolkit/datumaro/pull/1159>, <https://github.com/openvinotoolkit/datumaro/pull/1161>)
+- Fix memory unbounded Arrow data format export/import
+  (<https://github.com/openvinotoolkit/datumaro/pull/1169>)
+
+## 15/09/2023 - Release 1.5.0
 ### New features
 - Add SAMAutomaticMaskGeneration transform
   (<https://github.com/openvinotoolkit/datumaro/pull/1168>)
@@ -26,7 +44,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   (<https://github.com/openvinotoolkit/datumaro/pull/1129>)
 - Add SAMBboxToInstanceMask transform
   (<https://github.com/openvinotoolkit/datumaro/pull/1133>, <https://github.com/openvinotoolkit/datumaro/pull/1134>)
-- Add ConfigurableValicator
+- Add ConfigurableValidator
   (<https://github.com/openvinotoolkit/datumaro/pull/1142>)
 
 ### Enhancements

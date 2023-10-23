@@ -20,7 +20,7 @@ The Python example for the usage of explorer is described in :doc:`here <../../j
 
             from datumaro.components.dataset import Dataset
             from datumaro.components.environment import Environment
-            from datumaro.componenets.explorer import Explorer
+            from datumaro.components.algorithms.hash_key_inference.explorer import Explorer
 
             data_path = '/path/to/data'
 
