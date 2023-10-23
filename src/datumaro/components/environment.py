@@ -208,7 +208,10 @@ class Environment:
             if isclass(s)
             and issubclass(s, types)
             and s not in types
-            and "datumaro.components" not in getmodule(s).__package__
+            and (
+                getmodule(s) is None
+                or not getmodule(s).__package__.startswith("datumaro.components")
+            )
         ]
 
         return exports
