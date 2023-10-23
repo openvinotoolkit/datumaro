@@ -34,18 +34,53 @@ pub struct ImgPage {
     pub size: u32,
 }
 
-#[derive(Debug)]
-pub struct ImgPageMap {
-    ids: Vec<i64>,
-    pages: HashMap<i64, ImgPage>,
+pub trait ItemPageMapKeyTrait:
+    std::cmp::Eq + std::hash::Hash + std::clone::Clone + std::fmt::Display
+{
+    fn get_id(parsed_map: HashMap<String, JsonDict>, offset: u64) -> Result<Self, io::Error>
+    where
+        Self: Sized;
 }
 
-impl ImgPageMap {
-    pub fn get_dict<R>(&self, reader: &mut R, img_id: i64) -> Result<JsonDict, io::Error>
+impl ItemPageMapKeyTrait for i64 {
+    fn get_id(parsed_map: HashMap<String, JsonDict>, offset: u64) -> Result<Self, io::Error> {
+        parsed_map
+            .get("id")
+            .ok_or(stream_error("Cannot find an image id", offset))?
+            .as_i64()
+            .ok_or(stream_error("The image id is not an integer.", offset))
+    }
+}
+
+impl ItemPageMapKeyTrait for String {
+    fn get_id(parsed_map: HashMap<String, JsonDict>, offset: u64) -> Result<Self, io::Error> {
+        Ok(parsed_map
+            .get("id")
+            .ok_or(stream_error("Cannot find an image id", offset))?
+            .as_str()
+            .ok_or(stream_error("The image id is not an integer.", offset))?
+            .to_string())
+    }
+}
+
+#[derive(Debug)]
+pub struct ImgPageMap<T>
+where
+    T: ItemPageMapKeyTrait,
+{
+    ids: Vec<T>,
+    pages: HashMap<T, ImgPage>,
+}
+
+impl<T> ImgPageMap<T>
+where
+    T: ItemPageMapKeyTrait,
+{
+    pub fn get_dict<R>(&self, reader: &mut R, img_id: &T) -> Result<JsonDict, io::Error>
     where
         R: io::Read + io::Seek,
     {
-        match self.pages.get(&img_id) {
+        match self.pages.get(img_id) {
             Some(page) => parse_serde_json_value_from_page(reader, page.offset, page.size as u64),
             None => Err(invalid_data(
                 format!("Image id: {} is not on the page map", img_id).as_str(),
@@ -53,12 +88,12 @@ impl ImgPageMap {
         }
     }
 
-    pub fn push(&mut self, img_id: i64, page: ImgPage) {
-        self.ids.push(img_id);
-        self.pages.insert(img_id, page);
+    pub fn push(&mut self, img_id: T, page: ImgPage) {
+        self.ids.push(img_id.clone());
+        self.pages.insert(img_id.clone(), page);
     }
 
-    pub fn from_reader(mut reader: impl io::Read + io::Seek) -> Result<ImgPageMap, io::Error> {
+    pub fn from_reader(mut reader: impl io::Read + io::Seek) -> Result<ImgPageMap<T>, io::Error> {
         let mut page_map = ImgPageMap::default();
 
         let (empty, rewind_pos) = is_empty_list(&mut reader)?;
@@ -79,11 +114,7 @@ impl ImgPageMap {
 
                     match stream.next().unwrap() {
                         Ok(parsed_map) => {
-                            let id = parsed_map
-                                .get("id")
-                                .ok_or(stream_error("Cannot find an image id", offset))?
-                                .as_i64()
-                                .ok_or(stream_error("The image id is not an integer.", offset))?;
+                            let id = ItemPageMapKeyTrait::get_id(parsed_map, offset)?;
 
                             let size = (curr_pos + stream.byte_offset() as u64 - offset) as u32;
                             page_map.push(id, ImgPage { offset, size });
@@ -100,22 +131,28 @@ impl ImgPageMap {
         Ok(page_map)
     }
 
-    pub fn ids(&self) -> &Vec<i64> {
+    pub fn ids(&self) -> &Vec<T> {
         return &self.ids;
     }
 }
 
-impl IntoIterator for ImgPageMap {
-    type Item = (i64, ImgPage);
+impl<T> IntoIterator for ImgPageMap<T>
+where
+    T: ItemPageMapKeyTrait,
+{
+    type Item = (T, ImgPage);
 
-    type IntoIter = <HashMap<i64, ImgPage> as IntoIterator>::IntoIter;
+    type IntoIter = <HashMap<T, ImgPage> as IntoIterator>::IntoIter;
 
     fn into_iter(self) -> Self::IntoIter {
         self.pages.into_iter()
     }
 }
 
-impl Default for ImgPageMap {
+impl<T> Default for ImgPageMap<T>
+where
+    T: ItemPageMapKeyTrait,
+{
     fn default() -> Self {
         Self {
             ids: Vec::with_capacity(0),

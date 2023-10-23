@@ -112,9 +112,6 @@ try:
         def __getitem__(self, idx):
             image, label = self._gen_item(idx)
 
-            if image.dtype == np.uint8 or image.max() > 1:
-                image = image.astype(np.float32) / 255
-
             if len(image.shape) == 2:
                 image = np.expand_dims(image, axis=-1)
 

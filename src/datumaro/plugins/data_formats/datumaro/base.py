@@ -6,9 +6,6 @@ import os.path as osp
 import re
 from typing import Dict, List, Optional, Type
 
-import json_stream
-from json_stream.base import StreamingJSONObject
-
 from datumaro.components.annotation import (
     NO_OBJECT_ID,
     AnnotationType,
@@ -30,7 +27,8 @@ from datumaro.components.dataset_base import DatasetItem, SubsetBase
 from datumaro.components.errors import DatasetImportError, MediaTypeError
 from datumaro.components.importer import ImportContext
 from datumaro.components.media import Image, MediaElement, MediaType, PointCloud, Video, VideoFrame
-from datumaro.util import parse_json_file, to_dict_from_streaming_json
+from datumaro.plugins.data_formats.datumaro.page_mapper import DatumPageMapper
+from datumaro.util import parse_json_file
 from datumaro.version import __version__
 
 from .format import DATUMARO_FORMAT_VERSION, DatumaroPath
@@ -372,67 +370,35 @@ class StreamJsonReader(JsonReader):
         self._length = None
 
     def __len__(self):
-        if self._length is None:
-            self._length = sum(1 for _ in self)
-        return self._length
+        return len(self._reader)
 
     def __iter__(self):
         pbar = self._ctx.progress_reporter
-        with open(self._reader, "rb") as fp:
-            data = json_stream.load(fp)
-            items = data.get("items", None)
-            if items is None:
-                raise DatasetImportError('Annotation JSON file should have "items" entity.')
+        for item_desc in pbar.iter(
+            self._reader,
+            desc=f"Importing '{self._subset}'",
+        ):
+            yield self._parse_item(item_desc)
 
-            length = 0
-            for item in pbar.iter(items):
-                item_desc = to_dict_from_streaming_json(item)
-                length += 1
-                yield self._parse_item(item_desc)
-
-            if self._length != length:
-                self._length = length
-
-    def _init_reader(self, path: str):
-        return path
+    def _init_reader(self, path: str) -> DatumPageMapper:
+        return DatumPageMapper(path)
 
     @staticmethod
-    def _load_media_type(path) -> Type[MediaElement]:
-        # We can assume that the media_type information will be within the first 1 KB of the file.
-        # This is because we are the producer of Datumaro format.
-        search_size = 1024  # 1 KB
+    def _load_media_type(page_mapper: DatumPageMapper) -> Type[MediaElement]:
+        media_type = page_mapper.media_type
 
-        pattern = '"media_type"\s*:\s*(\d+)'
+        if media_type is None:
+            return MediaType.IMAGE.media
 
-        with open(path, "r", encoding="utf-8") as fp:
-            out = fp.read(search_size)
-            found = re.search(pattern, out)
-
-            if found:
-                int_type = int(found.group(1))
-                return MediaType(int_type).IMAGE.media
-
-        return MediaType.IMAGE.media
+        return media_type.media
 
     @staticmethod
-    def _load_infos(path) -> Dict:
-        with open(path, "r", encoding="utf-8") as fp:
-            data = json_stream.load(fp)
-            infos = data.get("infos", {})
-            if isinstance(infos, StreamingJSONObject):
-                infos = to_dict_from_streaming_json(infos)
-
-            return infos
+    def _load_infos(page_mapper: DatumPageMapper) -> Dict:
+        return page_mapper.infos
 
     @staticmethod
-    def _load_categories(path) -> Dict:
-        with open(path, "r", encoding="utf-8") as fp:
-            data = json_stream.load(fp)
-            categories = data.get("categories", {})
-            if isinstance(categories, StreamingJSONObject):
-                categories = to_dict_from_streaming_json(categories)
-
-            return JsonReader._load_categories({"categories": categories})
+    def _load_categories(page_mapper: DatumPageMapper) -> Dict:
+        return JsonReader._load_categories({"categories": page_mapper.categories})
 
     def _load_items(self, parsed) -> List:
         return []

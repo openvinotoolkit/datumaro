@@ -296,7 +296,8 @@ class MultiframeworkConverterTest:
                 label = np.sum(masks, axis=0, dtype=np.uint8)
 
             if fxt_convert_kwargs.get("transform", None):
-                assert np.array_equal(image, dm_torch_item[0].reshape(5, 5, 3).numpy())
+                actual = dm_torch_item[0].permute(1, 2, 0).mul(255.0).to(torch.uint8).numpy()
+                assert np.array_equal(image, actual)
             else:
                 assert np.array_equal(image, dm_torch_item[0])
 

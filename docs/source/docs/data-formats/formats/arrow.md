@@ -178,13 +178,10 @@ Extra options for exporting to Arrow format:
   - `JPEG/95`: [JPEG](https://en.wikipedia.org/wiki/JPEG) with 95 quality
   - `JPEG/75`: [JPEG](https://en.wikipedia.org/wiki/JPEG) with 75 quality
   - `NONE`: skip saving image.
-- `--max-chunk-size MAX_CHUNK_SIZE` allow to specify maximum chunk size (batch size) when saving into arrow format.
+- `--max-shard-size MAX_SHARD_SIZE` allow to specify maximum number of dataset items when saving into arrow format.
   (default: `1000`)
 - `--num-shards NUM_SHARDS` allow to specify the number of shards to generate.
-  `--num-shards` and `--max-shard-size` are  mutually exclusive.
-  (default: `1`)
-- `--max-shard-size MAX_SHARD_SIZE` allow to specify maximum size of each shard. (e.g. 7KB = 7 \* 2^10, 3MB = 3 \* 2^20, and 2GB = 2 \* 2^30)
-  `--num-shards` and `--max-shard-size` are  mutually exclusive.
+  `--num-shards` and `--max-shard-size` are mutually exclusive.
   (default: `None`)
 - `--num-workers NUM_WORKERS` allow to multi-processing for the export. If num_workers = 0, do not use multiprocessing (default: `0`).
 

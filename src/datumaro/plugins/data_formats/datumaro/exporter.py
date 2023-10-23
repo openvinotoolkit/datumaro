@@ -44,6 +44,88 @@ from datumaro.util import cast, dump_json_file
 from .format import DATUMARO_FORMAT_VERSION, DatumaroPath
 
 
+class JsonWriter:
+    @classmethod
+    def _convert_attribute_categories(cls, attributes):
+        return sorted(attributes)
+
+    @classmethod
+    def _convert_labels_label_groups(cls, labels):
+        return sorted(labels)
+
+    @classmethod
+    def _convert_label_categories(cls, obj):
+        converted = {
+            "labels": [],
+            "label_groups": [],
+            "attributes": cls._convert_attribute_categories(obj.attributes),
+        }
+        for label in obj.items:
+            converted["labels"].append(
+                {
+                    "name": cast(label.name, str),
+                    "parent": cast(label.parent, str),
+                    "attributes": cls._convert_attribute_categories(label.attributes),
+                }
+            )
+        for label_group in obj.label_groups:
+            converted["label_groups"].append(
+                {
+                    "name": cast(label_group.name, str),
+                    "group_type": label_group.group_type.to_str(),
+                    "labels": cls._convert_labels_label_groups(label_group.labels),
+                }
+            )
+        return converted
+
+    @classmethod
+    def _convert_mask_categories(cls, obj):
+        converted = {
+            "colormap": [],
+        }
+        for label_id, color in obj.colormap.items():
+            converted["colormap"].append(
+                {
+                    "label_id": int(label_id),
+                    "r": int(color[0]),
+                    "g": int(color[1]),
+                    "b": int(color[2]),
+                }
+            )
+        return converted
+
+    @classmethod
+    def _convert_points_categories(cls, obj):
+        converted = {
+            "items": [],
+        }
+        for label_id, item in obj.items.items():
+            converted["items"].append(
+                {
+                    "label_id": int(label_id),
+                    "labels": [cast(label, str) for label in item.labels],
+                    "joints": [list(map(int, j)) for j in item.joints],
+                }
+            )
+        return converted
+
+    @classmethod
+    def write_categories(cls, categories) -> Dict[str, Dict]:
+        dict_cat = {}
+        for ann_type, desc in categories.items():
+            if isinstance(desc, LabelCategories):
+                converted_desc = cls._convert_label_categories(desc)
+            elif isinstance(desc, MaskCategories):
+                converted_desc = cls._convert_mask_categories(desc)
+            elif isinstance(desc, PointsCategories):
+                converted_desc = cls._convert_points_categories(desc)
+            else:
+                raise NotImplementedError()
+            dict_cat[ann_type.name] = converted_desc
+
+        return dict_cat
+
+
 class _SubsetWriter:
     def __init__(
         self,
@@ -216,16 +298,7 @@ class _SubsetWriter:
         self._data["infos"].update(infos)
 
     def add_categories(self, categories):
-        for ann_type, desc in categories.items():
-            if isinstance(desc, LabelCategories):
-                converted_desc = self._convert_label_categories(desc)
-            elif isinstance(desc, MaskCategories):
-                converted_desc = self._convert_mask_categories(desc)
-            elif isinstance(desc, PointsCategories):
-                converted_desc = self._convert_points_categories(desc)
-            else:
-                raise NotImplementedError()
-            self.categories[ann_type.name] = converted_desc
+        self._data["categories"] = JsonWriter.write_categories(categories)
 
     def write(self, *args, **kwargs):
         dump_json_file(self.ann_file, self._data)
@@ -338,65 +411,6 @@ class _SubsetWriter:
 
     def _convert_ellipse_object(self, obj: Ellipse):
         return self._convert_shape_object(obj)
-
-    def _convert_attribute_categories(self, attributes):
-        return sorted(attributes)
-
-    def _convert_labels_label_groups(self, labels):
-        return sorted(labels)
-
-    def _convert_label_categories(self, obj):
-        converted = {
-            "labels": [],
-            "label_groups": [],
-            "attributes": self._convert_attribute_categories(obj.attributes),
-        }
-        for label in obj.items:
-            converted["labels"].append(
-                {
-                    "name": cast(label.name, str),
-                    "parent": cast(label.parent, str),
-                    "attributes": self._convert_attribute_categories(label.attributes),
-                }
-            )
-        for label_group in obj.label_groups:
-            converted["label_groups"].append(
-                {
-                    "name": cast(label_group.name, str),
-                    "group_type": label_group.group_type.to_str(),
-                    "labels": self._convert_labels_label_groups(label_group.labels),
-                }
-            )
-        return converted
-
-    def _convert_mask_categories(self, obj):
-        converted = {
-            "colormap": [],
-        }
-        for label_id, color in obj.colormap.items():
-            converted["colormap"].append(
-                {
-                    "label_id": int(label_id),
-                    "r": int(color[0]),
-                    "g": int(color[1]),
-                    "b": int(color[2]),
-                }
-            )
-        return converted
-
-    def _convert_points_categories(self, obj):
-        converted = {
-            "items": [],
-        }
-        for label_id, item in obj.items.items():
-            converted["items"].append(
-                {
-                    "label_id": int(label_id),
-                    "labels": [cast(label, str) for label in item.labels],
-                    "joints": [list(map(int, j)) for j in item.joints],
-                }
-            )
-        return converted
 
 
 class _StreamSubsetWriter(_SubsetWriter):
