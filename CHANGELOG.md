@@ -16,6 +16,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   (<https://github.com/openvinotoolkit/datumaro/pull/1174>)
 
 ### Bug fixes
+- Modify the draw function in the visualizer not to raise an error for unsupported annotation types.
+  (<https://github.com/openvinotoolkit/datumaro/pull/1180>)
 - Correct explore path in the related document.
   (<https://github.com/openvinotoolkit/datumaro/pull/1176>)
 - Fix errata in the voc document. Color values in the labelmap.txt should be separated by commas, not colons.
