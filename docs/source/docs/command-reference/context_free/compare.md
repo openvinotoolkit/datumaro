@@ -115,7 +115,7 @@ Lastly, the "Low-level comparison" uses ShiftAnalyzer to show Covariate shift an
 ```
 The results are stored in the formats of `table_compare.json` and `table_compare.txt`.
 
-- Compare the current working tree and a dataset for table
+- Compare the current working tree with a dataset in COCO data format to create the tabular report
   ```console
   datum compare <path/to/dataset2/>:coco
   ```
