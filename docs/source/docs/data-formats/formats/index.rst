@@ -101,6 +101,7 @@ Supported Data Formats
 * CVAT (`for images`, `for video` (import-only))
    * `Format specification <https://opencv.github.io/cvat/docs/manual/advanced/xml_format>`_
    * `Dataset example <https://github.com/openvinotoolkit/datumaro/tree/develop/tests/assets/cvat_dataset>`_
+   * `Format documentation <cvat.md>`_
 * ICDAR13/15 (``word recognition``, ``text localization``, ``text segmentation``)
    * `Format specification <https://rrc.cvc.uab.es/?ch=2>`_
    * `Dataset example <https://github.com/openvinotoolkit/datumaro/tree/develop/tests/assets/icdar_dataset>`_
