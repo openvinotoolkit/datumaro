@@ -1,6 +1,7 @@
 # Copyright (C) 2022 Intel Corporation
 #
 # SPDX-License-Identifier: MIT
+import logging as log
 import math
 import random
 import warnings
@@ -182,7 +183,8 @@ class Visualizer:
         if ann.type == AnnotationType.ellipse:
             return self._draw_ellipse(ann, label_categories, fig, ax, context)
 
-        raise ValueError(f"Unknown ann.type={ann.type}")
+        # warning instead of raising an error for unsupported annotation types.
+        log.warning(f"Ignore unknown ann.type={ann.type}")
 
     def _get_color(self, ann: Annotation) -> str:
         color = self.color_cycles[ann.label % len(self.color_cycles)]
