@@ -14,12 +14,12 @@ from datumaro.components.annotation import (
     Caption,
     DepthAnnotation,
     Ellipse,
+    HashKey,
     Label,
     Mask,
     Points,
     Polygon,
     PolyLine,
-    HashKey,
     SuperResolutionAnnotation,
 )
 from datumaro.components.dataset import Dataset
@@ -127,6 +127,7 @@ class VisualizerTestBase:
 
         for test_case in test_cases:
             _check(test_case.infer_grid_size, test_case.expected_grid_size)
+
 
 class TestCaseClosePltFigure(TestCase):
     def tearDown(self) -> None:
@@ -466,15 +467,14 @@ class EllipseVisualizerTest(TestCaseClosePltFigure, VisualizerTestBase):
     def test_vis_gallery(self):
         self._test_vis_gallery(self.DEFAULT_GRID_SIZE_TEST_CASES)
 
+
 class UnsupportedTypeTest(LabelVisualizerTest):
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
 
         for item in cls.dataset:
-            item.annotations.append(
-                HashKey(np.ones(64).astype(np.uint8))
-            )
+            item.annotations.append(HashKey(np.ones(64).astype(np.uint8)))
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_vis_one_sample(self):
