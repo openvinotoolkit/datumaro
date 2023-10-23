@@ -209,7 +209,8 @@ class Environment:
             and issubclass(s, types)
             and s not in types
             and (
-                getmodule(s) is None
+                getmodule(s)
+                is None  # Custom plugin (in the Datumaro project) can be a single file and have no module
                 or not getmodule(s).__package__.startswith("datumaro.components")
             )
         ]
