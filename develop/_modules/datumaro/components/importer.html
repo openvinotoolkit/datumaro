@@ -316,10 +316,10 @@
 <span class="p">]</span>
 
 
-<div class="viewcode-block" id="Importer"><a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.components.importer.html#datumaro.components.importer.Importer">[docs]</a><span class="k">class</span> <span class="nc">Importer</span><span class="p">(</span><span class="n">CliPlugin</span><span class="p">):</span>
+<div class="viewcode-block" id="Importer"><a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.plugins.data_formats.arrow.importer.html#datumaro.components.importer.Importer">[docs]</a><span class="k">class</span> <span class="nc">Importer</span><span class="p">(</span><span class="n">CliPlugin</span><span class="p">):</span>
     <span class="n">DETECT_CONFIDENCE</span> <span class="o">=</span> <span class="n">FormatDetectionConfidence</span><span class="o">.</span><span class="n">LOW</span>
 
-<div class="viewcode-block" id="Importer.detect"><a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.components.importer.html#datumaro.components.importer.Importer.detect">[docs]</a>    <span class="nd">@classmethod</span>
+<div class="viewcode-block" id="Importer.detect"><a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.plugins.data_formats.arrow.importer.html#datumaro.components.importer.Importer.detect">[docs]</a>    <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">detect</span><span class="p">(</span>
         <span class="bp">cls</span><span class="p">,</span>
         <span class="n">context</span><span class="p">:</span> <span class="n">FormatDetectionContext</span><span class="p">,</span>
@@ -329,11 +329,11 @@
 
         <span class="k">return</span> <span class="bp">cls</span><span class="o">.</span><span class="n">DETECT_CONFIDENCE</span></div>
 
-<div class="viewcode-block" id="Importer.find_sources"><a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.components.importer.html#datumaro.components.importer.Importer.find_sources">[docs]</a>    <span class="nd">@classmethod</span>
+<div class="viewcode-block" id="Importer.find_sources"><a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.plugins.data_formats.arrow.importer.html#datumaro.components.importer.Importer.find_sources">[docs]</a>    <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">find_sources</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">path</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">Dict</span><span class="p">]:</span>
         <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">()</span></div>
 
-<div class="viewcode-block" id="Importer.find_sources_with_params"><a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.components.importer.html#datumaro.components.importer.Importer.find_sources_with_params">[docs]</a>    <span class="nd">@classmethod</span>
+<div class="viewcode-block" id="Importer.find_sources_with_params"><a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.plugins.data_formats.arrow.importer.html#datumaro.components.importer.Importer.find_sources_with_params">[docs]</a>    <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">find_sources_with_params</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">path</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">**</span><span class="n">extra_params</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">Dict</span><span class="p">]:</span>
         <span class="k">return</span> <span class="bp">cls</span><span class="o">.</span><span class="n">find_sources</span><span class="p">(</span><span class="n">path</span><span class="p">)</span></div>
 
@@ -428,7 +428,7 @@
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Flag to indicate whether the importer can stream the dataset item or not.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="kc">False</span>
 
-<div class="viewcode-block" id="Importer.get_extractor_merger"><a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.components.importer.html#datumaro.components.importer.Importer.get_extractor_merger">[docs]</a>    <span class="k">def</span> <span class="nf">get_extractor_merger</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Type</span><span class="p">[</span><span class="n">ExtractorMerger</span><span class="p">]]:</span>
+<div class="viewcode-block" id="Importer.get_extractor_merger"><a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.plugins.data_formats.arrow.importer.html#datumaro.components.importer.Importer.get_extractor_merger">[docs]</a>    <span class="k">def</span> <span class="nf">get_extractor_merger</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Type</span><span class="p">[</span><span class="n">ExtractorMerger</span><span class="p">]]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Extractor merger dedicated for the data format</span>
 
 <span class="sd">        Datumaro import process spawns multiple `DatasetBase` for the detected sources.</span>

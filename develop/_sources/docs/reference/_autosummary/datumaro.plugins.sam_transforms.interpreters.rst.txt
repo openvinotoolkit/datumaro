@@ -27,6 +27,7 @@ datumaro.plugins.sam\_transforms.interpreters
    :toctree:
    :recursive:
 
+   datumaro.plugins.sam_transforms.interpreters.sam_decoder_for_amg
    datumaro.plugins.sam_transforms.interpreters.sam_decoder_for_bbox
    datumaro.plugins.sam_transforms.interpreters.sam_encoder
 

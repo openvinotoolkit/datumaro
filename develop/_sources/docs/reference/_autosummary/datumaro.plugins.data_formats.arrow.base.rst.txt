@@ -18,6 +18,8 @@ datumaro.plugins.data\_formats.arrow.base
    .. autosummary::
    
       ArrowBase
+      ArrowSubsetBase
+      Metadata
    
    
 

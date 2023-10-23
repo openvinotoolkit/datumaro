@@ -307,7 +307,7 @@
 <span class="kn">from</span> <span class="nn">typing_extensions</span> <span class="kn">import</span> <span class="n">Protocol</span>
 
 
-<div class="viewcode-block" id="FormatDetectionConfidence"><a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.components.importer.html#datumaro.components.format_detection.FormatDetectionConfidence">[docs]</a><span class="k">class</span> <span class="nc">FormatDetectionConfidence</span><span class="p">(</span><span class="n">IntEnum</span><span class="p">):</span>
+<div class="viewcode-block" id="FormatDetectionConfidence"><a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.plugins.data_formats.arrow.importer.html#datumaro.components.format_detection.FormatDetectionConfidence">[docs]</a><span class="k">class</span> <span class="nc">FormatDetectionConfidence</span><span class="p">(</span><span class="n">IntEnum</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Represents the level of confidence that a detector has in a dataset</span>
 <span class="sd">    belonging to the detector&#39;s format.</span>
@@ -421,7 +421,7 @@
         <span class="k">return</span> <span class="n">RejectionReason</span><span class="o">.</span><span class="n">detection_unsupported</span></div>
 
 
-<div class="viewcode-block" id="FormatDetectionContext"><a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.components.importer.html#datumaro.components.format_detection.FormatDetectionContext">[docs]</a><span class="k">class</span> <span class="nc">FormatDetectionContext</span><span class="p">:</span>
+<div class="viewcode-block" id="FormatDetectionContext"><a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.plugins.data_formats.arrow.importer.html#datumaro.components.format_detection.FormatDetectionContext">[docs]</a><span class="k">class</span> <span class="nc">FormatDetectionContext</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    An instance of this class is given to a dataset format detector.</span>
 <span class="sd">    See the `FormatDetector` documentation. The class should not</span>
@@ -485,7 +485,7 @@
             <span class="sa">f</span><span class="s2">&quot;a requirement (</span><span class="si">{</span><span class="n">req_type</span><span class="si">}</span><span class="s2">) can&#39;t be placed directly within &quot;</span> <span class="s2">&quot;a &#39;require_any&#39; block&quot;</span>
         <span class="p">)</span>
 
-<div class="viewcode-block" id="FormatDetectionContext.raise_unsupported"><a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.components.importer.html#datumaro.components.format_detection.FormatDetectionContext.raise_unsupported">[docs]</a>    <span class="k">def</span> <span class="nf">raise_unsupported</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">NoReturn</span><span class="p">:</span>
+<div class="viewcode-block" id="FormatDetectionContext.raise_unsupported"><a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.plugins.data_formats.arrow.importer.html#datumaro.components.format_detection.FormatDetectionContext.raise_unsupported">[docs]</a>    <span class="k">def</span> <span class="nf">raise_unsupported</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">NoReturn</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Raises a `FormatDetectionUnsupported` exception to signal that the</span>
 <span class="sd">        current format does not support detection.</span>
@@ -493,7 +493,7 @@
 
         <span class="k">raise</span> <span class="n">FormatDetectionUnsupported</span></div>
 
-<div class="viewcode-block" id="FormatDetectionContext.fail"><a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.components.importer.html#datumaro.components.format_detection.FormatDetectionContext.fail">[docs]</a>    <span class="k">def</span> <span class="nf">fail</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">requirement_desc</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">NoReturn</span><span class="p">:</span>
+<div class="viewcode-block" id="FormatDetectionContext.fail"><a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.plugins.data_formats.arrow.importer.html#datumaro.components.format_detection.FormatDetectionContext.fail">[docs]</a>    <span class="k">def</span> <span class="nf">fail</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">requirement_desc</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">NoReturn</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Places a requirement that is never met. `requirement_desc` must contain</span>
 <span class="sd">        a human-readable description of the requirement.</span>
@@ -502,7 +502,7 @@
 
         <span class="k">raise</span> <span class="n">FormatRequirementsUnmet</span><span class="p">((</span><span class="n">requirement_desc</span><span class="p">,))</span></div>
 
-<div class="viewcode-block" id="FormatDetectionContext.require_file"><a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.components.importer.html#datumaro.components.format_detection.FormatDetectionContext.require_file">[docs]</a>    <span class="k">def</span> <span class="nf">require_file</span><span class="p">(</span>
+<div class="viewcode-block" id="FormatDetectionContext.require_file"><a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.plugins.data_formats.arrow.importer.html#datumaro.components.format_detection.FormatDetectionContext.require_file">[docs]</a>    <span class="k">def</span> <span class="nf">require_file</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">pattern</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
         <span class="o">*</span><span class="p">,</span>
@@ -529,7 +529,7 @@
 
         <span class="k">return</span> <span class="nb">next</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_require_files_iter</span><span class="p">(</span><span class="n">pattern</span><span class="p">,</span> <span class="n">exclude_fnames</span><span class="o">=</span><span class="n">exclude_fnames</span><span class="p">))</span></div>
 
-<div class="viewcode-block" id="FormatDetectionContext.require_files"><a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.components.importer.html#datumaro.components.format_detection.FormatDetectionContext.require_files">[docs]</a>    <span class="k">def</span> <span class="nf">require_files</span><span class="p">(</span>
+<div class="viewcode-block" id="FormatDetectionContext.require_files"><a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.plugins.data_formats.arrow.importer.html#datumaro.components.format_detection.FormatDetectionContext.require_files">[docs]</a>    <span class="k">def</span> <span class="nf">require_files</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">pattern</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
         <span class="o">*</span><span class="p">,</span>
@@ -544,7 +544,7 @@
 
         <span class="k">return</span> <span class="nb">sorted</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_require_files_iter</span><span class="p">(</span><span class="n">pattern</span><span class="p">,</span> <span class="n">exclude_fnames</span><span class="o">=</span><span class="n">exclude_fnames</span><span class="p">))</span></div>
 
-<div class="viewcode-block" id="FormatDetectionContext.require_files_iter"><a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.components.importer.html#datumaro.components.format_detection.FormatDetectionContext.require_files_iter">[docs]</a>    <span class="k">def</span> <span class="nf">require_files_iter</span><span class="p">(</span>
+<div class="viewcode-block" id="FormatDetectionContext.require_files_iter"><a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.plugins.data_formats.arrow.importer.html#datumaro.components.format_detection.FormatDetectionContext.require_files_iter">[docs]</a>    <span class="k">def</span> <span class="nf">require_files_iter</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">pattern</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
         <span class="o">*</span><span class="p">,</span>
@@ -595,10 +595,10 @@
         <span class="k">if</span> <span class="n">none_found</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">fail</span><span class="p">(</span><span class="n">requirement_desc</span><span class="p">)</span>
 
-<div class="viewcode-block" id="FormatDetectionContext.probe_text_file"><a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.components.importer.html#datumaro.components.format_detection.FormatDetectionContext.probe_text_file">[docs]</a>    <span class="nd">@contextlib</span><span class="o">.</span><span class="n">contextmanager</span>
+<div class="viewcode-block" id="FormatDetectionContext.probe_text_file"><a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.plugins.data_formats.arrow.importer.html#datumaro.components.format_detection.FormatDetectionContext.probe_text_file">[docs]</a>    <span class="nd">@contextlib</span><span class="o">.</span><span class="n">contextmanager</span>
     <span class="k">def</span> <span class="nf">probe_text_file</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">requirement_desc</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">is_binary_file</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span>
-    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Union</span><span class="p">[</span><span class="n">BufferedReader</span><span class="p">,</span> <span class="n">TextIO</span><span class="p">]:</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Iterator</span><span class="p">[</span><span class="n">Union</span><span class="p">[</span><span class="n">BufferedReader</span><span class="p">,</span> <span class="n">TextIO</span><span class="p">]]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Returns a context manager that can be used to place a requirement on</span>
 <span class="sd">        the contents of the file referred to by `path`. To do so, you must</span>
@@ -642,7 +642,7 @@
         <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">fail</span><span class="p">(</span><span class="n">requirement_desc_full</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="FormatDetectionContext.require_any"><a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.components.importer.html#datumaro.components.format_detection.FormatDetectionContext.require_any">[docs]</a>    <span class="nd">@contextlib</span><span class="o">.</span><span class="n">contextmanager</span>
+<div class="viewcode-block" id="FormatDetectionContext.require_any"><a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.plugins.data_formats.arrow.importer.html#datumaro.components.format_detection.FormatDetectionContext.require_any">[docs]</a>    <span class="nd">@contextlib</span><span class="o">.</span><span class="n">contextmanager</span>
     <span class="k">def</span> <span class="nf">require_any</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Iterator</span><span class="p">[</span><span class="kc">None</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Returns a context manager that can be used to place a requirement that</span>
@@ -690,7 +690,7 @@
         <span class="k">finally</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_one_or_more_context</span> <span class="o">=</span> <span class="kc">None</span></div>
 
-<div class="viewcode-block" id="FormatDetectionContext.alternative"><a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.components.importer.html#datumaro.components.format_detection.FormatDetectionContext.alternative">[docs]</a>    <span class="nd">@contextlib</span><span class="o">.</span><span class="n">contextmanager</span>
+<div class="viewcode-block" id="FormatDetectionContext.alternative"><a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.plugins.data_formats.arrow.importer.html#datumaro.components.format_detection.FormatDetectionContext.alternative">[docs]</a>    <span class="nd">@contextlib</span><span class="o">.</span><span class="n">contextmanager</span>
     <span class="k">def</span> <span class="nf">alternative</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Iterator</span><span class="p">[</span><span class="kc">None</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Returns a context manager that can be used in combination with</span>

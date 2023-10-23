@@ -387,6 +387,7 @@
 <li class="toctree-l2"><a class="reference internal" href="05_transform.html">Transform Dataset: Re-id, Reindexing, Remapping, etc.</a></li>
 <li class="toctree-l2"><a class="reference internal" href="06_tiling.html">Tile your Dataset to Cope with High-Resolution Images</a></li>
 <li class="toctree-l2"><a class="reference internal" href="18_bbox_to_instance_mask_using_sam.html">Transform bounding box to instance mask annotations using Segment Anything Model</a></li>
+<li class="toctree-l2"><a class="reference internal" href="19_automatic_instance_mask_gen_using_sam.html">Automatic instance mask annotations generation using Segment Anything Model</a></li>
 </ul>
 </li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../e2e_example.html">From Datumaro to Model Training</a><input class="toctree-checkbox" id="toctree-checkbox-11" name="toctree-checkbox-11" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-11"><i class="fa-solid fa-chevron-down"></i></label><ul>
@@ -597,7 +598,7 @@
 <span class="c1"># SPDX-License-Identifier: MIT</span>
 
 <span class="kn">import</span> <span class="nn">datumaro</span> <span class="k">as</span> <span class="nn">dm</span>
-<span class="kn">from</span> <span class="nn">datumaro.components.explorer</span> <span class="kn">import</span> <span class="n">Explorer</span>
+<span class="kn">from</span> <span class="nn">datumaro.components.algorithms.hash_key_inference.explorer</span> <span class="kn">import</span> <span class="n">Explorer</span>
 <span class="kn">from</span> <span class="nn">datumaro.components.visualizer</span> <span class="kn">import</span> <span class="n">Visualizer</span>
 </pre></div>
 </div>
@@ -606,7 +607,7 @@
 <h2>Data exploration<a class="headerlink" href="#Data-exploration" title="Permalink to this heading">#</a></h2>
 <section id="Explore-with-COCO-instance-segmentation-dataset">
 <h3>Explore with COCO instance segmentation dataset<a class="headerlink" href="#Explore-with-COCO-instance-segmentation-dataset" title="Permalink to this heading">#</a></h3>
-<p>To use data exploration, we need to define hash for each dataset. So, set <code class="docutils literal notranslate"><span class="pre">save_hash</span></code> as <code class="docutils literal notranslate"><span class="pre">True</span></code>. The default value is <code class="docutils literal notranslate"><span class="pre">False</span></code>.</p>
+<p>To use data exploration, we need to define hash for each dataset. <code class="docutils literal notranslate"><span class="pre">Explorer</span></code> calculates the hash key automatically. If you want to re-use the calculated hash key, please set <code class="docutils literal notranslate"><span class="pre">save_hashkey_meta</span></code> as <code class="docutils literal notranslate"><span class="pre">True</span></code> when exporting the dataset. The default value is <code class="docutils literal notranslate"><span class="pre">False</span></code>.</p>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[14]:
 </pre></div>

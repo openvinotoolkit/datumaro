@@ -50,7 +50,7 @@
     <link rel="index" title="Index" href="../../../genindex.html" />
     <link rel="search" title="Search" href="../../../search.html" />
     <link rel="next" title="datumaro.plugins.data_formats.arrow.exporter" href="datumaro.plugins.data_formats.arrow.exporter.html" />
-    <link rel="prev" title="datumaro.plugins.data_formats.arrow.arrow_dataset" href="datumaro.plugins.data_formats.arrow.arrow_dataset.html" />
+    <link rel="prev" title="datumaro.plugins.data_formats.arrow" href="datumaro.plugins.data_formats.arrow.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="docsearch:language" content="en">
   </head>
@@ -384,6 +384,7 @@
 <li class="toctree-l2"><a class="reference internal" href="../../jupyter_notebook_examples/notebooks/05_transform.html">Transform Dataset: Re-id, Reindexing, Remapping, etc.</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../jupyter_notebook_examples/notebooks/06_tiling.html">Tile your Dataset to Cope with High-Resolution Images</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../jupyter_notebook_examples/notebooks/18_bbox_to_instance_mask_using_sam.html">Transform bounding box to instance mask annotations using Segment Anything Model</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../jupyter_notebook_examples/notebooks/19_automatic_instance_mask_gen_using_sam.html">Automatic instance mask annotations generation using Segment Anything Model</a></li>
 </ul>
 </li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../../jupyter_notebook_examples/e2e_example.html">From Datumaro to Model Training</a><input class="toctree-checkbox" id="toctree-checkbox-11" name="toctree-checkbox-11" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-11"><i class="fa-solid fa-chevron-down"></i></label><ul>
@@ -586,15 +587,88 @@
 <p class="rubric">Classes</p>
 <table class="autosummary longtable table autosummary">
 <tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="#datumaro.plugins.data_formats.arrow.base.ArrowBase" title="datumaro.plugins.data_formats.arrow.base.ArrowBase"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ArrowBase</span></code></a>(path[, additional_paths, subset, ctx])</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#datumaro.plugins.data_formats.arrow.base.ArrowBase" title="datumaro.plugins.data_formats.arrow.base.ArrowBase"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ArrowBase</span></code></a>(root_path, *, file_paths[, ctx])</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#datumaro.plugins.data_formats.arrow.base.ArrowSubsetBase" title="datumaro.plugins.data_formats.arrow.base.ArrowSubsetBase"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ArrowSubsetBase</span></code></a>(lookup, ...)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#datumaro.plugins.data_formats.arrow.base.Metadata" title="datumaro.plugins.data_formats.arrow.base.Metadata"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Metadata</span></code></a>(infos, categories, media_type)</p></td>
 <td><p></p></td>
 </tr>
 </tbody>
 </table>
 <dl class="py class">
-<dt class="sig sig-object py" id="datumaro.plugins.data_formats.arrow.base.ArrowBase">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">datumaro.plugins.data_formats.arrow.base.</span></span><span class="sig-name descname"><span class="pre">ArrowBase</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">additional_paths</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Optional" title="(in Python v3.12)"><span class="pre">Optional</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.List" title="(in Python v3.12)"><span class="pre">List</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">subset</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Optional" title="(in Python v3.12)"><span class="pre">Optional</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ctx</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Optional" title="(in Python v3.12)"><span class="pre">Optional</span></a><span class="p"><span class="pre">[</span></span><a class="reference internal" href="datumaro.components.contexts.importer.html#datumaro.components.contexts.importer.ImportContext" title="datumaro.components.contexts.importer.ImportContext"><span class="pre">ImportContext</span></a><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/datumaro/plugins/data_formats/arrow/base.html#ArrowBase"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.plugins.data_formats.arrow.base.ArrowBase" title="Permalink to this definition">#</a></dt>
+<dt class="sig sig-object py" id="datumaro.plugins.data_formats.arrow.base.ArrowSubsetBase">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">datumaro.plugins.data_formats.arrow.base.</span></span><span class="sig-name descname"><span class="pre">ArrowSubsetBase</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">lookup:</span> <span class="pre">~typing.Dict[str,</span> <span class="pre">~datumaro.components.dataset_base.DatasetItem],</span> <span class="pre">infos:</span> <span class="pre">~typing.Dict[str,</span> <span class="pre">~typing.Any],</span> <span class="pre">categories:</span> <span class="pre">~typing.Dict[~datumaro.components.annotation.AnnotationType,</span> <span class="pre">~datumaro.components.annotation.Categories],</span> <span class="pre">subset:</span> <span class="pre">str,</span> <span class="pre">media_type:</span> <span class="pre">~typing.Type[~datumaro.components.media.MediaElement]</span> <span class="pre">=</span> <span class="pre">&lt;class</span> <span class="pre">'datumaro.components.media.Image'&gt;</span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/datumaro/plugins/data_formats/arrow/base.html#ArrowSubsetBase"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.plugins.data_formats.arrow.base.ArrowSubsetBase" title="Permalink to this definition">#</a></dt>
 <dd><p>Bases: <a class="reference internal" href="datumaro.components.dataset_base.html#datumaro.components.dataset_base.SubsetBase" title="datumaro.components.dataset_base.SubsetBase"><code class="xref py py-class docutils literal notranslate"><span class="pre">SubsetBase</span></code></a></p>
+<dl class="py method">
+<dt class="sig sig-object py" id="datumaro.plugins.data_formats.arrow.base.ArrowSubsetBase.get">
+<span class="sig-name descname"><span class="pre">get</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">item_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">subset</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Optional" title="(in Python v3.12)"><span class="pre">Optional</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Optional" title="(in Python v3.12)"><span class="pre">Optional</span></a><span class="p"><span class="pre">[</span></span><a class="reference internal" href="datumaro.components.dataset_base.html#datumaro.components.dataset_base.DatasetItem" title="datumaro.components.dataset_base.DatasetItem"><span class="pre">DatasetItem</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../../_modules/datumaro/plugins/data_formats/arrow/base.html#ArrowSubsetBase.get"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.plugins.data_formats.arrow.base.ArrowSubsetBase.get" title="Permalink to this definition">#</a></dt>
+<dd><p>Provides random access to dataset items.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="datumaro.plugins.data_formats.arrow.base.Metadata">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">datumaro.plugins.data_formats.arrow.base.</span></span><span class="sig-name descname"><span class="pre">Metadata</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">infos</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">categories</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">media_type</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Type</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="datumaro.components.media.html#datumaro.components.media.MediaElement" title="datumaro.components.media.MediaElement"><span class="pre">datumaro.components.media.MediaElement</span></a><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/datumaro/plugins/data_formats/arrow/base.html#Metadata"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.plugins.data_formats.arrow.base.Metadata" title="Permalink to this definition">#</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="datumaro.plugins.data_formats.arrow.base.Metadata.infos">
+<span class="sig-name descname"><span class="pre">infos</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Dict" title="(in Python v3.12)"><span class="pre">Dict</span></a></em><a class="headerlink" href="#datumaro.plugins.data_formats.arrow.base.Metadata.infos" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="datumaro.plugins.data_formats.arrow.base.Metadata.categories">
+<span class="sig-name descname"><span class="pre">categories</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Dict" title="(in Python v3.12)"><span class="pre">Dict</span></a></em><a class="headerlink" href="#datumaro.plugins.data_formats.arrow.base.Metadata.categories" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="datumaro.plugins.data_formats.arrow.base.Metadata.media_type">
+<span class="sig-name descname"><span class="pre">media_type</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Type" title="(in Python v3.12)"><span class="pre">Type</span></a><span class="p"><span class="pre">[</span></span><a class="reference internal" href="datumaro.components.media.html#datumaro.components.media.MediaElement" title="datumaro.components.media.MediaElement"><span class="pre">MediaElement</span></a><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#datumaro.plugins.data_formats.arrow.base.Metadata.media_type" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="datumaro.plugins.data_formats.arrow.base.ArrowBase">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">datumaro.plugins.data_formats.arrow.base.</span></span><span class="sig-name descname"><span class="pre">ArrowBase</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">root_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">file_paths</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.List" title="(in Python v3.12)"><span class="pre">List</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ctx</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Optional" title="(in Python v3.12)"><span class="pre">Optional</span></a><span class="p"><span class="pre">[</span></span><a class="reference internal" href="datumaro.components.contexts.importer.html#datumaro.components.contexts.importer.ImportContext" title="datumaro.components.contexts.importer.ImportContext"><span class="pre">ImportContext</span></a><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/datumaro/plugins/data_formats/arrow/base.html#ArrowBase"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.plugins.data_formats.arrow.base.ArrowBase" title="Permalink to this definition">#</a></dt>
+<dd><p>Bases: <a class="reference internal" href="datumaro.components.dataset_base.html#datumaro.components.dataset_base.DatasetBase" title="datumaro.components.dataset_base.DatasetBase"><code class="xref py py-class docutils literal notranslate"><span class="pre">DatasetBase</span></code></a></p>
+<dl class="py method">
+<dt class="sig sig-object py" id="datumaro.plugins.data_formats.arrow.base.ArrowBase.infos">
+<span class="sig-name descname"><span class="pre">infos</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Dict" title="(in Python v3.12)"><span class="pre">Dict</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.12)"><span class="pre">Any</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../../_modules/datumaro/plugins/data_formats/arrow/base.html#ArrowBase.infos"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.plugins.data_formats.arrow.base.ArrowBase.infos" title="Permalink to this definition">#</a></dt>
+<dd><p>Returns meta-info of dataset.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="datumaro.plugins.data_formats.arrow.base.ArrowBase.categories">
+<span class="sig-name descname"><span class="pre">categories</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Dict" title="(in Python v3.12)"><span class="pre">Dict</span></a><span class="p"><span class="pre">[</span></span><a class="reference internal" href="datumaro.components.annotation.html#datumaro.components.annotation.AnnotationType" title="datumaro.components.annotation.AnnotationType"><span class="pre">AnnotationType</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference internal" href="datumaro.components.annotation.html#datumaro.components.annotation.Categories" title="datumaro.components.annotation.Categories"><span class="pre">Categories</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../../_modules/datumaro/plugins/data_formats/arrow/base.html#ArrowBase.categories"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.plugins.data_formats.arrow.base.ArrowBase.categories" title="Permalink to this definition">#</a></dt>
+<dd><p>Returns metainfo about dataset labels.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="datumaro.plugins.data_formats.arrow.base.ArrowBase.get">
+<span class="sig-name descname"><span class="pre">get</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">item_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">subset</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Optional" title="(in Python v3.12)"><span class="pre">Optional</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Optional" title="(in Python v3.12)"><span class="pre">Optional</span></a><span class="p"><span class="pre">[</span></span><a class="reference internal" href="datumaro.components.dataset_base.html#datumaro.components.dataset_base.DatasetItem" title="datumaro.components.dataset_base.DatasetItem"><span class="pre">DatasetItem</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../../_modules/datumaro/plugins/data_formats/arrow/base.html#ArrowBase.get"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.plugins.data_formats.arrow.base.ArrowBase.get" title="Permalink to this definition">#</a></dt>
+<dd><p>Provides random access to dataset items.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="datumaro.plugins.data_formats.arrow.base.ArrowBase.lookup">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">lookup</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Dict" title="(in Python v3.12)"><span class="pre">Dict</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Dict" title="(in Python v3.12)"><span class="pre">Dict</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.12)"><span class="pre">int</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#datumaro.plugins.data_formats.arrow.base.ArrowBase.lookup" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="datumaro.plugins.data_formats.arrow.base.ArrowBase.subsets">
+<span class="sig-name descname"><span class="pre">subsets</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Dict" title="(in Python v3.12)"><span class="pre">Dict</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference internal" href="datumaro.components.dataset_base.html#datumaro.components.dataset_base.IDataset" title="datumaro.components.dataset_base.IDataset"><span class="pre">IDataset</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../../_modules/datumaro/plugins/data_formats/arrow/base.html#ArrowBase.subsets"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.plugins.data_formats.arrow.base.ArrowBase.subsets" title="Permalink to this definition">#</a></dt>
+<dd><p>Enumerates subsets in the dataset. Each subset can be a dataset itself.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="datumaro.plugins.data_formats.arrow.base.ArrowBase.get_subset">
+<span class="sig-name descname"><span class="pre">get_subset</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><span class="pre">str</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="datumaro.components.dataset_base.html#datumaro.components.dataset_base.IDataset" title="datumaro.components.dataset_base.IDataset"><span class="pre">IDataset</span></a></span></span><a class="reference internal" href="../../../_modules/datumaro/plugins/data_formats/arrow/base.html#ArrowBase.get_subset"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.plugins.data_formats.arrow.base.ArrowBase.get_subset" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
 </dd></dl>
 
 </section>
@@ -607,11 +681,11 @@
             <footer class="bd-footer-article">
                 <!-- Previous / next buttons -->
 <div class='prev-next-area'>
-  <a class='left-prev' id="prev-link" href="datumaro.plugins.data_formats.arrow.arrow_dataset.html" title="previous page">
+  <a class='left-prev' id="prev-link" href="datumaro.plugins.data_formats.arrow.html" title="previous page">
       <i class="fa-solid fa-angle-left"></i>
       <div class="prev-next-info">
           <p class="prev-next-subtitle">previous</p>
-          <p class="prev-next-title">datumaro.plugins.data_formats.arrow.arrow_dataset</p>
+          <p class="prev-next-title">datumaro.plugins.data_formats.arrow</p>
       </div>
   </a>
   <a class='right-next' id="next-link" href="datumaro.plugins.data_formats.arrow.exporter.html" title="next page">
@@ -638,6 +712,64 @@
 <nav id="bd-toc-nav" class="page-toc">
     <ul class="visible nav section-nav flex-column">
  <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#datumaro.plugins.data_formats.arrow.base.ArrowSubsetBase">
+   <code class="docutils literal notranslate">
+    <span class="pre">
+     ArrowSubsetBase
+    </span>
+   </code>
+  </a>
+  <ul class="nav section-nav flex-column">
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#datumaro.plugins.data_formats.arrow.base.ArrowSubsetBase.get">
+     <code class="docutils literal notranslate">
+      <span class="pre">
+       ArrowSubsetBase.get()
+      </span>
+     </code>
+    </a>
+   </li>
+  </ul>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#datumaro.plugins.data_formats.arrow.base.Metadata">
+   <code class="docutils literal notranslate">
+    <span class="pre">
+     Metadata
+    </span>
+   </code>
+  </a>
+  <ul class="nav section-nav flex-column">
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#datumaro.plugins.data_formats.arrow.base.Metadata.infos">
+     <code class="docutils literal notranslate">
+      <span class="pre">
+       Metadata.infos
+      </span>
+     </code>
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#datumaro.plugins.data_formats.arrow.base.Metadata.categories">
+     <code class="docutils literal notranslate">
+      <span class="pre">
+       Metadata.categories
+      </span>
+     </code>
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#datumaro.plugins.data_formats.arrow.base.Metadata.media_type">
+     <code class="docutils literal notranslate">
+      <span class="pre">
+       Metadata.media_type
+      </span>
+     </code>
+    </a>
+   </li>
+  </ul>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
   <a class="reference internal nav-link" href="#datumaro.plugins.data_formats.arrow.base.ArrowBase">
    <code class="docutils literal notranslate">
     <span class="pre">
@@ -645,6 +777,62 @@
     </span>
    </code>
   </a>
+  <ul class="nav section-nav flex-column">
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#datumaro.plugins.data_formats.arrow.base.ArrowBase.infos">
+     <code class="docutils literal notranslate">
+      <span class="pre">
+       ArrowBase.infos()
+      </span>
+     </code>
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#datumaro.plugins.data_formats.arrow.base.ArrowBase.categories">
+     <code class="docutils literal notranslate">
+      <span class="pre">
+       ArrowBase.categories()
+      </span>
+     </code>
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#datumaro.plugins.data_formats.arrow.base.ArrowBase.get">
+     <code class="docutils literal notranslate">
+      <span class="pre">
+       ArrowBase.get()
+      </span>
+     </code>
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#datumaro.plugins.data_formats.arrow.base.ArrowBase.lookup">
+     <code class="docutils literal notranslate">
+      <span class="pre">
+       ArrowBase.lookup
+      </span>
+     </code>
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#datumaro.plugins.data_formats.arrow.base.ArrowBase.subsets">
+     <code class="docutils literal notranslate">
+      <span class="pre">
+       ArrowBase.subsets()
+      </span>
+     </code>
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#datumaro.plugins.data_formats.arrow.base.ArrowBase.get_subset">
+     <code class="docutils literal notranslate">
+      <span class="pre">
+       ArrowBase.get_subset()
+      </span>
+     </code>
+    </a>
+   </li>
+  </ul>
  </li>
 </ul>
 

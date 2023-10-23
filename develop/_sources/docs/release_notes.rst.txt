@@ -14,7 +14,7 @@ New features
 - Add multiframework (PyTorch, Tensorflow) converter
 - Add SAM OVMS and Triton server Docker image builders
 - Add SAMBboxToInstanceMask transform
-- Add ConfigurableValicator
+- Add ConfigurableValidator
 
 Enhancements
 ^^^^^^^^^^^^

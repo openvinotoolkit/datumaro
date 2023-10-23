@@ -384,6 +384,7 @@
 <li class="toctree-l2"><a class="reference internal" href="../../jupyter_notebook_examples/notebooks/05_transform.html">Transform Dataset: Re-id, Reindexing, Remapping, etc.</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../jupyter_notebook_examples/notebooks/06_tiling.html">Tile your Dataset to Cope with High-Resolution Images</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../jupyter_notebook_examples/notebooks/18_bbox_to_instance_mask_using_sam.html">Transform bounding box to instance mask annotations using Segment Anything Model</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../jupyter_notebook_examples/notebooks/19_automatic_instance_mask_gen_using_sam.html">Automatic instance mask annotations generation using Segment Anything Model</a></li>
 </ul>
 </li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../../jupyter_notebook_examples/e2e_example.html">From Datumaro to Model Training</a><input class="toctree-checkbox" id="toctree-checkbox-11" name="toctree-checkbox-11" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-11"><i class="fa-solid fa-chevron-down"></i></label><ul>
@@ -2465,11 +2466,11 @@ try:</p>
 <dl class="py function">
 <dt class="sig sig-object py" id="datumaro.components.dataset.rmtree">
 <span class="sig-prename descclassname"><span class="pre">datumaro.components.dataset.</span></span><span class="sig-name descname"><span class="pre">rmtree</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Union" title="(in Python v3.12)"><span class="pre">Union</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/os.html#os.PathLike" title="(in Python v3.12)"><span class="pre">PathLike</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.12)"><span class="pre">None</span></a></span></span><a class="reference internal" href="../../../_modules/git/util.html#rmtree"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.components.dataset.rmtree" title="Permalink to this definition">#</a></dt>
-<dd><p>Remove the given recursively.</p>
+<dd><p>Remove the given directory tree recursively.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Note<span class="colon">:</span></dt>
-<dd class="field-odd"><p>we use shutil rmtree but adjust its behaviour to see whether files that
-couldn’t be deleted are read-only. Windows will not remove them in that case</p>
+<dd class="field-odd"><p>We use <a class="reference external" href="https://docs.python.org/3/library/shutil.html#shutil.rmtree" title="(in Python v3.12)"><code class="xref py py-func docutils literal notranslate"><span class="pre">shutil.rmtree()</span></code></a> but adjust its behaviour to see whether files that
+couldn’t be deleted are read-only. Windows will not remove them in that case.</p>
 </dd>
 </dl>
 </dd></dl>

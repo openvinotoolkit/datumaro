@@ -384,6 +384,7 @@
 <li class="toctree-l2"><a class="reference internal" href="../../jupyter_notebook_examples/notebooks/05_transform.html">Transform Dataset: Re-id, Reindexing, Remapping, etc.</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../jupyter_notebook_examples/notebooks/06_tiling.html">Tile your Dataset to Cope with High-Resolution Images</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../jupyter_notebook_examples/notebooks/18_bbox_to_instance_mask_using_sam.html">Transform bounding box to instance mask annotations using Segment Anything Model</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../jupyter_notebook_examples/notebooks/19_automatic_instance_mask_gen_using_sam.html">Automatic instance mask annotations generation using Segment Anything Model</a></li>
 </ul>
 </li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../../jupyter_notebook_examples/e2e_example.html">From Datumaro to Model Training</a><input class="toctree-checkbox" id="toctree-checkbox-11" name="toctree-checkbox-11" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-11"><i class="fa-solid fa-chevron-down"></i></label><ul>
@@ -869,6 +870,50 @@ object construction (i.e. doesn’t require dataset iteration).</p>
 <dt class="sig sig-object py" id="datumaro.plugins.data_formats.datumaro.base.DatasetItem.media_as">
 <span class="sig-name descname"><span class="pre">media_as</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">t</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Type" title="(in Python v3.12)"><span class="pre">Type</span></a><span class="p"><span class="pre">[</span></span><span class="pre">T</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">T</span></span></span><a class="reference internal" href="../../../_modules/datumaro/components/dataset_base.html#DatasetItem.media_as"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.plugins.data_formats.datumaro.base.DatasetItem.media_as" title="Permalink to this definition">#</a></dt>
 <dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="datumaro.plugins.data_formats.datumaro.base.DatumPageMapper">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">datumaro.plugins.data_formats.datumaro.base.</span></span><span class="sig-name descname"><span class="pre">DatumPageMapper</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><span class="pre">str</span></a></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/datumaro/plugins/data_formats/datumaro/page_mapper.html#DatumPageMapper"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.plugins.data_formats.datumaro.base.DatumPageMapper" title="Permalink to this definition">#</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<p>Construct page maps for items and annotations from the JSON file,
+which are used for the stream importer.</p>
+<p>It also provides __iter__() to produce item and annotation dictionaries
+in stream manner after constructing the page map.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="datumaro.plugins.data_formats.datumaro.base.DatumPageMapper.get_item_dict">
+<span class="sig-name descname"><span class="pre">get_item_dict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">item_key</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><span class="pre">str</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Optional" title="(in Python v3.12)"><span class="pre">Optional</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Dict" title="(in Python v3.12)"><span class="pre">Dict</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../../_modules/datumaro/plugins/data_formats/datumaro/page_mapper.html#DatumPageMapper.get_item_dict"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.plugins.data_formats.datumaro.base.DatumPageMapper.get_item_dict" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="datumaro.plugins.data_formats.datumaro.base.DatumPageMapper.iter_item_ids">
+<span class="sig-name descname"><span class="pre">iter_item_ids</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Iterator" title="(in Python v3.12)"><span class="pre">Iterator</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../../_modules/datumaro/plugins/data_formats/datumaro/page_mapper.html#DatumPageMapper.iter_item_ids"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.plugins.data_formats.datumaro.base.DatumPageMapper.iter_item_ids" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="datumaro.plugins.data_formats.datumaro.base.DatumPageMapper.dm_format_version">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">dm_format_version</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Optional" title="(in Python v3.12)"><span class="pre">Optional</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#datumaro.plugins.data_formats.datumaro.base.DatumPageMapper.dm_format_version" title="Permalink to this definition">#</a></dt>
+<dd><p>Parse “dm_format_version” section from the given JSON file using the stream json parser</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="datumaro.plugins.data_formats.datumaro.base.DatumPageMapper.media_type">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">media_type</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Optional" title="(in Python v3.12)"><span class="pre">Optional</span></a><span class="p"><span class="pre">[</span></span><a class="reference internal" href="datumaro.components.media.html#datumaro.components.media.MediaType" title="datumaro.components.media.MediaType"><span class="pre">MediaType</span></a><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#datumaro.plugins.data_formats.datumaro.base.DatumPageMapper.media_type" title="Permalink to this definition">#</a></dt>
+<dd><p>Parse “media_type” section from the given JSON file using the stream json parser</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="datumaro.plugins.data_formats.datumaro.base.DatumPageMapper.infos">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">infos</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Dict" title="(in Python v3.12)"><span class="pre">Dict</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.12)"><span class="pre">Any</span></a><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#datumaro.plugins.data_formats.datumaro.base.DatumPageMapper.infos" title="Permalink to this definition">#</a></dt>
+<dd><p>Parse “infos” section from the given JSON file using the stream json parser</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="datumaro.plugins.data_formats.datumaro.base.DatumPageMapper.categories">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">categories</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Dict" title="(in Python v3.12)"><span class="pre">Dict</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.12)"><span class="pre">Any</span></a><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#datumaro.plugins.data_formats.datumaro.base.DatumPageMapper.categories" title="Permalink to this definition">#</a></dt>
+<dd><p>Parse “categories” section from the given JSON file using the stream json parser</p>
+</dd></dl>
 
 </dd></dl>
 
@@ -1578,37 +1623,6 @@ with these arguments</p></li>
 </dd></dl>
 
 <dl class="py class">
-<dt class="sig sig-object py" id="datumaro.plugins.data_formats.datumaro.base.StreamingJSONObject">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">datumaro.plugins.data_formats.datumaro.base.</span></span><span class="sig-name descname"><span class="pre">StreamingJSONObject</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">token_stream</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/json_stream/base.html#StreamingJSONObject"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.plugins.data_formats.datumaro.base.StreamingJSONObject" title="Permalink to this definition">#</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">StreamingJSONBase</span></code>, <a class="reference internal" href="datumaro.components.abstracts.model_interpreter.html#datumaro.components.abstracts.model_interpreter.ABC" title="abc.ABC"><code class="xref py py-class docutils literal notranslate"><span class="pre">ABC</span></code></a></p>
-<dl class="py attribute">
-<dt class="sig sig-object py" id="datumaro.plugins.data_formats.datumaro.base.StreamingJSONObject.INCOMPLETE_ERROR">
-<span class="sig-name descname"><span class="pre">INCOMPLETE_ERROR</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'Unterminated</span> <span class="pre">object</span> <span class="pre">at</span> <span class="pre">end</span> <span class="pre">of</span> <span class="pre">file'</span></em><a class="headerlink" href="#datumaro.plugins.data_formats.datumaro.base.StreamingJSONObject.INCOMPLETE_ERROR" title="Permalink to this definition">#</a></dt>
-<dd></dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="datumaro.plugins.data_formats.datumaro.base.StreamingJSONObject.items">
-<span class="sig-name descname"><span class="pre">items</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/json_stream/base.html#StreamingJSONObject.items"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.plugins.data_formats.datumaro.base.StreamingJSONObject.items" title="Permalink to this definition">#</a></dt>
-<dd></dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="datumaro.plugins.data_formats.datumaro.base.StreamingJSONObject.keys">
-<span class="sig-name descname"><span class="pre">keys</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/json_stream/base.html#StreamingJSONObject.keys"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.plugins.data_formats.datumaro.base.StreamingJSONObject.keys" title="Permalink to this definition">#</a></dt>
-<dd></dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="datumaro.plugins.data_formats.datumaro.base.StreamingJSONObject.values">
-<span class="sig-name descname"><span class="pre">values</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/json_stream/base.html#StreamingJSONObject.values"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.plugins.data_formats.datumaro.base.StreamingJSONObject.values" title="Permalink to this definition">#</a></dt>
-<dd></dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="datumaro.plugins.data_formats.datumaro.base.StreamingJSONObject.get">
-<span class="sig-name descname"><span class="pre">get</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">k</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">default</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.12)"><span class="pre">Any</span></a></span></span><a class="reference internal" href="../../../_modules/json_stream/base.html#StreamingJSONObject.get"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.plugins.data_formats.datumaro.base.StreamingJSONObject.get" title="Permalink to this definition">#</a></dt>
-<dd></dd></dl>
-
-</dd></dl>
-
-<dl class="py class">
 <dt class="sig sig-object py" id="datumaro.plugins.data_formats.datumaro.base.SubsetBase">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">datumaro.plugins.data_formats.datumaro.base.</span></span><span class="sig-name descname"><span class="pre">SubsetBase</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">length:</span> <span class="pre">~typing.Optional[int]</span> <span class="pre">=</span> <span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">subset:</span> <span class="pre">~typing.Optional[str]</span> <span class="pre">=</span> <span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">media_type:</span> <span class="pre">~typing.Type[~datumaro.components.media.MediaElement]</span> <span class="pre">=</span> <span class="pre">&lt;class</span> <span class="pre">'datumaro.components.media.Image'&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ctx:</span> <span class="pre">~typing.Optional[~datumaro.components.contexts.importer.ImportContext]</span> <span class="pre">=</span> <span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/datumaro/components/dataset_base.html#SubsetBase"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.plugins.data_formats.datumaro.base.SubsetBase" title="Permalink to this definition">#</a></dt>
 <dd><p>Bases: <a class="reference internal" href="datumaro.components.dataset_base.html#datumaro.components.dataset_base.DatasetBase" title="datumaro.components.dataset_base.DatasetBase"><code class="xref py py-class docutils literal notranslate"><span class="pre">DatasetBase</span></code></a></p>
@@ -1727,11 +1741,6 @@ i.e. start frame, end frame and frame step.</p>
 <dl class="py function">
 <dt class="sig sig-object py" id="datumaro.plugins.data_formats.datumaro.base.parse_json_file">
 <span class="sig-prename descclassname"><span class="pre">datumaro.plugins.data_formats.datumaro.base.</span></span><span class="sig-name descname"><span class="pre">parse_json_file</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><span class="pre">str</span></a></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/datumaro/util.html#parse_json_file"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.plugins.data_formats.datumaro.base.parse_json_file" title="Permalink to this definition">#</a></dt>
-<dd></dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="datumaro.plugins.data_formats.datumaro.base.to_dict_from_streaming_json">
-<span class="sig-prename descclassname"><span class="pre">datumaro.plugins.data_formats.datumaro.base.</span></span><span class="sig-name descname"><span class="pre">to_dict_from_streaming_json</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">obj</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.12)"><span class="pre">Any</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Dict" title="(in Python v3.12)"><span class="pre">Dict</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.12)"><span class="pre">Any</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../../_modules/datumaro/util.html#to_dict_from_streaming_json"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.plugins.data_formats.datumaro.base.to_dict_from_streaming_json" title="Permalink to this definition">#</a></dt>
 <dd></dd></dl>
 
 </section>
@@ -2230,6 +2239,71 @@ i.e. start frame, end frame and frame step.</p>
      <code class="docutils literal notranslate">
       <span class="pre">
        DatasetItem.media_as()
+      </span>
+     </code>
+    </a>
+   </li>
+  </ul>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#datumaro.plugins.data_formats.datumaro.base.DatumPageMapper">
+   <code class="docutils literal notranslate">
+    <span class="pre">
+     DatumPageMapper
+    </span>
+   </code>
+  </a>
+  <ul class="nav section-nav flex-column">
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#datumaro.plugins.data_formats.datumaro.base.DatumPageMapper.get_item_dict">
+     <code class="docutils literal notranslate">
+      <span class="pre">
+       DatumPageMapper.get_item_dict()
+      </span>
+     </code>
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#datumaro.plugins.data_formats.datumaro.base.DatumPageMapper.iter_item_ids">
+     <code class="docutils literal notranslate">
+      <span class="pre">
+       DatumPageMapper.iter_item_ids()
+      </span>
+     </code>
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#datumaro.plugins.data_formats.datumaro.base.DatumPageMapper.dm_format_version">
+     <code class="docutils literal notranslate">
+      <span class="pre">
+       DatumPageMapper.dm_format_version
+      </span>
+     </code>
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#datumaro.plugins.data_formats.datumaro.base.DatumPageMapper.media_type">
+     <code class="docutils literal notranslate">
+      <span class="pre">
+       DatumPageMapper.media_type
+      </span>
+     </code>
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#datumaro.plugins.data_formats.datumaro.base.DatumPageMapper.infos">
+     <code class="docutils literal notranslate">
+      <span class="pre">
+       DatumPageMapper.infos
+      </span>
+     </code>
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#datumaro.plugins.data_formats.datumaro.base.DatumPageMapper.categories">
+     <code class="docutils literal notranslate">
+      <span class="pre">
+       DatumPageMapper.categories
       </span>
      </code>
     </a>
@@ -3339,62 +3413,6 @@ i.e. start frame, end frame and frame step.</p>
   </a>
  </li>
  <li class="toc-h2 nav-item toc-entry">
-  <a class="reference internal nav-link" href="#datumaro.plugins.data_formats.datumaro.base.StreamingJSONObject">
-   <code class="docutils literal notranslate">
-    <span class="pre">
-     StreamingJSONObject
-    </span>
-   </code>
-  </a>
-  <ul class="nav section-nav flex-column">
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.plugins.data_formats.datumaro.base.StreamingJSONObject.INCOMPLETE_ERROR">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       StreamingJSONObject.INCOMPLETE_ERROR
-      </span>
-     </code>
-    </a>
-   </li>
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.plugins.data_formats.datumaro.base.StreamingJSONObject.items">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       StreamingJSONObject.items()
-      </span>
-     </code>
-    </a>
-   </li>
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.plugins.data_formats.datumaro.base.StreamingJSONObject.keys">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       StreamingJSONObject.keys()
-      </span>
-     </code>
-    </a>
-   </li>
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.plugins.data_formats.datumaro.base.StreamingJSONObject.values">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       StreamingJSONObject.values()
-      </span>
-     </code>
-    </a>
-   </li>
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.plugins.data_formats.datumaro.base.StreamingJSONObject.get">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       StreamingJSONObject.get()
-      </span>
-     </code>
-    </a>
-   </li>
-  </ul>
- </li>
- <li class="toc-h2 nav-item toc-entry">
   <a class="reference internal nav-link" href="#datumaro.plugins.data_formats.datumaro.base.SubsetBase">
    <code class="docutils literal notranslate">
     <span class="pre">
@@ -3576,15 +3594,6 @@ i.e. start frame, end frame and frame step.</p>
    <code class="docutils literal notranslate">
     <span class="pre">
      parse_json_file()
-    </span>
-   </code>
-  </a>
- </li>
- <li class="toc-h2 nav-item toc-entry">
-  <a class="reference internal nav-link" href="#datumaro.plugins.data_formats.datumaro.base.to_dict_from_streaming_json">
-   <code class="docutils literal notranslate">
-    <span class="pre">
-     to_dict_from_streaming_json()
     </span>
    </code>
   </a>

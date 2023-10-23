@@ -384,6 +384,7 @@
 <li class="toctree-l2"><a class="reference internal" href="notebooks/05_transform.html">Transform Dataset: Re-id, Reindexing, Remapping, etc.</a></li>
 <li class="toctree-l2"><a class="reference internal" href="notebooks/06_tiling.html">Tile your Dataset to Cope with High-Resolution Images</a></li>
 <li class="toctree-l2"><a class="reference internal" href="notebooks/18_bbox_to_instance_mask_using_sam.html">Transform bounding box to instance mask annotations using Segment Anything Model</a></li>
+<li class="toctree-l2"><a class="reference internal" href="notebooks/19_automatic_instance_mask_gen_using_sam.html">Automatic instance mask annotations generation using Segment Anything Model</a></li>
 </ul>
 </li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="e2e_example.html">From Datumaro to Model Training</a><input class="toctree-checkbox" id="toctree-checkbox-11" name="toctree-checkbox-11" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-11"><i class="fa-solid fa-chevron-down"></i></label><ul>
@@ -603,7 +604,7 @@ Please refer <a class="reference external" href="https://github.com/openvinotool
 <div class="sd-card sd-sphinx-override sd-w-100 sd-shadow-sm docutils">
 <div class="sd-card-body docutils">
 <p class="sd-card-text"><span class="sd-d-grid"><a class="sd-sphinx-override sd-btn sd-text-wrap sd-btn-outline-primary reference internal" href="notebooks/06_tiling.html"><span class="doc">Tile your Dataset to Cope with High-Resolution Images</span></a></span></p>
-<p class="sd-card-text">This transform is known to be useful for detecting small objects in high-resolution input images <a class="footnote-reference brackets" href="#id3" id="id1" role="doc-noteref"><span class="fn-bracket">[</span>1<span class="fn-bracket">]</span></a>.</p>
+<p class="sd-card-text">This transform is known to be useful for detecting small objects in high-resolution input images <a class="footnote-reference brackets" href="#id4" id="id1" role="doc-noteref"><span class="fn-bracket">[</span>1<span class="fn-bracket">]</span></a>.</p>
 </div>
 </div>
 </div>
@@ -611,7 +612,15 @@ Please refer <a class="reference external" href="https://github.com/openvinotool
 <div class="sd-card sd-sphinx-override sd-w-100 sd-shadow-sm docutils">
 <div class="sd-card-body docutils">
 <p class="sd-card-text"><span class="sd-d-grid"><a class="sd-sphinx-override sd-btn sd-text-wrap sd-btn-outline-primary reference internal" href="notebooks/18_bbox_to_instance_mask_using_sam.html"><span class="doc">Transform bounding box to instance mask annotations using Segment Anything Model</span></a></span></p>
-<p class="sd-card-text">This transform uses Segment Anything Model <a class="footnote-reference brackets" href="#id4" id="id2" role="doc-noteref"><span class="fn-bracket">[</span>2<span class="fn-bracket">]</span></a> to transform bounding box annotations to instance mask annotations.</p>
+<p class="sd-card-text">This transform uses Segment Anything Model <a class="footnote-reference brackets" href="#id5" id="id2" role="doc-noteref"><span class="fn-bracket">[</span>2<span class="fn-bracket">]</span></a> to transform bounding box annotations to instance mask annotations.</p>
+</div>
+</div>
+</div>
+<div class="sd-col sd-d-flex-row docutils">
+<div class="sd-card sd-sphinx-override sd-w-100 sd-shadow-sm docutils">
+<div class="sd-card-body docutils">
+<p class="sd-card-text"><span class="sd-d-grid"><a class="sd-sphinx-override sd-btn sd-text-wrap sd-btn-outline-primary reference internal" href="notebooks/19_automatic_instance_mask_gen_using_sam.html"><span class="doc">Automatic instance mask annotations generation using Segment Anything Model</span></a></span></p>
+<p class="sd-card-text">This transform uses Segment Anything Model <a class="footnote-reference brackets" href="#id5" id="id3" role="doc-noteref"><span class="fn-bracket">[</span>2<span class="fn-bracket">]</span></a> to generate instance maks annotations automatically.</p>
 </div>
 </div>
 </div>
@@ -620,12 +629,13 @@ Please refer <a class="reference external" href="https://github.com/openvinotool
 <section id="references">
 <h2>References<a class="headerlink" href="#references" title="Permalink to this heading">#</a></h2>
 <aside class="footnote-list brackets">
-<aside class="footnote brackets" id="id3" role="note">
+<aside class="footnote brackets" id="id4" role="note">
 <span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id1">1</a><span class="fn-bracket">]</span></span>
 <p>F., Ozge Unel, Burak O. Ozkalayci, and Cevahir Cigla. “The power of tiling for small object detection.” Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition Workshops. 2019.</p>
 </aside>
-<aside class="footnote brackets" id="id4" role="note">
-<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id2">2</a><span class="fn-bracket">]</span></span>
+<aside class="footnote brackets" id="id5" role="note">
+<span class="label"><span class="fn-bracket">[</span>2<span class="fn-bracket">]</span></span>
+<span class="backrefs">(<a role="doc-backlink" href="#id2">1</a>,<a role="doc-backlink" href="#id3">2</a>)</span>
 <p>Kirillov, Alexander, et al. “Segment anything.” arXiv preprint arXiv:2304.02643 (2023).</p>
 </aside>
 </aside>

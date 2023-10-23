@@ -384,6 +384,7 @@
 <li class="toctree-l2"><a class="reference internal" href="../../jupyter_notebook_examples/notebooks/05_transform.html">Transform Dataset: Re-id, Reindexing, Remapping, etc.</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../jupyter_notebook_examples/notebooks/06_tiling.html">Tile your Dataset to Cope with High-Resolution Images</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../jupyter_notebook_examples/notebooks/18_bbox_to_instance_mask_using_sam.html">Transform bounding box to instance mask annotations using Segment Anything Model</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../jupyter_notebook_examples/notebooks/19_automatic_instance_mask_gen_using_sam.html">Automatic instance mask annotations generation using Segment Anything Model</a></li>
 </ul>
 </li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../../jupyter_notebook_examples/e2e_example.html">From Datumaro to Model Training</a><input class="toctree-checkbox" id="toctree-checkbox-11" name="toctree-checkbox-11" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-11"><i class="fa-solid fa-chevron-down"></i></label><ul>
@@ -620,6 +621,42 @@
 
 </dd></dl>
 
+<dl class="py class">
+<dt class="sig sig-object py" id="datumaro.rust_api.DatumPageMapper">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">datumaro.rust_api.</span></span><span class="sig-name descname"><span class="pre">DatumPageMapper</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#datumaro.rust_api.DatumPageMapper" title="Permalink to this definition">#</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<dl class="py method">
+<dt class="sig sig-object py" id="datumaro.rust_api.DatumPageMapper.categories">
+<span class="sig-name descname"><span class="pre">categories</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#datumaro.rust_api.DatumPageMapper.categories" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="datumaro.rust_api.DatumPageMapper.dm_format_version">
+<span class="sig-name descname"><span class="pre">dm_format_version</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#datumaro.rust_api.DatumPageMapper.dm_format_version" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="datumaro.rust_api.DatumPageMapper.get_img_ids">
+<span class="sig-name descname"><span class="pre">get_img_ids</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#datumaro.rust_api.DatumPageMapper.get_img_ids" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="datumaro.rust_api.DatumPageMapper.get_item_dict">
+<span class="sig-name descname"><span class="pre">get_item_dict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">img_id</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#datumaro.rust_api.DatumPageMapper.get_item_dict" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="datumaro.rust_api.DatumPageMapper.infos">
+<span class="sig-name descname"><span class="pre">infos</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#datumaro.rust_api.DatumPageMapper.infos" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="datumaro.rust_api.DatumPageMapper.media_type">
+<span class="sig-name descname"><span class="pre">media_type</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#datumaro.rust_api.DatumPageMapper.media_type" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
 </section>
 
 
@@ -719,6 +756,71 @@
      <code class="docutils literal notranslate">
       <span class="pre">
        CocoPageMapper.licenses()
+      </span>
+     </code>
+    </a>
+   </li>
+  </ul>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#datumaro.rust_api.DatumPageMapper">
+   <code class="docutils literal notranslate">
+    <span class="pre">
+     DatumPageMapper
+    </span>
+   </code>
+  </a>
+  <ul class="nav section-nav flex-column">
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#datumaro.rust_api.DatumPageMapper.categories">
+     <code class="docutils literal notranslate">
+      <span class="pre">
+       DatumPageMapper.categories()
+      </span>
+     </code>
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#datumaro.rust_api.DatumPageMapper.dm_format_version">
+     <code class="docutils literal notranslate">
+      <span class="pre">
+       DatumPageMapper.dm_format_version()
+      </span>
+     </code>
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#datumaro.rust_api.DatumPageMapper.get_img_ids">
+     <code class="docutils literal notranslate">
+      <span class="pre">
+       DatumPageMapper.get_img_ids()
+      </span>
+     </code>
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#datumaro.rust_api.DatumPageMapper.get_item_dict">
+     <code class="docutils literal notranslate">
+      <span class="pre">
+       DatumPageMapper.get_item_dict()
+      </span>
+     </code>
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#datumaro.rust_api.DatumPageMapper.infos">
+     <code class="docutils literal notranslate">
+      <span class="pre">
+       DatumPageMapper.infos()
+      </span>
+     </code>
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#datumaro.rust_api.DatumPageMapper.media_type">
+     <code class="docutils literal notranslate">
+      <span class="pre">
+       DatumPageMapper.media_type()
       </span>
      </code>
     </a>

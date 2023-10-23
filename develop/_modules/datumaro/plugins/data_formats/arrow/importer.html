@@ -282,15 +282,17 @@
 <span class="c1"># SPDX-License-Identifier: MIT</span>
 
 <span class="kn">import</span> <span class="nn">os</span>
-<span class="kn">import</span> <span class="nn">re</span>
 <span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Optional</span>
 
 <span class="kn">import</span> <span class="nn">pyarrow</span> <span class="k">as</span> <span class="nn">pa</span>
 
+<span class="kn">from</span> <span class="nn">datumaro.components.errors</span> <span class="kn">import</span> <span class="n">DatasetImportError</span>
 <span class="kn">from</span> <span class="nn">datumaro.components.format_detection</span> <span class="kn">import</span> <span class="n">FormatDetectionConfidence</span><span class="p">,</span> <span class="n">FormatDetectionContext</span>
 <span class="kn">from</span> <span class="nn">datumaro.components.importer</span> <span class="kn">import</span> <span class="n">Importer</span>
 
 <span class="kn">from</span> <span class="nn">.format</span> <span class="kn">import</span> <span class="n">DatumaroArrow</span>
+
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;ArrowImporter&quot;</span><span class="p">]</span>
 
 
 <div class="viewcode-block" id="ArrowImporter"><a class="viewcode-back" href="../../../../../docs/reference/_autosummary/datumaro.plugins.data_formats.arrow.importer.html#datumaro.plugins.data_formats.arrow.ArrowImporter">[docs]</a><span class="k">class</span> <span class="nc">ArrowImporter</span><span class="p">(</span><span class="n">Importer</span><span class="p">):</span>
@@ -299,14 +301,8 @@
         <span class="bp">cls</span><span class="p">,</span>
         <span class="n">context</span><span class="p">:</span> <span class="n">FormatDetectionContext</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">FormatDetectionConfidence</span><span class="p">]:</span>
-        <span class="k">def</span> <span class="nf">verify_datumaro_arrow_format</span><span class="p">(</span><span class="n">file</span><span class="p">):</span>
-            <span class="k">with</span> <span class="n">pa</span><span class="o">.</span><span class="n">ipc</span><span class="o">.</span><span class="n">open_stream</span><span class="p">(</span><span class="n">file</span><span class="p">)</span> <span class="k">as</span> <span class="n">reader</span><span class="p">:</span>
-                <span class="n">schema</span> <span class="o">=</span> <span class="n">reader</span><span class="o">.</span><span class="n">schema</span>
-            <span class="n">DatumaroArrow</span><span class="o">.</span><span class="n">check_signature</span><span class="p">(</span><span class="n">schema</span><span class="o">.</span><span class="n">metadata</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="sa">b</span><span class="s2">&quot;signature&quot;</span><span class="p">,</span> <span class="sa">b</span><span class="s2">&quot;&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">decode</span><span class="p">())</span>
-            <span class="n">DatumaroArrow</span><span class="o">.</span><span class="n">check_schema</span><span class="p">(</span><span class="n">schema</span><span class="p">)</span>
-
         <span class="k">if</span> <span class="n">context</span><span class="o">.</span><span class="n">root_path</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s2">&quot;.arrow&quot;</span><span class="p">):</span>
-            <span class="n">verify_datumaro_arrow_format</span><span class="p">(</span><span class="n">context</span><span class="o">.</span><span class="n">root_path</span><span class="p">)</span>
+            <span class="bp">cls</span><span class="o">.</span><span class="n">_verify_datumaro_arrow_format</span><span class="p">(</span><span class="n">context</span><span class="o">.</span><span class="n">root_path</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="k">for</span> <span class="n">arrow_file</span> <span class="ow">in</span> <span class="n">context</span><span class="o">.</span><span class="n">require_files</span><span class="p">(</span><span class="s2">&quot;*.arrow&quot;</span><span class="p">):</span>
                 <span class="k">with</span> <span class="n">context</span><span class="o">.</span><span class="n">probe_text_file</span><span class="p">(</span>
@@ -314,34 +310,46 @@
                     <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">arrow_file</span><span class="si">}</span><span class="s2"> is not Datumaro arrow format.&quot;</span><span class="p">,</span>
                     <span class="n">is_binary_file</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
                 <span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
-                    <span class="n">verify_datumaro_arrow_format</span><span class="p">(</span><span class="n">f</span><span class="p">)</span></div>
+                    <span class="n">f</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+                    <span class="bp">cls</span><span class="o">.</span><span class="n">_verify_datumaro_arrow_format</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">context</span><span class="o">.</span><span class="n">root_path</span><span class="p">,</span> <span class="n">arrow_file</span><span class="p">))</span></div>
 
 <div class="viewcode-block" id="ArrowImporter.find_sources"><a class="viewcode-back" href="../../../../../docs/reference/_autosummary/datumaro.plugins.data_formats.arrow.importer.html#datumaro.plugins.data_formats.arrow.ArrowImporter.find_sources">[docs]</a>    <span class="nd">@classmethod</span>
-    <span class="k">def</span> <span class="nf">find_sources</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">path</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">Dict</span><span class="p">]:</span>
-        <span class="n">sources</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="n">_find_sources_recursive</span><span class="p">(</span>
-            <span class="n">path</span><span class="p">,</span>
-            <span class="s2">&quot;.arrow&quot;</span><span class="p">,</span>
-            <span class="bp">cls</span><span class="o">.</span><span class="n">NAME</span><span class="p">,</span>
-        <span class="p">)</span>
+    <span class="k">def</span> <span class="nf">find_sources</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">path</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">Dict</span><span class="p">]:</span>
+        <span class="k">def</span> <span class="nf">_filter</span><span class="p">(</span><span class="n">path</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="bp">cls</span><span class="o">.</span><span class="n">_verify_datumaro_arrow_format</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
+                <span class="k">return</span> <span class="kc">True</span>
+            <span class="k">except</span> <span class="n">DatasetImportError</span><span class="p">:</span>
+                <span class="k">return</span> <span class="kc">False</span>
 
-        <span class="c1"># handle sharded arrow files</span>
-        <span class="n">_sources</span> <span class="o">=</span> <span class="p">[]</span>
-        <span class="k">for</span> <span class="n">source</span> <span class="ow">in</span> <span class="n">sources</span><span class="p">:</span>
-            <span class="n">match</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;(.*?)(-[0-9]+-of-[0-9]+)?\.arrow&quot;</span><span class="p">,</span> <span class="n">source</span><span class="p">[</span><span class="s2">&quot;url&quot;</span><span class="p">])</span>
-            <span class="n">found</span> <span class="o">=</span> <span class="kc">False</span>
-            <span class="n">prefix</span> <span class="o">=</span> <span class="n">match</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
-            <span class="k">for</span> <span class="n">_source</span> <span class="ow">in</span> <span class="n">_sources</span><span class="p">:</span>
-                <span class="k">if</span> <span class="n">_source</span><span class="p">[</span><span class="s2">&quot;url&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="n">prefix</span><span class="p">):</span>
-                    <span class="n">_source</span><span class="p">[</span><span class="s2">&quot;options&quot;</span><span class="p">][</span><span class="s2">&quot;additional_paths&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">source</span><span class="p">[</span><span class="s2">&quot;url&quot;</span><span class="p">])</span>
-                    <span class="n">found</span> <span class="o">=</span> <span class="kc">True</span>
-                    <span class="k">break</span>
-            <span class="k">if</span> <span class="ow">not</span> <span class="n">found</span><span class="p">:</span>
-                <span class="n">source</span><span class="p">[</span><span class="s2">&quot;options&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
-                    <span class="s2">&quot;additional_paths&quot;</span><span class="p">:</span> <span class="p">[],</span>
-                    <span class="s2">&quot;subset&quot;</span><span class="p">:</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">prefix</span><span class="p">),</span>
-                <span class="p">}</span>
-                <span class="n">_sources</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">source</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">_sources</span></div></div>
+        <span class="k">return</span> <span class="bp">cls</span><span class="o">.</span><span class="n">_find_sources_recursive</span><span class="p">(</span>
+            <span class="n">path</span><span class="o">=</span><span class="n">path</span><span class="p">,</span>
+            <span class="n">ext</span><span class="o">=</span><span class="s2">&quot;.arrow&quot;</span><span class="p">,</span>
+            <span class="n">extractor_name</span><span class="o">=</span><span class="bp">cls</span><span class="o">.</span><span class="n">NAME</span><span class="p">,</span>
+            <span class="n">file_filter</span><span class="o">=</span><span class="n">_filter</span><span class="p">,</span>
+            <span class="n">max_depth</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+        <span class="p">)</span></div>
+
+<div class="viewcode-block" id="ArrowImporter.find_sources_with_params"><a class="viewcode-back" href="../../../../../docs/reference/_autosummary/datumaro.plugins.data_formats.arrow.importer.html#datumaro.plugins.data_formats.arrow.ArrowImporter.find_sources_with_params">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">find_sources_with_params</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">path</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">**</span><span class="n">extra_params</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">Dict</span><span class="p">]:</span>
+        <span class="n">sources</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="n">find_sources</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
+        <span class="c1"># Merge sources into one config but multiple file_paths</span>
+        <span class="k">return</span> <span class="p">[</span>
+            <span class="p">{</span>
+                <span class="s2">&quot;url&quot;</span><span class="p">:</span> <span class="n">path</span><span class="p">,</span>
+                <span class="s2">&quot;format&quot;</span><span class="p">:</span> <span class="bp">cls</span><span class="o">.</span><span class="n">NAME</span><span class="p">,</span>
+                <span class="s2">&quot;options&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;file_paths&quot;</span><span class="p">:</span> <span class="p">[</span><span class="n">source</span><span class="p">[</span><span class="s2">&quot;url&quot;</span><span class="p">]</span> <span class="k">for</span> <span class="n">source</span> <span class="ow">in</span> <span class="n">sources</span><span class="p">]},</span>
+            <span class="p">}</span>
+        <span class="p">]</span></div>
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">_verify_datumaro_arrow_format</span><span class="p">(</span><span class="n">file</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">with</span> <span class="n">pa</span><span class="o">.</span><span class="n">memory_map</span><span class="p">(</span><span class="n">file</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">mm_file</span><span class="p">:</span>
+            <span class="k">with</span> <span class="n">pa</span><span class="o">.</span><span class="n">ipc</span><span class="o">.</span><span class="n">open_file</span><span class="p">(</span><span class="n">mm_file</span><span class="p">)</span> <span class="k">as</span> <span class="n">reader</span><span class="p">:</span>
+                <span class="n">schema</span> <span class="o">=</span> <span class="n">reader</span><span class="o">.</span><span class="n">schema</span>
+        <span class="n">DatumaroArrow</span><span class="o">.</span><span class="n">check_signature</span><span class="p">(</span><span class="n">schema</span><span class="o">.</span><span class="n">metadata</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="sa">b</span><span class="s2">&quot;signature&quot;</span><span class="p">,</span> <span class="sa">b</span><span class="s2">&quot;&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">decode</span><span class="p">())</span>
+        <span class="n">DatumaroArrow</span><span class="o">.</span><span class="n">check_version</span><span class="p">(</span><span class="n">schema</span><span class="o">.</span><span class="n">metadata</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="sa">b</span><span class="s2">&quot;version&quot;</span><span class="p">,</span> <span class="sa">b</span><span class="s2">&quot;&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">decode</span><span class="p">())</span>
+        <span class="n">DatumaroArrow</span><span class="o">.</span><span class="n">check_schema</span><span class="p">(</span><span class="n">schema</span><span class="p">)</span></div>
 </pre></div>
 
             </article>

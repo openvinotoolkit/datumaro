@@ -384,6 +384,7 @@
 <li class="toctree-l2"><a class="reference internal" href="../../jupyter_notebook_examples/notebooks/05_transform.html">Transform Dataset: Re-id, Reindexing, Remapping, etc.</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../jupyter_notebook_examples/notebooks/06_tiling.html">Tile your Dataset to Cope with High-Resolution Images</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../jupyter_notebook_examples/notebooks/18_bbox_to_instance_mask_using_sam.html">Transform bounding box to instance mask annotations using Segment Anything Model</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../jupyter_notebook_examples/notebooks/19_automatic_instance_mask_gen_using_sam.html">Automatic instance mask annotations generation using Segment Anything Model</a></li>
 </ul>
 </li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../../jupyter_notebook_examples/e2e_example.html">From Datumaro to Model Training</a><input class="toctree-checkbox" id="toctree-checkbox-11" name="toctree-checkbox-11" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-11"><i class="fa-solid fa-chevron-down"></i></label><ul>
@@ -689,7 +690,7 @@ If the <code class="docutils literal notranslate"><span class="pre">dataset_meta
 for example:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># label_map [label : color_rgb : parts : actions]</span>
 <span class="n">helicopter</span><span class="p">:::</span>
-<span class="n">elephant</span><span class="p">:</span><span class="mi">0</span><span class="p">:</span><span class="mi">124</span><span class="p">:</span><span class="mi">134</span><span class="p">:</span><span class="n">head</span><span class="p">,</span><span class="n">ear</span><span class="p">,</span><span class="n">foot</span><span class="p">:</span>
+<span class="n">elephant</span><span class="p">:</span><span class="mi">0</span><span class="p">,</span><span class="mi">124</span><span class="p">,</span><span class="mi">134</span><span class="p">:</span><span class="n">head</span><span class="p">,</span><span class="n">ear</span><span class="p">,</span><span class="n">foot</span><span class="p">:</span>
 </pre></div>
 </div>
 <p>It is also possible to import grayscale (1-channel) PNG masks.

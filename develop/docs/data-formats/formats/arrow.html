@@ -384,6 +384,7 @@
 <li class="toctree-l2"><a class="reference internal" href="../../jupyter_notebook_examples/notebooks/05_transform.html">Transform Dataset: Re-id, Reindexing, Remapping, etc.</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../jupyter_notebook_examples/notebooks/06_tiling.html">Tile your Dataset to Cope with High-Resolution Images</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../jupyter_notebook_examples/notebooks/18_bbox_to_instance_mask_using_sam.html">Transform bounding box to instance mask annotations using Segment Anything Model</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../jupyter_notebook_examples/notebooks/19_automatic_instance_mask_gen_using_sam.html">Automatic instance mask annotations generation using Segment Anything Model</a></li>
 </ul>
 </li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../../jupyter_notebook_examples/e2e_example.html">From Datumaro to Model Training</a><input class="toctree-checkbox" id="toctree-checkbox-11" name="toctree-checkbox-11" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-11"><i class="fa-solid fa-chevron-down"></i></label><ul>
@@ -776,13 +777,10 @@ using CLI:</p>
 <li><p><code class="docutils literal notranslate"><span class="pre">NONE</span></code>: skip saving image.</p></li>
 </ul>
 </li>
-<li><p><code class="docutils literal notranslate"><span class="pre">--max-chunk-size</span> <span class="pre">MAX_CHUNK_SIZE</span></code> allow to specify maximum chunk size (batch size) when saving into arrow format.
+<li><p><code class="docutils literal notranslate"><span class="pre">--max-shard-size</span> <span class="pre">MAX_SHARD_SIZE</span></code> allow to specify maximum number of dataset items when saving into arrow format.
 (default: <code class="docutils literal notranslate"><span class="pre">1000</span></code>)</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">--num-shards</span> <span class="pre">NUM_SHARDS</span></code> allow to specify the number of shards to generate.
-<code class="docutils literal notranslate"><span class="pre">--num-shards</span></code> and <code class="docutils literal notranslate"><span class="pre">--max-shard-size</span></code> are  mutually exclusive.
-(default: <code class="docutils literal notranslate"><span class="pre">1</span></code>)</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">--max-shard-size</span> <span class="pre">MAX_SHARD_SIZE</span></code> allow to specify maximum size of each shard. (e.g. 7KB = 7 * 2^10, 3MB = 3 * 2^20, and 2GB = 2 * 2^30)
-<code class="docutils literal notranslate"><span class="pre">--num-shards</span></code> and <code class="docutils literal notranslate"><span class="pre">--max-shard-size</span></code> are  mutually exclusive.
+<code class="docutils literal notranslate"><span class="pre">--num-shards</span></code> and <code class="docutils literal notranslate"><span class="pre">--max-shard-size</span></code> are mutually exclusive.
 (default: <code class="docutils literal notranslate"><span class="pre">None</span></code>)</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">--num-workers</span> <span class="pre">NUM_WORKERS</span></code> allow to multi-processing for the export. If num_workers = 0, do not use multiprocessing (default: <code class="docutils literal notranslate"><span class="pre">0</span></code>).</p></li>
 </ul>

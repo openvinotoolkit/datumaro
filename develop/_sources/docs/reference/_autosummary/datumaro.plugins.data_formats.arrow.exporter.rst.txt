@@ -18,7 +18,6 @@ datumaro.plugins.data\_formats.arrow.exporter
    .. autosummary::
    
       ArrowExporter
-      PathNormalizer
    
    
 

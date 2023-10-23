@@ -6,7 +6,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
 
-    <title>datumaro.plugins.data_formats.arrow.mapper.utils &#8212; Datumaro 1.6.0rc0 documentation</title>
+    <title>datumaro.plugins.sam_transforms.interpreters.sam_decoder_for_amg &#8212; Datumaro 1.6.0rc0 documentation</title>
   
   
   
@@ -46,11 +46,11 @@
     <script src="../../../_static/copybutton.js"></script>
     <script src="../../../_static/design-tabs.js"></script>
     <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
-    <script>DOCUMENTATION_OPTIONS.pagename = 'docs/reference/_autosummary/datumaro.plugins.data_formats.arrow.mapper.utils';</script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'docs/reference/_autosummary/datumaro.plugins.sam_transforms.interpreters.sam_decoder_for_amg';</script>
     <link rel="index" title="Index" href="../../../genindex.html" />
     <link rel="search" title="Search" href="../../../search.html" />
-    <link rel="next" title="datumaro.plugins.data_formats.ava" href="datumaro.plugins.data_formats.ava.html" />
-    <link rel="prev" title="datumaro.plugins.data_formats.arrow.mapper.media" href="datumaro.plugins.data_formats.arrow.mapper.media.html" />
+    <link rel="next" title="datumaro.plugins.sam_transforms.interpreters.sam_decoder_for_bbox" href="datumaro.plugins.sam_transforms.interpreters.sam_decoder_for_bbox.html" />
+    <link rel="prev" title="datumaro.plugins.sam_transforms.interpreters" href="datumaro.plugins.sam_transforms.interpreters.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="docsearch:language" content="en">
   </head>
@@ -384,6 +384,7 @@
 <li class="toctree-l2"><a class="reference internal" href="../../jupyter_notebook_examples/notebooks/05_transform.html">Transform Dataset: Re-id, Reindexing, Remapping, etc.</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../jupyter_notebook_examples/notebooks/06_tiling.html">Tile your Dataset to Cope with High-Resolution Images</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../jupyter_notebook_examples/notebooks/18_bbox_to_instance_mask_using_sam.html">Transform bounding box to instance mask annotations using Segment Anything Model</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../jupyter_notebook_examples/notebooks/19_automatic_instance_mask_gen_using_sam.html">Automatic instance mask annotations generation using Segment Anything Model</a></li>
 </ul>
 </li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../../jupyter_notebook_examples/e2e_example.html">From Datumaro to Model Training</a><input class="toctree-checkbox" id="toctree-checkbox-11" name="toctree-checkbox-11" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-11"><i class="fa-solid fa-chevron-down"></i></label><ul>
@@ -482,14 +483,14 @@
 <li class="toctree-l3 current active has-children"><a class="reference internal" href="datumaro.plugins.html">datumaro.plugins</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-18" name="toctree-checkbox-18" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-18"><i class="fa-solid fa-chevron-down"></i></label><ul class="current">
 <li class="toctree-l4"><a class="reference internal" href="datumaro.plugins.accuracy_checker_plugin.html">datumaro.plugins.accuracy_checker_plugin</a></li>
 <li class="toctree-l4"><a class="reference internal" href="datumaro.plugins.configurable_validator.html">datumaro.plugins.configurable_validator</a></li>
-<li class="toctree-l4 current active"><a class="reference internal" href="datumaro.plugins.data_formats.html">datumaro.plugins.data_formats</a></li>
+<li class="toctree-l4"><a class="reference internal" href="datumaro.plugins.data_formats.html">datumaro.plugins.data_formats</a></li>
 <li class="toctree-l4"><a class="reference internal" href="datumaro.plugins.explorer.html">datumaro.plugins.explorer</a></li>
 <li class="toctree-l4"><a class="reference internal" href="datumaro.plugins.framework_converter.html">datumaro.plugins.framework_converter</a></li>
 <li class="toctree-l4"><a class="reference internal" href="datumaro.plugins.inference_server_plugin.html">datumaro.plugins.inference_server_plugin</a></li>
 <li class="toctree-l4"><a class="reference internal" href="datumaro.plugins.missing_annotation_detection.html">datumaro.plugins.missing_annotation_detection</a></li>
 <li class="toctree-l4"><a class="reference internal" href="datumaro.plugins.ndr.html">datumaro.plugins.ndr</a></li>
 <li class="toctree-l4"><a class="reference internal" href="datumaro.plugins.openvino_plugin.html">datumaro.plugins.openvino_plugin</a></li>
-<li class="toctree-l4"><a class="reference internal" href="datumaro.plugins.sam_transforms.html">datumaro.plugins.sam_transforms</a></li>
+<li class="toctree-l4 current active"><a class="reference internal" href="datumaro.plugins.sam_transforms.html">datumaro.plugins.sam_transforms</a></li>
 <li class="toctree-l4"><a class="reference internal" href="datumaro.plugins.sampler.html">datumaro.plugins.sampler</a></li>
 <li class="toctree-l4"><a class="reference internal" href="datumaro.plugins.specs.html">datumaro.plugins.specs</a></li>
 <li class="toctree-l4"><a class="reference internal" href="datumaro.plugins.splitter.html">datumaro.plugins.splitter</a></li>
@@ -581,36 +582,198 @@
             
             <article class="bd-article" role="main">
               
-  <section id="module-datumaro.plugins.data_formats.arrow.mapper.utils">
-<span id="datumaro-plugins-data-formats-arrow-mapper-utils"></span><h1>datumaro.plugins.data_formats.arrow.mapper.utils<a class="headerlink" href="#module-datumaro.plugins.data_formats.arrow.mapper.utils" title="Permalink to this heading">#</a></h1>
-<p class="rubric">Functions</p>
+  <section id="module-datumaro.plugins.sam_transforms.interpreters.sam_decoder_for_amg">
+<span id="datumaro-plugins-sam-transforms-interpreters-sam-decoder-for-amg"></span><h1>datumaro.plugins.sam_transforms.interpreters.sam_decoder_for_amg<a class="headerlink" href="#module-datumaro.plugins.sam_transforms.interpreters.sam_decoder_for_amg" title="Permalink to this heading">#</a></h1>
+<p class="rubric">Classes</p>
 <table class="autosummary longtable table autosummary">
 <tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="#datumaro.plugins.data_formats.arrow.mapper.utils.b64decode" title="datumaro.plugins.data_formats.arrow.mapper.utils.b64decode"><code class="xref py py-obj docutils literal notranslate"><span class="pre">b64decode</span></code></a>(obj[, prefix])</p></td>
-<td><p></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#datumaro.plugins.sam_transforms.interpreters.sam_decoder_for_amg.AMGMasks" title="datumaro.plugins.sam_transforms.interpreters.sam_decoder_for_amg.AMGMasks"><code class="xref py py-obj docutils literal notranslate"><span class="pre">AMGMasks</span></code></a>(*[, id, attributes, group, object_id])</p></td>
+<td><p>Intermediate annotation class for SAM decoder outputs.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#datumaro.plugins.data_formats.arrow.mapper.utils.b64encode" title="datumaro.plugins.data_formats.arrow.mapper.utils.b64encode"><code class="xref py py-obj docutils literal notranslate"><span class="pre">b64encode</span></code></a>(obj[, prefix])</p></td>
-<td><p></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#datumaro.plugins.sam_transforms.interpreters.sam_decoder_for_amg.AMGPoints" title="datumaro.plugins.sam_transforms.interpreters.sam_decoder_for_amg.AMGPoints"><code class="xref py py-obj docutils literal notranslate"><span class="pre">AMGPoints</span></code></a>(*[, id, attributes, group, object_id])</p></td>
+<td><p>Intermediate annotation class for SAM decoder inputs.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#datumaro.plugins.data_formats.arrow.mapper.utils.pa_batches_decoder" title="datumaro.plugins.data_formats.arrow.mapper.utils.pa_batches_decoder"><code class="xref py py-obj docutils literal notranslate"><span class="pre">pa_batches_decoder</span></code></a>(batches[, column])</p></td>
-<td><p></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#datumaro.plugins.sam_transforms.interpreters.sam_decoder_for_amg.SAMDecoderForAMGInterpreter" title="datumaro.plugins.sam_transforms.interpreters.sam_decoder_for_amg.SAMDecoderForAMGInterpreter"><code class="xref py py-obj docutils literal notranslate"><span class="pre">SAMDecoderForAMGInterpreter</span></code></a>()</p></td>
+<td><p>Interpreter for the automatic mask generation using SAM decoder.</p></td>
 </tr>
 </tbody>
 </table>
-<dl class="py function">
-<dt class="sig sig-object py" id="datumaro.plugins.data_formats.arrow.mapper.utils.pa_batches_decoder">
-<span class="sig-prename descclassname"><span class="pre">datumaro.plugins.data_formats.arrow.mapper.utils.</span></span><span class="sig-name descname"><span class="pre">pa_batches_decoder</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">batches</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">column</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/datumaro/plugins/data_formats/arrow/mapper/utils.html#pa_batches_decoder"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.plugins.data_formats.arrow.mapper.utils.pa_batches_decoder" title="Permalink to this definition">#</a></dt>
+<dl class="py class">
+<dt class="sig sig-object py" id="datumaro.plugins.sam_transforms.interpreters.sam_decoder_for_amg.AMGPoints">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">datumaro.plugins.sam_transforms.interpreters.sam_decoder_for_amg.</span></span><span class="sig-name descname"><span class="pre">AMGPoints</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.12)"><span class="pre">int</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">attributes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">_Nothing.NOTHING</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">group</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.12)"><span class="pre">int</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">object_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.12)"><span class="pre">int</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">-1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">points</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v1.26)"><span class="pre">ndarray</span></a></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/datumaro/plugins/sam_transforms/interpreters/sam_decoder_for_amg.html#AMGPoints"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.plugins.sam_transforms.interpreters.sam_decoder_for_amg.AMGPoints" title="Permalink to this definition">#</a></dt>
+<dd><p>Bases: <a class="reference internal" href="datumaro.components.annotation.html#datumaro.components.annotation.Annotation" title="datumaro.components.annotation.Annotation"><code class="xref py py-class docutils literal notranslate"><span class="pre">Annotation</span></code></a></p>
+<p>Intermediate annotation class for SAM decoder inputs.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="datumaro.plugins.sam_transforms.interpreters.sam_decoder_for_amg.AMGPoints.points">
+<span class="sig-name descname"><span class="pre">points</span></span><a class="headerlink" href="#datumaro.plugins.sam_transforms.interpreters.sam_decoder_for_amg.AMGPoints.points" title="Permalink to this definition">#</a></dt>
+<dd><p>Array of points (x, y) for the SAM prompt.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v1.26)">numpy.ndarray</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<p>Method generated by attrs for class AMGPoints.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="id0">
+<span class="sig-name descname"><span class="pre">points</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v1.26)"><span class="pre">ndarray</span></a></em><a class="headerlink" href="#id0" title="Permalink to this definition">#</a></dt>
 <dd></dd></dl>
 
-<dl class="py function">
-<dt class="sig sig-object py" id="datumaro.plugins.data_formats.arrow.mapper.utils.b64encode">
-<span class="sig-prename descclassname"><span class="pre">datumaro.plugins.data_formats.arrow.mapper.utils.</span></span><span class="sig-name descname"><span class="pre">b64encode</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">obj</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">prefix</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/datumaro/plugins/data_formats/arrow/mapper/utils.html#b64encode"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.plugins.data_formats.arrow.mapper.utils.b64encode" title="Permalink to this definition">#</a></dt>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="datumaro.plugins.sam_transforms.interpreters.sam_decoder_for_amg.AMGMasks">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">datumaro.plugins.sam_transforms.interpreters.sam_decoder_for_amg.</span></span><span class="sig-name descname"><span class="pre">AMGMasks</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.12)"><span class="pre">int</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">attributes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">_Nothing.NOTHING</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">group</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.12)"><span class="pre">int</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">object_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.12)"><span class="pre">int</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">-1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">masks</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v1.26)"><span class="pre">ndarray</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">iou_preds</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v1.26)"><span class="pre">ndarray</span></a></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/datumaro/plugins/sam_transforms/interpreters/sam_decoder_for_amg.html#AMGMasks"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.plugins.sam_transforms.interpreters.sam_decoder_for_amg.AMGMasks" title="Permalink to this definition">#</a></dt>
+<dd><p>Bases: <a class="reference internal" href="datumaro.components.annotation.html#datumaro.components.annotation.Annotation" title="datumaro.components.annotation.Annotation"><code class="xref py py-class docutils literal notranslate"><span class="pre">Annotation</span></code></a></p>
+<p>Intermediate annotation class for SAM decoder outputs.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="datumaro.plugins.sam_transforms.interpreters.sam_decoder_for_amg.AMGMasks.masks">
+<span class="sig-name descname"><span class="pre">masks</span></span><a class="headerlink" href="#datumaro.plugins.sam_transforms.interpreters.sam_decoder_for_amg.AMGMasks.masks" title="Permalink to this definition">#</a></dt>
+<dd><p>Array of masks corresponded to the points.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v1.26)">numpy.ndarray</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="datumaro.plugins.sam_transforms.interpreters.sam_decoder_for_amg.AMGMasks.iou_preds">
+<span class="sig-name descname"><span class="pre">iou_preds</span></span><a class="headerlink" href="#datumaro.plugins.sam_transforms.interpreters.sam_decoder_for_amg.AMGMasks.iou_preds" title="Permalink to this definition">#</a></dt>
+<dd><p>Array of Intersection over Union (IoU)
+prediction scores corresponded to the points.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v1.26)">numpy.ndarray</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<p>Method generated by attrs for class AMGMasks.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="id1">
+<span class="sig-name descname"><span class="pre">masks</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v1.26)"><span class="pre">ndarray</span></a></em><a class="headerlink" href="#id1" title="Permalink to this definition">#</a></dt>
 <dd></dd></dl>
 
-<dl class="py function">
-<dt class="sig sig-object py" id="datumaro.plugins.data_formats.arrow.mapper.utils.b64decode">
-<span class="sig-prename descclassname"><span class="pre">datumaro.plugins.data_formats.arrow.mapper.utils.</span></span><span class="sig-name descname"><span class="pre">b64decode</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">obj</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">prefix</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/datumaro/plugins/data_formats/arrow/mapper/utils.html#b64decode"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.plugins.data_formats.arrow.mapper.utils.b64decode" title="Permalink to this definition">#</a></dt>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="id2">
+<span class="sig-name descname"><span class="pre">iou_preds</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v1.26)"><span class="pre">ndarray</span></a></em><a class="headerlink" href="#id2" title="Permalink to this definition">#</a></dt>
 <dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="datumaro.plugins.sam_transforms.interpreters.sam_decoder_for_amg.AMGMasks.cat">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">cat</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">masks</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.List" title="(in Python v3.12)"><span class="pre">List</span></a><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#datumaro.plugins.sam_transforms.interpreters.sam_decoder_for_amg.AMGMasks" title="datumaro.plugins.sam_transforms.interpreters.sam_decoder_for_amg.AMGMasks"><span class="pre">AMGMasks</span></a><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#datumaro.plugins.sam_transforms.interpreters.sam_decoder_for_amg.AMGMasks" title="datumaro.plugins.sam_transforms.interpreters.sam_decoder_for_amg.AMGMasks"><span class="pre">AMGMasks</span></a></span></span><a class="reference internal" href="../../../_modules/datumaro/plugins/sam_transforms/interpreters/sam_decoder_for_amg.html#AMGMasks.cat"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.plugins.sam_transforms.interpreters.sam_decoder_for_amg.AMGMasks.cat" title="Permalink to this definition">#</a></dt>
+<dd><p>Concatenate a list of <cite>AMGMasks</cite> into a single <cite>AMGMasks</cite> object.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>masks</strong> – List of <cite>AMGMasks</cite> to concatenate.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>A new AMGMasks containing the concatenated masks and IoU prediction scores.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="datumaro.plugins.sam_transforms.interpreters.sam_decoder_for_amg.AMGMasks.postprocess">
+<span class="sig-name descname"><span class="pre">postprocess</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mask_threshold</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.12)"><span class="pre">float</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">pred_iou_thresh</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.12)"><span class="pre">float</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">stability_score_offset</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.12)"><span class="pre">float</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">stability_score_thresh</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.12)"><span class="pre">float</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">box_nms_thresh</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.12)"><span class="pre">float</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">min_mask_region_area</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.12)"><span class="pre">int</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.List" title="(in Python v3.12)"><span class="pre">List</span></a><span class="p"><span class="pre">[</span></span><a class="reference internal" href="datumaro.components.annotation.html#datumaro.components.annotation.Mask" title="datumaro.components.annotation.Mask"><span class="pre">Mask</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../../_modules/datumaro/plugins/sam_transforms/interpreters/sam_decoder_for_amg.html#AMGMasks.postprocess"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.plugins.sam_transforms.interpreters.sam_decoder_for_amg.AMGMasks.postprocess" title="Permalink to this definition">#</a></dt>
+<dd><p>Postprocesses the masks with the given parameters.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>pred_iou_thresh</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.12)"><em>float</em></a>) – A filtering threshold in [0,1], using the
+model’s predicted mask quality.</p></li>
+<li><p><strong>stability_score_thresh</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.12)"><em>float</em></a>) – A filtering threshold in [0,1], using
+the stability of the mask under changes to the cutoff used to binarize
+the model’s mask predictions.</p></li>
+<li><p><strong>stability_score_offset</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.12)"><em>float</em></a>) – The amount to shift the cutoff when
+calculated the stability score.</p></li>
+<li><p><strong>box_nms_thresh</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.12)"><em>float</em></a>) – The box IoU cutoff used by non-maximal
+suppression to filter duplicate masks.</p></li>
+<li><p><strong>min_mask_region_area</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.12)"><em>int</em></a>) – If &gt;0, postprocessing will be applied
+to remove the binary mask which has the number of 1s less than min_mask_region_area.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>List of :class:<a href="#id3"><span class="problematic" id="id4">`</span></a>Mask`s representing the postprocessed masks.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="datumaro.plugins.sam_transforms.interpreters.sam_decoder_for_amg.SAMDecoderForAMGInterpreter">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">datumaro.plugins.sam_transforms.interpreters.sam_decoder_for_amg.</span></span><span class="sig-name descname"><span class="pre">SAMDecoderForAMGInterpreter</span></span><a class="reference internal" href="../../../_modules/datumaro/plugins/sam_transforms/interpreters/sam_decoder_for_amg.html#SAMDecoderForAMGInterpreter"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.plugins.sam_transforms.interpreters.sam_decoder_for_amg.SAMDecoderForAMGInterpreter" title="Permalink to this definition">#</a></dt>
+<dd><p>Bases: <a class="reference internal" href="datumaro.components.abstracts.model_interpreter.html#datumaro.components.abstracts.model_interpreter.IModelInterpreter" title="datumaro.components.abstracts.model_interpreter.IModelInterpreter"><code class="xref py py-class docutils literal notranslate"><span class="pre">IModelInterpreter</span></code></a></p>
+<p>Interpreter for the automatic mask generation using SAM decoder.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="datumaro.plugins.sam_transforms.interpreters.sam_decoder_for_amg.SAMDecoderForAMGInterpreter.h_model">
+<span class="sig-name descname"><span class="pre">h_model</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">1024</span></em><a class="headerlink" href="#datumaro.plugins.sam_transforms.interpreters.sam_decoder_for_amg.SAMDecoderForAMGInterpreter.h_model" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="datumaro.plugins.sam_transforms.interpreters.sam_decoder_for_amg.SAMDecoderForAMGInterpreter.w_model">
+<span class="sig-name descname"><span class="pre">w_model</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">1024</span></em><a class="headerlink" href="#datumaro.plugins.sam_transforms.interpreters.sam_decoder_for_amg.SAMDecoderForAMGInterpreter.w_model" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="datumaro.plugins.sam_transforms.interpreters.sam_decoder_for_amg.SAMDecoderForAMGInterpreter.onnx_mask_input">
+<span class="sig-name descname"><span class="pre">onnx_mask_input</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">array([[[[0.,</span> <span class="pre">0.,</span> <span class="pre">0.,</span> <span class="pre">...,</span> <span class="pre">0.,</span> <span class="pre">0.,</span> <span class="pre">0.],</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">[0.,</span> <span class="pre">0.,</span> <span class="pre">0.,</span> <span class="pre">...,</span> <span class="pre">0.,</span> <span class="pre">0.,</span> <span class="pre">0.],</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">[0.,</span> <span class="pre">0.,</span> <span class="pre">0.,</span> <span class="pre">...,</span> <span class="pre">0.,</span> <span class="pre">0.,</span> <span class="pre">0.],</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">...,</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">[0.,</span> <span class="pre">0.,</span> <span class="pre">0.,</span> <span class="pre">...,</span> <span class="pre">0.,</span> <span class="pre">0.,</span> <span class="pre">0.],</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">[0.,</span> <span class="pre">0.,</span> <span class="pre">0.,</span> <span class="pre">...,</span> <span class="pre">0.,</span> <span class="pre">0.,</span> <span class="pre">0.],</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">[0.,</span> <span class="pre">0.,</span> <span class="pre">0.,</span> <span class="pre">...,</span> <span class="pre">0.,</span> <span class="pre">0.,</span> <span class="pre">0.]]]],</span> <span class="pre">dtype=float32)</span></em><a class="headerlink" href="#datumaro.plugins.sam_transforms.interpreters.sam_decoder_for_amg.SAMDecoderForAMGInterpreter.onnx_mask_input" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="datumaro.plugins.sam_transforms.interpreters.sam_decoder_for_amg.SAMDecoderForAMGInterpreter.onnx_has_mask_input">
+<span class="sig-name descname"><span class="pre">onnx_has_mask_input</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">array([0.],</span> <span class="pre">dtype=float32)</span></em><a class="headerlink" href="#datumaro.plugins.sam_transforms.interpreters.sam_decoder_for_amg.SAMDecoderForAMGInterpreter.onnx_has_mask_input" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="datumaro.plugins.sam_transforms.interpreters.sam_decoder_for_amg.SAMDecoderForAMGInterpreter.preprocess">
+<span class="sig-name descname"><span class="pre">preprocess</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">inp</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="datumaro.components.dataset_base.html#datumaro.components.dataset_base.DatasetItem" title="datumaro.components.dataset_base.DatasetItem"><span class="pre">DatasetItem</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Tuple" title="(in Python v3.12)"><span class="pre">Tuple</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Union" title="(in Python v3.12)"><span class="pre">Union</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v1.26)"><span class="pre">ndarray</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Dict" title="(in Python v3.12)"><span class="pre">Dict</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v1.26)"><span class="pre">ndarray</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">PrepInfo</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../../_modules/datumaro/plugins/sam_transforms/interpreters/sam_decoder_for_amg.html#SAMDecoderForAMGInterpreter.preprocess"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.plugins.sam_transforms.interpreters.sam_decoder_for_amg.SAMDecoderForAMGInterpreter.preprocess" title="Permalink to this definition">#</a></dt>
+<dd><p>Preprocessing an dataset item input.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>img</strong> – DatasetItem input</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>It returns a tuple of preprocessed input and preprocessing information.
+The preprocessing information will be used in the postprocessing step.
+One use case for this would be an affine transformation of the output bounding box
+obtained by object detection models. Input images for those models are usually resized
+to fit the model input dimensions. As a result, the postprocessing step should refine
+the model output bounding box to match the original input image size.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="datumaro.plugins.sam_transforms.interpreters.sam_decoder_for_amg.SAMDecoderForAMGInterpreter.postprocess">
+<span class="sig-name descname"><span class="pre">postprocess</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pred</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Union" title="(in Python v3.12)"><span class="pre">Union</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Dict" title="(in Python v3.12)"><span class="pre">Dict</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v1.26)"><span class="pre">ndarray</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.List" title="(in Python v3.12)"><span class="pre">List</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Dict" title="(in Python v3.12)"><span class="pre">Dict</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v1.26)"><span class="pre">ndarray</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">info</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">PrepInfo</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.List" title="(in Python v3.12)"><span class="pre">List</span></a><span class="p"><span class="pre">[</span></span><a class="reference internal" href="datumaro.components.annotation.html#datumaro.components.annotation.Annotation" title="datumaro.components.annotation.Annotation"><span class="pre">Annotation</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../../_modules/datumaro/plugins/sam_transforms/interpreters/sam_decoder_for_amg.html#SAMDecoderForAMGInterpreter.postprocess"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.plugins.sam_transforms.interpreters.sam_decoder_for_amg.SAMDecoderForAMGInterpreter.postprocess" title="Permalink to this definition">#</a></dt>
+<dd><p>Postprocesses the outputs of the SAM decoder to generate masks automatically
+from the prompts which have a point uniformly distributed on a 2d grid.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>pred</strong> – List of dictionaries containing model predictions. Each dictionary should have the ‘masks’</p></li>
+<li><p><strong>is</strong> (<em>and 'iou_preds' keys. 'masks' is corresponding to the predicted mask</em><em> of </em><em>which shape</em>) – </p></li>
+<li><p><strong>score.</strong> (<em>'iou_preds' is corresponding to the scalar IoU prediction</em>) – </p></li>
+<li><p><strong>info</strong> – None</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>List of <a class="reference internal" href="#datumaro.plugins.sam_transforms.interpreters.sam_decoder_for_amg.AMGMasks" title="datumaro.plugins.sam_transforms.interpreters.sam_decoder_for_amg.AMGMasks"><code class="xref py py-class docutils literal notranslate"><span class="pre">AMGMasks</span></code></a> produced by the SAM decoder.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="datumaro.plugins.sam_transforms.interpreters.sam_decoder_for_amg.SAMDecoderForAMGInterpreter.get_categories">
+<span class="sig-name descname"><span class="pre">get_categories</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/datumaro/plugins/sam_transforms/interpreters/sam_decoder_for_amg.html#SAMDecoderForAMGInterpreter.get_categories"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.plugins.sam_transforms.interpreters.sam_decoder_for_amg.SAMDecoderForAMGInterpreter.get_categories" title="Permalink to this definition">#</a></dt>
+<dd><p>It should be implemented if the model generate a new categories</p>
+</dd></dl>
+
+</dd></dl>
 
 </section>
 
@@ -622,17 +785,17 @@
             <footer class="bd-footer-article">
                 <!-- Previous / next buttons -->
 <div class='prev-next-area'>
-  <a class='left-prev' id="prev-link" href="datumaro.plugins.data_formats.arrow.mapper.media.html" title="previous page">
+  <a class='left-prev' id="prev-link" href="datumaro.plugins.sam_transforms.interpreters.html" title="previous page">
       <i class="fa-solid fa-angle-left"></i>
       <div class="prev-next-info">
           <p class="prev-next-subtitle">previous</p>
-          <p class="prev-next-title">datumaro.plugins.data_formats.arrow.mapper.media</p>
+          <p class="prev-next-title">datumaro.plugins.sam_transforms.interpreters</p>
       </div>
   </a>
-  <a class='right-next' id="next-link" href="datumaro.plugins.data_formats.ava.html" title="next page">
+  <a class='right-next' id="next-link" href="datumaro.plugins.sam_transforms.interpreters.sam_decoder_for_bbox.html" title="next page">
   <div class="prev-next-info">
       <p class="prev-next-subtitle">next</p>
-      <p class="prev-next-title">datumaro.plugins.data_formats.ava</p>
+      <p class="prev-next-title">datumaro.plugins.sam_transforms.interpreters.sam_decoder_for_bbox</p>
   </div>
   <i class="fa-solid fa-angle-right"></i>
   </a>
@@ -653,31 +816,172 @@
 <nav id="bd-toc-nav" class="page-toc">
     <ul class="visible nav section-nav flex-column">
  <li class="toc-h2 nav-item toc-entry">
-  <a class="reference internal nav-link" href="#datumaro.plugins.data_formats.arrow.mapper.utils.pa_batches_decoder">
+  <a class="reference internal nav-link" href="#datumaro.plugins.sam_transforms.interpreters.sam_decoder_for_amg.AMGPoints">
    <code class="docutils literal notranslate">
     <span class="pre">
-     pa_batches_decoder()
+     AMGPoints
     </span>
    </code>
   </a>
+  <ul class="nav section-nav flex-column">
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#datumaro.plugins.sam_transforms.interpreters.sam_decoder_for_amg.AMGPoints.points">
+     <code class="docutils literal notranslate">
+      <span class="pre">
+       AMGPoints.points
+      </span>
+     </code>
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#id0">
+     <code class="docutils literal notranslate">
+      <span class="pre">
+       AMGPoints.points
+      </span>
+     </code>
+    </a>
+   </li>
+  </ul>
  </li>
  <li class="toc-h2 nav-item toc-entry">
-  <a class="reference internal nav-link" href="#datumaro.plugins.data_formats.arrow.mapper.utils.b64encode">
+  <a class="reference internal nav-link" href="#datumaro.plugins.sam_transforms.interpreters.sam_decoder_for_amg.AMGMasks">
    <code class="docutils literal notranslate">
     <span class="pre">
-     b64encode()
+     AMGMasks
     </span>
    </code>
   </a>
+  <ul class="nav section-nav flex-column">
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#datumaro.plugins.sam_transforms.interpreters.sam_decoder_for_amg.AMGMasks.masks">
+     <code class="docutils literal notranslate">
+      <span class="pre">
+       AMGMasks.masks
+      </span>
+     </code>
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#datumaro.plugins.sam_transforms.interpreters.sam_decoder_for_amg.AMGMasks.iou_preds">
+     <code class="docutils literal notranslate">
+      <span class="pre">
+       AMGMasks.iou_preds
+      </span>
+     </code>
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#id1">
+     <code class="docutils literal notranslate">
+      <span class="pre">
+       AMGMasks.masks
+      </span>
+     </code>
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#id2">
+     <code class="docutils literal notranslate">
+      <span class="pre">
+       AMGMasks.iou_preds
+      </span>
+     </code>
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#datumaro.plugins.sam_transforms.interpreters.sam_decoder_for_amg.AMGMasks.cat">
+     <code class="docutils literal notranslate">
+      <span class="pre">
+       AMGMasks.cat()
+      </span>
+     </code>
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#datumaro.plugins.sam_transforms.interpreters.sam_decoder_for_amg.AMGMasks.postprocess">
+     <code class="docutils literal notranslate">
+      <span class="pre">
+       AMGMasks.postprocess()
+      </span>
+     </code>
+    </a>
+   </li>
+  </ul>
  </li>
  <li class="toc-h2 nav-item toc-entry">
-  <a class="reference internal nav-link" href="#datumaro.plugins.data_formats.arrow.mapper.utils.b64decode">
+  <a class="reference internal nav-link" href="#datumaro.plugins.sam_transforms.interpreters.sam_decoder_for_amg.SAMDecoderForAMGInterpreter">
    <code class="docutils literal notranslate">
     <span class="pre">
-     b64decode()
+     SAMDecoderForAMGInterpreter
     </span>
    </code>
   </a>
+  <ul class="nav section-nav flex-column">
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#datumaro.plugins.sam_transforms.interpreters.sam_decoder_for_amg.SAMDecoderForAMGInterpreter.h_model">
+     <code class="docutils literal notranslate">
+      <span class="pre">
+       SAMDecoderForAMGInterpreter.h_model
+      </span>
+     </code>
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#datumaro.plugins.sam_transforms.interpreters.sam_decoder_for_amg.SAMDecoderForAMGInterpreter.w_model">
+     <code class="docutils literal notranslate">
+      <span class="pre">
+       SAMDecoderForAMGInterpreter.w_model
+      </span>
+     </code>
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#datumaro.plugins.sam_transforms.interpreters.sam_decoder_for_amg.SAMDecoderForAMGInterpreter.onnx_mask_input">
+     <code class="docutils literal notranslate">
+      <span class="pre">
+       SAMDecoderForAMGInterpreter.onnx_mask_input
+      </span>
+     </code>
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#datumaro.plugins.sam_transforms.interpreters.sam_decoder_for_amg.SAMDecoderForAMGInterpreter.onnx_has_mask_input">
+     <code class="docutils literal notranslate">
+      <span class="pre">
+       SAMDecoderForAMGInterpreter.onnx_has_mask_input
+      </span>
+     </code>
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#datumaro.plugins.sam_transforms.interpreters.sam_decoder_for_amg.SAMDecoderForAMGInterpreter.preprocess">
+     <code class="docutils literal notranslate">
+      <span class="pre">
+       SAMDecoderForAMGInterpreter.preprocess()
+      </span>
+     </code>
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#datumaro.plugins.sam_transforms.interpreters.sam_decoder_for_amg.SAMDecoderForAMGInterpreter.postprocess">
+     <code class="docutils literal notranslate">
+      <span class="pre">
+       SAMDecoderForAMGInterpreter.postprocess()
+      </span>
+     </code>
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#datumaro.plugins.sam_transforms.interpreters.sam_decoder_for_amg.SAMDecoderForAMGInterpreter.get_categories">
+     <code class="docutils literal notranslate">
+      <span class="pre">
+       SAMDecoderForAMGInterpreter.get_categories()
+      </span>
+     </code>
+    </a>
+   </li>
+  </ul>
  </li>
 </ul>
 
@@ -696,7 +1000,7 @@
 <div class="toc-item">
   
 <div class="tocsection sourcelink">
-    <a href="../../../_sources/docs/reference/_autosummary/datumaro.plugins.data_formats.arrow.mapper.utils.rst.txt">
+    <a href="../../../_sources/docs/reference/_autosummary/datumaro.plugins.sam_transforms.interpreters.sam_decoder_for_amg.rst.txt">
         <i class="fa-solid fa-file-lines"></i> Show Source
     </a>
 </div>

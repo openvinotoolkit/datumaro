@@ -6,7 +6,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
 
-    <title>datumaro.plugins.data_formats.arrow.arrow_dataset &#8212; Datumaro 1.6.0rc0 documentation</title>
+    <title>datumaro.plugins.data_formats.datumaro.page_mapper &#8212; Datumaro 1.6.0rc0 documentation</title>
   
   
   
@@ -46,11 +46,11 @@
     <script src="../../../_static/copybutton.js"></script>
     <script src="../../../_static/design-tabs.js"></script>
     <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
-    <script>DOCUMENTATION_OPTIONS.pagename = 'docs/reference/_autosummary/datumaro.plugins.data_formats.arrow.arrow_dataset';</script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'docs/reference/_autosummary/datumaro.plugins.data_formats.datumaro.page_mapper';</script>
     <link rel="index" title="Index" href="../../../genindex.html" />
     <link rel="search" title="Search" href="../../../search.html" />
-    <link rel="next" title="datumaro.plugins.data_formats.arrow.base" href="datumaro.plugins.data_formats.arrow.base.html" />
-    <link rel="prev" title="datumaro.plugins.data_formats.arrow" href="datumaro.plugins.data_formats.arrow.html" />
+    <link rel="next" title="datumaro.plugins.data_formats.datumaro_binary" href="datumaro.plugins.data_formats.datumaro_binary.html" />
+    <link rel="prev" title="datumaro.plugins.data_formats.datumaro.importer" href="datumaro.plugins.data_formats.datumaro.importer.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="docsearch:language" content="en">
   </head>
@@ -384,6 +384,7 @@
 <li class="toctree-l2"><a class="reference internal" href="../../jupyter_notebook_examples/notebooks/05_transform.html">Transform Dataset: Re-id, Reindexing, Remapping, etc.</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../jupyter_notebook_examples/notebooks/06_tiling.html">Tile your Dataset to Cope with High-Resolution Images</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../jupyter_notebook_examples/notebooks/18_bbox_to_instance_mask_using_sam.html">Transform bounding box to instance mask annotations using Segment Anything Model</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../jupyter_notebook_examples/notebooks/19_automatic_instance_mask_gen_using_sam.html">Automatic instance mask annotations generation using Segment Anything Model</a></li>
 </ul>
 </li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../../jupyter_notebook_examples/e2e_example.html">From Datumaro to Model Training</a><input class="toctree-checkbox" id="toctree-checkbox-11" name="toctree-checkbox-11" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-11"><i class="fa-solid fa-chevron-down"></i></label><ul>
@@ -581,82 +582,129 @@
             
             <article class="bd-article" role="main">
               
-  <section id="module-datumaro.plugins.data_formats.arrow.arrow_dataset">
-<span id="datumaro-plugins-data-formats-arrow-arrow-dataset"></span><h1>datumaro.plugins.data_formats.arrow.arrow_dataset<a class="headerlink" href="#module-datumaro.plugins.data_formats.arrow.arrow_dataset" title="Permalink to this heading">#</a></h1>
+  <section id="module-datumaro.plugins.data_formats.datumaro.page_mapper">
+<span id="datumaro-plugins-data-formats-datumaro-page-mapper"></span><h1>datumaro.plugins.data_formats.datumaro.page_mapper<a class="headerlink" href="#module-datumaro.plugins.data_formats.datumaro.page_mapper" title="Permalink to this heading">#</a></h1>
 <p class="rubric">Classes</p>
 <table class="autosummary longtable table autosummary">
 <tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="#datumaro.plugins.data_formats.arrow.arrow_dataset.ArrowDataset" title="datumaro.plugins.data_formats.arrow.arrow_dataset.ArrowDataset"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ArrowDataset</span></code></a>(files[, keep_in_memory])</p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#datumaro.plugins.data_formats.arrow.arrow_dataset.ArrowDatasetIterator" title="datumaro.plugins.data_formats.arrow.arrow_dataset.ArrowDatasetIterator"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ArrowDatasetIterator</span></code></a>(dataset)</p></td>
-<td><p></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#datumaro.plugins.data_formats.datumaro.page_mapper.DatumPageMapper" title="datumaro.plugins.data_formats.datumaro.page_mapper.DatumPageMapper"><code class="xref py py-obj docutils literal notranslate"><span class="pre">DatumPageMapper</span></code></a>(path)</p></td>
+<td><p>Construct page maps for items and annotations from the JSON file, which are used for the stream importer.</p></td>
 </tr>
 </tbody>
 </table>
 <dl class="py class">
-<dt class="sig sig-object py" id="datumaro.plugins.data_formats.arrow.arrow_dataset.ArrowDatasetIterator">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">datumaro.plugins.data_formats.arrow.arrow_dataset.</span></span><span class="sig-name descname"><span class="pre">ArrowDatasetIterator</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dataset</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#datumaro.plugins.data_formats.arrow.arrow_dataset.ArrowDataset" title="datumaro.plugins.data_formats.arrow.arrow_dataset.ArrowDataset"><span class="pre">ArrowDataset</span></a></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/datumaro/plugins/data_formats/arrow/arrow_dataset.html#ArrowDatasetIterator"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.plugins.data_formats.arrow.arrow_dataset.ArrowDatasetIterator" title="Permalink to this definition">#</a></dt>
-<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.Iterator" title="(in Python v3.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Iterator</span></code></a></p>
+<dt class="sig sig-object py" id="datumaro.plugins.data_formats.datumaro.page_mapper.DatumPageMapper">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">datumaro.plugins.data_formats.datumaro.page_mapper.</span></span><span class="sig-name descname"><span class="pre">DatumPageMapper</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><span class="pre">str</span></a></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/datumaro/plugins/data_formats/datumaro/page_mapper.html#DatumPageMapper"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.plugins.data_formats.datumaro.page_mapper.DatumPageMapper" title="Permalink to this definition">#</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<p>Construct page maps for items and annotations from the JSON file,
+which are used for the stream importer.</p>
+<p>It also provides __iter__() to produce item and annotation dictionaries
+in stream manner after constructing the page map.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="datumaro.plugins.data_formats.datumaro.page_mapper.DatumPageMapper.get_item_dict">
+<span class="sig-name descname"><span class="pre">get_item_dict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">item_key</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><span class="pre">str</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Optional" title="(in Python v3.12)"><span class="pre">Optional</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Dict" title="(in Python v3.12)"><span class="pre">Dict</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../../_modules/datumaro/plugins/data_formats/datumaro/page_mapper.html#DatumPageMapper.get_item_dict"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.plugins.data_formats.datumaro.page_mapper.DatumPageMapper.get_item_dict" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="datumaro.plugins.data_formats.datumaro.page_mapper.DatumPageMapper.iter_item_ids">
+<span class="sig-name descname"><span class="pre">iter_item_ids</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Iterator" title="(in Python v3.12)"><span class="pre">Iterator</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../../_modules/datumaro/plugins/data_formats/datumaro/page_mapper.html#DatumPageMapper.iter_item_ids"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.plugins.data_formats.datumaro.page_mapper.DatumPageMapper.iter_item_ids" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="datumaro.plugins.data_formats.datumaro.page_mapper.DatumPageMapper.dm_format_version">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">dm_format_version</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Optional" title="(in Python v3.12)"><span class="pre">Optional</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#datumaro.plugins.data_formats.datumaro.page_mapper.DatumPageMapper.dm_format_version" title="Permalink to this definition">#</a></dt>
+<dd><p>Parse “dm_format_version” section from the given JSON file using the stream json parser</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="datumaro.plugins.data_formats.datumaro.page_mapper.DatumPageMapper.media_type">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">media_type</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Optional" title="(in Python v3.12)"><span class="pre">Optional</span></a><span class="p"><span class="pre">[</span></span><a class="reference internal" href="datumaro.components.media.html#datumaro.components.media.MediaType" title="datumaro.components.media.MediaType"><span class="pre">MediaType</span></a><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#datumaro.plugins.data_formats.datumaro.page_mapper.DatumPageMapper.media_type" title="Permalink to this definition">#</a></dt>
+<dd><p>Parse “media_type” section from the given JSON file using the stream json parser</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="datumaro.plugins.data_formats.datumaro.page_mapper.DatumPageMapper.infos">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">infos</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Dict" title="(in Python v3.12)"><span class="pre">Dict</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.12)"><span class="pre">Any</span></a><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#datumaro.plugins.data_formats.datumaro.page_mapper.DatumPageMapper.infos" title="Permalink to this definition">#</a></dt>
+<dd><p>Parse “infos” section from the given JSON file using the stream json parser</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="datumaro.plugins.data_formats.datumaro.page_mapper.DatumPageMapper.categories">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">categories</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Dict" title="(in Python v3.12)"><span class="pre">Dict</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.12)"><span class="pre">Any</span></a><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#datumaro.plugins.data_formats.datumaro.page_mapper.DatumPageMapper.categories" title="Permalink to this definition">#</a></dt>
+<dd><p>Parse “categories” section from the given JSON file using the stream json parser</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="datumaro.plugins.data_formats.datumaro.page_mapper.DatumPageMapperImpl">
+<span class="sig-prename descclassname"><span class="pre">datumaro.plugins.data_formats.datumaro.page_mapper.</span></span><span class="sig-name descname"><span class="pre">DatumPageMapperImpl</span></span><a class="headerlink" href="#datumaro.plugins.data_formats.datumaro.page_mapper.DatumPageMapperImpl" title="Permalink to this definition">#</a></dt>
+<dd><p>alias of <a class="reference internal" href="#datumaro.plugins.data_formats.datumaro.page_mapper.DatumPageMapper" title="datumaro.plugins.data_formats.datumaro.page_mapper.DatumPageMapper"><code class="xref py py-class docutils literal notranslate"><span class="pre">DatumPageMapper</span></code></a></p>
 </dd></dl>
 
 <dl class="py class">
-<dt class="sig sig-object py" id="datumaro.plugins.data_formats.arrow.arrow_dataset.ArrowDataset">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">datumaro.plugins.data_formats.arrow.arrow_dataset.</span></span><span class="sig-name descname"><span class="pre">ArrowDataset</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">files</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Union" title="(in Python v3.12)"><span class="pre">Union</span></a><span class="p"><span class="pre">[</span></span><span class="pre">PathLike</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.List" title="(in Python v3.12)"><span class="pre">List</span></a><span class="p"><span class="pre">[</span></span><span class="pre">PathLike</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">keep_in_memory</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.12)"><span class="pre">bool</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/datumaro/plugins/data_formats/arrow/arrow_dataset.html#ArrowDataset"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.plugins.data_formats.arrow.arrow_dataset.ArrowDataset" title="Permalink to this definition">#</a></dt>
-<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
-<dl class="py property">
-<dt class="sig sig-object py" id="datumaro.plugins.data_formats.arrow.arrow_dataset.ArrowDataset.table">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">table</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Table</span></em><a class="headerlink" href="#datumaro.plugins.data_formats.arrow.arrow_dataset.ArrowDataset.table" title="Permalink to this definition">#</a></dt>
+<dt class="sig sig-object py" id="datumaro.plugins.data_formats.datumaro.page_mapper.MediaType">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">datumaro.plugins.data_formats.datumaro.page_mapper.</span></span><span class="sig-name descname"><span class="pre">MediaType</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/datumaro/components/media.html#MediaType"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.plugins.data_formats.datumaro.page_mapper.MediaType" title="Permalink to this definition">#</a></dt>
+<dd><p>Bases: <a class="reference internal" href="datumaro.util.multi_procs_util.html#datumaro.util.multi_procs_util.IntEnum" title="enum.IntEnum"><code class="xref py py-class docutils literal notranslate"><span class="pre">IntEnum</span></code></a></p>
+<p>An enumeration.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="datumaro.plugins.data_formats.datumaro.page_mapper.MediaType.NONE">
+<span class="sig-name descname"><span class="pre">NONE</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">0</span></em><a class="headerlink" href="#datumaro.plugins.data_formats.datumaro.page_mapper.MediaType.NONE" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="datumaro.plugins.data_formats.datumaro.page_mapper.MediaType.MEDIA_ELEMENT">
+<span class="sig-name descname"><span class="pre">MEDIA_ELEMENT</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">1</span></em><a class="headerlink" href="#datumaro.plugins.data_formats.datumaro.page_mapper.MediaType.MEDIA_ELEMENT" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="datumaro.plugins.data_formats.datumaro.page_mapper.MediaType.IMAGE">
+<span class="sig-name descname"><span class="pre">IMAGE</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">2</span></em><a class="headerlink" href="#datumaro.plugins.data_formats.datumaro.page_mapper.MediaType.IMAGE" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="datumaro.plugins.data_formats.datumaro.page_mapper.MediaType.BYTE_IMAGE">
+<span class="sig-name descname"><span class="pre">BYTE_IMAGE</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">3</span></em><a class="headerlink" href="#datumaro.plugins.data_formats.datumaro.page_mapper.MediaType.BYTE_IMAGE" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="datumaro.plugins.data_formats.datumaro.page_mapper.MediaType.VIDEO_FRAME">
+<span class="sig-name descname"><span class="pre">VIDEO_FRAME</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">4</span></em><a class="headerlink" href="#datumaro.plugins.data_formats.datumaro.page_mapper.MediaType.VIDEO_FRAME" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="datumaro.plugins.data_formats.datumaro.page_mapper.MediaType.VIDEO">
+<span class="sig-name descname"><span class="pre">VIDEO</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">5</span></em><a class="headerlink" href="#datumaro.plugins.data_formats.datumaro.page_mapper.MediaType.VIDEO" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="datumaro.plugins.data_formats.datumaro.page_mapper.MediaType.POINT_CLOUD">
+<span class="sig-name descname"><span class="pre">POINT_CLOUD</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">6</span></em><a class="headerlink" href="#datumaro.plugins.data_formats.datumaro.page_mapper.MediaType.POINT_CLOUD" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="datumaro.plugins.data_formats.datumaro.page_mapper.MediaType.MULTIFRAME_IMAGE">
+<span class="sig-name descname"><span class="pre">MULTIFRAME_IMAGE</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">7</span></em><a class="headerlink" href="#datumaro.plugins.data_formats.datumaro.page_mapper.MediaType.MULTIFRAME_IMAGE" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="datumaro.plugins.data_formats.datumaro.page_mapper.MediaType.ROI_IMAGE">
+<span class="sig-name descname"><span class="pre">ROI_IMAGE</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">8</span></em><a class="headerlink" href="#datumaro.plugins.data_formats.datumaro.page_mapper.MediaType.ROI_IMAGE" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="datumaro.plugins.data_formats.datumaro.page_mapper.MediaType.MOSAIC_IMAGE">
+<span class="sig-name descname"><span class="pre">MOSAIC_IMAGE</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">9</span></em><a class="headerlink" href="#datumaro.plugins.data_formats.datumaro.page_mapper.MediaType.MOSAIC_IMAGE" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="datumaro.plugins.data_formats.datumaro.page_mapper.MediaType.TABLE_ROW">
+<span class="sig-name descname"><span class="pre">TABLE_ROW</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">10</span></em><a class="headerlink" href="#datumaro.plugins.data_formats.datumaro.page_mapper.MediaType.TABLE_ROW" title="Permalink to this definition">#</a></dt>
 <dd></dd></dl>
 
 <dl class="py property">
-<dt class="sig sig-object py" id="datumaro.plugins.data_formats.arrow.arrow_dataset.ArrowDataset.column_names">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">column_names</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.List" title="(in Python v3.12)"><span class="pre">List</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#datumaro.plugins.data_formats.arrow.arrow_dataset.ArrowDataset.column_names" title="Permalink to this definition">#</a></dt>
-<dd></dd></dl>
-
-<dl class="py property">
-<dt class="sig sig-object py" id="datumaro.plugins.data_formats.arrow.arrow_dataset.ArrowDataset.num_columns">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">num_columns</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.12)"><span class="pre">int</span></a></em><a class="headerlink" href="#datumaro.plugins.data_formats.arrow.arrow_dataset.ArrowDataset.num_columns" title="Permalink to this definition">#</a></dt>
-<dd></dd></dl>
-
-<dl class="py property">
-<dt class="sig sig-object py" id="datumaro.plugins.data_formats.arrow.arrow_dataset.ArrowDataset.num_rows">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">num_rows</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.12)"><span class="pre">int</span></a></em><a class="headerlink" href="#datumaro.plugins.data_formats.arrow.arrow_dataset.ArrowDataset.num_rows" title="Permalink to this definition">#</a></dt>
-<dd></dd></dl>
-
-<dl class="py property">
-<dt class="sig sig-object py" id="datumaro.plugins.data_formats.arrow.arrow_dataset.ArrowDataset.shape">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">shape</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Tuple" title="(in Python v3.12)"><span class="pre">Tuple</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.12)"><span class="pre">int</span></a><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#datumaro.plugins.data_formats.arrow.arrow_dataset.ArrowDataset.shape" title="Permalink to this definition">#</a></dt>
-<dd></dd></dl>
-
-<dl class="py property">
-<dt class="sig sig-object py" id="datumaro.plugins.data_formats.arrow.arrow_dataset.ArrowDataset.metadata">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">metadata</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Optional" title="(in Python v3.12)"><span class="pre">Optional</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Dict" title="(in Python v3.12)"><span class="pre">Dict</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#bytes" title="(in Python v3.12)"><span class="pre">bytes</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#bytes" title="(in Python v3.12)"><span class="pre">bytes</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#datumaro.plugins.data_formats.arrow.arrow_dataset.ArrowDataset.metadata" title="Permalink to this definition">#</a></dt>
-<dd></dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="datumaro.plugins.data_formats.arrow.arrow_dataset.ArrowDataset.unload_arrows">
-<span class="sig-name descname"><span class="pre">unload_arrows</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.12)"><span class="pre">None</span></a></span></span><a class="reference internal" href="../../../_modules/datumaro/plugins/data_formats/arrow/arrow_dataset.html#ArrowDataset.unload_arrows"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.plugins.data_formats.arrow.arrow_dataset.ArrowDataset.unload_arrows" title="Permalink to this definition">#</a></dt>
-<dd></dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="datumaro.plugins.data_formats.arrow.arrow_dataset.ArrowDataset.load_arrows">
-<span class="sig-name descname"><span class="pre">load_arrows</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.12)"><span class="pre">None</span></a></span></span><a class="reference internal" href="../../../_modules/datumaro/plugins/data_formats/arrow/arrow_dataset.html#ArrowDataset.load_arrows"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.plugins.data_formats.arrow.arrow_dataset.ArrowDataset.load_arrows" title="Permalink to this definition">#</a></dt>
-<dd></dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="datumaro.plugins.data_formats.arrow.arrow_dataset.ArrowDataset.flatten">
-<span class="sig-name descname"><span class="pre">flatten</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#datumaro.plugins.data_formats.arrow.arrow_dataset.ArrowDataset" title="datumaro.plugins.data_formats.arrow.arrow_dataset.ArrowDataset"><span class="pre">ArrowDataset</span></a></span></span><a class="reference internal" href="../../../_modules/datumaro/plugins/data_formats/arrow/arrow_dataset.html#ArrowDataset.flatten"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.plugins.data_formats.arrow.arrow_dataset.ArrowDataset.flatten" title="Permalink to this definition">#</a></dt>
-<dd></dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="datumaro.plugins.data_formats.arrow.arrow_dataset.ArrowDataset.get_batches">
-<span class="sig-name descname"><span class="pre">get_batches</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">offset</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.12)"><span class="pre">int</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">length</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.12)"><span class="pre">int</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.List" title="(in Python v3.12)"><span class="pre">List</span></a><span class="p"><span class="pre">[</span></span><span class="pre">RecordBatch</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../../_modules/datumaro/plugins/data_formats/arrow/arrow_dataset.html#ArrowDataset.get_batches"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.plugins.data_formats.arrow.arrow_dataset.ArrowDataset.get_batches" title="Permalink to this definition">#</a></dt>
-<dd></dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="datumaro.plugins.data_formats.arrow.arrow_dataset.ArrowDataset.slice">
-<span class="sig-name descname"><span class="pre">slice</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">offset</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.12)"><span class="pre">int</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">length</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.12)"><span class="pre">int</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.List" title="(in Python v3.12)"><span class="pre">List</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Dict" title="(in Python v3.12)"><span class="pre">Dict</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../../_modules/datumaro/plugins/data_formats/arrow/arrow_dataset.html#ArrowDataset.slice"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.plugins.data_formats.arrow.arrow_dataset.ArrowDataset.slice" title="Permalink to this definition">#</a></dt>
+<dt class="sig sig-object py" id="datumaro.plugins.data_formats.datumaro.page_mapper.MediaType.media">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">media</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Optional" title="(in Python v3.12)"><span class="pre">Optional</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Type" title="(in Python v3.12)"><span class="pre">Type</span></a><span class="p"><span class="pre">[</span></span><a class="reference internal" href="datumaro.components.media.html#datumaro.components.media.MediaElement" title="datumaro.components.media.MediaElement"><span class="pre">MediaElement</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#datumaro.plugins.data_formats.datumaro.page_mapper.MediaType.media" title="Permalink to this definition">#</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
@@ -671,17 +719,17 @@
             <footer class="bd-footer-article">
                 <!-- Previous / next buttons -->
 <div class='prev-next-area'>
-  <a class='left-prev' id="prev-link" href="datumaro.plugins.data_formats.arrow.html" title="previous page">
+  <a class='left-prev' id="prev-link" href="datumaro.plugins.data_formats.datumaro.importer.html" title="previous page">
       <i class="fa-solid fa-angle-left"></i>
       <div class="prev-next-info">
           <p class="prev-next-subtitle">previous</p>
-          <p class="prev-next-title">datumaro.plugins.data_formats.arrow</p>
+          <p class="prev-next-title">datumaro.plugins.data_formats.datumaro.importer</p>
       </div>
   </a>
-  <a class='right-next' id="next-link" href="datumaro.plugins.data_formats.arrow.base.html" title="next page">
+  <a class='right-next' id="next-link" href="datumaro.plugins.data_formats.datumaro_binary.html" title="next page">
   <div class="prev-next-info">
       <p class="prev-next-subtitle">next</p>
-      <p class="prev-next-title">datumaro.plugins.data_formats.arrow.base</p>
+      <p class="prev-next-title">datumaro.plugins.data_formats.datumaro_binary</p>
   </div>
   <i class="fa-solid fa-angle-right"></i>
   </a>
@@ -702,118 +750,192 @@
 <nav id="bd-toc-nav" class="page-toc">
     <ul class="visible nav section-nav flex-column">
  <li class="toc-h2 nav-item toc-entry">
-  <a class="reference internal nav-link" href="#datumaro.plugins.data_formats.arrow.arrow_dataset.ArrowDatasetIterator">
+  <a class="reference internal nav-link" href="#datumaro.plugins.data_formats.datumaro.page_mapper.DatumPageMapper">
    <code class="docutils literal notranslate">
     <span class="pre">
-     ArrowDatasetIterator
-    </span>
-   </code>
-  </a>
- </li>
- <li class="toc-h2 nav-item toc-entry">
-  <a class="reference internal nav-link" href="#datumaro.plugins.data_formats.arrow.arrow_dataset.ArrowDataset">
-   <code class="docutils literal notranslate">
-    <span class="pre">
-     ArrowDataset
+     DatumPageMapper
     </span>
    </code>
   </a>
   <ul class="nav section-nav flex-column">
    <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.plugins.data_formats.arrow.arrow_dataset.ArrowDataset.table">
+    <a class="reference internal nav-link" href="#datumaro.plugins.data_formats.datumaro.page_mapper.DatumPageMapper.get_item_dict">
      <code class="docutils literal notranslate">
       <span class="pre">
-       ArrowDataset.table
+       DatumPageMapper.get_item_dict()
       </span>
      </code>
     </a>
    </li>
    <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.plugins.data_formats.arrow.arrow_dataset.ArrowDataset.column_names">
+    <a class="reference internal nav-link" href="#datumaro.plugins.data_formats.datumaro.page_mapper.DatumPageMapper.iter_item_ids">
      <code class="docutils literal notranslate">
       <span class="pre">
-       ArrowDataset.column_names
+       DatumPageMapper.iter_item_ids()
       </span>
      </code>
     </a>
    </li>
    <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.plugins.data_formats.arrow.arrow_dataset.ArrowDataset.num_columns">
+    <a class="reference internal nav-link" href="#datumaro.plugins.data_formats.datumaro.page_mapper.DatumPageMapper.dm_format_version">
      <code class="docutils literal notranslate">
       <span class="pre">
-       ArrowDataset.num_columns
+       DatumPageMapper.dm_format_version
       </span>
      </code>
     </a>
    </li>
    <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.plugins.data_formats.arrow.arrow_dataset.ArrowDataset.num_rows">
+    <a class="reference internal nav-link" href="#datumaro.plugins.data_formats.datumaro.page_mapper.DatumPageMapper.media_type">
      <code class="docutils literal notranslate">
       <span class="pre">
-       ArrowDataset.num_rows
+       DatumPageMapper.media_type
       </span>
      </code>
     </a>
    </li>
    <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.plugins.data_formats.arrow.arrow_dataset.ArrowDataset.shape">
+    <a class="reference internal nav-link" href="#datumaro.plugins.data_formats.datumaro.page_mapper.DatumPageMapper.infos">
      <code class="docutils literal notranslate">
       <span class="pre">
-       ArrowDataset.shape
+       DatumPageMapper.infos
       </span>
      </code>
     </a>
    </li>
    <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.plugins.data_formats.arrow.arrow_dataset.ArrowDataset.metadata">
+    <a class="reference internal nav-link" href="#datumaro.plugins.data_formats.datumaro.page_mapper.DatumPageMapper.categories">
      <code class="docutils literal notranslate">
       <span class="pre">
-       ArrowDataset.metadata
+       DatumPageMapper.categories
+      </span>
+     </code>
+    </a>
+   </li>
+  </ul>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#datumaro.plugins.data_formats.datumaro.page_mapper.DatumPageMapperImpl">
+   <code class="docutils literal notranslate">
+    <span class="pre">
+     DatumPageMapperImpl
+    </span>
+   </code>
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#datumaro.plugins.data_formats.datumaro.page_mapper.MediaType">
+   <code class="docutils literal notranslate">
+    <span class="pre">
+     MediaType
+    </span>
+   </code>
+  </a>
+  <ul class="nav section-nav flex-column">
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#datumaro.plugins.data_formats.datumaro.page_mapper.MediaType.NONE">
+     <code class="docutils literal notranslate">
+      <span class="pre">
+       MediaType.NONE
       </span>
      </code>
     </a>
    </li>
    <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.plugins.data_formats.arrow.arrow_dataset.ArrowDataset.unload_arrows">
+    <a class="reference internal nav-link" href="#datumaro.plugins.data_formats.datumaro.page_mapper.MediaType.MEDIA_ELEMENT">
      <code class="docutils literal notranslate">
       <span class="pre">
-       ArrowDataset.unload_arrows()
+       MediaType.MEDIA_ELEMENT
       </span>
      </code>
     </a>
    </li>
    <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.plugins.data_formats.arrow.arrow_dataset.ArrowDataset.load_arrows">
+    <a class="reference internal nav-link" href="#datumaro.plugins.data_formats.datumaro.page_mapper.MediaType.IMAGE">
      <code class="docutils literal notranslate">
       <span class="pre">
-       ArrowDataset.load_arrows()
+       MediaType.IMAGE
       </span>
      </code>
     </a>
    </li>
    <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.plugins.data_formats.arrow.arrow_dataset.ArrowDataset.flatten">
+    <a class="reference internal nav-link" href="#datumaro.plugins.data_formats.datumaro.page_mapper.MediaType.BYTE_IMAGE">
      <code class="docutils literal notranslate">
       <span class="pre">
-       ArrowDataset.flatten()
+       MediaType.BYTE_IMAGE
       </span>
      </code>
     </a>
    </li>
    <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.plugins.data_formats.arrow.arrow_dataset.ArrowDataset.get_batches">
+    <a class="reference internal nav-link" href="#datumaro.plugins.data_formats.datumaro.page_mapper.MediaType.VIDEO_FRAME">
      <code class="docutils literal notranslate">
       <span class="pre">
-       ArrowDataset.get_batches()
+       MediaType.VIDEO_FRAME
       </span>
      </code>
     </a>
    </li>
    <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.plugins.data_formats.arrow.arrow_dataset.ArrowDataset.slice">
+    <a class="reference internal nav-link" href="#datumaro.plugins.data_formats.datumaro.page_mapper.MediaType.VIDEO">
      <code class="docutils literal notranslate">
       <span class="pre">
-       ArrowDataset.slice()
+       MediaType.VIDEO
+      </span>
+     </code>
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#datumaro.plugins.data_formats.datumaro.page_mapper.MediaType.POINT_CLOUD">
+     <code class="docutils literal notranslate">
+      <span class="pre">
+       MediaType.POINT_CLOUD
+      </span>
+     </code>
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#datumaro.plugins.data_formats.datumaro.page_mapper.MediaType.MULTIFRAME_IMAGE">
+     <code class="docutils literal notranslate">
+      <span class="pre">
+       MediaType.MULTIFRAME_IMAGE
+      </span>
+     </code>
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#datumaro.plugins.data_formats.datumaro.page_mapper.MediaType.ROI_IMAGE">
+     <code class="docutils literal notranslate">
+      <span class="pre">
+       MediaType.ROI_IMAGE
+      </span>
+     </code>
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#datumaro.plugins.data_formats.datumaro.page_mapper.MediaType.MOSAIC_IMAGE">
+     <code class="docutils literal notranslate">
+      <span class="pre">
+       MediaType.MOSAIC_IMAGE
+      </span>
+     </code>
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#datumaro.plugins.data_formats.datumaro.page_mapper.MediaType.TABLE_ROW">
+     <code class="docutils literal notranslate">
+      <span class="pre">
+       MediaType.TABLE_ROW
+      </span>
+     </code>
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#datumaro.plugins.data_formats.datumaro.page_mapper.MediaType.media">
+     <code class="docutils literal notranslate">
+      <span class="pre">
+       MediaType.media
       </span>
      </code>
     </a>
@@ -837,7 +959,7 @@
 <div class="toc-item">
   
 <div class="tocsection sourcelink">
-    <a href="../../../_sources/docs/reference/_autosummary/datumaro.plugins.data_formats.arrow.arrow_dataset.rst.txt">
+    <a href="../../../_sources/docs/reference/_autosummary/datumaro.plugins.data_formats.datumaro.page_mapper.rst.txt">
         <i class="fa-solid fa-file-lines"></i> Show Source
     </a>
 </div>

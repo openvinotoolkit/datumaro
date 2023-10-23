@@ -384,6 +384,7 @@
 <li class="toctree-l2"><a class="reference internal" href="../../jupyter_notebook_examples/notebooks/05_transform.html">Transform Dataset: Re-id, Reindexing, Remapping, etc.</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../jupyter_notebook_examples/notebooks/06_tiling.html">Tile your Dataset to Cope with High-Resolution Images</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../jupyter_notebook_examples/notebooks/18_bbox_to_instance_mask_using_sam.html">Transform bounding box to instance mask annotations using Segment Anything Model</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../jupyter_notebook_examples/notebooks/19_automatic_instance_mask_gen_using_sam.html">Automatic instance mask annotations generation using Segment Anything Model</a></li>
 </ul>
 </li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../../jupyter_notebook_examples/e2e_example.html">From Datumaro to Model Training</a><input class="toctree-checkbox" id="toctree-checkbox-11" name="toctree-checkbox-11" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-11"><i class="fa-solid fa-chevron-down"></i></label><ul>
@@ -602,7 +603,7 @@
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="datumaro.plugins.data_formats.arrow.format.DatumaroArrow.VERSION">
-<span class="sig-name descname"><span class="pre">VERSION</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'1.0'</span></em><a class="headerlink" href="#datumaro.plugins.data_formats.arrow.format.DatumaroArrow.VERSION" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">VERSION</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'2.0'</span></em><a class="headerlink" href="#datumaro.plugins.data_formats.arrow.format.DatumaroArrow.VERSION" title="Permalink to this definition">#</a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
@@ -611,8 +612,33 @@
 <dd></dd></dl>
 
 <dl class="py attribute">
+<dt class="sig sig-object py" id="datumaro.plugins.data_formats.arrow.format.DatumaroArrow.ID_FIELD">
+<span class="sig-name descname"><span class="pre">ID_FIELD</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'id'</span></em><a class="headerlink" href="#datumaro.plugins.data_formats.arrow.format.DatumaroArrow.ID_FIELD" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="datumaro.plugins.data_formats.arrow.format.DatumaroArrow.SUBSET_FIELD">
+<span class="sig-name descname"><span class="pre">SUBSET_FIELD</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'subset'</span></em><a class="headerlink" href="#datumaro.plugins.data_formats.arrow.format.DatumaroArrow.SUBSET_FIELD" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="datumaro.plugins.data_formats.arrow.format.DatumaroArrow.IMAGE_FIELD">
+<span class="sig-name descname"><span class="pre">IMAGE_FIELD</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">StructType(struct&lt;has_bytes:</span> <span class="pre">bool,</span> <span class="pre">bytes:</span> <span class="pre">binary,</span> <span class="pre">path:</span> <span class="pre">string,</span> <span class="pre">size:</span> <span class="pre">fixed_size_list&lt;item:</span> <span class="pre">uint16&gt;[2]&gt;)</span></em><a class="headerlink" href="#datumaro.plugins.data_formats.arrow.format.DatumaroArrow.IMAGE_FIELD" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="datumaro.plugins.data_formats.arrow.format.DatumaroArrow.POINT_CLOUD_FIELD">
+<span class="sig-name descname"><span class="pre">POINT_CLOUD_FIELD</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">StructType(struct&lt;has_bytes:</span> <span class="pre">bool,</span> <span class="pre">bytes:</span> <span class="pre">binary,</span> <span class="pre">path:</span> <span class="pre">string,</span> <span class="pre">extra_images:</span> <span class="pre">list&lt;image:</span> <span class="pre">struct&lt;has_bytes:</span> <span class="pre">bool,</span> <span class="pre">bytes:</span> <span class="pre">binary,</span> <span class="pre">path:</span> <span class="pre">string,</span> <span class="pre">size:</span> <span class="pre">fixed_size_list&lt;item:</span> <span class="pre">uint16&gt;[2]&gt;&gt;&gt;)</span></em><a class="headerlink" href="#datumaro.plugins.data_formats.arrow.format.DatumaroArrow.POINT_CLOUD_FIELD" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="datumaro.plugins.data_formats.arrow.format.DatumaroArrow.MEDIA_FIELD">
+<span class="sig-name descname"><span class="pre">MEDIA_FIELD</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">StructType(struct&lt;type:</span> <span class="pre">uint8,</span> <span class="pre">image:</span> <span class="pre">struct&lt;has_bytes:</span> <span class="pre">bool,</span> <span class="pre">bytes:</span> <span class="pre">binary,</span> <span class="pre">path:</span> <span class="pre">string,</span> <span class="pre">size:</span> <span class="pre">fixed_size_list&lt;item:</span> <span class="pre">uint16&gt;[2]&gt;,</span> <span class="pre">point_cloud:</span> <span class="pre">struct&lt;has_bytes:</span> <span class="pre">bool,</span> <span class="pre">bytes:</span> <span class="pre">binary,</span> <span class="pre">path:</span> <span class="pre">string,</span> <span class="pre">extra_images:</span> <span class="pre">list&lt;image:</span> <span class="pre">struct&lt;has_bytes:</span> <span class="pre">bool,</span> <span class="pre">bytes:</span> <span class="pre">binary,</span> <span class="pre">path:</span> <span class="pre">string,</span> <span class="pre">size:</span> <span class="pre">fixed_size_list&lt;item:</span> <span class="pre">uint16&gt;[2]&gt;&gt;&gt;&gt;)</span></em><a class="headerlink" href="#datumaro.plugins.data_formats.arrow.format.DatumaroArrow.MEDIA_FIELD" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
 <dt class="sig sig-object py" id="datumaro.plugins.data_formats.arrow.format.DatumaroArrow.SCHEMA">
-<span class="sig-name descname"><span class="pre">SCHEMA</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">id:</span> <span class="pre">string</span> <span class="pre">subset:</span> <span class="pre">string</span> <span class="pre">media:</span> <span class="pre">struct&lt;type:</span> <span class="pre">uint32,</span> <span class="pre">path:</span> <span class="pre">string,</span> <span class="pre">bytes:</span> <span class="pre">binary,</span> <span class="pre">attributes:</span> <span class="pre">binary&gt;</span>&#160;&#160; <span class="pre">child</span> <span class="pre">0,</span> <span class="pre">type:</span> <span class="pre">uint32</span>&#160;&#160; <span class="pre">child</span> <span class="pre">1,</span> <span class="pre">path:</span> <span class="pre">string</span>&#160;&#160; <span class="pre">child</span> <span class="pre">2,</span> <span class="pre">bytes:</span> <span class="pre">binary</span>&#160;&#160; <span class="pre">child</span> <span class="pre">3,</span> <span class="pre">attributes:</span> <span class="pre">binary</span> <span class="pre">annotations:</span> <span class="pre">binary</span> <span class="pre">attributes:</span> <span class="pre">binary</span></em><a class="headerlink" href="#datumaro.plugins.data_formats.arrow.format.DatumaroArrow.SCHEMA" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">SCHEMA</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">id:</span> <span class="pre">string</span> <span class="pre">subset:</span> <span class="pre">string</span> <span class="pre">media:</span> <span class="pre">struct&lt;type:</span> <span class="pre">uint8,</span> <span class="pre">image:</span> <span class="pre">struct&lt;has_bytes:</span> <span class="pre">bool,</span> <span class="pre">bytes:</span> <span class="pre">binary,</span> <span class="pre">path:</span> <span class="pre">string,</span> <span class="pre">size:</span> <span class="pre">fixed_size_list&lt;item:</span> <span class="pre">uint16&gt;[2]&gt;,</span> <span class="pre">point_cloud:</span> <span class="pre">struct&lt;has_bytes:</span> <span class="pre">bool,</span> <span class="pre">bytes:</span> <span class="pre">binary,</span> <span class="pre">path:</span> <span class="pre">string,</span> <span class="pre">extra_images:</span> <span class="pre">list&lt;image:</span> <span class="pre">struct&lt;has_bytes:</span> <span class="pre">bool,</span> <span class="pre">bytes:</span> <span class="pre">binary,</span> <span class="pre">path:</span> <span class="pre">string,</span> <span class="pre">size:</span> <span class="pre">fixed_size_list&lt;item:</span> <span class="pre">uint16&gt;[2]&gt;&gt;&gt;&gt;</span>&#160;&#160; <span class="pre">child</span> <span class="pre">0,</span> <span class="pre">type:</span> <span class="pre">uint8</span>&#160;&#160; <span class="pre">child</span> <span class="pre">1,</span> <span class="pre">image:</span> <span class="pre">struct&lt;has_bytes:</span> <span class="pre">bool,</span> <span class="pre">bytes:</span> <span class="pre">binary,</span> <span class="pre">path:</span> <span class="pre">string,</span> <span class="pre">size:</span> <span class="pre">fixed_size_list&lt;item:</span> <span class="pre">uint16&gt;[2]&gt;</span>&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">child</span> <span class="pre">0,</span> <span class="pre">has_bytes:</span> <span class="pre">bool</span>&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">child</span> <span class="pre">1,</span> <span class="pre">bytes:</span> <span class="pre">binary</span>&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">child</span> <span class="pre">2,</span> <span class="pre">path:</span> <span class="pre">string</span>&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">child</span> <span class="pre">3,</span> <span class="pre">size:</span> <span class="pre">fixed_size_list&lt;item:</span> <span class="pre">uint16&gt;[2]</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">child</span> <span class="pre">0,</span> <span class="pre">item:</span> <span class="pre">uint16</span>&#160;&#160; <span class="pre">child</span> <span class="pre">2,</span> <span class="pre">point_cloud:</span> <span class="pre">struct&lt;has_bytes:</span> <span class="pre">bool,</span> <span class="pre">bytes:</span> <span class="pre">binary,</span> <span class="pre">path:</span> <span class="pre">string,</span> <span class="pre">extra_images:</span> <span class="pre">list&lt;image:</span> <span class="pre">struct&lt;has_bytes:</span> <span class="pre">bool,</span> <span class="pre">bytes:</span> <span class="pre">binary,</span> <span class="pre">path:</span> <span class="pre">string,</span> <span class="pre">size:</span> <span class="pre">fixed_size_list&lt;item:</span> <span class="pre">uint16&gt;[2]&gt;&gt;&gt;</span>&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">child</span> <span class="pre">0,</span> <span class="pre">has_bytes:</span> <span class="pre">bool</span>&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">child</span> <span class="pre">1,</span> <span class="pre">bytes:</span> <span class="pre">binary</span>&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">child</span> <span class="pre">2,</span> <span class="pre">path:</span> <span class="pre">string</span>&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">child</span> <span class="pre">3,</span> <span class="pre">extra_images:</span> <span class="pre">list&lt;image:</span> <span class="pre">struct&lt;has_bytes:</span> <span class="pre">bool,</span> <span class="pre">bytes:</span> <span class="pre">binary,</span> <span class="pre">path:</span> <span class="pre">string,</span> <span class="pre">size:</span> <span class="pre">fixed_size_list&lt;item:</span> <span class="pre">uint16&gt;[2]&gt;&gt;</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">child</span> <span class="pre">0,</span> <span class="pre">image:</span> <span class="pre">struct&lt;has_bytes:</span> <span class="pre">bool,</span> <span class="pre">bytes:</span> <span class="pre">binary,</span> <span class="pre">path:</span> <span class="pre">string,</span> <span class="pre">size:</span> <span class="pre">fixed_size_list&lt;item:</span> <span class="pre">uint16&gt;[2]&gt;</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">child</span> <span class="pre">0,</span> <span class="pre">has_bytes:</span> <span class="pre">bool</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">child</span> <span class="pre">1,</span> <span class="pre">bytes:</span> <span class="pre">binary</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">child</span> <span class="pre">2,</span> <span class="pre">path:</span> <span class="pre">string</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">child</span> <span class="pre">3,</span> <span class="pre">size:</span> <span class="pre">fixed_size_list&lt;item:</span> <span class="pre">uint16&gt;[2]</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">child</span> <span class="pre">0,</span> <span class="pre">item:</span> <span class="pre">uint16</span> <span class="pre">annotations:</span> <span class="pre">binary</span> <span class="pre">attributes:</span> <span class="pre">binary</span></em><a class="headerlink" href="#datumaro.plugins.data_formats.arrow.format.DatumaroArrow.SCHEMA" title="Permalink to this definition">#</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
@@ -623,6 +649,16 @@
 <dl class="py method">
 <dt class="sig sig-object py" id="datumaro.plugins.data_formats.arrow.format.DatumaroArrow.check_schema">
 <em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">check_schema</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">schema</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Schema</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/datumaro/plugins/data_formats/arrow/format.html#DatumaroArrow.check_schema"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.plugins.data_formats.arrow.format.DatumaroArrow.check_schema" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="datumaro.plugins.data_formats.arrow.format.DatumaroArrow.check_version">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">check_version</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">version</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><span class="pre">str</span></a></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/datumaro/plugins/data_formats/arrow/format.html#DatumaroArrow.check_version"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.plugins.data_formats.arrow.format.DatumaroArrow.check_version" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="datumaro.plugins.data_formats.arrow.format.DatumaroArrow.create_schema_with_metadata">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">create_schema_with_metadata</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">extractor</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="datumaro.components.dataset_base.html#datumaro.components.dataset_base.IDataset" title="datumaro.components.dataset_base.IDataset"><span class="pre">IDataset</span></a></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/datumaro/plugins/data_formats/arrow/format.html#DatumaroArrow.create_schema_with_metadata"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.plugins.data_formats.arrow.format.DatumaroArrow.create_schema_with_metadata" title="Permalink to this definition">#</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
@@ -704,6 +740,51 @@
     </a>
    </li>
    <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#datumaro.plugins.data_formats.arrow.format.DatumaroArrow.ID_FIELD">
+     <code class="docutils literal notranslate">
+      <span class="pre">
+       DatumaroArrow.ID_FIELD
+      </span>
+     </code>
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#datumaro.plugins.data_formats.arrow.format.DatumaroArrow.SUBSET_FIELD">
+     <code class="docutils literal notranslate">
+      <span class="pre">
+       DatumaroArrow.SUBSET_FIELD
+      </span>
+     </code>
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#datumaro.plugins.data_formats.arrow.format.DatumaroArrow.IMAGE_FIELD">
+     <code class="docutils literal notranslate">
+      <span class="pre">
+       DatumaroArrow.IMAGE_FIELD
+      </span>
+     </code>
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#datumaro.plugins.data_formats.arrow.format.DatumaroArrow.POINT_CLOUD_FIELD">
+     <code class="docutils literal notranslate">
+      <span class="pre">
+       DatumaroArrow.POINT_CLOUD_FIELD
+      </span>
+     </code>
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#datumaro.plugins.data_formats.arrow.format.DatumaroArrow.MEDIA_FIELD">
+     <code class="docutils literal notranslate">
+      <span class="pre">
+       DatumaroArrow.MEDIA_FIELD
+      </span>
+     </code>
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
     <a class="reference internal nav-link" href="#datumaro.plugins.data_formats.arrow.format.DatumaroArrow.SCHEMA">
      <code class="docutils literal notranslate">
       <span class="pre">
@@ -726,6 +807,24 @@
      <code class="docutils literal notranslate">
       <span class="pre">
        DatumaroArrow.check_schema()
+      </span>
+     </code>
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#datumaro.plugins.data_formats.arrow.format.DatumaroArrow.check_version">
+     <code class="docutils literal notranslate">
+      <span class="pre">
+       DatumaroArrow.check_version()
+      </span>
+     </code>
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#datumaro.plugins.data_formats.arrow.format.DatumaroArrow.create_schema_with_metadata">
+     <code class="docutils literal notranslate">
+      <span class="pre">
+       DatumaroArrow.create_schema_with_metadata()
       </span>
      </code>
     </a>

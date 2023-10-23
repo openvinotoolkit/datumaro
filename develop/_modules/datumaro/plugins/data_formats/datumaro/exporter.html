@@ -323,6 +323,88 @@
 <span class="kn">from</span> <span class="nn">.format</span> <span class="kn">import</span> <span class="n">DATUMARO_FORMAT_VERSION</span><span class="p">,</span> <span class="n">DatumaroPath</span>
 
 
+<div class="viewcode-block" id="JsonWriter"><a class="viewcode-back" href="../../../../../docs/reference/_autosummary/datumaro.plugins.data_formats.datumaro.exporter.html#datumaro.plugins.data_formats.datumaro.exporter.JsonWriter">[docs]</a><span class="k">class</span> <span class="nc">JsonWriter</span><span class="p">:</span>
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">_convert_attribute_categories</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">attributes</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">attributes</span><span class="p">)</span>
+
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">_convert_labels_label_groups</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">labels</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">labels</span><span class="p">)</span>
+
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">_convert_label_categories</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">obj</span><span class="p">):</span>
+        <span class="n">converted</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s2">&quot;labels&quot;</span><span class="p">:</span> <span class="p">[],</span>
+            <span class="s2">&quot;label_groups&quot;</span><span class="p">:</span> <span class="p">[],</span>
+            <span class="s2">&quot;attributes&quot;</span><span class="p">:</span> <span class="bp">cls</span><span class="o">.</span><span class="n">_convert_attribute_categories</span><span class="p">(</span><span class="n">obj</span><span class="o">.</span><span class="n">attributes</span><span class="p">),</span>
+        <span class="p">}</span>
+        <span class="k">for</span> <span class="n">label</span> <span class="ow">in</span> <span class="n">obj</span><span class="o">.</span><span class="n">items</span><span class="p">:</span>
+            <span class="n">converted</span><span class="p">[</span><span class="s2">&quot;labels&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                <span class="p">{</span>
+                    <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="n">cast</span><span class="p">(</span><span class="n">label</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="nb">str</span><span class="p">),</span>
+                    <span class="s2">&quot;parent&quot;</span><span class="p">:</span> <span class="n">cast</span><span class="p">(</span><span class="n">label</span><span class="o">.</span><span class="n">parent</span><span class="p">,</span> <span class="nb">str</span><span class="p">),</span>
+                    <span class="s2">&quot;attributes&quot;</span><span class="p">:</span> <span class="bp">cls</span><span class="o">.</span><span class="n">_convert_attribute_categories</span><span class="p">(</span><span class="n">label</span><span class="o">.</span><span class="n">attributes</span><span class="p">),</span>
+                <span class="p">}</span>
+            <span class="p">)</span>
+        <span class="k">for</span> <span class="n">label_group</span> <span class="ow">in</span> <span class="n">obj</span><span class="o">.</span><span class="n">label_groups</span><span class="p">:</span>
+            <span class="n">converted</span><span class="p">[</span><span class="s2">&quot;label_groups&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                <span class="p">{</span>
+                    <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="n">cast</span><span class="p">(</span><span class="n">label_group</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="nb">str</span><span class="p">),</span>
+                    <span class="s2">&quot;group_type&quot;</span><span class="p">:</span> <span class="n">label_group</span><span class="o">.</span><span class="n">group_type</span><span class="o">.</span><span class="n">to_str</span><span class="p">(),</span>
+                    <span class="s2">&quot;labels&quot;</span><span class="p">:</span> <span class="bp">cls</span><span class="o">.</span><span class="n">_convert_labels_label_groups</span><span class="p">(</span><span class="n">label_group</span><span class="o">.</span><span class="n">labels</span><span class="p">),</span>
+                <span class="p">}</span>
+            <span class="p">)</span>
+        <span class="k">return</span> <span class="n">converted</span>
+
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">_convert_mask_categories</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">obj</span><span class="p">):</span>
+        <span class="n">converted</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s2">&quot;colormap&quot;</span><span class="p">:</span> <span class="p">[],</span>
+        <span class="p">}</span>
+        <span class="k">for</span> <span class="n">label_id</span><span class="p">,</span> <span class="n">color</span> <span class="ow">in</span> <span class="n">obj</span><span class="o">.</span><span class="n">colormap</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="n">converted</span><span class="p">[</span><span class="s2">&quot;colormap&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                <span class="p">{</span>
+                    <span class="s2">&quot;label_id&quot;</span><span class="p">:</span> <span class="nb">int</span><span class="p">(</span><span class="n">label_id</span><span class="p">),</span>
+                    <span class="s2">&quot;r&quot;</span><span class="p">:</span> <span class="nb">int</span><span class="p">(</span><span class="n">color</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span>
+                    <span class="s2">&quot;g&quot;</span><span class="p">:</span> <span class="nb">int</span><span class="p">(</span><span class="n">color</span><span class="p">[</span><span class="mi">1</span><span class="p">]),</span>
+                    <span class="s2">&quot;b&quot;</span><span class="p">:</span> <span class="nb">int</span><span class="p">(</span><span class="n">color</span><span class="p">[</span><span class="mi">2</span><span class="p">]),</span>
+                <span class="p">}</span>
+            <span class="p">)</span>
+        <span class="k">return</span> <span class="n">converted</span>
+
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">_convert_points_categories</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">obj</span><span class="p">):</span>
+        <span class="n">converted</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s2">&quot;items&quot;</span><span class="p">:</span> <span class="p">[],</span>
+        <span class="p">}</span>
+        <span class="k">for</span> <span class="n">label_id</span><span class="p">,</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">obj</span><span class="o">.</span><span class="n">items</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="n">converted</span><span class="p">[</span><span class="s2">&quot;items&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                <span class="p">{</span>
+                    <span class="s2">&quot;label_id&quot;</span><span class="p">:</span> <span class="nb">int</span><span class="p">(</span><span class="n">label_id</span><span class="p">),</span>
+                    <span class="s2">&quot;labels&quot;</span><span class="p">:</span> <span class="p">[</span><span class="n">cast</span><span class="p">(</span><span class="n">label</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span> <span class="k">for</span> <span class="n">label</span> <span class="ow">in</span> <span class="n">item</span><span class="o">.</span><span class="n">labels</span><span class="p">],</span>
+                    <span class="s2">&quot;joints&quot;</span><span class="p">:</span> <span class="p">[</span><span class="nb">list</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="n">j</span><span class="p">))</span> <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="n">item</span><span class="o">.</span><span class="n">joints</span><span class="p">],</span>
+                <span class="p">}</span>
+            <span class="p">)</span>
+        <span class="k">return</span> <span class="n">converted</span>
+
+<div class="viewcode-block" id="JsonWriter.write_categories"><a class="viewcode-back" href="../../../../../docs/reference/_autosummary/datumaro.plugins.data_formats.datumaro.exporter.html#datumaro.plugins.data_formats.datumaro.exporter.JsonWriter.write_categories">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">write_categories</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">categories</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Dict</span><span class="p">]:</span>
+        <span class="n">dict_cat</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">for</span> <span class="n">ann_type</span><span class="p">,</span> <span class="n">desc</span> <span class="ow">in</span> <span class="n">categories</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">desc</span><span class="p">,</span> <span class="n">LabelCategories</span><span class="p">):</span>
+                <span class="n">converted_desc</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="n">_convert_label_categories</span><span class="p">(</span><span class="n">desc</span><span class="p">)</span>
+            <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">desc</span><span class="p">,</span> <span class="n">MaskCategories</span><span class="p">):</span>
+                <span class="n">converted_desc</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="n">_convert_mask_categories</span><span class="p">(</span><span class="n">desc</span><span class="p">)</span>
+            <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">desc</span><span class="p">,</span> <span class="n">PointsCategories</span><span class="p">):</span>
+                <span class="n">converted_desc</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="n">_convert_points_categories</span><span class="p">(</span><span class="n">desc</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">()</span>
+            <span class="n">dict_cat</span><span class="p">[</span><span class="n">ann_type</span><span class="o">.</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">converted_desc</span>
+
+        <span class="k">return</span> <span class="n">dict_cat</span></div></div>
+
+
 <span class="k">class</span> <span class="nc">_SubsetWriter</span><span class="p">:</span>
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
@@ -495,16 +577,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_data</span><span class="p">[</span><span class="s2">&quot;infos&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">infos</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">add_categories</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">categories</span><span class="p">):</span>
-        <span class="k">for</span> <span class="n">ann_type</span><span class="p">,</span> <span class="n">desc</span> <span class="ow">in</span> <span class="n">categories</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
-            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">desc</span><span class="p">,</span> <span class="n">LabelCategories</span><span class="p">):</span>
-                <span class="n">converted_desc</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_convert_label_categories</span><span class="p">(</span><span class="n">desc</span><span class="p">)</span>
-            <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">desc</span><span class="p">,</span> <span class="n">MaskCategories</span><span class="p">):</span>
-                <span class="n">converted_desc</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_convert_mask_categories</span><span class="p">(</span><span class="n">desc</span><span class="p">)</span>
-            <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">desc</span><span class="p">,</span> <span class="n">PointsCategories</span><span class="p">):</span>
-                <span class="n">converted_desc</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_convert_points_categories</span><span class="p">(</span><span class="n">desc</span><span class="p">)</span>
-            <span class="k">else</span><span class="p">:</span>
-                <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">()</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">categories</span><span class="p">[</span><span class="n">ann_type</span><span class="o">.</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">converted_desc</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_data</span><span class="p">[</span><span class="s2">&quot;categories&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">JsonWriter</span><span class="o">.</span><span class="n">write_categories</span><span class="p">(</span><span class="n">categories</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">write</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="n">dump_json_file</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ann_file</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_data</span><span class="p">)</span>
@@ -617,65 +690,6 @@
 
     <span class="k">def</span> <span class="nf">_convert_ellipse_object</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obj</span><span class="p">:</span> <span class="n">Ellipse</span><span class="p">):</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_convert_shape_object</span><span class="p">(</span><span class="n">obj</span><span class="p">)</span>
-
-    <span class="k">def</span> <span class="nf">_convert_attribute_categories</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">attributes</span><span class="p">):</span>
-        <span class="k">return</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">attributes</span><span class="p">)</span>
-
-    <span class="k">def</span> <span class="nf">_convert_labels_label_groups</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">labels</span><span class="p">):</span>
-        <span class="k">return</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">labels</span><span class="p">)</span>
-
-    <span class="k">def</span> <span class="nf">_convert_label_categories</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obj</span><span class="p">):</span>
-        <span class="n">converted</span> <span class="o">=</span> <span class="p">{</span>
-            <span class="s2">&quot;labels&quot;</span><span class="p">:</span> <span class="p">[],</span>
-            <span class="s2">&quot;label_groups&quot;</span><span class="p">:</span> <span class="p">[],</span>
-            <span class="s2">&quot;attributes&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_convert_attribute_categories</span><span class="p">(</span><span class="n">obj</span><span class="o">.</span><span class="n">attributes</span><span class="p">),</span>
-        <span class="p">}</span>
-        <span class="k">for</span> <span class="n">label</span> <span class="ow">in</span> <span class="n">obj</span><span class="o">.</span><span class="n">items</span><span class="p">:</span>
-            <span class="n">converted</span><span class="p">[</span><span class="s2">&quot;labels&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
-                <span class="p">{</span>
-                    <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="n">cast</span><span class="p">(</span><span class="n">label</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="nb">str</span><span class="p">),</span>
-                    <span class="s2">&quot;parent&quot;</span><span class="p">:</span> <span class="n">cast</span><span class="p">(</span><span class="n">label</span><span class="o">.</span><span class="n">parent</span><span class="p">,</span> <span class="nb">str</span><span class="p">),</span>
-                    <span class="s2">&quot;attributes&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_convert_attribute_categories</span><span class="p">(</span><span class="n">label</span><span class="o">.</span><span class="n">attributes</span><span class="p">),</span>
-                <span class="p">}</span>
-            <span class="p">)</span>
-        <span class="k">for</span> <span class="n">label_group</span> <span class="ow">in</span> <span class="n">obj</span><span class="o">.</span><span class="n">label_groups</span><span class="p">:</span>
-            <span class="n">converted</span><span class="p">[</span><span class="s2">&quot;label_groups&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
-                <span class="p">{</span>
-                    <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="n">cast</span><span class="p">(</span><span class="n">label_group</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="nb">str</span><span class="p">),</span>
-                    <span class="s2">&quot;group_type&quot;</span><span class="p">:</span> <span class="n">label_group</span><span class="o">.</span><span class="n">group_type</span><span class="o">.</span><span class="n">to_str</span><span class="p">(),</span>
-                    <span class="s2">&quot;labels&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_convert_labels_label_groups</span><span class="p">(</span><span class="n">label_group</span><span class="o">.</span><span class="n">labels</span><span class="p">),</span>
-                <span class="p">}</span>
-            <span class="p">)</span>
-        <span class="k">return</span> <span class="n">converted</span>
-
-    <span class="k">def</span> <span class="nf">_convert_mask_categories</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obj</span><span class="p">):</span>
-        <span class="n">converted</span> <span class="o">=</span> <span class="p">{</span>
-            <span class="s2">&quot;colormap&quot;</span><span class="p">:</span> <span class="p">[],</span>
-        <span class="p">}</span>
-        <span class="k">for</span> <span class="n">label_id</span><span class="p">,</span> <span class="n">color</span> <span class="ow">in</span> <span class="n">obj</span><span class="o">.</span><span class="n">colormap</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
-            <span class="n">converted</span><span class="p">[</span><span class="s2">&quot;colormap&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
-                <span class="p">{</span>
-                    <span class="s2">&quot;label_id&quot;</span><span class="p">:</span> <span class="nb">int</span><span class="p">(</span><span class="n">label_id</span><span class="p">),</span>
-                    <span class="s2">&quot;r&quot;</span><span class="p">:</span> <span class="nb">int</span><span class="p">(</span><span class="n">color</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span>
-                    <span class="s2">&quot;g&quot;</span><span class="p">:</span> <span class="nb">int</span><span class="p">(</span><span class="n">color</span><span class="p">[</span><span class="mi">1</span><span class="p">]),</span>
-                    <span class="s2">&quot;b&quot;</span><span class="p">:</span> <span class="nb">int</span><span class="p">(</span><span class="n">color</span><span class="p">[</span><span class="mi">2</span><span class="p">]),</span>
-                <span class="p">}</span>
-            <span class="p">)</span>
-        <span class="k">return</span> <span class="n">converted</span>
-
-    <span class="k">def</span> <span class="nf">_convert_points_categories</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obj</span><span class="p">):</span>
-        <span class="n">converted</span> <span class="o">=</span> <span class="p">{</span>
-            <span class="s2">&quot;items&quot;</span><span class="p">:</span> <span class="p">[],</span>
-        <span class="p">}</span>
-        <span class="k">for</span> <span class="n">label_id</span><span class="p">,</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">obj</span><span class="o">.</span><span class="n">items</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
-            <span class="n">converted</span><span class="p">[</span><span class="s2">&quot;items&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
-                <span class="p">{</span>
-                    <span class="s2">&quot;label_id&quot;</span><span class="p">:</span> <span class="nb">int</span><span class="p">(</span><span class="n">label_id</span><span class="p">),</span>
-                    <span class="s2">&quot;labels&quot;</span><span class="p">:</span> <span class="p">[</span><span class="n">cast</span><span class="p">(</span><span class="n">label</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span> <span class="k">for</span> <span class="n">label</span> <span class="ow">in</span> <span class="n">item</span><span class="o">.</span><span class="n">labels</span><span class="p">],</span>
-                    <span class="s2">&quot;joints&quot;</span><span class="p">:</span> <span class="p">[</span><span class="nb">list</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="n">j</span><span class="p">))</span> <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="n">item</span><span class="o">.</span><span class="n">joints</span><span class="p">],</span>
-                <span class="p">}</span>
-            <span class="p">)</span>
-        <span class="k">return</span> <span class="n">converted</span>
 
 
 <span class="k">class</span> <span class="nc">_StreamSubsetWriter</span><span class="p">(</span><span class="n">_SubsetWriter</span><span class="p">):</span>

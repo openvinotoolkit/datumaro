@@ -384,6 +384,7 @@
 <li class="toctree-l2"><a class="reference internal" href="../../jupyter_notebook_examples/notebooks/05_transform.html">Transform Dataset: Re-id, Reindexing, Remapping, etc.</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../jupyter_notebook_examples/notebooks/06_tiling.html">Tile your Dataset to Cope with High-Resolution Images</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../jupyter_notebook_examples/notebooks/18_bbox_to_instance_mask_using_sam.html">Transform bounding box to instance mask annotations using Segment Anything Model</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../jupyter_notebook_examples/notebooks/19_automatic_instance_mask_gen_using_sam.html">Automatic instance mask annotations generation using Segment Anything Model</a></li>
 </ul>
 </li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../../jupyter_notebook_examples/e2e_example.html">From Datumaro to Model Training</a><input class="toctree-checkbox" id="toctree-checkbox-11" name="toctree-checkbox-11" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-11"><i class="fa-solid fa-chevron-down"></i></label><ul>
@@ -595,14 +596,9 @@
 
 <dl class="py method">
 <dt class="sig sig-object py" id="datumaro.plugins.data_formats.arrow.mapper.DatasetItemMapper.backward">
-<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">backward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">obj</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Dict" title="(in Python v3.12)"><span class="pre">Dict</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.12)"><span class="pre">Any</span></a><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="datumaro.components.dataset_base.html#datumaro.components.dataset_base.DatasetItem" title="datumaro.components.dataset_base.DatasetItem"><span class="pre">DatasetItem</span></a></span></span><a class="reference internal" href="../../../_modules/datumaro/plugins/data_formats/arrow/mapper/dataset_item.html#DatasetItemMapper.backward"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.plugins.data_formats.arrow.mapper.DatasetItemMapper.backward" title="Permalink to this definition">#</a></dt>
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">backward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">idx</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.12)"><span class="pre">int</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">table</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Table</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">table_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><span class="pre">str</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="datumaro.components.dataset_base.html#datumaro.components.dataset_base.DatasetItem" title="datumaro.components.dataset_base.DatasetItem"><span class="pre">DatasetItem</span></a></span></span><a class="reference internal" href="../../../_modules/datumaro/plugins/data_formats/arrow/mapper/dataset_item.html#DatasetItemMapper.backward"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.plugins.data_formats.arrow.mapper.DatasetItemMapper.backward" title="Permalink to this definition">#</a></dt>
 <dd><p>Build an object from bytes.</p>
 </dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="datumaro.plugins.data_formats.arrow.mapper.DatasetItemMapper.backward_from_batches">
-<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">backward_from_batches</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">batches</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.List" title="(in Python v3.12)"><span class="pre">List</span></a><span class="p"><span class="pre">[</span></span><span class="pre">RecordBatch</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">parent</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Optional" title="(in Python v3.12)"><span class="pre">Optional</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.List" title="(in Python v3.12)"><span class="pre">List</span></a><span class="p"><span class="pre">[</span></span><a class="reference internal" href="datumaro.components.dataset_base.html#datumaro.components.dataset_base.DatasetItem" title="datumaro.components.dataset_base.DatasetItem"><span class="pre">DatasetItem</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../../_modules/datumaro/plugins/data_formats/arrow/mapper/dataset_item.html#DatasetItemMapper.backward_from_batches"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.plugins.data_formats.arrow.mapper.DatasetItemMapper.backward_from_batches" title="Permalink to this definition">#</a></dt>
-<dd></dd></dl>
 
 </dd></dl>
 
@@ -618,14 +614,9 @@
 
 <dl class="py method">
 <dt class="sig sig-object py" id="datumaro.plugins.data_formats.arrow.mapper.MediaMapper.backward">
-<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">backward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">obj</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Dict" title="(in Python v3.12)"><span class="pre">Dict</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.12)"><span class="pre">Any</span></a><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Optional" title="(in Python v3.12)"><span class="pre">Optional</span></a><span class="p"><span class="pre">[</span></span><a class="reference internal" href="datumaro.components.media.html#datumaro.components.media.MediaElement" title="datumaro.components.media.MediaElement"><span class="pre">MediaElement</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../../_modules/datumaro/plugins/data_formats/arrow/mapper/media.html#MediaMapper.backward"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.plugins.data_formats.arrow.mapper.MediaMapper.backward" title="Permalink to this definition">#</a></dt>
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">backward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">media_struct</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">StructScalar</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">idx</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.12)"><span class="pre">int</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">table</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Table</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">table_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><span class="pre">str</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Optional" title="(in Python v3.12)"><span class="pre">Optional</span></a><span class="p"><span class="pre">[</span></span><a class="reference internal" href="datumaro.components.media.html#datumaro.components.media.MediaElement" title="datumaro.components.media.MediaElement"><span class="pre">MediaElement</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../../_modules/datumaro/plugins/data_formats/arrow/mapper/media.html#MediaMapper.backward"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.plugins.data_formats.arrow.mapper.MediaMapper.backward" title="Permalink to this definition">#</a></dt>
 <dd><p>Build an object from bytes.</p>
 </dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="datumaro.plugins.data_formats.arrow.mapper.MediaMapper.backward_from_batches">
-<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">backward_from_batches</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">batches</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.List" title="(in Python v3.12)"><span class="pre">List</span></a><span class="p"><span class="pre">[</span></span><span class="pre">RecordBatch</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">parent</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Optional" title="(in Python v3.12)"><span class="pre">Optional</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.List" title="(in Python v3.12)"><span class="pre">List</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Optional" title="(in Python v3.12)"><span class="pre">Optional</span></a><span class="p"><span class="pre">[</span></span><a class="reference internal" href="datumaro.components.media.html#datumaro.components.media.MediaElement" title="datumaro.components.media.MediaElement"><span class="pre">MediaElement</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../../_modules/datumaro/plugins/data_formats/arrow/mapper/media.html#MediaMapper.backward_from_batches"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.plugins.data_formats.arrow.mapper.MediaMapper.backward_from_batches" title="Permalink to this definition">#</a></dt>
-<dd></dd></dl>
 
 </dd></dl>
 
@@ -793,13 +784,13 @@
 
 <dl class="py method">
 <dt class="sig sig-object py" id="datumaro.plugins.data_formats.arrow.mapper.ImageMapper.backward">
-<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">backward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">obj</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Dict" title="(in Python v3.12)"><span class="pre">Dict</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.12)"><span class="pre">Any</span></a><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="datumaro.components.media.html#datumaro.components.media.Image" title="datumaro.components.media.Image"><span class="pre">Image</span></a></span></span><a class="reference internal" href="../../../_modules/datumaro/plugins/data_formats/arrow/mapper/media.html#ImageMapper.backward"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.plugins.data_formats.arrow.mapper.ImageMapper.backward" title="Permalink to this definition">#</a></dt>
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">backward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">media_struct</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">StructScalar</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">idx</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.12)"><span class="pre">int</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">table</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Table</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">table_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><span class="pre">str</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="datumaro.components.media.html#datumaro.components.media.Image" title="datumaro.components.media.Image"><span class="pre">Image</span></a></span></span><a class="reference internal" href="../../../_modules/datumaro/plugins/data_formats/arrow/mapper/media.html#ImageMapper.backward"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.plugins.data_formats.arrow.mapper.ImageMapper.backward" title="Permalink to this definition">#</a></dt>
 <dd><p>Build an object from bytes.</p>
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="datumaro.plugins.data_formats.arrow.mapper.ImageMapper.backward_from_batches">
-<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">backward_from_batches</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">batches</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.List" title="(in Python v3.12)"><span class="pre">List</span></a><span class="p"><span class="pre">[</span></span><span class="pre">RecordBatch</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">parent</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Optional" title="(in Python v3.12)"><span class="pre">Optional</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.List" title="(in Python v3.12)"><span class="pre">List</span></a><span class="p"><span class="pre">[</span></span><a class="reference internal" href="datumaro.components.media.html#datumaro.components.media.Image" title="datumaro.components.media.Image"><span class="pre">Image</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../../_modules/datumaro/plugins/data_formats/arrow/mapper/media.html#ImageMapper.backward_from_batches"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.plugins.data_formats.arrow.mapper.ImageMapper.backward_from_batches" title="Permalink to this definition">#</a></dt>
+<dt class="sig sig-object py" id="datumaro.plugins.data_formats.arrow.mapper.ImageMapper.backward_extra_image">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">backward_extra_image</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">image_struct</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">StructScalar</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">idx</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.12)"><span class="pre">int</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">table</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Table</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">extra_image_idx</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.12)"><span class="pre">int</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="datumaro.components.media.html#datumaro.components.media.Image" title="datumaro.components.media.Image"><span class="pre">Image</span></a></span></span><a class="reference internal" href="../../../_modules/datumaro/plugins/data_formats/arrow/mapper/media.html#ImageMapper.backward_extra_image"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.plugins.data_formats.arrow.mapper.ImageMapper.backward_extra_image" title="Permalink to this definition">#</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
@@ -894,20 +885,10 @@
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="datumaro.plugins.data_formats.arrow.mapper.MediaElementMapper.backward_dict">
-<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">backward_dict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">obj</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Dict" title="(in Python v3.12)"><span class="pre">Dict</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.12)"><span class="pre">Any</span></a><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Dict" title="(in Python v3.12)"><span class="pre">Dict</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.12)"><span class="pre">Any</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../../_modules/datumaro/plugins/data_formats/arrow/mapper/media.html#MediaElementMapper.backward_dict"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.plugins.data_formats.arrow.mapper.MediaElementMapper.backward_dict" title="Permalink to this definition">#</a></dt>
-<dd></dd></dl>
-
-<dl class="py method">
 <dt class="sig sig-object py" id="datumaro.plugins.data_formats.arrow.mapper.MediaElementMapper.backward">
-<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">backward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">obj</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Dict" title="(in Python v3.12)"><span class="pre">Dict</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.12)"><span class="pre">Any</span></a><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="datumaro.components.media.html#datumaro.components.media.MediaElement" title="datumaro.components.media.MediaElement"><span class="pre">MediaElement</span></a></span></span><a class="reference internal" href="../../../_modules/datumaro/plugins/data_formats/arrow/mapper/media.html#MediaElementMapper.backward"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.plugins.data_formats.arrow.mapper.MediaElementMapper.backward" title="Permalink to this definition">#</a></dt>
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">backward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">media_dict</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Dict" title="(in Python v3.12)"><span class="pre">Dict</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.12)"><span class="pre">Any</span></a><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">idx</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.12)"><span class="pre">int</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">table</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Table</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">table_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><span class="pre">str</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="datumaro.components.media.html#datumaro.components.media.MediaElement" title="datumaro.components.media.MediaElement"><span class="pre">MediaElement</span></a></span></span><a class="reference internal" href="../../../_modules/datumaro/plugins/data_formats/arrow/mapper/media.html#MediaElementMapper.backward"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.plugins.data_formats.arrow.mapper.MediaElementMapper.backward" title="Permalink to this definition">#</a></dt>
 <dd><p>Build an object from bytes.</p>
 </dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="datumaro.plugins.data_formats.arrow.mapper.MediaElementMapper.backward_from_batches">
-<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">backward_from_batches</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">batches</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.List" title="(in Python v3.12)"><span class="pre">List</span></a><span class="p"><span class="pre">[</span></span><span class="pre">RecordBatch</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">parent</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Optional" title="(in Python v3.12)"><span class="pre">Optional</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.List" title="(in Python v3.12)"><span class="pre">List</span></a><span class="p"><span class="pre">[</span></span><a class="reference internal" href="datumaro.components.media.html#datumaro.components.media.MediaElement" title="datumaro.components.media.MediaElement"><span class="pre">MediaElement</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../../_modules/datumaro/plugins/data_formats/arrow/mapper/media.html#MediaElementMapper.backward_from_batches"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.plugins.data_formats.arrow.mapper.MediaElementMapper.backward_from_batches" title="Permalink to this definition">#</a></dt>
-<dd></dd></dl>
 
 </dd></dl>
 
@@ -1021,26 +1002,11 @@
 
 <dl class="py method">
 <dt class="sig sig-object py" id="datumaro.plugins.data_formats.arrow.mapper.PointCloudMapper.backward">
-<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">backward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">obj</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Dict" title="(in Python v3.12)"><span class="pre">Dict</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.12)"><span class="pre">Any</span></a><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="datumaro.components.media.html#datumaro.components.media.PointCloud" title="datumaro.components.media.PointCloud"><span class="pre">PointCloud</span></a></span></span><a class="reference internal" href="../../../_modules/datumaro/plugins/data_formats/arrow/mapper/media.html#PointCloudMapper.backward"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.plugins.data_formats.arrow.mapper.PointCloudMapper.backward" title="Permalink to this definition">#</a></dt>
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">backward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">media_struct</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">StructScalar</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">idx</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.12)"><span class="pre">int</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">table</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Table</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">table_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><span class="pre">str</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="datumaro.components.media.html#datumaro.components.media.PointCloud" title="datumaro.components.media.PointCloud"><span class="pre">PointCloud</span></a></span></span><a class="reference internal" href="../../../_modules/datumaro/plugins/data_formats/arrow/mapper/media.html#PointCloudMapper.backward"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.plugins.data_formats.arrow.mapper.PointCloudMapper.backward" title="Permalink to this definition">#</a></dt>
 <dd><p>Build an object from bytes.</p>
 </dd></dl>
 
-<dl class="py method">
-<dt class="sig sig-object py" id="datumaro.plugins.data_formats.arrow.mapper.PointCloudMapper.backward_from_batches">
-<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">backward_from_batches</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">batches</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.List" title="(in Python v3.12)"><span class="pre">List</span></a><span class="p"><span class="pre">[</span></span><span class="pre">RecordBatch</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">parent</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Optional" title="(in Python v3.12)"><span class="pre">Optional</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.List" title="(in Python v3.12)"><span class="pre">List</span></a><span class="p"><span class="pre">[</span></span><a class="reference internal" href="datumaro.components.media.html#datumaro.components.media.PointCloud" title="datumaro.components.media.PointCloud"><span class="pre">PointCloud</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../../_modules/datumaro/plugins/data_formats/arrow/mapper/media.html#PointCloudMapper.backward_from_batches"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.plugins.data_formats.arrow.mapper.PointCloudMapper.backward_from_batches" title="Permalink to this definition">#</a></dt>
-<dd></dd></dl>
-
 </dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="datumaro.plugins.data_formats.arrow.mapper.b64decode">
-<span class="sig-prename descclassname"><span class="pre">datumaro.plugins.data_formats.arrow.mapper.</span></span><span class="sig-name descname"><span class="pre">b64decode</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">obj</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">prefix</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/datumaro/plugins/data_formats/arrow/mapper/utils.html#b64decode"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.plugins.data_formats.arrow.mapper.b64decode" title="Permalink to this definition">#</a></dt>
-<dd></dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="datumaro.plugins.data_formats.arrow.mapper.b64encode">
-<span class="sig-prename descclassname"><span class="pre">datumaro.plugins.data_formats.arrow.mapper.</span></span><span class="sig-name descname"><span class="pre">b64encode</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">obj</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">prefix</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/datumaro/plugins/data_formats/arrow/mapper/utils.html#b64encode"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.plugins.data_formats.arrow.mapper.b64encode" title="Permalink to this definition">#</a></dt>
-<dd></dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="datumaro.plugins.data_formats.arrow.mapper.decode_image">
@@ -1058,37 +1024,6 @@
 <dd><p>Reads an image in the HWC Grayscale/BGR(A) [0; 255] format (default dtype is uint8).</p>
 </dd></dl>
 
-<dl class="py function">
-<dt class="sig sig-object py" id="datumaro.plugins.data_formats.arrow.mapper.pa_batches_decoder">
-<span class="sig-prename descclassname"><span class="pre">datumaro.plugins.data_formats.arrow.mapper.</span></span><span class="sig-name descname"><span class="pre">pa_batches_decoder</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">batches</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">column</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/datumaro/plugins/data_formats/arrow/mapper/utils.html#pa_batches_decoder"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.plugins.data_formats.arrow.mapper.pa_batches_decoder" title="Permalink to this definition">#</a></dt>
-<dd></dd></dl>
-
-<dl class="py class">
-<dt class="sig sig-object py" id="datumaro.plugins.data_formats.arrow.mapper.partial">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">datumaro.plugins.data_formats.arrow.mapper.</span></span><span class="sig-name descname"><span class="pre">partial</span></span><a class="reference internal" href="../../../_modules/functools.html#partial"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.plugins.data_formats.arrow.mapper.partial" title="Permalink to this definition">#</a></dt>
-<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
-<p>partial(func, <a href="#id1"><span class="problematic" id="id2">*</span></a>args, <a href="#id3"><span class="problematic" id="id4">**</span></a>keywords) - new function with partial application
-of the given arguments and keywords.</p>
-<dl class="py attribute">
-<dt class="sig sig-object py" id="datumaro.plugins.data_formats.arrow.mapper.partial.args">
-<span class="sig-name descname"><span class="pre">args</span></span><a class="headerlink" href="#datumaro.plugins.data_formats.arrow.mapper.partial.args" title="Permalink to this definition">#</a></dt>
-<dd><p>tuple of arguments to future partial calls</p>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="datumaro.plugins.data_formats.arrow.mapper.partial.func">
-<span class="sig-name descname"><span class="pre">func</span></span><a class="headerlink" href="#datumaro.plugins.data_formats.arrow.mapper.partial.func" title="Permalink to this definition">#</a></dt>
-<dd><p>function object to use in future partial calls</p>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="datumaro.plugins.data_formats.arrow.mapper.partial.keywords">
-<span class="sig-name descname"><span class="pre">keywords</span></span><a class="headerlink" href="#datumaro.plugins.data_formats.arrow.mapper.partial.keywords" title="Permalink to this definition">#</a></dt>
-<dd><p>dictionary of keyword arguments to future partial calls</p>
-</dd></dl>
-
-</dd></dl>
-
 <p class="rubric">Modules</p>
 <table class="autosummary longtable table autosummary">
 <tbody>
@@ -1096,9 +1031,6 @@ of the given arguments and keywords.</p>
 <td><p></p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="datumaro.plugins.data_formats.arrow.mapper.media.html#module-datumaro.plugins.data_formats.arrow.mapper.media" title="datumaro.plugins.data_formats.arrow.mapper.media"><code class="xref py py-obj docutils literal notranslate"><span class="pre">datumaro.plugins.data_formats.arrow.mapper.media</span></code></a></p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="datumaro.plugins.data_formats.arrow.mapper.utils.html#module-datumaro.plugins.data_formats.arrow.mapper.utils" title="datumaro.plugins.data_formats.arrow.mapper.utils"><code class="xref py py-obj docutils literal notranslate"><span class="pre">datumaro.plugins.data_formats.arrow.mapper.utils</span></code></a></p></td>
 <td><p></p></td>
 </tr>
 </tbody>
@@ -1170,15 +1102,6 @@ of the given arguments and keywords.</p>
      </code>
     </a>
    </li>
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.plugins.data_formats.arrow.mapper.DatasetItemMapper.backward_from_batches">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       DatasetItemMapper.backward_from_batches()
-      </span>
-     </code>
-    </a>
-   </li>
   </ul>
  </li>
  <li class="toc-h2 nav-item toc-entry">
@@ -1204,15 +1127,6 @@ of the given arguments and keywords.</p>
      <code class="docutils literal notranslate">
       <span class="pre">
        MediaMapper.backward()
-      </span>
-     </code>
-    </a>
-   </li>
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.plugins.data_formats.arrow.mapper.MediaMapper.backward_from_batches">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       MediaMapper.backward_from_batches()
       </span>
      </code>
     </a>
@@ -1507,10 +1421,10 @@ of the given arguments and keywords.</p>
     </a>
    </li>
    <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.plugins.data_formats.arrow.mapper.ImageMapper.backward_from_batches">
+    <a class="reference internal nav-link" href="#datumaro.plugins.data_formats.arrow.mapper.ImageMapper.backward_extra_image">
      <code class="docutils literal notranslate">
       <span class="pre">
-       ImageMapper.backward_from_batches()
+       ImageMapper.backward_extra_image()
       </span>
      </code>
     </a>
@@ -1675,28 +1589,10 @@ of the given arguments and keywords.</p>
     </a>
    </li>
    <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.plugins.data_formats.arrow.mapper.MediaElementMapper.backward_dict">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       MediaElementMapper.backward_dict()
-      </span>
-     </code>
-    </a>
-   </li>
-   <li class="toc-h3 nav-item toc-entry">
     <a class="reference internal nav-link" href="#datumaro.plugins.data_formats.arrow.mapper.MediaElementMapper.backward">
      <code class="docutils literal notranslate">
       <span class="pre">
        MediaElementMapper.backward()
-      </span>
-     </code>
-    </a>
-   </li>
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.plugins.data_formats.arrow.mapper.MediaElementMapper.backward_from_batches">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       MediaElementMapper.backward_from_batches()
       </span>
      </code>
     </a>
@@ -1905,34 +1801,7 @@ of the given arguments and keywords.</p>
      </code>
     </a>
    </li>
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.plugins.data_formats.arrow.mapper.PointCloudMapper.backward_from_batches">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       PointCloudMapper.backward_from_batches()
-      </span>
-     </code>
-    </a>
-   </li>
   </ul>
- </li>
- <li class="toc-h2 nav-item toc-entry">
-  <a class="reference internal nav-link" href="#datumaro.plugins.data_formats.arrow.mapper.b64decode">
-   <code class="docutils literal notranslate">
-    <span class="pre">
-     b64decode()
-    </span>
-   </code>
-  </a>
- </li>
- <li class="toc-h2 nav-item toc-entry">
-  <a class="reference internal nav-link" href="#datumaro.plugins.data_formats.arrow.mapper.b64encode">
-   <code class="docutils literal notranslate">
-    <span class="pre">
-     b64encode()
-    </span>
-   </code>
-  </a>
  </li>
  <li class="toc-h2 nav-item toc-entry">
   <a class="reference internal nav-link" href="#datumaro.plugins.data_formats.arrow.mapper.decode_image">
@@ -1960,53 +1829,6 @@ of the given arguments and keywords.</p>
     </span>
    </code>
   </a>
- </li>
- <li class="toc-h2 nav-item toc-entry">
-  <a class="reference internal nav-link" href="#datumaro.plugins.data_formats.arrow.mapper.pa_batches_decoder">
-   <code class="docutils literal notranslate">
-    <span class="pre">
-     pa_batches_decoder()
-    </span>
-   </code>
-  </a>
- </li>
- <li class="toc-h2 nav-item toc-entry">
-  <a class="reference internal nav-link" href="#datumaro.plugins.data_formats.arrow.mapper.partial">
-   <code class="docutils literal notranslate">
-    <span class="pre">
-     partial
-    </span>
-   </code>
-  </a>
-  <ul class="nav section-nav flex-column">
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.plugins.data_formats.arrow.mapper.partial.args">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       partial.args
-      </span>
-     </code>
-    </a>
-   </li>
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.plugins.data_formats.arrow.mapper.partial.func">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       partial.func
-      </span>
-     </code>
-    </a>
-   </li>
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.plugins.data_formats.arrow.mapper.partial.keywords">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       partial.keywords
-      </span>
-     </code>
-    </a>
-   </li>
-  </ul>
  </li>
 </ul>
 
