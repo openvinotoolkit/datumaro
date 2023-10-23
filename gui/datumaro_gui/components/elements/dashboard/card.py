@@ -1,9 +1,13 @@
+# Copyright (C) 2019-2023 Intel Corporation
+#
+# SPDX-License-Identifier: MIT
+
 from streamlit_elements import mui
+
 from .dashboard import Dashboard
 
 
 class Card(Dashboard.Item):
-
     DEFAULT_CONTENT = (
         "This impressive paella is a perfect party dish and a fun meal to cook "
         "together with your guests. Add 1 cup of frozen peas along with the mussels, "
@@ -11,7 +15,16 @@ class Card(Dashboard.Item):
     )
 
     def __call__(self, content):
-        with mui.Card(key=self._key, sx={"display": "flex", "flexDirection": "column", "borderRadius": 3, "overflow": "hidden"}, elevation=1):
+        with mui.Card(
+            key=self._key,
+            sx={
+                "display": "flex",
+                "flexDirection": "column",
+                "borderRadius": 3,
+                "overflow": "hidden",
+            },
+            elevation=1,
+        ):
             mui.CardHeader(
                 title="Shrimp and Chorizo Paella",
                 subheader="September 14, 2016",

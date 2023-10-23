@@ -1,11 +1,15 @@
-from uuid import uuid4
+# Copyright (C) 2019-2023 Intel Corporation
+#
+# SPDX-License-Identifier: MIT
+
 from abc import ABC, abstractmethod
-from streamlit_elements import dashboard, mui
 from contextlib import contextmanager
+from uuid import uuid4
+
+from streamlit_elements import dashboard, mui
 
 
 class Dashboard:
-
     DRAGGABLE_CLASS = "draggable"
 
     def __init__(self):
@@ -23,7 +27,6 @@ class Dashboard:
             yield
 
     class Item(ABC):
-
         def __init__(self, board, x, y, w, h, **item_props):
             self._key = str(uuid4())
             self._draggable_class = Dashboard.DRAGGABLE_CLASS
@@ -52,7 +55,9 @@ class Dashboard:
                     if self._dark_mode:
                         mui.IconButton(mui.icon.DarkMode, onClick=self._switch_theme)
                     else:
-                        mui.IconButton(mui.icon.LightMode, sx={"color": "#ffc107"}, onClick=self._switch_theme)
+                        mui.IconButton(
+                            mui.icon.LightMode, sx={"color": "#ffc107"}, onClick=self._switch_theme
+                        )
 
         @abstractmethod
         def __call__(self):
