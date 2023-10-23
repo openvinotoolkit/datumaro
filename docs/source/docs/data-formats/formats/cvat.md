@@ -129,8 +129,20 @@ Extra options for exporting to CVAT format:
   (by default `False`)
 - `--image-ext IMAGE_EXT` allow to specify image extension
   for exporting dataset (by default - keep original or use `.jpg`, if none)
-- `--save-dataset-meta` - allow to export dataset with saving dataset meta
+- `--save-dataset-meta` allow to export dataset with saving dataset meta
   file (by default `False`)
+- `--reindex` assign new indices to frames
+- `--allow-undeclared-attrs` write annotation attributes even if they are not present in the input dataset metainfo
+
+When performing `convert` to CVAT format, you may encounter a warning message like the following:
+```bash
+skipping undeclared attribute 'is_crowd' for label '<label>' (allow with --allow-undeclared-attrs option)
+```
+In such cases, you can bypass this warning by using the `export` command as follows:
+```bash
+datum project export -o <output/dir> -p <path/to/project> -f cvat -- --allow-undeclared-attrs
+```
+This allows you to proceed with the export while bypassing the warning.
 
 ## Examples
 
