@@ -13,6 +13,7 @@ import weakref
 from copy import deepcopy
 from enum import IntEnum
 from typing import (
+    TYPE_CHECKING,
     Any,
     Callable,
     Dict,
@@ -29,7 +30,6 @@ from typing import (
 
 import cv2
 import numpy as np
-import pandas as pd
 
 from datumaro.components.crypter import NULL_CRYPTER, Crypter
 from datumaro.components.errors import DatumaroError, MediaShapeError
@@ -41,6 +41,14 @@ from datumaro.util.image import (
     lazy_image,
     save_image,
 )
+
+if TYPE_CHECKING:
+    import pandas as pd
+else:
+    from datumaro.util.import_util import lazy_import
+
+    pd = lazy_import("pandas")
+
 
 AnyData = TypeVar("AnyData", bytes, np.ndarray)
 

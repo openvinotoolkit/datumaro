@@ -5,10 +5,16 @@
 import logging as log
 import math
 import re
-
-import pandas as pd
+from typing import TYPE_CHECKING
 
 from .algorithm import InferenceResultAnalyzer
+
+if TYPE_CHECKING:
+    import pandas as pd
+else:
+    from datumaro.util.import_util import lazy_import
+
+    pd = lazy_import("pandas")
 
 
 class SampleEntropy(InferenceResultAnalyzer):

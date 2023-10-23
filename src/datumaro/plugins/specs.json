@@ -1,23 +1,5 @@
 [
   {
-    "import_path": "datumaro.components.launcher.LauncherWithModelInterpreter",
-    "plugin_name": "launcher_with_model_interpreter",
-    "plugin_type": "Launcher",
-    "extra_deps": []
-  },
-  {
-    "import_path": "datumaro.components.merge.extractor_merger.ExtractorMerger",
-    "plugin_name": "extractor_merger",
-    "plugin_type": "DatasetBase",
-    "extra_deps": []
-  },
-  {
-    "import_path": "datumaro.components.transformer.ModelTransform",
-    "plugin_name": "model",
-    "plugin_type": "Transform",
-    "extra_deps": []
-  },
-  {
     "import_path": "datumaro.plugins.accuracy_checker_plugin.ac_launcher.AcLauncher",
     "plugin_name": "ac",
     "plugin_type": "Launcher",
