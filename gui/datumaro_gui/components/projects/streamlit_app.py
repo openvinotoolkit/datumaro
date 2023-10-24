@@ -84,7 +84,7 @@ def main():
                 sac.TabsItem(label="GENERAL", icon="incognito"),
                 sac.TabsItem(label="VALIDATE", icon="incognito"),
                 sac.TabsItem(label="VISUALIZE", icon="image"),
-                sac.TabsItem(label="EXPLORE", icon="tags", disabled=True),
+                sac.TabsItem(label="EXPLORE", icon="tags"),
                 sac.TabsItem(label="ANALYZE", icon="clipboard2-data-fill", disabled=True),
                 sac.TabsItem(label="TRANSFORM", icon="tools"),
                 sac.TabsItem(label="EXPORT", icon="cloud-arrow-down"),

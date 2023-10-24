@@ -2,12 +2,9 @@
 #
 # SPDX-License-Identifier: MIT
 
-import io
 
 import numpy as np
 import streamlit as st
-from matplotlib import pyplot as plt
-from PIL import Image
 from streamlit import session_state as state
 from streamlit_elements import elements
 
@@ -32,12 +29,13 @@ def main():
                 item = dataset.get(selected_id, selected_subset)
                 ann_ids = [
                     "All",
-                ] + [ann.id for ann in item.annotations]
-                selected_ann_id = st.selectbox("Select a dataset item:", ann_ids)
+                ] + [f"{ann.type.name} - {ann.id}" for ann in item.annotations]
+                selected_ann_id = st.selectbox("Select annotation:", ann_ids)
 
             selected_alpha = st.select_slider(
                 "Choose a transparency of annotations",
                 options=np.arange(0.0, 1.1, 0.1, dtype=np.float16),
+                value=1.0,
             )
 
             visualizer = Visualizer(dataset, figsize=(8, 8), alpha=selected_alpha)
@@ -51,12 +49,4 @@ def main():
                     selected_id, selected_subset, ann_id=selected_ann_id
                 )
             fig.set_facecolor("none")
-
-            # Save the Matplotlib figure to a BytesIO buffer as PNG
-            buffer = io.BytesIO()
-            plt.savefig(buffer, format="png")
-            plt.close(fig)
-            buffer.seek(0)
-            img = Image.open(buffer)
-
-            st.image(img, use_column_width=True)
+            st.pyplot(fig, use_container_width=True)
