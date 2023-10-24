@@ -5,16 +5,10 @@ import math
 import random
 import warnings
 from collections import defaultdict
-from typing import Iterable, List, Optional, Tuple, Union, overload
+from typing import TYPE_CHECKING, Iterable, List, Optional, Tuple, Union, overload
 
 import cv2
-import matplotlib.patches as patches
-import matplotlib.pyplot as plt
 import numpy as np
-from matplotlib.axes import Axes
-from matplotlib.figure import Figure
-from matplotlib.text import Text
-from mpl_toolkits.axes_grid1 import make_axes_locatable
 from PIL import ImageColor
 
 from datumaro.components.annotation import (
@@ -35,6 +29,15 @@ from datumaro.components.annotation import (
 )
 from datumaro.components.dataset_base import DatasetItem, IDataset
 from datumaro.components.media import Image
+
+if TYPE_CHECKING:
+    from matplotlib.axes import Axes
+    from matplotlib.figure import Figure
+    from matplotlib.text import Text
+else:
+    Figure = None
+    Axes = None
+    Text = None
 
 CAPTION_BBOX_PAD = 0.2
 DEFAULT_COLOR_CYCLES: List[str] = [
@@ -292,6 +295,8 @@ class Visualizer:
         grid_size: Tuple[Optional[int], Optional[int]] = (None, None),
     ) -> Figure:
         """Visualize several :class:`DatasetItem` as a gallery"""
+        import matplotlib.pyplot as plt
+
         if len(inputs) == 1:
             (items,) = inputs
             ids = [item.id for item in items]
@@ -383,6 +388,8 @@ class Visualizer:
         ax: Optional[Axes] = None,
     ) -> Figure:
         """Visualize one dataset item"""
+        import matplotlib.pyplot as plt
+
         if len(inputs) == 1:
             item_id, subset = None, None
             (item,) = inputs
@@ -542,6 +549,8 @@ class Visualizer:
         ax: Axes,
         context: List,
     ) -> None:
+        import matplotlib.patches as patches
+
         label_text = label_categories[ann.label].name if label_categories is not None else ann.label
         color = self._get_color(ann)
         points = np.array(ann.points)
@@ -576,6 +585,8 @@ class Visualizer:
         ax: Axes,
         context: List,
     ) -> None:
+        import matplotlib.patches as patches
+
         label_text = label_categories[ann.label].name if label_categories is not None else ann.label
         color = self._get_color(ann)
         rect = patches.Rectangle(
@@ -668,6 +679,8 @@ class Visualizer:
         ax: Axes,
         context: List,
     ) -> None:
+        from mpl_toolkits.axes_grid1 import make_axes_locatable
+
         assert len(context) == 0, "It cannot visualize more than one DepthAnnotation per item."
 
         depth = ann.image.data
@@ -687,6 +700,8 @@ class Visualizer:
         ax: Axes,
         context: List,
     ) -> None:
+        import matplotlib.patches as patches
+
         label_text = label_categories[ann.label].name if label_categories is not None else ann.label
         color = self._get_color(ann)
         ellipse = patches.Ellipse(

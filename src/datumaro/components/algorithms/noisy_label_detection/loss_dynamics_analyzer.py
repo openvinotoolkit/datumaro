@@ -4,15 +4,18 @@
 
 from collections import defaultdict
 from dataclasses import dataclass, field
-from typing import Dict, List, Optional, Sequence, Tuple
-
-import matplotlib.pyplot as plt
-import pandas as pd
-from matplotlib.figure import Figure
+from typing import TYPE_CHECKING, Dict, List, Optional, Sequence, Tuple
 
 from datumaro.components.annotation import AnnotationType, LabelCategories
 from datumaro.components.dataset_base import IDataset
 from datumaro.errors import DatasetError
+
+if TYPE_CHECKING:
+    from matplotlib.figure import Figure
+    from pandas import DataFrame, Series
+else:
+    DataFrame, Series, Figure = None, None, None
+
 
 __all__ = ["LossDynamicsAnalyzer", "NoisyLabelCandidate"]
 
@@ -92,30 +95,32 @@ class LossDynamicsAnalyzer:
         return self._alpha
 
     @property
-    def mean_loss_dyns(self) -> pd.Series:
+    def mean_loss_dyns(self) -> Series:
         """Pandas Series object obtained by averaging all EMA loss dynamics statistics"""
         return self._mean_loss_dyns
 
     @property
-    def mean_loss_dyns_per_label(self) -> Dict[LabelCategories.Category, pd.Series]:
+    def mean_loss_dyns_per_label(self) -> Dict[LabelCategories.Category, Series]:
         """A dictionary of Pandas Series object obtained
         by averaging EMA loss dynamics statistics according to the label category"""
         label_categories = self._dataset.categories()[AnnotationType.label]
         return {label_categories[k]: v for k, v in self._mean_loss_dyns_per_label.items()}
 
     @property
-    def ema_dataframe(self) -> pd.DataFrame:
+    def ema_dataframe(self) -> DataFrame:
         """Pandas DataFrame including full EMA loss dynamics statistics."""
         return self._df
 
     @staticmethod
     def _parse_to_dataframe(
         dataset: IDataset, ema_alpha: float = 0.001, tracking_loss_type: Optional[str] = None
-    ) -> pd.DataFrame:
+    ) -> DataFrame:
         """Parse loss dynamics statistics from Datumaro dataset to Pandas DataFrame."""
         key = (
             "loss_dynamics" if tracking_loss_type is None else f"loss_dynamics_{tracking_loss_type}"
         )
+        import pandas as pd
+
         ema_loss_dyns_list = []
         for item in dataset:
             for ann in item.annotations:
@@ -167,6 +172,8 @@ class LossDynamicsAnalyzer:
         figsize: Tuple[int, int] = (4, 3),
         **kwargs,
     ) -> Figure:
+        import matplotlib.pyplot as plt
+
         if mode == "mean":
             cands_by_label_id = {None: candidates}
         elif mode == "label_mean":
