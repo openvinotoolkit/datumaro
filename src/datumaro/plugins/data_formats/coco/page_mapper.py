@@ -5,7 +5,10 @@
 import logging as log
 from typing import Any, Dict, Iterator, List, Optional, Tuple
 
-from datumaro.rust_api import CocoPageMapper as CocoPageMapperImpl
+try:
+    from datumaro.rust_api import CocoPageMapper as CocoPageMapperImpl
+except ImportError:
+    pass
 
 __all__ = ["COCOPageMapper"]
 
