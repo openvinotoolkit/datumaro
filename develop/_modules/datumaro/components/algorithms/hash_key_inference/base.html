@@ -281,10 +281,16 @@
 <span class="c1">#</span>
 <span class="c1"># SPDX-License-Identifier: MIT</span>
 
-<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Sequence</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">TYPE_CHECKING</span><span class="p">,</span> <span class="n">Sequence</span>
 
 <span class="kn">from</span> <span class="nn">datumaro.components.dataset</span> <span class="kn">import</span> <span class="n">Dataset</span>
-<span class="kn">from</span> <span class="nn">datumaro.plugins.explorer</span> <span class="kn">import</span> <span class="n">ExplorerLauncher</span>
+
+<span class="k">if</span> <span class="n">TYPE_CHECKING</span><span class="p">:</span>
+    <span class="kn">import</span> <span class="nn">datumaro.plugins.explorer</span> <span class="k">as</span> <span class="nn">explorer</span>
+<span class="k">else</span><span class="p">:</span>
+    <span class="kn">from</span> <span class="nn">datumaro.util.import_util</span> <span class="kn">import</span> <span class="n">lazy_import</span>
+
+    <span class="n">explorer</span> <span class="o">=</span> <span class="n">lazy_import</span><span class="p">(</span><span class="s2">&quot;datumaro.plugins.explorer&quot;</span><span class="p">)</span>
 
 
 <div class="viewcode-block" id="HashInference"><a class="viewcode-back" href="../../../../../docs/reference/_autosummary/datumaro.components.algorithms.hash_key_inference.base.html#datumaro.components.algorithms.hash_key_inference.base.HashInference">[docs]</a><span class="k">class</span> <span class="nc">HashInference</span><span class="p">:</span>
@@ -294,13 +300,13 @@
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">model</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_model</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_model</span> <span class="o">=</span> <span class="n">ExplorerLauncher</span><span class="p">(</span><span class="n">model_name</span><span class="o">=</span><span class="s2">&quot;clip_visual_ViT-B_32&quot;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_model</span> <span class="o">=</span> <span class="n">explorer</span><span class="o">.</span><span class="n">ExplorerLauncher</span><span class="p">(</span><span class="n">model_name</span><span class="o">=</span><span class="s2">&quot;clip_visual_ViT-B_32&quot;</span><span class="p">)</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_model</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">text_model</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_text_model</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_text_model</span> <span class="o">=</span> <span class="n">ExplorerLauncher</span><span class="p">(</span><span class="n">model_name</span><span class="o">=</span><span class="s2">&quot;clip_text_ViT-B_32&quot;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_text_model</span> <span class="o">=</span> <span class="n">explorer</span><span class="o">.</span><span class="n">ExplorerLauncher</span><span class="p">(</span><span class="n">model_name</span><span class="o">=</span><span class="s2">&quot;clip_text_ViT-B_32&quot;</span><span class="p">)</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_text_model</span>
 
     <span class="k">def</span> <span class="nf">_compute_hash_key</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">datasets</span><span class="p">,</span> <span class="n">datasets_to_infer</span><span class="p">):</span>

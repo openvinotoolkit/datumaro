@@ -509,6 +509,7 @@
 <li class="toctree-l4"><a class="reference internal" href="datumaro.util.file_utils.html">datumaro.util.file_utils</a></li>
 <li class="toctree-l4"><a class="reference internal" href="datumaro.util.image.html">datumaro.util.image</a></li>
 <li class="toctree-l4"><a class="reference internal" href="datumaro.util.image_cache.html">datumaro.util.image_cache</a></li>
+<li class="toctree-l4"><a class="reference internal" href="datumaro.util.import_util.html">datumaro.util.import_util</a></li>
 <li class="toctree-l4"><a class="reference internal" href="datumaro.util.log_utils.html">datumaro.util.log_utils</a></li>
 <li class="toctree-l4"><a class="reference internal" href="datumaro.util.mask_tools.html">datumaro.util.mask_tools</a></li>
 <li class="toctree-l4"><a class="reference internal" href="datumaro.util.meta_file_util.html">datumaro.util.meta_file_util</a></li>
@@ -1082,6 +1083,11 @@ displaced paths, which needs to be mapped on real paths.</p></li>
 <dl class="py method">
 <dt class="sig sig-object py" id="datumaro.components.project.DvcWrapper.ignore">
 <span class="sig-name descname"><span class="pre">ignore</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">paths</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Union" title="(in Python v3.12)"><span class="pre">Union</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.List" title="(in Python v3.12)"><span class="pre">List</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mode</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Union" title="(in Python v3.12)"><span class="pre">Union</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.12)"><span class="pre">None</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference internal" href="#datumaro.components.project.IgnoreMode" title="datumaro.components.project.IgnoreMode"><span class="pre">IgnoreMode</span></a><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dvcignore</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Optional" title="(in Python v3.12)"><span class="pre">Optional</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/datumaro/components/project.html#DvcWrapper.ignore"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.components.project.DvcWrapper.ignore" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="datumaro.components.project.DvcWrapper.yaml">
+<span class="sig-name descname"><span class="pre">yaml</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;module</span> <span class="pre">'ruamel.yaml'</span> <span class="pre">from</span> <span class="pre">'/home/runner/work/datumaro/datumaro/.tox/build-docs/lib/python3.10/site-packages/ruamel/yaml/__init__.py'&gt;</span></em><a class="headerlink" href="#datumaro.components.project.DvcWrapper.yaml" title="Permalink to this definition">#</a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
@@ -2287,6 +2293,15 @@ restores the sources from the current revision.</p>
      <code class="docutils literal notranslate">
       <span class="pre">
        DvcWrapper.ignore()
+      </span>
+     </code>
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#datumaro.components.project.DvcWrapper.yaml">
+     <code class="docutils literal notranslate">
+      <span class="pre">
+       DvcWrapper.yaml
       </span>
      </code>
     </a>

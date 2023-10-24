@@ -285,18 +285,27 @@
 
 <span class="kn">import</span> <span class="nn">itertools</span>
 <span class="kn">from</span> <span class="nn">collections</span> <span class="kn">import</span> <span class="n">defaultdict</span>
-<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Optional</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">TYPE_CHECKING</span><span class="p">,</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Optional</span>
 
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
-<span class="kn">import</span> <span class="nn">pyemd</span>
-<span class="kn">from</span> <span class="nn">scipy</span> <span class="kn">import</span> <span class="n">linalg</span>
-<span class="kn">from</span> <span class="nn">scipy.stats</span> <span class="kn">import</span> <span class="n">anderson_ksamp</span>
 
 <span class="kn">from</span> <span class="nn">datumaro.components.annotation</span> <span class="kn">import</span> <span class="n">FeatureVector</span>
 <span class="kn">from</span> <span class="nn">datumaro.components.dataset</span> <span class="kn">import</span> <span class="n">IDataset</span>
 <span class="kn">from</span> <span class="nn">datumaro.components.launcher</span> <span class="kn">import</span> <span class="n">LauncherWithModelInterpreter</span>
-<span class="kn">from</span> <span class="nn">datumaro.plugins.openvino_plugin.shift_launcher</span> <span class="kn">import</span> <span class="n">ShiftLauncher</span>
 <span class="kn">from</span> <span class="nn">datumaro.util</span> <span class="kn">import</span> <span class="n">take_by</span>
+
+<span class="k">if</span> <span class="n">TYPE_CHECKING</span><span class="p">:</span>
+    <span class="kn">import</span> <span class="nn">pyemd</span>
+    <span class="kn">from</span> <span class="nn">scipy</span> <span class="kn">import</span> <span class="n">linalg</span><span class="p">,</span> <span class="n">stats</span>
+
+    <span class="kn">from</span> <span class="nn">datumaro.plugins.openvino_plugin</span> <span class="kn">import</span> <span class="n">shift_launcher</span>
+<span class="k">else</span><span class="p">:</span>
+    <span class="kn">from</span> <span class="nn">datumaro.util.import_util</span> <span class="kn">import</span> <span class="n">lazy_import</span>
+
+    <span class="n">pyemd</span> <span class="o">=</span> <span class="n">lazy_import</span><span class="p">(</span><span class="s2">&quot;pyemd&quot;</span><span class="p">)</span>
+    <span class="n">linalg</span> <span class="o">=</span> <span class="n">lazy_import</span><span class="p">(</span><span class="s2">&quot;scipy.linalg&quot;</span><span class="p">)</span>
+    <span class="n">stats</span> <span class="o">=</span> <span class="n">lazy_import</span><span class="p">(</span><span class="s2">&quot;scipy.stats&quot;</span><span class="p">)</span>
+    <span class="n">shift_launcher</span> <span class="o">=</span> <span class="n">lazy_import</span><span class="p">(</span><span class="s2">&quot;datumaro.plugins.openvino_plugin.shift_launcher&quot;</span><span class="p">)</span>
 
 
 <div class="viewcode-block" id="RunningStats1D"><a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.components.shift_analyzer.html#datumaro.components.shift_analyzer.RunningStats1D">[docs]</a><span class="k">class</span> <span class="nc">RunningStats1D</span><span class="p">:</span>
@@ -389,7 +398,7 @@
 <span class="sd">        topk:</span>
 <span class="sd">            Number of images.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_model</span> <span class="o">=</span> <span class="n">ShiftLauncher</span><span class="p">(</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_model</span> <span class="o">=</span> <span class="n">shift_launcher</span><span class="o">.</span><span class="n">ShiftLauncher</span><span class="p">(</span>
             <span class="n">model_name</span><span class="o">=</span><span class="s2">&quot;googlenet-v4-tf&quot;</span><span class="p">,</span>
             <span class="n">output_layers</span><span class="o">=</span><span class="s2">&quot;InceptionV4/Logits/PreLogitsFlatten/flatten_1/Reshape:0&quot;</span><span class="p">,</span>
         <span class="p">)</span>
@@ -437,7 +446,7 @@
                 <span class="k">for</span> <span class="n">ann</span> <span class="ow">in</span> <span class="n">item</span><span class="o">.</span><span class="n">annotations</span><span class="p">:</span>
                     <span class="n">labels</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">ann</span><span class="o">.</span><span class="n">label</span><span class="p">)</span>
 
-        <span class="n">_</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">pv</span> <span class="o">=</span> <span class="n">anderson_ksamp</span><span class="p">([</span><span class="n">labels</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">labels</span><span class="p">[</span><span class="mi">1</span><span class="p">]])</span>
+        <span class="n">_</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">pv</span> <span class="o">=</span> <span class="n">stats</span><span class="o">.</span><span class="n">anderson_ksamp</span><span class="p">([</span><span class="n">labels</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">labels</span><span class="p">[</span><span class="mi">1</span><span class="p">]])</span>
 
         <span class="k">return</span> <span class="mi">1</span> <span class="o">-</span> <span class="n">pv</span></div>
 

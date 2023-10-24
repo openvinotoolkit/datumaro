@@ -286,7 +286,7 @@
 <span class="kn">import</span> <span class="nn">logging</span> <span class="k">as</span> <span class="nn">log</span>
 <span class="kn">import</span> <span class="nn">os.path</span> <span class="k">as</span> <span class="nn">osp</span>
 <span class="kn">from</span> <span class="nn">functools</span> <span class="kn">import</span> <span class="n">partial</span>
-<span class="kn">from</span> <span class="nn">inspect</span> <span class="kn">import</span> <span class="n">isclass</span>
+<span class="kn">from</span> <span class="nn">inspect</span> <span class="kn">import</span> <span class="n">getmodule</span><span class="p">,</span> <span class="n">isclass</span>
 <span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="p">(</span>
     <span class="n">Callable</span><span class="p">,</span>
     <span class="n">Dict</span><span class="p">,</span>
@@ -481,7 +481,18 @@
                     <span class="k">continue</span>
                 <span class="n">exports</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">getattr</span><span class="p">(</span><span class="n">module</span><span class="p">,</span> <span class="n">symbol</span><span class="p">))</span>
 
-        <span class="n">exports</span> <span class="o">=</span> <span class="p">[</span><span class="n">s</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">exports</span> <span class="k">if</span> <span class="n">isclass</span><span class="p">(</span><span class="n">s</span><span class="p">)</span> <span class="ow">and</span> <span class="nb">issubclass</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="n">types</span><span class="p">)</span> <span class="ow">and</span> <span class="n">s</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">types</span><span class="p">]</span>
+        <span class="n">exports</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="n">s</span>
+            <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">exports</span>
+            <span class="k">if</span> <span class="n">isclass</span><span class="p">(</span><span class="n">s</span><span class="p">)</span>
+            <span class="ow">and</span> <span class="nb">issubclass</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="n">types</span><span class="p">)</span>
+            <span class="ow">and</span> <span class="n">s</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">types</span>
+            <span class="ow">and</span> <span class="p">(</span>
+                <span class="n">getmodule</span><span class="p">(</span><span class="n">s</span><span class="p">)</span>
+                <span class="ow">is</span> <span class="kc">None</span>  <span class="c1"># Custom plugin (in the Datumaro project) can be a single file and have no module</span>
+                <span class="ow">or</span> <span class="ow">not</span> <span class="n">getmodule</span><span class="p">(</span><span class="n">s</span><span class="p">)</span><span class="o">.</span><span class="n">__package__</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;datumaro.components&quot;</span><span class="p">)</span>
+            <span class="p">)</span>
+        <span class="p">]</span>
 
         <span class="k">return</span> <span class="n">exports</span>
 

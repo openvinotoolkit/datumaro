@@ -288,21 +288,27 @@
 <span class="kn">from</span> <span class="nn">collections</span> <span class="kn">import</span> <span class="n">Counter</span>
 <span class="kn">from</span> <span class="nn">enum</span> <span class="kn">import</span> <span class="n">Enum</span><span class="p">,</span> <span class="n">auto</span>
 <span class="kn">from</span> <span class="nn">itertools</span> <span class="kn">import</span> <span class="n">zip_longest</span>
-<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Union</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">TYPE_CHECKING</span><span class="p">,</span> <span class="n">Union</span>
 
 <span class="kn">import</span> <span class="nn">cv2</span>
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 
-<span class="kn">from</span> <span class="nn">datumaro.components.media</span> <span class="kn">import</span> <span class="n">Image</span>
-
-<span class="k">with</span> <span class="n">warnings</span><span class="o">.</span><span class="n">catch_warnings</span><span class="p">():</span>
-    <span class="n">warnings</span><span class="o">.</span><span class="n">simplefilter</span><span class="p">(</span><span class="s2">&quot;ignore&quot;</span><span class="p">)</span>
-    <span class="kn">import</span> <span class="nn">tensorboardX</span> <span class="k">as</span> <span class="nn">tb</span>
-
 <span class="kn">from</span> <span class="nn">datumaro.components.annotation</span> <span class="kn">import</span> <span class="n">AnnotationType</span><span class="p">,</span> <span class="n">LabelCategories</span>
 <span class="kn">from</span> <span class="nn">datumaro.components.dataset</span> <span class="kn">import</span> <span class="n">IDataset</span>
+<span class="kn">from</span> <span class="nn">datumaro.components.media</span> <span class="kn">import</span> <span class="n">Image</span>
 <span class="kn">from</span> <span class="nn">datumaro.util</span> <span class="kn">import</span> <span class="n">parse_str_enum_value</span>
 <span class="kn">from</span> <span class="nn">datumaro.util.image</span> <span class="kn">import</span> <span class="n">save_image</span>
+<span class="kn">from</span> <span class="nn">datumaro.util.import_util</span> <span class="kn">import</span> <span class="n">lazy_import</span>
+
+<span class="k">if</span> <span class="n">TYPE_CHECKING</span><span class="p">:</span>
+    <span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+
+    <span class="k">with</span> <span class="n">warnings</span><span class="o">.</span><span class="n">catch_warnings</span><span class="p">():</span>
+        <span class="n">warnings</span><span class="o">.</span><span class="n">simplefilter</span><span class="p">(</span><span class="s2">&quot;ignore&quot;</span><span class="p">)</span>
+        <span class="kn">import</span> <span class="nn">tensorboardX</span> <span class="k">as</span> <span class="nn">tb</span>
+<span class="k">else</span><span class="p">:</span>
+    <span class="n">tb</span> <span class="o">=</span> <span class="n">lazy_import</span><span class="p">(</span><span class="s2">&quot;tensorboardX&quot;</span><span class="p">)</span>
+    <span class="n">plt</span> <span class="o">=</span> <span class="n">lazy_import</span><span class="p">(</span><span class="s2">&quot;matplotlib.pyplot&quot;</span><span class="p">)</span>
 
 
 <div class="viewcode-block" id="DistanceCompareVisualizer"><a class="viewcode-back" href="../../../../docs/reference/_autosummary/datumaro.components.hl_ops.html#datumaro.cli.util.compare.DistanceCompareVisualizer">[docs]</a><span class="k">class</span> <span class="nc">DistanceCompareVisualizer</span><span class="p">:</span>
@@ -570,8 +576,6 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_file_writer</span><span class="o">.</span><span class="n">add_image</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">img</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="DistanceCompareVisualizer.save_conf_matrix"><a class="viewcode-back" href="../../../../docs/reference/_autosummary/datumaro.components.hl_ops.html#datumaro.cli.util.compare.DistanceCompareVisualizer.save_conf_matrix">[docs]</a>    <span class="k">def</span> <span class="nf">save_conf_matrix</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">conf_matrix</span><span class="p">,</span> <span class="n">filename</span><span class="p">):</span>
-        <span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
-
         <span class="k">def</span> <span class="nf">_get_class_map</span><span class="p">(</span><span class="n">label_categories</span><span class="p">):</span>
             <span class="n">classes</span> <span class="o">=</span> <span class="kc">None</span>
             <span class="k">if</span> <span class="n">label_categories</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
