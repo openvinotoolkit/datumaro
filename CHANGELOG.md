@@ -16,6 +16,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   (<https://github.com/openvinotoolkit/datumaro/pull/1174>)
 
 ### Bug fixes
+- Import CocoPageMapper only once per process
+  (<https://github.com/openvinotoolkit/datumaro/pull/1184>)
 - Modify the draw function in the visualizer not to raise an error for unsupported annotation types.
   (<https://github.com/openvinotoolkit/datumaro/pull/1180>)
 - Correct explore path in the related document.
