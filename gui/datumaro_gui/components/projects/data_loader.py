@@ -8,6 +8,7 @@ import zipfile
 
 from streamlit.runtime.uploaded_file_manager import UploadedFile
 
+from datumaro.components.algorithms.hash_key_inference.explorer import Explorer
 from datumaro.components.dataset import Dataset
 from datumaro.components.environment import DEFAULT_ENVIRONMENT
 from datumaro.components.hl_ops import HLOps
@@ -100,6 +101,7 @@ class DatasetHelper:
         self._dm_dataset = None
         self._format = None
         self._val_reports = {}
+        self._explorer = None
 
     def __del__(self):
         file_id = os.path.basename(os.path.dirname(self._dataset_dir))
@@ -115,7 +117,9 @@ class DatasetHelper:
         if format != _self._format:
             _self._format = format
             _self._dm_dataset = Dataset.import_from(path=_self._dataset_dir, format=_self._format)
+            # reset pre-calculated variables.
             _self._val_reports = {}
+            _self._explorer = None
         return _self._dm_dataset
 
     def dataset(_self) -> Dataset:
@@ -150,3 +154,8 @@ class DatasetHelper:
 
     def export(_self, save_dir: str, format: str, **kwargs):
         _self._dm_dataset.export(save_dir=save_dir, format=format, **kwargs)
+
+    def explorer(self, force_init: bool = False):
+        if self._explorer is None or force_init:
+            self._explorer = Explorer(self._dm_dataset)
+        return self._explorer
