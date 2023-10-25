@@ -21,7 +21,7 @@ try:
     # readonly files on Windows, which Git uses extensively
     # It double checks if a file cannot be removed because of readonly flag
     from git.util import rmfile, rmtree  # noqa: F401
-except ModuleNotFoundError:
+except (ModuleNotFoundError, ImportError):
     from os import remove as rmfile  # noqa: F401
     from shutil import rmtree as rmtree  # noqa: F401
 
