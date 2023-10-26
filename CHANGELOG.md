@@ -14,6 +14,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   (<https://github.com/openvinotoolkit/datumaro/pull/1175>)
 - Add comparison level-up doc
   (<https://github.com/openvinotoolkit/datumaro/pull/1174>)
+- Add ImportError to catch GitPython import error
+  (<https://github.com/openvinotoolkit/datumaro/pull/1174>)
 
 ### Bug fixes
 - Modify the draw function in the visualizer not to raise an error for unsupported annotation types.
