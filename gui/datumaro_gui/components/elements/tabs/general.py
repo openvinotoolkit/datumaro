@@ -12,6 +12,32 @@ from datumaro.components.annotation import AnnotationType
 
 from ..dashboard import Dashboard, Gallery, Pie, Radar
 from ..data_loader import DatasetHelper
+from ..utils import get_category_info, get_subset_info
+
+# Define CSS styles for the boxes
+box_style = """
+    .highlight {
+    border-radius: 0.4rem;
+    color: white;
+    padding: 0.5rem;
+    margin-bottom: 1rem;
+    }
+    .bold {
+    padding-left: 1rem;
+    font-weight: 700;
+    }
+    .red {
+    background-color: lightcoral;
+    }
+    .blue {
+    background-color: lightblue;
+    }
+    .box {
+    width: auto;
+    max-width: 1000px;
+    margin: auto;
+    }
+"""
 
 
 def main():
@@ -19,92 +45,79 @@ def main():
     data_helper_2: DatasetHelper = state["data_helper_2"]
     dataset_1 = data_helper_1.dataset()
     dataset_2 = data_helper_2.dataset()
+    uploaded_zip_1 = state["uploaded_zip_1"].name
+    uploaded_zip_2 = state["uploaded_zip_2"].name
 
     with elements("general"):
-        with st.container():
-            subset_info_dict = []
-            for subset in dataset_1.subsets():
-                temp_dict = {
-                    "id": subset,
-                    "label": subset,
-                    "value": len(dataset_1.get_subset(subset)),
-                }
-                subset_info_dict.append(temp_dict)
+        container = st.container()
+        c1, c2 = container.columns(2)
+        st.markdown("<style>{}</style>".format(box_style), unsafe_allow_html=True)
 
-            categories = dataset_1.categories()[AnnotationType.label]
-            subsets = dataset_1.subsets()
-            cat_info = {s: {cat.name: 0 for cat in categories.items} for s in subsets}
-            for item in dataset_1:
-                for ann in item.annotations:
-                    label_name = categories[ann.label].name
-                    cat_info[item.subset][label_name] += 1
-
-            cat_info_dict = []
-            for subset, cats in cat_info.items():
-                cats.update({"subset": subset})
-                cat_info_dict.append(cats)
-
-            board = Dashboard()
-            w = SimpleNamespace(
-                dashboard=board,
-                subset_info=Pie(
-                    name="Subset info",
-                    **{"board": board, "x": 0, "y": 0, "w": 3, "h": 6, "minW": 2, "minH": 4},
-                ),
-                cat_info=Radar(
-                    name="Category info",
-                    indexBy="subset",
-                    keys=[cat.name for cat in categories.items],
-                    **{"board": board, "x": 3, "y": 0, "w": 3, "h": 6, "minW": 2, "minH": 4},
-                ),
-                player=Gallery(board, 6, 0, 6, 12, minH=4),
+        with c1:
+            container1 = c1.container()
+            container1.subheader("First Dataset Description")
+            col1, col2 = container1.columns(2)
+            col1.markdown(
+                f"<div class='highlight blue box'>Path <span class='bold'>{uploaded_zip_1}</span></div>",
+                unsafe_allow_html=True,
+            )
+            col2.markdown(
+                f"<div class='highlight red box'>Format <span class='bold'>{dataset_1.format}</span></div>",
+                unsafe_allow_html=True,
             )
 
-            with w.dashboard(rowHeight=50):
-                w.subset_info(subset_info_dict)
-                w.cat_info(cat_info_dict)
-                w.player(dataset_1)
-
-        with st.container():
-            subset_info_dict = []
-            for subset in dataset_2.subsets():
-                temp_dict = {
-                    "id": subset,
-                    "label": subset,
-                    "value": len(dataset_2.get_subset(subset)),
-                }
-                subset_info_dict.append(temp_dict)
-
-            categories = dataset_2.categories()[AnnotationType.label]
-            subsets = dataset_2.subsets()
-            cat_info = {s: {cat.name: 0 for cat in categories.items} for s in subsets}
-            for item in dataset_2:
-                for ann in item.annotations:
-                    label_name = categories[ann.label].name
-                    cat_info[item.subset][label_name] += 1
-
-            cat_info_dict = []
-            for subset, cats in cat_info.items():
-                cats.update({"subset": subset})
-                cat_info_dict.append(cats)
-
-            board = Dashboard()
-            w = SimpleNamespace(
-                dashboard=board,
-                subset_info=Pie(
-                    name="Subset info",
-                    **{"board": board, "x": 0, "y": 0, "w": 3, "h": 6, "minW": 2, "minH": 4},
-                ),
-                cat_info=Radar(
-                    name="Category info",
-                    indexBy="subset",
-                    keys=[cat.name for cat in categories.items],
-                    **{"board": board, "x": 3, "y": 0, "w": 3, "h": 6, "minW": 2, "minH": 4},
-                ),
-                player=Gallery(board, 6, 0, 6, 12, minH=4),
+        with c2:
+            container2 = c2.container()
+            container2.subheader("Second Dataset Description")
+            col1, col2 = container2.columns(2)
+            col1.markdown(
+                f"<div class='highlight blue box'>Path <span class='bold'>{uploaded_zip_2}</span></div>",
+                unsafe_allow_html=True,
+            )
+            col2.markdown(
+                f"<div class='highlight red box'>Format <span class='bold'>{dataset_2.format}</span></div>",
+                unsafe_allow_html=True,
             )
 
-            with w.dashboard(rowHeight=50):
-                w.subset_info(subset_info_dict)
-                w.cat_info(cat_info_dict)
-                w.player(dataset_2)
+        subset_info_dict_1 = get_subset_info(dataset_1)
+        categories_1 = dataset_1.categories()[AnnotationType.label]
+        cat_info_dict_1 = get_category_info(dataset_1, categories_1)
+
+        subset_info_dict_2 = get_subset_info(dataset_2)
+        categories_2 = dataset_2.categories()[AnnotationType.label]
+        cat_info_dict_2 = get_category_info(dataset_2, categories_2)
+
+        board = Dashboard()
+        w = SimpleNamespace(
+            dashboard=board,
+            subset_info_1=Pie(
+                name="Subset info of Dataset 1",
+                **{"board": board, "x": 0, "y": 0, "w": 3, "h": 6, "minW": 2, "minH": 4},
+            ),
+            cat_info_1=Radar(
+                name="Category info of Dataset 1",
+                indexBy="subset",
+                keys=[cat.name for cat in categories_1.items],
+                **{"board": board, "x": 3, "y": 0, "w": 3, "h": 6, "minW": 2, "minH": 4},
+            ),
+            subset_info_2=Pie(
+                name="Subset info of Dataset 2",
+                **{"board": board, "x": 6, "y": 0, "w": 3, "h": 6, "minW": 2, "minH": 4},
+            ),
+            cat_info_2=Radar(
+                name="Category info of Dataset 2",
+                indexBy="subset",
+                keys=[cat.name for cat in categories_2.items],
+                **{"board": board, "x": 9, "y": 0, "w": 3, "h": 6, "minW": 2, "minH": 4},
+            ),
+            player_1=Gallery(board, 0, 3, 6, 12, minH=4),
+            player_2=Gallery(board, 6, 3, 6, 12, minH=4),
+        )
+
+        with w.dashboard(rowHeight=50):
+            w.subset_info_1(subset_info_dict_1)
+            w.subset_info_2(subset_info_dict_2)
+            w.cat_info_1(cat_info_dict_1)
+            w.cat_info_2(cat_info_dict_2)
+            w.player_1(dataset_1)
+            w.player_2(dataset_2)
