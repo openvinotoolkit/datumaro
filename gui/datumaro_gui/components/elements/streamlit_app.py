@@ -4,6 +4,7 @@
 
 import streamlit as st
 import streamlit_antd_components as sac
+from stqdm import stqdm
 from streamlit import session_state as state
 
 from . import tabs
@@ -47,6 +48,8 @@ def main():
         "uploaded_zip_2",
         "data_helper_2",
         "subset_2",
+        "mapping",
+        "matched",
     ]
     for k in keys:
         if k not in state:
@@ -59,12 +62,12 @@ def main():
 
     data_repo = DataRepo()
 
-    with st.expander("Import a dataset"):
+    with st.expander("Import a dataset", expanded=True):
         uploaded_zips = st.file_uploader(
-            "Upload a zip file containing dataset", type=["zip"], accept_multiple_files=True
+            "Upload two zip files containing dataset", type=["zip"], accept_multiple_files=True
         )
 
-        if uploaded_zips:
+        if uploaded_zips and len(uploaded_zips) > 1:
             if len(uploaded_zips) > 2:
                 st.error("You could not upload more than 2 datasets in once", icon="🚨")
 
@@ -75,8 +78,23 @@ def main():
                 and uploaded_zip_2 != state["uploaded_zip_2"]
             ):
                 # Extract the contents of the uploaded zip file to the temporary directory
-                dataset_1_dir = data_repo.unzip_dataset(uploaded_zip_1)
-                dataset_2_dir = data_repo.unzip_dataset(uploaded_zip_2)
+                # Run your task with stqdm
+                with stqdm(
+                    total=50,
+                    desc=f"Processing First Dataset {uploaded_zip_1.name}",
+                    dynamic_ncols=True,
+                ) as progress_bar:
+                    for i in range(50):
+                        dataset_1_dir = data_repo.unzip_dataset(uploaded_zip_1)
+                        progress_bar.update(1)
+                with stqdm(
+                    total=50,
+                    desc=f"Processing Second Dataset {uploaded_zip_2.name}",
+                    dynamic_ncols=True,
+                ) as progress_bar:
+                    for i in range(50):
+                        dataset_2_dir = data_repo.unzip_dataset(uploaded_zip_2)
+                        progress_bar.update(1)
                 print("dataset_1_dir: ", dataset_1_dir)
                 print("dataset_2_dir: ", dataset_2_dir)
 
@@ -117,12 +135,12 @@ def main():
         selected_tab = sac.tabs(
             [
                 sac.TabsItem(label="GENERAL", icon="incognito"),
-                sac.TabsItem(label="VALIDATE", icon="incognito"),
-                sac.TabsItem(label="COMPARE", icon="twisted_rightwards_arrows"),
+                sac.TabsItem(label="VALIDATE", icon="graph-up"),
+                sac.TabsItem(label="COMPARE", icon="arrow-left-right"),
                 sac.TabsItem(label="VISUALIZE", icon="image"),
                 sac.TabsItem(label="EXPLORE", icon="tags", disabled=True),
-                sac.TabsItem(label="ANALYZE", icon="clipboard2-data-fill", disabled=True),
                 sac.TabsItem(label="TRANSFORM", icon="tools"),
+                sac.TabsItem(label="MERGE", icon="union"),
                 sac.TabsItem(label="EXPORT", icon="cloud-arrow-down"),
             ],
             format_func="title",
@@ -132,11 +150,11 @@ def main():
         tab_funcs = {
             "GENERAL": tabs.call_general,
             "VALIDATE": tabs.call_validate,
-            "COMAPRE": tabs.call_compare,
+            "COMPARE": tabs.call_compare,
             "VISUALIZE": tabs.call_visualize,
             "EXPLORE": tabs.call_explore,
-            "ANALYZE": tabs.call_analyze,
             "TRANSFORM": tabs.call_transform,
+            "MERGE": tabs.call_merge,
             "EXPORT": tabs.call_export,
         }
         tab_funcs.get(selected_tab, tabs.call_general)()
