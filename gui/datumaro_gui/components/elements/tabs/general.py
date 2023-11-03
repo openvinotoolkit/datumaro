@@ -12,32 +12,7 @@ from datumaro.components.annotation import AnnotationType
 
 from ..dashboard import Dashboard, Gallery, Pie, Radar
 from ..data_loader import DatasetHelper
-from ..utils import get_category_info, get_subset_info
-
-# Define CSS styles for the boxes
-box_style = """
-    .highlight {
-    border-radius: 0.4rem;
-    color: white;
-    padding: 0.5rem;
-    margin-bottom: 1rem;
-    }
-    .bold {
-    padding-left: 1rem;
-    font-weight: 700;
-    }
-    .red {
-    background-color: lightcoral;
-    }
-    .blue {
-    background-color: lightblue;
-    }
-    .box {
-    width: auto;
-    max-width: 1000px;
-    margin: auto;
-    }
-"""
+from ..utils import box_style, get_category_info, get_subset_info
 
 
 def main():

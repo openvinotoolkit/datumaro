@@ -26,3 +26,41 @@ def get_category_info(dataset, categories):
         cats.update({"subset": subset})
         cat_info_dict.append(cats)
     return cat_info_dict
+
+
+# Define CSS styles for the boxes
+box_style = """
+    .highlight {
+    border-radius: 0.4rem;
+    color: white;
+    padding: 0.5rem;
+    margin-bottom: 1rem;
+    }
+    .bold {
+    padding-left: 1rem;
+    font-weight: 700;
+    }
+    .red {
+    background-color: lightcoral;
+    }
+    .blue {
+    background-color: lightblue;
+    }
+    .lightgrayish {
+    background-color: #B0C4DE;
+    }
+    .lightgray {
+    background-color: #E5E5E5;
+    }
+    .lightmintgreen {
+    background-color: #A9DFBF;
+    }
+    .lightpurple {
+    background-color: #C9A0DC;
+    }
+    .box {
+    width: auto;
+    max-width: 1000px;
+    margin: "5px 5px 5px 5px";
+    }
+"""
