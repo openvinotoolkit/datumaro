@@ -79,7 +79,8 @@ def main():
 
         mid_level_df = pd.DataFrame(mid_level_data, columns=mid_level_header)
 
-        c1, c2 = st.columns([1, 2])
+        container = st.container()
+        c1, c2 = container.columns([1, 2])
         with c1:
             st.header("Comparison result")
             c1.subheader("High Level Table")
@@ -97,15 +98,30 @@ def main():
             matches, unmatches = return_matches(
                 categories_1, categories_2, uploaded_zip_1, uploaded_zip_2
             )
-            label_df = pd.DataFrame(
+            matched_label_df = pd.DataFrame(
+                {uploaded_zip_1: pd.Series(matches), uploaded_zip_2: pd.Series(matches)}
+            )
+
+            def cooling_highlight(val):
+                return "background-color: rgba(172, 229, 238, 0.5)" if val in matches else ""
+
+            col1.dataframe(
+                matched_label_df.style.applymap(
+                    cooling_highlight, subset=[uploaded_zip_1, uploaded_zip_2]
+                ),
+                use_container_width=True,
+            )
+
+            unmatched_label_df = pd.DataFrame(
                 {
-                    uploaded_zip_1: pd.Series(matches + unmatches[uploaded_zip_1]),
-                    uploaded_zip_2: pd.Series(matches + unmatches[uploaded_zip_2]),
+                    uploaded_zip_1: pd.Series(unmatches[uploaded_zip_1]),
+                    uploaded_zip_2: pd.Series(unmatches[uploaded_zip_2]),
                 }
             )
-            col1.dataframe(label_df, use_container_width=True)
-            state.matched = matches
+            col1.subheader("Unmatched Labels")
+            col1.dataframe(unmatched_label_df, use_container_width=True)
 
+            state.matched = matches
             with col2:
                 col2.subheader("Suggest label mapping")
                 mappings = {}  # Initialize an empty dictionary for storing mappings
@@ -165,9 +181,8 @@ def main():
                     theme="streamlit",
                 )
 
-                sel_row = grid_table["selected_rows"]
-
-                if st.button("Finalize mapping"):
+                if st.button("Finalize mapping") and grid_table["selected_rows"] is not None:
+                    sel_row = grid_table["selected_rows"]
                     data_dict = {
                         uploaded_zip_1: [item[uploaded_zip_1] for item in sel_row],
                         uploaded_zip_2: [item[uploaded_zip_2] for item in sel_row],
@@ -175,3 +190,8 @@ def main():
                     mapping_df = pd.DataFrame(data_dict)
                     st.dataframe(mapping_df, use_container_width=True)
                     state.mapping = mapping_df
+                    st.info(
+                        "Use the generated mapping to transform your dataset by updating the labels."
+                        "\n\nYou can continue the process within the 'transform' tab.",
+                        icon="ℹ",
+                    )
