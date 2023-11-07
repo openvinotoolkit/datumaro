@@ -57,22 +57,21 @@ def main():
             if uploaded_zip != state["uploaded_zip"]:
                 # Extract the contents of the uploaded zip file to the temporary directory
                 dataset_dir = data_repo.unzip_dataset(uploaded_zip)
-                print("dataset_dir: ", dataset_dir)
-
+                # print("dataset_dir: ", dataset_dir)
                 state["uploaded_zip"] = uploaded_zip
-
                 data_helper = DatasetHelper(dataset_dir)
                 state["data_helper"] = data_helper
 
             data_helper: DatasetHelper = state["data_helper"]
             # Display the list of image files in the UI
-            selected_format = st.selectbox(
-                "Select a format to import:", data_helper.detect_format()
-            )
+            try:
+                formats = data_helper.detect_format()
+            except Exception:
+                formats = ["-", "datumaro", "voc", "coco"]  # temp
+            selected_format = st.selectbox("Select a format to import:", formats)
+            if selected_format != "-" and selected_format != data_helper.format():
+                data_helper.import_dataset(selected_format)
 
-            if selected_format is not None:
-                if selected_format != data_helper.format():
-                    data_helper.import_dataset(selected_format)
         elif state["data_helper"] is not None:
             state["data_helper"] = None
 
@@ -82,10 +81,10 @@ def main():
         selected_tab = sac.tabs(
             [
                 sac.TabsItem(label="GENERAL", icon="incognito"),
-                sac.TabsItem(label="VALIDATE", icon="incognito"),
+                # sac.TabsItem(label="VALIDATE", icon="incognito"),
                 sac.TabsItem(label="VISUALIZE", icon="image"),
                 sac.TabsItem(label="EXPLORE", icon="tags"),
-                sac.TabsItem(label="ANALYZE", icon="clipboard2-data-fill", disabled=True),
+                sac.TabsItem(label="ANALYZE", icon="clipboard2-data-fill"),
                 sac.TabsItem(label="TRANSFORM", icon="tools"),
                 sac.TabsItem(label="EXPORT", icon="cloud-arrow-down"),
             ],
@@ -95,7 +94,7 @@ def main():
 
         tab_funcs = {
             "GENERAL": tabs.call_general,
-            "VALIDATE": tabs.call_validate,
+            # "VALIDATE": tabs.call_validate,
             "VISUALIZE": tabs.call_visualize,
             "EXPLORE": tabs.call_explore,
             "ANALYZE": tabs.call_analyze,

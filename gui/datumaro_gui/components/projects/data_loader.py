@@ -5,13 +5,17 @@
 import os
 import shutil
 import zipfile
+from collections import defaultdict
 
+import numpy as np
 from streamlit.runtime.uploaded_file_manager import UploadedFile
 
+from datumaro import AnnotationType, LabelCategories
 from datumaro.components.algorithms.hash_key_inference.explorer import Explorer
 from datumaro.components.dataset import Dataset
 from datumaro.components.environment import DEFAULT_ENVIRONMENT
 from datumaro.components.hl_ops import HLOps
+from datumaro.components.operations import compute_ann_statistics, compute_image_statistics
 from datumaro.plugins.validators import (
     ClassificationValidator,
     DetectionValidator,
@@ -100,12 +104,19 @@ class DatasetHelper:
         self._detected_formats = None
         self._dm_dataset = None
         self._format = None
-        self._val_reports = {}
-        self._explorer = None
+        self._init_dependent_variables()
 
     def __del__(self):
         file_id = os.path.basename(os.path.dirname(self._dataset_dir))
         DataRepo().delete_by_id(file_id)
+
+    def _init_dependent_variables(self):
+        # when dataset is updated, some variables should be initialized.
+        self._val_reports = {}
+        self._image_stats = None
+        self._ann_stats = None
+        self._explorer = None
+        self._image_size_info = None
 
     def detect_format(_self) -> list[str]:
         if _self._detected_formats is None:
@@ -117,9 +128,7 @@ class DatasetHelper:
         if format != _self._format:
             _self._format = format
             _self._dm_dataset = Dataset.import_from(path=_self._dataset_dir, format=_self._format)
-            # reset pre-calculated variables.
-            _self._val_reports = {}
-            _self._explorer = None
+            _self._init_dependent_variables()
         return _self._dm_dataset
 
     def dataset(_self) -> Dataset:
@@ -144,12 +153,12 @@ class DatasetHelper:
         _self._dm_dataset = HLOps.aggregate(
             _self._dm_dataset, from_subsets=from_subsets, to_subset=to_subset
         )
-        _self._val_reports = {}
+        _self._init_dependent_variables()
         return _self._dm_dataset
 
     def transform(_self, method, **kwargs):
         _self._dm_dataset = _self._dm_dataset.transform(method, **kwargs)
-        _self._val_reports = {}
+        _self._init_dependent_variables()
         return _self._dm_dataset
 
     def export(_self, save_dir: str, format: str, **kwargs):
@@ -159,3 +168,50 @@ class DatasetHelper:
         if self._explorer is None or force_init:
             self._explorer = Explorer(self._dm_dataset)
         return self._explorer
+
+    def get_image_stats(self, force_init: bool = False):
+        if not self._image_stats or force_init:
+            self._image_stats = compute_image_statistics(self._dm_dataset)
+        return self._image_stats
+
+    def get_ann_stats(self, force_init: bool = False):
+        if not self._ann_stats or force_init:
+            self._ann_stats = compute_ann_statistics(self._dm_dataset)
+        return self._ann_stats
+
+    def get_image_size_info(self):
+        if not self._image_size_info:
+            labels = self._dm_dataset.categories().get(AnnotationType.label, LabelCategories())
+
+            def get_label(ann):
+                return labels.items[ann.label].name if ann.label is not None else None
+
+            all_sizes = []
+            by_subsets = defaultdict(list)
+            by_labels = defaultdict(list)
+            for item in self._dm_dataset:
+                if item.media:
+                    size = item.media.as_dict().get("size", None)
+                    if size:
+                        size_info = {"x": size[1], "y": size[0]}
+                        all_sizes.append(size)
+                        by_subsets[item.subset].append(size_info)
+                        for (
+                            ann
+                        ) in (
+                            item.annotations
+                        ):  # size can be duplicated because item can have multiple annotations
+                            label = get_label(ann)
+                            if label:
+                                by_labels[label].append(size_info)
+
+            mean = np.mean(all_sizes, axis=0) if all_sizes else [0, 0]
+            std = np.std(all_sizes, axis=0) if all_sizes else [0, 0]
+
+            self._image_size_info = {
+                "by_subsets": by_subsets,
+                "by_labels": by_labels,
+                "image_size": {"mean": mean, "std": std},
+            }
+
+        return self._image_size_info
