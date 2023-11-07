@@ -32,8 +32,11 @@ def main():
         cat_info = {s: {cat.name: 0 for cat in categories.items} for s in subsets}
         for item in dataset:
             for ann in item.annotations:
-                label_name = categories[ann.label].name
-                cat_info[item.subset][label_name] += 1
+                try:
+                    label_name = categories[ann.label].name
+                    cat_info[item.subset][label_name] += 1
+                except Exception:
+                    pass
 
         cat_info_dict = []
         for subset, cats in cat_info.items():
@@ -55,6 +58,7 @@ def main():
             ),
             player=Gallery(board, 6, 0, 6, 12, minH=4),
         )
+        print(board)
 
         with w.dashboard(rowHeight=50):
             w.subset_info(subset_info_dict)

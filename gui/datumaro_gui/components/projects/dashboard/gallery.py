@@ -1,17 +1,30 @@
+# Copyright (C) 2023 Intel Corporation
+#
+# SPDX-License-Identifier: MIT
+
 import base64
 import os
 
-import streamlit as st
-from streamlit_elements import mui, html
+from streamlit_elements import html, mui
 
 from .dashboard import Dashboard
+
 
 class Gallery(Dashboard.Item):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
     def __call__(self, dataset):
-        with mui.Paper(key=self._key, sx={"display": "flex", "flexDirection": "column", "borderRadius": 3, "overflow": "hidden"}, elevation=1):
+        with mui.Paper(
+            key=self._key,
+            sx={
+                "display": "flex",
+                "flexDirection": "column",
+                "borderRadius": 3,
+                "overflow": "hidden",
+            },
+            elevation=1,
+        ):
             with self.title_bar(padding="10px 15px 10px 15px", dark_switcher=False):
                 mui.icon.OndemandVideo()
                 mui.Typography("Gallery")
