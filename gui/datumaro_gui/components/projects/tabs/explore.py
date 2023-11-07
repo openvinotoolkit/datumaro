@@ -126,7 +126,8 @@ def main():
                     )
                     st.pyplot(fig)
                 except Exception as e:
-                    st.write(f"Error: {e}")
+                    st.error(f"Exception: {e}")
+
             else:
                 st.write(
                     "Add an image or text query to the 'Query List' and press the 'Search' button."

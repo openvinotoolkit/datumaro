@@ -1,10 +1,15 @@
+# Copyright (C) 2023 Intel Corporation
+#
+# SPDX-License-Identifier: MIT
+
 from functools import partial
-from streamlit_elements import mui, editor, sync, lazy
+
+from streamlit_elements import editor, lazy, mui, sync
+
 from .dashboard import Dashboard
 
 
 class Editor(Dashboard.Item):
-
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
@@ -16,7 +21,7 @@ class Editor(Dashboard.Item):
             "minHeight": 0,
             "borderBottom": 1,
             "borderTop": 1,
-            "borderColor": "divider"
+            "borderColor": "divider",
         }
 
     def _change_tab(self, _, index):
@@ -26,22 +31,33 @@ class Editor(Dashboard.Item):
         self._tabs[label]["content"] = content
 
     def add_tab(self, label, default_content, language):
-        self._tabs[label] = {
-            "content": default_content,
-            "language": language
-        }
+        self._tabs[label] = {"content": default_content, "language": language}
 
     def get_content(self, label):
         return self._tabs[label]["content"]
 
     def __call__(self):
-        with mui.Paper(key=self._key, sx={"display": "flex", "flexDirection": "column", "borderRadius": 3, "overflow": "hidden"}, elevation=1):
-
+        with mui.Paper(
+            key=self._key,
+            sx={
+                "display": "flex",
+                "flexDirection": "column",
+                "borderRadius": 3,
+                "overflow": "hidden",
+            },
+            elevation=1,
+        ):
             with self.title_bar("0px 15px 0px 15px"):
                 mui.icon.Terminal()
                 mui.Typography("Editor")
 
-                with mui.Tabs(value=self._index, onChange=self._change_tab, scrollButtons=True, variant="scrollable", sx={"flex": 1}):
+                with mui.Tabs(
+                    value=self._index,
+                    onChange=self._change_tab,
+                    scrollButtons=True,
+                    variant="scrollable",
+                    sx={"flex": 1},
+                ):
                     for label in self._tabs.keys():
                         mui.Tab(label=label)
 
@@ -54,9 +70,7 @@ class Editor(Dashboard.Item):
                         onChange=lazy(partial(self.update_content, label)),
                         theme="vs-dark" if self._dark_mode else "light",
                         path=label,
-                        options={
-                            "wordWrap": True
-                        }
+                        options={"wordWrap": True},
                     )
 
             with mui.Stack(direction="row", spacing=2, alignItems="center", sx={"padding": "10px"}):

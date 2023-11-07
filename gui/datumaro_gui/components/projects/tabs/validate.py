@@ -29,15 +29,16 @@ def main():
 
         val_info = {}
         anomaly_info = []
-        for report in reports["validation_reports"]:
+        for idx, report in enumerate(reports["validation_reports"]):
             anomaly_type = report["anomaly_type"]
             val_info[anomaly_type] = val_info.get(anomaly_type, 0) + 1
 
             anomaly_info.append(
                 {
+                    "id": idx,
                     "anomaly": anomaly_type,
                     "subset": report.get("subset", "None"),
-                    "id": report.get("item_id", "None"),
+                    "item_id": report.get("item_id", "None"),
                     "description": report["description"],
                 }
             )
