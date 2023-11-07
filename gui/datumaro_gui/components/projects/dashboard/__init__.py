@@ -10,4 +10,3 @@ from .gallery import Gallery
 from .pie import Pie
 from .player import Player
 from .radar import Radar
-from .validation_report import ValidationReport
