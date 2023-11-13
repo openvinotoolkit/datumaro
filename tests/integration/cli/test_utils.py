@@ -1,7 +1,9 @@
 import os
 import os.path as osp
 from unittest.case import TestCase
+from unittest.mock import PropertyMock, patch
 
+import numpy as np
 import pytest
 
 from datumaro.components.media_manager import MediaManager
@@ -14,11 +16,12 @@ from tests.utils.test_utils import TestDir
 from tests.utils.test_utils import run_datum as run
 
 
-@pytest.mark.xfail(reason="This test is flaky so that can fail randomly")
 class VideoSplittingTest:
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     @scoped
-    def test_can_split_video(self):
+    @patch("datumaro.components.media.VideoFrame.data", new_callable=PropertyMock)
+    def test_can_split_video(self, mock_video_frame_data):
+        mock_video_frame_data.return_value = np.full((32, 32, 3), fill_value=0, dtype=np.uint8)
         on_exit_do(MediaManager.get_instance().clear)
 
         test_dir = scope_add(TestDir())
