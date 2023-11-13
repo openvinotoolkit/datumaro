@@ -1084,7 +1084,7 @@ class MosaicImage(Image):
         raise DatumaroError(f"Please use a factory function '{cls.__name__}.from_image_roi_pairs'.")
 
 
-class MosiacImageFromData(FromDataMixin, MosaicImage):
+class MosaicImageFromData(FromDataMixin, MosaicImage):
     def save(
         self,
         fp: Union[str, io.IOBase],
@@ -1104,7 +1104,7 @@ class MosiacImageFromData(FromDataMixin, MosaicImage):
         save_image(fp, data, ext=new_ext, crypter=crypter)
 
 
-class MosaicImageFromImageRoIPairs(MosiacImageFromData):
+class MosaicImageFromImageRoIPairs(MosaicImageFromData):
     def __init__(self, data: List[ImageWithRoI], size: Tuple[int, int]) -> None:
         def _get_mosaic_img() -> np.ndarray:
             h, w = self.size
