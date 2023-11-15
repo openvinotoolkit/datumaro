@@ -61,7 +61,7 @@ def main():
 
     data_repo = DataRepo()
 
-    with st.expander("Import a dataset", expanded=True):
+    with st.expander("Import datasets", expanded=True):
         uploaded_zips = st.file_uploader(
             "Upload two zip files containing dataset", type=["zip"], accept_multiple_files=True
         )
@@ -142,7 +142,6 @@ def main():
                 sac.TabsItem(label="VALIDATE", icon="graph-up"),
                 sac.TabsItem(label="COMPARE", icon="arrow-left-right"),
                 sac.TabsItem(label="VISUALIZE", icon="image"),
-                sac.TabsItem(label="EXPLORE", icon="tags", disabled=True),
                 sac.TabsItem(label="TRANSFORM", icon="tools"),
                 sac.TabsItem(label="MERGE", icon="union"),
                 sac.TabsItem(label="EXPORT", icon="cloud-arrow-down"),
@@ -156,7 +155,6 @@ def main():
             "VALIDATE": tabs.call_validate,
             "COMPARE": tabs.call_compare,
             "VISUALIZE": tabs.call_visualize,
-            "EXPLORE": tabs.call_explore,
             "TRANSFORM": tabs.call_transform,
             "MERGE": tabs.call_merge,
             "EXPORT": tabs.call_export,
