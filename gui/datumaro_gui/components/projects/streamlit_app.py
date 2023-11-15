@@ -50,14 +50,20 @@ def main():
 
     data_repo = DataRepo()
 
-    with st.expander("Import a dataset"):
+    with st.expander("Import a dataset", expanded=True):
         uploaded_zip = st.file_uploader("Upload a zip file containing dataset", type=["zip"])
 
         if uploaded_zip is not None:
             if uploaded_zip != state["uploaded_zip"]:
                 # Extract the contents of the uploaded zip file to the temporary directory
-                dataset_dir = data_repo.unzip_dataset(uploaded_zip)
-                # print("dataset_dir: ", dataset_dir)
+                progress_bar = st.progress(0, text=f"Processing Dataset {uploaded_zip.name}")
+                for percentage_complete in range(100):
+                    dataset_dir = data_repo.unzip_dataset(uploaded_zip)
+                    progress_bar.progress(
+                        percentage_complete + 1,
+                        text=f"Processing Dataset {uploaded_zip.name} [{percentage_complete+1}/100]",
+                    )
+                progress_bar.empty()
                 state["uploaded_zip"] = uploaded_zip
                 data_helper = DatasetHelper(dataset_dir)
                 state["data_helper"] = data_helper
