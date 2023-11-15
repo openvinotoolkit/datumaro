@@ -45,16 +45,10 @@ def main():
         comparator = TableComparator()
         (
             high_level_table,
-            _,
-            _,
-            _,
-        ) = comparator.compare_datasets(first_dataset, second_dataset, mode="high")
-        (
-            _,
             mid_level_table,
+            low_level_table,
             _,
-            _,
-        ) = comparator.compare_datasets(first_dataset, second_dataset, mode="mid")
+        ) = comparator.compare_datasets(first_dataset, second_dataset)
 
         ### high level
         # Split the string into rows and extract data
@@ -79,6 +73,17 @@ def main():
 
         mid_level_df = pd.DataFrame(mid_level_data, columns=mid_level_header)
 
+        ### low level
+        low_level_rows = low_level_table.strip().split("\n")
+        low_level_header = [col.strip() for col in low_level_rows[1].split("|")[1:-1]]
+        low_level_data = []
+
+        for row in low_level_rows[3::2]:
+            values = [col.strip() for col in row.split("|")[1:-1]]
+            mid_level_data.append(values)
+
+        low_level_df = pd.DataFrame(low_level_data, columns=low_level_header)
+
         container = st.container()
         c1, c2 = container.columns([1, 2])
         with c1:
@@ -87,6 +92,8 @@ def main():
             c1.dataframe(high_level_df, use_container_width=True)
             c1.subheader("Mid Level Table")
             c1.dataframe(mid_level_df, use_container_width=True)
+            c1.subheader("Low Level Table")
+            c1.dataframe(low_level_df, use_container_width=True)
 
         with c2:
             st.header("Compare Categories")
