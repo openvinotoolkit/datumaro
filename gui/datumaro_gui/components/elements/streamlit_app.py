@@ -139,9 +139,9 @@ def main():
         selected_tab = sac.tabs(
             [
                 sac.TabsItem(label="GENERAL", icon="incognito"),
-                sac.TabsItem(label="VALIDATE", icon="graph-up"),
+                sac.TabsItem(label="VALIDATE", icon="graph-up", disabled=True),
                 sac.TabsItem(label="COMPARE", icon="arrow-left-right"),
-                sac.TabsItem(label="VISUALIZE", icon="image"),
+                sac.TabsItem(label="VISUALIZE", icon="image", disabled=True),
                 sac.TabsItem(label="TRANSFORM", icon="tools"),
                 sac.TabsItem(label="MERGE", icon="union"),
                 sac.TabsItem(label="EXPORT", icon="cloud-arrow-down"),
