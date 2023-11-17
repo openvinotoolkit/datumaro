@@ -90,7 +90,7 @@ class DataRepo:
         """
         path = os.path.join(_self._root_path, str(fild_id))
         if os.path.exists(path):
-            print(f"delete {path}")
+            # print(f"delete {path}")
             shutil.rmtree(path)
 
 
@@ -121,7 +121,7 @@ class DatasetHelper:
     def detect_format(_self) -> list[str]:
         if _self._detected_formats is None:
             _self._detected_formats = DEFAULT_ENVIRONMENT.detect_dataset(path=_self._dataset_dir)
-            print("formats from", _self._dataset_dir, ":", _self._detected_formats)
+            # print("formats from", _self._dataset_dir, ":", _self._detected_formats)
         return _self._detected_formats
 
     def import_dataset(_self, format) -> Dataset:
