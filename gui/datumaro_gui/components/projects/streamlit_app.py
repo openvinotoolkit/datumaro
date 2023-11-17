@@ -87,10 +87,9 @@ def main():
         selected_tab = sac.tabs(
             [
                 sac.TabsItem(label="GENERAL", icon="incognito"),
-                # sac.TabsItem(label="VALIDATE", icon="incognito"),
+                sac.TabsItem(label="ANALYZE", icon="clipboard2-data-fill"),
                 sac.TabsItem(label="VISUALIZE", icon="image"),
                 sac.TabsItem(label="EXPLORE", icon="tags"),
-                sac.TabsItem(label="ANALYZE", icon="clipboard2-data-fill"),
                 sac.TabsItem(label="TRANSFORM", icon="tools"),
                 sac.TabsItem(label="EXPORT", icon="cloud-arrow-down"),
             ],
@@ -100,10 +99,9 @@ def main():
 
         tab_funcs = {
             "GENERAL": tabs.call_general,
-            # "VALIDATE": tabs.call_validate,
+            "ANALYZE": tabs.call_analyze,
             "VISUALIZE": tabs.call_visualize,
             "EXPLORE": tabs.call_explore,
-            "ANALYZE": tabs.call_analyze,
             "TRANSFORM": tabs.call_transform,
             "EXPORT": tabs.call_export,
         }

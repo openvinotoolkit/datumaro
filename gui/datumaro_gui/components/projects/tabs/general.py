@@ -7,15 +7,21 @@ from types import SimpleNamespace
 from streamlit import session_state as state
 from streamlit_elements import elements
 
-from datumaro.components.annotation import AnnotationType
+from datumaro.components.annotation import AnnotationType, LabelCategories
 
-from ..dashboard import Dashboard, Gallery, Pie, Radar
+from ..dashboard import Dashboard, DatasetInfoBox, Gallery, Pie, Radar
 from ..data_loader import DatasetHelper
+from .analyze import get_dataset_info
 
 
 def main():
     data_helper: DatasetHelper = state["data_helper"]
     dataset = data_helper.dataset()
+    n_labels = len(dataset.categories().get(AnnotationType.label, LabelCategories()))
+    stats_image = data_helper.get_image_stats()
+    stats_anns = data_helper.get_ann_stats()
+    image_size_info = data_helper.get_image_size_info()
+    image_mean = image_size_info["image_size"]["mean"]
 
     with elements("general"):
         subset_info_dict = []
@@ -46,21 +52,28 @@ def main():
         board = Dashboard()
         w = SimpleNamespace(
             dashboard=board,
+            dataset_info=DatasetInfoBox(
+                **{"board": board, "x": 0, "y": 0, "w": 4, "h": 8, "minW": 3, "minH": 3}
+            ),
             subset_info=Pie(
                 name="Subset info",
-                **{"board": board, "x": 0, "y": 0, "w": 3, "h": 6, "minW": 2, "minH": 4},
+                **{"board": board, "x": 4, "y": 0, "w": 4, "h": 8, "minW": 3, "minH": 3},
             ),
             cat_info=Radar(
                 name="Category info",
                 indexBy="subset",
                 keys=[cat.name for cat in categories.items],
-                **{"board": board, "x": 3, "y": 0, "w": 3, "h": 6, "minW": 2, "minH": 4},
+                **{"board": board, "x": 8, "y": 0, "w": 4, "h": 8, "minW": 3, "minH": 3},
             ),
-            player=Gallery(board, 6, 0, 6, 12, minH=4),
+            player=Gallery(board, 0, 8, 12, 8, minH=3),
         )
         print(board)
 
         with w.dashboard(rowHeight=50):
+            w.dataset_info(
+                "Dataset Information",
+                get_dataset_info(stats_image, stats_anns, image_mean, n_labels),
+            )
             w.subset_info(subset_info_dict)
             w.cat_info(cat_info_dict)
             w.player(dataset)
