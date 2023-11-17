@@ -550,6 +550,12 @@ def get_tab_data_point_dist_in_label(val_report):
     by_targets = defaultdict(dict)
     for label, points in val_report["statistics"]["point_distribution_in_label"].items():
         for target, numerical_info in points.items():
+            if target == "area(wxh)":
+                target = "area"
+            elif target == "ratio(w/h)":
+                target = "ratio"
+            if target in ["short", "long"]:
+                continue  # skip
             by_targets[target][label] = {}
             for key in keys:
                 by_targets[target][label][key] = numerical_info[key]
@@ -609,7 +615,7 @@ def main():
     label_dist_info = get_label_dist(stats_anns)
 
     attr_dist_info = get_attr_dist(stats_anns)
-    seg_dist_info = get_segments_dist(stats_anns)
+    # seg_dist_info = get_segments_dist(stats_anns)
 
     anns_by_type = stats_anns["annotations by type"]
 
@@ -672,16 +678,6 @@ def main():
         w.num_images = Chart(Dashboard.Chart.Pie, **get_board_kwargs(w.board_dataset))
         w.num_anns = Chart(Dashboard.Chart.Pie, **get_board_kwargs(w.board_dataset))
 
-        w.size_info = ChartWithTab(
-            icon=Dashboard.Icon.ScatterPlot,
-            title="Image Size Distribution",
-            tabs=size_tabs,
-            tab_state_key="analyze.image.size",
-            **get_board_kwargs(w.board_dataset),
-        )
-        w.repeated_images = DataGrid(**get_board_kwargs(w.board_dataset))
-        w.unannotated_images = DataGrid(**get_board_kwargs(w.board_dataset))
-
         with w.board_dataset("Dataset Statistics"):
             w.dataset_info(
                 "Dataset Information",
@@ -689,19 +685,45 @@ def main():
             )
             w.num_images("Images by Subsets", num_images_by_subset, icon=Dashboard.Icon.Collections)
             w.num_anns("Annotations by Types", num_anns_by_type, icon=Dashboard.Icon.Label)
+
+        ##################################
+        ## Media statistics
+        ##################################
+        w.board_media = Dashboard()
+        x_pos = 0
+        y_pos = 0
+
+        repeated_images = get_repeated_images(stats_image)
+        unannotated_images = get_unannotated_images(stats_anns)
+
+        w.size_info = ChartWithTab(
+            icon=Dashboard.Icon.ScatterPlot,
+            title="Image Size Distribution",
+            tabs=size_tabs,
+            tab_state_key="analyze.image.size",
+            **get_board_kwargs(w.board_media),
+        )
+        if repeated_images:
+            w.repeated_images = DataGrid(**get_board_kwargs(w.board_media))
+        if unannotated_images:
+            w.unannotated_images = DataGrid(**get_board_kwargs(w.board_media))
+
+        with w.board_media("Media Statistics"):
             w.size_info()
-            w.repeated_images(
-                data=get_repeated_images(stats_image),
-                grid_icon=Dashboard.Icon.Warning,
-                grid_name="Repeated Images",
-                columns=COLS_REPEATED,
-            )
-            w.unannotated_images(
-                data=get_unannotated_images(stats_anns),
-                grid_icon=Dashboard.Icon.Warning,
-                grid_name="Unannotated Images",
-                columns=COLS_ITEM,
-            )
+            if repeated_images:
+                w.repeated_images(
+                    data=repeated_images,
+                    grid_icon=Dashboard.Icon.Warning,
+                    grid_name="Repeated Images",
+                    columns=COLS_REPEATED,
+                )
+            if unannotated_images:
+                w.unannotated_images(
+                    data=unannotated_images,
+                    grid_icon=Dashboard.Icon.Warning,
+                    grid_name="Unannotated Images",
+                    columns=COLS_ITEM,
+                )
 
         ##################################
         ## Annotation Statistics
@@ -753,14 +775,14 @@ def main():
                 **get_board_kwargs(w.board_anns),
             )
 
-        if seg_dist_info:
-            w.segments_dist = ChartWithTab(
-                icon=Dashboard.Icon.Label,
-                title="Segments Distribution",
-                tabs=seg_dist_info,
-                tab_state_key="analyze.segments",
-                **get_board_kwargs(w.board_anns),
-            )
+        # if seg_dist_info:
+        #     w.segments_dist = ChartWithTab(
+        #         icon=Dashboard.Icon.Label,
+        #         title="Segments Distribution",
+        #         tabs=seg_dist_info,
+        #         tab_state_key="analyze.segments",
+        #         **get_board_kwargs(w.board_anns),
+        #     )
         if val_det:
             w.point_dist_bbox = ChartWithTab(
                 icon=Dashboard.Icon.Label,
@@ -791,8 +813,8 @@ def main():
                 w.defined_attr_dist()
             if undefined_attr:
                 w.undefined_attr_dist()
-            if seg_dist_info:
-                w.segments_dist()
+            # if seg_dist_info:
+            #     w.segments_dist()
             if val_det:
                 w.point_dist_bbox()
             if val_seg:
@@ -808,41 +830,23 @@ def main():
 
             w.cls_summary = Chart(Dashboard.Chart.Bar, **get_board_kwargs(w.board_val_cls))
             w.cls_anomaly = DataGrid(**get_board_kwargs(w.board_val_cls, w=8))
-            # w.cls_label_dist = ChartWithTab(
-            #     icon=Dashboard.Icon.Label,
-            #     title="Label Distribution",
-            #     tabs = cls_label_dist,
-            #     tab_state_key="analyze.val.cls.label_dist",
-            #     **get_board_kwargs(w.board_val_cls),
-            # )
-            w.cls_missing_anns = DataGrid(**get_board_kwargs(w.board_val_cls))
-            w.cls_multiple_labels = DataGrid(**get_board_kwargs(w.board_val_cls))
-            # if cls_attr_dist is not None:
-            #     w.cls_attr_dist = ChartWithTab(
-            #         icon=Dashboard.Icon.Label,
-            #         title="Attribute Distribution",
-            #         tabs = cls_attr_dist,
-            #         tab_state_key="analyze.val.cls.attr_dist",
-            #         **get_board_kwargs(w.board_val_cls),
-            #     )
+            # w.cls_missing_anns = DataGrid(**get_board_kwargs(w.board_val_cls))
+            # w.cls_multiple_labels = DataGrid(**get_board_kwargs(w.board_val_cls))
 
             with w.board_val_cls("Validation Results on Classification"):
                 w.cls_summary("Summary", cls_summary, legends=False)
                 w.cls_anomaly(cls_anomaly_info, grid_name="Anomaly Reports")
-                # w.cls_label_dist()
-                w.cls_missing_anns(
-                    data=get_grid_data_val_missing_annotations(val_cls),
-                    grid_name="Items with Missing Annotations",
-                    columns=COLS_SUBSET_ITEM,
-                )
-                w.cls_multiple_labels(
-                    data=get_grid_data_val_multiple_labels(val_cls),
-                    grid_name="Items with Multiple Labels",
-                    columns=COLS_SUBSET_ITEM,
-                    checkbox_selection=False,
-                )
-                # if cls_attr_dist:
-                #     w.cls_attr_dist()
+                # w.cls_missing_anns(
+                #     data=get_grid_data_val_missing_annotations(val_cls),
+                #     grid_name="Items with Missing Annotations",
+                #     columns=COLS_SUBSET_ITEM,
+                # )
+                # w.cls_multiple_labels(
+                #     data=get_grid_data_val_multiple_labels(val_cls),
+                #     grid_name="Items with Multiple Labels",
+                #     columns=COLS_SUBSET_ITEM,
+                #     checkbox_selection=False,
+                # )
 
         ##################################
         ## Validation on Detection
@@ -853,47 +857,28 @@ def main():
             w.board_val_det = Dashboard()
             w.det_summary = Chart(Dashboard.Chart.Bar, **get_board_kwargs(w.board_val_det))
             w.det_anomaly = DataGrid(**get_board_kwargs(w.board_val_det, w=8))
-            # w.det_label_dist = ChartWithTab(
-            #     icon=Dashboard.Icon.Label,
-            #     title="Label Distribution",
-            #     tabs = det_label_dist,
-            #     tab_state_key="analyze.val.det.label_dist",
-            #     **get_board_kwargs(w.board_val_det)
-            # )
-            w.det_missing_anns = DataGrid(**get_board_kwargs(w.board_val_det))
-            # if det_attr_dist is not None:
-            #     w.det_attr_dist = ChartWithTab(
-            #         icon=Dashboard.Icon.Label,
-            #         title="Attribute Distribution",
-            #         tabs = det_attr_dist,
-            #         tab_state_key="analyze.val.det.attr_dist",
-            #         **get_board_kwargs(w.board_val_det),
-            #     )
-            w.det_negative_length = DataGrid(**get_board_kwargs(w.board_val_det))
-            w.det_invalid_value = DataGrid(**get_board_kwargs(w.board_val_det))
+            # w.det_missing_anns = DataGrid(**get_board_kwargs(w.board_val_det))
+            # w.det_negative_length = DataGrid(**get_board_kwargs(w.board_val_det))
+            # w.det_invalid_value = DataGrid(**get_board_kwargs(w.board_val_det))
 
             with w.board_val_det("Validation Results on Detection"):
                 w.det_summary("Summary", det_summary, legends=False)
                 w.det_anomaly(det_anomaly_info, grid_name="Anomaly Reports")
-                # w.det_label_dist()
-                w.det_missing_anns(
-                    data=get_grid_data_val_missing_annotations(val_det),
-                    grid_name="Items with Missing Annotations",
-                    columns=COLS_SUBSET_ITEM,
-                )
-
-                # if det_attr_dist:
-                #     w.det_attr_dist()
-                w.det_negative_length(
-                    data=get_grid_data_val_negative_length(val_det),
-                    grid_name="Items with Negative Value(s)",
-                    columns=COLS_NEGATIVE_INVALID,
-                )
-                w.det_invalid_value(
-                    data=get_grid_data_val_invalid_value(val_det),
-                    grid_name="Items with Invalid Value(s)",
-                    columns=COLS_NEGATIVE_INVALID,
-                )
+                # w.det_missing_anns(
+                #     data=get_grid_data_val_missing_annotations(val_det),
+                #     grid_name="Items with Missing Annotations",
+                #     columns=COLS_SUBSET_ITEM,
+                # )
+                # w.det_negative_length(
+                #     data=get_grid_data_val_negative_length(val_det),
+                #     grid_name="Items with Negative Value(s)",
+                #     columns=COLS_NEGATIVE_INVALID,
+                # )
+                # w.det_invalid_value(
+                #     data=get_grid_data_val_invalid_value(val_det),
+                #     grid_name="Items with Invalid Value(s)",
+                #     columns=COLS_NEGATIVE_INVALID,
+                # )
 
         ##################################
         ## Validation on Segmentation
@@ -904,39 +889,19 @@ def main():
             w.board_val_seg = Dashboard()
             w.seg_summary = Chart(Dashboard.Chart.Bar, **get_board_kwargs(w.board_val_seg))
             w.seg_anomaly = DataGrid(**get_board_kwargs(w.board_val_seg, w=8))
-            # w.seg_label_dist = ChartWithTab(
-            #     icon=Dashboard.Icon.Label,
-            #     title="Label Distribution",
-            #     tabs = seg_label_dist,
-            #     tab_state_key="analyze.val.seg.label_dist",
-            #     **get_board_kwargs(w.board_val_seg),
-            # )
-            w.seg_missing_anns = DataGrid(**get_board_kwargs(w.board_val_seg))
-
-            # if seg_attr_dist is not None:
-            #     w.seg_attr_dist = ChartWithTab(
-            #         icon=Dashboard.Icon.Label,
-            #         title="Attribute Distribution",
-            #         tabs = seg_attr_dist,
-            #         tab_state_key="analyze.val.seg.attr_dist",
-            #         **get_board_kwargs(w.board_val_seg),
-            #     )
-
-            w.seg_invalid_value = DataGrid(**get_board_kwargs(w.board_val_seg))
+            # w.seg_missing_anns = DataGrid(**get_board_kwargs(w.board_val_seg))
+            # w.seg_invalid_value = DataGrid(**get_board_kwargs(w.board_val_seg))
 
             with w.board_val_seg("Validation Results on Segmentation"):
                 w.seg_summary("Summary", seg_summary, legends=False)
                 w.seg_anomaly(seg_anomaly_info, grid_name="Anomaly Reports")
-                # w.seg_label_dist()
-                w.seg_missing_anns(
-                    data=get_grid_data_val_missing_annotations(val_seg),
-                    grid_name="Items with Missing Annotations",
-                    columns=COLS_SUBSET_ITEM,
-                )
-                # if seg_attr_dist:
-                #     w.seg_attr_dist()
-                w.seg_invalid_value(
-                    data=get_grid_data_val_invalid_value(val_seg),
-                    grid_name="Items with Invalid Value(s)",
-                    columns=COLS_NEGATIVE_INVALID,
-                )
+                # w.seg_missing_anns(
+                #     data=get_grid_data_val_missing_annotations(val_seg),
+                #     grid_name="Items with Missing Annotations",
+                #     columns=COLS_SUBSET_ITEM,
+                # )
+                # w.seg_invalid_value(
+                #     data=get_grid_data_val_invalid_value(val_seg),
+                #     grid_name="Items with Invalid Value(s)",
+                #     columns=COLS_NEGATIVE_INVALID,
+                # )
