@@ -13,7 +13,7 @@ from datumaro.components.annotation import AnnotationType
 
 from ..dashboard import Dashboard, Pie, Radar
 from ..data_loader import DatasetHelper
-from ..utils import box_style, get_category_info, get_subset_info
+from ..utils import box_style, btn_style, get_category_info, get_subset_info
 
 
 def render_dataset_management_section(
@@ -124,6 +124,7 @@ def render_dataset_management_section(
                 value=0,
             )
         with col2:
+            st.markdown("<style>{}</style>".format(btn_style), unsafe_allow_html=True)
             item_reindex_btn = st.button(
                 "Set IDs from number", use_container_width=True, key=f"item_reindex_btn_{col_name}"
             )

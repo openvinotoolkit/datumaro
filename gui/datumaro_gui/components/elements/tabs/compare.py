@@ -80,7 +80,7 @@ def main():
 
         for row in low_level_rows[3::2]:
             values = [col.strip() for col in row.split("|")[1:-1]]
-            mid_level_data.append(values)
+            low_level_data.append(values)
 
         low_level_df = pd.DataFrame(low_level_data, columns=low_level_header)
 

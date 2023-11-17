@@ -64,3 +64,12 @@ box_style = """
     margin: "5px 5px 5px 5px";
     }
 """
+
+# Define CSS styles for the buttons
+btn_style = """
+    button {
+    margin-top: 12px !important;
+    padding-top: 1px;
+    padding-bottom: 1px;
+    }
+"""
