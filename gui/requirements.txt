@@ -6,6 +6,7 @@ pandas~=1.4.0
 # Streamlit components
 streamlit-elements
 streamlit-antd-components
+streamlit-aggrid
 
 # Dependencies
 requests
