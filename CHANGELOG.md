@@ -9,6 +9,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Enhancements
 - Optimize Python import to make CLI entrypoint faster
   (<https://github.com/openvinotoolkit/datumaro/pull/1182>)
+- Add ImageColorScale context manager
+  (<https://github.com/openvinotoolkit/datumaro/pull/1194>)
 
 ## 16/11/2023 - Release 1.5.1
 ### Enhancements
