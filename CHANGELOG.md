@@ -12,6 +12,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Add ImageColorScale context manager
   (<https://github.com/openvinotoolkit/datumaro/pull/1194>)
 
+### Bug fixes
+- Fix wrong example of Datumaro dataset creation in document
+  (<https://github.com/openvinotoolkit/datumaro/pull/1195>)
+
 ## 16/11/2023 - Release 1.5.1
 ### Enhancements
 - Enhance Datumaro data format stream importer performance
