@@ -57,6 +57,23 @@ class CropCoveredSegments(ItemTransform, CliPlugin):
     the corresponding number of separate annotations joined into a group.
     """
 
+    ALLOW_REMOVAL_ARG = "--allow-removal"
+
+    @classmethod
+    def build_cmdline_parser(cls, **kwargs):
+        parser = super().build_cmdline_parser(**kwargs)
+        parser.add_argument(
+            cls.ALLOW_REMOVAL_ARG,
+            action="store_true",
+            help="Allow automatic removal of completely covered segments (default: %(default)s)",
+        )
+        return parser
+
+    def __init__(self, extractor, allow_removal=False):
+        super().__init__(extractor)
+
+        self._allow_removal = allow_removal
+
     def transform_item(self, item):
         annotations = []
         segments = []
@@ -71,13 +88,15 @@ class CropCoveredSegments(ItemTransform, CliPlugin):
         if not isinstance(item.media, Image):
             raise Exception("Image info is required for this transform")
         h, w = item.media.size
-        segments = self.crop_segments(segments, w, h)
+        segments = self.crop_segments(segments, w, h, item=item, allow_removal=self._allow_removal)
 
         annotations += segments
         return self.wrap_item(item, annotations=annotations)
 
     @classmethod
-    def crop_segments(cls, segment_anns, img_width, img_height):
+    def crop_segments(
+        cls, segment_anns, img_width, img_height, *, item: DatasetItem, allow_removal: bool = False
+    ):
         segment_anns = sorted(segment_anns, key=lambda x: x.z_order)
 
         segments = []
@@ -95,6 +114,15 @@ class CropCoveredSegments(ItemTransform, CliPlugin):
 
         new_anns = []
         for ann, new_segment in zip(segment_anns, segments):
+            if new_segment is None or isinstance(new_segment, list) and not new_segment:
+                message = "completely covered object removed " "(allow with '%s')" % (
+                    cls.ALLOW_REMOVAL_ARG,
+                )
+                if not allow_removal:
+                    raise DatumaroError(("Item %s: " + message) % (item.id,))
+                else:
+                    log.debug("[%s]: item %s: " + message, cls.NAME, item.id)
+
             fields = {
                 "z_order": ann.z_order,
                 "label": ann.label,
@@ -107,7 +135,7 @@ class CropCoveredSegments(ItemTransform, CliPlugin):
                     fields["group"] = cls._make_group_id(segment_anns + new_anns, fields["id"])
                 for polygon in new_segment:
                     new_anns.append(Polygon(points=polygon, **fields))
-            else:
+            elif new_segment is not None:
                 rle = mask_tools.mask_to_rle(new_segment)
                 rle = mask_utils.frPyObjects(rle, *rle["size"])
                 new_anns.append(RleMask(rle=rle, **fields))

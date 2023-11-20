@@ -4,6 +4,7 @@ import logging as log
 from unittest import TestCase
 
 import numpy as np
+import pytest
 
 import datumaro.plugins.transforms as transforms
 import datumaro.util.mask_tools as mask_tools
@@ -20,6 +21,7 @@ from datumaro.components.annotation import (
     PolyLine,
 )
 from datumaro.components.dataset import Dataset
+from datumaro.components.errors import DatumaroError
 from datumaro.components.extractor import DatasetItem
 from datumaro.components.media import Image
 from datumaro.util.test_utils import compare_datasets
@@ -1018,3 +1020,63 @@ class RemoveAttributesTest(TestCase):
         actual = transforms.RemoveAttributes(self.source, ids=[("1", "val")], attributes=["x"])
 
         compare_datasets(self, expected, actual)
+
+
+class CropCoveredSegmentsTest:
+    @pytest.mark.parametrize("allow_removal", [True, False])
+    @pytest.mark.parametrize("covered_shape_type", [Mask, Polygon])
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
+    def test_crop_covered_segments_can_set_fully_covered_segment_behavior(
+        self, allow_removal, covered_shape_type
+    ):
+        if covered_shape_type is Polygon:
+            lower_shape = Polygon([1, 1, 1, 3, 3, 3, 3, 1], z_order=0)
+        elif covered_shape_type is Mask:
+            lower_shape = Mask(
+                np.array(
+                    [
+                        [0, 0, 0, 0, 0],
+                        [0, 0, 1, 1, 0],
+                        [0, 1, 1, 1, 0],
+                        [0, 1, 1, 0, 0],
+                        [0, 0, 0, 0, 0],
+                    ],
+                ),
+                z_order=0,
+            )
+        else:
+            assert False
+
+        source_dataset = Dataset.from_iterable(
+            [
+                DatasetItem(
+                    id=1,
+                    media=Image(data=np.zeros((5, 5, 3))),
+                    annotations=[
+                        lower_shape,
+                        Polygon([1, 1, 4, 1, 4, 4, 1, 4], z_order=1),
+                    ],
+                ),
+            ]
+        )
+
+        actual = transforms.CropCoveredSegments(source_dataset, allow_removal=allow_removal)
+
+        if allow_removal:
+            target_dataset = Dataset.from_iterable(
+                [
+                    DatasetItem(
+                        id=1,
+                        media=Image(data=np.zeros((5, 5, 3))),
+                        annotations=[
+                            Polygon([1, 1, 4, 1, 4, 4, 1, 4], z_order=1),
+                        ],
+                    ),
+                ]
+            )
+            compare_datasets(TestCase(), target_dataset, actual)
+        else:
+            with pytest.raises(DatumaroError) as capture:
+                Dataset(actual).init_cache()
+
+            assert "completely covered object removed" in str(capture.value)

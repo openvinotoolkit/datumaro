@@ -191,7 +191,7 @@ class _InstancesConverter(_TaskConverter):
         for inst_idx, inst in enumerate(instances):
             new_segments = [s for si_id, s in zip(segment_map, segments) if si_id == inst_idx]
 
-            if not new_segments:
+            if not new_segments or isinstance(new_segments[0], list) and len(new_segments[0]) == 0:
                 inst[1] = []
                 inst[2] = None
                 continue
