@@ -21,6 +21,7 @@ datumaro.util.image
    
       copyto_image
       decode_image
+      decode_image_context
       encode_image
       find_images
       is_image
@@ -37,6 +38,7 @@ datumaro.util.image
 
    .. autosummary::
    
+      ImageColorScale
       lazy_image
    
    
