@@ -4,7 +4,9 @@
 
 import os.path as osp
 
+import scipy
 import scipy.io as spio
+from packaging.version import Version
 
 from datumaro.components.annotation import Bbox, LabelCategories, Points, PointsCategories
 from datumaro.components.extractor import AnnotationType, DatasetItem, Importer, SourceExtractor
@@ -12,6 +14,11 @@ from datumaro.components.format_detection import FormatDetectionContext
 from datumaro.components.media import Image
 
 from .format import MPII_POINTS_JOINTS, MPII_POINTS_LABELS
+
+if Version(scipy.__version__) >= Version("1.8.0rc1"):
+    mat_type = spio.matlab.mat_struct
+else:
+    mat_type = spio.matlab.mio5_params.mat_struct
 
 
 class MpiiExtractor(SourceExtractor):
@@ -44,11 +51,11 @@ class MpiiExtractor(SourceExtractor):
             group_num = 1
 
             image = getattr(item, "image", "")
-            if isinstance(image, spio.matlab.mio5_params.mat_struct):
+            if isinstance(image, mat_type):
                 image = getattr(image, "name", "")
 
             anno_values = getattr(item, "annorect", [])
-            if isinstance(anno_values, spio.matlab.mio5_params.mat_struct):
+            if isinstance(anno_values, mat_type):
                 anno_values = [anno_values]
 
             for val in anno_values:
@@ -65,12 +72,12 @@ class MpiiExtractor(SourceExtractor):
                     attributes["scale"] = scale
 
                 objpos = getattr(val, "objpos", None)
-                if isinstance(objpos, spio.matlab.mio5_params.mat_struct):
+                if isinstance(objpos, mat_type):
                     attributes["center"] = [getattr(objpos, "x", 0), getattr(objpos, "y", 0)]
 
                 annopoints = getattr(val, "annopoints", None)
-                if isinstance(annopoints, spio.matlab.mio5_params.mat_struct) and not isinstance(
-                    getattr(annopoints, "point"), spio.matlab.mio5_params.mat_struct
+                if isinstance(annopoints, mat_type) and not isinstance(
+                    getattr(annopoints, "point"), mat_type
                 ):
                     for point in getattr(annopoints, "point"):
                         point_id = getattr(point, "id")

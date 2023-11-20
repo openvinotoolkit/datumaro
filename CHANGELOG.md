@@ -74,6 +74,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   (<https://github.com/openvinotoolkit/datumaro/pull/680>)
 - Export of masks with background class with id != 0 in the VOC, KITTI and Cityscapes formats
   (<https://github.com/cvat-ai/datumaro/pull/9>, <https://github.com/cvat-ai/datumaro/pull/16>)
+- Missing comparison of the base class attributes in the `Mask` class
+  (<https://github.com/cvat-ai/datumaro/pull/28>)
 
 ### Security
 - TBD

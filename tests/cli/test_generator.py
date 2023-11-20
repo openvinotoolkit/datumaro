@@ -11,6 +11,7 @@ from datumaro.util.test_utils import run_datum as run
 from ..requirements import Requirements, mark_requirement
 
 
+# TODO: update links
 @pytest.mark.xfail(reason="Cannot download the model file from the source")
 class ImageGeneratorTest(TestCase):
     def check_images_shape(self, img_dir, expected_shape):

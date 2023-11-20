@@ -12,6 +12,7 @@ from datumaro.util.test_utils import TestDir
 from .requirements import Requirements, mark_requirement
 
 
+# TODO: update links
 @pytest.mark.xfail(reason="Cannot download the model file from the source")
 class FractalImageGeneratorTest(TestCase):
     @mark_requirement(Requirements.DATUM_677)

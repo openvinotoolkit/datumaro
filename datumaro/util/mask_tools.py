@@ -101,7 +101,7 @@ def paint_mask(mask, colormap=None):
     if callable(colormap):
         map_fn = colormap
     else:
-        map_fn = lambda c: colormap.get(c, (-1, -1, -1))
+        map_fn = lambda c: colormap.get(c, (0, 0, 0))
     palette = np.array([map_fn(c)[::-1] for c in range(256)], dtype=np.uint8)
 
     mask = mask.astype(np.uint8)
@@ -117,7 +117,7 @@ def remap_mask(mask, map_fn):
     """
     check_is_mask(mask)
 
-    return np.array([map_fn(c) for c in range(256)], dtype=np.uint8)[mask]
+    return np.array([max(0, map_fn(c)) for c in range(256)], dtype=np.uint8)[mask]
 
 
 def make_index_mask(binary_mask, index, dtype=None):

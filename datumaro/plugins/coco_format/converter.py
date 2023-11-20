@@ -309,7 +309,7 @@ class _InstancesConverter(_TaskConverter):
                 rles = [rles]
             else:
                 rles = mask_utils.merge(rles)
-            area = mask_utils.area(rles)
+            area = mask_utils.area(rles).item()
         else:
             _, _, w, h = bbox
             segmentation = []

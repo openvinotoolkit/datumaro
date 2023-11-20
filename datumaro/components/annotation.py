@@ -320,12 +320,16 @@ class Mask(Annotation):
         return paint_mask(self.as_class_mask(), colormap)
 
     def __eq__(self, other):
-        if not super().__eq__(other):
-            return False
         if not isinstance(other, __class__):
             return False
+
+        parent_keys = [f.name for f in attr.fields(Annotation)]
+        self_parent_fields = {k: v for k, v in self.as_dict().items() if k in parent_keys}
+        other_parent_fields = {k: v for k, v in other.as_dict().items() if k in parent_keys}
+
         return (
-            (self.label == other.label)
+            (self_parent_fields == other_parent_fields)
+            and (self.label == other.label)
             and (self.z_order == other.z_order)
             and (np.array_equal(self.image, other.image))
         )
