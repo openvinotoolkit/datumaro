@@ -214,7 +214,7 @@ class CamvidBase(SubsetBase):
         with open(path, encoding="utf-8") as f:
             for line in f:
                 image, gt = _parse_annotation_line(line)
-                item_id = osp.splitext(osp.join(*image.split("/")[2:]))[0]
+                item_id = osp.splitext(osp.basename(image))[0]
                 image_path = osp.join(self._dataset_dir, image.lstrip("/"))
 
                 item_annotations = []
