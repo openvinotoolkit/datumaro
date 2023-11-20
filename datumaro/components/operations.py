@@ -1320,8 +1320,15 @@ class _MeanStdCounter:
         self._stats = {}  # (id, subset) -> (pixel count, mean vec, std vec)
 
     def accumulate(self, item: DatasetItem):
+        if not isinstance(item.media, Image):
+            log.warning(
+                "Item %s: has no image info, the image will be skipped from pixel statistics",
+                item.id,
+            )
+            return
+
         size = item.media.size
-        if size is None:
+        if size is None or not item.media.has_data:
             log.warning(
                 "Item %s: can't detect image size, "
                 "the image will be skipped from pixel statistics",

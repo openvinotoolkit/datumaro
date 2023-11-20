@@ -96,6 +96,30 @@ class TestOperations(TestCase):
             self.assertAlmostEqual(estd, astd, places=0)
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
+    def test_image_stats_with_no_image_infos(self):
+        dataset = Dataset.from_iterable(
+            [
+                DatasetItem(id=0, media=Image(size=(10, 10))),
+                DatasetItem(id=1, media=Image(path="inexistent.path")),
+                DatasetItem(id=2),
+            ]
+        )
+
+        actual = compute_image_statistics(dataset)
+
+        self.assertEqual(
+            actual["dataset"],
+            {
+                "images count": 3,
+                "unique images count": 3,
+                "repeated images count": 0,
+                "repeated images": [],
+            },
+        )
+        self.assertEqual("n/a", actual["subsets"]["default"]["image mean"])
+        self.assertEqual("n/a", actual["subsets"]["default"]["image std"])
+
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_stats(self):
         dataset = Dataset.from_iterable(
             [
