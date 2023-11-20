@@ -28,6 +28,7 @@ from datumaro.components.operations import (
     compute_ann_statistics,
     compute_image_statistics,
     find_unique_images,
+    match_segments,
     mean_std,
 )
 from datumaro.util.test_utils import compare_datasets
@@ -396,6 +397,71 @@ class TestOperations(TestCase):
         groups = find_unique_images(dataset)
 
         self.assertEqual(expected, set(frozenset(s) for s in groups.values()))
+
+
+class TestAnnotationMatching(TestCase):
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
+    def test_can_match_shape_first_and_label_later(self):
+        # Labels must mismatch even though there is a better possible match around
+        # when the default matchers are used. This yields more adequate matching
+        # results for use cases such as annotation tools.
+        # In the case of models, typically we work with annotations after NMS,
+        # so this method will yield adequate results.
+        # If there is no NMS, a different strategy can be considered,
+        # which looks around for best matches including the labels.
+
+        anns1 = [
+            Bbox(0, 0, 4, 4, label=0, id=1),
+            Bbox(1, 1, 4, 4, label=1, id=2),
+        ]
+
+        anns2 = [
+            Bbox(1, 1, 4, 4, label=0, id=2),
+            Bbox(0, 0, 4, 4, label=1, id=1),
+        ]
+
+        matches, mismatches, a_extra, b_extra = match_segments(anns1, anns2, dist_thresh=0.5)
+        assert sorted(mismatches, key=lambda e: e[0].id) == [
+            (anns1[0], anns2[1]),
+            (anns1[1], anns2[0]),
+        ]
+        assert not matches + a_extra + b_extra
+
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
+    def test_can_match(self):
+        anns1 = [
+            # mismatching
+            Bbox(0, 0, 4, 4, label=0, id=1),
+            Bbox(1, 1, 4, 4, label=1, id=2),
+            # matching
+            Bbox(5, 5, 4, 4, label=0, id=3),
+            Bbox(6, 6, 4, 4, label=1, id=4),
+            # extra
+            Bbox(6, 0, 4, 4, label=1, id=5),
+        ]
+
+        anns2 = [
+            # mismatching
+            Bbox(1, 1, 4, 4, label=0, id=2),
+            Bbox(0, 0, 4, 4, label=1, id=1),
+            # matching
+            Bbox(5, 5, 4, 4, label=0, id=3),
+            Bbox(6, 6, 4, 4, label=1, id=4),
+            # extra
+            Bbox(0, 6, 4, 4, label=1, id=5),
+        ]
+
+        matches, mismatches, a_extra, b_extra = match_segments(anns1, anns2, dist_thresh=0.5)
+        assert sorted(mismatches, key=lambda e: e[0].id) == [
+            (anns1[0], anns2[1]),
+            (anns1[1], anns2[0]),
+        ]
+        assert sorted(matches, key=lambda e: e[0].id) == [
+            (anns1[2], anns2[2]),
+            (anns1[3], anns2[3]),
+        ]
+        assert a_extra == [anns1[4]]
+        assert b_extra == [anns2[4]]
 
 
 class TestMultimerge(TestCase):

@@ -58,6 +58,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   (<https://github.com/cvat-ai/datumaro/pull/5>)
 - item id in MOT format
   (<https://github.com/cvat-ai/datumaro/pull/17>)
+- Annotation matching algorithm in `datumaro.components.operations.match_segments()`
+  (<https://github.com/cvat-ai/datumaro/pull/30>)
 
 ### Deprecated
 - `--save-images` is replaced with `--save-media` in CLI and converter API

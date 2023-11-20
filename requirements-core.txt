@@ -21,7 +21,7 @@ tensorboardX>=1.8,!=2.3
 
 # Builtin plugin dependencies
 
-# NDR, matlab format
+# NDR, matlab format, assigment
 scipy
 
 # Image generator
