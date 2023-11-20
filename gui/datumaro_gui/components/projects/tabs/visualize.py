@@ -34,11 +34,11 @@ def main():
 
             selected_alpha = st.select_slider(
                 "Choose a transparency of annotations",
-                options=np.arange(0.0, 1.1, 0.1, dtype=np.float16),
-                value=0.5,
+                options=np.arange(0, 110, 10),
+                value=20,
             )
 
-            visualizer = Visualizer(dataset, figsize=(8, 8), alpha=selected_alpha)
+            visualizer = Visualizer(dataset, figsize=(8, 8), alpha=selected_alpha * 0.01)
 
         with c2:
             st.subheader("Item")
