@@ -81,6 +81,14 @@ class DataRepo:
 
         return directory
 
+    def save_file(_self, uploaded_file: UploadedFile) -> str:
+        directory = os.path.join(_self._root_path, uploaded_file.file_id)
+        path = os.path.join(directory, uploaded_file.name)
+        os.makedirs(directory, exist_ok=True)
+        with open(path, "wb") as f:
+            f.write(uploaded_file.getbuffer())
+        return path
+
     def delete_by_id(_self, fild_id: str):
         """
         Delete (unzipped) dataset for a given file_id

@@ -65,7 +65,7 @@ def main():
                 keys=[cat.name for cat in categories.items],
                 **{"board": board, "x": 8, "y": 0, "w": 4, "h": 8, "minW": 3, "minH": 3},
             ),
-            player=Gallery(board, 0, 8, 12, 8, minH=3),
+            player=Gallery(board, 0, 8, 12, 12, minH=3),
         )
         print(board)
 
