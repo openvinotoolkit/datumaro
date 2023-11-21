@@ -5,8 +5,18 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## Nov. 2023 Release 1.5.1
+## \[Unreleased\]
+### Enhancements
+- Optimize Python import to make CLI entrypoint faster
+  (<https://github.com/openvinotoolkit/datumaro/pull/1182>)
+- Add ImageColorScale context manager
+  (<https://github.com/openvinotoolkit/datumaro/pull/1194>)
 
+### Bug fixes
+- Fix wrong example of Datumaro dataset creation in document
+  (<https://github.com/openvinotoolkit/datumaro/pull/1195>)
+
+## 16/11/2023 - Release 1.5.1
 ### Enhancements
 - Enhance Datumaro data format stream importer performance
   (<https://github.com/openvinotoolkit/datumaro/pull/1153>)
@@ -30,6 +40,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   (<https://github.com/openvinotoolkit/datumaro/pull/1169>)
 - Update CVAT format doc to bypass warning
   (<https://github.com/openvinotoolkit/datumaro/pull/1183>)
+
+## 15/09/2023 - Release 1.5.0
+### New features
+- Add SAMAutomaticMaskGeneration transform
+  (<https://github.com/openvinotoolkit/datumaro/pull/1168>)
+
+### Bug fixes
+- Coco exporter can export annotations even if there is no media, except for mask annotations which require media info.
+  (<https://github.com/openvinotoolkit/datumaro/issues/1147>)(<https://github.com/openvinotoolkit/datumaro/pull/1158>)
 
 ## 15/09/2023 - Release 1.5.0
 ### New features

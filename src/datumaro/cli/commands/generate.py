@@ -9,7 +9,6 @@ import os.path as osp
 from shutil import rmtree
 
 from datumaro.cli.util.errors import CliException
-from datumaro.plugins.synthetic_data import FractalImageGenerator
 from datumaro.util.definitions import get_datumaro_cache_dir
 
 from ..util import MultilineFormatter
@@ -76,6 +75,8 @@ def get_sensitive_args():
 
 
 def generate_command(args):
+    from datumaro.plugins.synthetic_data import FractalImageGenerator
+
     log.info("Generating dataset...")
     output_dir = args.output_dir
 

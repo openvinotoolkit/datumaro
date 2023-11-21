@@ -6,12 +6,10 @@ import logging as log
 import math
 import random
 from abc import ABC, abstractmethod
-from typing import Dict, List, Optional, Tuple
+from typing import TYPE_CHECKING, Dict, List, Optional, Tuple
 
 import numpy as np
-from sklearn.cluster import KMeans
 
-import datumaro.plugins.ndr as ndr
 from datumaro.components.algorithms.hash_key_inference.base import HashInference
 from datumaro.components.algorithms.hash_key_inference.hashkey_util import (
     calculate_hamming,
@@ -22,6 +20,13 @@ from datumaro.components.algorithms.hash_key_inference.hashkey_util import (
 from datumaro.components.annotation import HashKey, Label, LabelCategories
 from datumaro.components.dataset import Dataset
 from datumaro.components.dataset_base import DatasetItem
+
+if TYPE_CHECKING:
+    import datumaro.plugins.ndr as ndr
+else:
+    from datumaro.util.import_util import lazy_import
+
+    ndr = lazy_import("datumaro.plugins.ndr")
 
 
 def match_num_item_for_cluster(ratio, dataset_len, cluster_num_item_list):
@@ -94,6 +99,8 @@ class Centroid(PruneBase):
     """
 
     def base(self, ratio, num_centers, labels, database_keys, item_list, source):
+        from sklearn.cluster import KMeans
+
         num_selected_centers = math.ceil(len(item_list) * ratio)
         kmeans = KMeans(n_clusters=num_selected_centers, random_state=0)
         clusters = kmeans.fit_predict(database_keys)
@@ -124,6 +131,8 @@ class ClusteredRandom(PruneBase):
     """
 
     def base(self, ratio, num_centers, labels, database_keys, item_list, source):
+        from sklearn.cluster import KMeans
+
         kmeans = KMeans(n_clusters=num_centers, random_state=0)
         clusters = kmeans.fit_predict(database_keys)
         cluster_ids, cluster_num_item_list = np.unique(clusters, return_counts=True)
@@ -148,6 +157,8 @@ class QueryClust(PruneBase):
     """
 
     def base(self, ratio, num_centers, labels, database_keys, item_list, source):
+        from sklearn.cluster import KMeans
+
         center_dict = {i: None for i in range(1, num_centers)}
         for item in item_list:
             for anno in item.annotations:
@@ -199,6 +210,8 @@ class Entropy(PruneBase):
     """
 
     def base(self, ratio, num_centers, labels, database_keys, item_list, source):
+        from sklearn.cluster import KMeans
+
         kmeans = KMeans(n_clusters=num_centers, random_state=0)
         clusters = kmeans.fit_predict(database_keys)
 

@@ -9,21 +9,27 @@ import warnings
 from collections import Counter
 from enum import Enum, auto
 from itertools import zip_longest
-from typing import Union
+from typing import TYPE_CHECKING, Union
 
 import cv2
 import numpy as np
 
-from datumaro.components.media import Image
-
-with warnings.catch_warnings():
-    warnings.simplefilter("ignore")
-    import tensorboardX as tb
-
 from datumaro.components.annotation import AnnotationType, LabelCategories
 from datumaro.components.dataset import IDataset
+from datumaro.components.media import Image
 from datumaro.util import parse_str_enum_value
 from datumaro.util.image import save_image
+from datumaro.util.import_util import lazy_import
+
+if TYPE_CHECKING:
+    import matplotlib.pyplot as plt
+
+    with warnings.catch_warnings():
+        warnings.simplefilter("ignore")
+        import tensorboardX as tb
+else:
+    tb = lazy_import("tensorboardX")
+    plt = lazy_import("matplotlib.pyplot")
 
 
 class DistanceCompareVisualizer:
@@ -291,8 +297,6 @@ class DistanceCompareVisualizer:
         self._file_writer.add_image(name, img)
 
     def save_conf_matrix(self, conf_matrix, filename):
-        import matplotlib.pyplot as plt
-
         def _get_class_map(label_categories):
             classes = None
             if label_categories is not None:
