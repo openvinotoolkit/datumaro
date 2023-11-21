@@ -2,7 +2,6 @@
 #
 # SPDX-License-Identifier: MIT
 
-
 import numpy as np
 import streamlit as st
 from streamlit import session_state as state
@@ -27,10 +26,13 @@ def main():
 
             if selected_id:
                 item = dataset.get(selected_id, selected_subset)
-                ann_ids = [
+                ann_ids = set()
+                for ann in item.annotations:
+                    ann_ids.add(ann.id)
+                options = [
                     "All",
-                ] + [f"{ann.type.name} - {ann.id}" for ann in item.annotations]
-                selected_ann_id = st.selectbox("Select annotation:", ann_ids)
+                ] + sorted(list(ann_ids))
+                selected_ann_id = st.selectbox("Select annotation:", options)
 
             selected_alpha = st.select_slider(
                 "Choose a transparency of annotations",
