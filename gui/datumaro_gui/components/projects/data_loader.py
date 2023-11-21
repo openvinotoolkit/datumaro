@@ -11,7 +11,8 @@ import numpy as np
 from streamlit.runtime.uploaded_file_manager import UploadedFile
 
 from datumaro import AnnotationType, LabelCategories
-from datumaro.components.algorithms.hash_key_inference.explorer import Explorer
+
+# from datumaro.components.algorithms.hash_key_inference.explorer import Explorer
 from datumaro.components.dataset import Dataset
 from datumaro.components.environment import DEFAULT_ENVIRONMENT
 from datumaro.components.hl_ops import HLOps
@@ -123,7 +124,7 @@ class DatasetHelper:
         self._val_reports = {}
         self._image_stats = None
         self._ann_stats = None
-        self._explorer = None
+        # self._explorer = {}
         self._image_size_info = None
 
     def detect_format(_self) -> list[str]:
@@ -172,10 +173,11 @@ class DatasetHelper:
     def export(_self, save_dir: str, format: str, **kwargs):
         _self._dm_dataset.export(save_dir=save_dir, format=format, **kwargs)
 
-    def explorer(self, force_init: bool = False):
-        if self._explorer is None or force_init:
-            self._explorer = Explorer(self._dm_dataset)
-        return self._explorer
+    # def explorer(self, filter_str:str = "", force_init: bool = False):
+    #     if filter_str not in self._explorer or force_init:
+    #         self._dm_dataset.filter(filter_str, filter_annotations=True)
+    #         self._explorer[filter_str] = Explorer(self._dm_dataset)
+    #     return self._explorer[filter_str]
 
     def get_image_stats(self, force_init: bool = False):
         if not self._image_stats or force_init:
