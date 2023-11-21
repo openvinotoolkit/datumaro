@@ -18,8 +18,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   (<https://github.com/openvinotoolkit/datumaro/pull/1153>)
 - Change image default dtype from float32 to uint8
   (<https://github.com/openvinotoolkit/datumaro/pull/1175>)
+- Add comparison level-up doc
+  (<https://github.com/openvinotoolkit/datumaro/pull/1174>)
+- Add ImportError to catch GitPython import error
+  (<https://github.com/openvinotoolkit/datumaro/pull/1174>)
 
 ### Bug fixes
+- Modify the draw function in the visualizer not to raise an error for unsupported annotation types.
+  (<https://github.com/openvinotoolkit/datumaro/pull/1180>)
 - Correct explore path in the related document.
   (<https://github.com/openvinotoolkit/datumaro/pull/1176>)
 - Fix errata in the voc document. Color values in the labelmap.txt should be separated by commas, not colons.
@@ -28,18 +34,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   (<https://github.com/openvinotoolkit/datumaro/pull/1159>, <https://github.com/openvinotoolkit/datumaro/pull/1161>)
 - Fix memory unbounded Arrow data format export/import
   (<https://github.com/openvinotoolkit/datumaro/pull/1169>)
+- Update CVAT format doc to bypass warning
+  (<https://github.com/openvinotoolkit/datumaro/pull/1183>)
 
 ## 15/09/2023 - Release 1.5.0
 ### New features
 - Add SAMAutomaticMaskGeneration transform
   (<https://github.com/openvinotoolkit/datumaro/pull/1168>)
-
-### Bug fixes
-- Coco exporter can export annotations even if there is no media, except for mask annotations which require media info.
-  (<https://github.com/openvinotoolkit/datumaro/issues/1147>)(<https://github.com/openvinotoolkit/datumaro/pull/1158>)
-
-## 15/09/2023 - Release 1.5.0
-### New features
 - Add tabular data import/export
   (<https://github.com/openvinotoolkit/datumaro/pull/1089>)
 - Support video annotation import/export
@@ -70,6 +71,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   (<https://github.com/openvinotoolkit/datumaro/pull/1145>, <https://github.com/openvinotoolkit/datumaro/pull/1149>)
 
 ### Bug fixes
+- Coco exporter can export annotations even if there is no media, except for mask annotations which require media info.
+  (<https://github.com/openvinotoolkit/datumaro/issues/1147>)(<https://github.com/openvinotoolkit/datumaro/pull/1158>)
 - Fix bugs for Tile transform
   (<https://github.com/openvinotoolkit/datumaro/pull/1123>)
 - Disable Roboflow Tfrecord format when Tensorflow is not installed

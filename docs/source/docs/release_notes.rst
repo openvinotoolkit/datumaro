@@ -4,6 +4,25 @@ Release Notes
 .. toctree::
    :maxdepth: 1
 
+v1.5.1 (2023.11)
+----------------
+
+Enhancements
+^^^^^^^^^^^^
+- Enhance Datumaro data format stream importer performance
+- Change image default dtype from float32 to uint8
+- Add comparison level-up doc
+- Add ImportError to catch GitPython import error
+
+Bug fixes
+^^^^^^^^^
+- Modify the draw function in the visualizer not to raise an error for unsupported annotation types.
+- Correct explore path in the related document.
+- Fix errata in the voc document. Color values in the labelmap.txt should be separated by commas, not colons.
+- Fix hyperlink errors in the document.
+- Fix memory unbounded Arrow data format export/import.
+- Update CVAT format doc to bypass warning.
+
 v1.5.0 (2023.09)
 ----------------
 
