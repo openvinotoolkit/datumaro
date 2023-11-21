@@ -3,9 +3,7 @@
 # SPDX-License-Identifier: MIT
 
 from collections import defaultdict
-from typing import Optional, Union
-
-import pandas as pd
+from typing import TYPE_CHECKING, Optional, Union
 
 from datumaro.components.cli_plugin import CliPlugin
 from datumaro.components.dataset_base import IDataset
@@ -13,6 +11,13 @@ from datumaro.components.transformer import Transform
 from datumaro.util import parse_str_enum_value
 
 from .algorithm.algorithm import Algorithm, SamplingMethod
+
+if TYPE_CHECKING:
+    import pandas as pd
+else:
+    from datumaro.util.import_util import lazy_import
+
+    pd = lazy_import("pandas")
 
 
 class RelevancySampler(Transform, CliPlugin):

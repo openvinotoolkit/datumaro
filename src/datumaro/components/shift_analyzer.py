@@ -6,18 +6,27 @@
 
 import itertools
 from collections import defaultdict
-from typing import Dict, List, Optional
+from typing import TYPE_CHECKING, Dict, List, Optional
 
 import numpy as np
-import pyemd
-from scipy import linalg
-from scipy.stats import anderson_ksamp
 
 from datumaro.components.annotation import FeatureVector
 from datumaro.components.dataset import IDataset
 from datumaro.components.launcher import LauncherWithModelInterpreter
-from datumaro.plugins.openvino_plugin.shift_launcher import ShiftLauncher
 from datumaro.util import take_by
+
+if TYPE_CHECKING:
+    import pyemd
+    from scipy import linalg, stats
+
+    from datumaro.plugins.openvino_plugin import shift_launcher
+else:
+    from datumaro.util.import_util import lazy_import
+
+    pyemd = lazy_import("pyemd")
+    linalg = lazy_import("scipy.linalg")
+    stats = lazy_import("scipy.stats")
+    shift_launcher = lazy_import("datumaro.plugins.openvino_plugin.shift_launcher")
 
 
 class RunningStats1D:
@@ -110,7 +119,7 @@ class ShiftAnalyzer:
         topk:
             Number of images.
         """
-        self._model = ShiftLauncher(
+        self._model = shift_launcher.ShiftLauncher(
             model_name="googlenet-v4-tf",
             output_layers="InceptionV4/Logits/PreLogitsFlatten/flatten_1/Reshape:0",
         )
@@ -158,7 +167,7 @@ class ShiftAnalyzer:
                 for ann in item.annotations:
                     labels[idx].append(ann.label)
 
-        _, _, pv = anderson_ksamp([labels[0], labels[1]])
+        _, _, pv = stats.anderson_ksamp([labels[0], labels[1]])
 
         return 1 - pv
 

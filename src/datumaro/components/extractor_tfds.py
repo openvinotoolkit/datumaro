@@ -7,8 +7,21 @@ from __future__ import annotations
 import itertools
 import logging as log
 import os.path as osp
+from importlib.util import find_spec
 from types import SimpleNamespace as namespace
-from typing import Any, Callable, Dict, Iterator, Mapping, Optional, Sequence, Tuple, Type, Union
+from typing import (
+    TYPE_CHECKING,
+    Any,
+    Callable,
+    Dict,
+    Iterator,
+    Mapping,
+    Optional,
+    Sequence,
+    Tuple,
+    Type,
+    Union,
+)
 
 import attrs
 import numpy as np
@@ -19,17 +32,21 @@ from datumaro.components.dataset_base import CategoriesInfo, DatasetInfo, Datase
 from datumaro.components.media import Image, MediaElement
 from datumaro.util.tf_util import import_tf
 
-try:
-    tf = import_tf()
-    import tensorflow_datasets as tfds
-except ImportError:
-    log.debug(
-        "Unable to import TensorFlow or TensorFlow Datasets. "
-        "Dataset downloading via TFDS is disabled."
-    )
-    TFDS_EXTRACTOR_AVAILABLE = False
+TFDS_EXTRACTOR_AVAILABLE = True if find_spec("tensorflow_datasets") is not None else False
+
+if TYPE_CHECKING:
+    try:
+        tf = import_tf()
+        import tensorflow_datasets as tfds
+    except ImportError:
+        log.debug(
+            "Unable to import TensorFlow or TensorFlow Datasets. "
+            "Dataset downloading via TFDS is disabled."
+        )
 else:
-    TFDS_EXTRACTOR_AVAILABLE = True
+    from datumaro.util.import_util import lazy_import
+
+    tfds = lazy_import("tensorflow_datasets")
 
 
 @frozen(kw_only=True)

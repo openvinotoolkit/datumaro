@@ -85,9 +85,9 @@ Examples
     import numpy as np
     import datumaro as dm
 
-    dataset = dm.Dataset([
+    dataset = dm.Dataset.from_iterable([
       dm.DatasetItem(id='image1', subset='train',
-        image=np.ones((5, 5, 3)),
+        media=dm.Image.from_numpy(data=np.ones((5, 5, 3))),
         annotations=[
           dm.Bbox(1, 2, 3, 4, label=0),
         ]
