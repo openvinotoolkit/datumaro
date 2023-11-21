@@ -2,17 +2,94 @@
 #
 # SPDX-License-Identifier: MIT
 
+import copy
+from abc import ABCMeta, abstractmethod
+
 import numpy as np
 import streamlit as st
 from streamlit import session_state as state
 from streamlit_elements import elements
 
 import datumaro as dm
+from datumaro.components.algorithms.hash_key_inference.explorer import Explorer
 from datumaro.components.visualizer import Visualizer
 
 from ..data_loader import DataRepo, DatasetHelper
 
 USER_UPLOADED_SUBSET = "__user_uploaded__"
+
+
+class Query(metaclass=ABCMeta):
+    @abstractmethod
+    def label(self) -> str:
+        raise NotImplementedError
+
+    @abstractmethod
+    def query(self) -> dm.DatasetItem | str | None:
+        raise NotImplementedError
+
+
+class QueryImage(Query):
+    def __init__(self, item: dm.DatasetItem):
+        self.item = item
+
+    def label(self) -> str:
+        return f":frame_with_picture: {self.item.subset}-{self.item.id}"
+
+    def query(self) -> dm.DatasetItem | str | None:
+        return self.item
+
+    def __eq__(self, other):
+        if self.__class__ == other.__class__:
+            return self.item == other.item
+        return False
+
+    @property
+    def path(self) -> str:
+        return self.item.media.path
+
+
+class QueryUplodedImage(QueryImage):
+    def __init__(self, id: str, path: str):
+        super().__init__(
+            dm.DatasetItem(
+                id=id,
+                subset=USER_UPLOADED_SUBSET,
+                media=dm.Image.from_file(path),
+            )
+        )
+
+
+class QueryText(Query):
+    def __init__(self, text: str):
+        self.text = text
+
+    def label(self) -> str:
+        return f":speech_balloon: {self.text}"
+
+    def query(self) -> dm.DatasetItem | str | None:
+        return self.text
+
+    def __eq__(self, other):
+        if self.__class__ == other.__class__:
+            return self.text == other.text
+        return False
+
+
+class QueryLabel(Query):
+    def __init__(self, labels: list[str]):
+        self.labels = labels  # assume it is sorted.
+
+    def label(self) -> str:
+        return f":label: {','.join(self.labels)}"
+
+    def query(self) -> dm.DatasetItem | str | None:
+        return None
+
+    def __eq__(self, other):
+        if self.__class__ == other.__class__:
+            return self.labels == other.labels  # assume it is sorted.
+        return False
 
 
 def query_list(title=""):
@@ -23,10 +100,7 @@ def query_list(title=""):
             checkbox_keys = []
             for idx, item in enumerate(state["explore_queries"]):
                 checkbox_keys.append(f"query_{idx}")
-                if isinstance(item, str):
-                    checkbox_labels.append(f":speech_balloon: {item}")
-                else:  # assume it is dataset item
-                    checkbox_labels.append(f":frame_with_picture: {item.subset}-{item.id}")
+                checkbox_labels.append(item.label())
 
             def uncheck_others(*selected_key):
                 for key in checkbox_keys:
@@ -44,12 +118,12 @@ def query_list(title=""):
                     current_selected = idx
             if current_selected is not None:
                 selected_item = state["explore_queries"][current_selected]
-                if not isinstance(selected_item, str):
-                    st.image(selected_item.media.path)
+                if isinstance(selected_item, QueryImage):
+                    st.image(selected_item.path)
             if st.button("Remove from Query List", disabled=current_selected is None):
                 item = state["explore_queries"].pop(current_selected)
-                if isinstance(item, dm.DatasetItem) and item.subset == USER_UPLOADED_SUBSET:
-                    file_id = state["explore_user_uploaded_images"].get(item.media.path)
+                if isinstance(item, QueryUplodedImage):
+                    file_id = state["explore_user_uploaded_images"].get(item.path)
                     if (
                         state["explore_user_uploaded_file"] is None
                         or state["explore_user_uploaded_file"].file_id != file_id
@@ -110,11 +184,52 @@ def result_list(
         st.write("Check the 'Query List' and press the 'Search' button again.")
 
 
+def explore_topk(dataset: dm.Dataset, topk: int) -> list:
+    labels = None
+    queries = []
+    for item in state["explore_queries"]:
+        query = item.query()
+        if isinstance(item, QueryLabel):
+            if labels is None:
+                labels = set(item.labels)
+            else:
+                labels = labels & set(item.labels)
+        elif query is not None:
+            queries.append(query)
+
+    if labels is not None:
+        if len(labels) == 0:
+            return []
+
+        target_dataset = copy.deepcopy(dataset)
+        filter_str = '/item/annotation[label="'
+        filter_str += '" or label="'.join(labels)
+        filter_str += '"]'
+        target_dataset.filter(filter_str, filter_annotations=True, remove_empty=True)
+
+        if len(target_dataset) == 0:
+            return []
+    else:
+        target_dataset = dataset
+
+    if not queries:  # just select first {topk} images from target_dataset
+        results = []
+        for item in target_dataset:
+            results.append(item)
+            if len(results) == topk:
+                break
+    else:
+        explorer = Explorer(target_dataset)
+        results = explorer.explore_topk(queries, topk=topk)
+
+    return results
+
+
 def uploader_cb():
     user_paths = []
     for item in state["explore_queries"]:
-        if isinstance(item, dm.DatasetItem) and item.subset == USER_UPLOADED_SUBSET:
-            user_paths.append(item.media.path)
+        if isinstance(item, QueryUplodedImage):
+            user_paths.append(item.path)
 
     deletable = []
     for path in state["explore_user_uploaded_images"]:
@@ -140,14 +255,18 @@ def main():
     if "explore_user_uploaded_images" not in state:
         state["explore_user_uploaded_images"] = {}
 
+    label_cat: dm.LabelCategories = dataset.categories().get(dm.AnnotationType.label, None)
+    query_types = ["User Image", "Dataset Image", "Text"]
+    if label_cat is not None:
+        query_types.append("Label")
+
     with elements("explore"):
         c1, c2 = st.columns([1, 2])
         with c1:
             st.subheader("Query Parameters")
+            query = None
             ## query form
-            query_type = st.radio(
-                "Query Type", options=["User Image", "Dataset Image", "Text"], horizontal=True
-            )
+            query_type = st.radio("Query Type", options=query_types, horizontal=True)
             if query_type == "User Image":
                 uploaded_img = st.file_uploader(
                     "Upload an image file",
@@ -159,27 +278,39 @@ def main():
                     path = data_repo.save_file(uploaded_img)
                     state["explore_user_uploaded_images"][path] = uploaded_img.file_id
                     st.image(path)
-                    query = dm.DatasetItem(
-                        id=uploaded_img.name,
-                        subset=USER_UPLOADED_SUBSET,
-                        media=dm.Image.from_file(path),
-                    )
-                else:
-                    query = None
+                    query = QueryUplodedImage(id=uploaded_img.name, path=path)
             elif query_type == "Dataset Image":
                 selected_subset = st.selectbox("Select a subset:", dataset.subsets())
                 if selected_subset:
                     ids = [item.id for item in dataset.get_subset(selected_subset)]
                     selected_id = st.selectbox("Select a dataset item:", ids)
 
-                query = dataset.get(selected_id, selected_subset)
+                query = QueryImage(dataset.get(selected_id, selected_subset))
                 if query is not None:
-                    st.image(query.media.path)
-            else:
-                query = st.text_input("Input text query:")
+                    st.image(query.path)
+            elif query_type == "Text":
+                query = QueryText(st.text_input("Input text query:"))
+            elif query_type == "Label":
+                if len(label_cat.label_groups) > 0:
+                    label_groups = {group.name: group.labels for group in label_cat.label_groups}
+                    selected_group = st.selectbox("Select Label Group", [label_groups.keys()])
+                    if selected_group:
+                        labels = label_groups[selected_group]
+                    else:
+                        labels = []
+                else:
+                    labels = [item.name for item in label_cat.items]
 
-            if st.button("Add to Query List"):
-                if query and query not in state["explore_queries"]:
+                if len(labels) > 0:
+                    labels.sort()
+                    selected_labels = st.multiselect("Select Label(s)", labels)
+                    if len(selected_labels) > 0:
+                        query = QueryLabel(selected_labels)
+            else:
+                raise NotImplementedError
+
+            if st.button("Add to Query List", use_container_width=True):
+                if query is not None and query not in state["explore_queries"]:
                     state["explore_queries"].append(query)
 
             query_list("Query List")
@@ -194,23 +325,7 @@ def main():
             st.subheader("Results")
             if search is True:
                 try:
-                    progress_bar = st.progress(0, text="Initializing...")
-                    for percentage_complete in range(100):
-                        explorer = data_helper.explorer()
-                        progress_bar.progress(
-                            percentage_complete + 1,
-                            text=f"Initializing Explorer [{percentage_complete+1}/100]",
-                        )
-                    progress_bar.empty()
-
-                    progress_bar = st.progress(0, text="Searching...")
-                    for percentage_complete in range(100):
-                        results = explorer.explore_topk(state["explore_queries"], topk=topk)
-                        progress_bar.progress(
-                            percentage_complete + 1,
-                            text=f"Searching top-{topk} examples [{percentage_complete+1}/100]",
-                        )
-                    progress_bar.empty()
+                    results = explore_topk(dataset, topk)
                 except Exception as e:
                     st.write(
                         "An error occur while searching. Please re-import dataset and try again."
