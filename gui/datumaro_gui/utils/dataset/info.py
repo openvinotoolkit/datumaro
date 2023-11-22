@@ -19,8 +19,11 @@ def get_category_info(dataset, categories):
     cat_info = {s: {cat.name: 0 for cat in categories} for s in dataset.subsets()}
     for item in dataset:
         for ann in item.annotations:
-            label_name = categories[ann.label].name
-            cat_info[item.subset][label_name] += 1
+            try:
+                label_name = categories[ann.label].name
+                cat_info[item.subset][label_name] += 1
+            except Exception:
+                pass
     cat_info_dict = []
     for subset, cats in cat_info.items():
         cats.update({"subset": subset})

@@ -8,6 +8,7 @@ from enum import IntEnum
 from types import SimpleNamespace
 from uuid import uuid4
 
+from datumaro_gui.utils.drawing.css import apply_css_styles, box_style
 from streamlit_elements import dashboard, mui
 
 
@@ -24,8 +25,9 @@ class Dashboard:
     def __call__(self, title=None, **props):
         # Draggable classname query selector.
         props["draggableHandle"] = f".{Dashboard.DRAGGABLE_CLASS}"
+        css_dict = apply_css_styles(box_style, "yellow", "stat_highlight")
         if title is not None:
-            mui.Typography(title, sx={"flex": 1, "padding": "15px"}, variant="h5")
+            mui.Typography(title, style=css_dict, variant="h5")
         with dashboard.Grid(self._layout, **props):
             yield
 

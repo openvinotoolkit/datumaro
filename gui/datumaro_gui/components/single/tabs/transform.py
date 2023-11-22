@@ -15,6 +15,9 @@ def main():
     with elements("transform"):
         with st.expander("Category Management"):
             sac.divider(label="Label remapping", icon="map", align="center", bold=False)
+            st.info("This helps to remap labels of dataset.")
+            st.write("Check mapping")
+            st.warning("Please mapping category first")
 
         with st.expander("Subset Management"):
             sac.divider(label="Aggregation", icon="columns", align="center", bold=False)
@@ -24,10 +27,7 @@ def main():
             aggre_subset_btn = st.button("Do aggregation")
             if aggre_subset_btn:
                 dataset = data_helper.aggregate(from_subsets=dataset.subsets(), to_subset="default")
-                st.toast("Success!", icon="🎉")
-                # success = st.success("Success!")
-                # time.sleep(1)
-                # success.empty()
+                st.toast("Aggregation Success!", icon="🎉")
 
             sac.divider(label="Split", icon="columns-gap", align="center", bold=False)
             st.info("This helps to divide a dataset into multiple subsets with a given ratio.")
@@ -56,7 +56,7 @@ def main():
             if split_btn:
                 dataset = data_helper.transform("random_split", splits=splits)
                 state["subset"] = 1
-                st.toast("Success!", icon="🎉")
+                st.toast("Split Success!", icon="🎉")
 
         with st.expander("Item Management"):
             sac.divider(label="Reindexing", icon="stickies-fill", align="center", bold=False)
@@ -70,13 +70,45 @@ def main():
 
             if item_reindex_btn:
                 dataset = data_helper.transform("reindex", start=0)
-                st.toast("Success!", icon="🎉")
+                st.toast("Reindex Success!", icon="🎉")
 
             if item_media_name_btn:
                 dataset = data_helper.transform("id_from_image_name")
-                st.toast("Success!", icon="🎉")
+                st.toast("Reindex Success!", icon="🎉")
 
             sac.divider(label="Filtration", icon="funnel-fill", align="center", bold=False)
+            st.info("This helps to filter some items or annotations within a dataset.")
+            mode, filter_ = st.columns(2)
+            with mode:
+                selected_mode = st.selectbox(
+                    "Select filtering mode",
+                    ["items", "annotations", "items+annotations", "annotations+items"],
+                )
+            with filter_:
+                filter_expr = st.text_input(
+                    "Enter XML filter expression",
+                    disabled=False,
+                    placeholder='Eg. /item[subset="train"]',
+                    value=None,
+                )
+            filter_btn = st.button("Filter dataset")
+            if selected_mode and filter_expr and filter_btn:
+                filter_args_dict = {
+                    "items": {},
+                    "annotations": {"filter_annotations": True},
+                    "items+annotations": {
+                        "filter_annotations": True,
+                        "remove_empty": True,
+                    },
+                    "annotations+items": {
+                        "filter_annotations": True,
+                        "remove_empty": True,
+                    },
+                }
+                filter_args = filter_args_dict.get(selected_mode, None)
+                dataset = dataset.filter(filter_expr, **filter_args)
+                st.toast("Filter Success!", icon="🎉")
+
             sac.divider(label="Remove", icon="eraser-fill", align="center", bold=False)
             st.info("This helps to remove some items or annotations within a dataset.")
             subset, item, annotation = st.columns(5)[:3]
@@ -106,7 +138,7 @@ def main():
                 dataset = data_helper.transform(
                     "remove_items", ids=[(selected_id, selected_subset)]
                 )
-                st.toast("Success!", icon="🎉")
+                st.toast("Remove Success!", icon="🎉")
 
             if rm_ann_btn:
                 if selected_ann_id == "All":
@@ -128,128 +160,4 @@ def main():
 
             if correct_btn:
                 dataset = data_helper.transform("correct", reports=state["reports"])
-                st.toast("Success!", icon="🎉")
-
-            # sac.divider(label='SUBSET MAPPING', icon='code-square', align='center', bold=False)
-            # with st.container():
-            #     rename_subset_btn = st.button("Rename subsets")
-            #     name1, emo, name2 = st.columns(8)[:3]
-            #     for idx, subset in enumerate(dataset.subsets()):
-            #         with name1:
-            #             st.write("")
-            #             st.write("\n\n\n\n\n\n")
-            #             st.write(str(subset))
-            #         with emo:
-            #             st.write("")
-            #             st.write("\n\n\n\n\n\n")
-            #             st.write(":arrow_right:")
-            #         with name2:
-            #             subset_new_name = st.text_input(
-            #                 key=f"subset_new_name_{idx}", label="New subset name", value="train"
-            #             )
-
-            #     if rename_subset_btn:
-            #         dataset = data_helper.transform("random_split", splits=splits)
-
-        # with mui.Accordion:
-        #     with mui.AccordionSummary(expandIcon=mui.icon.ExpandMore, sx={'background': 'grey[900]', 'border': 1}):
-        #         mui.Typography("Category Management", fontSize=16)
-        #     with mui.AccordionDetails():
-        #         with mui.Box(sx={
-        #             "flex": 1, "borderTop": 1, "borderBottom": 1,
-        #             "borderColor": "divider", "paddingTop": 1, "paddingBottom": 2}
-        #         ):
-        #             mui.Typography(mui.icon.LooksOne, " Label remapping", fontSize=16)
-        #             columns = [
-        #                 { "field": 'id', "headerName": 'Label ID', "width": 100},
-        #                 { "field": 'cur_name', "headerName": 'Label Name', "width": 200, "editable": False},
-        #                 { "field": 'new_name', "headerName": 'New Label Name', "width": 200, "editable": True},
-        #                 { "field": 'num_ann', "headerName": 'Number of annotations', "width": 200, "editable": False},
-        #             ]
-
-        #             categories = dataset.categories()[AnnotationType.label]
-        #             labels = []
-        #             for cat_name, idx in categories._indices.items():
-        #                 labels.append({'id': idx, 'cur_name': cat_name, 'new_name': cat_name, 'num_ann': None})
-
-        #             board = Dashboard()
-        #             w = SimpleNamespace(
-        #                 dashboard=board,
-        #                 data_grid=DataGrid(board, 0, 0, 8, 7, minH=len(labels)),
-        #             )
-
-        #             with w.dashboard(rowHeight=50):
-        #                 w.data_grid(data=labels, grid_name="Label schema", columns=columns)
-
-        #             mui.Button("Do label remapping", sx={'border': 1, 'color': 'white', 'background': 'black'})
-
-        # with mui.Accordion:
-        #     with mui.AccordionSummary(expandIcon=mui.icon.ExpandMore, sx={'background': 'grey[900]', 'border': 1}):
-        #         mui.Typography("Subset Management")
-        #     with mui.AccordionDetails():
-        #         with mui.Box(sx={
-        #             "flex": 1, "borderTop": 1, "borderBottom": 1,
-        #             "borderColor": "divider", "paddingTop": 1, "paddingBottom": 2
-        #         }):
-        #             mui.Typography(mui.icon.LooksOne, " Aggregation", fontSize=16, sx={"paddingBottom": 2})
-
-        #         with mui.Box(sx={
-        #             "flex": 1, "borderTop": 1, "borderBottom": 1,
-        #             "borderColor": "divider", "paddingTop": 1, "paddingBottom": 2
-        #         }):
-        #             mui.Typography(mui.icon.LooksTwo, " Split", fontSize=16, sx={"paddingBottom": 2})
-
-        #             with mui.ButtonGroup(sx={"aria-label": "split button"}):
-        #                 add_subset_btn = mui.Button("Add subset",
-        #                     sx={'border': 1, 'color': 'white', 'background': 'black'}
-        #                 )
-        #                 split_subset_btn = mui.Button("Do split",
-        #                     sx={'border': 1, 'color': 'white', 'background': 'black'}
-        #                 )
-
-        #             if add_subset_btn:
-        #                 state['subset'] += 1
-
-        #             splits = []
-        #             for idx in range(state['subset']):
-        #                 mui.Typography("")
-        #                 subset_name = mui.TextField(
-        #                     id=f"name_{idx}",
-        #                     label="subset name", defaultValue="default", variant="outlined", size="small"
-        #                 )
-        #                 subset_ratio = mui.TextField(
-        #                     id=f"ratio_{idx}",
-        #                     label="subset ratio", defaultValue="1.0", variant="outlined", size="small"
-        #                 )
-        #                 print(subset_name, subset_ratio)
-        #                 splits.append((subset_name, float(subset_ratio)))
-
-        #             if split_subset_btn:
-        #                 dataset = data_helper.transform("random_split", splits=splits)
-        #                 print(dataset)
-        #                 state['subset'] = 0
-
-        #                 success = st.success("Success!")
-        #                 time.sleep(1)
-        #                 success.empty()
-
-        # with mui.Accordion:
-        #     with mui.AccordionSummary(expandIcon=mui.icon.ExpandMore, sx={'background': 'grey[900]', 'border': 1}):
-        #         mui.Typography("Item Management", fontSize=16) #, fontFamily='Helvetica Neue'
-        #     with mui.AccordionDetails():
-        #         with mui.Box(sx={
-        #             "flex": 1, "borderTop": 1, "borderBottom": 1,
-        #             "borderColor": "divider", "paddingTop": 1, "paddingBottom": 2
-        #         }):
-        #             mui.Typography(mui.icon.LooksOne, " ID reindexing ", fontSize=16, sx={"paddingBottom": 1})
-        #             with mui.ButtonGroup(sx={"aria-label": "split button"}):
-        #                 mui.Button("Set IDs from 0", sx={'border': 1, 'color': 'white', 'background': 'black'})
-        #                 mui.Button(
-        #                     "Set IDs from media name", sx={'border': 1, 'color': 'white', 'background': 'black'}
-        #                 )
-
-        #         with mui.Box(sx={
-        #             "flex": 1, "borderTop": 1, "borderBottom": 1,
-        #             "borderColor": "divider", "paddingTop": 1, "paddingBottom": 2
-        #         }):
-        #             mui.Typography("Filtration")
+                st.toast("Correction Success!", icon="🎉")
