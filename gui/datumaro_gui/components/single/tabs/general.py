@@ -5,6 +5,7 @@
 from types import SimpleNamespace
 
 from datumaro_gui.utils.dataset.data_loader import SingleDatasetHelper
+from datumaro_gui.utils.dataset.info import get_category_info, get_subset_info
 from datumaro_gui.utils.drawing import Dashboard, DatasetInfoBox, Gallery, Pie, Radar
 from streamlit import session_state as state
 from streamlit_elements import elements
@@ -24,30 +25,9 @@ def main():
     image_mean = image_size_info["image_size"]["mean"]
 
     with elements("general"):
-        subset_info_dict = []
-        for subset in dataset.subsets():
-            temp_dict = {
-                "id": subset,
-                "label": subset,
-                "value": len(dataset.get_subset(subset)),
-            }
-            subset_info_dict.append(temp_dict)
-
+        subset_info_dict = get_subset_info(dataset)
         categories = dataset.categories()[AnnotationType.label]
-        subsets = dataset.subsets()
-        cat_info = {s: {cat.name: 0 for cat in categories.items} for s in subsets}
-        for item in dataset:
-            for ann in item.annotations:
-                try:
-                    label_name = categories[ann.label].name
-                    cat_info[item.subset][label_name] += 1
-                except Exception:
-                    pass
-
-        cat_info_dict = []
-        for subset, cats in cat_info.items():
-            cats.update({"subset": subset})
-            cat_info_dict.append(cats)
+        cat_info_dict = get_category_info(dataset, categories)
 
         board = Dashboard()
         w = SimpleNamespace(
