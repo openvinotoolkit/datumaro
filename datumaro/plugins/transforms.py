@@ -110,7 +110,9 @@ class CropCoveredSegments(ItemTransform, CliPlugin):
                     rle = mask_tools.mask_to_rle(s.image)
                 segments.append(rle)
 
-        segments = mask_tools.crop_covered_segments(segments, img_width, img_height)
+        segments = mask_tools.crop_covered_segments(
+            segments, img_width, img_height, ratio_tolerance=0
+        )
 
         new_anns = []
         for ann, new_segment in zip(segment_anns, segments):
