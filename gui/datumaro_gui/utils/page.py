@@ -1,5 +1,6 @@
-import streamlit as st
 from typing import Callable, Optional
+
+import streamlit as st
 
 
 def page_group(param):
@@ -12,7 +13,6 @@ def page_group(param):
 
 
 class PageGroup:
-
     def __init__(self, param):
         self._param: str = param
         self._default: str = None
@@ -35,7 +35,7 @@ class PageGroup:
         if default:
             self._default = page
 
-        selected = (page == self.selected)
+        selected = page == self.selected
 
         if selected:
             self._selected = callback
