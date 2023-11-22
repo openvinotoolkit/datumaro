@@ -1,2 +1,2 @@
-from .elements.streamlit_app import main as elements
-from .projects.streamlit_app import main as projects
+from .multiple.streamlit_app import main as multiple
+from .single.streamlit_app import main as single

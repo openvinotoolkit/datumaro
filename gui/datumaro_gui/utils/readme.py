@@ -1,9 +1,9 @@
 import re
-import requests
-import streamlit as st
-
 from contextlib import contextmanager
 from pathlib import Path
+
+import requests
+import streamlit as st
 
 FILTER_SHARE = re.compile(r"^.*\[share_\w+\].*$", re.MULTILINE)
 
@@ -28,3 +28,17 @@ def readme(project, usage=None, source=None):
 
     with demo:
         yield
+
+
+github_pypi_desc = """
+:factory: Dataset management &nbsp; [![GitHub][github_badge]][github_link] [![PyPI][pypi_badge]][pypi_link]
+=====================
+
+Import a dataset and manipulate it!
+
+[github_badge]: https://badgen.net/badge/icon/GitHub?icon=github&color=black&label
+[github_link]: https://github.com/openvinotoolkit/datumaro
+
+[pypi_badge]: https://badgen.net/pypi/v/streamlit-elements?icon=pypi&color=black&label
+[pypi_link]: https://pypi.org/project/datumaro/
+"""

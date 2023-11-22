@@ -1,0 +1,89 @@
+# Copyright (C) 2019-2023 Intel Corporation
+#
+# SPDX-License-Identifier: MIT
+
+import streamlit as st
+import streamlit_antd_components as sac
+from datumaro_gui.utils.dataset.data_loader import DataRepo, SingleDatasetHelper
+from datumaro_gui.utils.drawing.css import custom_css
+from datumaro_gui.utils.readme import github_pypi_desc
+from streamlit import session_state as state
+
+from . import tabs
+
+
+def main():
+    st.write(github_pypi_desc)
+    st.markdown(custom_css, unsafe_allow_html=True)
+
+    keys = ["uploaded_zip", "data_helper", "subset"]
+    for k in keys:
+        if k not in state:
+            state[k] = None
+
+    if state["subset"] is None:
+        state["subset"] = 0
+
+    data_repo = DataRepo()
+
+    with st.expander("Import a dataset", expanded=True):
+        uploaded_zip = st.file_uploader("Upload a zip file containing dataset", type=["zip"])
+
+        if uploaded_zip is not None:
+            if uploaded_zip != state["uploaded_zip"]:
+                # Extract the contents of the uploaded zip file to the temporary directory
+                progress_bar = st.progress(0, text=f"Processing Dataset {uploaded_zip.name}")
+                for percentage_complete in range(100):
+                    dataset_dir = data_repo.unzip_dataset(uploaded_zip)
+                    progress_bar.progress(
+                        percentage_complete + 1,
+                        text=f"Processing Dataset {uploaded_zip.name} [{percentage_complete+1}/100]",
+                    )
+                progress_bar.empty()
+                state["uploaded_zip"] = uploaded_zip
+                data_helper = SingleDatasetHelper(dataset_dir)
+                state["data_helper"] = data_helper
+
+            data_helper: SingleDatasetHelper = state["data_helper"]
+            # Display the list of image files in the UI
+            try:
+                formats = data_helper.detect_format()
+            except Exception:
+                formats = ["-", "datumaro", "voc", "coco"]  # temp
+            selected_format = st.selectbox("Select a format to import:", formats)
+            if selected_format != "-" and selected_format != data_helper.format():
+                data_helper.import_dataset(selected_format)
+
+        elif state["data_helper"] is not None:
+            state["data_helper"] = None
+
+    st.title("")
+
+    if state["data_helper"] is not None:
+        selected_tab = sac.tabs(
+            [
+                sac.TabsItem(label="GENERAL", icon="incognito"),
+                sac.TabsItem(label="ANALYZE", icon="clipboard2-data-fill"),
+                sac.TabsItem(label="VISUALIZE", icon="image"),
+                sac.TabsItem(label="EXPLORE", icon="tags"),
+                sac.TabsItem(label="TRANSFORM", icon="tools"),
+                sac.TabsItem(label="EXPORT", icon="cloud-arrow-down"),
+            ],
+            format_func="title",
+            align="center",
+        )
+
+        tab_funcs = {
+            "GENERAL": tabs.call_general,
+            "ANALYZE": tabs.call_analyze,
+            "VISUALIZE": tabs.call_visualize,
+            "EXPLORE": tabs.call_explore,
+            "TRANSFORM": tabs.call_transform,
+            "EXPORT": tabs.call_export,
+        }
+        tab_funcs.get(selected_tab, tabs.call_general)()
+
+
+if __name__ == "__main__":
+    st.set_page_config(layout="wide")
+    main()
