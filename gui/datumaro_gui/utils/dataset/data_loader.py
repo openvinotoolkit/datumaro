@@ -78,6 +78,29 @@ class DataRepo:
 
         return directory
 
+    def zip_dataset(_self, directory: str, output_fn: str = "dataset.zip") -> str:
+        """
+        Zip dataset
+
+        :param uploaded_zip: uploaded zip file from streamlit ui
+        :return: path to dataset directory
+        """
+
+        if not os.path.isdir(directory):
+            raise ValueError
+
+        output_zip = os.path.join(_self._root_path, output_fn)
+        if os.path.exists(output_zip):
+            os.remove(output_zip)
+        dirpath = os.path.dirname(output_zip)
+        if not os.path.exists(dirpath):
+            os.makedirs(dirpath)
+        shutil.make_archive(
+            base_name=os.path.splitext(output_zip)[0], format="zip", root_dir=directory
+        )
+
+        return output_zip
+
     def save_file(_self, uploaded_file: UploadedFile) -> str:
         directory = os.path.join(_self._root_path, uploaded_file.file_id)
         path = os.path.join(directory, uploaded_file.name)
@@ -166,7 +189,16 @@ class DatasetHelper:
         _self._init_dependent_variables()
         return _self._dm_dataset
 
+    def filter(self, expr: str, filter_args):
+        self._dm_dataset = self._dm_dataset.filter(expr, **filter_args)
+        self._init_dependent_variables()
+        return self._dm_dataset
+
     def export(_self, save_dir: str, format: str, **kwargs):
+        if os.path.exists(save_dir):
+            shutil.rmtree(save_dir)
+        if not os.path.exists(save_dir):
+            os.makedirs(save_dir)
         _self._dm_dataset.export(save_dir=save_dir, format=format, **kwargs)
 
     def merge(_self, source_datasets, merge_policy, report_path=None, **kwargs):
@@ -215,9 +247,12 @@ class SingleDatasetHelper(DatasetHelper):
                         ) in (
                             item.annotations
                         ):  # size can be duplicated because item can have multiple annotations
-                            label = get_label(ann)
-                            if label:
-                                by_labels[label].append(size_info)
+                            try:
+                                label = get_label(ann)
+                                if label:
+                                    by_labels[label].append(size_info)
+                            except Exception:
+                                pass
 
             mean = np.mean(all_sizes, axis=0) if all_sizes else [0, 0]
             std = np.std(all_sizes, axis=0) if all_sizes else [0, 0]
