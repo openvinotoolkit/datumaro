@@ -200,6 +200,7 @@ def get_tab_data_for_val_label_dist(val_report):
     def calc_piechart_data(label_dist):
         data = []
         total = 0
+        print(label_dist)
         for label, count in label_dist.items():
             data.append({"id": label, "label": label, "value": count})
             total += count

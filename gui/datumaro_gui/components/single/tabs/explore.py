@@ -118,7 +118,10 @@ def query_list(title=""):
             if current_selected is not None:
                 selected_item = state["explore_queries"][current_selected]
                 if isinstance(selected_item, QueryImage):
-                    st.image(selected_item.path)
+                    try:
+                        st.image(selected_item.path)
+                    except Exception:
+                        pass
             if st.button("Remove from Query List", disabled=current_selected is None):
                 item = state["explore_queries"].pop(current_selected)
                 if isinstance(item, QueryUplodedImage):
@@ -196,11 +199,13 @@ def explore_topk(dataset: dm.Dataset, topk: int) -> list:
         elif query is not None:
             queries.append(query)
 
+    target_dataset = copy.deepcopy(
+        dataset
+    )  # prevent to show HashKey as annotations in the Analyze tab.
     if labels is not None:
         if len(labels) == 0:
             return []
 
-        target_dataset = copy.deepcopy(dataset)
         filter_str = '/item/annotation[label="'
         filter_str += '" or label="'.join(labels)
         filter_str += '"]'
@@ -208,8 +213,6 @@ def explore_topk(dataset: dm.Dataset, topk: int) -> list:
 
         if len(target_dataset) == 0:
             return []
-    else:
-        target_dataset = dataset
 
     if not queries:  # just select first {topk} images from target_dataset
         results = []
@@ -255,9 +258,10 @@ def main():
         state["explore_user_uploaded_images"] = {}
 
     label_cat: dm.LabelCategories = dataset.categories().get(dm.AnnotationType.label, None)
-    query_types = ["User Image", "Dataset Image", "Text"]
+    query_types = []
     if label_cat is not None:
         query_types.append("Label")
+    query_types.extend(["Dataset Image", "User Image", "Text"])
 
     with elements("explore"):
         c1, c2 = st.columns([1, 2])
@@ -290,16 +294,7 @@ def main():
             elif query_type == "Text":
                 query = QueryText(st.text_input("Input text query:"))
             elif query_type == "Label":
-                if len(label_cat.label_groups) > 0:
-                    label_groups = {group.name: group.labels for group in label_cat.label_groups}
-                    selected_group = st.selectbox("Select Label Group", [label_groups.keys()])
-                    if selected_group:
-                        labels = label_groups[selected_group]
-                    else:
-                        labels = []
-                else:
-                    labels = [item.name for item in label_cat.items]
-
+                labels = [item.name for item in label_cat.items]
                 if len(labels) > 0:
                     labels.sort()
                     selected_labels = st.multiselect("Select Label(s)", labels)
@@ -324,7 +319,14 @@ def main():
             st.subheader("Results")
             if search is True:
                 try:
-                    results = explore_topk(dataset, topk)
+                    progress_bar = st.progress(0, text="Searching...")
+                    for percentage_complete in range(100):
+                        results = explore_topk(dataset, topk)
+                        progress_bar.progress(
+                            percentage_complete + 1,
+                            text=f"Searching Dataset [{percentage_complete+1}/100]",
+                        )
+                    progress_bar.empty()
                 except Exception as e:
                     st.write(
                         "An error occur while searching. Please re-import dataset and try again."

@@ -106,7 +106,9 @@ def main():
                     },
                 }
                 filter_args = filter_args_dict.get(selected_mode, None)
-                dataset = dataset.filter(filter_expr, **filter_args)
+                dataset = data_helper.filter(
+                    filter_expr, filter_args
+                )  # dataset.filter(filter_expr, **filter_args)
                 st.toast("Filter Success!", icon="🎉")
 
             sac.divider(label="Remove", icon="eraser-fill", align="center", bold=False)
