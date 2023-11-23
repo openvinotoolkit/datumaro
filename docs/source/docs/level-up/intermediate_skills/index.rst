@@ -37,7 +37,8 @@ Intermediate Skills
 
          Level 06: Dataset Comparison
 
-      :bdg-warning:`Python`
+      :bdg-info:`CLI`
+      :bdg-success:`ProjectCLI`
 
    .. grid-item-card::
 

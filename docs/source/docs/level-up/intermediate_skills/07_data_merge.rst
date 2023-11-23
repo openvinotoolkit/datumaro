@@ -22,9 +22,9 @@ We here download two aerial datasets named by Eurosat and UC Merced as a simple 
 
 .. code-block:: bash
 
-  datum download get -i tfds:eurosat --format imagenet --output-dir <path/to/eurosat> -- --save-media
+  datum download get -i tfds:eurosat -f imagenet --output-dir <path/to/eurosat> -- --save-media
 
-  datum download get -i tfds:uc_merced --format imagenet --output-dir <path/to/uc_merced> -- --save-media
+  datum download get -i tfds:uc_merced -f imagenet --output-dir <path/to/uc_merced> -- --save-media
 
 Merge datasets
 ==============
