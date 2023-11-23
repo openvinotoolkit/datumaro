@@ -31,7 +31,12 @@ class Chart(Dashboard.Item):
 
             with mui.Box(sx={"flex": 1, "minHeight": 0}):
                 if data is None:
-                    mui.Typography("No data")
+                    mui.Typography(
+                        "No data",
+                        sx={
+                            "padding": "15px 15px 5px 40px",
+                        },
+                    )
                 else:
                     kwargs = self._get_default_kwargs_for_nivo_chart(
                         data, self._chart, legends=legends
