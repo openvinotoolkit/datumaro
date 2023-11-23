@@ -27,8 +27,8 @@ datumaro.components.media
       MediaElement
       MediaType
       MosaicImage
+      MosaicImageFromData
       MosaicImageFromImageRoIPairs
-      MosiacImageFromData
       MultiframeImage
       PointCloud
       PointCloudFromBytes

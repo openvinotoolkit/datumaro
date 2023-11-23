@@ -706,9 +706,20 @@ datum<span class="w"> </span>convert<span class="w"> </span>-if<span class="w"> 
 (by default <code class="docutils literal notranslate"><span class="pre">False</span></code>)</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">--image-ext</span> <span class="pre">IMAGE_EXT</span></code> allow to specify image extension
 for exporting dataset (by default - keep original or use <code class="docutils literal notranslate"><span class="pre">.jpg</span></code>, if none)</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">--save-dataset-meta</span></code> - allow to export dataset with saving dataset meta
+<li><p><code class="docutils literal notranslate"><span class="pre">--save-dataset-meta</span></code> allow to export dataset with saving dataset meta
 file (by default <code class="docutils literal notranslate"><span class="pre">False</span></code>)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">--reindex</span></code> assign new indices to frames</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">--allow-undeclared-attrs</span></code> write annotation attributes even if they are not present in the input dataset metainfo</p></li>
 </ul>
+<p>When performing <code class="docutils literal notranslate"><span class="pre">convert</span></code> to CVAT format, you may encounter a warning message like the following:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>skipping<span class="w"> </span>undeclared<span class="w"> </span>attribute<span class="w"> </span><span class="s1">&#39;is_crowd&#39;</span><span class="w"> </span><span class="k">for</span><span class="w"> </span>label<span class="w"> </span><span class="s1">&#39;&lt;label&gt;&#39;</span><span class="w"> </span><span class="o">(</span>allow<span class="w"> </span>with<span class="w"> </span>--allow-undeclared-attrs<span class="w"> </span>option<span class="o">)</span>
+</pre></div>
+</div>
+<p>In such cases, you can bypass this warning by using the <code class="docutils literal notranslate"><span class="pre">export</span></code> command as follows:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>datum<span class="w"> </span>project<span class="w"> </span><span class="nb">export</span><span class="w"> </span>-o<span class="w"> </span>&lt;output/dir&gt;<span class="w"> </span>-p<span class="w"> </span>&lt;path/to/project&gt;<span class="w"> </span>-f<span class="w"> </span>cvat<span class="w"> </span>--<span class="w"> </span>--allow-undeclared-attrs
+</pre></div>
+</div>
+<p>This allows you to proceed with the export while bypassing the warning.</p>
 </section>
 <section id="examples">
 <h2>Examples<a class="headerlink" href="#examples" title="Permalink to this heading">#</a></h2>

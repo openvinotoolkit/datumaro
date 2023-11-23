@@ -300,7 +300,7 @@
     <span class="c1"># readonly files on Windows, which Git uses extensively</span>
     <span class="c1"># It double checks if a file cannot be removed because of readonly flag</span>
     <span class="kn">from</span> <span class="nn">git.util</span> <span class="kn">import</span> <span class="n">rmfile</span><span class="p">,</span> <span class="n">rmtree</span>  <span class="c1"># noqa: F401</span>
-<span class="k">except</span> <span class="ne">ModuleNotFoundError</span><span class="p">:</span>
+<span class="k">except</span> <span class="p">(</span><span class="ne">ModuleNotFoundError</span><span class="p">,</span> <span class="ne">ImportError</span><span class="p">):</span>
     <span class="kn">from</span> <span class="nn">os</span> <span class="kn">import</span> <span class="n">remove</span> <span class="k">as</span> <span class="n">rmfile</span>  <span class="c1"># noqa: F401</span>
     <span class="kn">from</span> <span class="nn">shutil</span> <span class="kn">import</span> <span class="n">rmtree</span> <span class="k">as</span> <span class="n">rmtree</span>  <span class="c1"># noqa: F401</span>
 

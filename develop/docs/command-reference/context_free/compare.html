@@ -587,23 +587,20 @@
 <h1>Compare<a class="headerlink" href="#compare" title="Permalink to this heading">#</a></h1>
 <section id="compare-datasets">
 <h2>Compare datasets<a class="headerlink" href="#compare-datasets" title="Permalink to this heading">#</a></h2>
-<p>This command compares two datasets and saves the results in the
-specified directory. The current project is considered to be
-“ground truth”.</p>
+<p>This command compares two datasets and saves the results in the specified directory. The current project is considered to be “ground truth”.</p>
 <p>Datasets can be compared using different methods:</p>
 <ul class="simple">
-<li><p><code class="docutils literal notranslate"><span class="pre">table</span></code> - Generate a compare table mainly based on dataset statistics</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">equality</span></code> - Annotations are compared to be equal</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">distance</span></code> - A distance metric is used</p></li>
+<li><p><a class="reference internal" href="#table"><span class="std std-ref">table</span></a> - Generate a compare table mainly based on dataset statistics</p></li>
+<li><p><a class="reference internal" href="#equality"><span class="std std-ref">equality</span></a> - Annotations are compared to be equal</p></li>
+<li><p><a class="reference internal" href="#distance"><span class="std std-ref">distance</span></a> - A distance metric is used</p></li>
 </ul>
 <p>This command has multiple forms:</p>
 <div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">1) datum compare &lt;revpath&gt;</span>
 <span class="go">2) datum compare &lt;revpath&gt; &lt;revpath&gt;</span>
 </pre></div>
 </div>
-<p>1 - Compares the current project’s main target (<code class="docutils literal notranslate"><span class="pre">project</span></code>)
-in the working tree with the specified dataset.</p>
-<p>2 - Compares two specified datasets.</p>
+<p>1 - Compares the current project’s main target (<code class="docutils literal notranslate"><span class="pre">project</span></code>) in the working tree with the specified dataset.
+2 - Compares two specified datasets.</p>
 <p>&lt;revpath&gt; - <a class="reference internal" href="../../user-manual/how_to_use_datumaro.html#dataset-path-concepts"><span class="std std-ref">a dataset path or a revision path</span></a>.</p>
 <p>Usage:</p>
 <div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">datum compare [-h] [-o DST_DIR] [-m METHOD] [--overwrite] [-p PROJECT_DIR]</span>
@@ -644,17 +641,67 @@ printed.</p></li>
 </ul>
 </li>
 </ul>
-<!-- markdownlint-disable-line MD028 -->Examples:
-<ul>
-<li><p>Compare two projects by distance, match boxes if IoU &gt; 0.7,
-save results to TensorBoard</p>
-<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">datum compare &lt;path/to/other/project/&gt; -m distance -f tensorboard --iou-thresh 0.7 -o compare/</span>
+<section id="support-methods">
+<h3>Support methods<a class="headerlink" href="#support-methods" title="Permalink to this heading">#</a></h3>
+<section id="table">
+<h4><code class="docutils literal notranslate"><span class="pre">table</span></code><a class="headerlink" href="#table" title="Permalink to this heading">#</a></h4>
+<p>This method allows comparing datasets based on dataset statistics and provides the results in a tabular format. The result report is saved in the formats of <code class="docutils literal notranslate"><span class="pre">table_compare.json</span></code> and <code class="docutils literal notranslate"><span class="pre">table_compare.txt</span></code>, each containing information for “High-level comparison,” “Mid-level comparison,” and “Low-level comparison.”</p>
+<p>Firstly, the “High-level comparison” provides information regarding the format, classes, images, and annotations for each dataset. For example:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>+--------------------------+---------+---------------------+
+<span class="p">|</span><span class="w"> </span>Field<span class="w">                    </span><span class="p">|</span><span class="w"> </span>First<span class="w">   </span><span class="p">|</span><span class="w"> </span>Second<span class="w">              </span><span class="p">|</span>
++<span class="o">==========================</span>+<span class="o">=========</span>+<span class="o">=====================</span>+
+<span class="p">|</span><span class="w"> </span>Format<span class="w">                   </span><span class="p">|</span><span class="w"> </span>coco<span class="w">    </span><span class="p">|</span><span class="w"> </span>voc<span class="w">                 </span><span class="p">|</span>
++--------------------------+---------+---------------------+
+<span class="p">|</span><span class="w"> </span>Number<span class="w"> </span>of<span class="w"> </span>classes<span class="w">        </span><span class="p">|</span><span class="w"> </span><span class="m">2</span><span class="w">       </span><span class="p">|</span><span class="w"> </span><span class="m">4</span><span class="w">                   </span><span class="p">|</span>
++--------------------------+---------+---------------------+
+<span class="p">|</span><span class="w"> </span>Common<span class="w"> </span>classes<span class="w">           </span><span class="p">|</span><span class="w"> </span>a,<span class="w"> </span>b<span class="w">    </span><span class="p">|</span><span class="w"> </span>a,<span class="w"> </span>b<span class="w">                </span><span class="p">|</span>
++--------------------------+---------+---------------------+
+<span class="p">|</span><span class="w"> </span>Classes<span class="w">                  </span><span class="p">|</span><span class="w"> </span>a,<span class="w"> </span>b<span class="w">    </span><span class="p">|</span><span class="w"> </span>a,<span class="w"> </span>b,<span class="w"> </span>background,<span class="w"> </span>c<span class="w"> </span><span class="p">|</span>
++--------------------------+---------+---------------------+
+<span class="p">|</span><span class="w"> </span>Images<span class="w"> </span>count<span class="w">             </span><span class="p">|</span><span class="w"> </span><span class="m">1</span><span class="w">       </span><span class="p">|</span><span class="w"> </span><span class="m">1</span><span class="w">                   </span><span class="p">|</span>
++--------------------------+---------+---------------------+
+<span class="p">|</span><span class="w"> </span>Unique<span class="w"> </span>images<span class="w"> </span>count<span class="w">      </span><span class="p">|</span><span class="w"> </span><span class="m">1</span><span class="w">       </span><span class="p">|</span><span class="w"> </span><span class="m">1</span><span class="w">                   </span><span class="p">|</span>
++--------------------------+---------+---------------------+
+<span class="p">|</span><span class="w"> </span>Repeated<span class="w"> </span>images<span class="w"> </span>count<span class="w">    </span><span class="p">|</span><span class="w"> </span><span class="m">0</span><span class="w">       </span><span class="p">|</span><span class="w"> </span><span class="m">0</span><span class="w">                   </span><span class="p">|</span>
++--------------------------+---------+---------------------+
+<span class="p">|</span><span class="w"> </span>Annotations<span class="w"> </span>count<span class="w">        </span><span class="p">|</span><span class="w"> </span><span class="m">1</span><span class="w">       </span><span class="p">|</span><span class="w"> </span><span class="m">2</span><span class="w">                   </span><span class="p">|</span>
++--------------------------+---------+---------------------+
+<span class="p">|</span><span class="w"> </span>Unannotated<span class="w"> </span>images<span class="w"> </span>count<span class="w"> </span><span class="p">|</span><span class="w"> </span><span class="m">0</span><span class="w">       </span><span class="p">|</span><span class="w"> </span><span class="m">0</span><span class="w">                   </span><span class="p">|</span>
++--------------------------+---------+---------------------+
 </pre></div>
 </div>
-</li>
-<li><p>Compare two projects for equality, exclude annotation groups
-and the <code class="docutils literal notranslate"><span class="pre">is_crowd</span></code> attribute from comparison</p>
-<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">datum compare &lt;path/to/other/project/&gt; -m equality -if group -ia is_crowd</span>
+<p>Secondly, the “Mid-level comparison” displays image means, standard deviations, and label distributions for each subset in the datasets. For example:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>+--------------------+--------------------------+--------------------------+
+<span class="p">|</span><span class="w"> </span>Field<span class="w">              </span><span class="p">|</span><span class="w"> </span>First<span class="w">                    </span><span class="p">|</span><span class="w"> </span>Second<span class="w">                   </span><span class="p">|</span>
++<span class="o">====================</span>+<span class="o">==========================</span>+<span class="o">==========================</span>+
+<span class="p">|</span><span class="w"> </span>train<span class="w"> </span>-<span class="w"> </span>Image<span class="w"> </span>Mean<span class="w"> </span><span class="p">|</span><span class="w"> </span><span class="m">1</span>.00,<span class="w">   </span><span class="m">1</span>.00,<span class="w">   </span><span class="m">1</span>.00<span class="w">     </span><span class="p">|</span><span class="w"> </span><span class="m">1</span>.00,<span class="w">   </span><span class="m">1</span>.00,<span class="w">   </span><span class="m">1</span>.00<span class="w">     </span><span class="p">|</span>
++--------------------+--------------------------+--------------------------+
+<span class="p">|</span><span class="w"> </span>train<span class="w"> </span>-<span class="w"> </span>Image<span class="w"> </span>Std<span class="w">  </span><span class="p">|</span><span class="w"> </span><span class="m">0</span>.00,<span class="w">   </span><span class="m">0</span>.00,<span class="w">   </span><span class="m">0</span>.00<span class="w">     </span><span class="p">|</span><span class="w"> </span><span class="m">0</span>.00,<span class="w">   </span><span class="m">0</span>.00,<span class="w">   </span><span class="m">0</span>.00<span class="w">     </span><span class="p">|</span>
++--------------------+--------------------------+--------------------------+
+<span class="p">|</span><span class="w"> </span>Label<span class="w"> </span>-<span class="w"> </span>a<span class="w">          </span><span class="p">|</span><span class="w"> </span>imgs:<span class="w"> </span><span class="m">1</span>,<span class="w"> </span>percent:<span class="w"> </span><span class="m">1</span>.0000<span class="w"> </span><span class="p">|</span><span class="w">                          </span><span class="p">|</span>
++--------------------+--------------------------+--------------------------+
+<span class="p">|</span><span class="w"> </span>Label<span class="w"> </span>-<span class="w"> </span>b<span class="w">          </span><span class="p">|</span><span class="w">                          </span><span class="p">|</span><span class="w"> </span>imgs:<span class="w"> </span><span class="m">1</span>,<span class="w"> </span>percent:<span class="w"> </span><span class="m">0</span>.5000<span class="w"> </span><span class="p">|</span>
++--------------------+--------------------------+--------------------------+
+<span class="p">|</span><span class="w"> </span>Label<span class="w"> </span>-<span class="w"> </span>background<span class="w"> </span><span class="p">|</span><span class="w">                          </span><span class="p">|</span><span class="w">                          </span><span class="p">|</span>
++--------------------+--------------------------+--------------------------+
+<span class="p">|</span><span class="w"> </span>Label<span class="w"> </span>-<span class="w"> </span>c<span class="w">          </span><span class="p">|</span><span class="w">                          </span><span class="p">|</span><span class="w"> </span>imgs:<span class="w"> </span><span class="m">1</span>,<span class="w"> </span>percent:<span class="w"> </span><span class="m">0</span>.5000<span class="w"> </span><span class="p">|</span>
++--------------------+--------------------------+--------------------------+
+</pre></div>
+</div>
+<p>Lastly, the “Low-level comparison” uses ShiftAnalyzer to show Covariate shift and Label shift between the two datasets. For example:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>+-----------------+---------+
+<span class="p">|</span><span class="w"> </span>Field<span class="w">           </span><span class="p">|</span><span class="w">   </span>Value<span class="w"> </span><span class="p">|</span>
++<span class="o">=================</span>+<span class="o">=========</span>+
+<span class="p">|</span><span class="w"> </span>Covariate<span class="w"> </span><span class="nb">shift</span><span class="w"> </span><span class="p">|</span><span class="w">       </span><span class="m">0</span><span class="w"> </span><span class="p">|</span>
++-----------------+---------+
+<span class="p">|</span><span class="w"> </span>Label<span class="w"> </span><span class="nb">shift</span><span class="w">     </span><span class="p">|</span><span class="w">     </span>nan<span class="w"> </span><span class="p">|</span>
++-----------------+---------+
+</pre></div>
+</div>
+<p>The results are stored in the formats of <code class="docutils literal notranslate"><span class="pre">table_compare.json</span></code> and <code class="docutils literal notranslate"><span class="pre">table_compare.txt</span></code>.</p>
+<ul>
+<li><p>Compare the current working tree with a dataset in COCO data format to create the tabular report</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">datum compare &lt;path/to/dataset2/&gt;:coco</span>
 </pre></div>
 </div>
 </li>
@@ -665,11 +712,6 @@ and the <code class="docutils literal notranslate"><span class="pre">is_crowd</s
 </li>
 <li><p>Compare two datasets for table, specify formats</p>
 <div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">datum compare &lt;path/to/dataset1/&gt;:voc &lt;path/to/dataset2/&gt;:coco</span>
-</pre></div>
-</div>
-</li>
-<li><p>Compare the current working tree and a dataset for table</p>
-<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">datum compare &lt;path/to/dataset2/&gt;:coco</span>
 </pre></div>
 </div>
 </li>
@@ -688,6 +730,49 @@ and the <code class="docutils literal notranslate"><span class="pre">is_crowd</s
 </div>
 </li>
 </ul>
+</section>
+<section id="equality">
+<h4><code class="docutils literal notranslate"><span class="pre">equality</span></code><a class="headerlink" href="#equality" title="Permalink to this heading">#</a></h4>
+<p>This method shows how identical items and annotations are between datasets. It indicates the number of unmatched items in each project (dataset), as well as the quantity of conflicting items and the counts of matching and mismatching annotations. For example:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>Found:
+The<span class="w"> </span>first<span class="w"> </span>project<span class="w"> </span>has<span class="w"> </span><span class="m">10</span><span class="w"> </span>unmatched<span class="w"> </span>items
+The<span class="w"> </span>second<span class="w"> </span>project<span class="w"> </span>has<span class="w"> </span><span class="m">100</span><span class="w"> </span>unmatched<span class="w"> </span>items
+<span class="m">1</span><span class="w"> </span>item<span class="w"> </span>conflicts
+<span class="m">10</span><span class="w"> </span>matching<span class="w"> </span>annotations
+<span class="m">0</span><span class="w"> </span>mismatching<span class="w"> </span>annotations
+</pre></div>
+</div>
+<p>The detailed information is stored in <code class="docutils literal notranslate"><span class="pre">equality_compare.json</span></code>. If you’d like to review the specific details, please refer to this file.</p>
+<p>Annotations are compared to be equal</p>
+<ul>
+<li><p>Compare two projects for equality, exclude annotation groups
+and the <code class="docutils literal notranslate"><span class="pre">is_crowd</span></code> attribute from comparison</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">datum compare &lt;path/to/other/project/&gt; -m equality -if group -ia is_crowd</span>
+</pre></div>
+</div>
+</li>
+</ul>
+</section>
+<section id="distance">
+<h4><code class="docutils literal notranslate"><span class="pre">distance</span></code><a class="headerlink" href="#distance" title="Permalink to this heading">#</a></h4>
+<p>This method demonstrates the consistency of annotations between dataset items. It presents the count of matched annotations between two items in a tabular format, comparing the numbers of label, bbox, polygon, and mask annotations. Additionally, it generates a confusion matrix for each annotation type, which is saved in the form of <code class="docutils literal notranslate"><span class="pre">&lt;annotation_type&gt;_confusion.png</span></code>. It also highlights cases where mismatching labels exist. For example:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>Datasets<span class="w"> </span>have<span class="w"> </span>mismatching<span class="w"> </span>labels:
+<span class="w">  </span><span class="c1">#0: a != background</span>
+<span class="w">  </span><span class="c1">#1: b != a</span>
+<span class="w">  </span><span class="c1">#2:  &lt; b</span>
+<span class="w">  </span><span class="c1">#3:  &lt; c</span>
+</pre></div>
+</div>
+<ul>
+<li><p>Compare two projects by distance, match boxes if IoU &gt; 0.7,
+save results to TensorBoard</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">datum compare &lt;path/to/other/project/&gt; -m distance -f tensorboard --iou-thresh 0.7 -o compare/</span>
+</pre></div>
+</div>
+</li>
+</ul>
+</section>
+</section>
 </section>
 </section>
 
@@ -733,6 +818,42 @@ and the <code class="docutils literal notranslate"><span class="pre">is_crowd</s
   <a class="reference internal nav-link" href="#compare-datasets">
    Compare datasets
   </a>
+  <ul class="nav section-nav flex-column">
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#support-methods">
+     Support methods
+    </a>
+    <ul class="nav section-nav flex-column">
+     <li class="toc-h4 nav-item toc-entry">
+      <a class="reference internal nav-link" href="#table">
+       <code class="docutils literal notranslate">
+        <span class="pre">
+         table
+        </span>
+       </code>
+      </a>
+     </li>
+     <li class="toc-h4 nav-item toc-entry">
+      <a class="reference internal nav-link" href="#equality">
+       <code class="docutils literal notranslate">
+        <span class="pre">
+         equality
+        </span>
+       </code>
+      </a>
+     </li>
+     <li class="toc-h4 nav-item toc-entry">
+      <a class="reference internal nav-link" href="#distance">
+       <code class="docutils literal notranslate">
+        <span class="pre">
+         distance
+        </span>
+       </code>
+      </a>
+     </li>
+    </ul>
+   </li>
+  </ul>
  </li>
 </ul>
 

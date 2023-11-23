@@ -585,7 +585,47 @@
               
   <section id="level-6-data-comparison-with-two-heterogeneous-datasets">
 <h1>Level 6: Data Comparison with Two Heterogeneous Datasets<a class="headerlink" href="#level-6-data-comparison-with-two-heterogeneous-datasets" title="Permalink to this heading">#</a></h1>
-<p>TBD</p>
+<p>Comparison is a fundamental tool that enables users to identify and understand the discrepancies and variations that exist between datasets.
+It allows for a comprehensive assessment of variations in data distribution, format, and annotation standards present across different sources.
+By pinpointing the differences in data distribution, format, and annotation standards across multiple sources, the comparison paves the way for a streamlined and effective dataset consolidation process.
+In essence, it serves as the cornerstone for achieving a cohesive and comprehensive large-scale dataset, a critical requirement for training deep learning models.</p>
+<p>In this tutorial, we provide a simple example for comparing two datasets, and the detailed description of the comparison operation is given in the <a class="reference internal" href="../../command-reference/context_free/compare.html"><span class="doc">Compare</span></a> section.</p>
+<section id="comparing-datasets">
+<h2>Comparing Datasets<a class="headerlink" href="#comparing-datasets" title="Permalink to this heading">#</a></h2>
+<div class="sd-tab-set docutils">
+<input checked="checked" id="sd-tab-item-0" name="sd-tab-set-0" type="radio">
+</input><label class="sd-tab-label" for="sd-tab-item-0">
+CLI</label><div class="sd-tab-content docutils">
+<p>Without the project declaration, you can simply compare multiple datasets using the following command:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>datum<span class="w"> </span>compare<span class="w"> </span>&lt;path/to/dataset1&gt;<span class="w"> </span>&lt;path/to/dataset2&gt;<span class="w"> </span>-o<span class="w"> </span>result
+</pre></div>
+</div>
+<p>In this case, the <code class="docutils literal notranslate"><span class="pre">table</span></code> method is used to generate a comparison table. You will have the comparison report named <code class="docutils literal notranslate"><span class="pre">table_compare.json</span></code> and <code class="docutils literal notranslate"><span class="pre">table_compare.txt</span></code> inside the output directory.</p>
+<p>To compare if annotations are equal, use:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>datum<span class="w"> </span>compare<span class="w"> </span>&lt;path/to/dataset1&gt;<span class="w"> </span>&lt;path/to/dataset2&gt;<span class="w"> </span>-m<span class="w"> </span>equality<span class="w"> </span>-o<span class="w"> </span>result
+</pre></div>
+</div>
+<p>You will have the comparison report named <code class="docutils literal notranslate"><span class="pre">equality_compare.json</span></code> inside the output directory.</p>
+<p>To compare a dataset from another project with a distance metric, use:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>datum<span class="w"> </span>compare<span class="w"> </span>&lt;path/to/other/project/&gt;<span class="w"> </span>-m<span class="w"> </span>distance<span class="w"> </span>-o<span class="w"> </span>result
+</pre></div>
+</div>
+<p>You will have the comparison report named <code class="docutils literal notranslate"><span class="pre">&lt;annotation_type&gt;_confusion.png</span></code> inside the output directory. If there is a label difference, then a <code class="docutils literal notranslate"><span class="pre">label_confusion</span></code> result will be created. This supports <code class="docutils literal notranslate"><span class="pre">label</span></code>, <code class="docutils literal notranslate"><span class="pre">bbox</span></code>, <code class="docutils literal notranslate"><span class="pre">polygon</span></code>, and <code class="docutils literal notranslate"><span class="pre">mask</span></code> annotation types.</p>
+</div>
+<input id="sd-tab-item-1" name="sd-tab-set-0" type="radio">
+</input><label class="sd-tab-label" for="sd-tab-item-1">
+PythonCLI</label><div class="sd-tab-content docutils">
+<p>With the project-based CLI, you can compare the current project’s main target (project) in the working tree with the specified dataset using the following command:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>datum<span class="w"> </span>compare<span class="w"> </span>&lt;path/to/specified/dataset&gt;
+</pre></div>
+</div>
+<p>You can also simply compare multiple datasets by using:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>datum<span class="w"> </span>compare<span class="w"> </span>&lt;path/to/dataset1&gt;<span class="w"> </span>&lt;path/to/dataset2&gt;
+</pre></div>
+</div>
+</div>
+</div>
+</section>
 </section>
 
 
@@ -619,6 +659,23 @@
           
             <div class="bd-sidebar-secondary bd-toc">
               
+<div class="toc-item">
+  
+<div class="tocsection onthispage">
+    <i class="fa-solid fa-list"></i> On this page
+</div>
+<nav id="bd-toc-nav" class="page-toc">
+    <ul class="visible nav section-nav flex-column">
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#comparing-datasets">
+   Comparing Datasets
+  </a>
+ </li>
+</ul>
+
+</nav>
+</div>
+
 <div class="toc-item">
   
 <div id="searchbox"></div>

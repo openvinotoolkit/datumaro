@@ -598,9 +598,9 @@ The more advanced Python example with the label mapping between datasets is give
 <section id="prepare-datasets">
 <h2>Prepare datasets<a class="headerlink" href="#prepare-datasets" title="Permalink to this heading">#</a></h2>
 <p>We here download two aerial datasets named by Eurosat and UC Merced as a simple ImageNet format by</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>datum<span class="w"> </span>download<span class="w"> </span>get<span class="w"> </span>-i<span class="w"> </span>tfds:eurosat<span class="w"> </span>--format<span class="w"> </span>imagenet<span class="w"> </span>--output-dir<span class="w"> </span>&lt;path/to/eurosat&gt;<span class="w"> </span>--<span class="w"> </span>--save-media
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>datum<span class="w"> </span>download<span class="w"> </span>get<span class="w"> </span>-i<span class="w"> </span>tfds:eurosat<span class="w"> </span>-f<span class="w"> </span>imagenet<span class="w"> </span>--output-dir<span class="w"> </span>&lt;path/to/eurosat&gt;<span class="w"> </span>--<span class="w"> </span>--save-media
 
-datum<span class="w"> </span>download<span class="w"> </span>get<span class="w"> </span>-i<span class="w"> </span>tfds:uc_merced<span class="w"> </span>--format<span class="w"> </span>imagenet<span class="w"> </span>--output-dir<span class="w"> </span>&lt;path/to/uc_merced&gt;<span class="w"> </span>--<span class="w"> </span>--save-media
+datum<span class="w"> </span>download<span class="w"> </span>get<span class="w"> </span>-i<span class="w"> </span>tfds:uc_merced<span class="w"> </span>-f<span class="w"> </span>imagenet<span class="w"> </span>--output-dir<span class="w"> </span>&lt;path/to/uc_merced&gt;<span class="w"> </span>--<span class="w"> </span>--save-media
 </pre></div>
 </div>
 </section>
