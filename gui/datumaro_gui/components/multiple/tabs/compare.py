@@ -3,11 +3,11 @@
 # SPDX-License-Identifier: MIT
 
 import difflib
+import re
 
 import pandas as pd
 import streamlit as st
 from datumaro_gui.utils.dataset.data_loader import MultipleDatasetHelper
-from datumaro_gui.utils.drawing.css import box_style
 from st_aggrid import AgGrid, GridOptionsBuilder, GridUpdateMode
 from streamlit import session_state as state
 from streamlit_elements import elements
@@ -34,9 +34,9 @@ def main():
     second_dataset = data_helper_2.dataset()
     uploaded_zip_1 = state["uploaded_zip_1"].name[:-4]
     uploaded_zip_2 = state["uploaded_zip_2"].name[:-4]
-    high_level_table = state["high_level_table"]
-    mid_level_table = state["mid_level_table"]
-    low_level_table = state["low_level_table"]
+    high_level_df = state["high_level_table"]
+    mid_level_df = state["mid_level_table"]
+    low_level_df = state["low_level_table"]
 
     # Initialize state
     if not "mapping":
@@ -46,45 +46,40 @@ def main():
 
     with elements("compare"):
         comparator = TableComparator()
-        # (
-        #     high_level_table,
-        #     mid_level_table,
-        #     low_level_table,
-        #     _,
-        # ) = comparator.compare_datasets(first_dataset, second_dataset)
 
-        if not high_level_table and not mid_level_table:
+        if high_level_df is None and mid_level_df is None:
             high_level_table, _, _, _ = comparator.compare_datasets(
                 first_dataset, second_dataset, "high"
             )
             _, mid_level_table, _, _ = comparator.compare_datasets(
                 first_dataset, second_dataset, "mid"
             )
-            state["high_level_table"] = high_level_table
-            state["mid_level_table"] = mid_level_table
 
-        ### high level
-        # Split the string into rows and extract data
-        high_level_rows = high_level_table.strip().split("\n")
-        high_level_header = [col.strip() for col in high_level_rows[1].split("|")[1:-1]]
-        high_level_data = []
+            ### high level
+            # Split the string into rows and extract data
+            high_level_lines = high_level_table.split("\n")
+            high_level_data_lines = [
+                re.split(r"\s*[|]\s*", line.strip("|")) for line in high_level_lines if "|" in line
+            ]
+            high_level_header = [
+                header.strip() for header in high_level_data_lines[0] if header.strip()
+            ]
+            high_level_df = pd.DataFrame(high_level_data_lines[1:], columns=high_level_header)
+            high_level_df = high_level_df.applymap(lambda x: x.strip() if isinstance(x, str) else x)
 
-        for row in high_level_rows[3::2]:
-            values = [col.strip() for col in row.split("|")[1:-1]]
-            high_level_data.append(values)
+            ### mid level
+            mid_level_lines = mid_level_table.split("\n")
+            mid_level_data_lines = [
+                re.split(r"\s*[|]\s*", line.strip("|")) for line in mid_level_lines if "|" in line
+            ]
+            mid_level_header = [
+                header.strip() for header in mid_level_data_lines[0] if header.strip()
+            ]
+            mid_level_df = pd.DataFrame(mid_level_data_lines[1:], columns=mid_level_header)
+            mid_level_df = mid_level_df.applymap(lambda x: x.strip() if isinstance(x, str) else x)
 
-        high_level_df = pd.DataFrame(high_level_data, columns=high_level_header)
-
-        ### mid level
-        mid_level_rows = mid_level_table.strip().split("\n")
-        mid_level_header = [col.strip() for col in mid_level_rows[1].split("|")[1:-1]]
-        mid_level_data = []
-
-        for row in mid_level_rows[3::2]:
-            values = [col.strip() for col in row.split("|")[1:-1]]
-            mid_level_data.append(values)
-
-        mid_level_df = pd.DataFrame(mid_level_data, columns=mid_level_header)
+            state["high_level_table"] = high_level_df
+            state["mid_level_table"] = mid_level_df
 
         container = st.container()
         c1, c2 = container.columns([1, 2])
@@ -97,27 +92,27 @@ def main():
             c1.subheader("Low Level Table")
 
             ### low level
-            st.markdown("<style>{}</style>".format(box_style), unsafe_allow_html=True)
-            c1.markdown(
-                '<div class="highlight lightmintgreen box">"Low-level comparison" uses ShiftAnalyzer \
-                    to show Covariate shift and Label shift between the two datasets</div>',
-                unsafe_allow_html=True,
-            )
             on = st.toggle("Show low-level table")
             if on:
-                _, _, low_level_table, _ = comparator.compare_datasets(
-                    first_dataset, second_dataset, "low"
-                )
-                low_level_rows = low_level_table.strip().split("\n")
-                low_level_header = [col.strip() for col in low_level_rows[1].split("|")[1:-1]]
-                low_level_data = []
-                state["low_level_table"] = low_level_table
+                if low_level_df is None:
+                    _, _, low_level_table, _ = comparator.compare_datasets(
+                        first_dataset, second_dataset, "low"
+                    )
+                    low_level_lines = low_level_table.split("\n")
+                    low_level_data_lines = [
+                        re.split(r"\s*[|]\s*", line.strip("|"))
+                        for line in low_level_lines
+                        if "|" in line
+                    ]
+                    low_level_header = [
+                        header.strip() for header in low_level_data_lines[0] if header.strip()
+                    ]
+                    low_level_df = pd.DataFrame(low_level_data_lines[1:], columns=low_level_header)
+                    low_level_df = low_level_df.applymap(
+                        lambda x: x.strip() if isinstance(x, str) else x
+                    )
+                    state["low_level_table"] = low_level_df
 
-                for row in low_level_rows[3::2]:
-                    values = [col.strip() for col in row.split("|")[1:-1]]
-                    low_level_data.append(values)
-
-                low_level_df = pd.DataFrame(low_level_data, columns=low_level_header)
                 c1.dataframe(low_level_df, use_container_width=True)
 
         with c2:
