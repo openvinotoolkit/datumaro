@@ -56,30 +56,8 @@ def main():
                 and uploaded_zip_2 != state["uploaded_zip_2"]
             ):
                 # Extract the contents of the uploaded zip file to the temporary directory
-                ds1_progress_bar = st.progress(
-                    0, text=f"Processing First Dataset {uploaded_zip_1.name}"
-                )
-                for percentage_complete in range(100):
-                    dataset_1_dir = data_repo.unzip_dataset(uploaded_zip_1)
-                    ds1_progress_bar.progress(
-                        percentage_complete + 1,
-                        text=f"Processing First Dataset {uploaded_zip_1.name} [{percentage_complete+1}/100]",
-                    )
-                ds1_progress_bar.empty()
-
-                ds2_progress_bar = st.progress(
-                    0, text=f"Processing Second Dataset {uploaded_zip_2.name}"
-                )
-                for percentage_complete in range(100):
-                    dataset_2_dir = data_repo.unzip_dataset(uploaded_zip_2)
-                    ds2_progress_bar.progress(
-                        percentage_complete + 1,
-                        text=f"Processing Second Dataset {uploaded_zip_2.name} [{percentage_complete+1}/100]",
-                    )
-                ds2_progress_bar.empty()
-
-                print("dataset_1_dir: ", dataset_1_dir)
-                print("dataset_2_dir: ", dataset_2_dir)
+                dataset_1_dir = data_repo.unzip_dataset(uploaded_zip_1)
+                dataset_2_dir = data_repo.unzip_dataset(uploaded_zip_2)
 
                 state["uploaded_zip_1"] = uploaded_zip_1
                 state["uploaded_zip_2"] = uploaded_zip_2
