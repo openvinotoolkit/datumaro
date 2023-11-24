@@ -32,14 +32,7 @@ def main():
         if uploaded_zip is not None:
             if uploaded_zip != state["uploaded_zip"]:
                 # Extract the contents of the uploaded zip file to the temporary directory
-                progress_bar = st.progress(0, text=f"Processing Dataset {uploaded_zip.name}")
-                for percentage_complete in range(100):
-                    dataset_dir = data_repo.unzip_dataset(uploaded_zip)
-                    progress_bar.progress(
-                        percentage_complete + 1,
-                        text=f"Processing Dataset {uploaded_zip.name} [{percentage_complete+1}/100]",
-                    )
-                progress_bar.empty()
+                dataset_dir = data_repo.unzip_dataset(uploaded_zip)
                 state["uploaded_zip"] = uploaded_zip
                 data_helper = SingleDatasetHelper(dataset_dir)
                 state["data_helper"] = data_helper
