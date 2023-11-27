@@ -126,8 +126,8 @@ def query_list(title=""):
                 item = state["explore_queries"].pop(current_selected)
                 if isinstance(item, QueryUplodedImage):
                     file_id = state["explore_user_uploaded_images"].get(item.path)
-                    if (
-                        state["explore_user_uploaded_file"] is None
+                    if ("explore_user_uploaded_file" in state
+                        and state["explore_user_uploaded_file"] is None
                         or state["explore_user_uploaded_file"].file_id != file_id
                     ):
                         DataRepo().delete_by_id(file_id)
@@ -319,14 +319,14 @@ def main():
             st.subheader("Results")
             if search is True:
                 try:
-                    progress_bar = st.progress(0, text="Searching...")
-                    for percentage_complete in range(100):
-                        results = explore_topk(dataset, topk)
-                        progress_bar.progress(
-                            percentage_complete + 1,
-                            text=f"Searching Dataset [{percentage_complete+1}/100]",
-                        )
-                    progress_bar.empty()
+                    # progress_bar = st.progress(0, text="Searching...")
+                    # for percentage_complete in range(100):
+                    results = explore_topk(dataset, topk)
+                        # progress_bar.progress(
+                        #     percentage_complete + 1,
+                        #     text=f"Searching Dataset [{percentage_complete+1}/100]",
+                        # )
+                    # progress_bar.empty()
                 except Exception as e:
                     st.write(
                         "An error occur while searching. Please re-import dataset and try again."

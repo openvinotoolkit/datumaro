@@ -79,7 +79,7 @@ def get_image_size_dist(image_size_info):
             "legend": "Height",
             "legendOffset": -45,
         },
-        "blendMode": "soft-light",
+        # "blendMode": "soft-light",
     }
 
     tab_data = []
