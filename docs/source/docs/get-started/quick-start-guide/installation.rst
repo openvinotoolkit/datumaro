@@ -28,7 +28,7 @@ Install:
 .. code-block::
 
     # From the GitHub repository:
-    pip install 'git+https://github.com/openvinotoolkit/datumaro[default]'
+    pip install 'datumaro[default] @ git+https://github.com/openvinotoolkit/datumaro'
 
 Plugins
 ^^^^^^^
