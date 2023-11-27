@@ -8,7 +8,6 @@ import os.path as osp
 import warnings
 from collections import Counter
 from enum import Enum, auto
-from itertools import zip_longest
 from typing import TYPE_CHECKING, Union
 
 import cv2
@@ -83,22 +82,24 @@ class DistanceCompareVisualizer:
         if len(a) != len(b):
             print("Datasets have different lengths: %s vs %s" % (len(a), len(b)))
 
-        a_classes = a.categories().get(AnnotationType.label, LabelCategories())
-        b_classes = b.categories().get(AnnotationType.label, LabelCategories())
-        class_mismatch = [
-            (idx, a_cls, b_cls)
-            for idx, (a_cls, b_cls) in enumerate(zip_longest(a_classes, b_classes))
-            if getattr(a_cls, "name", None) != getattr(b_cls, "name", None)
+        a_classes = set(
+            a_cls.name for a_cls in a.categories().get(AnnotationType.label, LabelCategories())
+        )
+        b_classes = set(
+            b_cls.name for b_cls in b.categories().get(AnnotationType.label, LabelCategories())
+        )
+
+        class_mismatch = [(diff, None) for diff in a_classes - b_classes] + [
+            (None, diff) for diff in b_classes - a_classes
         ]
+
         if class_mismatch:
             print("Datasets have mismatching labels:")
-            for idx, a_class, b_class in class_mismatch:
-                if a_class and b_class:
-                    print("  #%s: %s != %s" % (idx, a_class.name, b_class.name))
-                elif a_class:
-                    print("  #%s:  > %s" % (idx, a_class.name))
+            for idx, (a_class, b_class) in enumerate(class_mismatch):
+                if a_class:
+                    print("  #%s:  > %s" % (idx, a_class))
                 else:
-                    print("  #%s:  < %s" % (idx, b_class.name))
+                    print("  #%s:  < %s" % (idx, b_class))
         self._a_classes = a.categories().get(AnnotationType.label)
         self._b_classes = b.categories().get(AnnotationType.label)
 
