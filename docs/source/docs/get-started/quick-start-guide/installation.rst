@@ -20,15 +20,37 @@ Optionally, set up a virtual environment:
 
 Install:
 
-.. code-block::
+1. From PyPI (**recommended**)
 
-    # From PyPI:
-    pip install datumaro[default]
+    .. code-block::
 
-.. code-block::
+        pip install datumaro[default]
 
-    # From the GitHub repository:
-    pip install 'git+https://github.com/openvinotoolkit/datumaro[default]'
+
+    Alternatively, for zsh users:
+
+    .. code-block::
+
+        pip install 'datumaro[default]'
+
+
+2. From the GitHub repository (**not recommended, for advanced users**)
+
+    Installation from the repository source is not recommended.
+    This is because it requires that C++ and Rust build systems are prepared in your local environment before installation.
+    Datumaro includes C++ and Rust implementations to accelerate some workloads to overcome Python's innate slowness.
+
+    .. code-block::
+
+        # Prerequisite (For Unix-like systems)
+        # Install C++ build system
+        sudo apt-get install build-essential
+        # Install Rust build system
+        curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
+
+        # Install from the GitHub repository
+        pip install 'datumaro[default] @ git+https://github.com/openvinotoolkit/datumaro'
+
 
 Plugins
 ^^^^^^^
