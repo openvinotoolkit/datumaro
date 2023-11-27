@@ -603,17 +603,19 @@
 <p>Install:</p>
 <ol class="arabic">
 <li><p>From PyPI (<strong>recommended</strong>)</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>   <span class="n">pip</span> <span class="n">install</span> <span class="n">datumaro</span><span class="p">[</span><span class="n">default</span><span class="p">]</span>
-
-<span class="n">Alternatively</span><span class="p">,</span> <span class="k">for</span> <span class="n">zsh</span> <span class="n">users</span><span class="p">:</span>
+<blockquote>
+<div><div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">pip</span> <span class="n">install</span> <span class="n">datumaro</span><span class="p">[</span><span class="n">default</span><span class="p">]</span>
 </pre></div>
 </div>
+<p>Alternatively, for zsh users:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">pip</span> <span class="n">install</span> <span class="s1">&#39;datumaro[default]&#39;</span>
 </pre></div>
 </div>
+</div></blockquote>
 </li>
 <li><p>From the GitHub repository (<strong>not recommended, for advanced users</strong>)</p>
-<p>Installation from the repository source is not recommended.
+<blockquote>
+<div><p>Installation from the repository source is not recommended.
 This is because it requires that C++ and Rust build systems are prepared in your local environment before installation.
 Datumaro includes C++ and Rust implementations to accelerate some workloads to overcome Python’s innate slowness.</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># Prerequisite (For Unix-like systems)</span>
@@ -626,6 +628,7 @@ Datumaro includes C++ and Rust implementations to accelerate some workloads to o
 <span class="n">pip</span> <span class="n">install</span> <span class="s1">&#39;datumaro[default] @ git+https://github.com/openvinotoolkit/datumaro&#39;</span>
 </pre></div>
 </div>
+</div></blockquote>
 </li>
 </ol>
 <section id="plugins">
