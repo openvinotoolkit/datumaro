@@ -601,14 +601,33 @@
 </pre></div>
 </div>
 <p>Install:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># From PyPI:</span>
-<span class="n">pip</span> <span class="n">install</span> <span class="n">datumaro</span><span class="p">[</span><span class="n">default</span><span class="p">]</span>
+<ol class="arabic">
+<li><p>From PyPI (<strong>recommended</strong>)</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>   <span class="n">pip</span> <span class="n">install</span> <span class="n">datumaro</span><span class="p">[</span><span class="n">default</span><span class="p">]</span>
+
+<span class="n">Alternatively</span><span class="p">,</span> <span class="k">for</span> <span class="n">zsh</span> <span class="n">users</span><span class="p">:</span>
 </pre></div>
 </div>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># From the GitHub repository:</span>
-<span class="n">pip</span> <span class="n">install</span> <span class="s1">&#39;git+https://github.com/openvinotoolkit/datumaro[default]&#39;</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">pip</span> <span class="n">install</span> <span class="s1">&#39;datumaro[default]&#39;</span>
 </pre></div>
 </div>
+</li>
+<li><p>From the GitHub repository (<strong>not recommended, for advanced users</strong>)</p>
+<p>Installation from the repository source is not recommended.
+This is because it requires that C++ and Rust build systems are prepared in your local environment before installation.
+Datumaro includes C++ and Rust implementations to accelerate some workloads to overcome Python’s innate slowness.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># Prerequisite (For Unix-like systems)</span>
+<span class="c1"># Install C++ build system</span>
+<span class="n">sudo</span> <span class="n">apt</span><span class="o">-</span><span class="n">get</span> <span class="n">install</span> <span class="n">build</span><span class="o">-</span><span class="n">essential</span>
+<span class="c1"># Install Rust build system</span>
+<span class="n">curl</span> <span class="o">--</span><span class="n">proto</span> <span class="s1">&#39;=https&#39;</span> <span class="o">--</span><span class="n">tlsv1</span><span class="mf">.2</span> <span class="o">-</span><span class="n">sSf</span> <span class="n">https</span><span class="p">:</span><span class="o">//</span><span class="n">sh</span><span class="o">.</span><span class="n">rustup</span><span class="o">.</span><span class="n">rs</span> <span class="o">|</span> <span class="n">sh</span>
+
+<span class="c1"># Install from the GitHub repository</span>
+<span class="n">pip</span> <span class="n">install</span> <span class="s1">&#39;datumaro[default] @ git+https://github.com/openvinotoolkit/datumaro&#39;</span>
+</pre></div>
+</div>
+</li>
+</ol>
 <section id="plugins">
 <h3>Plugins<a class="headerlink" href="#plugins" title="Permalink to this heading">#</a></h3>
 <p>Datumaro has many plugins, which are responsible for dataset formats,
