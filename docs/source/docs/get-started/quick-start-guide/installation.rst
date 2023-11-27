@@ -26,7 +26,14 @@ Install:
 
        pip install datumaro[default]
 
-2. From source (**not recommended, for advanced users**)
+    Alternatively, for zsh users:
+
+   .. code-block::
+
+       pip install 'datumaro[default]'
+
+
+2. From the GitHub repository (**not recommended, for advanced users**)
 
    Installation from the repository source is not recommended.
    This is because it requires that C++ and Rust build systems are prepared in your local environment before installation.
