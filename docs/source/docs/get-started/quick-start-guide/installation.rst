@@ -22,12 +22,13 @@ Install:
 
 .. code-block::
 
-    # From PyPI:
+    # From PyPI (recommended):
     pip install datumaro[default]
 
 .. code-block::
 
     # From the GitHub repository:
+    # Note that C++ and Rust build systems should be prepared before installing datumaro
     pip install 'datumaro[default] @ git+https://github.com/openvinotoolkit/datumaro'
 
 Plugins

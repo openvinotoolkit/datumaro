@@ -15,7 +15,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Bug fixes
 - Fix wrong example of Datumaro dataset creation in document
   (<https://github.com/openvinotoolkit/datumaro/pull/1195>)
-- Fix wrong command to inatall datumaro from github
+- Fix wrong command to install datumaro from github
   (<https://github.com/openvinotoolkit/datumaro/pull/1202>)
 
 ## 16/11/2023 - Release 1.5.1
