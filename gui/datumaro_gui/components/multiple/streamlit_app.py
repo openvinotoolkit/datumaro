@@ -96,9 +96,7 @@ def main():
         selected_tab = sac.tabs(
             [
                 sac.TabsItem(label="GENERAL", icon="incognito"),
-                sac.TabsItem(label="VALIDATE", icon="graph-up", disabled=True),
                 sac.TabsItem(label="COMPARE", icon="arrow-left-right"),
-                sac.TabsItem(label="VISUALIZE", icon="image", disabled=True),
                 sac.TabsItem(label="TRANSFORM", icon="tools"),
                 sac.TabsItem(label="MERGE", icon="union"),
                 sac.TabsItem(label="EXPORT", icon="cloud-arrow-down"),
@@ -109,9 +107,7 @@ def main():
 
         tab_funcs = {
             "GENERAL": tabs.call_general,
-            "VALIDATE": tabs.call_validate,
             "COMPARE": tabs.call_compare,
-            "VISUALIZE": tabs.call_visualize,
             "TRANSFORM": tabs.call_transform,
             "MERGE": tabs.call_merge,
             "EXPORT": tabs.call_export,
