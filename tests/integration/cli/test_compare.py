@@ -1,6 +1,8 @@
+import io
 import os
 import os.path as osp
 from unittest import TestCase
+from unittest.mock import patch
 
 import numpy as np
 
@@ -179,8 +181,9 @@ class CompareTest(TestCase):
 
             self.assertNotEqual(0, os.listdir(osp.join(test_dir)))
 
+    @patch("sys.stdout", new_callable=io.StringIO)
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
-    def test_can_run_distance_diff(self):
+    def test_can_run_distance_diff(self, mock_stdout):
         dataset1 = Dataset.from_iterable(
             [
                 DatasetItem(
@@ -229,6 +232,10 @@ class CompareTest(TestCase):
                 result_dir,
             )
 
+            expected_output1 = "< c"
+            expected_output2 = "< background"
+            self.assertIn(expected_output1, mock_stdout.getvalue())
+            self.assertIn(expected_output2, mock_stdout.getvalue())
             self.assertEqual({"bbox_confusion.png", "train"}, set(os.listdir(result_dir)))
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)

@@ -2017,6 +2017,23 @@ class DatasetTest(TestCase):
         with self.assertRaises(MediaTypeError):
             dataset.init_cache()
 
+    @mark_requirement(Requirements.DATUM_GENERIC_MEDIA)
+    def test_get_label_cat_names(self):
+        dataset = Dataset.from_iterable(
+            [
+                DatasetItem(
+                    id=100,
+                    subset="train",
+                    media=Image.from_numpy(data=np.ones((10, 6, 3))),
+                    annotations=[
+                        Bbox(1, 2, 3, 4, label=1),
+                    ],
+                ),
+            ],
+            categories=["a", "b", "c"],
+        )
+        self.assertEqual(dataset.get_label_cat_names(), ["a", "b", "c"])
+
 
 class DatasetItemTest(TestCase):
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
