@@ -131,3 +131,9 @@ Example:
   datum filter s1 \
     -m i+a -e '/item/annotation[occluded="False"]'
   ```
+
+- Extract a dataset composed solely of items containing annotations.
+  ```console
+  datum filter -e '/item[annotation]'
+  ```
+  The `item[annotation]` checks if there is a child named `annotation` within the `item` node.
