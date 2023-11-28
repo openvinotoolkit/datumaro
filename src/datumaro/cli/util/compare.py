@@ -91,7 +91,7 @@ class DistanceCompareVisualizer:
         for idx, diff in enumerate(a_classes - b_classes):
             print(" #%s: > %s" % (idx, diff))
 
-        for idx, diff in enumerate(b_classes - a_classes, start=len(a_classes)):
+        for idx, diff in enumerate(b_classes - a_classes, start=len((a_classes - b_classes))):
             print(" #%s: < %s" % (idx, diff))
 
         self._a_classes = a.categories().get(AnnotationType.label)
