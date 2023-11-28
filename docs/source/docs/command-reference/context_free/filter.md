@@ -126,8 +126,8 @@ Example:
   Use data only from the "s1" source of the project
   ```console
   datum project create
-  datum project import --format voc -i <path/to/dataset1/> --name s1
-  datum project import --format voc -i <path/to/dataset2/> --name s2
+  datum project import --name s1 --format voc <path/to/dataset1/>
+  datum project import --name s2 --format voc <path/to/dataset2/>
   datum filter s1 \
     -m i+a -e '/item/annotation[occluded="False"]'
   ```
