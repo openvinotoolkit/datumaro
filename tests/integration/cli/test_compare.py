@@ -1,10 +1,9 @@
-import io
 import os
 import os.path as osp
 from unittest import TestCase
-from unittest.mock import patch
 
 import numpy as np
+import pytest
 
 from datumaro.cli.util.compare import DistanceCompareVisualizer
 from datumaro.components.annotation import (
@@ -32,9 +31,13 @@ from tests.utils.test_utils import run_datum as run
 
 
 class CompareTest(TestCase):
+    @pytest.fixture(autouse=True)
+    def capsys(self, capsys):
+        self.capsys = capsys
+
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_compare_projects(self):  # just a smoke test
-        label_categories1 = LabelCategories.from_iterable(["x", "a", "b", "y"])
+        label_categories1 = LabelCategories.from_iterable(["x", "a", "b", "y", "z"])
         mask_categories1 = MaskCategories.generate(len(label_categories1))
 
         point_categories1 = PointsCategories()
@@ -103,7 +106,7 @@ class CompareTest(TestCase):
             },
         )
 
-        label_categories2 = LabelCategories.from_iterable(["a", "b", "x", "y"])
+        label_categories2 = LabelCategories.from_iterable(["a", "b", "c", "x", "y"])
         mask_categories2 = MaskCategories.generate(len(label_categories2))
 
         point_categories2 = PointsCategories()
@@ -179,11 +182,15 @@ class CompareTest(TestCase):
             ) as visualizer:
                 visualizer.save(dataset1, dataset2)
 
+            expected_output1 = "> z"
+            expected_output2 = "< c"
+            captured = self.capsys.readouterr()
+            self.assertIn(expected_output1, captured.out)
+            self.assertIn(expected_output2, captured.out)
             self.assertNotEqual(0, os.listdir(osp.join(test_dir)))
 
-    @patch("sys.stdout", new_callable=io.StringIO)
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
-    def test_can_run_distance_diff(self, mock_stdout):
+    def test_can_run_distance_diff(self):
         dataset1 = Dataset.from_iterable(
             [
                 DatasetItem(
@@ -231,11 +238,6 @@ class CompareTest(TestCase):
                 "-o",
                 result_dir,
             )
-
-            expected_output1 = "< c"
-            expected_output2 = "< background"
-            self.assertIn(expected_output1, mock_stdout.getvalue())
-            self.assertIn(expected_output2, mock_stdout.getvalue())
             self.assertEqual({"bbox_confusion.png", "train"}, set(os.listdir(result_dir)))
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
