@@ -57,13 +57,8 @@ Point Cloud dataset directory should have the following structure:
     └── meta.json
 ```
 
-There are two ways to import a Supervisely Point Cloud dataset:
+Use the command below to import a Supervisely Point Cloud dataset:
 
-```bash
-datum project create
-datum project import --format sly_pointcloud --input-path <path/to/dataset>
-```
-or
 ``` bash
 datum project create
 datum project import -f sly_pointcloud <path/to/dataset>

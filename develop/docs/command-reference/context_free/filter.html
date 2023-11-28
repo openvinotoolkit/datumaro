@@ -703,12 +703,18 @@ when it is specified and is not empty.</p></li>
 <li><p>Extract a dataset with non-occluded annotations, remove empty images.
 Use data only from the “s1” source of the project</p>
 <div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">datum project create</span>
-<span class="go">datum project import --format voc -i &lt;path/to/dataset1/&gt; --name s1</span>
-<span class="go">datum project import --format voc -i &lt;path/to/dataset2/&gt; --name s2</span>
+<span class="go">datum project import --name s1 --format voc &lt;path/to/dataset1/&gt;</span>
+<span class="go">datum project import --name s2 --format voc &lt;path/to/dataset2/&gt;</span>
 <span class="go">datum filter s1 \</span>
 <span class="go">  -m i+a -e &#39;/item/annotation[occluded=&quot;False&quot;]&#39;</span>
 </pre></div>
 </div>
+</li>
+<li><p>Extract a dataset composed solely of items containing annotations.</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">datum filter -e &#39;/item[annotation]&#39;</span>
+</pre></div>
+</div>
+<p>The <code class="docutils literal notranslate"><span class="pre">item[annotation]</span></code> checks if there is a child named <code class="docutils literal notranslate"><span class="pre">annotation</span></code> within the <code class="docutils literal notranslate"><span class="pre">item</span></code> node.</p>
 </li>
 </ul>
 </section>
