@@ -315,6 +315,12 @@ class Dataset(IDataset):
             path = osp.join(self._source_path, path)
         return self._data.get_datasetitem_by_path(path)
 
+    def get_label_cat_names(self):
+        return [
+            label.name
+            for label in self._data.categories().get(AnnotationType.label, LabelCategories())
+        ]
+
     def get_subset_info(self) -> str:
         return (
             f"{subset_name}: # of items={len(self.get_subset(subset_name))}, "
