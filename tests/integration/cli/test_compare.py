@@ -1,6 +1,8 @@
+# Copyright (C) 2021-2023 Intel Corporation
+#
+# SPDX-License-Identifier: MIT
 import os
 import os.path as osp
-from unittest import TestCase
 
 import numpy as np
 
@@ -29,10 +31,10 @@ from tests.utils.test_utils import TestDir
 from tests.utils.test_utils import run_datum as run
 
 
-class CompareTest(TestCase):
+class CompareTest:
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
-    def test_can_compare_projects(self):  # just a smoke test
-        label_categories1 = LabelCategories.from_iterable(["x", "a", "b", "y"])
+    def test_can_compare_projects(self, capsys):  # just a smoke test
+        label_categories1 = LabelCategories.from_iterable(["x", "a", "b", "y", "z"])
         mask_categories1 = MaskCategories.generate(len(label_categories1))
 
         point_categories1 = PointsCategories()
@@ -101,7 +103,7 @@ class CompareTest(TestCase):
             },
         )
 
-        label_categories2 = LabelCategories.from_iterable(["a", "b", "x", "y"])
+        label_categories2 = LabelCategories.from_iterable(["a", "b", "c", "x", "y"])
         mask_categories2 = MaskCategories.generate(len(label_categories2))
 
         point_categories2 = PointsCategories()
@@ -177,10 +179,15 @@ class CompareTest(TestCase):
             ) as visualizer:
                 visualizer.save(dataset1, dataset2)
 
-            self.assertNotEqual(0, os.listdir(osp.join(test_dir)))
+            expected_output1 = "> z"
+            expected_output2 = "< c"
+            captured = capsys.readouterr()
+            assert expected_output1 in captured.out
+            assert expected_output2 in captured.out
+            assert 0 != os.listdir(osp.join(test_dir))
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
-    def test_can_run_distance_diff(self):
+    def test_can_run_distance_diff(self, helper_tc):
         dataset1 = Dataset.from_iterable(
             [
                 DatasetItem(
@@ -219,7 +226,7 @@ class CompareTest(TestCase):
 
             result_dir = osp.join(test_dir, "cmp_result")
             run(
-                self,
+                helper_tc,
                 "compare",
                 dataset1_url + ":coco",
                 dataset2_url + ":voc",
@@ -228,11 +235,10 @@ class CompareTest(TestCase):
                 "-o",
                 result_dir,
             )
-
-            self.assertEqual({"bbox_confusion.png", "train"}, set(os.listdir(result_dir)))
+            assert {"bbox_confusion.png", "train"} == set(os.listdir(result_dir))
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
-    def test_can_run_equality_diff(self):
+    def test_can_run_equality_diff(self, helper_tc):
         dataset1 = Dataset.from_iterable(
             [
                 DatasetItem(
@@ -271,7 +277,7 @@ class CompareTest(TestCase):
 
             result_dir = osp.join(test_dir, "cmp_result")
             run(
-                self,
+                helper_tc,
                 "compare",
                 dataset1_url + ":coco",
                 dataset2_url + ":voc",
@@ -281,4 +287,4 @@ class CompareTest(TestCase):
                 result_dir,
             )
 
-            self.assertEqual({"equality_compare.json"}, set(os.listdir(result_dir)))
+            assert {"equality_compare.json"} == set(os.listdir(result_dir))

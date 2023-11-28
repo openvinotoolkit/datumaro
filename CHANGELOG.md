@@ -17,6 +17,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   (<https://github.com/openvinotoolkit/datumaro/pull/1195>)
 - Fix wrong command to install datumaro from github
   (<https://github.com/openvinotoolkit/datumaro/pull/1202>, <https://github.com/openvinotoolkit/datumaro/pull/1207>)
+- Update document to correct wrong `datum project import` command and add filtering example to filter out items containing annotations.
+  (<https://github.com/openvinotoolkit/datumaro/pull/1210>)
+- Fix label compare of distance method
+  (<https://github.com/openvinotoolkit/datumaro/pull/1205>)
 
 ## 16/11/2023 - Release 1.5.1
 ### Enhancements
