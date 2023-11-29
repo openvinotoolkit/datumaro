@@ -2,6 +2,7 @@
 #
 # SPDX-License-Identifier: MIT
 
+import time
 from collections import defaultdict
 from types import SimpleNamespace
 
@@ -81,6 +82,7 @@ def get_image_size_dist(image_size_info):
     }
 
     tab_data = []
+    start_time = time.time()
     subset_data, subset_total = get_scatter_data(image_size_info["by_subsets"])
     tab_data.append(
         {
@@ -90,7 +92,11 @@ def get_image_size_dist(image_size_info):
             "chart_kwargs": chart_kwargs,
         }
     )
+    print("get_scatter_data by subsets time : ", time.time() - start_time)
+    start_time = time.time()
     label_data, label_total = get_scatter_data(image_size_info["by_labels"])
+    print("get_scatter_data by labels time : ", time.time() - start_time)
+    start_time = time.time()
     tab_data.append(
         {
             "title": f"By Labels ({label_total} Labels)",
@@ -99,6 +105,7 @@ def get_image_size_dist(image_size_info):
             "chart_kwargs": chart_kwargs,
         }
     )
+    print("tab data append time : ", time.time() - start_time)
 
     if subset_total == 0 and label_total == 0:
         tab_data = None
@@ -119,7 +126,7 @@ def get_repeated_images(stats_image):
 @st.cache_data
 def get_unannotated_images(stats_anns):
     grid_data = []
-    print("unannotated:", stats_anns["unannotated images"])
+    # print("unannotated:", stats_anns["unannotated images"])
     for i, id in enumerate(stats_anns["unannotated images"]):
         grid_data.append({"id": i, "item_id": id})
     return grid_data
@@ -198,7 +205,7 @@ def get_tab_data_for_val_label_dist(val_report):
     def calc_piechart_data(label_dist):
         data = []
         total = 0
-        print(label_dist)
+        # print(label_dist)
         for label, count in label_dist.items():
             data.append({"id": label, "label": label, "value": count})
             total += count
@@ -601,19 +608,35 @@ def main():
         image_size_info = data_helper.get_image_size_info()
         state["image_size_info"] = image_size_info
     image_mean = image_size_info["image_size"]["mean"]
+    start_time = time.time()
     size_tabs = get_image_size_dist(image_size_info)
+    print("get_image_size_dist time : ", time.time() - start_time)
 
+    start_time = time.time()
     num_images_by_subset = get_num_images_by_subset(stats_image)
+    print("get_num_images_by_subset time : ", time.time() - start_time)
+    start_time = time.time()
     num_anns_by_type = get_num_anns_by_type(stats_anns)
+    print("get_num_anns_by_type time : ", time.time() - start_time)
+    start_time = time.time()
     label_dist_info = get_label_dist(stats_anns)
+    print("get_label_dist time : ", time.time() - start_time)
 
+    start_time = time.time()
     attr_dist_info = get_attr_dist(stats_anns)
+    print("get_attr_dist time : ", time.time() - start_time)
 
     anns_by_type = stats_anns["annotations by type"]
 
+    start_time = time.time()
     val_cls = data_helper.validate("classification") if anns_by_type["label"]["count"] > 0 else None
+    print("cls validate time : ", time.time() - start_time)
+    start_time = time.time()
     val_det = data_helper.validate("detection") if anns_by_type["bbox"]["count"] > 0 else None
+    print("det validate time : ", time.time() - start_time)
+    start_time = time.time()
     val_seg = data_helper.validate("segmentation") if anns_by_type["polygon"]["count"] > 0 else None
+    print("seg validate time : ", time.time() - start_time)
 
     if val_cls and cls_summary is None and cls_anomaly_info is None:
         cls_summary = get_validation_summary(val_cls)

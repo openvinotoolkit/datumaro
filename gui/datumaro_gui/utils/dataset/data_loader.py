@@ -156,7 +156,7 @@ class DatasetHelper:
             _self._init_dependent_variables()
         return _self._dm_dataset
 
-    def update_dataset(_self, dataset):
+    def update_dataset(self, dataset):
         return NotImplementedError()
 
     def dataset(_self) -> Dataset:
@@ -201,7 +201,7 @@ class DatasetHelper:
             os.makedirs(save_dir)
         _self._dm_dataset.export(save_dir=save_dir, format=format, **kwargs)
 
-    def merge(_self, source_datasets, merge_policy, report_path=None, **kwargs):
+    def merge(self, source_datasets, merge_policy, report_path=None, **kwargs):
         return NotImplementedError()
 
     def get_image_stats(self, force_init: bool = False):
@@ -271,10 +271,10 @@ class SingleDatasetHelper(DatasetHelper):
 
 
 class MultipleDatasetHelper(DatasetHelper):
-    def update_dataset(_self, dataset):
-        _self._dm_dataset = dataset
+    def update_dataset(self, dataset):
+        self._dm_dataset = dataset
 
-    def merge(_self, source_datasets, merge_policy, report_path=None, **kwargs):
+    def merge(self, source_datasets, merge_policy, report_path=None, **kwargs):
         merged_dataset = HLOps.merge(
             *source_datasets, merge_policy=merge_policy, report_path=report_path, **kwargs
         )
