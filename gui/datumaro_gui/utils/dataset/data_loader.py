@@ -60,17 +60,28 @@ class DataRepo:
         assert zipfile.is_zipfile(
             uploaded_zip
         )  # .type in ["application/zip", "application/x-zip-compressed"]
-
         with zipfile.ZipFile(uploaded_zip, "r") as z:
-            directory = _self.get_dataset_dir(uploaded_zip.file_id)
+            try:
+                directory = _self.get_dataset_dir(uploaded_zip.file_id)
 
-            dataset_root = find_dataset_root(z.namelist())
-            if dataset_root == "":
-                z.extractall(directory)
-            else:
+                dataset_root = find_dataset_root(z.namelist())
+                if dataset_root == "":
+                    z.extractall(directory)
+                else:
+                    dataset_root = dataset_root + os.sep
+                    start = len(dataset_root)
+                    zipinfos = z.infolist()
+                    for zipinfo in zipinfos:
+                        if len(zipinfo.filename) > start:
+                            zipinfo.filename = zipinfo.filename[start:]
+                            z.extract(zipinfo, directory)
+            except AttributeError:
+                directory = "/".join(uploaded_zip.split("/")[:-1])
+                dataset_root = find_dataset_root(z.namelist())
                 dataset_root = dataset_root + os.sep
                 start = len(dataset_root)
                 zipinfos = z.infolist()
+
                 for zipinfo in zipinfos:
                     if len(zipinfo.filename) > start:
                         zipinfo.filename = zipinfo.filename[start:]
