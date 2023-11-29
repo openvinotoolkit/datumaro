@@ -2,6 +2,7 @@
 #
 # SPDX-License-Identifier: MIT
 
+import time
 from types import SimpleNamespace
 
 from datumaro_gui.utils.dataset.data_loader import SingleDatasetHelper
@@ -60,6 +61,7 @@ def main():
             player=Gallery(board, 0, 8, 12, 12, minH=3),
         )
 
+        start_time = time.time()
         with w.dashboard(rowHeight=50):
             w.dataset_info(
                 "Dataset Information",
@@ -68,3 +70,4 @@ def main():
             w.subset_info(subset_info_dict)
             w.cat_info(cat_info_dict)
             w.player(dataset)
+        print("board show time : ", time.time() - start_time)
