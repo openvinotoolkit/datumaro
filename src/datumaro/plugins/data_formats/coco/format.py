@@ -18,6 +18,7 @@ class CocoTask(Enum):
 class CocoImporterType(Enum):
     default = auto()
     roboflow = auto()
+    mmdet = auto()
 
 
 class CocoPath:
