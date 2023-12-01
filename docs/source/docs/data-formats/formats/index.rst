@@ -32,6 +32,7 @@ Supported Data Formats
    mapillary_vistas
    market1501
    mars
+   mmdet
    mnist
    mot
    mots
@@ -141,6 +142,10 @@ Supported Data Formats
    * `Format specification <https://zheng-lab.cecs.anu.edu.au/Project/project_mars.html>`_
    * `Dataset example <https://github.com/openvinotoolkit/datumaro/tree/develop/tests/assets/mars_dataset>`_
    * `Format documentation <mars.md>`_
+* MMDet-COCO (``detection``, ``segmentation``)
+   * `Format specification <https://mmdetection.readthedocs.io/en/latest/user_guides/dataset_prepare.html>`_
+   * `Dataset example <https://github.com/openvinotoolkit/datumaro/tree/develop/tests/assets/coco_dataset/mmdet_coco>`_
+   * `Format documentation <mmdet.md>`_
 * MNIST (``classification``)
    * `Format specification <http://yann.lecun.com/exdb/mnist/>`_
    * `Dataset example <https://github.com/openvinotoolkit/datumaro/tree/develop/tests/assets/mnist_dataset>`_
