@@ -367,6 +367,25 @@
         <span class="k">return</span> <span class="n">osp</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">rootpath</span><span class="p">,</span> <span class="n">subset</span><span class="p">)</span></div></div>
 
 
+<div class="viewcode-block" id="MmdetDirPathExtracter"><a class="viewcode-back" href="../../../../../docs/reference/_autosummary/datumaro.plugins.data_formats.coco.base.html#datumaro.plugins.data_formats.coco.base.MmdetDirPathExtracter">[docs]</a><span class="k">class</span> <span class="nc">MmdetDirPathExtracter</span><span class="p">(</span><span class="n">DirPathExtracter</span><span class="p">):</span>
+<div class="viewcode-block" id="MmdetDirPathExtracter.find_rootpath"><a class="viewcode-back" href="../../../../../docs/reference/_autosummary/datumaro.plugins.data_formats.coco.base.html#datumaro.plugins.data_formats.coco.base.MmdetDirPathExtracter.find_rootpath">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">find_rootpath</span><span class="p">(</span><span class="n">path</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Find root path from annotation json file path.&quot;&quot;&quot;</span>
+        <span class="n">path</span> <span class="o">=</span> <span class="n">osp</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">osp</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">path</span><span class="p">)</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="n">CocoPath</span><span class="o">.</span><span class="n">ANNOTATIONS_DIR</span><span class="p">):</span>
+            <span class="k">return</span> <span class="n">path</span><span class="o">.</span><span class="n">rsplit</span><span class="p">(</span><span class="n">CocoPath</span><span class="o">.</span><span class="n">ANNOTATIONS_DIR</span><span class="p">,</span> <span class="n">maxsplit</span><span class="o">=</span><span class="mi">1</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="k">raise</span> <span class="n">DatasetImportError</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;Annotation path (</span><span class="si">{</span><span class="n">path</span><span class="si">}</span><span class="s2">) should be under the directory which is named </span><span class="si">{</span><span class="n">CocoPath</span><span class="o">.</span><span class="n">ANNOTATIONS_DIR</span><span class="si">}</span><span class="s2">. &quot;</span>
+            <span class="s2">&quot;If not, Datumaro fails to find the root path for this dataset. &quot;</span>
+            <span class="s2">&quot;Please follow this instruction, https://github.com/cocodataset/cocoapi/blob/master/README.txt&quot;</span>
+        <span class="p">)</span></div>
+
+<div class="viewcode-block" id="MmdetDirPathExtracter.find_images_dir"><a class="viewcode-back" href="../../../../../docs/reference/_autosummary/datumaro.plugins.data_formats.coco.base.html#datumaro.plugins.data_formats.coco.base.MmdetDirPathExtracter.find_images_dir">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">find_images_dir</span><span class="p">(</span><span class="n">rootpath</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">subset</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Find images directory from the root path.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">osp</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">rootpath</span><span class="p">,</span> <span class="n">subset</span><span class="p">)</span></div></div>
+
+
 <span class="k">class</span> <span class="nc">_CocoBase</span><span class="p">(</span><span class="n">SubsetBase</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Parses COCO annotations written in the following format:</span>
@@ -400,6 +419,9 @@
         <span class="k">elif</span> <span class="n">coco_importer_type</span> <span class="o">==</span> <span class="n">CocoImporterType</span><span class="o">.</span><span class="n">roboflow</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_rootpath</span> <span class="o">=</span> <span class="n">RoboflowDirPathExtracter</span><span class="o">.</span><span class="n">find_rootpath</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_images_dir</span> <span class="o">=</span> <span class="n">RoboflowDirPathExtracter</span><span class="o">.</span><span class="n">find_images_dir</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_rootpath</span><span class="p">,</span> <span class="n">subset</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">coco_importer_type</span> <span class="o">==</span> <span class="n">CocoImporterType</span><span class="o">.</span><span class="n">mmdet</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_rootpath</span> <span class="o">=</span> <span class="n">MmdetDirPathExtracter</span><span class="o">.</span><span class="n">find_rootpath</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_images_dir</span> <span class="o">=</span> <span class="n">MmdetDirPathExtracter</span><span class="o">.</span><span class="n">find_images_dir</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_rootpath</span><span class="p">,</span> <span class="n">subset</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="k">raise</span> <span class="n">DatasetImportError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Not supported type: </span><span class="si">{</span><span class="n">coco_importer_type</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 

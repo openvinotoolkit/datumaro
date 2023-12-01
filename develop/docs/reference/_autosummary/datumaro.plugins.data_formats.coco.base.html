@@ -327,6 +327,7 @@
 <li class="toctree-l2"><a class="reference internal" href="../../data-formats/formats/mapillary_vistas.html">Mapillary Vistas</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../data-formats/formats/market1501.html">Market-1501</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../data-formats/formats/mars.html">MARS</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../data-formats/formats/mmdet.html">MMDetection COCO</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../data-formats/formats/mnist.html">MNIST</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../data-formats/formats/mot.html">Multiple Object Tracking (MOT)</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../data-formats/formats/mots.html">Multiple Object Tracking and Segmentation (MOTS)</a></li>
@@ -612,7 +613,10 @@
 <tr class="row-even"><td><p><a class="reference internal" href="#datumaro.plugins.data_formats.coco.base.DirPathExtracter" title="datumaro.plugins.data_formats.coco.base.DirPathExtracter"><code class="xref py py-obj docutils literal notranslate"><span class="pre">DirPathExtracter</span></code></a>()</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#datumaro.plugins.data_formats.coco.base.RoboflowDirPathExtracter" title="datumaro.plugins.data_formats.coco.base.RoboflowDirPathExtracter"><code class="xref py py-obj docutils literal notranslate"><span class="pre">RoboflowDirPathExtracter</span></code></a>()</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#datumaro.plugins.data_formats.coco.base.MmdetDirPathExtracter" title="datumaro.plugins.data_formats.coco.base.MmdetDirPathExtracter"><code class="xref py py-obj docutils literal notranslate"><span class="pre">MmdetDirPathExtracter</span></code></a>()</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#datumaro.plugins.data_formats.coco.base.RoboflowDirPathExtracter" title="datumaro.plugins.data_formats.coco.base.RoboflowDirPathExtracter"><code class="xref py py-obj docutils literal notranslate"><span class="pre">RoboflowDirPathExtracter</span></code></a>()</p></td>
 <td><p></p></td>
 </tr>
 </tbody>
@@ -648,6 +652,24 @@
 <dl class="py method">
 <dt class="sig sig-object py" id="datumaro.plugins.data_formats.coco.base.RoboflowDirPathExtracter.find_images_dir">
 <em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">find_images_dir</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">rootpath</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">subset</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><span class="pre">str</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><span class="pre">str</span></a></span></span><a class="reference internal" href="../../../_modules/datumaro/plugins/data_formats/coco/base.html#RoboflowDirPathExtracter.find_images_dir"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.plugins.data_formats.coco.base.RoboflowDirPathExtracter.find_images_dir" title="Permalink to this definition">#</a></dt>
+<dd><p>Find images directory from the root path.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="datumaro.plugins.data_formats.coco.base.MmdetDirPathExtracter">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">datumaro.plugins.data_formats.coco.base.</span></span><span class="sig-name descname"><span class="pre">MmdetDirPathExtracter</span></span><a class="reference internal" href="../../../_modules/datumaro/plugins/data_formats/coco/base.html#MmdetDirPathExtracter"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.plugins.data_formats.coco.base.MmdetDirPathExtracter" title="Permalink to this definition">#</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#datumaro.plugins.data_formats.coco.base.DirPathExtracter" title="datumaro.plugins.data_formats.coco.base.DirPathExtracter"><code class="xref py py-class docutils literal notranslate"><span class="pre">DirPathExtracter</span></code></a></p>
+<dl class="py method">
+<dt class="sig sig-object py" id="datumaro.plugins.data_formats.coco.base.MmdetDirPathExtracter.find_rootpath">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">find_rootpath</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><span class="pre">str</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><span class="pre">str</span></a></span></span><a class="reference internal" href="../../../_modules/datumaro/plugins/data_formats/coco/base.html#MmdetDirPathExtracter.find_rootpath"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.plugins.data_formats.coco.base.MmdetDirPathExtracter.find_rootpath" title="Permalink to this definition">#</a></dt>
+<dd><p>Find root path from annotation json file path.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="datumaro.plugins.data_formats.coco.base.MmdetDirPathExtracter.find_images_dir">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">find_images_dir</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">rootpath</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">subset</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><span class="pre">str</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><span class="pre">str</span></a></span></span><a class="reference internal" href="../../../_modules/datumaro/plugins/data_formats/coco/base.html#MmdetDirPathExtracter.find_images_dir"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.plugins.data_formats.coco.base.MmdetDirPathExtracter.find_images_dir" title="Permalink to this definition">#</a></dt>
 <dd><p>Find images directory from the root path.</p>
 </dd></dl>
 
@@ -787,6 +809,35 @@
      <code class="docutils literal notranslate">
       <span class="pre">
        RoboflowDirPathExtracter.find_images_dir()
+      </span>
+     </code>
+    </a>
+   </li>
+  </ul>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#datumaro.plugins.data_formats.coco.base.MmdetDirPathExtracter">
+   <code class="docutils literal notranslate">
+    <span class="pre">
+     MmdetDirPathExtracter
+    </span>
+   </code>
+  </a>
+  <ul class="nav section-nav flex-column">
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#datumaro.plugins.data_formats.coco.base.MmdetDirPathExtracter.find_rootpath">
+     <code class="docutils literal notranslate">
+      <span class="pre">
+       MmdetDirPathExtracter.find_rootpath()
+      </span>
+     </code>
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#datumaro.plugins.data_formats.coco.base.MmdetDirPathExtracter.find_images_dir">
+     <code class="docutils literal notranslate">
+      <span class="pre">
+       MmdetDirPathExtracter.find_images_dir()
       </span>
      </code>
     </a>

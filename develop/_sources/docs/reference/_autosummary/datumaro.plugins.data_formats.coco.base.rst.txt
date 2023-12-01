@@ -25,6 +25,7 @@ datumaro.plugins.data\_formats.coco.base
       CocoPersonKeypointsBase
       CocoStuffBase
       DirPathExtracter
+      MmdetDirPathExtracter
       RoboflowDirPathExtracter
    
    
