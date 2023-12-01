@@ -1,5 +1,14 @@
 [
   {
+    "import_path": "datumaro.plugins.accuracy_checker_plugin.ac_launcher.AcLauncher",
+    "plugin_name": "ac",
+    "plugin_type": "Launcher",
+    "extra_deps": [
+      "openvino.tools",
+      "tensorflow"
+    ]
+  },
+  {
     "import_path": "datumaro.plugins.configurable_validator.ConfigurableValidator",
     "plugin_name": "configurable",
     "plugin_type": "Validator",
@@ -942,6 +951,22 @@
     "extra_deps": []
   },
   {
+    "import_path": "datumaro.plugins.data_formats.roboflow.base_tfrecord.RoboflowTfrecordBase",
+    "plugin_name": "roboflow_tfrecord",
+    "plugin_type": "DatasetBase",
+    "extra_deps": [
+      "tensorflow"
+    ]
+  },
+  {
+    "import_path": "datumaro.plugins.data_formats.roboflow.base_tfrecord.RoboflowTfrecordImporter",
+    "plugin_name": "roboflow_tfrecord",
+    "plugin_type": "Importer",
+    "extra_deps": [
+      "tensorflow"
+    ]
+  },
+  {
     "import_path": "datumaro.plugins.data_formats.roboflow.importer.RoboflowCocoImporter",
     "plugin_name": "roboflow_coco",
     "plugin_type": "Importer",
@@ -1066,6 +1091,30 @@
     "plugin_name": "tabular",
     "plugin_type": "Importer",
     "extra_deps": []
+  },
+  {
+    "import_path": "datumaro.plugins.data_formats.tf_detection_api.base.TfDetectionApiBase",
+    "plugin_name": "tf_detection_api",
+    "plugin_type": "DatasetBase",
+    "extra_deps": [
+      "tensorflow"
+    ]
+  },
+  {
+    "import_path": "datumaro.plugins.data_formats.tf_detection_api.base.TfDetectionApiImporter",
+    "plugin_name": "tf_detection_api",
+    "plugin_type": "Importer",
+    "extra_deps": [
+      "tensorflow"
+    ]
+  },
+  {
+    "import_path": "datumaro.plugins.data_formats.tf_detection_api.exporter.TfDetectionApiExporter",
+    "plugin_name": "tf_detection_api",
+    "plugin_type": "Exporter",
+    "extra_deps": [
+      "tensorflow"
+    ]
   },
   {
     "import_path": "datumaro.plugins.data_formats.vgg_face2.VggFace2Base",
