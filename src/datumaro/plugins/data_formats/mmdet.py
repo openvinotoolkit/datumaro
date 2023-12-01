@@ -6,7 +6,9 @@ from typing import Optional
 from glob import glob
 import os.path as osp
 
+from datumaro.components.dataset_base import DEFAULT_SUBSET_NAME
 from datumaro.components.importer import ImportContext
+
 from datumaro.plugins.data_formats.coco.base import _CocoBase
 from datumaro.plugins.data_formats.coco.format import CocoImporterType, CocoTask
 from datumaro.plugins.data_formats.coco.importer import CocoImporter
@@ -18,7 +20,8 @@ class MmdetCocoImporter(CocoImporter):
 
         sources = []
         for subset_path in subset_paths:
-            subset_name = osp.basename(osp.dirname(subset_path))
+            parts = osp.splitext(osp.basename(subset_path))[0].split("instances_", maxsplit=1)
+            subset_name = parts[1] if len(parts) == 2 else DEFAULT_SUBSET_NAME
 
             options = dict(extra_params)
             options["subset"] = subset_name
