@@ -204,7 +204,8 @@ class LabelCategories(Categories):
         attributes: Optional[Set[str]] = None,
     ) -> int:
         assert name
-        assert name not in self._indices, name
+        if name in self._indices:
+            return
 
         index = len(self.items)
         self.items.append(self.Category(name, parent, attributes))
