@@ -20,7 +20,6 @@ from .base import TestDataFormatBase
 from tests.utils.assets import get_test_asset_path
 from tests.utils.test_utils import compare_datasets
 
-
 DUMMY_DATASET_DIR = get_test_asset_path("coco_dataset", "mmdet_coco")
 
 

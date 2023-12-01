@@ -2,13 +2,12 @@
 #
 # SPDX-License-Identifier: MIT
 
-from typing import Optional
-from glob import glob
 import os.path as osp
+from glob import glob
+from typing import Optional
 
 from datumaro.components.dataset_base import DEFAULT_SUBSET_NAME
 from datumaro.components.importer import ImportContext
-
 from datumaro.plugins.data_formats.coco.base import _CocoBase
 from datumaro.plugins.data_formats.coco.format import CocoImporterType, CocoTask
 from datumaro.plugins.data_formats.coco.importer import CocoImporter
@@ -29,9 +28,7 @@ class MmdetCocoImporter(CocoImporter):
             if stream:
                 options["stream"] = True
 
-            sources.append(
-                {"url": subset_path, "format": "mmdet_coco", "options": options}
-            )
+            sources.append({"url": subset_path, "format": "mmdet_coco", "options": options})
 
         return sources
 
