@@ -98,9 +98,14 @@ def main():
                 "counts and ratios.",
             )
             c1.dataframe(mid_level_df, use_container_width=True)
-            c1.subheader("Low Level Table")
 
             ### low level
+            c1.subheader("Low Level Table")
+            c1.caption(
+                "Low-level overview uses Shift Analyzer to demonstrate covariate shift and label shift between two "
+                "datasets.\n\nBy the way, the low-level analysis takes a bit of time to compute. Please bear with us "
+                "for a moment; your patience is much appreciated!",
+            )
             on = st.toggle("Show low-level table")
             if on:
                 if low_level_df is None:
@@ -123,6 +128,12 @@ def main():
                     state["low_level_table"] = low_level_df
 
                 c1.dataframe(low_level_df, use_container_width=True)
+                c1.caption(
+                    "In Datumaro, covariate shift is supported with two methods, with the default being Frechet "
+                    "Inception Distance. This metric, measuring the distance of variances, indicates dataset "
+                    "similarity as smaller values suggest likeness. Label shift employs Anderson-Darling test "
+                    "from SciPy, revealing how well the data follows a normal distribution."
+                )
 
         with c2:
             st.header("Compare Categories")
