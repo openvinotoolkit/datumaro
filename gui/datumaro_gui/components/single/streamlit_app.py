@@ -5,6 +5,7 @@
 import streamlit as st
 import streamlit_antd_components as sac
 from datumaro_gui.utils.dataset.data_loader import DataRepo, SingleDatasetHelper
+from datumaro_gui.utils.dataset.state import reset_state
 from datumaro_gui.utils.drawing.css import custom_css
 from datumaro_gui.utils.readme import github_pypi_desc
 from streamlit import session_state as state
@@ -16,18 +17,31 @@ def main():
     st.write(github_pypi_desc)
     st.markdown(custom_css, unsafe_allow_html=True)
 
-    keys = ["uploaded_zip", "data_helper", "subset"]
-    for k in keys:
-        if k not in state:
-            state[k] = None
-
-    if state["subset"] is None:
-        state["subset"] = 0
+    keys = [
+        "uploaded_zip",
+        "data_helper",
+        "subset",
+        "stats_image",
+        "stats_anns",
+        "image_size_info",
+        "cls_summary",
+        "cls_anomaly_info",
+        "det_summary",
+        "det_anomaly_info",
+        "seg_summary",
+        "seg_anomaly_info",
+        "defined_label",
+        "undefined_label",
+        "defined_attr",
+        "undefined_attr",
+    ]
 
     data_repo = DataRepo()
 
     with st.expander("Import a dataset", expanded=True):
         uploaded_zip = st.file_uploader("Upload a zip file containing dataset", type=["zip"])
+        if uploaded_zip is None:
+            reset_state(keys, state)
 
         if uploaded_zip is not None:
             if uploaded_zip != state["uploaded_zip"]:
