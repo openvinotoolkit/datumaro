@@ -213,6 +213,10 @@ class DatasetHelper:
     def get_image_size_info(self):
         return NotImplementedError()
 
+    @property
+    def num_labels(self):
+        return len(self._dm_dataset.categories().get(AnnotationType.label, LabelCategories()))
+
 
 class SingleDatasetHelper(DatasetHelper):
     def get_image_stats(self, force_init: bool = False):

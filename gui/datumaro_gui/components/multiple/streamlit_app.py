@@ -5,6 +5,7 @@
 import streamlit as st
 import streamlit_antd_components as sac
 from datumaro_gui.utils.dataset.data_loader import DataRepo, MultipleDatasetHelper
+from datumaro_gui.utils.dataset.state import reset_state
 from datumaro_gui.utils.drawing.css import custom_css
 from datumaro_gui.utils.readme import github_pypi_desc
 from streamlit import session_state as state
@@ -29,14 +30,6 @@ def main():
         "mid_level_table",
         "low_level_table",
     ]
-    for k in keys:
-        if k not in state:
-            state[k] = None
-
-    if state["subset_1"] is None:
-        state["subset_1"] = 0
-    if state["subset_2"] is None:
-        state["subset_2"] = 0
 
     data_repo = DataRepo()
 
@@ -44,6 +37,8 @@ def main():
         uploaded_zips = st.file_uploader(
             "Upload two zip files containing dataset", type=["zip"], accept_multiple_files=True
         )
+        if not uploaded_zips:
+            reset_state(keys, state)
 
         if uploaded_zips and len(uploaded_zips) > 1:
             if len(uploaded_zips) > 2:

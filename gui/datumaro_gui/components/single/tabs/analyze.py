@@ -11,8 +11,6 @@ from datumaro_gui.utils.drawing import Chart, ChartWithTab, Dashboard, DataGrid,
 from streamlit import session_state as state
 from streamlit_elements import elements
 
-from datumaro import AnnotationType, LabelCategories
-
 
 @st.cache_data
 def get_dataset_info(stats_image, stats_anns, image_mean, n_labels):
@@ -575,14 +573,33 @@ def get_tab_data_point_dist_in_label(val_report):
 
 def main():
     data_helper: SingleDatasetHelper = state["data_helper"]
+    n_labels = data_helper.num_labels
 
-    stats_image = data_helper.get_image_stats()
-    stats_anns = data_helper.get_ann_stats()
+    stats_image = state["stats_image"]
+    stats_anns = state["stats_anns"]
+    image_size_info = state["image_size_info"]
 
-    dm_dataset = data_helper.dataset()
-    n_labels = len(dm_dataset.categories().get(AnnotationType.label, LabelCategories()))
+    cls_summary = state["cls_summary"]
+    cls_anomaly_info = state["cls_anomaly_info"]
+    det_summary = state["det_summary"]
+    det_anomaly_info = state["det_anomaly_info"]
+    seg_summary = state["seg_summary"]
+    seg_anomaly_info = state["seg_anomaly_info"]
 
-    image_size_info = data_helper.get_image_size_info()
+    defined_label = state["defined_label"]
+    undefined_label = state["undefined_label"]
+    defined_attr = state["defined_attr"]
+    undefined_attr = state["undefined_attr"]
+
+    if stats_image is None:
+        stats_image = data_helper.get_image_stats()
+        state["stats_image"] = stats_image
+    if stats_anns is None:
+        stats_anns = data_helper.get_ann_stats()
+        state["stats_anns"] = stats_anns
+    if image_size_info is None:
+        image_size_info = data_helper.get_image_size_info()
+        state["image_size_info"] = image_size_info
     image_mean = image_size_info["image_size"]["mean"]
     size_tabs = get_image_size_dist(image_size_info)
 
@@ -598,18 +615,32 @@ def main():
     val_det = data_helper.validate("detection") if anns_by_type["bbox"]["count"] > 0 else None
     val_seg = data_helper.validate("segmentation") if anns_by_type["polygon"]["count"] > 0 else None
 
-    if val_cls:
+    if val_cls and cls_summary is None and cls_anomaly_info is None:
         cls_summary = get_validation_summary(val_cls)
         cls_anomaly_info = get_anomaly_info(val_cls)
-    if val_det:
+        state["cls_summary"] = cls_summary
+        state["cls_anomaly_info"] = cls_anomaly_info
+    if val_det and det_summary is None and det_anomaly_info is None:
         det_summary = get_validation_summary(val_det)
         det_anomaly_info = get_anomaly_info(val_det)
-    if val_seg:
+        state["det_summary"] = det_summary
+        state["det_anomaly_info"] = det_anomaly_info
+    if val_seg and seg_summary is None and seg_anomaly_info is None:
         seg_summary = get_validation_summary(val_seg)
         seg_anomaly_info = get_anomaly_info(val_seg)
+        state["seg_summary"] = seg_summary
+        state["seg_anomaly_info"] = seg_anomaly_info
 
-    defined_label, undefined_label = get_tab_data_for_label_dist_by_type(val_cls, val_det, val_seg)
-    defined_attr, undefined_attr = get_tab_data_for_attr_dist_by_type(val_cls, val_det, val_seg)
+    if defined_label is None and undefined_label is None:
+        defined_label, undefined_label = get_tab_data_for_label_dist_by_type(
+            val_cls, val_det, val_seg
+        )
+        state["defined_label"] = defined_label
+        state["undefined_label"] = undefined_label
+    if defined_attr is None and undefined_label is None:
+        defined_attr, undefined_attr = get_tab_data_for_attr_dist_by_type(val_cls, val_det, val_seg)
+        state["defined_attr"] = defined_attr
+        state["undefined_attr"] = undefined_attr
 
     with elements("analyze"):
         w = SimpleNamespace()
