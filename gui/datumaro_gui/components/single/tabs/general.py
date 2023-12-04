@@ -10,7 +10,7 @@ from datumaro_gui.utils.drawing import Dashboard, DatasetInfoBox, Gallery, Pie, 
 from streamlit import session_state as state
 from streamlit_elements import elements
 
-from datumaro.components.annotation import AnnotationType, LabelCategories
+from datumaro.components.annotation import AnnotationType
 
 from .analyze import get_dataset_info
 
@@ -18,10 +18,22 @@ from .analyze import get_dataset_info
 def main():
     data_helper: SingleDatasetHelper = state["data_helper"]
     dataset = data_helper.dataset()
-    n_labels = len(dataset.categories().get(AnnotationType.label, LabelCategories()))
-    stats_image = data_helper.get_image_stats()
-    stats_anns = data_helper.get_ann_stats()
-    image_size_info = data_helper.get_image_size_info()
+    n_labels = data_helper.num_labels
+
+    stats_image = state["stats_image"]
+    stats_anns = state["stats_anns"]
+    image_size_info = state["image_size_info"]
+
+    if stats_image is None:
+        stats_image = data_helper.get_image_stats()
+        state["stats_image"] = stats_image
+    if stats_anns is None:
+        stats_anns = data_helper.get_ann_stats()
+        state["stats_anns"] = stats_anns
+    if image_size_info is None:
+        image_size_info = data_helper.get_image_size_info()
+        state["image_size_info"] = image_size_info
+
     image_mean = image_size_info["image_size"]["mean"]
 
     with elements("general"):
@@ -47,7 +59,6 @@ def main():
             ),
             player=Gallery(board, 0, 8, 12, 12, minH=3),
         )
-        print(board)
 
         with w.dashboard(rowHeight=50):
             w.dataset_info(

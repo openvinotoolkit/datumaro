@@ -86,8 +86,17 @@ def main():
         with c1:
             st.header("Comparison result")
             c1.subheader("High Level Table")
+            c1.caption(
+                "High-level overview provides information on dataset composition, class counts, common classes, "
+                "image counts, unique or repeated images, and annotation counts for each dataset.",
+            )
             c1.dataframe(high_level_df, use_container_width=True)
             c1.subheader("Mid Level Table")
+            c1.caption(
+                "Mid-level overview provides insights into subsets of each dataset, showcasing image characteristics. "
+                "As subsets do not overlap, details are presented for each dataset, including label-specific image "
+                "counts and ratios.",
+            )
             c1.dataframe(mid_level_df, use_container_width=True)
             c1.subheader("Low Level Table")
 

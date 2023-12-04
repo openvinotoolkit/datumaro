@@ -104,6 +104,15 @@ def load_image(path: str, dtype: DTypeLike = np.uint8, crypter: Crypter = NULL_C
     """
     Reads an image in the HWC Grayscale/BGR(A) [0; 255] format (default dtype is uint8).
     """
+    _image_loading_errors = (FileNotFoundError,)
+    try:
+        importlib.import_module("cv2")
+        _IMAGE_BACKEND.set(_IMAGE_BACKENDS.cv2)
+    except ModuleNotFoundError:
+        import PIL
+
+        _IMAGE_BACKEND.set(_IMAGE_BACKENDS.PIL)
+        _image_loading_errors = (*_image_loading_errors, PIL.UnidentifiedImageError)
 
     if _IMAGE_BACKEND.get() == _IMAGE_BACKENDS.cv2:
         # cv2.imread does not support paths that are not representable
