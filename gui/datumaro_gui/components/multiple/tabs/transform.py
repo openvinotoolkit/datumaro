@@ -41,7 +41,11 @@ def render_dataset_management_section(
             "Do Label Remap", use_container_width=True, key=f"remap_btn_{col_name}"
         )
         if remap_btn:
-            mapping_dict = dict(zip(mapping[uploaded_zip_1], mapping[uploaded_zip_2]))
+            mapping_dict = (
+                dict(zip(mapping[uploaded_zip_2], mapping[uploaded_zip_1]))
+                if col_name == "c2"
+                else dict(zip(mapping[uploaded_zip_1], mapping[uploaded_zip_2]))
+            )
             for label in dataset.categories()[AnnotationType.label]:
                 if label.name in identicals or label.name in mapping_dict:
                     continue
