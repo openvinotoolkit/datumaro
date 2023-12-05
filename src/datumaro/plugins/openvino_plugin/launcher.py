@@ -8,6 +8,7 @@
 import logging as log
 import os.path as osp
 import shutil
+import time
 import urllib
 from dataclasses import dataclass, fields
 from typing import Dict, List, Optional
@@ -133,8 +134,9 @@ class BuiltinOpenvinoModelInfo(OpenvinoModelInfo):
     @staticmethod
     def _download_file(url: str, file_root: str) -> str:
         log.info('Downloading: "{}" to {}\n'.format(url, file_root))
+        print(f"downloading {url=}, {file_root=}")
         req = urllib.request.Request(url)
-        with urllib.request.urlopen(req) as source, open(file_root, "wb") as output:  # nosec B310
+        with urllib.request.urlopen(req, timeout=10) as source, open(file_root, "wb") as output:  # nosec B310
             with tqdm(
                 total=int(source.info().get("Content-Length")),
                 ncols=80,
@@ -149,6 +151,7 @@ class BuiltinOpenvinoModelInfo(OpenvinoModelInfo):
 
                     output.write(buffer)
                     loop.update(len(buffer))
+        print(f"downloaded {file_root=}")
         return file_root
 
     def override(self, other: OpenvinoModelInfo) -> None:
@@ -179,24 +182,45 @@ class OpenvinoLauncher(LauncherWithModelInterpreter):
         device: Optional[str] = None,
         compile_model_config: Optional[Dict] = None,
     ):
+        print("OpenvinoLauncher.init() step 0")
         model_info = OpenvinoModelInfo(
             interpreter=interpreter,
             description=description,
             weights=weights,
             model_dir=model_dir,
         )
+        print("OpenvinoLauncher.init() step 1")
         if model_name:
             builtin_model_info = BuiltinOpenvinoModelInfo.create_from_model_name(model_name)
             builtin_model_info.override(model_info)
+        print("OpenvinoLauncher.init() step 2")
+        for i in range(200):
+            # time.sleep(5)  # insert sleep to see the stdout
+            print(f"busy waiting for flushing log message to stdout: {i}")
 
         model_info.validate()
 
+        print("OpenvinoLauncher.init() step 3")
+        for i in range(200):
+            # time.sleep(5)  # insert sleep to see the stdout
+            print(f"busy waiting for flushing log message to stdout: {i}")
+
         super().__init__(model_interpreter_path=model_info.interpreter)
+
+        print("OpenvinoLauncher.init() step 4")
+        for i in range(200):
+            # time.sleep(5)  # insert sleep to see the stdout
+            print(f"busy waiting for flushing log message to stdout: {i}")
 
         self.model_info = model_info
 
         self._device = device or "CPU"
         self._compile_model_config = compile_model_config
+
+        print(f"calling ov.core.read_model({model_info=}, {compile_model_config=})")
+        for i in range(200):
+            # time.sleep(5)  # insert sleep to see the stdout
+            print(f"busy waiting for flushing log message to stdout: {i}")
 
         self._core = Core()
         self._network = self._core.read_model(model_info.description, model_info.weights)
