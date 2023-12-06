@@ -18,11 +18,11 @@ from datumaro.components.visualizer import Visualizer
 def main():
     data_helper_1: MultipleDatasetHelper = state["data_helper_1"]
     data_helper_2: MultipleDatasetHelper = state["data_helper_2"]
-    uploaded_zip_1 = state["uploaded_zip_1"].name[:-4]
-    uploaded_zip_2 = state["uploaded_zip_2"].name[:-4]
+    uploaded_file_1 = state["uploaded_file_1"]
+    uploaded_file_2 = state["uploaded_file_2"]
 
-    dataset_dict = {uploaded_zip_1: data_helper_1, uploaded_zip_2: data_helper_2}
-    dataset_names = [uploaded_zip_1, uploaded_zip_2]
+    dataset_dict = {uploaded_file_1: data_helper_1, uploaded_file_2: data_helper_2}
+    dataset_names = [uploaded_file_1, uploaded_file_2]
     with elements("visualize"):
         selected_dataset = st.selectbox("Select dataset to transform : ", dataset_names, index=0)
         dataset = dataset_dict.get(selected_dataset, None).dataset()

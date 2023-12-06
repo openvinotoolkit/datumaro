@@ -3,14 +3,15 @@
 # SPDX-License-Identifier: MIT
 
 
+import os
+
 import streamlit as st
 import streamlit_antd_components as sac
-from datumaro_gui.utils.dataset.data_loader import SingleDatasetHelper
-from datumaro_gui.utils.dataset.state import reset_state
+from datumaro_gui.utils.dataset.data_loader import DataRepo, SingleDatasetHelper
+from datumaro_gui.utils.dataset.state import file_selector, import_dataset, reset_state
 from datumaro_gui.utils.drawing.css import custom_css
 from datumaro_gui.utils.readme import github_pypi_desc
 from streamlit import session_state as state
-from streamlit_file_browser import st_file_browser
 
 from . import tabs
 
@@ -20,7 +21,7 @@ def main():
     st.markdown(custom_css, unsafe_allow_html=True)
 
     keys = [
-        "uploaded_zip",
+        "uploaded_file",
         "data_helper",
         "subset",
         "stats_image",
@@ -38,24 +39,22 @@ def main():
         "undefined_attr",
     ]
 
-    event = st_file_browser(
-        "C:/Users/sooahlee/workspace/datumaro/data/", glob_patterns=("**/",), show_preview=False
-    )
-    st.write(event)
+    filename = file_selector()
+    reset_state(keys, state)
 
-    if event is not None:
-        uploaded_zip = "C:/Users/sooahlee/workspace/datumaro/data" + "/" + event["target"]["path"]
-        if uploaded_zip is None:
-            reset_state(keys, state)
-        data_helper = SingleDatasetHelper(uploaded_zip)
+    if filename is not None:
+        reset_state(keys, state)
+        if filename.endswith(".zip"):
+            data_repo = DataRepo()
+            filename = data_repo.unzip_dataset(filename)
+
+        data_helper = SingleDatasetHelper(filename)
+        uploaded_file = os.path.basename(filename)
+        state["uploaded_file"] = uploaded_file
         state["data_helper"] = data_helper
-        try:
-            formats = data_helper.detect_format()
-        except Exception:
-            formats = ["-", "datumaro", "voc", "coco"]  # temp
-        selected_format = st.selectbox("Select a format to import:", formats)
-        if selected_format != "-" and selected_format != data_helper.format():
-            data_helper.import_dataset(selected_format)
+
+        import_dataset(data_helper)
+
     elif state["data_helper"] is not None:
         state["data_helper"] = None
 

@@ -32,15 +32,15 @@ def main():
     data_helper_2: MultipleDatasetHelper = state["data_helper_2"]
     first_dataset = data_helper_1.dataset()
     second_dataset = data_helper_2.dataset()
-    uploaded_zip_1 = state["uploaded_zip_1"].name[:-4]
-    uploaded_zip_2 = state["uploaded_zip_2"].name[:-4]
+    uploaded_file_1 = state["uploaded_file_1"]
+    uploaded_file_2 = state["uploaded_file_2"]
     high_level_df = state["high_level_table"]
     mid_level_df = state["mid_level_table"]
     low_level_df = state["low_level_table"]
 
     # Initialize state
     if not "mapping":
-        state.mapping = pd.DataFrame(columns=[uploaded_zip_1, uploaded_zip_2])
+        state.mapping = pd.DataFrame(columns=[uploaded_file_1, uploaded_file_2])
     if not "matched":
         state.matched = []
 
@@ -56,7 +56,6 @@ def main():
             )
 
             ### high level
-            # Split the string into rows and extract data
             high_level_lines = high_level_table.split("\n")
             high_level_data_lines = [
                 re.split(r"\s*[|]\s*", line.strip("|")) for line in high_level_lines if "|" in line
@@ -143,10 +142,10 @@ def main():
             col1, col2 = st.columns(2)
             col1.subheader("Matched Labels")
             matches, unmatches = return_matches(
-                categories_1, categories_2, uploaded_zip_1, uploaded_zip_2
+                categories_1, categories_2, uploaded_file_1, uploaded_file_2
             )
             matched_label_df = pd.DataFrame(
-                {uploaded_zip_1: pd.Series(matches), uploaded_zip_2: pd.Series(matches)}
+                {uploaded_file_1: pd.Series(matches), uploaded_file_2: pd.Series(matches)}
             )
 
             def cooling_highlight(val):
@@ -154,15 +153,15 @@ def main():
 
             col1.dataframe(
                 matched_label_df.style.applymap(
-                    cooling_highlight, subset=[uploaded_zip_1, uploaded_zip_2]
+                    cooling_highlight, subset=[uploaded_file_1, uploaded_file_2]
                 ),
                 use_container_width=True,
             )
 
             unmatched_label_df = pd.DataFrame(
                 {
-                    uploaded_zip_1: pd.Series(unmatches[uploaded_zip_1]),
-                    uploaded_zip_2: pd.Series(unmatches[uploaded_zip_2]),
+                    uploaded_file_1: pd.Series(unmatches[uploaded_file_1]),
+                    uploaded_file_2: pd.Series(unmatches[uploaded_file_2]),
                 }
             )
             col1.subheader("Unmatched Labels")
@@ -181,11 +180,11 @@ def main():
 
                 threshold = st.slider("Desired similarity threshold", 0.0, 1.0, 0.7, step=0.1)
                 # Iterate over items in the first list
-                for item1 in unmatches[uploaded_zip_1]:
+                for item1 in unmatches[uploaded_file_1]:
                     normalized_item1 = normalize_string(item1)
 
                     # Iterate over items in the second list
-                    for item2 in unmatches[uploaded_zip_2]:
+                    for item2 in unmatches[uploaded_file_2]:
                         normalized_item2 = normalize_string(item2)
 
                         # Compare the similarity and check if it's above a threshold
@@ -198,23 +197,23 @@ def main():
 
                 # Convert the mappings dictionary to a DataFrame
                 selected_df = pd.DataFrame(
-                    mappings.items(), columns=[uploaded_zip_1, uploaded_zip_2]
+                    mappings.items(), columns=[uploaded_file_1, uploaded_file_2]
                 )
 
                 gb = GridOptionsBuilder.from_dataframe(selected_df)
                 gb.configure_pagination(enabled=True)
                 gb.configure_selection(selection_mode="multiple", use_checkbox=True)
                 gb.configure_column(
-                    uploaded_zip_1,
+                    uploaded_file_1,
                     editable=True,
                     cellEditor="agSelectCellEditor",
-                    cellEditorParams={"values": sorted(unmatches[uploaded_zip_1])},
+                    cellEditorParams={"values": sorted(unmatches[uploaded_file_1])},
                 )
                 gb.configure_column(
-                    uploaded_zip_2,
+                    uploaded_file_2,
                     editable=True,
                     cellEditor="agSelectCellEditor",
-                    cellEditorParams={"values": sorted(unmatches[uploaded_zip_2])},
+                    cellEditorParams={"values": sorted(unmatches[uploaded_file_2])},
                 )
                 gb.configure_grid_options(domLayout="normal")
 
@@ -231,8 +230,8 @@ def main():
                 if st.button("Finalize mapping") and grid_table["selected_rows"] is not None:
                     sel_row = grid_table["selected_rows"]
                     data_dict = {
-                        uploaded_zip_1: [item[uploaded_zip_1] for item in sel_row],
-                        uploaded_zip_2: [item[uploaded_zip_2] for item in sel_row],
+                        uploaded_file_1: [item[uploaded_file_1] for item in sel_row],
+                        uploaded_file_2: [item[uploaded_file_2] for item in sel_row],
                     }
                     mapping_df = pd.DataFrame(data_dict)
                     st.dataframe(mapping_df, use_container_width=True)

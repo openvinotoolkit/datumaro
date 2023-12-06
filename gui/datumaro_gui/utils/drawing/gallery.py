@@ -14,7 +14,7 @@ class Gallery(Dashboard.Item):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-    def __call__(self, dataset):
+    def __call__(self, dataset, max_number: int = 100):
         with mui.Paper(
             key=self._key,
             sx={
@@ -32,7 +32,10 @@ class Gallery(Dashboard.Item):
             # Create a Streamlit Material-UI Box
             with mui.Box(sx={"flex": 1, "minHeight": 0, "overflow": "auto"}):
                 image = []
+                n = 0
                 for item in dataset:
+                    if n > max_number:
+                        break
                     data_path = item.media.path
                     img_format = os.path.splitext(data_path)[-1].replace(".", "")
                     with open(data_path, "rb") as f:
@@ -40,6 +43,7 @@ class Gallery(Dashboard.Item):
                     bin_str = base64.b64encode(data).decode()
                     html_code = f"data:image/{img_format};base64,{bin_str}"
                     image.append(html_code)
+                    n += 1
 
                 with mui.ImageList(cols=4):
                     for im in image:

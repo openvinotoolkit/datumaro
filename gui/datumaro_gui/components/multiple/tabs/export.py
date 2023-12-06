@@ -6,15 +6,16 @@ import os
 import os.path as osp
 
 import streamlit as st
-from datumaro_gui.utils.dataset.data_loader import MultipleDatasetHelper
+from datumaro_gui.utils.dataset.data_loader import DataRepo, MultipleDatasetHelper
 from streamlit import session_state as state
 
 
 def main():
     tasks = ["classification", "detection", "instance_segmentation", "segmentation", "landmark"]
     formats = {
-        "classification": ["imagenet", "cifar", "mnist", "mnist_csv", "lfw"],
+        "classification": ["datumaro", "imagenet", "cifar", "mnist", "mnist_csv", "lfw"],
         "detection": [
+            "datumaro",
             "coco_instances",
             "voc_detection",
             "yolo",
@@ -27,27 +28,29 @@ def main():
             "wider_face",
         ],
         "instance_segmentation": [
+            "datumaro",
             "coco_instances",
             "voc_instance_segmentation",
             "open_images",
             "segment_anything",
         ],
         "segmentation": [
+            "datumaro",
             "coco_panoptic",
             "voc_segmentation",
             "kitti_segmentation",
             "cityscapes",
             "camvid",
         ],
-        "landmark": ["coco_person_keypoints", "voc_layout", "lfw"],
+        "landmark": ["datumaro", "coco_person_keypoints", "voc_layout", "lfw"],
     }
     data_helper_1: MultipleDatasetHelper = state["data_helper_1"]
     data_helper_2: MultipleDatasetHelper = state["data_helper_2"]
-    uploaded_zip_1 = state["uploaded_zip_1"].name[:-4]
-    uploaded_zip_2 = state["uploaded_zip_2"].name[:-4]
-    dataset_names = [uploaded_zip_1, uploaded_zip_2, "Merged Dataset"]
+    uploaded_file_1 = state["uploaded_file_1"]
+    uploaded_file_2 = state["uploaded_file_2"]
+    dataset_names = [uploaded_file_1, uploaded_file_2, "Merged Dataset"]
     selected_dataset = st.selectbox("Select dataset to export : ", dataset_names, index=2)
-    dataset_dict = {uploaded_zip_1: data_helper_1, uploaded_zip_2: data_helper_2}
+    dataset_dict = {uploaded_file_1: data_helper_1, uploaded_file_2: data_helper_2}
 
     if selected_dataset == "Merged Dataset" and "data_helper_merged" not in state:
         st.error("Please merge dataset first")
@@ -61,13 +64,22 @@ def main():
 
         if selected_task and selected_format:
             selected_path = st.text_input(
-                "Select a path to export:", value=osp.join(osp.expanduser("~"), "Downloads")
+                "Select a path to export:",
+                value=osp.join(osp.expanduser("~"), "Downloads", "dataset.zip"),
             )
 
         export_btn = st.button("Export")
         if export_btn:
             data_helper = dataset_dict.get(selected_dataset, None)
-            if not osp.exists(selected_path):
-                os.makedirs(selected_path)
-            print(osp.abspath(selected_path))
             data_helper.export(selected_path, format=selected_format, save_media=True)
+
+        uploaded_file = state["uploaded_file"]
+        zip_path = DataRepo().zip_dataset(selected_path, output_fn=uploaded_file)
+
+        with open(zip_path, "rb") as fp:
+            st.download_button(
+                label="Download ZIP",
+                data=fp,
+                file_name=os.path.basename(zip_path),
+                mime="application/zip",
+            )
