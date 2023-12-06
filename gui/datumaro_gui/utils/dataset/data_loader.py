@@ -24,7 +24,7 @@ from datumaro.plugins.validators import (
 
 class DataRepo:
     """
-    Implements the data repo for Single Dataset Projects
+    Implements the data repo for Dataset Projects
     """
 
     def __init__(self):
@@ -76,18 +76,18 @@ class DataRepo:
                             zipinfo.filename = zipinfo.filename[start:]
                             z.extract(zipinfo, directory)
             except AttributeError:
-                directory = "/".join(uploaded_zip.split("/")[:-1])
+                directory = (os.sep).join(uploaded_zip.split(os.sep)[:-1])
                 dataset_root = find_dataset_root(z.namelist())
-                dataset_root = dataset_root + os.sep
+                dataset_root = dataset_root
+                result_path = os.path.join(directory, dataset_root)
                 start = len(dataset_root)
                 zipinfos = z.infolist()
 
                 for zipinfo in zipinfos:
                     if len(zipinfo.filename) > start:
                         zipinfo.filename = zipinfo.filename[start:]
-                        z.extract(zipinfo, directory)
-
-        return directory
+                        z.extract(zipinfo, result_path)
+        return result_path
 
     def zip_dataset(_self, directory: str, output_fn: str = "dataset.zip") -> str:
         """

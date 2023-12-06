@@ -2,10 +2,12 @@
 #
 # SPDX-License-Identifier: MIT
 
+import os
+
 import streamlit as st
 import streamlit_antd_components as sac
 from datumaro_gui.utils.dataset.data_loader import DataRepo, MultipleDatasetHelper
-from datumaro_gui.utils.dataset.state import reset_state
+from datumaro_gui.utils.dataset.state import import_dataset, multiple_file_selector, reset_state
 from datumaro_gui.utils.drawing.css import custom_css
 from datumaro_gui.utils.readme import github_pypi_desc
 from streamlit import session_state as state
@@ -18,10 +20,10 @@ def main():
     st.markdown(custom_css, unsafe_allow_html=True)
 
     keys = [
-        "uploaded_zip_1",
+        "uploaded_file_1",
         "data_helper_1",
         "subset_1",
-        "uploaded_zip_2",
+        "uploaded_file_2",
         "data_helper_2",
         "subset_2",
         "mapping",
@@ -31,59 +33,36 @@ def main():
         "low_level_table",
     ]
 
-    data_repo = DataRepo()
+    filenames = multiple_file_selector()
+    reset_state(keys, state)
 
-    with st.expander("Import datasets", expanded=True):
-        uploaded_zips = st.file_uploader(
-            "Upload two zip files containing dataset", type=["zip"], accept_multiple_files=True
-        )
-        if not uploaded_zips:
-            reset_state(keys, state)
+    if filenames is not None and len(filenames) > 1:
+        if len(filenames) > 2:
+            st.error("You could not upload more than 2 datasets in once", icon="🚨")
+        reset_state(keys, state)
+        dataset_1_dir, dataset_2_dir = filenames[0], filenames[1]
 
-        if uploaded_zips and len(uploaded_zips) > 1:
-            if len(uploaded_zips) > 2:
-                st.error("You could not upload more than 2 datasets in once", icon="🚨")
+        if dataset_1_dir.endswith(".zip"):
+            data_repo = DataRepo()
+            dataset_1_dir = data_repo.unzip_dataset(dataset_1_dir)
+        if dataset_2_dir.endswith(".zip"):
+            data_repo = DataRepo()
+            dataset_2_dir = data_repo.unzip_dataset(dataset_2_dir)
 
-            uploaded_zip_1 = uploaded_zips[0]
-            uploaded_zip_2 = uploaded_zips[1]
-            if (
-                uploaded_zip_1 != state["uploaded_zip_1"]
-                and uploaded_zip_2 != state["uploaded_zip_2"]
-            ):
-                # Extract the contents of the uploaded zip file to the temporary directory
-                dataset_1_dir = data_repo.unzip_dataset(uploaded_zip_1)
-                dataset_2_dir = data_repo.unzip_dataset(uploaded_zip_2)
+        data_helper_1 = MultipleDatasetHelper(dataset_1_dir)
+        state["data_helper_1"] = data_helper_1
+        state["uploaded_file_1"] = os.path.basename(dataset_1_dir)
 
-                state["uploaded_zip_1"] = uploaded_zip_1
-                state["uploaded_zip_2"] = uploaded_zip_2
+        data_helper_2 = MultipleDatasetHelper(dataset_2_dir)
+        state["data_helper_2"] = data_helper_2
+        state["uploaded_file_2"] = os.path.basename(dataset_2_dir)
 
-                data_helper_1 = MultipleDatasetHelper(dataset_1_dir)
-                state["data_helper_1"] = data_helper_1
-                data_helper_2 = MultipleDatasetHelper(dataset_2_dir)
-                state["data_helper_2"] = data_helper_2
+        import_dataset(data_helper_1, "Dataset 1")
+        import_dataset(data_helper_2, "Dataset 2")
 
-            data_helper_1: MultipleDatasetHelper = state["data_helper_1"]
-            # Display the list of image files in the UI
-            selected_format_1 = st.selectbox(
-                "Select a format to import Dataset 1:", data_helper_1.detect_format()
-            )
-
-            if selected_format_1 is not None:
-                if selected_format_1 != data_helper_1.format():
-                    data_helper_1.import_dataset(selected_format_1)
-
-            data_helper_2: MultipleDatasetHelper = state["data_helper_2"]
-            # Display the list of image files in the UI
-            selected_format_2 = st.selectbox(
-                "Select a format to import Dataset 2:", data_helper_2.detect_format()
-            )
-            if selected_format_2 is not None:
-                if selected_format_2 != data_helper_2.format():
-                    data_helper_2.import_dataset(selected_format_2)
-
-        elif state["data_helper_1"] is not None and state["data_helper_2"] is not None:
-            state["data_helper_1"] = None
-            state["data_helper_2"] = None
+    elif state["data_helper_1"] is not None and state["data_helper_2"] is not None:
+        state["data_helper_1"] = None
+        state["data_helper_2"] = None
 
     st.title("")
 

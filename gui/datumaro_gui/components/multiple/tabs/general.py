@@ -20,8 +20,8 @@ def main():
     data_helper_2: MultipleDatasetHelper = state["data_helper_2"]
     dataset_1 = data_helper_1.dataset()
     dataset_2 = data_helper_2.dataset()
-    uploaded_zip_1 = state["uploaded_zip_1"].name
-    uploaded_zip_2 = state["uploaded_zip_2"].name
+    uploaded_file_1 = state["uploaded_file_1"]
+    uploaded_file_2 = state["uploaded_file_2"]
 
     with elements("general"):
         container = st.container()
@@ -33,7 +33,7 @@ def main():
             container1.subheader("First Dataset Description")
             col1, col2 = container1.columns(2)
             col1.markdown(
-                f"<div class='highlight blue box'>Path <span class='bold'>{uploaded_zip_1}</span></div>",
+                f"<div class='highlight blue box'>Path <span class='bold'>{uploaded_file_1}</span></div>",
                 unsafe_allow_html=True,
             )
             col2.markdown(
@@ -46,7 +46,7 @@ def main():
             container2.subheader("Second Dataset Description")
             col1, col2 = container2.columns(2)
             col1.markdown(
-                f"<div class='highlight blue box'>Path <span class='bold'>{uploaded_zip_2}</span></div>",
+                f"<div class='highlight blue box'>Path <span class='bold'>{uploaded_file_2}</span></div>",
                 unsafe_allow_html=True,
             )
             col2.markdown(
