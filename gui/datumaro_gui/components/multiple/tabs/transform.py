@@ -19,8 +19,8 @@ from datumaro.components.annotation import AnnotationType
 def render_dataset_management_section(
     col_name,
     data_helper,
-    uploaded_zip_1,
-    uploaded_zip_2,
+    uploaded_file_1,
+    uploaded_file_2,
     mapping,
     identicals,
     state_subset_key,
@@ -42,9 +42,9 @@ def render_dataset_management_section(
         )
         if remap_btn:
             mapping_dict = (
-                dict(zip(mapping[uploaded_zip_2], mapping[uploaded_zip_1]))
+                dict(zip(mapping[uploaded_file_2], mapping[uploaded_file_1]))
                 if col_name == "c2"
-                else dict(zip(mapping[uploaded_zip_1], mapping[uploaded_zip_2]))
+                else dict(zip(mapping[uploaded_file_1], mapping[uploaded_file_2]))
             )
             for label in dataset.categories()[AnnotationType.label]:
                 if label.name in identicals or label.name in mapping_dict:
@@ -264,14 +264,14 @@ def render_dataset_management_section(
 def main():
     data_helper_1: MultipleDatasetHelper = state["data_helper_1"]
     data_helper_2: MultipleDatasetHelper = state["data_helper_2"]
-    uploaded_zip_1 = state["uploaded_zip_1"].name[:-4]
-    uploaded_zip_2 = state["uploaded_zip_2"].name[:-4]
+    uploaded_file_1 = state["uploaded_file_1"]
+    uploaded_file_2 = state["uploaded_file_2"]
 
-    dataset_dict = {uploaded_zip_1: data_helper_1, uploaded_zip_2: data_helper_2}
-    subset_key_dict = {uploaded_zip_1: "subset_1", uploaded_zip_2: "subset_2"}
-    report_key_dict = {uploaded_zip_1: "report_1", uploaded_zip_2: "report_2"}
+    dataset_dict = {uploaded_file_1: data_helper_1, uploaded_file_2: data_helper_2}
+    subset_key_dict = {uploaded_file_1: "subset_1", uploaded_file_2: "subset_2"}
+    report_key_dict = {uploaded_file_1: "report_1", uploaded_file_2: "report_2"}
 
-    dataset_names = [uploaded_zip_1, uploaded_zip_2]
+    dataset_names = [uploaded_file_1, uploaded_file_2]
     if "data_helper_merged" in state:
         data_helper_3: MultipleDatasetHelper = state["data_helper_merged"]
         dataset_names.append("Merged Dataset")
@@ -280,7 +280,7 @@ def main():
         report_key_dict["Merged Dataset"] = "report_merged"
 
     mapping = (
-        pd.DataFrame(columns=[uploaded_zip_1, uploaded_zip_2])
+        pd.DataFrame(columns=[uploaded_file_1, uploaded_file_2])
         if state.mapping is None or state.mapping.empty
         else state.mapping
     )
@@ -300,8 +300,8 @@ def main():
             transform_dataset = render_dataset_management_section(
                 "c1",
                 data_helper_1,
-                uploaded_zip_1,
-                uploaded_zip_2,
+                uploaded_file_1,
+                uploaded_file_2,
                 mapping,
                 identicals,
                 state_subset_key_1,
@@ -309,7 +309,7 @@ def main():
             )
             data_helper_1.update_dataset(transform_dataset)
             c1.markdown(
-                f"<div class='highlight blue box'><span class='bold'>{uploaded_zip_1}</span></div>",
+                f"<div class='highlight blue box'><span class='bold'>{uploaded_file_1}</span></div>",
                 unsafe_allow_html=True,
             )
 
@@ -324,8 +324,8 @@ def main():
             transform_dataset = render_dataset_management_section(
                 "c2",
                 data_helper_2,
-                uploaded_zip_1,
-                uploaded_zip_2,
+                uploaded_file_1,
+                uploaded_file_2,
                 mapping,
                 identicals,
                 state_subset_key_2,

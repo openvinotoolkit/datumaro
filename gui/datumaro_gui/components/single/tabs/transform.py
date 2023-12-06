@@ -91,7 +91,8 @@ def main():
                     placeholder='Eg. /item[subset="train"]',
                     value=None,
                 )
-            filter_btn = st.button("Filter dataset")
+            col1 = st.columns(6)[0]
+            filter_btn = col1.button("Filter dataset")
             if selected_mode and filter_expr and filter_btn:
                 filter_args_dict = {
                     "items": {},
