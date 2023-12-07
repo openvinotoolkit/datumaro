@@ -711,6 +711,18 @@
     "extra_deps": []
   },
   {
+    "import_path": "datumaro.plugins.data_formats.mmdet.MmdetCocoBase",
+    "plugin_name": "mmdet_coco",
+    "plugin_type": "DatasetBase",
+    "extra_deps": []
+  },
+  {
+    "import_path": "datumaro.plugins.data_formats.mmdet.MmdetCocoImporter",
+    "plugin_name": "mmdet_coco",
+    "plugin_type": "Importer",
+    "extra_deps": []
+  },
+  {
     "import_path": "datumaro.plugins.data_formats.mnist.MnistBase",
     "plugin_name": "mnist",
     "plugin_type": "DatasetBase",
