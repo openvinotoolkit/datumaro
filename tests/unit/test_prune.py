@@ -1,3 +1,4 @@
+import platform
 from collections import Counter
 from functools import partial
 
@@ -94,6 +95,7 @@ class PruneTest:
         assert Counter(result_subsets) == {"test": 1, "train": 1}
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
+    @pytest.mark.skipif(platform.system() == "Darwin", reason="hanging while ov model read")
     def test_prune_clustered_random(self, fxt_dataset, test_dir):
         """
         <b>Description:</b>
@@ -145,7 +147,6 @@ class PruneTest:
         result_subsets = [item.subset for item in result]
         assert Counter(result_subsets) == {"test": 1, "train": 1}
 
-    @pytest.mark.skip(reason="Skip tests for prune query clust")
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_prune_query_clust_img_hash(self, fxt_dataset, test_dir):
         """
@@ -172,7 +173,6 @@ class PruneTest:
         result_subsets = [item.subset for item in result]
         assert Counter(result_subsets) == {"test": 1, "train": 1}
 
-    @pytest.mark.skip(reason="Skip tests for prune query clust")
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_prune_query_clust_txt_hash(self, fxt_dataset, test_dir):
         """

@@ -8,7 +8,6 @@
 import logging as log
 import os.path as osp
 import shutil
-import time
 import urllib
 from dataclasses import dataclass, fields
 from typing import Dict, List, Optional
@@ -195,22 +194,19 @@ class OpenvinoLauncher(LauncherWithModelInterpreter):
             builtin_model_info.override(model_info)
         print("OpenvinoLauncher.init() step 2")
         for i in range(200):
-            # time.sleep(5)  # insert sleep to see the stdout
             print(f"busy waiting for flushing log message to stdout: {i}")
 
         model_info.validate()
 
-        print("OpenvinoLauncher.init() step 3")
-        for i in range(200):
-            # time.sleep(5)  # insert sleep to see the stdout
-            print(f"busy waiting for flushing log message to stdout: {i}")
+        # print("OpenvinoLauncher.init() step 3")
+        # for i in range(200):
+        #     print(f"busy waiting for flushing log message to stdout: {i}")
 
         super().__init__(model_interpreter_path=model_info.interpreter)
 
-        print("OpenvinoLauncher.init() step 4")
-        for i in range(200):
-            # time.sleep(5)  # insert sleep to see the stdout
-            print(f"busy waiting for flushing log message to stdout: {i}")
+        # print("OpenvinoLauncher.init() step 4")
+        # for i in range(200):
+        #     print(f"busy waiting for flushing log message to stdout: {i}")
 
         self.model_info = model_info
 
@@ -219,11 +215,14 @@ class OpenvinoLauncher(LauncherWithModelInterpreter):
 
         print(f"calling ov.core.read_model({model_info=}, {compile_model_config=})")
         for i in range(200):
-            # time.sleep(5)  # insert sleep to see the stdout
             print(f"busy waiting for flushing log message to stdout: {i}")
 
         self._core = Core()
         self._network = self._core.read_model(model_info.description, model_info.weights)
+
+        # print("OpenvinoLauncher.init() step 5")
+        # for i in range(200):
+        #     print(f"busy waiting for flushing log message to stdout: {i}")
 
         if output_layers:
             log.info(f"Add additional output layers {output_layers} to the model outputs.")
@@ -231,6 +230,11 @@ class OpenvinoLauncher(LauncherWithModelInterpreter):
 
         self._check_model_support(self._network, self._device)
         self._load_executable_net()
+
+        print("OpenvinoLauncher.init() step 3 - done")
+        for i in range(200):
+            print(f"busy waiting for flushing log message to stdout: {i}")
+
 
     def _check_model_support(self, net, device):
         not_supported_layers = set(

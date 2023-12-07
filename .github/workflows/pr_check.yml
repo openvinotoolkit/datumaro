@@ -42,7 +42,7 @@ jobs:
     #         tox-env-os: "win"
     name: pr test (macos-11, Python 3.8)
     # runs-on: ${{ matrix.os }}
-    runs-on: macos-12
+    runs-on: macos-11
     steps:
       - uses: actions/checkout@v3
       - name: Installing Rust toolchain
@@ -61,7 +61,7 @@ jobs:
           python -m pip install tox
       - name: Unit testing
         run: |
-          tox -vvv -e tests-py38-darwin -- tests/unit/test_prune.py::PruneTest::test_prune_clustered_random
+          tox -vvv -e tests-py38-darwin -- tests/unit/test_prune.py
       # - name: Integration testing
       #   run: |
       #     tox -e tests-py${{ matrix.tox-env-py }}-${{ matrix.tox-env-os }} -- tests/integration
