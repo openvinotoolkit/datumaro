@@ -122,6 +122,7 @@ class PruneTest:
         assert Counter(result_subsets) == {"test": 1, "train": 1}
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
+    @pytest.mark.skipif(platform.system() == "Darwin", reason="hanging while ov model read")
     def test_prune_centroid(self, fxt_dataset, test_dir):
         """
         <b>Description:</b>
@@ -148,6 +149,7 @@ class PruneTest:
         assert Counter(result_subsets) == {"test": 1, "train": 1}
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
+    @pytest.mark.skipif(platform.system() == "Darwin", reason="hanging while ov model read")
     def test_prune_query_clust_img_hash(self, fxt_dataset, test_dir):
         """
         <b>Description:</b>
@@ -174,6 +176,7 @@ class PruneTest:
         assert Counter(result_subsets) == {"test": 1, "train": 1}
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
+    @pytest.mark.skipif(platform.system() == "Darwin", reason="hanging while ov model read")
     def test_prune_query_clust_txt_hash(self, fxt_dataset, test_dir):
         """
         <b>Description:</b>
@@ -200,6 +203,7 @@ class PruneTest:
         assert Counter(result_subsets) == {"test": 1, "train": 1}
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
+    @pytest.mark.skipif(platform.system() == "Darwin", reason="hanging while ov model read")
     def test_prune_entropy(self, fxt_dataset, test_dir):
         """
         <b>Description:</b>
@@ -226,6 +230,7 @@ class PruneTest:
         assert Counter(result_subsets) == {"test": 1, "train": 1}
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
+    @pytest.mark.skipif(platform.system() == "Darwin", reason="hanging while ov model read")
     def test_prune_ndr(self, fxt_dataset, test_dir):
         """
         <b>Description:</b>
