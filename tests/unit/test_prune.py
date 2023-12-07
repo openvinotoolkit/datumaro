@@ -235,7 +235,9 @@ class PruneTest:
         result_subsets = [item.subset for item in result]
         assert Counter(result_subsets) == {"test": 1, "train": 1}
 
-    @pytest.mark.skipif(platform.system() == "Darwin", reason="Issue#1219:hanging while ov model read")
+    @pytest.mark.skipif(
+        platform.system() == "Darwin", reason="Issue#1219:hanging while ov model read"
+    )
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_prune_ndr(self, fxt_dataset, test_dir):
         """
