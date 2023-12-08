@@ -59,10 +59,10 @@ jobs:
           python -m pip install tox
       - name: Unit testing
         run: |
-          tox -e tests-py${{ matrix.tox-env-py }}-${{ matrix.tox-env-os }} --develop -- tests/unit --cov --cov-report=xml
+          tox -vvv -e tests-py${{ matrix.tox-env-py }}-${{ matrix.tox-env-os }} --develop -- tests/unit --cov --cov-report=xml
       - name: Integration testing
         run: |
-          tox -e tests-py${{ matrix.tox-env-py }}-${{ matrix.tox-env-os }} -- tests/integration
+          tox -vvv -e tests-py${{ matrix.tox-env-py }}-${{ matrix.tox-env-os }} -- tests/integration
       - name: Upload coverage reports to Codecov
         uses: codecov/codecov-action@v3
         with:
