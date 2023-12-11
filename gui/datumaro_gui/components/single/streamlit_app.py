@@ -10,7 +10,7 @@ import streamlit_antd_components as sac
 from datumaro_gui.utils.dataset.data_loader import DataRepo, SingleDatasetHelper
 from datumaro_gui.utils.dataset.state import (
     file_selector,
-    get_data_folder_path,
+    get_download_folder_path,
     import_dataset,
     reset_state,
     single_state_keys,
@@ -26,7 +26,11 @@ def main():
     st.write(github_pypi_desc)
     st.markdown(custom_css, unsafe_allow_html=True)
 
-    input_path = st.text_input("Select a path to import data:", value=get_data_folder_path())
+    input_path = st.text_input(
+        "Select a path to import data:",
+        value=get_download_folder_path(),
+        key="single_input_path",
+    )
     filename = file_selector(input_path)
     reset_state(single_state_keys, state)
 
