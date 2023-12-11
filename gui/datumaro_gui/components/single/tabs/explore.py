@@ -4,6 +4,7 @@
 
 import copy
 from abc import ABCMeta, abstractmethod
+from typing import Union
 
 import numpy as np
 import streamlit as st
@@ -24,7 +25,7 @@ class Query(metaclass=ABCMeta):
         raise NotImplementedError
 
     @abstractmethod
-    def query(self) -> dm.DatasetItem | str | None:
+    def query(self) -> Union[dm.DatasetItem, str, None]:
         raise NotImplementedError
 
 
@@ -35,7 +36,7 @@ class QueryImage(Query):
     def label(self) -> str:
         return f":frame_with_picture: {self.item.subset}-{self.item.id}"
 
-    def query(self) -> dm.DatasetItem | str | None:
+    def query(self) -> Union[dm.DatasetItem, str, None]:
         return self.item
 
     def __eq__(self, other):
@@ -66,7 +67,7 @@ class QueryText(Query):
     def label(self) -> str:
         return f":speech_balloon: {self.text}"
 
-    def query(self) -> dm.DatasetItem | str | None:
+    def query(self) -> Union[dm.DatasetItem, str, None]:
         return self.text
 
     def __eq__(self, other):
@@ -82,7 +83,7 @@ class QueryLabel(Query):
     def label(self) -> str:
         return f":label: {','.join(self.labels)}"
 
-    def query(self) -> dm.DatasetItem | str | None:
+    def query(self) -> Union[dm.DatasetItem, str, None]:
         return None
 
     def __eq__(self, other):
@@ -126,7 +127,8 @@ def query_list(title=""):
                 item = state["explore_queries"].pop(current_selected)
                 if isinstance(item, QueryUplodedImage):
                     file_id = state["explore_user_uploaded_images"].get(item.path)
-                    if ("explore_user_uploaded_file" in state
+                    if (
+                        "explore_user_uploaded_file" in state
                         and state["explore_user_uploaded_file"] is None
                         or state["explore_user_uploaded_file"].file_id != file_id
                     ):
@@ -322,10 +324,10 @@ def main():
                     # progress_bar = st.progress(0, text="Searching...")
                     # for percentage_complete in range(100):
                     results = explore_topk(dataset, topk)
-                        # progress_bar.progress(
-                        #     percentage_complete + 1,
-                        #     text=f"Searching Dataset [{percentage_complete+1}/100]",
-                        # )
+                    # progress_bar.progress(
+                    #     percentage_complete + 1,
+                    #     text=f"Searching Dataset [{percentage_complete+1}/100]",
+                    # )
                     # progress_bar.empty()
                 except Exception as e:
                     st.write(
