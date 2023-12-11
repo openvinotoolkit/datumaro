@@ -486,7 +486,7 @@ class DistanceCompareVisualizerTest:
         return dataset_1, dataset_2
 
     @pytest.mark.parametrize("output_format", ["simple", "tensorboard"])
-    def test_save(self, fxt_dataset_pair, tmp_dir, output_format):
+    def test_save(self, fxt_dataset_pair, test_dir, output_format):
         mock_dist_comparator = MagicMock(spec=DistanceComparator)
 
         # matches, a_unmatched, b_unmatched = label_diff
@@ -496,7 +496,7 @@ class DistanceCompareVisualizerTest:
         mock_dist_comparator.match_masks.return_value = ([], [], [], [])
 
         with DistanceCompareVisualizer(
-            save_dir=tmp_dir,
+            save_dir=test_dir,
             comparator=mock_dist_comparator,
             output_format=output_format,
         ) as visualizer:
@@ -504,4 +504,4 @@ class DistanceCompareVisualizerTest:
             visualizer.save(first_dataset, second_dataset)
 
             # Assert non-empty after save()
-            assert os.listdir(tmp_dir)
+            assert os.listdir(test_dir)
