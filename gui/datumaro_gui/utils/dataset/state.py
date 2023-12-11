@@ -8,9 +8,43 @@ from pathlib import Path
 
 import streamlit as st
 
+single_state_keys = [
+    "uploaded_file",
+    "data_helper",
+    "subset",
+    "stats_image",
+    "stats_anns",
+    "image_size_info",
+    "cls_summary",
+    "cls_anomaly_info",
+    "det_summary",
+    "det_anomaly_info",
+    "seg_summary",
+    "seg_anomaly_info",
+    "defined_label",
+    "undefined_label",
+    "defined_attr",
+    "undefined_attr",
+]
+
+multiple_state_keys = [
+    "uploaded_file_1",
+    "data_helper_1",
+    "subset_1",
+    "uploaded_file_2",
+    "data_helper_2",
+    "subset_2",
+    "mapping",
+    "matched",
+    "high_level_table",
+    "mid_level_table",
+    "low_level_table",
+]
+
 cwd = os.getcwd()
-datum_path = Path(cwd).parents[0]
-data_folder_path = os.path.join(datum_path, "data")
+if os.path.basename(cwd) == "gui":
+    cwd = Path(cwd).parents[0]
+data_folder_path = os.path.join(cwd, "data")
 
 
 def reset_subset(state):
@@ -29,7 +63,9 @@ def reset_state(keys, state):
 
 def file_selector(folder_path=data_folder_path):
     filenames = os.listdir(folder_path)
-    selected_filename = st.selectbox("Select a file", filenames, index=None)
+    selected_filename = st.selectbox(
+        "Select a file", filenames, index=None, key="single_file_selector"
+    )
     if selected_filename is not None:
         return os.path.join(folder_path, selected_filename)
     return None
