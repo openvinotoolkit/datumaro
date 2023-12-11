@@ -1,6 +1,7 @@
 # Copyright (C) 2023 Intel Corporation
 #
 # SPDX-License-Identifier: MIT
+from __future__ import annotations
 
 from collections import defaultdict
 from dataclasses import dataclass, field
@@ -13,8 +14,6 @@ from datumaro.errors import DatasetError
 if TYPE_CHECKING:
     from matplotlib.figure import Figure
     from pandas import DataFrame, Series
-else:
-    DataFrame, Series, Figure = None, None, None
 
 
 __all__ = ["LossDynamicsAnalyzer", "NoisyLabelCandidate"]
