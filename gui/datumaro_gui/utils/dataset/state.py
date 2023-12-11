@@ -4,7 +4,6 @@
 
 
 import os
-from pathlib import Path
 
 import streamlit as st
 
@@ -42,12 +41,8 @@ multiple_state_keys = [
 ]
 
 
-def get_data_folder_path():
-    cwd = os.getcwd()
-    if os.path.basename(cwd) == "gui":
-        cwd = Path(cwd).parents[0]
-    data_folder_path = os.path.join(cwd, "data")
-    return data_folder_path
+def get_download_folder_path():
+    return os.path.join(os.path.expanduser("~"), "Downloads")
 
 
 def reset_subset(state):
@@ -66,13 +61,11 @@ def reset_state(keys, state):
 
 def file_selector(folder_path: str = None):
     if not folder_path:
-        folder_path = get_data_folder_path()
+        folder_path = get_download_folder_path()
 
     filenames = os.listdir(folder_path)
     selected_filename = st.selectbox(
-        "Select a file",
-        filenames,
-        index=None,
+        "Select a file", filenames, index=None, key="single_file_selector"
     )
     if selected_filename is not None:
         return os.path.join(folder_path, selected_filename)
@@ -81,10 +74,10 @@ def file_selector(folder_path: str = None):
 
 def multiple_file_selector(folder_path: str = None):
     if not folder_path:
-        folder_path = get_data_folder_path()
+        folder_path = get_download_folder_path()
 
     filenames = os.listdir(folder_path)
-    selected_filenames = st.multiselect("Select files", filenames)
+    selected_filenames = st.multiselect("Select files", filenames, key="multiple_file_selector")
     if selected_filenames:
         return [
             os.path.join(folder_path, selected_filename) for selected_filename in selected_filenames

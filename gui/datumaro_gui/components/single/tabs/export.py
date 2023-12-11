@@ -7,6 +7,7 @@ import os.path as osp
 
 import streamlit as st
 from datumaro_gui.utils.dataset.data_loader import DataRepo, SingleDatasetHelper
+from datumaro_gui.utils.dataset.state import get_download_folder_path
 from streamlit import session_state as state
 
 
@@ -51,7 +52,7 @@ def main():
     if selected_task and selected_format:
         selected_path = st.text_input(
             "Select a path to export:",
-            value=osp.join(osp.expanduser("~"), "Downloads", "dataset.zip"),
+            value=osp.join(get_download_folder_path(), "dataset.zip"),
         )
 
     export_btn = st.button("Export")
