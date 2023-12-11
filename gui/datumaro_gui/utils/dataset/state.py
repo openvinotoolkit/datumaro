@@ -41,10 +41,13 @@ multiple_state_keys = [
     "low_level_table",
 ]
 
-cwd = os.getcwd()
-if os.path.basename(cwd) == "gui":
-    cwd = Path(cwd).parents[0]
-data_folder_path = os.path.join(cwd, "data")
+
+def get_data_folder_path():
+    cwd = os.getcwd()
+    if os.path.basename(cwd) == "gui":
+        cwd = Path(cwd).parents[0]
+    data_folder_path = os.path.join(cwd, "data")
+    return data_folder_path
 
 
 def reset_subset(state):
@@ -61,17 +64,25 @@ def reset_state(keys, state):
     reset_subset(state)
 
 
-def file_selector(folder_path=data_folder_path):
+def file_selector(folder_path: str = None):
+    if not folder_path:
+        folder_path = get_data_folder_path()
+
     filenames = os.listdir(folder_path)
     selected_filename = st.selectbox(
-        "Select a file", filenames, index=None, key="single_file_selector"
+        "Select a file",
+        filenames,
+        index=None,
     )
     if selected_filename is not None:
         return os.path.join(folder_path, selected_filename)
     return None
 
 
-def multiple_file_selector(folder_path=data_folder_path):
+def multiple_file_selector(folder_path: str = None):
+    if not folder_path:
+        folder_path = get_data_folder_path()
+
     filenames = os.listdir(folder_path)
     selected_filenames = st.multiselect("Select files", filenames)
     if selected_filenames:

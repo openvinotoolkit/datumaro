@@ -8,6 +8,7 @@ import streamlit as st
 import streamlit_antd_components as sac
 from datumaro_gui.utils.dataset.data_loader import DataRepo, MultipleDatasetHelper
 from datumaro_gui.utils.dataset.state import (
+    get_data_folder_path,
     import_dataset,
     multiple_file_selector,
     multiple_state_keys,
@@ -24,7 +25,8 @@ def main():
     st.write(github_pypi_desc)
     st.markdown(custom_css, unsafe_allow_html=True)
 
-    filenames = multiple_file_selector()
+    input_path = st.text_input("Select a path to import data:", value=get_data_folder_path())
+    filenames = multiple_file_selector(input_path)
     reset_state(multiple_state_keys, state)
 
     if filenames is not None and len(filenames) > 1:
