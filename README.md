@@ -46,7 +46,7 @@ CVAT annotations                             ---> Publication, statistics etc.
     (`bboxes`, `masks`)
   - [YOLO](https://github.com/AlexeyAB/darknet#how-to-train-pascal-voc-data) (`bboxes`)
 
-  Other formats and documentation for them can be found [here](https://openvinotoolkit.github.io/datumaro/latest/docs/data-formats/supported_formats).
+  Other formats and documentation for them can be found [here](https://openvinotoolkit.github.io/datumaro/latest/docs/data-formats/formats).
 - Dataset building
   - Merging multiple datasets into one
   - Dataset filtering by a custom criteria:

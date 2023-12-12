@@ -25,6 +25,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   (<https://github.com/openvinotoolkit/datumaro/pull/1210>)
 - Fix label compare of distance method
   (<https://github.com/openvinotoolkit/datumaro/pull/1205>)
+- Fix broken link to supported formats in readme
+  (<https://github.com/openvinotoolkit/datumaro/pull/1221>)
 
 ## 16/11/2023 - Release 1.5.1
 ### Enhancements
