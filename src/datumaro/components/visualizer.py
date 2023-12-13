@@ -1,6 +1,8 @@
 # Copyright (C) 2023 Intel Corporation
 #
 # SPDX-License-Identifier: MIT
+from __future__ import annotations
+
 import logging as log
 import math
 import random
@@ -35,10 +37,6 @@ if TYPE_CHECKING:
     from matplotlib.axes import Axes
     from matplotlib.figure import Figure
     from matplotlib.text import Text
-else:
-    Figure = None
-    Axes = None
-    Text = None
 
 CAPTION_BBOX_PAD = 0.2
 DEFAULT_COLOR_CYCLES: List[str] = [

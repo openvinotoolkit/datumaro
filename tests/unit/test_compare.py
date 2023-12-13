@@ -1,10 +1,16 @@
+# Copyright (C) 2020-2023 Intel Corporation
+#
+# SPDX-License-Identifier: MIT
+import os
 import platform
 import unittest
 from unittest import TestCase, skipIf
-from unittest.mock import call, mock_open, patch
+from unittest.mock import MagicMock, call, mock_open, patch
 
 import numpy as np
+import pytest
 
+from datumaro.cli.util.compare import DistanceCompareVisualizer
 from datumaro.components.annotation import Bbox, Caption, Label, Mask, Points
 from datumaro.components.comparator import DistanceComparator, EqualityComparator, TableComparator
 from datumaro.components.dataset_base import DEFAULT_SUBSET_NAME, DatasetItem
@@ -462,3 +468,40 @@ class TableComparatorTest(unittest.TestCase):
                 call(f"Low-level Comparison:\n{mock_low_level_table}\n\n"),
             ]
         )
+
+
+class DistanceCompareVisualizerTest:
+    @pytest.fixture
+    def fxt_dataset_pair(self):
+        """Two datasets pair which has the same (id, subset) dataset item to be compared."""
+        class_count = 3
+        dataset_1 = Dataset.from_iterable(
+            [DatasetItem(id=1, annotations=[Label(label=idx) for idx in range(class_count)])],
+            categories=[f"label_{idx}" for idx in range(class_count)],
+        )
+        dataset_2 = Dataset.from_iterable(
+            [DatasetItem(id=1, annotations=[Label(label=idx) for idx in range(class_count)])],
+            categories=[f"label_{idx}" for idx in range(class_count)],
+        )
+        return dataset_1, dataset_2
+
+    @pytest.mark.parametrize("output_format", ["simple", "tensorboard"])
+    def test_save(self, fxt_dataset_pair, test_dir, output_format):
+        mock_dist_comparator = MagicMock(spec=DistanceComparator)
+
+        # matches, a_unmatched, b_unmatched = label_diff
+        mock_dist_comparator.match_labels.return_value = ([0], [1], [2])
+        mock_dist_comparator.match_boxes.return_value = ([], [], [], [])
+        mock_dist_comparator.match_polygons.return_value = ([], [], [], [])
+        mock_dist_comparator.match_masks.return_value = ([], [], [], [])
+
+        with DistanceCompareVisualizer(
+            save_dir=test_dir,
+            comparator=mock_dist_comparator,
+            output_format=output_format,
+        ) as visualizer:
+            first_dataset, second_dataset = fxt_dataset_pair
+            visualizer.save(first_dataset, second_dataset)
+
+            # Assert non-empty after save()
+            assert os.listdir(test_dir)
