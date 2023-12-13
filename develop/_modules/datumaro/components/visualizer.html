@@ -280,6 +280,8 @@
 <span></span><span class="c1"># Copyright (C) 2023 Intel Corporation</span>
 <span class="c1">#</span>
 <span class="c1"># SPDX-License-Identifier: MIT</span>
+<span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">annotations</span>
+
 <span class="kn">import</span> <span class="nn">logging</span> <span class="k">as</span> <span class="nn">log</span>
 <span class="kn">import</span> <span class="nn">math</span>
 <span class="kn">import</span> <span class="nn">random</span>
@@ -314,10 +316,6 @@
     <span class="kn">from</span> <span class="nn">matplotlib.axes</span> <span class="kn">import</span> <span class="n">Axes</span>
     <span class="kn">from</span> <span class="nn">matplotlib.figure</span> <span class="kn">import</span> <span class="n">Figure</span>
     <span class="kn">from</span> <span class="nn">matplotlib.text</span> <span class="kn">import</span> <span class="n">Text</span>
-<span class="k">else</span><span class="p">:</span>
-    <span class="n">Figure</span> <span class="o">=</span> <span class="kc">None</span>
-    <span class="n">Axes</span> <span class="o">=</span> <span class="kc">None</span>
-    <span class="n">Text</span> <span class="o">=</span> <span class="kc">None</span>
 
 <span class="n">CAPTION_BBOX_PAD</span> <span class="o">=</span> <span class="mf">0.2</span>
 <span class="n">DEFAULT_COLOR_CYCLES</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span>
