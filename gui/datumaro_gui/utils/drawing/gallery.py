@@ -5,7 +5,10 @@
 import base64
 import os
 
+import cv2
 from streamlit_elements import html, mui
+
+from datumaro.components.media import ImageFromNumpy
 
 from .dashboard import Dashboard
 
@@ -36,11 +39,19 @@ class Gallery(Dashboard.Item):
                 for item in dataset:
                     if n > max_number:
                         break
-                    data_path = item.media.path
-                    img_format = os.path.splitext(data_path)[-1].replace(".", "")
-                    with open(data_path, "rb") as f:
-                        data = f.read()
-                    bin_str = base64.b64encode(data).decode()
+                    if isinstance(item.media, ImageFromNumpy):
+                        data = item.media.data
+                        cv2_image = cv2.cvtColor(data, cv2.COLOR_BGR2RGB)
+                        _, encoded_image = cv2.imencode(".jpg", cv2_image)
+                        img_format = "jpg"
+                        bin_str = base64.b64encode(encoded_image).decode("utf-8")
+                    else:
+                        data_path = item.media.path
+                        img_format = os.path.splitext(data_path)[-1].replace(".", "")
+                        with open(data_path, "rb") as f:
+                            data = f.read()
+                            bin_str = base64.b64encode(data).decode()
+
                     html_code = f"data:image/{img_format};base64,{bin_str}"
                     image.append(html_code)
                     n += 1
