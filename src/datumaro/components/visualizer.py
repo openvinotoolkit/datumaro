@@ -89,6 +89,7 @@ class Visualizer:
         bbox_linewidth: float = 1.0,
         text_y_offset: float = 1.5,
         alpha: float = 1.0,
+        show_plot_title: bool = True,
     ) -> None:
         """
         Visualizer for Datumaro annotations
@@ -114,6 +115,9 @@ class Visualizer:
         alpha:
             Transparency value when drawing annotations. It should be in [0, 1].
             If alpha=0, we do not draw any annotations.
+        show_plot_title:
+            If True, show the plot title formatted as "ID: {item_id}, Subset: {subset}".
+            Otherwise, hide the plot title.
         """
         self.dataset = dataset
         self.figsize = figsize
@@ -124,6 +128,7 @@ class Visualizer:
 
         assert 0.0 <= alpha <= 1.0, "alpha should be in [0, 1]."
         self.alpha = alpha
+        self.show_plot_title = show_plot_title
 
         self._items = [item for item in self.dataset]
 
@@ -430,17 +435,8 @@ class Visualizer:
         img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
         ax.imshow(img)
 
-        width = ax.transAxes.transform_point((1, 0))[0] - ax.transAxes.transform_point((0, 0))[0]
-        text = ax.set_title(f"ID: {item_id}, Subset: {subset}", loc="center", wrap=True)
-        text.__get_wrapped_text = text._get_wrapped_text
-
-        def _get_wrapped_text():
-            wrapped_text = text.__get_wrapped_text()
-            text._text = wrapped_text
-            return wrapped_text
-
-        text._get_wrapped_text = _get_wrapped_text
-        text._get_wrap_line_width = lambda: width
+        if self.show_plot_title:
+            self._plot_title(ax, item_id, subset)
 
         ax.set_axis_off()
 
@@ -467,6 +463,19 @@ class Visualizer:
                 self._draw(ann, label_categories, fig, ax, context[ann.type])
 
         return fig
+
+    def _plot_title(self, ax: Axes, item_id: str, subset: str) -> None:
+        width = ax.transAxes.transform_point((1, 0))[0] - ax.transAxes.transform_point((0, 0))[0]
+        text = ax.set_title(f"ID: {item_id}, Subset: {subset}", loc="center", wrap=True)
+        text.__get_wrapped_text = text._get_wrapped_text
+
+        def _get_wrapped_text():
+            wrapped_text = text.__get_wrapped_text()
+            text._text = wrapped_text
+            return wrapped_text
+
+        text._get_wrapped_text = _get_wrapped_text
+        text._get_wrap_line_width = lambda: width
 
     def _draw_label(
         self,
