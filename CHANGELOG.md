@@ -9,6 +9,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### New features
 - Support MMDetection COCO format
   (<https://github.com/openvinotoolkit/datumaro/pull/1213>)
+- Develop JsonSectionPageMapper in Rust API
+  (<https://github.com/openvinotoolkit/datumaro/pull/1224>)
 
 ### Enhancements
 - Optimize Python import to make CLI entrypoint faster
