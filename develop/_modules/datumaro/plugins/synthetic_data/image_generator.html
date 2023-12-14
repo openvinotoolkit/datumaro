@@ -352,7 +352,8 @@
         <span class="k">with</span> <span class="n">mp_ctx</span><span class="o">.</span><span class="n">Pool</span><span class="p">(</span><span class="n">processes</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_cpu_count</span><span class="p">)</span> <span class="k">as</span> <span class="n">pool</span><span class="p">:</span>
             <span class="k">try</span><span class="p">:</span>
                 <span class="n">params</span> <span class="o">=</span> <span class="n">pool</span><span class="o">.</span><span class="n">map</span><span class="p">(</span>
-                    <span class="bp">self</span><span class="o">.</span><span class="n">_generate_category</span><span class="p">,</span> <span class="p">[</span><span class="n">Random</span><span class="p">(</span><span class="n">i</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_categories</span><span class="p">)]</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_generate_category</span><span class="p">,</span>
+                    <span class="p">[</span><span class="n">Random</span><span class="p">(</span><span class="n">i</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_categories</span><span class="p">)],</span>  <span class="c1"># nosec B311</span>
                 <span class="p">)</span>
             <span class="k">finally</span><span class="p">:</span>
                 <span class="n">pool</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
@@ -404,7 +405,7 @@
 
         <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">param</span><span class="p">,</span> <span class="n">w</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">indices</span><span class="p">,</span> <span class="n">params</span><span class="p">,</span> <span class="n">weights</span><span class="p">):</span>
             <span class="n">image</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_generate_image</span><span class="p">(</span>
-                <span class="n">Random</span><span class="p">(</span><span class="n">i</span><span class="p">),</span>
+                <span class="n">Random</span><span class="p">(</span><span class="n">i</span><span class="p">),</span>  <span class="c1"># nosec B311</span>
                 <span class="n">param</span><span class="p">,</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">_iterations</span><span class="p">,</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">_height</span><span class="p">,</span>
@@ -413,7 +414,7 @@
                 <span class="n">weight</span><span class="o">=</span><span class="n">w</span><span class="p">,</span>
             <span class="p">)</span>
             <span class="n">color_image</span> <span class="o">=</span> <span class="n">colorize</span><span class="p">(</span><span class="n">image</span><span class="p">,</span> <span class="n">net</span><span class="p">)</span>
-            <span class="n">aug_image</span> <span class="o">=</span> <span class="n">augment</span><span class="p">(</span><span class="n">Random</span><span class="p">(</span><span class="n">i</span><span class="p">),</span> <span class="n">color_image</span><span class="p">,</span> <span class="n">background_colors</span><span class="p">)</span>
+            <span class="n">aug_image</span> <span class="o">=</span> <span class="n">augment</span><span class="p">(</span><span class="n">Random</span><span class="p">(</span><span class="n">i</span><span class="p">),</span> <span class="n">color_image</span><span class="p">,</span> <span class="n">background_colors</span><span class="p">)</span>  <span class="c1"># nosec B311</span>
             <span class="n">save_image</span><span class="p">(</span>
                 <span class="n">osp</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_output_dir</span><span class="p">,</span> <span class="s2">&quot;</span><span class="si">{:06d}</span><span class="s2">.png&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">i</span><span class="p">)),</span> <span class="n">aug_image</span><span class="p">,</span> <span class="n">create_dir</span><span class="o">=</span><span class="kc">True</span>
             <span class="p">)</span>
