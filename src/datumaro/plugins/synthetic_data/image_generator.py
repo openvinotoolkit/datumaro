@@ -73,7 +73,8 @@ class FractalImageGenerator(DatasetGenerator):
         with mp_ctx.Pool(processes=self._cpu_count) as pool:
             try:
                 params = pool.map(
-                    self._generate_category, [Random(i) for i in range(self._categories)]
+                    self._generate_category,
+                    [Random(i) for i in range(self._categories)],  # nosec B311
                 )
             finally:
                 pool.close()
@@ -125,7 +126,7 @@ class FractalImageGenerator(DatasetGenerator):
 
         for i, param, w in zip(indices, params, weights):
             image = self._generate_image(
-                Random(i),
+                Random(i),  # nosec B311
                 param,
                 self._iterations,
                 self._height,
@@ -134,7 +135,7 @@ class FractalImageGenerator(DatasetGenerator):
                 weight=w,
             )
             color_image = colorize(image, net)
-            aug_image = augment(Random(i), color_image, background_colors)
+            aug_image = augment(Random(i), color_image, background_colors)  # nosec B311
             save_image(
                 osp.join(self._output_dir, "{:06d}.png".format(i)), aug_image, create_dir=True
             )
