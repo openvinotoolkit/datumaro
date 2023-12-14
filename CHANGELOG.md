@@ -19,6 +19,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   (<https://github.com/openvinotoolkit/datumaro/pull/1194>)
 - Enhance visualizer to toggle plot title visibility
   (<https://github.com/openvinotoolkit/datumaro/pull/1228>)
+- Enhance Datumaro data format detect() to be memory-bounded and performant
+  (<https://github.com/openvinotoolkit/datumaro/pull/1229>)
 
 ### Bug fixes
 - Fix wrong example of Datumaro dataset creation in document
