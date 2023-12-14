@@ -17,6 +17,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   (<https://github.com/openvinotoolkit/datumaro/pull/1182>)
 - Add ImageColorScale context manager
   (<https://github.com/openvinotoolkit/datumaro/pull/1194>)
+- Enhance visualizer to toggle plot title visibility
+  (<https://github.com/openvinotoolkit/datumaro/pull/1228>)
 
 ### Bug fixes
 - Fix wrong example of Datumaro dataset creation in document
