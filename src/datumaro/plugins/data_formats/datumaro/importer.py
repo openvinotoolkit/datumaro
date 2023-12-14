@@ -8,7 +8,7 @@ from typing import Dict, List, Optional, Type
 from datumaro.components.format_detection import FormatDetectionConfidence, FormatDetectionContext
 from datumaro.components.importer import Importer
 from datumaro.components.merge.extractor_merger import ExtractorMerger
-from datumaro.util import parse_json
+from datumaro.rust_api import JsonSectionPageMapper
 
 from .format import DatumaroPath
 
@@ -28,9 +28,11 @@ class DatumaroImporter(Importer):
         with context.probe_text_file(
             annot_file,
             'must be a JSON object with "categories" ' 'and "items" keys',
-        ) as f:
-            contents = parse_json(f.read())
-            if not {"categories", "items"} <= contents.keys():
+        ):
+            fpath = osp.join(context.root_path, annot_file)
+            page_mapper = JsonSectionPageMapper(fpath)
+            sections = page_mapper.sections()
+            if not {"categories", "items"} <= sections.keys():
                 raise Exception
 
     @classmethod
