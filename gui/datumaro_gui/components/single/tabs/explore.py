@@ -175,7 +175,10 @@ def result_list(
             )
             try:
                 visualizer = Visualizer(
-                    dataset, figsize=(8, 8), alpha=selected_alpha_for_result * 0.01
+                    dataset,
+                    figsize=(8, 8),
+                    alpha=selected_alpha_for_result * 0.01,
+                    show_plot_title=False,
                 )
                 selected_item = state["explore_results"][current_selected]
                 fig = visualizer.vis_one_sample(selected_item.id, selected_item.subset)
