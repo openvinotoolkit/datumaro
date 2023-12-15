@@ -39,7 +39,9 @@ def main():
                 value=20,
             )
 
-            visualizer = Visualizer(dataset, figsize=(8, 8), alpha=selected_alpha * 0.01)
+            visualizer = Visualizer(
+                dataset, figsize=(8, 8), alpha=selected_alpha * 0.01, show_plot_title=False
+            )
 
         with c2:
             st.subheader("Item")
