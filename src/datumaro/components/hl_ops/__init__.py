@@ -1,27 +1,36 @@
 # Copyright (C) 2023 Intel Corporation
 #
 # SPDX-License-Identifier: MIT
+from __future__ import annotations
 
 import inspect
 import os
 import os.path as osp
 import shutil
-from typing import Dict, Iterable, Optional, Type, Union
+from typing import TYPE_CHECKING, Callable, Dict, Iterable, Optional, Type, Union, overload
 
 from datumaro.cli.util.compare import DistanceCompareVisualizer
-from datumaro.cli.util.project import generate_next_file_name
 from datumaro.components.comparator import DistanceComparator, EqualityComparator, TableComparator
-from datumaro.components.dataset import Dataset, DatasetItemStorageDatasetView, IDataset
+from datumaro.components.dataset import Dataset, IDataset
 from datumaro.components.environment import Environment
 from datumaro.components.errors import DatasetError
 from datumaro.components.exporter import Exporter
-from datumaro.components.filter import XPathAnnotationsFilter, XPathDatasetFilter
+from datumaro.components.filter import (
+    UserFunctionAnnotationsFilter,
+    UserFunctionDatasetFilter,
+    XPathAnnotationsFilter,
+    XPathDatasetFilter,
+)
 from datumaro.components.launcher import Launcher
 from datumaro.components.merge import DEFAULT_MERGE_POLICY, get_merger
 from datumaro.components.transformer import ModelTransform, Transform
 from datumaro.components.validator import TaskType, Validator
-from datumaro.util import dump_json_file, parse_str_enum_value
+from datumaro.util import parse_str_enum_value
 from datumaro.util.scope import on_error_do, scoped
+
+if TYPE_CHECKING:
+    from datumaro.components.annotation import Annotation
+    from datumaro.components.dataset_base import DatasetItem
 
 __all__ = ["HLOps"]
 
@@ -126,6 +135,7 @@ class HLOps:
 
         return Dataset(source=produced, env=env)
 
+    @overload
     @staticmethod
     def filter(
         dataset: IDataset,
@@ -150,15 +160,100 @@ class HLOps:
         Returns: a wrapper around the input dataset, which is computed lazily
             during iteration
         """
+        ...
 
-        if filter_annotations:
-            return HLOps.transform(
-                dataset, XPathAnnotationsFilter, xpath=expr, remove_empty=remove_empty
+    @overload
+    @staticmethod
+    def filter(
+        dataset: IDataset,
+        filter_func: str,
+        *,  # pylint: disable=redefined-builtin
+        filter_annotations: bool = False,
+        remove_empty: bool = False,
+    ) -> IDataset:
+        """
+        Filters out some dataset items or annotations, using a user-provided filter
+        Python function.
+
+        Results are stored in-place. Modifications are applied lazily.
+
+        Args:
+            filter_func: User-provided Python function for filtering
+            filter_annotations: Indicates if the filter should be
+                applied to items or annotations
+            remove_empty: When filtering annotations, allows to
+                exclude empty items from the resulting dataset
+
+        Returns: a wrapper around the input dataset, which is computed lazily
+            during iteration
+
+        Example:
+            - (`filter_annotations=True`) This is an example of filtering
+                dataset items with images larger than 1024 pixels::
+
+                from datumaro.components.media import Image
+
+                def filter_func(item: DatasetItem) -> bool:
+                    h, w = item.media_as(Image).size
+                    return h > 1024 or w > 1024
+
+                filtered = UserFunctionDatasetFilter(
+                    extractor=dataset, filter_func=filter_func)
+                filtered_items = [item for item in filtered]
+
+            - (`filter_annotations=True`) This is an example of filtering
+                bounding boxes sized more than 50% of the image size::
+
+                from datumaro.components.media import Image
+                from datumaro.components.annotation import Annotation, Bbox
+
+                def filter_func(item: DatasetItem, ann: Annotation) -> bool:
+                    # If the annotation is not a Bbox, do not filter
+                    if not isinstance(ann, Bbox):
+                        return False
+
+                    h, w = item.media_as(Image).size
+                    image_size = h * w
+                    bbox_size = ann.h * ann.w
+
+                    return bbox_size > 0.5 * image_size
+
+                filtered = UserFunctionAnnotationsFilter(
+                    extractor=dataset, filter_func=filter_func)
+                filtered_items = [item for item in filtered]
+        """
+
+    def filter(
+        dataset: IDataset,
+        expr_or_filter_func: Union[
+            str, Callable[[DatasetItem], bool], Callable[[DatasetItem, Annotation], bool]
+        ],
+        *,  # pylint: disable=redefined-builtin
+        filter_annotations: bool = False,
+        remove_empty: bool = False,
+    ):
+        if isinstance(expr_or_filter_func, str):
+            expr = expr_or_filter_func
+            return (
+                HLOps.transform(
+                    dataset, XPathAnnotationsFilter, xpath=expr, remove_empty=remove_empty
+                )
+                if filter_annotations
+                else HLOps.transform(dataset, XPathDatasetFilter, xpath=expr)
             )
-        else:
-            if not expr:
-                return dataset
-            return HLOps.transform(dataset, XPathDatasetFilter, xpath=expr)
+        elif callable(expr_or_filter_func):
+            filter_func = expr_or_filter_func
+            return (
+                HLOps.transform(
+                    dataset,
+                    UserFunctionAnnotationsFilter,
+                    filter_func=filter_func,
+                    remove_empty=remove_empty,
+                )
+                if filter_annotations
+                else HLOps.transform(dataset, UserFunctionDatasetFilter, filter_func=filter_func)
+            )
+        raise TypeError(expr_or_filter_func)
 
     @staticmethod
     def merge(
