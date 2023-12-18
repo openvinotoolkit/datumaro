@@ -16,14 +16,6 @@ def compare_datasets(_, expected, actual):
     _compare_datasets(TestCaseHelper(), expected, actual)
 
 
-def filter_item_if_id_zero(item) -> bool:
-    return str(item.id) == "0"
-
-
-def filter_ann_if_id_zero(item, ann) -> bool:
-    return str(ann.id) == "0"
-
-
 class HLOpsTest:
     def test_can_transform(self):
         expected = Dataset.from_iterable(
@@ -40,7 +32,7 @@ class HLOpsTest:
 
     @pytest.mark.parametrize(
         "expr_or_filter_func",
-        ["/item[id=0]", filter_item_if_id_zero],
+        ["/item[id=0]", lambda item: str(item.id) == "0"],
         ids=["xpath", "pyfunc"],
     )
     def test_can_filter_items(self, expr_or_filter_func):
@@ -59,7 +51,7 @@ class HLOpsTest:
 
     @pytest.mark.parametrize(
         "expr_or_filter_func",
-        ["/item/annotation[id=1]", filter_ann_if_id_zero],
+        ["/item/annotation[id=1]", lambda item, ann: str(ann.id) == "1"],
         ids=["xpath", "pyfunc"],
     )
     def test_can_filter_annotations(self, expr_or_filter_func):

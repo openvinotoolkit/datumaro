@@ -10,7 +10,7 @@ import os
 import os.path as osp
 import warnings
 from contextlib import contextmanager
-from copy import copy
+from copy import copy, deepcopy
 from typing import (
     Any,
     Callable,
@@ -451,10 +451,11 @@ class Dataset(IDataset):
 
                 filtered = UserFunctionDatasetFilter(
                     extractor=dataset, filter_func=filter_func)
+                # No items with an image height or width greater than 1024
                 filtered_items = [item for item in filtered]
 
-            - (`filter_annotations=True`) This is an example of filtering
-                bounding boxes sized more than 50% of the image size::
+            - (`filter_annotations=True`) This is an example of removing bounding boxes
+                sized greater than 50% of the image size::
 
                 from datumaro.components.media import Image
                 from datumaro.components.annotation import Annotation, Bbox
@@ -468,10 +469,12 @@ class Dataset(IDataset):
                     image_size = h * w
                     bbox_size = ann.h * ann.w
 
-                    return bbox_size > 0.5 * image_size
+                    # Accept Bboxes smaller than 50% of the image size
+                    return bbox_size < 0.5 * image_size
 
                 filtered = UserFunctionAnnotationsFilter(
                     extractor=dataset, filter_func=filter_func)
+                # No bounding boxes with a size greater than 50% of their image
                 filtered_items = [item for item in filtered]
         """
         ...
@@ -920,6 +923,14 @@ class Dataset(IDataset):
     @property
     def is_stream(self) -> bool:
         return self._data.is_stream
+
+    def clone(self) -> "Dataset":
+        """Create a deep copy of this dataset.
+
+        Returns:
+            A cloned instance of the `Dataset`.
+        """
+        return deepcopy(self)
 
 
 class StreamDataset(Dataset):

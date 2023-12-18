@@ -321,8 +321,8 @@ class UserFunctionDatasetFilter(ItemTransform):
     Parameters:
         extractor: Datumaro `Dataset` to filter.
         filter_func: A Python callable that takes a `DatasetItem` as its input and
-            returns a boolean. If the return value is True, the `DatasetItem` is filtered.
-            Otherwise, it is not filtered.
+            returns a boolean. If the return value is True, that `DatasetItem` will be retained.
+            Otherwise, it is removed.
 
     Example:
         This is an example of filtering dataset items with images larger than 1024 pixels::
@@ -335,6 +335,7 @@ class UserFunctionDatasetFilter(ItemTransform):
 
         filtered = UserFunctionDatasetFilter(
             extractor=dataset, filter_func=filter_func)
+        # No items with an image height or width greater than 1024
         filtered_items = [item for item in filtered]
     """
 
@@ -344,9 +345,7 @@ class UserFunctionDatasetFilter(ItemTransform):
         self._filter_func = filter_func
 
     def transform_item(self, item: DatasetItem) -> Optional[DatasetItem]:
-        if not self._filter_func(item):
-            return None
-        return item
+        return item if self._filter_func(item) else None
 
 
 class UserFunctionAnnotationsFilter(ItemTransform):
@@ -355,13 +354,13 @@ class UserFunctionAnnotationsFilter(ItemTransform):
     Parameters:
         extractor: Datumaro `Dataset` to filter.
         filter_func: A Python callable that takes `DatasetItem` and `Annotation` as its inputs
-            and returns a boolean. If the return value is True, the given `Annotation` is filtered.
-            Otherwise, it is not filtered.
-        remove_empty: If True, `DatasetItem` without any annotations is filtered out
+            and returns a boolean. If the return value is True, the `Annotation` will be retained.
+            Otherwise, it is removed.
+        remove_empty: If True, `DatasetItem` without any annotations is removed
             after filtering its annotations. Otherwise, do not filter `DatasetItem`.
 
     Example:
-        This is an example of filtering bounding boxes sized more than 50% of the image size::
+        This is an example of removing bounding boxes sized greater than 50% of the image size::
 
         from datumaro.components.media import Image
         from datumaro.components.annotation import Annotation, Bbox
@@ -375,10 +374,12 @@ class UserFunctionAnnotationsFilter(ItemTransform):
             image_size = h * w
             bbox_size = ann.h * ann.w
 
-            return bbox_size > 0.5 * image_size
+            # Accept Bboxes smaller than 50% of the image size
+            return bbox_size < 0.5 * image_size
 
         filtered = UserFunctionAnnotationsFilter(
             extractor=dataset, filter_func=filter_func)
+        # No bounding boxes with a size greater than 50% of their image
         filtered_items = [item for item in filtered]
     """
 
@@ -394,8 +395,8 @@ class UserFunctionAnnotationsFilter(ItemTransform):
         self._remove_empty = remove_empty
 
     def transform_item(self, item: DatasetItem) -> Optional[DatasetItem]:
-        filtered_anns = [ann for ann in item.annotations if not self._filter_func(item, ann)]
+        filtered_anns = [ann for ann in item.annotations if self._filter_func(item, ann)]
 
-        if self._remove_empty and len(filtered_anns) == 0:
+        if self._remove_empty and not filtered_anns:
             return None
         return self.wrap_item(item, annotations=filtered_anns)

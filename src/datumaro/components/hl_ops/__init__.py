@@ -166,7 +166,9 @@ class HLOps:
     @staticmethod
     def filter(
         dataset: IDataset,
-        filter_func: str,
+        filter_func: Union[
+            Callable[[DatasetItem], bool], Callable[[DatasetItem, Annotation], bool]
+        ],
         *,  # pylint: disable=redefined-builtin
         filter_annotations: bool = False,
         remove_empty: bool = False,
@@ -199,10 +201,11 @@ class HLOps:
 
                 filtered = UserFunctionDatasetFilter(
                     extractor=dataset, filter_func=filter_func)
+                # No items with an image height or width greater than 1024
                 filtered_items = [item for item in filtered]
 
-            - (`filter_annotations=True`) This is an example of filtering
-                bounding boxes sized more than 50% of the image size::
+            - (`filter_annotations=True`) This is an example of removing bounding boxes
+                sized greater than 50% of the image size::
 
                 from datumaro.components.media import Image
                 from datumaro.components.annotation import Annotation, Bbox
@@ -216,10 +219,12 @@ class HLOps:
                     image_size = h * w
                     bbox_size = ann.h * ann.w
 
-                    return bbox_size > 0.5 * image_size
+                    # Accept Bboxes smaller than 50% of the image size
+                    return bbox_size < 0.5 * image_size
 
                 filtered = UserFunctionAnnotationsFilter(
                     extractor=dataset, filter_func=filter_func)
+                # No bounding boxes with a size greater than 50% of their image
                 filtered_items = [item for item in filtered]
         """
 

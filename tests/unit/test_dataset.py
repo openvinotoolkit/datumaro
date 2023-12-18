@@ -2216,6 +2216,55 @@ class DatasetTransformTest:
             for record in caplog.get_records("call"):
                 assert "Automatically drop" in record.getMessage()
 
+    @pytest.mark.parametrize(
+        "expr_or_filter_func",
+        ["/item[id=0]", lambda item: str(item.id) == "0"],
+        ids=["xpath", "pyfunc"],
+    )
+    def test_can_filter_items(self, expr_or_filter_func, helper_tc):
+        expected = Dataset.from_iterable(
+            [DatasetItem(0, subset="train")], categories=["cat", "dog"]
+        )
+
+        dataset = Dataset.from_iterable(
+            [DatasetItem(0, subset="train"), DatasetItem(1, subset="train")],
+            categories=["cat", "dog"],
+        )
+
+        actual = dataset.filter(expr_or_filter_func)
+
+        compare_datasets(helper_tc, expected, actual)
+
+    @pytest.mark.parametrize(
+        "expr_or_filter_func",
+        ["/item/annotation[id=1]", lambda item, ann: str(ann.id) == "1"],
+        ids=["xpath", "pyfunc"],
+    )
+    def test_can_filter_annotations(self, expr_or_filter_func, helper_tc):
+        expected = Dataset.from_iterable(
+            [DatasetItem(0, subset="train", annotations=[Label(0, id=1)])],
+            categories=["cat", "dog"],
+        )
+
+        dataset = Dataset.from_iterable(
+            [
+                DatasetItem(
+                    0,
+                    subset="train",
+                    annotations=[
+                        Label(0, id=0),
+                        Label(0, id=1),
+                    ],
+                ),
+                DatasetItem(1, subset="train"),
+            ],
+            categories=["cat", "dog"],
+        )
+
+        actual = dataset.filter(expr_or_filter_func, filter_annotations=True, remove_empty=True)
+
+        compare_datasets(helper_tc, expected, actual)
+
 
 @pytest.fixture
 def fxt_test_case():
