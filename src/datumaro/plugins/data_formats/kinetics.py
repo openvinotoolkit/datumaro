@@ -14,6 +14,7 @@ from datumaro.components.format_detection import FormatDetectionContext
 from datumaro.components.importer import ImportContext, Importer
 from datumaro.components.media import Video
 from datumaro.plugins.data_formats.video import VIDEO_EXTENSIONS
+from datumaro.rust_api import JsonSectionPageMapper
 from datumaro.util import parse_json, parse_json_file
 from datumaro.util.os_util import find_files
 
@@ -143,10 +144,18 @@ class KineticsImporter(Importer):
                     ann_file,
                     "JSON file must contain an youtube 'url' key",
                 ) as f:
-                    contents = parse_json(f.read())
+                    fpath = osp.join(context.root_path, ann_file)
+                    page_mapper = JsonSectionPageMapper(fpath)
+                    sections = page_mapper.sections()
+
+                    page_map = next(iter(sections.values()))
+                    offset, size = page_map["offset"], page_map["size"]
+
+                    f.seek(offset, 0)
+                    contents = parse_json(f.read(size))
                     if not isinstance(contents, dict):
                         raise Exception
-                    if "youtube" not in next(iter(contents.values())).get("url", ""):
+                    if "youtube" not in contents.get("url", ""):
                         raise Exception
 
             with context.alternative():
