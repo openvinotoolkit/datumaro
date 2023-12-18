@@ -897,7 +897,7 @@ class ProjectBuildTargets(CrudProxy[BuildTarget]):
         self, target: str, expr: str, params: Optional[Dict] = None, name: Optional[str] = None
     ):
         params = params or {}
-        params["expr"] = expr
+        params["expr_or_filter_func"] = expr
         return self.add_stage(
             target,
             {
