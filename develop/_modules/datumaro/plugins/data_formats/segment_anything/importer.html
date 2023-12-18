@@ -287,11 +287,13 @@
 <span class="kn">from</span> <span class="nn">datumaro.components.format_detection</span> <span class="kn">import</span> <span class="n">FormatDetectionConfidence</span><span class="p">,</span> <span class="n">FormatDetectionContext</span>
 <span class="kn">from</span> <span class="nn">datumaro.components.importer</span> <span class="kn">import</span> <span class="n">Importer</span>
 <span class="kn">from</span> <span class="nn">datumaro.errors</span> <span class="kn">import</span> <span class="n">DatasetImportError</span>
+<span class="kn">from</span> <span class="nn">datumaro.rust_api</span> <span class="kn">import</span> <span class="n">JsonSectionPageMapper</span>
 <span class="kn">from</span> <span class="nn">datumaro.util</span> <span class="kn">import</span> <span class="n">parse_json</span>
 
 
 <div class="viewcode-block" id="SegmentAnythingImporter"><a class="viewcode-back" href="../../../../../docs/reference/_autosummary/datumaro.plugins.data_formats.segment_anything.importer.html#datumaro.plugins.data_formats.segment_anything.SegmentAnythingImporter">[docs]</a><span class="k">class</span> <span class="nc">SegmentAnythingImporter</span><span class="p">(</span><span class="n">Importer</span><span class="p">):</span>
     <span class="n">_N_JSON_TO_TEST</span> <span class="o">=</span> <span class="mi">10</span>
+    <span class="n">_MAX_ANNOTATION_SECTION_BYTES</span> <span class="o">=</span> <span class="mi">100</span> <span class="o">*</span> <span class="mi">1024</span> <span class="o">*</span> <span class="mi">1024</span>  <span class="c1"># 100 MiB</span>
 
 <div class="viewcode-block" id="SegmentAnythingImporter.detect"><a class="viewcode-back" href="../../../../../docs/reference/_autosummary/datumaro.plugins.data_formats.segment_anything.importer.html#datumaro.plugins.data_formats.segment_anything.SegmentAnythingImporter.detect">[docs]</a>    <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">detect</span><span class="p">(</span>
@@ -305,24 +307,37 @@
             <span class="k">with</span> <span class="n">context</span><span class="o">.</span><span class="n">probe_text_file</span><span class="p">(</span>
                 <span class="n">file</span><span class="p">,</span> <span class="s2">&quot;Annotation format is not Segmentat-Anything format&quot;</span><span class="p">,</span> <span class="n">is_binary_file</span><span class="o">=</span><span class="kc">True</span>
             <span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
-                <span class="n">anno</span> <span class="o">=</span> <span class="n">parse_json</span><span class="p">(</span><span class="n">f</span><span class="o">.</span><span class="n">read</span><span class="p">())</span>
-                <span class="k">if</span> <span class="p">(</span>
-                    <span class="nb">set</span><span class="p">(</span><span class="n">anno</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span> <span class="o">!=</span> <span class="p">{</span><span class="s2">&quot;annotations&quot;</span><span class="p">,</span> <span class="s2">&quot;image&quot;</span><span class="p">}</span>
-                    <span class="ow">or</span> <span class="p">(</span>
-                        <span class="nb">set</span><span class="p">(</span><span class="n">anno</span><span class="p">[</span><span class="s2">&quot;image&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
-                        <span class="o">!=</span> <span class="p">{</span>
-                            <span class="s2">&quot;image_id&quot;</span><span class="p">,</span>
-                            <span class="s2">&quot;width&quot;</span><span class="p">,</span>
-                            <span class="s2">&quot;height&quot;</span><span class="p">,</span>
-                            <span class="s2">&quot;file_name&quot;</span><span class="p">,</span>
-                        <span class="p">}</span>
-                    <span class="p">)</span>
-                    <span class="ow">or</span> <span class="p">(</span>
-                        <span class="n">anno</span><span class="p">[</span><span class="s2">&quot;annotations&quot;</span><span class="p">]</span>
-                        <span class="ow">and</span> <span class="ow">not</span> <span class="p">{</span><span class="s2">&quot;id&quot;</span><span class="p">,</span> <span class="s2">&quot;segmentation&quot;</span><span class="p">,</span> <span class="s2">&quot;bbox&quot;</span><span class="p">}</span><span class="o">.</span><span class="n">issubset</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">anno</span><span class="p">[</span><span class="s2">&quot;annotations&quot;</span><span class="p">][</span><span class="mi">0</span><span class="p">]))</span>
-                    <span class="p">)</span>
-                <span class="p">):</span>
+                <span class="n">fpath</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">context</span><span class="o">.</span><span class="n">root_path</span><span class="p">,</span> <span class="n">file</span><span class="p">)</span>
+                <span class="n">page_mapper</span> <span class="o">=</span> <span class="n">JsonSectionPageMapper</span><span class="p">(</span><span class="n">fpath</span><span class="p">)</span>
+                <span class="n">sections</span> <span class="o">=</span> <span class="n">page_mapper</span><span class="o">.</span><span class="n">sections</span><span class="p">()</span>
+
+                <span class="k">if</span> <span class="nb">set</span><span class="p">(</span><span class="n">sections</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span> <span class="o">!=</span> <span class="p">{</span><span class="s2">&quot;annotations&quot;</span><span class="p">,</span> <span class="s2">&quot;image&quot;</span><span class="p">}:</span>
                     <span class="k">raise</span> <span class="n">DatasetImportError</span>
+
+                <span class="n">offset</span><span class="p">,</span> <span class="n">size</span> <span class="o">=</span> <span class="n">sections</span><span class="p">[</span><span class="s2">&quot;image&quot;</span><span class="p">][</span><span class="s2">&quot;offset&quot;</span><span class="p">],</span> <span class="n">sections</span><span class="p">[</span><span class="s2">&quot;image&quot;</span><span class="p">][</span><span class="s2">&quot;size&quot;</span><span class="p">]</span>
+                <span class="n">f</span><span class="o">.</span><span class="n">seek</span><span class="p">(</span><span class="n">offset</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+                <span class="n">img_contents</span> <span class="o">=</span> <span class="n">parse_json</span><span class="p">(</span><span class="n">f</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="n">size</span><span class="p">))</span>
+
+                <span class="k">if</span> <span class="nb">set</span><span class="p">(</span><span class="n">img_contents</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span> <span class="o">!=</span> <span class="p">{</span>
+                    <span class="s2">&quot;image_id&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;width&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;height&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;file_name&quot;</span><span class="p">,</span>
+                <span class="p">}:</span>
+                    <span class="k">raise</span> <span class="n">DatasetImportError</span>
+
+                <span class="n">offset</span><span class="p">,</span> <span class="n">size</span> <span class="o">=</span> <span class="n">sections</span><span class="p">[</span><span class="s2">&quot;annotations&quot;</span><span class="p">][</span><span class="s2">&quot;offset&quot;</span><span class="p">],</span> <span class="n">sections</span><span class="p">[</span><span class="s2">&quot;annotations&quot;</span><span class="p">][</span><span class="s2">&quot;size&quot;</span><span class="p">]</span>
+
+                <span class="k">if</span> <span class="n">size</span> <span class="o">&gt;</span> <span class="bp">cls</span><span class="o">.</span><span class="n">_MAX_ANNOTATION_SECTION_BYTES</span><span class="p">:</span>
+                    <span class="n">msg</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;Annotation section is too huge. It exceeded </span><span class="si">{</span><span class="bp">cls</span><span class="o">.</span><span class="n">_MAX_ANNOTATION_SECTION_BYTES</span><span class="si">}</span><span class="s2"> bytes.&quot;</span>
+                    <span class="k">raise</span> <span class="n">DatasetImportError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+
+                <span class="n">f</span><span class="o">.</span><span class="n">seek</span><span class="p">(</span><span class="n">offset</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+                <span class="n">ann_contents</span> <span class="o">=</span> <span class="n">parse_json</span><span class="p">(</span><span class="n">f</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="n">size</span><span class="p">))</span>
+
+                <span class="k">if</span> <span class="ow">not</span> <span class="p">{</span><span class="s2">&quot;id&quot;</span><span class="p">,</span> <span class="s2">&quot;segmentation&quot;</span><span class="p">,</span> <span class="s2">&quot;bbox&quot;</span><span class="p">}</span><span class="o">.</span><span class="n">issubset</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">ann_contents</span><span class="p">[</span><span class="mi">0</span><span class="p">])):</span>
+                    <span class="k">raise</span> <span class="n">DatasetImportError</span>
+
             <span class="k">if</span> <span class="n">ctr</span> <span class="o">&gt;</span> <span class="bp">cls</span><span class="o">.</span><span class="n">_N_JSON_TO_TEST</span><span class="p">:</span>
                 <span class="k">break</span></div>
 

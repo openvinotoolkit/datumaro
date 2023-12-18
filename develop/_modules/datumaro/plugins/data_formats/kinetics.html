@@ -293,6 +293,7 @@
 <span class="kn">from</span> <span class="nn">datumaro.components.importer</span> <span class="kn">import</span> <span class="n">ImportContext</span><span class="p">,</span> <span class="n">Importer</span>
 <span class="kn">from</span> <span class="nn">datumaro.components.media</span> <span class="kn">import</span> <span class="n">Video</span>
 <span class="kn">from</span> <span class="nn">datumaro.plugins.data_formats.video</span> <span class="kn">import</span> <span class="n">VIDEO_EXTENSIONS</span>
+<span class="kn">from</span> <span class="nn">datumaro.rust_api</span> <span class="kn">import</span> <span class="n">JsonSectionPageMapper</span>
 <span class="kn">from</span> <span class="nn">datumaro.util</span> <span class="kn">import</span> <span class="n">parse_json</span><span class="p">,</span> <span class="n">parse_json_file</span>
 <span class="kn">from</span> <span class="nn">datumaro.util.os_util</span> <span class="kn">import</span> <span class="n">find_files</span>
 
@@ -422,10 +423,18 @@
                     <span class="n">ann_file</span><span class="p">,</span>
                     <span class="s2">&quot;JSON file must contain an youtube &#39;url&#39; key&quot;</span><span class="p">,</span>
                 <span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
-                    <span class="n">contents</span> <span class="o">=</span> <span class="n">parse_json</span><span class="p">(</span><span class="n">f</span><span class="o">.</span><span class="n">read</span><span class="p">())</span>
+                    <span class="n">fpath</span> <span class="o">=</span> <span class="n">osp</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">context</span><span class="o">.</span><span class="n">root_path</span><span class="p">,</span> <span class="n">ann_file</span><span class="p">)</span>
+                    <span class="n">page_mapper</span> <span class="o">=</span> <span class="n">JsonSectionPageMapper</span><span class="p">(</span><span class="n">fpath</span><span class="p">)</span>
+                    <span class="n">sections</span> <span class="o">=</span> <span class="n">page_mapper</span><span class="o">.</span><span class="n">sections</span><span class="p">()</span>
+
+                    <span class="n">page_map</span> <span class="o">=</span> <span class="nb">next</span><span class="p">(</span><span class="nb">iter</span><span class="p">(</span><span class="n">sections</span><span class="o">.</span><span class="n">values</span><span class="p">()))</span>
+                    <span class="n">offset</span><span class="p">,</span> <span class="n">size</span> <span class="o">=</span> <span class="n">page_map</span><span class="p">[</span><span class="s2">&quot;offset&quot;</span><span class="p">],</span> <span class="n">page_map</span><span class="p">[</span><span class="s2">&quot;size&quot;</span><span class="p">]</span>
+
+                    <span class="n">f</span><span class="o">.</span><span class="n">seek</span><span class="p">(</span><span class="n">offset</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+                    <span class="n">contents</span> <span class="o">=</span> <span class="n">parse_json</span><span class="p">(</span><span class="n">f</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="n">size</span><span class="p">))</span>
                     <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">contents</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
                         <span class="k">raise</span> <span class="ne">Exception</span>
-                    <span class="k">if</span> <span class="s2">&quot;youtube&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="nb">next</span><span class="p">(</span><span class="nb">iter</span><span class="p">(</span><span class="n">contents</span><span class="o">.</span><span class="n">values</span><span class="p">()))</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;url&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">):</span>
+                    <span class="k">if</span> <span class="s2">&quot;youtube&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">contents</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;url&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">):</span>
                         <span class="k">raise</span> <span class="ne">Exception</span>
 
             <span class="k">with</span> <span class="n">context</span><span class="o">.</span><span class="n">alternative</span><span class="p">():</span>
