@@ -11,6 +11,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   (<https://github.com/openvinotoolkit/datumaro/pull/1213>)
 - Develop JsonSectionPageMapper in Rust API
   (<https://github.com/openvinotoolkit/datumaro/pull/1224>)
+- Add Filtering via User-Provided Python Functions
+  (<https://github.com/openvinotoolkit/datumaro/pull/1230>)
 
 ### Enhancements
 - Optimize Python import to make CLI entrypoint faster
