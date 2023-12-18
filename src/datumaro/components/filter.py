@@ -63,8 +63,8 @@ class DatasetItemEncoder:
         else:
             h = "unknown"
             w = h
-        ET.SubElement(image_elem, "width").text = h
-        ET.SubElement(image_elem, "height").text = w
+        ET.SubElement(image_elem, "height").text = h
+        ET.SubElement(image_elem, "width").text = w
 
         ET.SubElement(image_elem, "has_data").text = "%d" % int(image.has_data)
         if hasattr(image, "path"):
