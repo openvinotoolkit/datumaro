@@ -30,7 +30,12 @@ class HLOpsTest:
 
         compare_datasets(self, expected, actual)
 
-    def test_can_filter_items(self):
+    @pytest.mark.parametrize(
+        "expr_or_filter_func",
+        ["/item[id=0]", lambda item: str(item.id) == "0"],
+        ids=["xpath", "pyfunc"],
+    )
+    def test_can_filter_items(self, expr_or_filter_func):
         expected = Dataset.from_iterable(
             [DatasetItem(0, subset="train")], categories=["cat", "dog"]
         )
@@ -40,11 +45,16 @@ class HLOpsTest:
             categories=["cat", "dog"],
         )
 
-        actual = HLOps.filter(dataset, "/item[id=0]")
+        actual = HLOps.filter(dataset, expr_or_filter_func)
 
         compare_datasets(self, expected, actual)
 
-    def test_can_filter_annotations(self):
+    @pytest.mark.parametrize(
+        "expr_or_filter_func",
+        ["/item/annotation[id=1]", lambda item, ann: str(ann.id) == "1"],
+        ids=["xpath", "pyfunc"],
+    )
+    def test_can_filter_annotations(self, expr_or_filter_func):
         expected = Dataset.from_iterable(
             [DatasetItem(0, subset="train", annotations=[Label(0, id=1)])],
             categories=["cat", "dog"],
@@ -66,7 +76,7 @@ class HLOpsTest:
         )
 
         actual = HLOps.filter(
-            dataset, "/item/annotation[id=1]", filter_annotations=True, remove_empty=True
+            dataset, expr_or_filter_func, filter_annotations=True, remove_empty=True
         )
 
         compare_datasets(self, expected, actual)

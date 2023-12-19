@@ -10,10 +10,22 @@ import os
 import os.path as osp
 import warnings
 from contextlib import contextmanager
-from copy import copy
-from typing import Any, Callable, Dict, Iterable, Iterator, List, Optional, Tuple, Type, Union
+from copy import copy, deepcopy
+from typing import (
+    Any,
+    Callable,
+    Dict,
+    Iterable,
+    Iterator,
+    List,
+    Optional,
+    Tuple,
+    Type,
+    Union,
+    overload,
+)
 
-from datumaro.components.annotation import AnnotationType, LabelCategories
+from datumaro.components.annotation import Annotation, AnnotationType, LabelCategories
 from datumaro.components.config_model import Source
 from datumaro.components.dataset_base import (
     DEFAULT_SUBSET_NAME,
@@ -33,7 +45,12 @@ from datumaro.components.errors import (
     UnknownFormatError,
 )
 from datumaro.components.exporter import ExportContext, Exporter, ExportErrorPolicy, _ExportFail
-from datumaro.components.filter import XPathAnnotationsFilter, XPathDatasetFilter
+from datumaro.components.filter import (
+    UserFunctionAnnotationsFilter,
+    UserFunctionDatasetFilter,
+    XPathAnnotationsFilter,
+    XPathDatasetFilter,
+)
 from datumaro.components.importer import ImportContext, ImportErrorPolicy, _ImportFail
 from datumaro.components.launcher import Launcher
 from datumaro.components.media import Image, MediaElement
@@ -370,8 +387,13 @@ class Dataset(IDataset):
     def remove(self, id: str, subset: Optional[str] = None) -> None:
         self._data.remove(id, subset)
 
+    @overload
     def filter(
-        self, expr: str, filter_annotations: bool = False, remove_empty: bool = False
+        self,
+        expr: str,
+        *,
+        filter_annotations: bool = False,
+        remove_empty: bool = False,
     ) -> Dataset:
         """
         Filters out some dataset items or annotations, using a custom filter
@@ -390,11 +412,101 @@ class Dataset(IDataset):
 
         Returns: self
         """
+        ...
 
-        if filter_annotations:
-            return self.transform(XPathAnnotationsFilter, xpath=expr, remove_empty=remove_empty)
-        else:
-            return self.transform(XPathDatasetFilter, xpath=expr)
+    @overload
+    def filter(
+        self,
+        filter_func: Union[
+            Callable[[DatasetItem], bool], Callable[[DatasetItem, Annotation], bool]
+        ],
+        *,
+        filter_annotations: bool = False,
+        remove_empty: bool = False,
+    ) -> Dataset:
+        """
+        Filters out some dataset items or annotations, using a user-provided filter
+        Python function.
+
+        Results are stored in-place. Modifications are applied lazily.
+
+        Args:
+            filter_func: User-provided Python function for filtering
+            filter_annotations: Indicates if the filter should be
+                applied to items or annotations
+            remove_empty: When filtering annotations, allows to
+                exclude empty items from the resulting dataset
+
+        Returns: self
+
+        Example:
+            - (`filter_annotations=True`) This is an example of filtering
+                dataset items with images larger than 1024 pixels::
+
+                from datumaro.components.media import Image
+
+                def filter_func(item: DatasetItem) -> bool:
+                    h, w = item.media_as(Image).size
+                    return h > 1024 or w > 1024
+
+                filtered = UserFunctionDatasetFilter(
+                    extractor=dataset, filter_func=filter_func)
+                # No items with an image height or width greater than 1024
+                filtered_items = [item for item in filtered]
+
+            - (`filter_annotations=True`) This is an example of removing bounding boxes
+                sized greater than 50% of the image size::
+
+                from datumaro.components.media import Image
+                from datumaro.components.annotation import Annotation, Bbox
+
+                def filter_func(item: DatasetItem, ann: Annotation) -> bool:
+                    # If the annotation is not a Bbox, do not filter
+                    if not isinstance(ann, Bbox):
+                        return False
+
+                    h, w = item.media_as(Image).size
+                    image_size = h * w
+                    bbox_size = ann.h * ann.w
+
+                    # Accept Bboxes smaller than 50% of the image size
+                    return bbox_size < 0.5 * image_size
+
+                filtered = UserFunctionAnnotationsFilter(
+                    extractor=dataset, filter_func=filter_func)
+                # No bounding boxes with a size greater than 50% of their image
+                filtered_items = [item for item in filtered]
+        """
+        ...
+
+    def filter(
+        self,
+        expr_or_filter_func: Union[
+            str, Callable[[DatasetItem], bool], Callable[[DatasetItem, Annotation], bool]
+        ],
+        *,
+        filter_annotations: bool = False,
+        remove_empty: bool = False,
+    ) -> Dataset:
+        if isinstance(expr_or_filter_func, str):
+            expr = expr_or_filter_func
+            return (
+                self.transform(XPathAnnotationsFilter, xpath=expr, remove_empty=remove_empty)
+                if filter_annotations
+                else self.transform(XPathDatasetFilter, xpath=expr)
+            )
+        elif callable(expr_or_filter_func):
+            filter_func = expr_or_filter_func
+            return (
+                self.transform(
+                    UserFunctionAnnotationsFilter,
+                    filter_func=filter_func,
+                    remove_empty=remove_empty,
+                )
+                if filter_annotations
+                else self.transform(UserFunctionDatasetFilter, filter_func=filter_func)
+            )
+        raise TypeError(expr_or_filter_func)
 
     def update(self, source: Union[DatasetPatch, IDataset, Iterable[DatasetItem]]) -> Dataset:
         """
@@ -811,6 +923,14 @@ class Dataset(IDataset):
     @property
     def is_stream(self) -> bool:
         return self._data.is_stream
+
+    def clone(self) -> "Dataset":
+        """Create a deep copy of this dataset.
+
+        Returns:
+            A cloned instance of the `Dataset`.
+        """
+        return deepcopy(self)
 
 
 class StreamDataset(Dataset):
