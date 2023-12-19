@@ -1176,7 +1176,7 @@
         <span class="bp">self</span><span class="p">,</span> <span class="n">target</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">expr</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">params</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Dict</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
     <span class="p">):</span>
         <span class="n">params</span> <span class="o">=</span> <span class="n">params</span> <span class="ow">or</span> <span class="p">{}</span>
-        <span class="n">params</span><span class="p">[</span><span class="s2">&quot;expr&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">expr</span>
+        <span class="n">params</span><span class="p">[</span><span class="s2">&quot;expr_or_filter_func&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">expr</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">add_stage</span><span class="p">(</span>
             <span class="n">target</span><span class="p">,</span>
             <span class="p">{</span>

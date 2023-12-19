@@ -18,6 +18,8 @@ datumaro.components.filter
    .. autosummary::
    
       DatasetItemEncoder
+      UserFunctionAnnotationsFilter
+      UserFunctionDatasetFilter
       XPathAnnotationsFilter
       XPathDatasetFilter
    

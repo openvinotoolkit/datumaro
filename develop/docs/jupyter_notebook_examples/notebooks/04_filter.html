@@ -590,12 +590,21 @@
   <section id="Filter-Data-through-Your-Query">
 <h1>Filter Data through Your Query<a class="headerlink" href="#Filter-Data-through-Your-Query" title="Permalink to this heading">#</a></h1>
 <p><a class="reference external" href="https://github.com/openvinotoolkit/datumaro/blob/develop/notebooks/04_filter.ipynb"><img alt="Jupyter Notebook" src="https://img.shields.io/badge/jupyter-%23FA0F00.svg?style=for-the-badge&amp;logo=jupyter&amp;logoColor=white" /></a></p>
-<p>In this notebook example, we’ll take a look at Datumaro <code class="docutils literal notranslate"><span class="pre">filter</span></code> API.</p>
+<p>In this notebook example, we’ll take a look at Datumaro <code class="docutils literal notranslate"><span class="pre">filter</span></code> API. Datumaro provides two Python API types for filtering.</p>
+<ol class="arabic">
+<li><p>Using the XML <a class="reference external" href="https://devhints.io/xpath">XPath</a> query</p>
+<p>It is a Python string query that can be useful for simple filtering or CLI users. If you use this query, Datumaro dataset item representation is converted to XML format and filtered by the selector of XPath query. For more details about this, please refer to <a class="reference external" href="https://openvinotoolkit.github.io/datumaro/latest/docs/command-reference/context_free/filter.html">this link</a>.</p>
+</li>
+<li><p>Using the user-provided Python function query</p>
+<p>It is a Python callable such as <code class="docutils literal notranslate"><span class="pre">Callable[[DatasetItem],</span> <span class="pre">bool]</span></code> (for filtering dataset items) or <code class="docutils literal notranslate"><span class="pre">Callable[[DatasetItem,</span> <span class="pre">Annotation],</span> <span class="pre">bool]</span></code> (for filtering annotations). Users can implement their own Python function for the given dataset item or annotation.</p>
+</li>
+</ol>
+<p>Firstly, we start this lesson with importing Datumaro in our runtime session.</p>
 <div class="nbinput nblast docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Copyright (C) 2022 Intel Corporation</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Copyright (C) 2023 Intel Corporation</span>
 <span class="c1">#</span>
 <span class="c1"># SPDX-License-Identifier: MIT</span>
 
@@ -605,566 +614,273 @@
 </div>
 <section id="Filtered-by-subset">
 <h2>Filtered by subset<a class="headerlink" href="#Filtered-by-subset" title="Permalink to this heading">#</a></h2>
-<p>We export sample VOC dataset to filter only train subset.</p>
-<div class="nbinput nblast docutils container">
+<p>To show filtering by subset, we first import the dummy VOC dataset from the <a class="reference external" href="https://github.com/openvinotoolkit/datumaro/tree/develop/tests/assets">testing asset in our repository</a>.</p>
+<div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">dataset</span> <span class="o">=</span> <span class="n">dm</span><span class="o">.</span><span class="n">Dataset</span><span class="o">.</span><span class="n">import_from</span><span class="p">(</span><span class="s2">&quot;./tests/assets/voc_dataset/voc_dataset1&quot;</span><span class="p">,</span> <span class="nb">format</span><span class="o">=</span><span class="s2">&quot;voc&quot;</span><span class="p">)</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">dataset</span> <span class="o">=</span> <span class="n">dm</span><span class="o">.</span><span class="n">Dataset</span><span class="o">.</span><span class="n">import_from</span><span class="p">(</span><span class="s2">&quot;../tests/assets/voc_dataset/voc_dataset1&quot;</span><span class="p">,</span> <span class="nb">format</span><span class="o">=</span><span class="s2">&quot;voc&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Subsets:&quot;</span><span class="p">,</span> <span class="nb">list</span><span class="p">(</span><span class="n">dataset</span><span class="o">.</span><span class="n">subsets</span><span class="p">()</span><span class="o">.</span><span class="n">keys</span><span class="p">()))</span>
 </pre></div>
 </div>
 </div>
-<div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
-</pre></div>
-</div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Representation for sample VOC dataset&quot;</span><span class="p">)</span>
-<span class="n">dataset</span>
-</pre></div>
-</div>
-</div>
-<div class="nboutput docutils container">
+<div class="nboutput nblast docutils container">
 <div class="prompt empty docutils container">
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-Representation for sample VOC dataset
+Subsets: [&#39;test&#39;, &#39;train&#39;]
 </pre></div></div>
 </div>
-<div class="nboutput nblast docutils container">
+<p>In VOC dataset, there are ‘train’ and ‘test’ subsets. We will filter out ‘test’ subset using the XPath string query this time. You can see that there remains only ‘train’ subset after filtering.</p>
+<div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
 </pre></div>
 </div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">filtered</span> <span class="o">=</span> <span class="n">dataset</span><span class="o">.</span><span class="n">clone</span><span class="p">()</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="s1">&#39;/item[subset=&quot;train&quot;]&#39;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Subsets:&quot;</span><span class="p">,</span> <span class="nb">list</span><span class="p">(</span><span class="n">filtered</span><span class="o">.</span><span class="n">subsets</span><span class="p">()</span><span class="o">.</span><span class="n">keys</span><span class="p">()))</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-Dataset
-        size=2
-        source_path=./tests/assets/voc_dataset/voc_dataset1
-        media_type=&lt;class &#39;datumaro.components.media.Image&#39;&gt;
-        annotated_items_count=1
-        annotations_count=15
-subsets
-        test: # of items=1, # of annotated items=0, # of annotations=0, annotation types=[]
-        train: # of items=1, # of annotated items=1, # of annotations=15, annotation types=[&#39;label&#39;, &#39;bbox&#39;, &#39;mask&#39;]
-categories
-        label: [&#39;background&#39;, &#39;aeroplane&#39;, &#39;bicycle&#39;, &#39;bird&#39;, &#39;boat&#39;, &#39;bottle&#39;, &#39;bus&#39;, &#39;car&#39;, &#39;cat&#39;, &#39;chair&#39;, &#39;cow&#39;, &#39;diningtable&#39;, &#39;dog&#39;, &#39;horse&#39;, &#39;motorbike&#39;, &#39;person&#39;, &#39;pottedplant&#39;, &#39;sheep&#39;, &#39;sofa&#39;, &#39;train&#39;, &#39;tvmonitor&#39;, &#39;ignored&#39;, &#39;head&#39;, &#39;hand&#39;, &#39;foot&#39;]
-        mask: []
+Subsets: [&#39;train&#39;]
 </pre></div></div>
 </div>
-<p>In VOC dataset, there are ‘train’ and ‘test’ subset. We will filter only ‘train’ subset.</p>
-<div class="nbinput nblast docutils container">
+<p>This time, we can do the same thing with the user-provided Python function query as follows. From now on, we will show both query types for filtering.</p>
+<div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">dataset</span> <span class="o">=</span> <span class="n">dm</span><span class="o">.</span><span class="n">Dataset</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">dataset</span><span class="p">,</span> <span class="s1">&#39;/item[subset=&quot;train&quot;]&#39;</span><span class="p">)</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">retain_train_subset</span><span class="p">(</span><span class="n">item</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">item</span><span class="o">.</span><span class="n">subset</span> <span class="o">==</span> <span class="s2">&quot;train&quot;</span>
+
+
+<span class="n">filtered</span> <span class="o">=</span> <span class="n">dataset</span><span class="o">.</span><span class="n">clone</span><span class="p">()</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">retain_train_subset</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Subsets:&quot;</span><span class="p">,</span> <span class="nb">list</span><span class="p">(</span><span class="n">filtered</span><span class="o">.</span><span class="n">subsets</span><span class="p">()</span><span class="o">.</span><span class="n">keys</span><span class="p">()))</span>
 </pre></div>
 </div>
 </div>
-<div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[5]:
-</pre></div>
-</div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Representation for `train` subset of sample VOC dataset&quot;</span><span class="p">)</span>
-<span class="n">dataset</span>
-</pre></div>
-</div>
-</div>
-<div class="nboutput docutils container">
+<div class="nboutput nblast docutils container">
 <div class="prompt empty docutils container">
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-Representation for `train` subset of sample VOC dataset
-</pre></div></div>
-</div>
-<div class="nboutput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[5]:
-</pre></div>
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-Dataset
-        size=1
-        source_path=./tests/assets/voc_dataset/voc_dataset1
-        media_type=&lt;class &#39;datumaro.components.media.Image&#39;&gt;
-        annotated_items_count=1
-        annotations_count=15
-subsets
-        train: # of items=1, # of annotated items=1, # of annotations=15, annotation types=[&#39;label&#39;, &#39;bbox&#39;, &#39;mask&#39;]
-categories
-        label: [&#39;background&#39;, &#39;aeroplane&#39;, &#39;bicycle&#39;, &#39;bird&#39;, &#39;boat&#39;, &#39;bottle&#39;, &#39;bus&#39;, &#39;car&#39;, &#39;cat&#39;, &#39;chair&#39;, &#39;cow&#39;, &#39;diningtable&#39;, &#39;dog&#39;, &#39;horse&#39;, &#39;motorbike&#39;, &#39;person&#39;, &#39;pottedplant&#39;, &#39;sheep&#39;, &#39;sofa&#39;, &#39;train&#39;, &#39;tvmonitor&#39;, &#39;ignored&#39;, &#39;head&#39;, &#39;hand&#39;, &#39;foot&#39;]
-        mask: []
+Subsets: [&#39;train&#39;]
 </pre></div></div>
 </div>
 </section>
-<section id="Filtered-by-id">
-<h2>Filtered by id<a class="headerlink" href="#Filtered-by-id" title="Permalink to this heading">#</a></h2>
-<p>We export sample widerface dataset to filter only dataset which id is <code class="docutils literal notranslate"><span class="pre">id=0_Parade_image_01</span></code>.</p>
-<div class="nbinput nblast docutils container">
+<section id="Filtered-by-image-width-or-height">
+<h2>Filtered by image width or height<a class="headerlink" href="#Filtered-by-image-width-or-height" title="Permalink to this heading">#</a></h2>
+<p>To show filtering by image width or height, we create a dummy <code class="docutils literal notranslate"><span class="pre">Dataset</span></code> from the following code. There are two items with images that are horizontally long or vertically long.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[5]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+
+<span class="n">dataset</span> <span class="o">=</span> <span class="n">dm</span><span class="o">.</span><span class="n">Dataset</span><span class="o">.</span><span class="n">from_iterable</span><span class="p">(</span>
+    <span class="p">[</span>
+        <span class="n">dm</span><span class="o">.</span><span class="n">DatasetItem</span><span class="p">(</span>
+            <span class="nb">id</span><span class="o">=</span><span class="s2">&quot;horizontally_long&quot;</span><span class="p">,</span>
+            <span class="n">media</span><span class="o">=</span><span class="n">dm</span><span class="o">.</span><span class="n">Image</span><span class="o">.</span><span class="n">from_numpy</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">shape</span><span class="o">=</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="mi">20</span><span class="p">,</span> <span class="mi">3</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">uint8</span><span class="p">)),</span>
+        <span class="p">),</span>
+        <span class="n">dm</span><span class="o">.</span><span class="n">DatasetItem</span><span class="p">(</span>
+            <span class="nb">id</span><span class="o">=</span><span class="s2">&quot;vertically_long&quot;</span><span class="p">,</span>
+            <span class="n">media</span><span class="o">=</span><span class="n">dm</span><span class="o">.</span><span class="n">Image</span><span class="o">.</span><span class="n">from_numpy</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">shape</span><span class="o">=</span><span class="p">(</span><span class="mi">20</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">3</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">uint8</span><span class="p">)),</span>
+        <span class="p">),</span>
+    <span class="p">]</span>
+<span class="p">)</span>
+<span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">dataset</span><span class="p">:</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;ID: &quot;</span><span class="si">{</span><span class="n">item</span><span class="o">.</span><span class="n">id</span><span class="si">}</span><span class="s1">&quot;, Height: </span><span class="si">{</span><span class="n">item</span><span class="o">.</span><span class="n">media</span><span class="o">.</span><span class="n">size</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="si">}</span><span class="s1">, Width: </span><span class="si">{</span><span class="n">item</span><span class="o">.</span><span class="n">media</span><span class="o">.</span><span class="n">size</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+ID: &#34;horizontally_long&#34;, Height: 10, Width: 20
+ID: &#34;vertically_long&#34;, Height: 20, Width: 10
+</pre></div></div>
+</div>
+<div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">dataset</span> <span class="o">=</span> <span class="n">dm</span><span class="o">.</span><span class="n">Dataset</span><span class="o">.</span><span class="n">import_from</span><span class="p">(</span><span class="s2">&quot;./tests/assets/widerface_dataset&quot;</span><span class="p">)</span>
-</pre></div>
-</div>
-</div>
-<div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[7]:
-</pre></div>
-</div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Representation for sample WiderFace dataset&quot;</span><span class="p">)</span>
-<span class="n">dataset</span>
-</pre></div>
-</div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-Representation for sample WiderFace dataset
-</pre></div></div>
-</div>
-<div class="nboutput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[7]:
-</pre></div>
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-Dataset
-        size=3
-        source_path=./tests/assets/widerface_dataset
-        media_type=&lt;class &#39;datumaro.components.media.Image&#39;&gt;
-        annotated_items_count=3
-        annotations_count=9
-subsets
-        train: # of items=2, # of annotated items=2, # of annotations=5, annotation types=[&#39;label&#39;, &#39;bbox&#39;]
-        val: # of items=1, # of annotated items=1, # of annotations=4, annotation types=[&#39;label&#39;, &#39;bbox&#39;]
-categories
-        label: [&#39;Parade&#39;, &#39;Handshaking&#39;]
-</pre></div></div>
-</div>
-<div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[8]:
-</pre></div>
-</div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">dataset</span> <span class="o">=</span> <span class="n">dm</span><span class="o">.</span><span class="n">Dataset</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">dataset</span><span class="p">,</span> <span class="s1">&#39;/item[id=&quot;0_Parade_image_01&quot;]&#39;</span><span class="p">)</span>
-</pre></div>
-</div>
-</div>
-<div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[9]:
-</pre></div>
-</div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Representation for `id == 1` dataset of sample WiderFace dataset&quot;</span><span class="p">)</span>
-<span class="n">dataset</span>
-</pre></div>
-</div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-Representation for `id == 1` dataset of sample WiderFace dataset
-</pre></div></div>
-</div>
-<div class="nboutput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[9]:
-</pre></div>
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-Dataset
-        size=1
-        source_path=./tests/assets/widerface_dataset
-        media_type=&lt;class &#39;datumaro.components.media.Image&#39;&gt;
-        annotated_items_count=1
-        annotations_count=2
-subsets
-        train: # of items=1, # of annotated items=1, # of annotations=2, annotation types=[&#39;label&#39;, &#39;bbox&#39;]
-categories
-        label: [&#39;Parade&#39;, &#39;Handshaking&#39;]
-</pre></div></div>
-</div>
-</section>
-<section id="Filtered-by-width-and-height">
-<h2>Filtered by width and height<a class="headerlink" href="#Filtered-by-width-and-height" title="Permalink to this heading">#</a></h2>
-<p>We export sample dataset to extract a dataset with images which have shorter width than height.</p>
-<div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[10]:
-</pre></div>
-</div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">dataset</span> <span class="o">=</span> <span class="n">dm</span><span class="o">.</span><span class="n">Dataset</span><span class="o">.</span><span class="n">import_from</span><span class="p">(</span><span class="s2">&quot;./tests/assets/coco_dataset/coco&quot;</span><span class="p">)</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="nb">print</span><span class="p">(</span><span class="s1">&#39;&quot;Vertically long&quot; item will remain&#39;</span><span class="p">)</span>
+
+<span class="n">filtered</span> <span class="o">=</span> <span class="n">dataset</span><span class="o">.</span><span class="n">clone</span><span class="p">()</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="s2">&quot;/item[image/width &lt; image/height]&quot;</span><span class="p">)</span>
+<span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">filtered</span><span class="p">:</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;ID: &quot;</span><span class="si">{</span><span class="n">item</span><span class="o">.</span><span class="n">id</span><span class="si">}</span><span class="s1">&quot;, Height: </span><span class="si">{</span><span class="n">item</span><span class="o">.</span><span class="n">media</span><span class="o">.</span><span class="n">size</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="si">}</span><span class="s1">, Width: </span><span class="si">{</span><span class="n">item</span><span class="o">.</span><span class="n">media</span><span class="o">.</span><span class="n">size</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+
+
+<span class="k">def</span> <span class="nf">retain_horizontally_long</span><span class="p">(</span><span class="n">item</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">item</span><span class="o">.</span><span class="n">media</span><span class="o">.</span><span class="n">size</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">&lt;</span> <span class="n">item</span><span class="o">.</span><span class="n">media</span><span class="o">.</span><span class="n">size</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+
+
+<span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Now, conversely, &quot;Horizontally long&quot; item will remain conversely&#39;</span><span class="p">)</span>
+
+<span class="n">filtered</span> <span class="o">=</span> <span class="n">dataset</span><span class="o">.</span><span class="n">clone</span><span class="p">()</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">retain_horizontally_long</span><span class="p">)</span>
+<span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">filtered</span><span class="p">:</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;ID: &quot;</span><span class="si">{</span><span class="n">item</span><span class="o">.</span><span class="n">id</span><span class="si">}</span><span class="s1">&quot;, Height: </span><span class="si">{</span><span class="n">item</span><span class="o">.</span><span class="n">media</span><span class="o">.</span><span class="n">size</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="si">}</span><span class="s1">, Width: </span><span class="si">{</span><span class="n">item</span><span class="o">.</span><span class="n">media</span><span class="o">.</span><span class="n">size</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
 <div class="nboutput nblast docutils container">
 <div class="prompt empty docutils container">
 </div>
-<div class="output_area stderr docutils container">
-<div class="highlight"><pre>
-WARNING:root:Not implemented: Found potentially conflicting source types with labels: labels, panoptic, stuff, person_keypoints, instances. Only one type will be used: instances
-WARNING:root:Not implemented: conflicting source &#39;./tests/assets/coco_dataset/coco/annotations/labels_train.json&#39; is skipped.
-WARNING:root:Not implemented: conflicting source &#39;./tests/assets/coco_dataset/coco/annotations/person_keypoints_train.json&#39; is skipped.
-WARNING:root:Not implemented: conflicting source &#39;./tests/assets/coco_dataset/coco/annotations/stuff_train.json&#39; is skipped.
-WARNING:root:Not implemented: conflicting source &#39;./tests/assets/coco_dataset/coco/annotations/panoptic_train.json&#39; is skipped.
-WARNING:root:Not implemented: conflicting source &#39;./tests/assets/coco_dataset/coco/annotations/panoptic_val.json&#39; is skipped.
-WARNING:root:Not implemented: conflicting source &#39;./tests/assets/coco_dataset/coco/annotations/labels_val.json&#39; is skipped.
-WARNING:root:Not implemented: conflicting source &#39;./tests/assets/coco_dataset/coco/annotations/person_keypoints_val.json&#39; is skipped.
-WARNING:root:Not implemented: conflicting source &#39;./tests/assets/coco_dataset/coco/annotations/stuff_val.json&#39; is skipped.
-</pre></div></div>
-</div>
-<div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[11]:
-</pre></div>
-</div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">get_width_height</span><span class="p">(</span><span class="n">dataset</span><span class="p">:</span> <span class="n">dm</span><span class="o">.</span><span class="n">Dataset</span><span class="p">):</span>
-    <span class="n">size_dict</span> <span class="o">=</span> <span class="p">{}</span>
-    <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">dataset</span><span class="p">:</span>
-        <span class="n">size_dict</span><span class="p">[</span><span class="n">item</span><span class="o">.</span><span class="n">id</span><span class="p">]</span> <span class="o">=</span> <span class="n">item</span><span class="o">.</span><span class="n">media</span><span class="o">.</span><span class="n">size</span>
-    <span class="k">return</span> <span class="n">size_dict</span>
-</pre></div>
-</div>
-</div>
-<div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[12]:
-</pre></div>
-</div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Representation for sample COCO dataset&quot;</span><span class="p">)</span>
-<span class="n">dataset</span>
-</pre></div>
-</div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-Representation for sample COCO dataset
-</pre></div></div>
-</div>
-<div class="nboutput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[12]:
-</pre></div>
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-Dataset
-        size=2
-        source_path=./tests/assets/coco_dataset/coco
-        media_type=&lt;class &#39;datumaro.components.media.Image&#39;&gt;
-        annotated_items_count=2
-        annotations_count=6
-subsets
-        train: # of items=1, # of annotated items=1, # of annotations=2, annotation types=[&#39;bbox&#39;, &#39;caption&#39;]
-        val: # of items=1, # of annotated items=1, # of annotations=4, annotation types=[&#39;mask&#39;, &#39;caption&#39;, &#39;polygon&#39;]
-categories
-        label: [&#39;a&#39;, &#39;b&#39;, &#39;c&#39;]
-</pre></div></div>
-</div>
-<div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[13]:
-</pre></div>
-</div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Width and height for sample COCO dataset images&quot;</span><span class="p">)</span>
-<span class="n">get_width_height</span><span class="p">(</span><span class="n">dataset</span><span class="p">)</span>
-</pre></div>
-</div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-Width and height for sample COCO dataset images
-</pre></div></div>
-</div>
-<div class="nboutput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[13]:
-</pre></div>
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-{&#39;a&#39;: (5, 10), &#39;b&#39;: (10, 5)}
-</pre></div></div>
-</div>
-<div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[14]:
-</pre></div>
-</div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">dataset</span> <span class="o">=</span> <span class="n">dm</span><span class="o">.</span><span class="n">Dataset</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">dataset</span><span class="p">,</span> <span class="s2">&quot;/item[image/width &lt; image/height]&quot;</span><span class="p">)</span>
-</pre></div>
-</div>
-</div>
-<div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[15]:
-</pre></div>
-</div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Representation for `width &lt; height` sample COCO dataset images&quot;</span><span class="p">)</span>
-<span class="n">dataset</span>
-</pre></div>
-</div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-Representation for `width &lt; height` sample COCO dataset images
-</pre></div></div>
-</div>
-<div class="nboutput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[15]:
-</pre></div>
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-Dataset
-        size=1
-        source_path=./tests/assets/coco_dataset/coco
-        media_type=&lt;class &#39;datumaro.components.media.Image&#39;&gt;
-        annotated_items_count=1
-        annotations_count=4
-subsets
-        val: # of items=1, # of annotated items=1, # of annotations=4, annotation types=[&#39;mask&#39;, &#39;caption&#39;, &#39;polygon&#39;]
-categories
-        label: [&#39;a&#39;, &#39;b&#39;, &#39;c&#39;]
-</pre></div></div>
-</div>
-<div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[16]:
-</pre></div>
-</div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Width and height for `width &lt; height` sample COCO dataset images&quot;</span><span class="p">)</span>
-<span class="n">get_width_height</span><span class="p">(</span><span class="n">dataset</span><span class="p">)</span>
-</pre></div>
-</div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-Width and height for `width &lt; height` sample COCO dataset images
-</pre></div></div>
-</div>
-<div class="nboutput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[16]:
-</pre></div>
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-{&#39;b&#39;: (10, 5)}
+&#34;Vertically long&#34; item will remain
+ID: &#34;vertically_long&#34;, Height: 20, Width: 10
+Now, conversely, &#34;Horizontally long&#34; item will remain conversely
+ID: &#34;horizontally_long&#34;, Height: 10, Width: 20
 </pre></div></div>
 </div>
 </section>
 <section id="Filtered-by-label-and-area">
 <h2>Filtered by label and area<a class="headerlink" href="#Filtered-by-label-and-area" title="Permalink to this heading">#</a></h2>
-<p>We export sample dataset to extract only <code class="docutils literal notranslate"><span class="pre">non-persons</span></code>.</p>
-<div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[17]:
-</pre></div>
-</div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">dataset</span> <span class="o">=</span> <span class="n">dm</span><span class="o">.</span><span class="n">Dataset</span><span class="o">.</span><span class="n">import_from</span><span class="p">(</span><span class="s2">&quot;./tests/assets/voc_dataset/voc_dataset1&quot;</span><span class="p">)</span>
-</pre></div>
-</div>
-</div>
+<p>Let’s get back to the dummy VOC dataset at the first lesson. We want to remove all annotations associated with the <code class="docutils literal notranslate"><span class="pre">person</span></code> label in the dataset. You can see that there is one item with <code class="docutils literal notranslate"><span class="pre">id=2007_000001</span></code> having <code class="docutils literal notranslate"><span class="pre">person</span></code> label.</p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[18]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[7]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Representation for sample VOC dataset&quot;</span><span class="p">)</span>
-<span class="n">dataset</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">find_item_with_given_label_name</span><span class="p">(</span><span class="n">dataset</span><span class="p">,</span> <span class="n">label_name</span><span class="p">):</span>
+    <span class="n">label_cats</span> <span class="o">=</span> <span class="n">dataset</span><span class="o">.</span><span class="n">categories</span><span class="p">()[</span><span class="n">dm</span><span class="o">.</span><span class="n">AnnotationType</span><span class="o">.</span><span class="n">label</span><span class="p">]</span>
+    <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">dataset</span><span class="p">:</span>
+        <span class="n">labels</span> <span class="o">=</span> <span class="p">{</span><span class="n">label_cats</span><span class="p">[</span><span class="n">ann</span><span class="o">.</span><span class="n">label</span><span class="p">]</span><span class="o">.</span><span class="n">name</span> <span class="k">for</span> <span class="n">ann</span> <span class="ow">in</span> <span class="n">item</span><span class="o">.</span><span class="n">annotations</span><span class="p">}</span>
+        <span class="k">if</span> <span class="n">label_name</span> <span class="ow">in</span> <span class="n">labels</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;ID: </span><span class="si">{</span><span class="n">item</span><span class="o">.</span><span class="n">id</span><span class="si">}</span><span class="s1"> has &quot;</span><span class="si">{</span><span class="n">label_name</span><span class="si">}</span><span class="s1">&quot; label&#39;</span><span class="p">)</span>
+
+
+<span class="n">dataset</span> <span class="o">=</span> <span class="n">dm</span><span class="o">.</span><span class="n">Dataset</span><span class="o">.</span><span class="n">import_from</span><span class="p">(</span><span class="s2">&quot;../tests/assets/voc_dataset/voc_dataset1&quot;</span><span class="p">,</span> <span class="nb">format</span><span class="o">=</span><span class="s2">&quot;voc&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;There exist a person&quot;</span><span class="p">)</span>
+<span class="n">find_item_with_given_label_name</span><span class="p">(</span><span class="n">dataset</span><span class="p">,</span> <span class="s2">&quot;person&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
-<div class="nboutput docutils container">
+<div class="nboutput nblast docutils container">
 <div class="prompt empty docutils container">
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-Representation for sample VOC dataset
+There exist a person
+ID: 2007_000001 has &#34;person&#34; label
 </pre></div></div>
+</div>
+<p>We can remove all annotations not having <code class="docutils literal notranslate"><span class="pre">person</span></code> label with the following query. On the other hand, using the Python function, we can remove all <code class="docutils literal notranslate"><span class="pre">airplane</span></code> annotations as well. As shown, you have to set <code class="docutils literal notranslate"><span class="pre">filter_annotations</span></code> as <code class="docutils literal notranslate"><span class="pre">True</span></code> if you want to apply filtering to annotations. The default value is <code class="docutils literal notranslate"><span class="pre">False</span></code>. Therefore, in the previous examples, we have been able to apply filtering to dataset items rather than annotations.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[8]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">filtered</span> <span class="o">=</span> <span class="n">dataset</span><span class="o">.</span><span class="n">clone</span><span class="p">()</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="s1">&#39;/item/annotation[label!=&quot;person&quot;]&#39;</span><span class="p">,</span> <span class="n">filter_annotations</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;There is no person&quot;</span><span class="p">)</span>
+<span class="n">find_item_with_given_label_name</span><span class="p">(</span><span class="n">dataset</span><span class="p">,</span> <span class="s2">&quot;person&quot;</span><span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;There is an airplane&quot;</span><span class="p">)</span>
+<span class="n">find_item_with_given_label_name</span><span class="p">(</span><span class="n">dataset</span><span class="p">,</span> <span class="s2">&quot;airplane&quot;</span><span class="p">)</span>
+
+
+<span class="k">def</span> <span class="nf">remove_airplane</span><span class="p">(</span><span class="n">item</span><span class="p">,</span> <span class="n">ann</span><span class="p">):</span>
+    <span class="n">label_cats</span> <span class="o">=</span> <span class="n">dataset</span><span class="o">.</span><span class="n">categories</span><span class="p">()[</span><span class="n">dm</span><span class="o">.</span><span class="n">AnnotationType</span><span class="o">.</span><span class="n">label</span><span class="p">]</span>
+    <span class="k">return</span> <span class="n">label_cats</span><span class="p">[</span><span class="n">ann</span><span class="o">.</span><span class="n">label</span><span class="p">]</span><span class="o">.</span><span class="n">name</span> <span class="o">!=</span> <span class="s2">&quot;airplane&quot;</span>
+
+
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Now, we removed it&quot;</span><span class="p">)</span>
+<span class="n">filtered</span> <span class="o">=</span> <span class="n">dataset</span><span class="o">.</span><span class="n">clone</span><span class="p">()</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">remove_airplane</span><span class="p">,</span> <span class="n">filter_annotations</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="n">find_item_with_given_label_name</span><span class="p">(</span><span class="n">dataset</span><span class="p">,</span> <span class="s2">&quot;airplane&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
 </div>
 <div class="nboutput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[18]:
-</pre></div>
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-Dataset
-        size=2
-        source_path=./tests/assets/voc_dataset/voc_dataset1
-        media_type=&lt;class &#39;datumaro.components.media.Image&#39;&gt;
-        annotated_items_count=1
-        annotations_count=15
-subsets
-        test: # of items=1, # of annotated items=0, # of annotations=0, annotation types=[]
-        train: # of items=1, # of annotated items=1, # of annotations=15, annotation types=[&#39;label&#39;, &#39;bbox&#39;, &#39;mask&#39;]
-categories
-        label: [&#39;background&#39;, &#39;aeroplane&#39;, &#39;bicycle&#39;, &#39;bird&#39;, &#39;boat&#39;, &#39;bottle&#39;, &#39;bus&#39;, &#39;car&#39;, &#39;cat&#39;, &#39;chair&#39;, &#39;cow&#39;, &#39;diningtable&#39;, &#39;dog&#39;, &#39;horse&#39;, &#39;motorbike&#39;, &#39;person&#39;, &#39;pottedplant&#39;, &#39;sheep&#39;, &#39;sofa&#39;, &#39;train&#39;, &#39;tvmonitor&#39;, &#39;ignored&#39;, &#39;head&#39;, &#39;hand&#39;, &#39;foot&#39;]
-        mask: []
-</pre></div></div>
-</div>
-<p>Indicate <code class="docutils literal notranslate"><span class="pre">filter_annotations</span></code> as <code class="docutils literal notranslate"><span class="pre">True</span></code> if filter needs to apply to annotations. The default value is <code class="docutils literal notranslate"><span class="pre">False</span></code> to items.</p>
-<div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[19]:
-</pre></div>
-</div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">dataset</span> <span class="o">=</span> <span class="n">dm</span><span class="o">.</span><span class="n">Dataset</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">dataset</span><span class="p">,</span> <span class="s1">&#39;/item/annotation[label!=&quot;person&quot;]&#39;</span><span class="p">,</span> <span class="n">filter_annotations</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-</pre></div>
-</div>
-</div>
-<div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[20]:
-</pre></div>
-</div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Representation for sample VOC dataset whose annotation is `label!=&quot;person&quot;`&#39;</span><span class="p">)</span>
-<span class="n">dataset</span>
-</pre></div>
-</div>
-</div>
-<div class="nboutput docutils container">
 <div class="prompt empty docutils container">
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-Representation for sample VOC dataset whose annotation is `label!=&#34;person&#34;`
-</pre></div></div>
-</div>
-<div class="nboutput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[20]:
-</pre></div>
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-Dataset
-        size=2
-        source_path=./tests/assets/voc_dataset/voc_dataset1
-        media_type=&lt;class &#39;datumaro.components.media.Image&#39;&gt;
-        annotated_items_count=1
-        annotations_count=13
-subsets
-        test: # of items=1, # of annotated items=0, # of annotations=0, annotation types=[]
-        train: # of items=1, # of annotated items=1, # of annotations=13, annotation types=[&#39;label&#39;, &#39;bbox&#39;, &#39;mask&#39;]
-categories
-        label: [&#39;background&#39;, &#39;aeroplane&#39;, &#39;bicycle&#39;, &#39;bird&#39;, &#39;boat&#39;, &#39;bottle&#39;, &#39;bus&#39;, &#39;car&#39;, &#39;cat&#39;, &#39;chair&#39;, &#39;cow&#39;, &#39;diningtable&#39;, &#39;dog&#39;, &#39;horse&#39;, &#39;motorbike&#39;, &#39;person&#39;, &#39;pottedplant&#39;, &#39;sheep&#39;, &#39;sofa&#39;, &#39;train&#39;, &#39;tvmonitor&#39;, &#39;ignored&#39;, &#39;head&#39;, &#39;hand&#39;, &#39;foot&#39;]
-        mask: []
+There is no person
+ID: 2007_000001 has &#34;person&#34; label
+There is an airplane
+Now, we removed it
 </pre></div></div>
 </div>
 </section>
-<section id="Filtered-by-annotation">
-<h2>Filtered by annotation<a class="headerlink" href="#Filtered-by-annotation" title="Permalink to this heading">#</a></h2>
-<p>We export sample dataset to extract <code class="docutils literal notranslate"><span class="pre">non-occluded</span></code> annotations, remove empty images. Use data only from the “s1” source of the project.</p>
-<div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[21]:
-</pre></div>
-</div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">dataset</span> <span class="o">=</span> <span class="n">dm</span><span class="o">.</span><span class="n">Dataset</span><span class="o">.</span><span class="n">import_from</span><span class="p">(</span><span class="s2">&quot;./tests/assets/voc_dataset/voc_dataset1&quot;</span><span class="p">)</span>
-</pre></div>
-</div>
-</div>
+<section id="Filtered-by-attributes">
+<h2>Filtered by attributes<a class="headerlink" href="#Filtered-by-attributes" title="Permalink to this heading">#</a></h2>
+<p>Some data format has special attributes for each dataset item or annotation. One of them would be <code class="docutils literal notranslate"><span class="pre">occluded</span></code> boolean which has been used for COCO format. This boolean used to indicate whether the object is occluded by another object or not. We can also filter a dataset item or annotation with attribute fields. The following example will show how to do that.</p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[22]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[9]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Representation for sample VOC dataset&quot;</span><span class="p">)</span>
-<span class="n">dataset</span>
-</pre></div>
-</div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-Representation for sample VOC dataset
-</pre></div></div>
-</div>
-<div class="nboutput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[22]:
-</pre></div>
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-Dataset
-        size=2
-        source_path=./tests/assets/voc_dataset/voc_dataset1
-        media_type=&lt;class &#39;datumaro.components.media.Image&#39;&gt;
-        annotated_items_count=1
-        annotations_count=15
-subsets
-        test: # of items=1, # of annotated items=0, # of annotations=0, annotation types=[]
-        train: # of items=1, # of annotated items=1, # of annotations=15, annotation types=[&#39;label&#39;, &#39;bbox&#39;, &#39;mask&#39;]
-categories
-        label: [&#39;background&#39;, &#39;aeroplane&#39;, &#39;bicycle&#39;, &#39;bird&#39;, &#39;boat&#39;, &#39;bottle&#39;, &#39;bus&#39;, &#39;car&#39;, &#39;cat&#39;, &#39;chair&#39;, &#39;cow&#39;, &#39;diningtable&#39;, &#39;dog&#39;, &#39;horse&#39;, &#39;motorbike&#39;, &#39;person&#39;, &#39;pottedplant&#39;, &#39;sheep&#39;, &#39;sofa&#39;, &#39;train&#39;, &#39;tvmonitor&#39;, &#39;ignored&#39;, &#39;head&#39;, &#39;hand&#39;, &#39;foot&#39;]
-        mask: []
-</pre></div></div>
-</div>
-<div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[23]:
-</pre></div>
-</div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">dm</span><span class="o">.</span><span class="n">Dataset</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span>
-    <span class="n">dataset</span><span class="p">,</span> <span class="s1">&#39;/item/annotation[occluded=&quot;False&quot;]&#39;</span><span class="p">,</span> <span class="n">filter_annotations</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">remove_empty</span><span class="o">=</span><span class="kc">True</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">dataset</span> <span class="o">=</span> <span class="n">dm</span><span class="o">.</span><span class="n">Dataset</span><span class="o">.</span><span class="n">from_iterable</span><span class="p">(</span>
+    <span class="p">[</span>
+        <span class="n">dm</span><span class="o">.</span><span class="n">DatasetItem</span><span class="p">(</span>
+            <span class="nb">id</span><span class="o">=</span><span class="s2">&quot;item_with_occlusion&quot;</span><span class="p">,</span>
+            <span class="n">media</span><span class="o">=</span><span class="n">dm</span><span class="o">.</span><span class="n">Image</span><span class="o">.</span><span class="n">from_numpy</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">shape</span><span class="o">=</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="mi">20</span><span class="p">,</span> <span class="mi">3</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">uint8</span><span class="p">)),</span>
+            <span class="n">annotations</span><span class="o">=</span><span class="p">[</span>
+                <span class="n">dm</span><span class="o">.</span><span class="n">Bbox</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">attributes</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;occluded&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">}),</span>
+            <span class="p">],</span>
+        <span class="p">),</span>
+        <span class="n">dm</span><span class="o">.</span><span class="n">DatasetItem</span><span class="p">(</span>
+            <span class="nb">id</span><span class="o">=</span><span class="s2">&quot;item_without_occlusion&quot;</span><span class="p">,</span>
+            <span class="n">media</span><span class="o">=</span><span class="n">dm</span><span class="o">.</span><span class="n">Image</span><span class="o">.</span><span class="n">from_numpy</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">shape</span><span class="o">=</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="mi">20</span><span class="p">,</span> <span class="mi">3</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">uint8</span><span class="p">)),</span>
+            <span class="n">annotations</span><span class="o">=</span><span class="p">[</span>
+                <span class="n">dm</span><span class="o">.</span><span class="n">Bbox</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">attributes</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;occluded&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">}),</span>
+            <span class="p">],</span>
+        <span class="p">),</span>
+    <span class="p">]</span>
 <span class="p">)</span>
+<span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">dataset</span><span class="p">:</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;ID: </span><span class="si">{</span><span class="n">item</span><span class="o">.</span><span class="n">id</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
 <div class="nboutput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[23]:
-</pre></div>
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-Dataset
-        size=1
-        source_path=./tests/assets/voc_dataset/voc_dataset1
-        media_type=&lt;class &#39;datumaro.components.media.Image&#39;&gt;
-        annotated_items_count=1
-        annotations_count=2
-subsets
-        train: # of items=1, # of annotated items=1, # of annotations=2, annotation types=[&#39;bbox&#39;]
-categories
-        label: [&#39;background&#39;, &#39;aeroplane&#39;, &#39;bicycle&#39;, &#39;bird&#39;, &#39;boat&#39;, &#39;bottle&#39;, &#39;bus&#39;, &#39;car&#39;, &#39;cat&#39;, &#39;chair&#39;, &#39;cow&#39;, &#39;diningtable&#39;, &#39;dog&#39;, &#39;horse&#39;, &#39;motorbike&#39;, &#39;person&#39;, &#39;pottedplant&#39;, &#39;sheep&#39;, &#39;sofa&#39;, &#39;train&#39;, &#39;tvmonitor&#39;, &#39;ignored&#39;, &#39;head&#39;, &#39;hand&#39;, &#39;foot&#39;]
-        mask: []
-</pre></div></div>
-</div>
-<div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[24]:
-</pre></div>
-</div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Representation for `non-occluded annotations and empty images removed sample VOC dataset`&quot;</span><span class="p">)</span>
-<span class="n">dataset</span>
-</pre></div>
-</div>
-</div>
-<div class="nboutput docutils container">
 <div class="prompt empty docutils container">
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-Representation for `non-occluded annotations and empty images removed sample VOC dataset`
+ID: item_with_occlusion
+ID: item_without_occlusion
 </pre></div></div>
 </div>
-<div class="nboutput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[24]:
+<p>Now, we will retain annotations with <code class="docutils literal notranslate"><span class="pre">occluded=False</span></code> only. However, we set <code class="docutils literal notranslate"><span class="pre">remove_empty=True</span></code> flag as well. By setting this flag to <code class="docutils literal notranslate"><span class="pre">True</span></code>, at the same time that we filter annotations, we can remove the dataset item which has no annotations after filtering as well. Therefore, <code class="docutils literal notranslate"><span class="pre">item_with_occlusion</span></code> should be removed because it has no bbox after filtering.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[10]:
 </pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="nb">print</span><span class="p">(</span><span class="s2">&quot;There is no item with occlusion&quot;</span><span class="p">)</span>
+<span class="n">filtered</span> <span class="o">=</span> <span class="n">dataset</span><span class="o">.</span><span class="n">clone</span><span class="p">()</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span>
+    <span class="s1">&#39;/item/annotation[occluded=&quot;False&quot;]&#39;</span><span class="p">,</span> <span class="n">filter_annotations</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">remove_empty</span><span class="o">=</span><span class="kc">True</span>
+<span class="p">)</span>
+<span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">filtered</span><span class="p">:</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;ID: </span><span class="si">{</span><span class="n">item</span><span class="o">.</span><span class="n">id</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+
+<span class="k">def</span> <span class="nf">remove_occluded_ann</span><span class="p">(</span><span class="n">item</span><span class="p">,</span> <span class="n">ann</span><span class="p">):</span>
+    <span class="k">return</span> <span class="ow">not</span> <span class="n">ann</span><span class="o">.</span><span class="n">attributes</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;occluded&quot;</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
+
+
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;There is no item with occlusion again&quot;</span><span class="p">)</span>
+<span class="n">filtered</span> <span class="o">=</span> <span class="n">dataset</span><span class="o">.</span><span class="n">clone</span><span class="p">()</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">remove_occluded_ann</span><span class="p">,</span> <span class="n">filter_annotations</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">remove_empty</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">filtered</span><span class="p">:</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;ID: </span><span class="si">{</span><span class="n">item</span><span class="o">.</span><span class="n">id</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-Dataset
-        size=1
-        source_path=./tests/assets/voc_dataset/voc_dataset1
-        media_type=&lt;class &#39;datumaro.components.media.Image&#39;&gt;
-        annotated_items_count=1
-        annotations_count=2
-subsets
-        train: # of items=1, # of annotated items=1, # of annotations=2, annotation types=[&#39;bbox&#39;]
-categories
-        label: [&#39;background&#39;, &#39;aeroplane&#39;, &#39;bicycle&#39;, &#39;bird&#39;, &#39;boat&#39;, &#39;bottle&#39;, &#39;bus&#39;, &#39;car&#39;, &#39;cat&#39;, &#39;chair&#39;, &#39;cow&#39;, &#39;diningtable&#39;, &#39;dog&#39;, &#39;horse&#39;, &#39;motorbike&#39;, &#39;person&#39;, &#39;pottedplant&#39;, &#39;sheep&#39;, &#39;sofa&#39;, &#39;train&#39;, &#39;tvmonitor&#39;, &#39;ignored&#39;, &#39;head&#39;, &#39;hand&#39;, &#39;foot&#39;]
-        mask: []
+There is no item with occlusion
+ID: item_without_occlusion
+There is no item with occlusion again
+ID: item_without_occlusion
 </pre></div></div>
 </div>
 </section>
@@ -1214,13 +930,8 @@ categories
   </a>
  </li>
  <li class="toc-h2 nav-item toc-entry">
-  <a class="reference internal nav-link" href="#Filtered-by-id">
-   Filtered by id
-  </a>
- </li>
- <li class="toc-h2 nav-item toc-entry">
-  <a class="reference internal nav-link" href="#Filtered-by-width-and-height">
-   Filtered by width and height
+  <a class="reference internal nav-link" href="#Filtered-by-image-width-or-height">
+   Filtered by image width or height
   </a>
  </li>
  <li class="toc-h2 nav-item toc-entry">
@@ -1229,8 +940,8 @@ categories
   </a>
  </li>
  <li class="toc-h2 nav-item toc-entry">
-  <a class="reference internal nav-link" href="#Filtered-by-annotation">
-   Filtered by annotation
+  <a class="reference internal nav-link" href="#Filtered-by-attributes">
+   Filtered by attributes
   </a>
  </li>
 </ul>

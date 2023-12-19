@@ -280,27 +280,36 @@
 <span></span><span class="c1"># Copyright (C) 2023 Intel Corporation</span>
 <span class="c1">#</span>
 <span class="c1"># SPDX-License-Identifier: MIT</span>
+<span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">annotations</span>
 
 <span class="kn">import</span> <span class="nn">inspect</span>
 <span class="kn">import</span> <span class="nn">os</span>
 <span class="kn">import</span> <span class="nn">os.path</span> <span class="k">as</span> <span class="nn">osp</span>
 <span class="kn">import</span> <span class="nn">shutil</span>
-<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">Iterable</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Type</span><span class="p">,</span> <span class="n">Union</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">TYPE_CHECKING</span><span class="p">,</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">Iterable</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Type</span><span class="p">,</span> <span class="n">Union</span><span class="p">,</span> <span class="n">overload</span>
 
 <span class="kn">from</span> <span class="nn">datumaro.cli.util.compare</span> <span class="kn">import</span> <span class="n">DistanceCompareVisualizer</span>
-<span class="kn">from</span> <span class="nn">datumaro.cli.util.project</span> <span class="kn">import</span> <span class="n">generate_next_file_name</span>
 <span class="kn">from</span> <span class="nn">datumaro.components.comparator</span> <span class="kn">import</span> <span class="n">DistanceComparator</span><span class="p">,</span> <span class="n">EqualityComparator</span><span class="p">,</span> <span class="n">TableComparator</span>
-<span class="kn">from</span> <span class="nn">datumaro.components.dataset</span> <span class="kn">import</span> <span class="n">Dataset</span><span class="p">,</span> <span class="n">DatasetItemStorageDatasetView</span><span class="p">,</span> <span class="n">IDataset</span>
+<span class="kn">from</span> <span class="nn">datumaro.components.dataset</span> <span class="kn">import</span> <span class="n">Dataset</span><span class="p">,</span> <span class="n">IDataset</span>
 <span class="kn">from</span> <span class="nn">datumaro.components.environment</span> <span class="kn">import</span> <span class="n">Environment</span>
 <span class="kn">from</span> <span class="nn">datumaro.components.errors</span> <span class="kn">import</span> <span class="n">DatasetError</span>
 <span class="kn">from</span> <span class="nn">datumaro.components.exporter</span> <span class="kn">import</span> <span class="n">Exporter</span>
-<span class="kn">from</span> <span class="nn">datumaro.components.filter</span> <span class="kn">import</span> <span class="n">XPathAnnotationsFilter</span><span class="p">,</span> <span class="n">XPathDatasetFilter</span>
+<span class="kn">from</span> <span class="nn">datumaro.components.filter</span> <span class="kn">import</span> <span class="p">(</span>
+    <span class="n">UserFunctionAnnotationsFilter</span><span class="p">,</span>
+    <span class="n">UserFunctionDatasetFilter</span><span class="p">,</span>
+    <span class="n">XPathAnnotationsFilter</span><span class="p">,</span>
+    <span class="n">XPathDatasetFilter</span><span class="p">,</span>
+<span class="p">)</span>
 <span class="kn">from</span> <span class="nn">datumaro.components.launcher</span> <span class="kn">import</span> <span class="n">Launcher</span>
 <span class="kn">from</span> <span class="nn">datumaro.components.merge</span> <span class="kn">import</span> <span class="n">DEFAULT_MERGE_POLICY</span><span class="p">,</span> <span class="n">get_merger</span>
 <span class="kn">from</span> <span class="nn">datumaro.components.transformer</span> <span class="kn">import</span> <span class="n">ModelTransform</span><span class="p">,</span> <span class="n">Transform</span>
 <span class="kn">from</span> <span class="nn">datumaro.components.validator</span> <span class="kn">import</span> <span class="n">TaskType</span><span class="p">,</span> <span class="n">Validator</span>
-<span class="kn">from</span> <span class="nn">datumaro.util</span> <span class="kn">import</span> <span class="n">dump_json_file</span><span class="p">,</span> <span class="n">parse_str_enum_value</span>
+<span class="kn">from</span> <span class="nn">datumaro.util</span> <span class="kn">import</span> <span class="n">parse_str_enum_value</span>
 <span class="kn">from</span> <span class="nn">datumaro.util.scope</span> <span class="kn">import</span> <span class="n">on_error_do</span><span class="p">,</span> <span class="n">scoped</span>
+
+<span class="k">if</span> <span class="n">TYPE_CHECKING</span><span class="p">:</span>
+    <span class="kn">from</span> <span class="nn">datumaro.components.annotation</span> <span class="kn">import</span> <span class="n">Annotation</span>
+    <span class="kn">from</span> <span class="nn">datumaro.components.dataset_base</span> <span class="kn">import</span> <span class="n">DatasetItem</span>
 
 <span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;HLOps&quot;</span><span class="p">]</span>
 
@@ -405,7 +414,8 @@
 
         <span class="k">return</span> <span class="n">Dataset</span><span class="p">(</span><span class="n">source</span><span class="o">=</span><span class="n">produced</span><span class="p">,</span> <span class="n">env</span><span class="o">=</span><span class="n">env</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="HLOps.filter"><a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.components.hl_ops.html#datumaro.components.hl_ops.HLOps.filter">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="nd">@overload</span>
+    <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">filter</span><span class="p">(</span>
         <span class="n">dataset</span><span class="p">:</span> <span class="n">IDataset</span><span class="p">,</span>
         <span class="n">expr</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
@@ -429,15 +439,105 @@
 <span class="sd">        Returns: a wrapper around the input dataset, which is computed lazily</span>
 <span class="sd">            during iteration</span>
 <span class="sd">        &quot;&quot;&quot;</span>
+        <span class="o">...</span>
 
-        <span class="k">if</span> <span class="n">filter_annotations</span><span class="p">:</span>
-            <span class="k">return</span> <span class="n">HLOps</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span>
-                <span class="n">dataset</span><span class="p">,</span> <span class="n">XPathAnnotationsFilter</span><span class="p">,</span> <span class="n">xpath</span><span class="o">=</span><span class="n">expr</span><span class="p">,</span> <span class="n">remove_empty</span><span class="o">=</span><span class="n">remove_empty</span>
+    <span class="nd">@overload</span>
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">filter</span><span class="p">(</span>
+        <span class="n">dataset</span><span class="p">:</span> <span class="n">IDataset</span><span class="p">,</span>
+        <span class="n">filter_func</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span>
+            <span class="n">Callable</span><span class="p">[[</span><span class="n">DatasetItem</span><span class="p">],</span> <span class="nb">bool</span><span class="p">],</span> <span class="n">Callable</span><span class="p">[[</span><span class="n">DatasetItem</span><span class="p">,</span> <span class="n">Annotation</span><span class="p">],</span> <span class="nb">bool</span><span class="p">]</span>
+        <span class="p">],</span>
+        <span class="o">*</span><span class="p">,</span>  <span class="c1"># pylint: disable=redefined-builtin</span>
+        <span class="n">filter_annotations</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="n">remove_empty</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">IDataset</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Filters out some dataset items or annotations, using a user-provided filter</span>
+<span class="sd">        Python function.</span>
+
+<span class="sd">        Results are stored in-place. Modifications are applied lazily.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            filter_func: User-provided Python function for filtering</span>
+<span class="sd">            filter_annotations: Indicates if the filter should be</span>
+<span class="sd">                applied to items or annotations</span>
+<span class="sd">            remove_empty: When filtering annotations, allows to</span>
+<span class="sd">                exclude empty items from the resulting dataset</span>
+
+<span class="sd">        Returns: a wrapper around the input dataset, which is computed lazily</span>
+<span class="sd">            during iteration</span>
+
+<span class="sd">        Example:</span>
+<span class="sd">            - (`filter_annotations=True`) This is an example of filtering</span>
+<span class="sd">                dataset items with images larger than 1024 pixels::</span>
+
+<span class="sd">                from datumaro.components.media import Image</span>
+
+<span class="sd">                def filter_func(item: DatasetItem) -&gt; bool:</span>
+<span class="sd">                    h, w = item.media_as(Image).size</span>
+<span class="sd">                    return h &gt; 1024 or w &gt; 1024</span>
+
+<span class="sd">                filtered = UserFunctionDatasetFilter(</span>
+<span class="sd">                    extractor=dataset, filter_func=filter_func)</span>
+<span class="sd">                # No items with an image height or width greater than 1024</span>
+<span class="sd">                filtered_items = [item for item in filtered]</span>
+
+<span class="sd">            - (`filter_annotations=True`) This is an example of removing bounding boxes</span>
+<span class="sd">                sized greater than 50% of the image size::</span>
+
+<span class="sd">                from datumaro.components.media import Image</span>
+<span class="sd">                from datumaro.components.annotation import Annotation, Bbox</span>
+
+<span class="sd">                def filter_func(item: DatasetItem, ann: Annotation) -&gt; bool:</span>
+<span class="sd">                    # If the annotation is not a Bbox, do not filter</span>
+<span class="sd">                    if not isinstance(ann, Bbox):</span>
+<span class="sd">                        return False</span>
+
+<span class="sd">                    h, w = item.media_as(Image).size</span>
+<span class="sd">                    image_size = h * w</span>
+<span class="sd">                    bbox_size = ann.h * ann.w</span>
+
+<span class="sd">                    # Accept Bboxes smaller than 50% of the image size</span>
+<span class="sd">                    return bbox_size &lt; 0.5 * image_size</span>
+
+<span class="sd">                filtered = UserFunctionAnnotationsFilter(</span>
+<span class="sd">                    extractor=dataset, filter_func=filter_func)</span>
+<span class="sd">                # No bounding boxes with a size greater than 50% of their image</span>
+<span class="sd">                filtered_items = [item for item in filtered]</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="HLOps.filter"><a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.components.hl_ops.html#datumaro.components.hl_ops.HLOps.filter">[docs]</a>    <span class="k">def</span> <span class="nf">filter</span><span class="p">(</span>
+        <span class="n">dataset</span><span class="p">:</span> <span class="n">IDataset</span><span class="p">,</span>
+        <span class="n">expr_or_filter_func</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span>
+            <span class="nb">str</span><span class="p">,</span> <span class="n">Callable</span><span class="p">[[</span><span class="n">DatasetItem</span><span class="p">],</span> <span class="nb">bool</span><span class="p">],</span> <span class="n">Callable</span><span class="p">[[</span><span class="n">DatasetItem</span><span class="p">,</span> <span class="n">Annotation</span><span class="p">],</span> <span class="nb">bool</span><span class="p">]</span>
+        <span class="p">],</span>
+        <span class="o">*</span><span class="p">,</span>  <span class="c1"># pylint: disable=redefined-builtin</span>
+        <span class="n">filter_annotations</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="n">remove_empty</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="p">):</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">expr_or_filter_func</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+            <span class="n">expr</span> <span class="o">=</span> <span class="n">expr_or_filter_func</span>
+            <span class="k">return</span> <span class="p">(</span>
+                <span class="n">HLOps</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span>
+                    <span class="n">dataset</span><span class="p">,</span> <span class="n">XPathAnnotationsFilter</span><span class="p">,</span> <span class="n">xpath</span><span class="o">=</span><span class="n">expr</span><span class="p">,</span> <span class="n">remove_empty</span><span class="o">=</span><span class="n">remove_empty</span>
+                <span class="p">)</span>
+                <span class="k">if</span> <span class="n">filter_annotations</span>
+                <span class="k">else</span> <span class="n">HLOps</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="n">dataset</span><span class="p">,</span> <span class="n">XPathDatasetFilter</span><span class="p">,</span> <span class="n">xpath</span><span class="o">=</span><span class="n">expr</span><span class="p">)</span>
             <span class="p">)</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="k">if</span> <span class="ow">not</span> <span class="n">expr</span><span class="p">:</span>
-                <span class="k">return</span> <span class="n">dataset</span>
-            <span class="k">return</span> <span class="n">HLOps</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="n">dataset</span><span class="p">,</span> <span class="n">XPathDatasetFilter</span><span class="p">,</span> <span class="n">xpath</span><span class="o">=</span><span class="n">expr</span><span class="p">)</span></div>
+        <span class="k">elif</span> <span class="nb">callable</span><span class="p">(</span><span class="n">expr_or_filter_func</span><span class="p">):</span>
+            <span class="n">filter_func</span> <span class="o">=</span> <span class="n">expr_or_filter_func</span>
+            <span class="k">return</span> <span class="p">(</span>
+                <span class="n">HLOps</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span>
+                    <span class="n">dataset</span><span class="p">,</span>
+                    <span class="n">UserFunctionAnnotationsFilter</span><span class="p">,</span>
+                    <span class="n">filter_func</span><span class="o">=</span><span class="n">filter_func</span><span class="p">,</span>
+                    <span class="n">remove_empty</span><span class="o">=</span><span class="n">remove_empty</span><span class="p">,</span>
+                <span class="p">)</span>
+                <span class="k">if</span> <span class="n">filter_annotations</span>
+                <span class="k">else</span> <span class="n">HLOps</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="n">dataset</span><span class="p">,</span> <span class="n">UserFunctionDatasetFilter</span><span class="p">,</span> <span class="n">filter_func</span><span class="o">=</span><span class="n">filter_func</span><span class="p">)</span>
+            <span class="p">)</span>
+        <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="n">expr_or_filter_func</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="HLOps.merge"><a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.components.hl_ops.html#datumaro.components.hl_ops.HLOps.merge">[docs]</a>    <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">merge</span><span class="p">(</span>
