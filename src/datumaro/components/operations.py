@@ -226,6 +226,12 @@ def compute_image_statistics(dataset: IDataset):
 
 
 def compute_ann_statistics(dataset: IDataset):
+    warnings.warn(
+        "We are planning to change the type of stats['annotations']['labels']['distribution'] "
+        "and stats['annotations']['segments']['pixel distribution'] from `list` to `(named) tuple`. "
+        "If you are checking the types in your code, please revisit it after upgrading datumaro>=2.0.0.",
+        FutureWarning,
+    )
     labels: LabelCategories = dataset.categories().get(AnnotationType.label, LabelCategories())
 
     def get_label(ann):
