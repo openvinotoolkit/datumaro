@@ -39,6 +39,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   (<https://github.com/openvinotoolkit/datumaro/pull/1221>)
 - Fix Kinetics data format to have media data
   (<https://github.com/openvinotoolkit/datumaro/pull/1223>)
+- Handling undefined labels at the annotation statistics
+  (<https://github.com/openvinotoolkit/datumaro/pull/1232>)
 
 ## 16/11/2023 - Release 1.5.1
 ### Enhancements
