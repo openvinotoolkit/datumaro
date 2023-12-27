@@ -36,7 +36,7 @@ class Editor(Dashboard.Item):
     def get_content(self, label):
         return self._tabs[label]["content"]
 
-    def __call__(self):
+    def __call__(self, title: str = "Editor"):
         with mui.Paper(
             key=self._key,
             sx={
@@ -49,7 +49,7 @@ class Editor(Dashboard.Item):
         ):
             with self.title_bar("0px 15px 0px 15px"):
                 mui.icon.Terminal()
-                mui.Typography("Editor")
+                mui.Typography(title)
 
                 with mui.Tabs(
                     value=self._index,
