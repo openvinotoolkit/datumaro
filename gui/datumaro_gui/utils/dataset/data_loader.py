@@ -10,10 +10,9 @@ from collections import defaultdict
 import numpy as np
 from streamlit.runtime.uploaded_file_manager import UploadedFile
 
-from datumaro import AnnotationType, LabelCategories
-from datumaro.components.dataset import Dataset
+from datumaro import AnnotationType, Dataset, HLOps, LabelCategories
 from datumaro.components.environment import DEFAULT_ENVIRONMENT
-from datumaro.components.hl_ops import HLOps
+from datumaro.components.filter import DatasetItemEncoder
 from datumaro.components.operations import compute_ann_statistics, compute_image_statistics
 from datumaro.plugins.validators import (
     ClassificationValidator,
@@ -42,7 +41,7 @@ class DataRepo:
         os.makedirs(directory, exist_ok=True)
         return directory
 
-    def unzip_dataset(_self, uploaded_zip: UploadedFile) -> str:
+    def unzip_dataset(_self, uploaded_zip: UploadedFile | str) -> str:
         """
         Unzip uploaded zip file to a dataset directory
 
@@ -61,33 +60,37 @@ class DataRepo:
             uploaded_zip
         )  # .type in ["application/zip", "application/x-zip-compressed"]
         with zipfile.ZipFile(uploaded_zip, "r") as z:
-            try:
+            if isinstance(uploaded_zip, UploadedFile):
                 directory = _self.get_dataset_dir(uploaded_zip.file_id)
+            else:  # str
+                directory = os.path.splitext(uploaded_zip)[
+                    0
+                ]  # (os.sep).join(uploaded_zip.split(os.sep)[:-1])
+                os.makedirs(directory, exist_ok=True)
 
-                dataset_root = find_dataset_root(z.namelist())
-                if dataset_root == "":
-                    z.extractall(directory)
-                else:
-                    dataset_root = dataset_root + os.sep
-                    start = len(dataset_root)
-                    zipinfos = z.infolist()
-                    for zipinfo in zipinfos:
-                        if len(zipinfo.filename) > start:
-                            zipinfo.filename = zipinfo.filename[start:]
-                            z.extract(zipinfo, directory)
-            except AttributeError:
-                directory = (os.sep).join(uploaded_zip.split(os.sep)[:-1])
-                dataset_root = find_dataset_root(z.namelist())
-                dataset_root = dataset_root
-                result_path = os.path.join(directory, dataset_root)
+            dataset_root = find_dataset_root(z.namelist())
+            if dataset_root == "":
+                z.extractall(directory)
+            else:
+                dataset_root = dataset_root + os.sep
                 start = len(dataset_root)
                 zipinfos = z.infolist()
-
                 for zipinfo in zipinfos:
                     if len(zipinfo.filename) > start:
                         zipinfo.filename = zipinfo.filename[start:]
-                        z.extract(zipinfo, result_path)
-        return result_path
+                        z.extract(zipinfo, directory)
+            # except AttributeError:
+            #     directory = (os.sep).join(uploaded_zip.split(os.sep)[:-1])
+            #     dataset_root = find_dataset_root(z.namelist())
+            #     result_path = os.path.join(directory, dataset_root)
+            #     start = len(dataset_root)
+            #     zipinfos = z.infolist()
+
+            #     for zipinfo in zipinfos:
+            #         if len(zipinfo.filename) > start:
+            #             zipinfo.filename = zipinfo.filename[start:]
+            #             z.extract(zipinfo, result_path)
+        return directory
 
     def zip_dataset(_self, directory: str, output_fn: str = "dataset.zip") -> str:
         """
@@ -141,7 +144,7 @@ class DatasetHelper:
         self._dataset_dir = dataset_root
         self._detected_formats = None
         self._dm_dataset = None
-        self._format = None
+        self._format = ""
         self._init_dependent_variables()
 
     def __del__(self):
@@ -154,6 +157,8 @@ class DatasetHelper:
         self._image_stats = None
         self._ann_stats = None
         self._image_size_info = None
+        self._xml_items = {}
+        self._subset_to_ids = {}
 
     def detect_format(_self) -> list[str]:
         if _self._detected_formats is None:
@@ -176,6 +181,14 @@ class DatasetHelper:
     def format(self) -> str:
         return self._format
 
+    def subset_to_ids(self) -> dict[str, list]:
+        if not self._subset_to_ids and self._dm_dataset:
+            keys = defaultdict(list)
+            for item in self._dm_dataset:
+                keys[item.subset].append(item.id)
+            self._subset_to_ids = keys
+        return self._subset_to_ids
+
     def validate(self, task: str):
         if task not in self._val_reports:
             validators = {
@@ -183,7 +196,7 @@ class DatasetHelper:
                 "detection": DetectionValidator,
                 "segmentation": SegmentationValidator,
             }
-            validator = validators.get(task, ClassificationValidator)()
+            validator = validators.get(task.lower(), ClassificationValidator)()
             reports = validator.validate(self._dm_dataset)
             self._val_reports[task] = reports
         return self._val_reports[task]
@@ -195,8 +208,9 @@ class DatasetHelper:
         _self._val_reports = {}
         return _self._dm_dataset
 
-    def transform(_self, method, **kwargs):
+    def transform(_self, method: str, **kwargs):
         _self._dm_dataset = _self._dm_dataset.transform(method, **kwargs)
+        # print(f"transform {method} called with {kwargs}")
         _self._init_dependent_variables()
         return _self._dm_dataset
 
@@ -204,6 +218,16 @@ class DatasetHelper:
         self._dm_dataset = self._dm_dataset.filter(expr, **filter_args)
         self._init_dependent_variables()
         return self._dm_dataset
+
+    def get_xml(self, subset: str, id: str) -> str | None:
+        key = (subset, id)
+        xml_item = self._xml_items.get(key, None)
+        if xml_item is None and self._dm_dataset is not None:
+            item = self._dm_dataset.get(id, subset)
+            encoded_item = DatasetItemEncoder.encode(item, self._dm_dataset.categories())
+            xml_item = DatasetItemEncoder.to_string(encoded_item)
+            self._xml_items[key] = xml_item
+        return xml_item
 
     def export(_self, save_dir: str, format: str, **kwargs):
         if os.path.exists(save_dir):
@@ -226,7 +250,10 @@ class DatasetHelper:
 
     @property
     def num_labels(self):
-        return len(self._dm_dataset.categories().get(AnnotationType.label, LabelCategories()))
+        try:
+            return len(self._dm_dataset.categories().get(AnnotationType.label, LabelCategories()))
+        except Exception:
+            return 0
 
 
 class SingleDatasetHelper(DatasetHelper):

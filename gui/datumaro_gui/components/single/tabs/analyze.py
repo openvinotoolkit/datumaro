@@ -582,9 +582,9 @@ def main():
     data_helper: SingleDatasetHelper = state["data_helper"]
     n_labels = data_helper.num_labels
 
-    stats_image = state["stats_image"]
-    stats_anns = state["stats_anns"]
-    image_size_info = state["image_size_info"]
+    stats_image = data_helper.get_image_stats()  # state["stats_image"]
+    stats_anns = data_helper.get_ann_stats()  # state["stats_anns"]
+    image_size_info = data_helper.get_image_size_info()  # state["image_size_info"]
 
     cls_summary = state["cls_summary"]
     cls_anomaly_info = state["cls_anomaly_info"]
@@ -598,15 +598,15 @@ def main():
     defined_attr = state["defined_attr"]
     undefined_attr = state["undefined_attr"]
 
-    if stats_image is None:
-        stats_image = data_helper.get_image_stats()
-        state["stats_image"] = stats_image
-    if stats_anns is None:
-        stats_anns = data_helper.get_ann_stats()
-        state["stats_anns"] = stats_anns
-    if image_size_info is None:
-        image_size_info = data_helper.get_image_size_info()
-        state["image_size_info"] = image_size_info
+    # if stats_image is None:
+    #     stats_image = data_helper.get_image_stats()
+    #     state["stats_image"] = stats_image
+    # if stats_anns is None:
+    #     stats_anns = data_helper.get_ann_stats()
+    #     state["stats_anns"] = stats_anns
+    # if image_size_info is None:
+    #     image_size_info = data_helper.get_image_size_info()
+    #     state["image_size_info"] = image_size_info
     image_mean = image_size_info["image_size"]["mean"]
     start_time = time.time()
     size_tabs = get_image_size_dist(image_size_info)
