@@ -309,6 +309,11 @@ class SingleDatasetHelper(DatasetHelper):
 
 
 class MultipleDatasetHelper(DatasetHelper):
+    def get_ann_stats(self, force_init: bool = False):
+        if not self._ann_stats or force_init:
+            self._ann_stats = compute_ann_statistics(self._dm_dataset)
+        return self._ann_stats
+
     def update_dataset(self, dataset):
         self._dm_dataset = dataset
 
