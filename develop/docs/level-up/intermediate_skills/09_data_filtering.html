@@ -594,9 +594,13 @@ ensuring that data can be used effectively and efficiently to drive insights and
 of data continue to grow, data filtering will become an increasingly important aspect of data management and analysis.
 By filtering the dataset in this way, we can create a subset of data that is tailored to our specific needs, making it easier
 to extract meaningful insights or use it effectively for decision-making purposes.</p>
-<p>In this tutorial, we provide the simple example of filtering dataset using item and annotation. To set how to filter dataset,
-which satisfied some condition, we use XML as query format. Refer this <a class="reference external" href="https://devhints.io/xpath">XPATH</a> to set your own filter.
-The detailed description for filter operation is given by <a class="reference internal" href="../../command-reference/context_free/filter.html"><span class="doc">Filter</span></a>.
+<p>In this tutorial, we provide the simple example of filtering dataset items and annotations.
+To set the filtering condition, we can use</p>
+<ol class="arabic simple">
+<li><p>[<strong>ProjectCLI</strong>, <strong>CLI</strong>, <strong>Python</strong>] <a class="reference external" href="https://devhints.io/xpath">XPATH</a> query,</p></li>
+<li><p>[<strong>Python</strong>] User-provided Python function query.</p></li>
+</ol>
+<p>The detailed description for the <a class="reference external" href="https://devhints.io/xpath">XPATH</a> query is given by <a class="reference internal" href="../../command-reference/context_free/filter.html"><span class="doc">this page</span></a>.
 The more advanced Python example is given <a class="reference internal" href="../../jupyter_notebook_examples/notebooks/04_filter.html"><span class="doc">this notebook</span></a>.</p>
 <div class="sd-tab-set docutils">
 <input checked="checked" id="sd-tab-item-0" name="sd-tab-set-0" type="radio">
@@ -632,13 +636,56 @@ Python</label><div class="sd-tab-content docutils">
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">datumaro.components.dataset</span> <span class="kn">import</span> <span class="n">Dataset</span>
 
 <span class="n">dataset_path</span> <span class="o">=</span> <span class="s1">&#39;/path/to/data&#39;</span>
-<span class="n">dataset</span> <span class="o">=</span> <span class="n">Dataset</span><span class="o">.</span><span class="n">import_from</span><span class="p">(</span><span class="n">dataset_path</span><span class="p">,</span> <span class="s1">&#39;datumaro&#39;</span><span class="p">)</span>
+<span class="n">dataset</span> <span class="o">=</span> <span class="n">Dataset</span><span class="o">.</span><span class="n">import_from</span><span class="p">(</span><span class="n">dataset_path</span><span class="p">,</span> <span class="nb">format</span><span class="o">=</span><span class="s1">&#39;datumaro&#39;</span><span class="p">)</span>
 
 <span class="n">filtered_result</span> <span class="o">=</span> <span class="n">Dataset</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">dataset</span><span class="p">,</span> <span class="s1">&#39;how/to/filter/dataset&#39;</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>We can set <code class="docutils literal notranslate"><span class="pre">&lt;how/to/filter/dataset&gt;</span></code> as your own filter like <code class="docutils literal notranslate"><span class="pre">'/item/annotation[occluded=&quot;True&quot;]'</span></code>.
 This example command will filter only items through the annotation attribute which has <cite>occluded</cite>.</p>
+<p>In addition, you can filter dataset items with your custom Python fuction as well.
+For example, an example of filtering dataset items with images larger than 1024 pixels:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">datumaro.components.dataset</span> <span class="kn">import</span> <span class="n">Dataset</span>
+<span class="kn">from</span> <span class="nn">datumaro.components.media</span> <span class="kn">import</span> <span class="n">Image</span>
+
+<span class="k">def</span> <span class="nf">filter_func</span><span class="p">(</span><span class="n">item</span><span class="p">:</span> <span class="n">DatasetItem</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+    <span class="n">h</span><span class="p">,</span> <span class="n">w</span> <span class="o">=</span> <span class="n">item</span><span class="o">.</span><span class="n">media_as</span><span class="p">(</span><span class="n">Image</span><span class="p">)</span><span class="o">.</span><span class="n">size</span>
+    <span class="k">return</span> <span class="n">h</span> <span class="o">&gt;</span> <span class="mi">1024</span> <span class="ow">or</span> <span class="n">w</span> <span class="o">&gt;</span> <span class="mi">1024</span>
+
+<span class="n">dataset_path</span> <span class="o">=</span> <span class="s1">&#39;/path/to/data&#39;</span>
+<span class="n">dataset</span> <span class="o">=</span> <span class="n">Dataset</span><span class="o">.</span><span class="n">import_from</span><span class="p">(</span><span class="n">dataset_path</span><span class="p">,</span> <span class="nb">format</span><span class="o">=</span><span class="s1">&#39;datumaro&#39;</span><span class="p">)</span>
+
+<span class="n">filtered_result</span> <span class="o">=</span> <span class="n">Dataset</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">dataset</span><span class="p">,</span> <span class="n">filter_func</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>On the other hand, it is possible to filter dataset annotations with the user-provided Python function.
+This is an example of removing bounding boxes sized greater than 50% of the image size:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">datumaro.components.dataset</span> <span class="kn">import</span> <span class="n">Dataset</span>
+<span class="kn">from</span> <span class="nn">datumaro.components.media</span> <span class="kn">import</span> <span class="n">Image</span>
+<span class="kn">from</span> <span class="nn">datumaro.components.annotation</span> <span class="kn">import</span> <span class="n">Annotation</span><span class="p">,</span> <span class="n">Bbox</span>
+
+<span class="k">def</span> <span class="nf">filter_func</span><span class="p">(</span><span class="n">item</span><span class="p">:</span> <span class="n">DatasetItem</span><span class="p">,</span> <span class="n">ann</span><span class="p">:</span> <span class="n">Annotation</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+    <span class="c1"># If the annotation is not a Bbox, do not filter</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">ann</span><span class="p">,</span> <span class="n">Bbox</span><span class="p">):</span>
+        <span class="k">return</span> <span class="kc">False</span>
+
+    <span class="n">h</span><span class="p">,</span> <span class="n">w</span> <span class="o">=</span> <span class="n">item</span><span class="o">.</span><span class="n">media_as</span><span class="p">(</span><span class="n">Image</span><span class="p">)</span><span class="o">.</span><span class="n">size</span>
+    <span class="n">image_size</span> <span class="o">=</span> <span class="n">h</span> <span class="o">*</span> <span class="n">w</span>
+    <span class="n">bbox_size</span> <span class="o">=</span> <span class="n">ann</span><span class="o">.</span><span class="n">h</span> <span class="o">*</span> <span class="n">ann</span><span class="o">.</span><span class="n">w</span>
+
+    <span class="c1"># Accept Bboxes smaller than 50% of the image size</span>
+    <span class="k">return</span> <span class="n">bbox_size</span> <span class="o">&lt;</span> <span class="mf">0.5</span> <span class="o">*</span> <span class="n">image_size</span>
+
+<span class="k">def</span> <span class="nf">filter_func</span><span class="p">(</span><span class="n">item</span><span class="p">:</span> <span class="n">DatasetItem</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+    <span class="n">h</span><span class="p">,</span> <span class="n">w</span> <span class="o">=</span> <span class="n">item</span><span class="o">.</span><span class="n">media_as</span><span class="p">(</span><span class="n">Image</span><span class="p">)</span><span class="o">.</span><span class="n">size</span>
+    <span class="k">return</span> <span class="n">h</span> <span class="o">&gt;</span> <span class="mi">1024</span> <span class="ow">or</span> <span class="n">w</span> <span class="o">&gt;</span> <span class="mi">1024</span>
+
+<span class="n">dataset_path</span> <span class="o">=</span> <span class="s1">&#39;/path/to/data&#39;</span>
+<span class="n">dataset</span> <span class="o">=</span> <span class="n">Dataset</span><span class="o">.</span><span class="n">import_from</span><span class="p">(</span><span class="n">dataset_path</span><span class="p">,</span> <span class="nb">format</span><span class="o">=</span><span class="s1">&#39;datumaro&#39;</span><span class="p">)</span>
+
+<span class="n">filtered_result</span> <span class="o">=</span> <span class="n">Dataset</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">dataset</span><span class="p">,</span> <span class="n">filter_func</span><span class="p">)</span>
+</pre></div>
+</div>
 </div>
 </div>
 </section>
