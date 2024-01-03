@@ -29,3 +29,14 @@ def get_category_info(dataset, categories):
         cats.update({"subset": subset})
         cat_info_dict.append(cats)
     return cat_info_dict
+
+
+def return_matches(first_labels, second_labels, first_name, second_name):
+    # Find common elements between the lists
+    matches = sorted(list(set(first_labels) & set(second_labels)))
+
+    # Find unmatched elements for each list
+    unmatched_a = [item for item in first_labels if item not in matches]
+    unmatched_b = [item for item in second_labels if item not in matches]
+
+    return matches, {first_name: unmatched_a, second_name: unmatched_b}
