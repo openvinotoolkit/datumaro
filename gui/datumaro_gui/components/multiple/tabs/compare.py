@@ -8,23 +8,13 @@ import re
 import pandas as pd
 import streamlit as st
 from datumaro_gui.utils.dataset.data_loader import MultipleDatasetHelper
+from datumaro_gui.utils.dataset.info import return_matches
 from st_aggrid import AgGrid, GridOptionsBuilder, GridUpdateMode
 from streamlit import session_state as state
 from streamlit_elements import elements
 
 from datumaro.components.annotation import AnnotationType
 from datumaro.components.comparator import TableComparator
-
-
-def return_matches(first_labels, second_labels, first_name, second_name):
-    # Find common elements between the lists
-    matches = list(set(first_labels) & set(second_labels))
-
-    # Find unmatched elements for each list
-    unmatched_a = [item for item in first_labels if item not in matches]
-    unmatched_b = [item for item in second_labels if item not in matches]
-
-    return matches, {first_name: unmatched_a, second_name: unmatched_b}
 
 
 def main():
@@ -105,7 +95,7 @@ def main():
                 "datasets.\n\nBy the way, the low-level analysis takes a bit of time to compute. Please bear with us "
                 "for a moment; your patience is much appreciated!",
             )
-            on = st.toggle("Show low-level table")
+            on = st.toggle("Show low-level table", key="low_lvl_tb_toggle")
             if on:
                 if low_level_df is None:
                     _, _, low_level_table, _ = comparator.compare_datasets(
@@ -178,7 +168,9 @@ def main():
                     s = s.replace(" ", "")  # Remove spaces from the string
                     return s
 
-                threshold = st.slider("Desired similarity threshold", 0.0, 1.0, 0.7, step=0.1)
+                threshold = st.slider(
+                    "Desired similarity threshold", 0.0, 1.0, 0.7, step=0.1, key="sim_slider"
+                )
                 # Iterate over items in the first list
                 for item1 in unmatches[uploaded_file_1]:
                     normalized_item1 = normalize_string(item1)
@@ -227,7 +219,10 @@ def main():
                     theme="streamlit",
                 )
 
-                if st.button("Finalize mapping") and grid_table["selected_rows"] is not None:
+                if (
+                    st.button("Finalize mapping", key="mapping_btn")
+                    and grid_table["selected_rows"] is not None
+                ):
                     sel_row = grid_table["selected_rows"]
                     data_dict = {
                         uploaded_file_1: [item[uploaded_file_1] for item in sel_row],

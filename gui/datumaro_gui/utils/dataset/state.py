@@ -41,6 +41,8 @@ multiple_state_keys = [
     "high_level_table",
     "mid_level_table",
     "low_level_table",
+    "correct_reports_1",
+    "correct_reports_2",
 ]
 
 
@@ -54,10 +56,10 @@ def reset_subset(state):
     if single_subset_key in state.keys() and state[single_subset_key] is None:
         state[single_subset_key] = []
     # multi
-    subset_list = ["subset_1", "subset_2"]
-    for subset in subset_list:
+    multiple_subset_list = ["subset_1", "subset_2"]
+    for subset in multiple_subset_list:
         if subset in state.keys() and state[subset] is None:
-            state[subset] = 0
+            state[subset] = []
 
 
 def reset_state(keys, state):
