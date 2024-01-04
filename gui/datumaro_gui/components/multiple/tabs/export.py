@@ -73,13 +73,12 @@ def main():
             data_helper = dataset_dict.get(selected_dataset, None)
             data_helper.export(selected_path, format=selected_format, save_media=True)
 
-        uploaded_file = state["uploaded_file"]
-        zip_path = DataRepo().zip_dataset(selected_path, output_fn=uploaded_file)
+            zip_path = DataRepo().zip_dataset(selected_path)
 
-        with open(zip_path, "rb") as fp:
-            st.download_button(
-                label="Download ZIP",
-                data=fp,
-                file_name=os.path.basename(zip_path),
-                mime="application/zip",
-            )
+            with open(zip_path, "rb") as fp:
+                st.download_button(
+                    label="Download ZIP",
+                    data=fp,
+                    file_name=os.path.basename(zip_path),
+                    mime="application/zip",
+                )
