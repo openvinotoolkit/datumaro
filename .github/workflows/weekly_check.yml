@@ -19,12 +19,12 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: ['macos-11', 'ubuntu-20.04', 'windows-2022']
+        os: ['macos-12', 'ubuntu-20.04', 'windows-2022']
         python-version: ['3.8']
         include:
           - python-version: "3.8"
             tox-env-py: "38"
-          - os: "macos-11"
+          - os: "macos-12"
             tox-env-os: "darwin"
           - os: "ubuntu-20.04"
             tox-env-os: "lin"
