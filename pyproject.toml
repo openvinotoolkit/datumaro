@@ -22,7 +22,9 @@ omit = [
 ]
 
 [tool.cibuildwheel]
+# reference docs - https://cibuildwheel.readthedocs.io/en/stable/options/#build-skip
 build = "cp38-*_x86_64 cp39-*_x86_64 cp310-*_x86_64 cp311-*_x86_64 cp38-*_amd64 cp39-*_amd64 cp310-*_amd64 cp311-*_amd64"
+skip = "*macos*"
 
 [tool.cibuildwheel.linux]
 before-all = [

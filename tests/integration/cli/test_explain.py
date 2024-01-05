@@ -4,8 +4,7 @@
 
 import os
 import os.path as osp
-import platform
-from unittest import TestCase, skipIf
+from unittest import TestCase
 
 import numpy as np
 
@@ -19,11 +18,6 @@ from tests.utils.test_utils import run_datum as run
 
 
 class ExplainIntegrationScenarios(TestCase):
-    @skipIf(
-        platform.system() == "Darwin",
-        "Segmentation fault only occurs on MacOS: "
-        "https://github.com/openvinotoolkit/datumaro/actions/runs/4084466205/jobs/7041196279",
-    )
     @mark_requirement(Requirements.DATUM_BUG_721)
     def test_rise(self):
         rise_dir = get_test_asset_path("rise")

@@ -1,7 +1,6 @@
 import os.path as osp
-import platform
 from glob import glob
-from unittest import TestCase, skipIf
+from unittest import TestCase
 
 import numpy as np
 
@@ -82,11 +81,6 @@ class ExploreTest(TestCase):
         )
         return dataset
 
-    @skipIf(
-        platform.system() == "Darwin",
-        "Segmentation fault only occurs on MacOS: "
-        "https://github.com/openvinotoolkit/datumaro/actions/runs/4202399957/jobs/7324077250",
-    )
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     @scoped
     def test_can_explore_dataset_w_query_img_path(self):
@@ -117,11 +111,6 @@ class ExploreTest(TestCase):
 
         self.assertIn(osp.join(saved_result_path, "train", "1.jpg"), results)
 
-    @skipIf(
-        platform.system() == "Darwin",
-        "Segmentation fault only occurs on MacOS: "
-        "https://github.com/openvinotoolkit/datumaro/actions/runs/4202399957/jobs/7324077250",
-    )
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     @scoped
     def test_can_explore_dataset_w_query_item_id(self):
@@ -151,11 +140,6 @@ class ExploreTest(TestCase):
 
         self.assertIn(osp.join(saved_result_path, "train", "1.jpg"), results)
 
-    @skipIf(
-        platform.system() == "Darwin",
-        "Segmentation fault only occurs on MacOS: "
-        "https://github.com/openvinotoolkit/datumaro/actions/runs/4202399957/jobs/7324077250",
-    )
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     @scoped
     def test_can_explore_dataset_w_query_str(self):
@@ -185,11 +169,6 @@ class ExploreTest(TestCase):
 
         self.assertIn(osp.join(saved_result_path, "train", "1.jpg"), results)
 
-    @skipIf(
-        platform.system() == "Darwin",
-        "Segmentation fault only occurs on MacOS: "
-        "https://github.com/openvinotoolkit/datumaro/actions/runs/4202399957/jobs/7324077250",
-    )
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     @scoped
     def test_can_explore_dataset_wo_target(self):
@@ -219,11 +198,6 @@ class ExploreTest(TestCase):
 
         self.assertIn(osp.join(saved_result_path, "train", "1.jpg"), results)
 
-    @skipIf(
-        platform.system() == "Darwin",
-        "Segmentation fault only occurs on MacOS: "
-        "https://github.com/openvinotoolkit/datumaro/actions/runs/4202399957/jobs/7324077250",
-    )
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     @scoped
     def test_can_explore_added_dataset_w_target(self):
@@ -269,11 +243,6 @@ class ExploreTest(TestCase):
 
         self.assertIn(osp.join(saved_result_path, "train", "1.jpg"), results)
 
-    @skipIf(
-        platform.system() == "Darwin",
-        "Segmentation fault only occurs on MacOS: "
-        "https://github.com/openvinotoolkit/datumaro/actions/runs/4202399957/jobs/7324077250",
-    )
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     @scoped
     def test_can_explore_added_dataset_wo_target(self):
@@ -317,11 +286,6 @@ class ExploreTest(TestCase):
 
         self.assertIn(osp.join(saved_result_path, "train", "1.jpg"), results)
 
-    @skipIf(
-        platform.system() == "Darwin",
-        "Segmentation fault only occurs on MacOS: "
-        "https://github.com/openvinotoolkit/datumaro/actions/runs/4202399957/jobs/7324077250",
-    )
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     @scoped
     def test_can_explore_merged_dataset_w_target(self):
@@ -382,11 +346,6 @@ class ExploreTest(TestCase):
 
         self.assertIn(osp.join(saved_result_path, "train", "1.jpg"), results)
 
-    @skipIf(
-        platform.system() == "Darwin",
-        "Segmentation fault only occurs on MacOS: "
-        "https://github.com/openvinotoolkit/datumaro/actions/runs/4202399957/jobs/7324077250",
-    )
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     @scoped
     def test_can_explore_merged_dataset_wo_target(self):
@@ -432,11 +391,6 @@ class ExploreTest(TestCase):
 
         self.assertIn(osp.join(saved_result_path, "train", "1.jpg"), results)
 
-    @skipIf(
-        platform.system() == "Darwin",
-        "Segmentation fault only occurs on MacOS: "
-        "https://github.com/openvinotoolkit/datumaro/actions/runs/4202399957/jobs/7324077250",
-    )
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     @scoped
     def test_can_checkout_load_hashkey(self):
@@ -524,11 +478,6 @@ class ExploreTest(TestCase):
         self.assertEqual(checkout_hashkey["train/2"], commit1_hashkey["train/2"])
         self.assertEqual(checkout_hashkey["test/3"], commit1_hashkey["test/3"])
 
-    @skipIf(
-        platform.system() == "Darwin",
-        "Segmentation fault only occurs on MacOS: "
-        "https://github.com/openvinotoolkit/datumaro/actions/runs/4202399957/jobs/7324077250",
-    )
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     @scoped
     def test_parse_hashkey(self):
