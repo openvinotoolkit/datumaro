@@ -281,7 +281,6 @@
 <span class="c1">#</span>
 <span class="c1"># SPDX-License-Identifier: MIT</span>
 
-<span class="kn">import</span> <span class="nn">platform</span>
 <span class="kn">import</span> <span class="nn">warnings</span>
 <span class="kn">from</span> <span class="nn">contextlib</span> <span class="kn">import</span> <span class="n">contextmanager</span>
 <span class="kn">from</span> <span class="nn">random</span> <span class="kn">import</span> <span class="n">Random</span>
@@ -396,10 +395,6 @@
     <span class="n">img_l_rs</span> <span class="o">=</span> <span class="n">img_rs</span> <span class="o">-</span> <span class="mi">50</span>  <span class="c1"># subtract 50 for mean-centering</span>
 
     <span class="n">net</span><span class="o">.</span><span class="n">setInput</span><span class="p">(</span><span class="n">cv</span><span class="o">.</span><span class="n">dnn</span><span class="o">.</span><span class="n">blobFromImage</span><span class="p">(</span><span class="n">img_l_rs</span><span class="p">))</span>
-    <span class="k">if</span> <span class="n">platform</span><span class="o">.</span><span class="n">system</span><span class="p">()</span> <span class="o">==</span> <span class="s2">&quot;Darwin&quot;</span> <span class="ow">and</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">net</span><span class="p">,</span> <span class="s2">&quot;enableWinograd&quot;</span><span class="p">):</span>
-        <span class="c1"># TODO: We temporarily disable Winograd for MacOS because there is an OpenCV assertion error only for MacOS</span>
-        <span class="c1"># https://github.com/openvinotoolkit/datumaro/actions/runs/3851853611/jobs/6563454834#step:5:1199</span>
-        <span class="n">net</span><span class="o">.</span><span class="n">enableWinograd</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span>
     <span class="n">ab_dec</span> <span class="o">=</span> <span class="n">net</span><span class="o">.</span><span class="n">forward</span><span class="p">()[</span><span class="mi">0</span><span class="p">,</span> <span class="p">:,</span> <span class="p">:,</span> <span class="p">:]</span><span class="o">.</span><span class="n">transpose</span><span class="p">((</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">0</span><span class="p">))</span>
 
     <span class="n">ab_dec_us</span> <span class="o">=</span> <span class="n">cv</span><span class="o">.</span><span class="n">resize</span><span class="p">(</span><span class="n">ab_dec</span><span class="p">,</span> <span class="p">(</span><span class="n">W_orig</span><span class="p">,</span> <span class="n">H_orig</span><span class="p">))</span>
