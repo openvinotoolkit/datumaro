@@ -3,11 +3,13 @@
 # SPDX-License-Identifier: MIT
 
 import os
-from typing import Optional, Type, TypeVar
+import os.path as osp
+from typing import Dict, Optional, Type, TypeVar, Union
 
+import pandas as pd
 from defusedxml import ElementTree
 
-from datumaro.components.annotation import AnnotationType, Bbox, LabelCategories
+from datumaro.components.annotation import AnnotationType, Bbox, Label, LabelCategories
 from datumaro.components.dataset import DatasetItem
 from datumaro.components.dataset_base import SubsetBase
 from datumaro.components.errors import InvalidAnnotationError, InvalidFieldError, MissingFieldError
@@ -18,52 +20,72 @@ from datumaro.util.image import IMAGE_EXTENSIONS
 T = TypeVar("T")
 
 
-# class KaggleCsvBase(SubsetBase):
-#     def __init__(
-#         self,
-#         path: str,
-#         csv_path: str,
-#         *,
-#         subset: Optional[str] = None,
-#         ctx: Optional[ImportContext] = None,
-#     ):
-#         if not subset:
-#             subset = osp.splitext(osp.basename(path))[0]
+class KaggleImageCsvBase(SubsetBase):
+    def __init__(
+        self,
+        path: str,
+        img_path: str,
+        csv_path: str,
+        columns: Dict[str, str],
+        *,
+        subset: Optional[str] = None,
+        ctx: Optional[ImportContext] = None,
+    ):
+        if not subset:
+            subset = osp.splitext(osp.basename(path))[0]
 
-#         super().__init__(subset=subset, ctx=ctx)
+        super().__init__(subset=subset, ctx=ctx)
 
-#         self._path = path
-#         self._items = self._load_items(path)
+        self._img_path = img_path
+        self._columns = columns
+        self._items, label_cat = self._load_items(csv_path, columns)
+        self._categories = {AnnotationType.label: label_cat}
 
-#     def _load_items(self, path):
-#         ann_infos = pd.read_csv(path)
-#         cats = set()
-#         ann_files = [file for file in os.listdir(path) if file.endswith(".xml")]
-#         for ann_file in ann_files:
-#             xml_file = osp.join(path, ann_file)
+    def _load_items(self, csv_path: str, columns: Dict[str, Union[str, list]]):
+        df = pd.read_csv(csv_path, header=None)
 
-#             root = ElementTree.parse(xml_file).getroot()
+        indices = {}
+        for key, field in columns.items():
+            if key == "bbox":
+                indices[key] = []
+                for v in field:
+                    indices[key].append(list(df.iloc[0]).index(v))
+            else:
+                indices[key] = list(df.iloc[0]).index(field)
 
-#             if root.tag != "annotation":
-#                 continue
+        label_cat = LabelCategories()
+        items = []
+        for ind, row in df.iterrows():
+            if ind == 0:
+                continue
 
-#             for object_elem in root.iterfind("object"):
-#                 cat_name = self._parse_field(object_elem, "name")
-#                 cats.add(cat_name)
+            data_info = list(row)
+            media_name = data_info[indices["media"]]
 
-#         label_categories = LabelCategories()
-#         for _, cat in enumerate(sorted(cats)):
-#             label_categories.add(cat)
+            label_name = "default"
+            if "label" in indices:
+                label_name = str(data_info[indices["label"]])
+            label_cat.add(label_name)
+            label, _ = label_cat.find(label_name)
 
-#         categories = {AnnotationType.label: label_categories}
+            # if "bbox" in indices:
+            #     bbox = Bbox()
 
-#         return categories
+            if osp.exists(osp.join(self._img_path, media_name)):
+                items.append(
+                    DatasetItem(
+                        id=osp.splitext(media_name)[0],
+                        media=Image.from_file(path=osp.join(self._img_path, media_name)),
+                        annotations=[
+                            Label(label=label),
+                            # Bbox(bbox=bbox),
+                        ],
+                    )
+                )
+        return items, label_cat
 
-#     def _load_subset_list(self, path):
-#         return [os.path.splitext(file)[0] for file in os.listdir(path) if file.endswith(".xml")]
 
-
-class KaggleRelaxedVocBase(SubsetBase):
+class KaggleVocBase(SubsetBase):
     ann_extensions = ".xml"
 
     def __init__(
@@ -152,7 +174,7 @@ class KaggleRelaxedVocBase(SubsetBase):
             raise InvalidFieldError(xpath) from e
 
 
-class KaggleRelaxedYoloBase(KaggleRelaxedVocBase, SubsetBase):
+class KaggleYoloBase(KaggleVocBase, SubsetBase):
     ann_extensions = ".txt"
 
     def __init__(
