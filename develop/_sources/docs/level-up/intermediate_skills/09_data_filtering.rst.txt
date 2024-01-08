@@ -106,10 +106,6 @@ The more advanced Python example is given :doc:`this notebook <../../jupyter_not
                 # Accept Bboxes smaller than 50% of the image size
                 return bbox_size < 0.5 * image_size
 
-            def filter_func(item: DatasetItem) -> bool:
-                h, w = item.media_as(Image).size
-                return h > 1024 or w > 1024
-
             dataset_path = '/path/to/data'
             dataset = Dataset.import_from(dataset_path, format='datumaro')
 
