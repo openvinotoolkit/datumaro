@@ -157,7 +157,7 @@ Examples:
 
 - Remove the `frame_` prefix from item ids
   ```console
-  datum transform -t rename -- -e "|^frame_|\1|"
+  datum transform -t rename -- -e "|^frame_|"
   ```
 
 - Collect images from subdirectories into the base image directory using regex
