@@ -17,7 +17,7 @@ class Gallery(Dashboard.Item):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-    def __call__(self, dataset, max_number: int = 100):
+    def __call__(self, dataset, max_number: int = 100, title="Gallery"):
         with mui.Paper(
             key=self._key,
             sx={
@@ -30,7 +30,7 @@ class Gallery(Dashboard.Item):
         ):
             with self.title_bar(padding="10px 15px 10px 15px", dark_switcher=False):
                 mui.icon.OndemandVideo()
-                mui.Typography("Gallery")
+                mui.Typography(title)
 
             # Create a Streamlit Material-UI Box
             with mui.Box(sx={"flex": 1, "minHeight": 0, "overflow": "auto"}):
