@@ -84,7 +84,10 @@ class MnistCsvBase(SubsetBase):
         for i, data in enumerate(annotation_table):
             data = data.split(",")
             item_anno = []
-            label = int(data[0])
+            try:
+                label = int(data[0])
+            except ValueError:
+                continue
             if label != MnistCsvPath.NONE_LABEL:
                 item_anno.append(Label(label))
 
@@ -117,7 +120,7 @@ class MnistCsvImporter(Importer):
     @classmethod
     def find_sources(cls, path):
         return cls._find_sources_recursive(
-            path, ".csv", "mnist_csv", file_filter=lambda p: osp.basename(p).startswith("mnist_")
+            path, ".csv", "mnist_csv", file_filter=lambda p: osp.basename(p).find("mnist_") != -1
         )
 
 
