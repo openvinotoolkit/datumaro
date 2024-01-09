@@ -49,7 +49,7 @@ class KaggleImageCsvBase(DatasetBase):
         self._categories = {AnnotationType.label: label_cat}
 
     def _load_items(self, ann_file: str, columns: Dict[str, Union[str, list]]):
-        df = pd.read_csv(ann_file, header=None, error_bad_lines=False)
+        df = pd.read_csv(ann_file, header=None, on_bad_lines="skip")
 
         indices = {}
         for key, field in columns.items():

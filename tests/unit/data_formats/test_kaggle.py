@@ -312,6 +312,4 @@ class KaggleImporterTest(TestDataFormatBase):
             path=osp.join(fxt_dataset_dir, fxt_img_path), format=importer.NAME, **fxt_import_kwargs
         )
 
-        print(dataset)
-
         compare_datasets(helper_tc, fxt_expected_dataset, dataset, require_media=False)
