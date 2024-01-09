@@ -151,27 +151,26 @@ class TransformTest(TestCase):
         assert at.number_input(key="item_reindex_input_c2").value == 0
         assert not at.button(key="item_reindex_btn_c2").value
         assert not at.button(key="item_media_name_btn_c2").value
-        assert len(at.dataframe) == 4
 
         # Filter
-        assert at.selectbox(key="selected_mode_c1").index == 0
+        assert at.selectbox(key="filter_selected_mode_c1").index == 0
         assert not at.text_input(key="filter_expr_c1").value
         assert not at.button(key="filter_btn_c1").value
         assert not at.toggle(key="show_xml_c1").value
-        assert at.selectbox(key="selected_mode_c2").index == 0
+        assert at.selectbox(key="filter_selected_mode_c2").index == 0
         assert not at.text_input(key="filter_expr_c2").value
         assert not at.button(key="filter_btn_c2").value
         assert not at.toggle(key="show_xml_c2").value
 
         # Remove
-        assert at.selectbox(key="selected_subset_c1").index == 0
-        assert at.selectbox(key="selected_id_c1").index == 0
-        assert at.selectbox(key="selected_ann_id_c1").index == 0
+        assert at.selectbox(key="rm_selected_subset_c1").index == 0
+        assert at.selectbox(key="rm_selected_id_c1").index == 0
+        assert at.selectbox(key="rm_selected_ann_id_c1").index == 0
         assert not at.button(key="rm_item_btn_c1").value
         assert not at.button(key="rm_ann_btn_c1").value
-        assert at.selectbox(key="selected_subset_c2").index == 0
-        assert at.selectbox(key="selected_id_c2").index == 0
-        assert at.selectbox(key="selected_ann_id_c2").index == 0
+        assert at.selectbox(key="rm_selected_subset_c2").index == 0
+        assert at.selectbox(key="rm_selected_id_c2").index == 0
+        assert at.selectbox(key="rm_selected_ann_id_c2").index == 0
         assert not at.button(key="rm_item_btn_c2").value
         assert not at.button(key="rm_ann_btn_c2").value
         assert len(at.metric) == 4
@@ -294,7 +293,6 @@ class TransformTest(TestCase):
 
         # Check toast
 
-    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_transform_reindex(self):
         """"""
         at = AppTest.from_function(run_transform, default_timeout=600).run()
@@ -333,9 +331,9 @@ class TransformTest(TestCase):
         assert len(at.session_state.data_helper_1._dm_dataset) == 4
 
         # Select annotation mode
-        at.selectbox("selected_subset_c1").select_index(0).run()
-        at.selectbox("selected_id_c1").select_index(0).run()
-        at.selectbox("selected_ann_id_c1").select_index(0).run()
+        at.selectbox("rm_selected_subset_c1").select_index(0).run()
+        at.selectbox("rm_selected_id_c1").select_index(0).run()
+        at.selectbox("rm_selected_ann_id_c1").select_index(0).run()
         at.button("rm_item_btn_c1").click().run()
 
         assert len(at.session_state.data_helper_1._dm_dataset) == 3
@@ -349,9 +347,9 @@ class TransformTest(TestCase):
         assert at.session_state.data_helper_1._dm_dataset.get_annotations() == 7
 
         # Select annotation mode
-        at.selectbox("selected_subset_c1").select_index(0).run()
-        at.selectbox("selected_id_c1").select_index(0).run()
-        at.selectbox("selected_ann_id_c1").select_index(0).run()
+        at.selectbox("rm_selected_subset_c1").select_index(0).run()
+        at.selectbox("rm_selected_id_c1").select_index(0).run()
+        at.selectbox("rm_selected_ann_id_c1").select_index(0).run()
         at.button("rm_ann_btn_c1").click().run()
 
         assert len(at.session_state.data_helper_1._dm_dataset) == 4

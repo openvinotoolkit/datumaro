@@ -75,7 +75,7 @@ class CompareTest(TestCase):
         assert not at.session_state.high_level_table.empty
         assert not at.session_state.mid_level_table.empty
         assert at.session_state.low_level_table == None
-        assert not at.session_state.matched
+        assert at.session_state.matched == ["bicycle", "car"]
         assert not at.session_state.mapping
 
         # toggle

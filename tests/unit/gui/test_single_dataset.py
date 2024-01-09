@@ -7,19 +7,18 @@ from unittest import TestCase
 
 from streamlit.testing.v1 import AppTest
 
-from gui.datumaro_gui.utils.dataset.state import get_download_folder_path, single_state_keys
-
 from tests.requirements import Requirements, mark_requirement
 from tests.utils.assets import get_test_asset_path
 from tests.utils.gui import compare_init_state, compare_single_datahelper, compare_single_stats
 
 cwd = os.getcwd()
 app_path = os.path.join(cwd, "gui", "streamlit_app.py")
-print(app_path)
 
 import sys
 
 sys.path.append(os.path.join(cwd, "gui"))
+
+from gui.datumaro_gui.utils.dataset.state import get_download_folder_path, single_state_keys
 
 single_dataset_key = "datumaro_gui.utils.page_p_:microscope: Single dataset"
 

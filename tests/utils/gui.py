@@ -32,6 +32,14 @@ def compare_single_stats(data_helper, expected):
     assert data_helper._image_stats["subsets"]["test"]["images count"] == 1
     assert data_helper._image_stats["subsets"]["validation"]["images count"] == 1
 
-    assert data_helper._image_size_info == None
-    assert data_helper._ann_stats == None
+    assert data_helper._ann_stats["images count"] == 4
+    assert data_helper._ann_stats["annotations count"] == 7
+    assert data_helper._ann_stats["unannotated images count"] == 1
+    assert data_helper._ann_stats["unannotated images"] == ["d"]
+    assert (
+        "label" in data_helper._ann_stats["annotations by type"]
+        and data_helper._ann_stats["annotations by type"]["label"].get("count") == 7
+    )
+
+    assert data_helper._image_size_info
     assert data_helper._val_reports == {}
