@@ -6,43 +6,50 @@ import os
 import os.path as osp
 from typing import Dict, Optional, Type, TypeVar, Union
 
+import numpy as np
 import pandas as pd
 from defusedxml import ElementTree
 
-from datumaro.components.annotation import AnnotationType, Bbox, Label, LabelCategories
+from datumaro.components.annotation import (
+    AnnotationType,
+    Bbox,
+    Label,
+    LabelCategories,
+    Mask,
+    MaskCategories,
+)
 from datumaro.components.dataset import DatasetItem
-from datumaro.components.dataset_base import SubsetBase
+from datumaro.components.dataset_base import DEFAULT_SUBSET_NAME, DatasetBase, SubsetBase
 from datumaro.components.errors import InvalidAnnotationError, InvalidFieldError, MissingFieldError
 from datumaro.components.importer import ImportContext
 from datumaro.components.media import Image, ImageFromFile
-from datumaro.util.image import IMAGE_EXTENSIONS
+from datumaro.util.image import IMAGE_EXTENSIONS, load_image
 
 T = TypeVar("T")
 
 
-class KaggleImageCsvBase(SubsetBase):
+class KaggleImageCsvBase(DatasetBase):
     def __init__(
         self,
         path: str,
-        img_path: str,
-        csv_path: str,
+        ann_file: str,
         columns: Dict[str, str],
         *,
-        subset: Optional[str] = None,
+        subset: Optional[str] = DEFAULT_SUBSET_NAME,
         ctx: Optional[ImportContext] = None,
     ):
-        if not subset:
-            subset = osp.splitext(osp.basename(path))[0]
+        super().__init__(ctx=ctx)
 
-        super().__init__(subset=subset, ctx=ctx)
+        self._subset = subset
 
-        self._img_path = img_path
+        self._path = path
         self._columns = columns
-        self._items, label_cat = self._load_items(csv_path, columns)
+
+        self._items, label_cat = self._load_items(ann_file, columns)
         self._categories = {AnnotationType.label: label_cat}
 
-    def _load_items(self, csv_path: str, columns: Dict[str, Union[str, list]]):
-        df = pd.read_csv(csv_path, header=None)
+    def _load_items(self, ann_file: str, columns: Dict[str, Union[str, list]]):
+        df = pd.read_csv(ann_file, header=None, error_bad_lines=False)
 
         indices = {}
         for key, field in columns.items():
@@ -62,27 +69,187 @@ class KaggleImageCsvBase(SubsetBase):
             data_info = list(row)
             media_name = data_info[indices["media"]]
 
+            if not media_name.lower().endswith(tuple(IMAGE_EXTENSIONS)):
+                for ext in IMAGE_EXTENSIONS:
+                    if osp.exists(os.path.join(self._path, media_name + ext)):
+                        media_name += ext
+                        break
+
             label_name = "default"
             if "label" in indices:
                 label_name = str(data_info[indices["label"]])
             label_cat.add(label_name)
             label, _ = label_cat.find(label_name)
 
-            # if "bbox" in indices:
-            #     bbox = Bbox()
-
-            if osp.exists(osp.join(self._img_path, media_name)):
+            if osp.exists(osp.join(self._path, media_name)):
                 items.append(
                     DatasetItem(
                         id=osp.splitext(media_name)[0],
-                        media=Image.from_file(path=osp.join(self._img_path, media_name)),
+                        subset=self._subset,
+                        media=Image.from_file(path=osp.join(self._path, media_name)),
                         annotations=[
                             Label(label=label),
-                            # Bbox(bbox=bbox),
                         ],
                     )
                 )
         return items, label_cat
+
+    def categories(self):
+        return self._categories
+
+    def __iter__(self):
+        yield from self._items
+
+
+class KaggleImageTxtBase(DatasetBase):
+    def __init__(
+        self,
+        path: str,
+        ann_file: str,
+        columns: Dict[str, int],
+        *,
+        subset: Optional[str] = DEFAULT_SUBSET_NAME,
+        ctx: Optional[ImportContext] = None,
+    ):
+        super().__init__(ctx=ctx)
+
+        self._subset = subset
+
+        self._path = path
+        self._columns = columns
+
+        self._items, label_cat = self._load_items(ann_file, columns)
+        self._categories = {AnnotationType.label: label_cat}
+
+    def _load_items(self, ann_file: str, columns: Dict[str, Union[int, list]]):
+        label_cat = LabelCategories()
+
+        ids = []
+        items = []
+        with open(ann_file, "r", encoding="utf-8") as f:
+            for line in f:
+                line = line.split()
+                media_name = line[columns["media"]]
+
+                if not osp.exists(osp.join(self._path, media_name)):
+                    continue
+
+                id = osp.splitext(media_name)[0]
+                if id in ids:
+                    continue
+
+                if "label" in columns:
+                    label_name = str(line[columns["label"]])
+                label_cat.add(label_name)
+                label, _ = label_cat.find(label_name)
+
+                ids.append(id)
+                items.append(
+                    DatasetItem(
+                        id=id,
+                        subset=self._subset,
+                        media=Image.from_file(path=osp.join(self._path, media_name)),
+                        annotations=[
+                            Label(label=label),
+                        ],
+                    )
+                )
+
+        return items, label_cat
+
+    def categories(self):
+        return self._categories
+
+    def __iter__(self):
+        yield from self._items
+
+
+class KaggleImageMaskBase(DatasetBase):
+    def __init__(
+        self,
+        path: str,
+        mask_path: str,
+        label_map_file: Optional[str] = None,
+        *,
+        subset: Optional[str] = DEFAULT_SUBSET_NAME,
+        ctx: Optional[ImportContext] = None,
+    ):
+        super().__init__(ctx=ctx)
+
+        self._subset = subset
+
+        self._path = path
+        self._mask_path = mask_path
+
+        self._categories = self._load_categories(label_map_file)
+        self._items = self._load_items()
+
+    def _load_categories(self, label_map_file: Optional[str]):
+        label_map = dict()
+        if not label_map_file:
+            label_map["background"] = [0, 0, 0]
+            label_map["object"] = [255, 255, 255]
+        else:
+            df = pd.read_csv(label_map_file)
+            for _, row in df.iterrows():
+                name = row[0]
+                color = tuple([int(c) for c in row[1:]])
+                label_map[name] = color
+
+        label_categories = LabelCategories()
+        for label in label_map:
+            label_categories.add(label)
+
+        colormap = {}
+        for label_name, label_color in label_map.items():
+            label_id = label_categories.find(label_name)[0]
+            colormap[label_id] = label_color
+
+        categories = {}
+        categories[AnnotationType.label] = label_categories
+        categories[AnnotationType.mask] = MaskCategories(colormap)
+
+        return categories
+
+    def _load_items(self):
+        def _lazy_extract_mask(mask, c):
+            return lambda: mask == c
+
+        items = []
+        for media_name in os.listdir(self._path):
+            id = osp.splitext(media_name)[0]
+
+            anns = []
+            for mask_name in os.listdir(self._mask_path):
+                if id in mask_name:
+                    instances_mask = load_image(
+                        osp.join(self._mask_path, mask_name), dtype=np.int32
+                    )
+                    label_ids = np.unique(instances_mask)
+                    for label_id in label_ids:
+                        anns.append(
+                            Mask(
+                                image=_lazy_extract_mask(instances_mask, label_id),
+                                label=label_id,
+                            )
+                        )
+
+            items.append(
+                DatasetItem(
+                    id=id,
+                    subset=self._subset,
+                    media=Image.from_file(path=osp.join(self._path, media_name)),
+                    annotations=anns,
+                )
+            )
+
+        return items
+
+    def categories(self):
+        return self._categories
+
+    def __iter__(self):
+        yield from self._items
 
 
 class KaggleVocBase(SubsetBase):
@@ -90,7 +257,7 @@ class KaggleVocBase(SubsetBase):
 
     def __init__(
         self,
-        img_path: str,
+        path: str,
         ann_path: str,
         *,
         subset: Optional[str] = None,
@@ -102,12 +269,12 @@ class KaggleVocBase(SubsetBase):
         self._items = []
         self._size = None
 
-        for img_filename in os.listdir(img_path):
+        for img_filename in os.listdir(path):
             if not img_filename.lower().endswith(tuple(IMAGE_EXTENSIONS)):
                 continue
             item_id = os.path.splitext(img_filename)[0]
 
-            img_file = os.path.join(img_path, img_filename)
+            img_file = os.path.join(path, img_filename)
             ann_file = os.path.join(ann_path, item_id + self.ann_extensions)
 
             if not os.path.isfile(ann_file):
@@ -179,13 +346,13 @@ class KaggleYoloBase(KaggleVocBase, SubsetBase):
 
     def __init__(
         self,
-        img_path: str,
+        path: str,
         ann_path: str,
         *,
         subset: Optional[str] = None,
         ctx: Optional[ImportContext] = None,
     ):
-        super().__init__(img_path=img_path, ann_path=ann_path, subset=subset, ctx=ctx)
+        super().__init__(path=path, ann_path=ann_path, subset=subset, ctx=ctx)
 
     def _parse_annotations(self, img_file: str, ann_file: str):
         image = ImageFromFile(path=img_file)

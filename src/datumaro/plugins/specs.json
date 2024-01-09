@@ -375,6 +375,12 @@
     "extra_deps": []
   },
   {
+    "import_path": "datumaro.plugins.data_formats.datumaro.importer.DatumaroImporter",
+    "plugin_name": "datumaro",
+    "plugin_type": "Importer",
+    "extra_deps": []
+  },
+  {
     "import_path": "datumaro.plugins.data_formats.datumaro_binary.base.DatumaroBinaryBase",
     "plugin_name": "datumaro_binary",
     "plugin_type": "DatasetBase",
@@ -384,6 +390,12 @@
     "import_path": "datumaro.plugins.data_formats.datumaro_binary.exporter.DatumaroBinaryExporter",
     "plugin_name": "datumaro_binary",
     "plugin_type": "Exporter",
+    "extra_deps": []
+  },
+  {
+    "import_path": "datumaro.plugins.data_formats.datumaro_binary.importer.DatumaroBinaryImporter",
+    "plugin_name": "datumaro_binary",
+    "plugin_type": "Importer",
     "extra_deps": []
   },
   {
@@ -531,6 +543,18 @@
     "extra_deps": []
   },
   {
+    "import_path": "datumaro.plugins.data_formats.kaggle.base.KaggleImageMaskBase",
+    "plugin_name": "kaggle_image_mask",
+    "plugin_type": "DatasetBase",
+    "extra_deps": []
+  },
+  {
+    "import_path": "datumaro.plugins.data_formats.kaggle.base.KaggleImageTxtBase",
+    "plugin_name": "kaggle_image_txt",
+    "plugin_type": "DatasetBase",
+    "extra_deps": []
+  },
+  {
     "import_path": "datumaro.plugins.data_formats.kaggle.base.KaggleVocBase",
     "plugin_name": "kaggle_voc",
     "plugin_type": "DatasetBase",
@@ -540,18 +564,6 @@
     "import_path": "datumaro.plugins.data_formats.kaggle.base.KaggleYoloBase",
     "plugin_name": "kaggle_yolo",
     "plugin_type": "DatasetBase",
-    "extra_deps": []
-  },
-  {
-    "import_path": "datumaro.plugins.data_formats.kaggle.importer.KaggleRelaxedVocImporter",
-    "plugin_name": "kaggle_relaxed_voc",
-    "plugin_type": "Importer",
-    "extra_deps": []
-  },
-  {
-    "import_path": "datumaro.plugins.data_formats.kaggle.importer.KaggleRelaxedYoloImporter",
-    "plugin_name": "kaggle_relaxed_yolo",
-    "plugin_type": "Importer",
     "extra_deps": []
   },
   {
