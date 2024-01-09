@@ -169,7 +169,7 @@ class KaggleImageMaskBase(DatasetBase):
         self,
         path: str,
         mask_path: str,
-        label_map_file: Optional[str] = None,
+        labelmap_file: Optional[str] = None,
         *,
         subset: Optional[str] = DEFAULT_SUBSET_NAME,
         ctx: Optional[ImportContext] = None,
@@ -181,14 +181,14 @@ class KaggleImageMaskBase(DatasetBase):
         self._path = path
         self._mask_path = mask_path
 
-        self._categories = self._load_categories(label_map_file)
+        self._categories = self._load_categories(labelmap_file)
         self._items = self._load_items()
 
     def _load_categories(self, label_map_file: Optional[str]):
         label_map = dict()
         if not label_map_file:
-            label_map["background"] = [0, 0, 0]
-            label_map["object"] = [255, 255, 255]
+            label_map["background"] = (0, 0, 0)
+            label_map["object"] = (255, 255, 255)
         else:
             df = pd.read_csv(label_map_file)
             for _, row in df.iterrows():
@@ -200,13 +200,14 @@ class KaggleImageMaskBase(DatasetBase):
         for label in label_map:
             label_categories.add(label)
 
+        categories = {}
+        categories[AnnotationType.label] = label_categories
+
         colormap = {}
         for label_name, label_color in label_map.items():
             label_id = label_categories.find(label_name)[0]
             colormap[label_id] = label_color
 
-        categories = {}
-        categories[AnnotationType.label] = label_categories
         categories[AnnotationType.mask] = MaskCategories(colormap)
 
         return categories
@@ -277,15 +278,16 @@ class KaggleVocBase(SubsetBase):
             img_file = os.path.join(path, img_filename)
             ann_file = os.path.join(ann_path, item_id + self.ann_extensions)
 
-            if not os.path.isfile(ann_file):
-                continue
-            annotations = self._parse_annotations(img_file, ann_file)
+            annotations = (
+                self._parse_annotations(img_file, ann_file) if os.path.isfile(ann_file) else []
+            )
 
             media = Image.from_file(path=img_file, size=self._size)
 
             self._items.append(
                 DatasetItem(
                     id=item_id,
+                    subset=self._subset,
                     media=media,
                     annotations=annotations,
                 )
@@ -373,7 +375,7 @@ class KaggleYoloBase(KaggleVocBase, SubsetBase):
                     f"Unexpected field count {len(parts)} in the bbox description. "
                     "Expected 5 fields (label, xc, yc, w, h)."
                 )
-            label_id, xc, yc, w, h = parts
+            label_name, xc, yc, w, h = parts
             xc = float(xc)
             yc = float(yc)
             w = float(w)
@@ -382,6 +384,9 @@ class KaggleYoloBase(KaggleVocBase, SubsetBase):
             y = (yc - h * 0.5) * image_height
             w *= image_width
             h *= image_height
+
+            self._label_cat.add(label_name)
+            label_id, _ = self._label_cat.find(label_name)
 
             annotations.append(Bbox(id=obj_id, label=label_id, x=x, y=y, w=w, h=h))
 
