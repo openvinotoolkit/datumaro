@@ -1,0 +1,5 @@
+1 dog
+2 cat
+3 dog
+4 cat
+5 cat

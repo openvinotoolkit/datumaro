@@ -4,6 +4,7 @@
 
 import os
 import os.path as osp
+import warnings
 from typing import Dict, Optional, Type, TypeVar, Union
 
 import numpy as np
@@ -65,33 +66,46 @@ class KaggleImageCsvBase(DatasetBase):
         for ind, row in df.iterrows():
             if ind == 0:
                 continue
-
             data_info = list(row)
+
             media_name = data_info[indices["media"]]
+            id = osp.splitext(media_name)[0]
 
             if not media_name.lower().endswith(tuple(IMAGE_EXTENSIONS)):
                 for ext in IMAGE_EXTENSIONS:
-                    if osp.exists(os.path.join(self._path, media_name + ext)):
-                        media_name += ext
+                    media_path = osp.join(self._path, media_name + ext)
+                    if osp.exists(media_path):
                         break
+            else:
+                media_path = osp.join(self._path, media_name)
 
-            label_name = "default"
+            if not osp.exists(media_path):
+                warnings.warn(
+                    f"'{media_path}' is not existed in the directory, "
+                    f"so we skip to create an dataset item according to {row}."
+                )
+                continue
+
+            annotations = []
             if "label" in indices:
                 label_name = str(data_info[indices["label"]])
-            label_cat.add(label_name)
-            label, _ = label_cat.find(label_name)
+                label, cat = label_cat.find(label_name)
 
-            if osp.exists(osp.join(self._path, media_name)):
-                items.append(
-                    DatasetItem(
-                        id=osp.splitext(media_name)[0],
-                        subset=self._subset,
-                        media=Image.from_file(path=osp.join(self._path, media_name)),
-                        annotations=[
-                            Label(label=label),
-                        ],
-                    )
+                if not cat:
+                    label_cat.add(label_name)
+                    label, _ = label_cat.find(label_name)
+
+                annotations.append(Label(label=label))
+
+            items.append(
+                DatasetItem(
+                    id=id,
+                    subset=self._subset,
+                    media=Image.from_file(path=media_path),
+                    annotations=annotations,
                 )
+            )
+
         return items, label_cat
 
     def categories(self):
@@ -124,34 +138,54 @@ class KaggleImageTxtBase(DatasetBase):
     def _load_items(self, ann_file: str, columns: Dict[str, Union[int, list]]):
         label_cat = LabelCategories()
 
-        ids = []
+        item_ids = []
         items = []
         with open(ann_file, "r", encoding="utf-8") as f:
             for line in f:
                 line = line.split()
                 media_name = line[columns["media"]]
+                item_id = osp.splitext(media_name)[0]
 
-                if not osp.exists(osp.join(self._path, media_name)):
+                if item_id in item_ids:
+                    warnings.warn(
+                        f"There is duplicated '{id}' in {ann_file}, "
+                        f"so we skip to create an dataset item according to {line}."
+                    )
                     continue
 
-                id = osp.splitext(media_name)[0]
-                if id in ids:
+                if not media_name.lower().endswith(tuple(IMAGE_EXTENSIONS)):
+                    for ext in IMAGE_EXTENSIONS:
+                        media_path = osp.join(self._path, media_name + ext)
+                        if osp.exists(media_path):
+                            break
+                else:
+                    media_path = osp.join(self._path, media_name)
+
+                if not osp.exists(media_path):
+                    warnings.warn(
+                        f"'{media_path}' is not existed in the directory, "
+                        f"so we skip to create an dataset item according to {line}."
+                    )
                     continue
 
+                annotations = []
                 if "label" in columns:
                     label_name = str(line[columns["label"]])
-                label_cat.add(label_name)
-                label, _ = label_cat.find(label_name)
+                    label, cat = label_cat.find(label_name)
 
-                ids.append(id)
+                    if not cat:
+                        label_cat.add(label_name)
+                        label, _ = label_cat.find(label_name)
+
+                    annotations.append(Label(label=label))
+
+                item_ids.append(item_id)
                 items.append(
                     DatasetItem(
-                        id=id,
+                        id=item_id,
                         subset=self._subset,
-                        media=Image.from_file(path=osp.join(self._path, media_name)),
-                        annotations=[
-                            Label(label=label),
-                        ],
+                        media=Image.from_file(path=media_path),
+                        annotations=annotations,
                     )
                 )
 

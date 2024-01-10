@@ -218,7 +218,17 @@ def fxt_yolo_dataset():
     )
 
 
-IDS = ["IMAGE_CSV", "IMAGE_TXT", "IMAGE_MASK", "IMAGE_MASK_LABELMAP", "VOC1", "VOC2", "YOLO"]
+IDS = [
+    "IMAGE_CSV",
+    "IMAGE_CSV_WO_EXT",
+    "IMAGE_TXT",
+    "IMAGE_TXT_WO_EXT",
+    "IMAGE_MASK",
+    "IMAGE_MASK_LABELMAP",
+    "VOC1",
+    "VOC2",
+    "YOLO",
+]
 
 
 @pytest.mark.new
@@ -247,12 +257,32 @@ class KaggleImporterTest(TestDataFormatBase):
                 },
             ),
             (
+                DUMMY_DATASET_IMAGE_CSV_DIR,
+                "images",
+                "fxt_img_dataset",
+                KaggleImageCsvBase,
+                {
+                    "ann_file": osp.join(DUMMY_DATASET_IMAGE_CSV_DIR, "ann_wo_ext.csv"),
+                    "columns": {"media": "image_name", "label": "label_name"},
+                },
+            ),
+            (
                 DUMMY_DATASET_IMAGE_TXT_DIR,
                 "images",
                 "fxt_img_dataset",
                 KaggleImageTxtBase,
                 {
                     "ann_file": osp.join(DUMMY_DATASET_IMAGE_TXT_DIR, "ann.txt"),
+                    "columns": {"media": 0, "label": 1},
+                },
+            ),
+            (
+                DUMMY_DATASET_IMAGE_TXT_DIR,
+                "images",
+                "fxt_img_dataset",
+                KaggleImageTxtBase,
+                {
+                    "ann_file": osp.join(DUMMY_DATASET_IMAGE_TXT_DIR, "ann_wo_ext.txt"),
                     "columns": {"media": 0, "label": 1},
                 },
             ),
