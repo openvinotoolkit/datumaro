@@ -23,6 +23,7 @@ from datumaro.components.dataset_base import DatasetBase, DatasetItem
 from datumaro.components.format_detection import FormatDetectionContext
 from datumaro.components.importer import ImportContext, Importer
 from datumaro.components.media import Image
+from datumaro.rust_api import JsonSectionPageMapper
 from datumaro.util import parse_json
 from datumaro.util.image import IMAGE_EXTENSIONS, find_images, lazy_image, load_image
 from datumaro.util.meta_file_util import has_meta_file, parse_meta_file
@@ -223,11 +224,12 @@ class Ade20k2020Importer(Importer):
         with context.probe_text_file(
             annot_path,
             'must be a JSON object with an "annotation" key',
-        ) as f:
-            contents = parse_json(f.read())
-            if not isinstance(contents, dict):
-                raise Exception
-            if "annotation" not in contents:
+        ):
+            fpath = osp.join(context.root_path, annot_path)
+            page_mapper = JsonSectionPageMapper(fpath)
+            sections = page_mapper.sections()
+
+            if "annotation" not in sections.keys():
                 raise Exception
 
     @classmethod
