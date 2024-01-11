@@ -48,6 +48,7 @@ datumaro.plugins.data\_formats
    datumaro.plugins.data_formats.image_zip
    datumaro.plugins.data_formats.imagenet
    datumaro.plugins.data_formats.imagenet_txt
+   datumaro.plugins.data_formats.kaggle
    datumaro.plugins.data_formats.kinetics
    datumaro.plugins.data_formats.kitti
    datumaro.plugins.data_formats.kitti_raw

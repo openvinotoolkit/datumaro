@@ -6,7 +6,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
 
-    <title>datumaro.plugins.data_formats &#8212; Datumaro 1.6.0rc1 documentation</title>
+    <title>datumaro.plugins.data_formats.kaggle &#8212; Datumaro 1.6.0rc1 documentation</title>
   
   
   
@@ -46,11 +46,11 @@
     <script src="../../../_static/copybutton.js"></script>
     <script src="../../../_static/design-tabs.js"></script>
     <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
-    <script>DOCUMENTATION_OPTIONS.pagename = 'docs/reference/_autosummary/datumaro.plugins.data_formats';</script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'docs/reference/_autosummary/datumaro.plugins.data_formats.kaggle';</script>
     <link rel="index" title="Index" href="../../../genindex.html" />
     <link rel="search" title="Search" href="../../../search.html" />
-    <link rel="next" title="datumaro.plugins.data_formats.ade20k2017" href="datumaro.plugins.data_formats.ade20k2017.html" />
-    <link rel="prev" title="datumaro.plugins.configurable_validator" href="datumaro.plugins.configurable_validator.html" />
+    <link rel="next" title="datumaro.plugins.data_formats.kaggle.base" href="datumaro.plugins.data_formats.kaggle.base.html" />
+    <link rel="prev" title="datumaro.plugins.data_formats.imagenet_txt" href="datumaro.plugins.data_formats.imagenet_txt.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="docsearch:language" content="en">
   </head>
@@ -484,7 +484,7 @@
 <li class="toctree-l3 current active has-children"><a class="reference internal" href="datumaro.plugins.html">datumaro.plugins</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-18" name="toctree-checkbox-18" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-18"><i class="fa-solid fa-chevron-down"></i></label><ul class="current">
 <li class="toctree-l4"><a class="reference internal" href="datumaro.plugins.accuracy_checker_plugin.html">datumaro.plugins.accuracy_checker_plugin</a></li>
 <li class="toctree-l4"><a class="reference internal" href="datumaro.plugins.configurable_validator.html">datumaro.plugins.configurable_validator</a></li>
-<li class="toctree-l4 current active"><a class="current reference internal" href="#">datumaro.plugins.data_formats</a></li>
+<li class="toctree-l4 current active"><a class="reference internal" href="datumaro.plugins.data_formats.html">datumaro.plugins.data_formats</a></li>
 <li class="toctree-l4"><a class="reference internal" href="datumaro.plugins.explorer.html">datumaro.plugins.explorer</a></li>
 <li class="toctree-l4"><a class="reference internal" href="datumaro.plugins.framework_converter.html">datumaro.plugins.framework_converter</a></li>
 <li class="toctree-l4"><a class="reference internal" href="datumaro.plugins.inference_server_plugin.html">datumaro.plugins.inference_server_plugin</a></li>
@@ -584,165 +584,12 @@
             
             <article class="bd-article" role="main">
               
-  <section id="module-datumaro.plugins.data_formats">
-<span id="datumaro-plugins-data-formats"></span><h1>datumaro.plugins.data_formats<a class="headerlink" href="#module-datumaro.plugins.data_formats" title="Permalink to this heading">#</a></h1>
+  <section id="module-datumaro.plugins.data_formats.kaggle">
+<span id="datumaro-plugins-data-formats-kaggle"></span><h1>datumaro.plugins.data_formats.kaggle<a class="headerlink" href="#module-datumaro.plugins.data_formats.kaggle" title="Permalink to this heading">#</a></h1>
 <p class="rubric">Modules</p>
 <table class="autosummary longtable table autosummary">
 <tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="datumaro.plugins.data_formats.ade20k2017.html#module-datumaro.plugins.data_formats.ade20k2017" title="datumaro.plugins.data_formats.ade20k2017"><code class="xref py py-obj docutils literal notranslate"><span class="pre">datumaro.plugins.data_formats.ade20k2017</span></code></a></p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-even"><td><p><a class="reference internal" href="datumaro.plugins.data_formats.ade20k2020.html#module-datumaro.plugins.data_formats.ade20k2020" title="datumaro.plugins.data_formats.ade20k2020"><code class="xref py py-obj docutils literal notranslate"><span class="pre">datumaro.plugins.data_formats.ade20k2020</span></code></a></p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="datumaro.plugins.data_formats.arrow.html#module-datumaro.plugins.data_formats.arrow" title="datumaro.plugins.data_formats.arrow"><code class="xref py py-obj docutils literal notranslate"><span class="pre">datumaro.plugins.data_formats.arrow</span></code></a></p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-even"><td><p><a class="reference internal" href="datumaro.plugins.data_formats.ava.html#module-datumaro.plugins.data_formats.ava" title="datumaro.plugins.data_formats.ava"><code class="xref py py-obj docutils literal notranslate"><span class="pre">datumaro.plugins.data_formats.ava</span></code></a></p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="datumaro.plugins.data_formats.brats.html#module-datumaro.plugins.data_formats.brats" title="datumaro.plugins.data_formats.brats"><code class="xref py py-obj docutils literal notranslate"><span class="pre">datumaro.plugins.data_formats.brats</span></code></a></p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-even"><td><p><a class="reference internal" href="datumaro.plugins.data_formats.brats_numpy.html#module-datumaro.plugins.data_formats.brats_numpy" title="datumaro.plugins.data_formats.brats_numpy"><code class="xref py py-obj docutils literal notranslate"><span class="pre">datumaro.plugins.data_formats.brats_numpy</span></code></a></p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="datumaro.plugins.data_formats.camvid.html#module-datumaro.plugins.data_formats.camvid" title="datumaro.plugins.data_formats.camvid"><code class="xref py py-obj docutils literal notranslate"><span class="pre">datumaro.plugins.data_formats.camvid</span></code></a></p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-even"><td><p><a class="reference internal" href="datumaro.plugins.data_formats.celeba.html#module-datumaro.plugins.data_formats.celeba" title="datumaro.plugins.data_formats.celeba"><code class="xref py py-obj docutils literal notranslate"><span class="pre">datumaro.plugins.data_formats.celeba</span></code></a></p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="datumaro.plugins.data_formats.cifar.html#module-datumaro.plugins.data_formats.cifar" title="datumaro.plugins.data_formats.cifar"><code class="xref py py-obj docutils literal notranslate"><span class="pre">datumaro.plugins.data_formats.cifar</span></code></a></p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-even"><td><p><a class="reference internal" href="datumaro.plugins.data_formats.cityscapes.html#module-datumaro.plugins.data_formats.cityscapes" title="datumaro.plugins.data_formats.cityscapes"><code class="xref py py-obj docutils literal notranslate"><span class="pre">datumaro.plugins.data_formats.cityscapes</span></code></a></p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="datumaro.plugins.data_formats.coco.html#module-datumaro.plugins.data_formats.coco" title="datumaro.plugins.data_formats.coco"><code class="xref py py-obj docutils literal notranslate"><span class="pre">datumaro.plugins.data_formats.coco</span></code></a></p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-even"><td><p><a class="reference internal" href="datumaro.plugins.data_formats.common_semantic_segmentation.html#module-datumaro.plugins.data_formats.common_semantic_segmentation" title="datumaro.plugins.data_formats.common_semantic_segmentation"><code class="xref py py-obj docutils literal notranslate"><span class="pre">datumaro.plugins.data_formats.common_semantic_segmentation</span></code></a></p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="datumaro.plugins.data_formats.common_super_resolution.html#module-datumaro.plugins.data_formats.common_super_resolution" title="datumaro.plugins.data_formats.common_super_resolution"><code class="xref py py-obj docutils literal notranslate"><span class="pre">datumaro.plugins.data_formats.common_super_resolution</span></code></a></p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-even"><td><p><a class="reference internal" href="datumaro.plugins.data_formats.cvat.html#module-datumaro.plugins.data_formats.cvat" title="datumaro.plugins.data_formats.cvat"><code class="xref py py-obj docutils literal notranslate"><span class="pre">datumaro.plugins.data_formats.cvat</span></code></a></p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="datumaro.plugins.data_formats.datumaro.html#module-datumaro.plugins.data_formats.datumaro" title="datumaro.plugins.data_formats.datumaro"><code class="xref py py-obj docutils literal notranslate"><span class="pre">datumaro.plugins.data_formats.datumaro</span></code></a></p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-even"><td><p><a class="reference internal" href="datumaro.plugins.data_formats.datumaro_binary.html#module-datumaro.plugins.data_formats.datumaro_binary" title="datumaro.plugins.data_formats.datumaro_binary"><code class="xref py py-obj docutils literal notranslate"><span class="pre">datumaro.plugins.data_formats.datumaro_binary</span></code></a></p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="datumaro.plugins.data_formats.icdar.html#module-datumaro.plugins.data_formats.icdar" title="datumaro.plugins.data_formats.icdar"><code class="xref py py-obj docutils literal notranslate"><span class="pre">datumaro.plugins.data_formats.icdar</span></code></a></p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-even"><td><p><a class="reference internal" href="datumaro.plugins.data_formats.image_dir.html#module-datumaro.plugins.data_formats.image_dir" title="datumaro.plugins.data_formats.image_dir"><code class="xref py py-obj docutils literal notranslate"><span class="pre">datumaro.plugins.data_formats.image_dir</span></code></a></p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="datumaro.plugins.data_formats.image_zip.html#module-datumaro.plugins.data_formats.image_zip" title="datumaro.plugins.data_formats.image_zip"><code class="xref py py-obj docutils literal notranslate"><span class="pre">datumaro.plugins.data_formats.image_zip</span></code></a></p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-even"><td><p><a class="reference internal" href="datumaro.plugins.data_formats.imagenet.html#module-datumaro.plugins.data_formats.imagenet" title="datumaro.plugins.data_formats.imagenet"><code class="xref py py-obj docutils literal notranslate"><span class="pre">datumaro.plugins.data_formats.imagenet</span></code></a></p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="datumaro.plugins.data_formats.imagenet_txt.html#module-datumaro.plugins.data_formats.imagenet_txt" title="datumaro.plugins.data_formats.imagenet_txt"><code class="xref py py-obj docutils literal notranslate"><span class="pre">datumaro.plugins.data_formats.imagenet_txt</span></code></a></p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-even"><td><p><a class="reference internal" href="datumaro.plugins.data_formats.kaggle.html#module-datumaro.plugins.data_formats.kaggle" title="datumaro.plugins.data_formats.kaggle"><code class="xref py py-obj docutils literal notranslate"><span class="pre">datumaro.plugins.data_formats.kaggle</span></code></a></p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="datumaro.plugins.data_formats.kinetics.html#module-datumaro.plugins.data_formats.kinetics" title="datumaro.plugins.data_formats.kinetics"><code class="xref py py-obj docutils literal notranslate"><span class="pre">datumaro.plugins.data_formats.kinetics</span></code></a></p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-even"><td><p><a class="reference internal" href="datumaro.plugins.data_formats.kitti.html#module-datumaro.plugins.data_formats.kitti" title="datumaro.plugins.data_formats.kitti"><code class="xref py py-obj docutils literal notranslate"><span class="pre">datumaro.plugins.data_formats.kitti</span></code></a></p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="datumaro.plugins.data_formats.kitti_raw.html#module-datumaro.plugins.data_formats.kitti_raw" title="datumaro.plugins.data_formats.kitti_raw"><code class="xref py py-obj docutils literal notranslate"><span class="pre">datumaro.plugins.data_formats.kitti_raw</span></code></a></p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-even"><td><p><a class="reference internal" href="datumaro.plugins.data_formats.labelme.html#module-datumaro.plugins.data_formats.labelme" title="datumaro.plugins.data_formats.labelme"><code class="xref py py-obj docutils literal notranslate"><span class="pre">datumaro.plugins.data_formats.labelme</span></code></a></p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="datumaro.plugins.data_formats.lfw.html#module-datumaro.plugins.data_formats.lfw" title="datumaro.plugins.data_formats.lfw"><code class="xref py py-obj docutils literal notranslate"><span class="pre">datumaro.plugins.data_formats.lfw</span></code></a></p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-even"><td><p><a class="reference internal" href="datumaro.plugins.data_formats.mapillary_vistas.html#module-datumaro.plugins.data_formats.mapillary_vistas" title="datumaro.plugins.data_formats.mapillary_vistas"><code class="xref py py-obj docutils literal notranslate"><span class="pre">datumaro.plugins.data_formats.mapillary_vistas</span></code></a></p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="datumaro.plugins.data_formats.market1501.html#module-datumaro.plugins.data_formats.market1501" title="datumaro.plugins.data_formats.market1501"><code class="xref py py-obj docutils literal notranslate"><span class="pre">datumaro.plugins.data_formats.market1501</span></code></a></p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-even"><td><p><a class="reference internal" href="datumaro.plugins.data_formats.mars.html#module-datumaro.plugins.data_formats.mars" title="datumaro.plugins.data_formats.mars"><code class="xref py py-obj docutils literal notranslate"><span class="pre">datumaro.plugins.data_formats.mars</span></code></a></p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="datumaro.plugins.data_formats.mmdet.html#module-datumaro.plugins.data_formats.mmdet" title="datumaro.plugins.data_formats.mmdet"><code class="xref py py-obj docutils literal notranslate"><span class="pre">datumaro.plugins.data_formats.mmdet</span></code></a></p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-even"><td><p><a class="reference internal" href="datumaro.plugins.data_formats.mnist.html#module-datumaro.plugins.data_formats.mnist" title="datumaro.plugins.data_formats.mnist"><code class="xref py py-obj docutils literal notranslate"><span class="pre">datumaro.plugins.data_formats.mnist</span></code></a></p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="datumaro.plugins.data_formats.mnist_csv.html#module-datumaro.plugins.data_formats.mnist_csv" title="datumaro.plugins.data_formats.mnist_csv"><code class="xref py py-obj docutils literal notranslate"><span class="pre">datumaro.plugins.data_formats.mnist_csv</span></code></a></p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-even"><td><p><a class="reference internal" href="datumaro.plugins.data_formats.mot.html#module-datumaro.plugins.data_formats.mot" title="datumaro.plugins.data_formats.mot"><code class="xref py py-obj docutils literal notranslate"><span class="pre">datumaro.plugins.data_formats.mot</span></code></a></p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="datumaro.plugins.data_formats.mots.html#module-datumaro.plugins.data_formats.mots" title="datumaro.plugins.data_formats.mots"><code class="xref py py-obj docutils literal notranslate"><span class="pre">datumaro.plugins.data_formats.mots</span></code></a></p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-even"><td><p><a class="reference internal" href="datumaro.plugins.data_formats.mpii.html#module-datumaro.plugins.data_formats.mpii" title="datumaro.plugins.data_formats.mpii"><code class="xref py py-obj docutils literal notranslate"><span class="pre">datumaro.plugins.data_formats.mpii</span></code></a></p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="datumaro.plugins.data_formats.mvtec.html#module-datumaro.plugins.data_formats.mvtec" title="datumaro.plugins.data_formats.mvtec"><code class="xref py py-obj docutils literal notranslate"><span class="pre">datumaro.plugins.data_formats.mvtec</span></code></a></p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-even"><td><p><a class="reference internal" href="datumaro.plugins.data_formats.nyu_depth_v2.html#module-datumaro.plugins.data_formats.nyu_depth_v2" title="datumaro.plugins.data_formats.nyu_depth_v2"><code class="xref py py-obj docutils literal notranslate"><span class="pre">datumaro.plugins.data_formats.nyu_depth_v2</span></code></a></p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="datumaro.plugins.data_formats.open_images.html#module-datumaro.plugins.data_formats.open_images" title="datumaro.plugins.data_formats.open_images"><code class="xref py py-obj docutils literal notranslate"><span class="pre">datumaro.plugins.data_formats.open_images</span></code></a></p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-even"><td><p><a class="reference internal" href="datumaro.plugins.data_formats.roboflow.html#module-datumaro.plugins.data_formats.roboflow" title="datumaro.plugins.data_formats.roboflow"><code class="xref py py-obj docutils literal notranslate"><span class="pre">datumaro.plugins.data_formats.roboflow</span></code></a></p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="datumaro.plugins.data_formats.segment_anything.html#module-datumaro.plugins.data_formats.segment_anything" title="datumaro.plugins.data_formats.segment_anything"><code class="xref py py-obj docutils literal notranslate"><span class="pre">datumaro.plugins.data_formats.segment_anything</span></code></a></p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-even"><td><p><a class="reference internal" href="datumaro.plugins.data_formats.sly_pointcloud.html#module-datumaro.plugins.data_formats.sly_pointcloud" title="datumaro.plugins.data_formats.sly_pointcloud"><code class="xref py py-obj docutils literal notranslate"><span class="pre">datumaro.plugins.data_formats.sly_pointcloud</span></code></a></p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="datumaro.plugins.data_formats.synthia.html#module-datumaro.plugins.data_formats.synthia" title="datumaro.plugins.data_formats.synthia"><code class="xref py py-obj docutils literal notranslate"><span class="pre">datumaro.plugins.data_formats.synthia</span></code></a></p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-even"><td><p><a class="reference internal" href="datumaro.plugins.data_formats.tabular.html#module-datumaro.plugins.data_formats.tabular" title="datumaro.plugins.data_formats.tabular"><code class="xref py py-obj docutils literal notranslate"><span class="pre">datumaro.plugins.data_formats.tabular</span></code></a></p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="datumaro.plugins.data_formats.tf_detection_api.html#module-datumaro.plugins.data_formats.tf_detection_api" title="datumaro.plugins.data_formats.tf_detection_api"><code class="xref py py-obj docutils literal notranslate"><span class="pre">datumaro.plugins.data_formats.tf_detection_api</span></code></a></p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-even"><td><p><a class="reference internal" href="datumaro.plugins.data_formats.vgg_face2.html#module-datumaro.plugins.data_formats.vgg_face2" title="datumaro.plugins.data_formats.vgg_face2"><code class="xref py py-obj docutils literal notranslate"><span class="pre">datumaro.plugins.data_formats.vgg_face2</span></code></a></p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="datumaro.plugins.data_formats.video.html#module-datumaro.plugins.data_formats.video" title="datumaro.plugins.data_formats.video"><code class="xref py py-obj docutils literal notranslate"><span class="pre">datumaro.plugins.data_formats.video</span></code></a></p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-even"><td><p><a class="reference internal" href="datumaro.plugins.data_formats.voc.html#module-datumaro.plugins.data_formats.voc" title="datumaro.plugins.data_formats.voc"><code class="xref py py-obj docutils literal notranslate"><span class="pre">datumaro.plugins.data_formats.voc</span></code></a></p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="datumaro.plugins.data_formats.vott_csv.html#module-datumaro.plugins.data_formats.vott_csv" title="datumaro.plugins.data_formats.vott_csv"><code class="xref py py-obj docutils literal notranslate"><span class="pre">datumaro.plugins.data_formats.vott_csv</span></code></a></p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-even"><td><p><a class="reference internal" href="datumaro.plugins.data_formats.vott_json.html#module-datumaro.plugins.data_formats.vott_json" title="datumaro.plugins.data_formats.vott_json"><code class="xref py py-obj docutils literal notranslate"><span class="pre">datumaro.plugins.data_formats.vott_json</span></code></a></p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="datumaro.plugins.data_formats.widerface.html#module-datumaro.plugins.data_formats.widerface" title="datumaro.plugins.data_formats.widerface"><code class="xref py py-obj docutils literal notranslate"><span class="pre">datumaro.plugins.data_formats.widerface</span></code></a></p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-even"><td><p><a class="reference internal" href="datumaro.plugins.data_formats.yolo.html#module-datumaro.plugins.data_formats.yolo" title="datumaro.plugins.data_formats.yolo"><code class="xref py py-obj docutils literal notranslate"><span class="pre">datumaro.plugins.data_formats.yolo</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="datumaro.plugins.data_formats.kaggle.base.html#module-datumaro.plugins.data_formats.kaggle.base" title="datumaro.plugins.data_formats.kaggle.base"><code class="xref py py-obj docutils literal notranslate"><span class="pre">datumaro.plugins.data_formats.kaggle.base</span></code></a></p></td>
 <td><p></p></td>
 </tr>
 </tbody>
@@ -757,17 +604,17 @@
             <footer class="bd-footer-article">
                 <!-- Previous / next buttons -->
 <div class='prev-next-area'>
-  <a class='left-prev' id="prev-link" href="datumaro.plugins.configurable_validator.html" title="previous page">
+  <a class='left-prev' id="prev-link" href="datumaro.plugins.data_formats.imagenet_txt.html" title="previous page">
       <i class="fa-solid fa-angle-left"></i>
       <div class="prev-next-info">
           <p class="prev-next-subtitle">previous</p>
-          <p class="prev-next-title">datumaro.plugins.configurable_validator</p>
+          <p class="prev-next-title">datumaro.plugins.data_formats.imagenet_txt</p>
       </div>
   </a>
-  <a class='right-next' id="next-link" href="datumaro.plugins.data_formats.ade20k2017.html" title="next page">
+  <a class='right-next' id="next-link" href="datumaro.plugins.data_formats.kaggle.base.html" title="next page">
   <div class="prev-next-info">
       <p class="prev-next-subtitle">next</p>
-      <p class="prev-next-title">datumaro.plugins.data_formats.ade20k2017</p>
+      <p class="prev-next-title">datumaro.plugins.data_formats.kaggle.base</p>
   </div>
   <i class="fa-solid fa-angle-right"></i>
   </a>
@@ -792,7 +639,7 @@
 <div class="toc-item">
   
 <div class="tocsection sourcelink">
-    <a href="../../../_sources/docs/reference/_autosummary/datumaro.plugins.data_formats.rst.txt">
+    <a href="../../../_sources/docs/reference/_autosummary/datumaro.plugins.data_formats.kaggle.rst.txt">
         <i class="fa-solid fa-file-lines"></i> Show Source
     </a>
 </div>
