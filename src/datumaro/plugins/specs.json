@@ -537,6 +537,36 @@
     "extra_deps": []
   },
   {
+    "import_path": "datumaro.plugins.data_formats.kaggle.base.KaggleImageCsvBase",
+    "plugin_name": "kaggle_image_csv",
+    "plugin_type": "DatasetBase",
+    "extra_deps": []
+  },
+  {
+    "import_path": "datumaro.plugins.data_formats.kaggle.base.KaggleImageMaskBase",
+    "plugin_name": "kaggle_image_mask",
+    "plugin_type": "DatasetBase",
+    "extra_deps": []
+  },
+  {
+    "import_path": "datumaro.plugins.data_formats.kaggle.base.KaggleImageTxtBase",
+    "plugin_name": "kaggle_image_txt",
+    "plugin_type": "DatasetBase",
+    "extra_deps": []
+  },
+  {
+    "import_path": "datumaro.plugins.data_formats.kaggle.base.KaggleVocBase",
+    "plugin_name": "kaggle_voc",
+    "plugin_type": "DatasetBase",
+    "extra_deps": []
+  },
+  {
+    "import_path": "datumaro.plugins.data_formats.kaggle.base.KaggleYoloBase",
+    "plugin_name": "kaggle_yolo",
+    "plugin_type": "DatasetBase",
+    "extra_deps": []
+  },
+  {
     "import_path": "datumaro.plugins.data_formats.kinetics.KineticsBase",
     "plugin_name": "kinetics",
     "plugin_type": "DatasetBase",

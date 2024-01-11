@@ -15,6 +15,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   (<https://github.com/openvinotoolkit/datumaro/pull/1230>, <https://github.com/openvinotoolkit/datumaro/pull/1233>)
 - Remove supporting MacOS platform
   (<https://github.com/openvinotoolkit/datumaro/pull/1235>)
+- Support Kaggle image data (`KaggleImageCsvBase`, `KaggleImageTxtBase`, `KaggleImageMaskBase`, `KaggleVocBase`, `KaggleYoloBase`)
+  (<https://github.com/openvinotoolkit/datumaro/pull/1240>)
 
 ### Enhancements
 - Optimize Python import to make CLI entrypoint faster
