@@ -388,7 +388,7 @@ class TransformFiltration(TransformBase):
                     selected_subset = c1.selectbox("Select a subset", options=sorted(keys.keys()))
                     selected_id = c2.selectbox("Select an item", options=keys[selected_subset])
                 else:
-                    selected_subset = keys.keys()[0]
+                    selected_subset = list(keys.keys())[0]
                     selected_id = st.selectbox("Select an item", options=keys[selected_subset])
 
                 xml_str = data_helper.get_xml(selected_subset, selected_id)
