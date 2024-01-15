@@ -334,7 +334,7 @@ class AnnStatisticsTest:
         actual = compute_ann_statistics(dataset)
         assert actual == expected
 
-    @mark_requirement(Requirements.DATUM_BUG_1204)
+    @mark_requirement(Requirements.DATUM_BUG_1214)
     def test_stats_with_invalid_label(self):
         label_names = ["label_%s" % i for i in range(3)]
         dataset = Dataset.from_iterable(

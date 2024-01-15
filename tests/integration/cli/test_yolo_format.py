@@ -215,7 +215,7 @@ class YoloIntegrationScenariosTest:
     def fxt_yolo_dir(self, request) -> str:
         return get_test_asset_path("yolo_dataset", request.param)
 
-    @mark_requirement(Requirements.DATUM_BUG_1204)
+    @mark_requirement(Requirements.DATUM_BUG_1214)
     def test_can_import_nested_datasets_in_project(self, fxt_yolo_dir, test_dir, helper_tc):
         run(helper_tc, "project", "create", "-o", test_dir)
 
