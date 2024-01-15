@@ -24,6 +24,7 @@ class DatasetItemStorage:
     def __init__(self):
         self.data = {}  # { subset_name: { id: DatasetItem } }
         self._traversal_order = {}  # maintain the order of elements
+        self._order = []  # allow indexing
 
     def __iter__(self) -> Iterator[DatasetItem]:
         for item in self._traversal_order.values():
@@ -40,6 +41,8 @@ class DatasetItemStorage:
         subset = self.data.setdefault(item.subset, {})
         is_new = subset.get(item.id) is None
         self._traversal_order[(item.id, item.subset)] = item
+        if is_new:
+            self._order.append((item.id, item.subset))
         subset[item.id] = item
         return is_new
 
@@ -67,6 +70,7 @@ class DatasetItemStorage:
         if is_removed:
             # TODO : investigate why "del subset_data[id]" cannot replace "subset_data[id] = None".
             self._traversal_order.pop((id, subset))
+            self._order.remove((id, subset))
         return is_removed
 
     def __contains__(self, x: Union[DatasetItem, Tuple[str, str]]) -> bool:
@@ -99,8 +103,14 @@ class DatasetItemStorage:
     def __copy__(self):
         copied = DatasetItemStorage()
         copied._traversal_order = copy(self._traversal_order)
+        copied._order = copy(self._order)
         copied.data = copy(self.data)
         return copied
+    
+    def __getitem__(self, idx: int) -> DatasetItem:
+        _id, subset = self._order[idx]
+        item = self.data[subset][_id]
+        return item
 
 
 class DatasetItemStorageDatasetView(IDataset):

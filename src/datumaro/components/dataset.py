@@ -932,6 +932,9 @@ class Dataset(IDataset):
         """
         return deepcopy(self)
 
+    def __getitem__(self, idx: int) -> DatasetItem:
+        return self._data[idx]
+
 
 class StreamDataset(Dataset):
     _stream = True

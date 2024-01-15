@@ -2034,6 +2034,18 @@ class DatasetTest(TestCase):
         )
         self.assertEqual(dataset.get_label_cat_names(), ["a", "b", "c"])
 
+    def test_index_access(self):
+        dataset = Dataset.from_iterable([DatasetItem(id) for id in [1, 2, 3, 4]])
+        self.assertEqual(dataset[2].id, "3")
+
+        dataset.remove(3)
+        self.assertEqual(dataset[2].id, "4")
+
+        dataset.put(DatasetItem(3))
+        self.assertEqual(dataset[-1].id, "3")
+
+        self.assertRaises(IndexError, lambda: dataset[4])
+
 
 class DatasetItemTest(TestCase):
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
