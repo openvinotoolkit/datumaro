@@ -2,6 +2,7 @@ import os.path as osp
 from unittest import TestCase
 
 import numpy as np
+import pytest
 
 import datumaro.plugins.data_formats.voc.format as VOC
 from datumaro.components.annotation import AnnotationType, Bbox
@@ -202,3 +203,53 @@ class YoloIntegrationScenarios(TestCase):
 
             parsed_dataset = Dataset.import_from(export_dir, format="yolo")
             compare_datasets(self, target_dataset, parsed_dataset)
+
+
+# TODO(vinnamki): Migrate above test cases to the pytest framework below
+class YoloIntegrationScenariosTest:
+    @pytest.fixture(params=["annotations", "labels", "strict"])
+    def fxt_yolo_dir(self, request) -> str:
+        return get_test_asset_path("yolo_dataset", request.param)
+
+    @mark_requirement(Requirements.DATUM_BUG_1204)
+    def test_can_import_nested_datasets_in_project(self, fxt_yolo_dir, test_dir, helper_tc):
+        run(helper_tc, "project", "create", "-o", test_dir)
+
+        num_total_items = 0
+        # Import twice
+        for i in range(1, 3):
+            run(
+                helper_tc,
+                "project",
+                "import",
+                "-p",
+                test_dir,
+                "-n",
+                f"dataset_{i}",
+                "-f",
+                "yolo",
+                fxt_yolo_dir,
+            )
+
+            # Reindex to prevent overlapping IDs of dataset items.
+            run(
+                helper_tc,
+                "transform",
+                "-p",
+                test_dir,
+                "-t",
+                "reindex",
+                f"dataset_{i}",
+                "--",
+                "--start",
+                f"{i * 10}",  # Reindex starting from 0 or 10
+            )
+
+            # Add the number of dataset items for each dataset in the project
+            num_total_items += len(
+                Dataset.import_from(osp.join(test_dir, f"dataset_{i}"), format="yolo")
+            )
+
+        # Import a dataset from the project
+        imported = Dataset.import_from(test_dir, format="yolo")
+        assert len(imported) == num_total_items

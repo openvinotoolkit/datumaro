@@ -22,22 +22,23 @@ class _YoloStrictImporter(Importer):
         context.require_file("obj.data")
 
     @classmethod
-    def find_sources(cls, path: str) -> List[Dict]:
-        found = cls._find_sources_recursive(path, ".data", YoloFormatType.yolo_strict.name)
-        if len(found) == 0:
-            return []
+    def find_sources(cls, path: str) -> List[Dict[str, Any]]:
+        sources = cls._find_sources_recursive(path, ".data", YoloFormatType.yolo_strict.name)
 
-        config_path = found[0]["url"]
-        config = YoloPath._parse_config(config_path)
-        subsets = [k for k in config if k not in YoloPath.RESERVED_CONFIG_KEYS]
-        return [
-            {
-                "url": config_path,
-                "format": YoloFormatType.yolo_strict.name,
-                "options": {"subset": subset},
-            }
-            for subset in subsets
-        ]
+        def _extract_subset_wise_sources(source) -> List[Dict[str, Any]]:
+            config_path = source["url"]
+            config = YoloPath._parse_config(config_path)
+            subsets = [k for k in config if k not in YoloPath.RESERVED_CONFIG_KEYS]
+            return [
+                {
+                    "url": config_path,
+                    "format": YoloFormatType.yolo_strict.name,
+                    "options": {"subset": subset},
+                }
+                for subset in subsets
+            ]
+
+        return sum([_extract_subset_wise_sources(source) for source in sources], [])
 
 
 class _YoloLooseImporter(Importer):
@@ -126,7 +127,7 @@ class _YoloLooseImporter(Importer):
     def find_sources(cls, path: str) -> List[Dict[str, Any]]:
         # Check obj.names first
         filename, ext = osp.splitext(cls.META_FILE)
-        sources = cls._find_sources_recursive(
+        obj_names_files = cls._find_sources_recursive(
             path,
             ext=ext,
             extractor_name="",
@@ -135,20 +136,20 @@ class _YoloLooseImporter(Importer):
             max_depth=1,
             recursive=False,
         )
-        if len(sources) == 0:
+        if len(obj_names_files) == 0:
             return []
 
-        # TODO: From Python >= 3.8, we can use
-        # "if (sources := cls._find_strict(path)): return sources"
-        sources = cls._find_loose(path, "[Aa]nnotations")
-        if sources:
-            return sources
+        sources = []
 
-        sources = cls._find_loose(path, "[Ll]abels")
-        if sources:
-            return sources
+        for obj_names_file in obj_names_files:
+            base_path = osp.dirname(obj_names_file["url"])
+            if found := cls._find_loose(base_path, "[Aa]nnotations"):
+                sources += found
 
-        return []
+            if found := cls._find_loose(path, "[Ll]abels"):
+                sources += found
+
+        return sources
 
     @property
     def can_stream(self) -> bool:
@@ -179,10 +180,7 @@ class YoloImporter(Importer):
     @classmethod
     def find_sources(cls, path: str) -> List[Dict[str, Any]]:
         for importer_cls in cls.SUB_IMPORTERS.values():
-            # TODO: From Python >= 3.8, we can use
-            # "if (sources := importer_cls.find_sources(path)): return sources"
-            sources = importer_cls.find_sources(path)
-            if sources:
+            if sources := importer_cls.find_sources(path):
                 return sources
 
         return []
