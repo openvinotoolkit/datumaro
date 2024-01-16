@@ -364,7 +364,7 @@
             <span class="n">grouped_by_subset</span><span class="p">[</span><span class="n">s</span><span class="o">.</span><span class="n">subset</span><span class="p">]</span> <span class="o">+=</span> <span class="p">[</span><span class="n">s</span><span class="p">]</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">_subsets</span> <span class="o">=</span> <span class="p">{</span>
-            <span class="n">subset</span><span class="p">:</span> <span class="n">COCOTaskMergedBase</span><span class="p">(</span><span class="n">sources</span><span class="p">,</span> <span class="n">subset</span><span class="p">)</span>
+            <span class="n">subset</span><span class="p">:</span> <span class="p">[</span><span class="n">COCOTaskMergedBase</span><span class="p">(</span><span class="n">sources</span><span class="p">,</span> <span class="n">subset</span><span class="p">)]</span>
             <span class="k">for</span> <span class="n">subset</span><span class="p">,</span> <span class="n">sources</span> <span class="ow">in</span> <span class="n">grouped_by_subset</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
         <span class="p">}</span></div>
 </pre></div>

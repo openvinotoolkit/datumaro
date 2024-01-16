@@ -301,22 +301,23 @@
         <span class="n">context</span><span class="o">.</span><span class="n">require_file</span><span class="p">(</span><span class="s2">&quot;obj.data&quot;</span><span class="p">)</span>
 
     <span class="nd">@classmethod</span>
-    <span class="k">def</span> <span class="nf">find_sources</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">path</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">Dict</span><span class="p">]:</span>
-        <span class="n">found</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="n">_find_sources_recursive</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="s2">&quot;.data&quot;</span><span class="p">,</span> <span class="n">YoloFormatType</span><span class="o">.</span><span class="n">yolo_strict</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
-        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">found</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
-            <span class="k">return</span> <span class="p">[]</span>
+    <span class="k">def</span> <span class="nf">find_sources</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">path</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]:</span>
+        <span class="n">sources</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="n">_find_sources_recursive</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="s2">&quot;.data&quot;</span><span class="p">,</span> <span class="n">YoloFormatType</span><span class="o">.</span><span class="n">yolo_strict</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
 
-        <span class="n">config_path</span> <span class="o">=</span> <span class="n">found</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="s2">&quot;url&quot;</span><span class="p">]</span>
-        <span class="n">config</span> <span class="o">=</span> <span class="n">YoloPath</span><span class="o">.</span><span class="n">_parse_config</span><span class="p">(</span><span class="n">config_path</span><span class="p">)</span>
-        <span class="n">subsets</span> <span class="o">=</span> <span class="p">[</span><span class="n">k</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">config</span> <span class="k">if</span> <span class="n">k</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">YoloPath</span><span class="o">.</span><span class="n">RESERVED_CONFIG_KEYS</span><span class="p">]</span>
-        <span class="k">return</span> <span class="p">[</span>
-            <span class="p">{</span>
-                <span class="s2">&quot;url&quot;</span><span class="p">:</span> <span class="n">config_path</span><span class="p">,</span>
-                <span class="s2">&quot;format&quot;</span><span class="p">:</span> <span class="n">YoloFormatType</span><span class="o">.</span><span class="n">yolo_strict</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
-                <span class="s2">&quot;options&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;subset&quot;</span><span class="p">:</span> <span class="n">subset</span><span class="p">},</span>
-            <span class="p">}</span>
-            <span class="k">for</span> <span class="n">subset</span> <span class="ow">in</span> <span class="n">subsets</span>
-        <span class="p">]</span>
+        <span class="k">def</span> <span class="nf">_extract_subset_wise_sources</span><span class="p">(</span><span class="n">source</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]:</span>
+            <span class="n">config_path</span> <span class="o">=</span> <span class="n">source</span><span class="p">[</span><span class="s2">&quot;url&quot;</span><span class="p">]</span>
+            <span class="n">config</span> <span class="o">=</span> <span class="n">YoloPath</span><span class="o">.</span><span class="n">_parse_config</span><span class="p">(</span><span class="n">config_path</span><span class="p">)</span>
+            <span class="n">subsets</span> <span class="o">=</span> <span class="p">[</span><span class="n">k</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">config</span> <span class="k">if</span> <span class="n">k</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">YoloPath</span><span class="o">.</span><span class="n">RESERVED_CONFIG_KEYS</span><span class="p">]</span>
+            <span class="k">return</span> <span class="p">[</span>
+                <span class="p">{</span>
+                    <span class="s2">&quot;url&quot;</span><span class="p">:</span> <span class="n">config_path</span><span class="p">,</span>
+                    <span class="s2">&quot;format&quot;</span><span class="p">:</span> <span class="n">YoloFormatType</span><span class="o">.</span><span class="n">yolo_strict</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
+                    <span class="s2">&quot;options&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;subset&quot;</span><span class="p">:</span> <span class="n">subset</span><span class="p">},</span>
+                <span class="p">}</span>
+                <span class="k">for</span> <span class="n">subset</span> <span class="ow">in</span> <span class="n">subsets</span>
+            <span class="p">]</span>
+
+        <span class="k">return</span> <span class="nb">sum</span><span class="p">([</span><span class="n">_extract_subset_wise_sources</span><span class="p">(</span><span class="n">source</span><span class="p">)</span> <span class="k">for</span> <span class="n">source</span> <span class="ow">in</span> <span class="n">sources</span><span class="p">],</span> <span class="p">[])</span>
 
 
 <span class="k">class</span> <span class="nc">_YoloLooseImporter</span><span class="p">(</span><span class="n">Importer</span><span class="p">):</span>
@@ -405,7 +406,7 @@
     <span class="k">def</span> <span class="nf">find_sources</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">path</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]:</span>
         <span class="c1"># Check obj.names first</span>
         <span class="n">filename</span><span class="p">,</span> <span class="n">ext</span> <span class="o">=</span> <span class="n">osp</span><span class="o">.</span><span class="n">splitext</span><span class="p">(</span><span class="bp">cls</span><span class="o">.</span><span class="n">META_FILE</span><span class="p">)</span>
-        <span class="n">sources</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="n">_find_sources_recursive</span><span class="p">(</span>
+        <span class="n">obj_names_files</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="n">_find_sources_recursive</span><span class="p">(</span>
             <span class="n">path</span><span class="p">,</span>
             <span class="n">ext</span><span class="o">=</span><span class="n">ext</span><span class="p">,</span>
             <span class="n">extractor_name</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span>
@@ -414,20 +415,20 @@
             <span class="n">max_depth</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
             <span class="n">recursive</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
         <span class="p">)</span>
-        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">sources</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">obj_names_files</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
             <span class="k">return</span> <span class="p">[]</span>
 
-        <span class="c1"># TODO: From Python &gt;= 3.8, we can use</span>
-        <span class="c1"># &quot;if (sources := cls._find_strict(path)): return sources&quot;</span>
-        <span class="n">sources</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="n">_find_loose</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="s2">&quot;[Aa]nnotations&quot;</span><span class="p">)</span>
-        <span class="k">if</span> <span class="n">sources</span><span class="p">:</span>
-            <span class="k">return</span> <span class="n">sources</span>
+        <span class="n">sources</span> <span class="o">=</span> <span class="p">[]</span>
 
-        <span class="n">sources</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="n">_find_loose</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="s2">&quot;[Ll]abels&quot;</span><span class="p">)</span>
-        <span class="k">if</span> <span class="n">sources</span><span class="p">:</span>
-            <span class="k">return</span> <span class="n">sources</span>
+        <span class="k">for</span> <span class="n">obj_names_file</span> <span class="ow">in</span> <span class="n">obj_names_files</span><span class="p">:</span>
+            <span class="n">base_path</span> <span class="o">=</span> <span class="n">osp</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">obj_names_file</span><span class="p">[</span><span class="s2">&quot;url&quot;</span><span class="p">])</span>
+            <span class="k">if</span> <span class="n">found</span> <span class="o">:=</span> <span class="bp">cls</span><span class="o">.</span><span class="n">_find_loose</span><span class="p">(</span><span class="n">base_path</span><span class="p">,</span> <span class="s2">&quot;[Aa]nnotations&quot;</span><span class="p">):</span>
+                <span class="n">sources</span> <span class="o">+=</span> <span class="n">found</span>
 
-        <span class="k">return</span> <span class="p">[]</span>
+            <span class="k">if</span> <span class="n">found</span> <span class="o">:=</span> <span class="bp">cls</span><span class="o">.</span><span class="n">_find_loose</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="s2">&quot;[Ll]abels&quot;</span><span class="p">):</span>
+                <span class="n">sources</span> <span class="o">+=</span> <span class="n">found</span>
+
+        <span class="k">return</span> <span class="n">sources</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">can_stream</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
@@ -458,10 +459,7 @@
 <div class="viewcode-block" id="YoloImporter.find_sources"><a class="viewcode-back" href="../../../../../docs/reference/_autosummary/datumaro.plugins.data_formats.yolo.importer.html#datumaro.plugins.data_formats.yolo.importer.YoloImporter.find_sources">[docs]</a>    <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">find_sources</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">path</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]:</span>
         <span class="k">for</span> <span class="n">importer_cls</span> <span class="ow">in</span> <span class="bp">cls</span><span class="o">.</span><span class="n">SUB_IMPORTERS</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
-            <span class="c1"># TODO: From Python &gt;= 3.8, we can use</span>
-            <span class="c1"># &quot;if (sources := importer_cls.find_sources(path)): return sources&quot;</span>
-            <span class="n">sources</span> <span class="o">=</span> <span class="n">importer_cls</span><span class="o">.</span><span class="n">find_sources</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
-            <span class="k">if</span> <span class="n">sources</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">sources</span> <span class="o">:=</span> <span class="n">importer_cls</span><span class="o">.</span><span class="n">find_sources</span><span class="p">(</span><span class="n">path</span><span class="p">):</span>
                 <span class="k">return</span> <span class="n">sources</span>
 
         <span class="k">return</span> <span class="p">[]</span></div>
