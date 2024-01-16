@@ -64,6 +64,9 @@ class Requirements:
     DATUM_BUG_1204 = (
         "Statistics raise an error when there is a label annotation not in the category"
     )
+    DATUM_BUG_1214 = (
+        "Dataset.import_from() can import nested datasets that exist in the given path."
+    )
 
 
 class SkipMessages:

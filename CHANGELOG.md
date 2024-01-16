@@ -47,6 +47,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   (<https://github.com/openvinotoolkit/datumaro/pull/1232>)
 - Add unit test for item rename
   (<https://github.com/openvinotoolkit/datumaro/pull/1237>)
+- Fix a bug in the previous behavior when importing nested datasets in the project
+  (<https://github.com/openvinotoolkit/datumaro/pull/1243>)
 
 ## 16/11/2023 - Release 1.5.1
 ### Enhancements
