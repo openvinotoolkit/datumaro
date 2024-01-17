@@ -307,13 +307,13 @@ class KaggleVocBase(SubsetBase):
         for img_filename in os.listdir(path):
             if not img_filename.lower().endswith(tuple(IMAGE_EXTENSIONS)):
                 continue
-            item_id = os.path.splitext(img_filename)[0]
+            item_id = osp.splitext(img_filename)[0]
 
-            img_file = os.path.join(path, img_filename)
-            ann_file = os.path.join(ann_path, item_id + self.ann_extensions)
+            img_file = osp.join(path, img_filename)
+            ann_file = osp.join(ann_path, item_id + self.ann_extensions)
 
             annotations = (
-                self._parse_annotations(img_file, ann_file) if os.path.isfile(ann_file) else []
+                self._parse_annotations(img_file, ann_file) if osp.isfile(ann_file) else []
             )
 
             media = Image.from_file(path=img_file, size=self._size)
@@ -351,8 +351,11 @@ class KaggleVocBase(SubsetBase):
             ymin = self._parse_field(bbox_elem, "ymin", float)
             ymax = self._parse_field(bbox_elem, "ymax", float)
 
-            self._label_cat.add(label_name)
-            label_id, _ = self._label_cat.find(label_name)
+            label_id, cat = self._label_cat.find(label_name)
+            if not cat:
+                self._label_cat.add(label_name)
+                label_id, _ = self._label_cat.find(label_name)
+
             annotations.append(
                 Bbox(id=obj_id, label=label_id, x=xmin, y=ymin, w=xmax - xmin, h=ymax - ymin)
             )
@@ -419,7 +422,10 @@ class KaggleYoloBase(KaggleVocBase, SubsetBase):
             w *= image_width
             h *= image_height
 
-            self._label_cat.add(label_name)
+            label_id, cat = self._label_cat.find(label_name)
+            if not cat:
+                self._label_cat.add(label_name)
+                label_id, _ = self._label_cat.find(label_name)
             label_id, _ = self._label_cat.find(label_name)
 
             annotations.append(Bbox(id=obj_id, label=label_id, x=x, y=y, w=w, h=h))
