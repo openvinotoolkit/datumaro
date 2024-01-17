@@ -1,4 +1,4 @@
-from typing import List
+from typing import List, Tuple
 
 import torch
 
@@ -77,12 +77,12 @@ class BboxOverlaps2D:
 
 
 class DataAwareAnchorGenerator:
-    def __init__(self, dataset: Dataset, img_size: tuple(int, int), strides: List[int]):
+    def __init__(self, dataset: Dataset, img_size: Tuple[int, int], strides: List[int]):
         self.img_size = img_size
-        self.targets = []
+        targets = []
         for item in dataset:
             height, width = item.media.data.shape[:2]
-            scale_h, scale_w = height / img_size[0], width / img_size[1]
+            scale_h, scale_w = height // img_size[0], width // img_size[1]
 
             for ann in item.annotations:
                 x, y, w, h = ann.get_bbox()
@@ -91,11 +91,17 @@ class DataAwareAnchorGenerator:
                 w /= scale_w
                 h /= scale_h
 
-                self.targets.append([x, y, x + w, y + h])
+                # targets.append(torch.Tensor([x, y, x + w, y + h]))
+                targets.append([x, y, x + w, y + h])
+        self.targets = torch.Tensor(targets)
+        # self.targets = torch.cat(targets, dim=0)
 
         self.shifts = []
-        for stride in enumerate(strides):
+        for stride in strides:
             self.shifts.append(self.get_shifts(stride))
+
+        self.strides = strides
+        self.iou_calculator = BboxOverlaps2D()
 
     def get_shifts(self, stride: int) -> torch.Tensor:
         def _meshgrid(x: torch.Tensor, y: torch.Tensor):
@@ -104,7 +110,7 @@ class DataAwareAnchorGenerator:
             yy = y.view(-1, 1).repeat(1, x.shape[0]).view(-1)
             return xx, yy
 
-        feat_h, feat_w = self.img_size[0] / stride, self.img_size[1] / stride
+        feat_h, feat_w = self.img_size[0] // stride, self.img_size[1] // stride
         shift_x = torch.arange(0, feat_w) * stride
         shift_y = torch.arange(0, feat_h) * stride
 
@@ -136,15 +142,14 @@ class DataAwareAnchorGenerator:
 
         return anchors
 
-    def get_loss(self, targets, strides, scales, ratios, pos_thr, neg_thr):
+    def get_loss(self, targets, scales, ratios, pos_thr, neg_thr):
         all_anchors = []
-        for level, base_size in enumerate(strides):
+        for level, base_size in enumerate(self.strides):
             anchors = self.get_anchors(base_size, self.shifts[level], scales[level], ratios[level])
             all_anchors.append(anchors)
         all_anchors = torch.cat(all_anchors, dim=0)
 
-        iou_calculator = BboxOverlaps2D()
-        overlaps = iou_calculator(targets, all_anchors)
+        overlaps = self.iou_calculator(targets, all_anchors)
 
         max_overlaps, _ = overlaps.max(dim=0)
         print(
@@ -165,15 +170,27 @@ class DataAwareAnchorGenerator:
             + max_overlaps[(max_overlaps >= pos_thr) | (max_overlaps < neg_thr)].sum()
         )
 
+        num_gts = overlaps.size(0)
+        pos_gt_inds = []
+        pos_anchor_inds = []
+        for i in range(num_gts):
+            if gt_max_overlaps[i] >= pos_thr:
+                max_iou_inds = (overlaps[i, :] == gt_max_overlaps[i]).nonzero()
+                if max_iou_inds.numel() != 0:
+                    overlaps[:, max_iou_inds[0]] = 0
+                    pos_gt_inds.append(i)
+                    pos_anchor_inds.append(max_iou_inds[0])
+        print(f"GT coverage rate: {len(pos_gt_inds)/num_gts}")
+
         return cost
 
-    def optimize(self, strides, scales, ratios, pos_thr, neg_thr):
+    def optimize(self, scales, ratios, pos_thr, neg_thr):
         LR = 0.1
         BATCH_SIZE = 1024
         NUM_ITERS = 100
 
-        ratios = ratios.clone().detach().requires_grad_(True)
-        scales = scales.clone().detach().requires_grad_(True)
+        ratios = torch.Tensor(ratios).detach().requires_grad_(True)
+        scales = torch.Tensor(scales).detach().requires_grad_(True)
         optimizer = torch.optim.Adam([ratios, scales], lr=LR)
 
         opt_iou = 0
@@ -184,7 +201,6 @@ class DataAwareAnchorGenerator:
             random_indices = torch.randperm(self.targets.size(0))[:BATCH_SIZE]
             iou = self.get_loss(
                 targets=self.targets[random_indices],
-                strides=strides,
                 scales=scales,
                 ratios=ratios,
                 pos_thr=pos_thr,
