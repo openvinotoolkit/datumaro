@@ -22,8 +22,8 @@ def main():
     data_helper_2: MultipleDatasetHelper = state["data_helper_2"]
     first_dataset = data_helper_1.dataset()
     second_dataset = data_helper_2.dataset()
-    uploaded_file_1 = state["uploaded_file_1"].name[:-4]
-    uploaded_file_2 = state["uploaded_file_2"].name[:-4]
+    uploaded_file_1 = state["uploaded_file_1"]
+    uploaded_file_2 = state["uploaded_file_2"]
     high_level_df = state["high_level_table"]
     mid_level_df = state["mid_level_table"]
     low_level_df = state["low_level_table"]
