@@ -6,6 +6,7 @@ import os
 import shutil
 import zipfile
 from collections import defaultdict
+from typing import Union
 
 import numpy as np
 from streamlit.runtime.uploaded_file_manager import UploadedFile
@@ -41,7 +42,7 @@ class DataRepo:
         os.makedirs(directory, exist_ok=True)
         return directory
 
-    def unzip_dataset(_self, uploaded_zip: UploadedFile | str) -> str:
+    def unzip_dataset(_self, uploaded_zip: Union[UploadedFile, str]) -> str:
         """
         Unzip uploaded zip file to a dataset directory
 
@@ -187,6 +188,11 @@ class DatasetHelper:
             for item in self._dm_dataset:
                 keys[item.subset].append(item.id)
             self._subset_to_ids = keys
+        if self._subset_to_ids.keys() != self._dm_dataset.subsets().keys():
+            keys = defaultdict(list)
+            for item in self._dm_dataset:
+                keys[item.subset].append(item.id)
+            self._subset_to_ids = keys
         return self._subset_to_ids
 
     def validate(self, task: str):
@@ -219,7 +225,7 @@ class DatasetHelper:
         self._init_dependent_variables()
         return self._dm_dataset
 
-    def get_xml(self, subset: str, id: str) -> str | None:
+    def get_xml(self, subset: str, id: str) -> Union[str, None]:
         key = (subset, id)
         xml_item = self._xml_items.get(key, None)
         if xml_item is None and self._dm_dataset is not None:

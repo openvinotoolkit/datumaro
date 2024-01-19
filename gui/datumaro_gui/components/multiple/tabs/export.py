@@ -7,6 +7,7 @@ import os.path as osp
 
 import streamlit as st
 from datumaro_gui.utils.dataset.data_loader import DataRepo, MultipleDatasetHelper
+from datumaro_gui.utils.dataset.state import get_download_folder_path
 from streamlit import session_state as state
 
 
@@ -49,9 +50,7 @@ def main():
     uploaded_file_1 = state["uploaded_file_1"]
     uploaded_file_2 = state["uploaded_file_2"]
     dataset_names = [uploaded_file_1, uploaded_file_2, "Merged Dataset"]
-    selected_dataset = st.selectbox(
-        "Select dataset to export : ", dataset_names, index=2, key="sb_export_ds_mult"
-    )
+    selected_dataset = st.selectbox("Select dataset to export : ", dataset_names, index=2)
     dataset_dict = {uploaded_file_1: data_helper_1, uploaded_file_2: data_helper_2}
 
     if selected_dataset == "Merged Dataset" and "data_helper_merged" not in state:
@@ -69,8 +68,7 @@ def main():
         if selected_task and selected_format:
             selected_path = st.text_input(
                 "Select a path to export:",
-                value=osp.join(osp.expanduser("~"), "Downloads", "dataset.zip"),
-                key="ti_path_export_mult",
+                value=osp.join(get_download_folder_path(), "dataset.zip"),
             )
 
         export_btn = st.button("Export", "btn_export_mult")
