@@ -27,7 +27,7 @@ def main():
     st.markdown(custom_css, unsafe_allow_html=True)
 
     if "multiple_filename" not in state:
-        # Do not add `single_filename` to `single_state_keys`
+        # Do not add `multiple_filename` to `multiple_filename`
         # This key is for avoiding re-importing
         state["multiple_filename"] = None
         reset_state(multiple_state_keys, state)
@@ -37,58 +37,64 @@ def main():
         value=get_download_folder_path(),
         key="multiple_input_path",
     )
-    filenames = multiple_file_selector(input_path)
+    filename = multiple_file_selector(input_path)
 
     print(f'state["multiple_filename"] = {state["multiple_filename"]}')
-    if filenames is not None and len(filenames) > 1:
-        # change dataset
-        if len(filenames) > 2:
+    if filename != state["multiple_filename"] and filename is not None:
+        if len(filename) > 2:
             st.error("You could not upload more than 2 datasets in once", icon="🚨")
-        state["multiple_filename"] = filenames
+
+        # change dataset
+        state["multiple_filename"] = filename
         print(f'state["multiple_filename"] changed to {state["multiple_filename"]}')
         reset_state(multiple_state_keys, state)
-        dataset_1_dir, dataset_2_dir = filenames[0], filenames[1]
 
-        if dataset_1_dir.endswith(".zip"):
-            data_repo = DataRepo()
-            dataset_1_dir = data_repo.unzip_dataset(dataset_1_dir)
-        if dataset_2_dir.endswith(".zip"):
-            data_repo = DataRepo()
-            dataset_2_dir = data_repo.unzip_dataset(dataset_2_dir)
+        filename_1, filename_2 = filename
+        if filename_1 is not None:
+            if filename_1.endswith(".zip"):
+                data_repo = DataRepo()
+                filename_1 = data_repo.unzip_dataset(filename_1)
+                print(filename_1)
 
-        data_helper_1 = MultipleDatasetHelper(dataset_1_dir)
-        state["data_helper_1"] = data_helper_1
-        uploaded_file = os.path.basename(dataset_1_dir)
-        state["uploaded_file_1"] = uploaded_file
+            data_helper = MultipleDatasetHelper(filename_1)
+            state["data_helper_1"] = data_helper
+            uploaded_file = os.path.basename(filename_1)
+            state["uploaded_file_1"] = uploaded_file
+        elif state["data_helper_1"] is not None:
+            state["data_helper_1"] = None
 
-        data_helper_2 = MultipleDatasetHelper(dataset_2_dir)
-        state["data_helper_2"] = data_helper_2
-        uploaded_file = os.path.basename(dataset_2_dir)
-        state["uploaded_file_2"] = uploaded_file
+        if filename_2 is not None:
+            if filename_2.endswith(".zip"):
+                data_repo = DataRepo()
+                filename_2 = data_repo.unzip_dataset(filename_2)
+                print(filename_2)
 
-    elif state["data_helper_1"] is not None and state["data_helper_2"] is not None:
-        state["data_helper_1"] = None
-        state["data_helper_2"] = None
+            data_helper = MultipleDatasetHelper(filename_2)
+            state["data_helper_2"] = data_helper
+            uploaded_file = os.path.basename(filename_2)
+            state["uploaded_file_2"] = uploaded_file
+        elif state["data_helper_2"] is not None:
+            state["data_helper_2"] = None
 
     data_helper_1 = state["data_helper_1"]
     data_helper_2 = state["data_helper_2"]
     if data_helper_1 is not None and data_helper_2 is not None:
-        format = data_helper_1.format()
-        if format == "":
-            selected_format = format_selector(data_helper=data_helper_1)
-            if selected_format != "-":
-                data_helper_1.import_dataset(selected_format)
-
-        format = data_helper_2.format()
-        if format == "":
-            selected_format = format_selector(data_helper=data_helper_2)
-            if selected_format != "-":
-                data_helper_2.import_dataset(selected_format)
-        dataset1 = data_helper_1.dataset()
-        dataset2 = data_helper_2.dataset()
+        format_1 = data_helper_1.format()
+        format_2 = data_helper_2.format()
+        if format_1 == "":
+            selected_format_1 = format_selector(data_helper=data_helper_1)
+            if selected_format_1 != "-":
+                data_helper_1.import_dataset(selected_format_1)
+        if format_2 == "":
+            selected_format_2 = format_selector(data_helper=data_helper_2)
+            if selected_format_2 != "-":
+                data_helper_2.import_dataset(selected_format_2)
+        dataset_1 = data_helper_1.dataset()
+        dataset_2 = data_helper_2.dataset()
 
         st.title("")
-        if dataset1 is not None and dataset2 is not None:
+
+        if dataset_1 is not None and dataset_2 is not None:
             selected_tab = sac.tabs(
                 [
                     sac.TabsItem(label="GENERAL", icon="incognito"),

@@ -142,7 +142,17 @@ def load_image(path: str, dtype: DTypeLike = np.uint8, crypter: Crypter = NULL_C
         _IMAGE_BACKEND.set(_IMAGE_BACKENDS.PIL)
         _image_loading_errors = (*_image_loading_errors, PIL.UnidentifiedImageError)
 
-    if IMAGE_BACKEND.get() == ImageBackend.cv2:
+    _image_loading_errors = (FileNotFoundError,)
+    try:
+        importlib.import_module("cv2")
+        _IMAGE_BACKEND.set(_IMAGE_BACKENDS.cv2)
+    except ModuleNotFoundError:
+        import PIL
+
+        _IMAGE_BACKEND.set(_IMAGE_BACKENDS.PIL)
+        _image_loading_errors = (*_image_loading_errors, PIL.UnidentifiedImageError)
+
+    if _IMAGE_BACKEND.get() == _IMAGE_BACKENDS.cv2:
         # cv2.imread does not support paths that are not representable
         # in the locale encoding on Windows, so we read the image bytes
         # ourselves.

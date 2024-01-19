@@ -23,37 +23,37 @@ def main():
     uploaded_file_1 = state["uploaded_file_1"]
     uploaded_file_2 = state["uploaded_file_2"]
 
-    container = st.container()
-    c1, c2 = container.columns(2)
-    st.markdown("<style>{}</style>".format(box_style), unsafe_allow_html=True)
-
-    with c1:
-        container1 = c1.container()
-        container1.subheader("First Dataset Description")
-        col1, col2 = container1.columns(2)
-        col1.markdown(
-            f"<div class='highlight blue box'>Path <span class='bold'>{uploaded_file_1}</span></div>",
-            unsafe_allow_html=True,
-        )
-        col2.markdown(
-            f"<div class='highlight red box'>Format <span class='bold'>{dataset_1.format}</span></div>",
-            unsafe_allow_html=True,
-        )
-
-    with c2:
-        container2 = c2.container()
-        container2.subheader("Second Dataset Description")
-        col1, col2 = container2.columns(2)
-        col1.markdown(
-            f"<div class='highlight blue box'>Path <span class='bold'>{uploaded_file_2}</span></div>",
-            unsafe_allow_html=True,
-        )
-        col2.markdown(
-            f"<div class='highlight red box'>Format <span class='bold'>{dataset_2.format}</span></div>",
-            unsafe_allow_html=True,
-        )
-
     with elements("general"):
+        container = st.container()
+        c1, c2 = container.columns(2)
+        st.markdown("<style>{}</style>".format(box_style), unsafe_allow_html=True)
+
+        with c1:
+            container1 = c1.container()
+            container1.subheader("First Dataset Description")
+            col1, col2 = container1.columns(2)
+            col1.markdown(
+                f"<div class='highlight blue box'>Path <span class='bold'>{uploaded_file_1}</span></div>",
+                unsafe_allow_html=True,
+            )
+            col2.markdown(
+                f"<div class='highlight red box'>Format <span class='bold'>{dataset_1.format}</span></div>",
+                unsafe_allow_html=True,
+            )
+
+        with c2:
+            container2 = c2.container()
+            container2.subheader("Second Dataset Description")
+            col1, col2 = container2.columns(2)
+            col1.markdown(
+                f"<div class='highlight blue box'>Path <span class='bold'>{uploaded_file_2}</span></div>",
+                unsafe_allow_html=True,
+            )
+            col2.markdown(
+                f"<div class='highlight red box'>Format <span class='bold'>{dataset_2.format}</span></div>",
+                unsafe_allow_html=True,
+            )
+
         subset_info_dict_1 = get_subset_info(dataset_1)
         categories_1 = dataset_1.categories()[AnnotationType.label]
         cat_info_dict_1 = get_category_info(dataset_1, categories_1)
