@@ -231,6 +231,12 @@ class TransformSubsetRename(MultipleTransformBase):
         return "This helps to rename subset in dataset"
 
     @staticmethod
+    def display_subsets(data_helper):
+        subsets = [data_helper.dataset().subsets().keys()]
+        df = pd.DataFrame(subsets)
+        st.dataframe(df, use_container_width=True, hide_index=True, height=400)
+
+    @staticmethod
     def _remap_subset(data_helper, target_subset, target_name):
         mapping = {target_subset: target_name}
         result = data_helper.transform("map_subsets", mapping=mapping)
