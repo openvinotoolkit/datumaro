@@ -9,7 +9,7 @@ import pytest
 
 from datumaro.components.crypter import NULL_CRYPTER, Crypter
 from datumaro.components.media import Image
-from datumaro.util.image import _IMAGE_BACKEND, _IMAGE_BACKENDS
+from datumaro.util.image import IMAGE_BACKEND, ImageBackend
 
 
 @pytest.fixture(scope="class")
@@ -36,12 +36,12 @@ def fxt_encrypted_image_file(test_dir, fxt_image_file, fxt_crypter):
 
 
 class CrypterTest:
-    @pytest.fixture(scope="class", params=[_IMAGE_BACKENDS.cv2, _IMAGE_BACKENDS.PIL], autouse=True)
+    @pytest.fixture(scope="class", params=[ImageBackend.cv2, ImageBackend.PIL], autouse=True)
     def fxt_image_backend(self, request):
-        curr_backend = _IMAGE_BACKEND.get()
-        _IMAGE_BACKEND.set(request.param)
+        curr_backend = IMAGE_BACKEND.get()
+        IMAGE_BACKEND.set(request.param)
         yield
-        _IMAGE_BACKEND.set(curr_backend)
+        IMAGE_BACKEND.set(curr_backend)
 
     def test_load_encrypted_image(self, fxt_image_file, fxt_encrypted_image_file, fxt_crypter):
         img = Image.from_file(path=fxt_image_file)
