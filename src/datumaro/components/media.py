@@ -971,8 +971,6 @@ class RoIImage(Image):
 
     def _get_roi_data(self, data: np.ndarray) -> np.ndarray:
         x, y, w, h = self._roi
-        if isinstance(data, np.ndarray):
-            data = data.astype(np.float32)
         return data[y : y + h, x : x + w]
 
     def save(
@@ -1007,7 +1005,7 @@ class RoIImageFromFile(FromFileMixin, RoIImage):
 
     @property
     def data(self) -> Optional[np.ndarray]:
-        """Image data in BGRA HWC [0; 255] (float) format"""
+        """Image data in BGRA HWC [0; 255] (uint8) format"""
         if not self.has_data:
             return None
         data = self.__data()
@@ -1030,7 +1028,7 @@ class RoIImageFromBytes(RoIImageFromData):
 
     @property
     def data(self) -> Optional[np.ndarray]:
-        """Image data in BGRA HWC [0; 255] (float) format"""
+        """Image data in BGRA HWC [0; 255] (uint8) format"""
         data = super().data
         if data is None:
             return None
@@ -1051,7 +1049,7 @@ class RoIImageFromNumpy(RoIImageFromData):
 
     @property
     def data(self) -> Optional[np.ndarray]:
-        """Image data in BGRA HWC [0; 255] (float) format"""
+        """Image data in BGRA HWC [0; 255] (uint8) format"""
         data = super().data
         if data is None:
             return None
@@ -1116,7 +1114,7 @@ class MosaicImageFromImageRoIPairs(MosaicImageFromData):
     def __init__(self, data: List[ImageWithRoI], size: Tuple[int, int]) -> None:
         def _get_mosaic_img() -> np.ndarray:
             h, w = self.size
-            mosaic_img = np.zeros(shape=(h, w, 3), dtype=np.float32)
+            mosaic_img = np.zeros(shape=(h, w, 3), dtype=np.uint8)
             for img, roi in data:
                 assert isinstance(img, Image), "MosaicImage can only take a list of Images."
                 x, y, w, h = roi
