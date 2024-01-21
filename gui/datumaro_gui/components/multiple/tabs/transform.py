@@ -52,7 +52,8 @@ class TransformLabelRemap(MultipleTransformBase):
         mapping_dict.update({label: "background" for label in labels_set - set(mapping_dict)})
 
         default = "delete" if delete_unselected else "keep"
-        data_helper.transform("remap_labels", mapping=mapping_dict, default=default)
+        result = data_helper.transform("remap_labels", mapping=mapping_dict, default=default)
+        data_helper.update_dataset(result)
         st.toast("Remap Success!", icon="🎉")
 
     def gui(self, data_helper: MultipleDatasetHelper, col):
@@ -98,7 +99,8 @@ class TransformAggregation(MultipleTransformBase):
 
     @staticmethod
     def _do_aggregation(data_helper, selected_subsets, dst_subset_name):
-        data_helper.aggregate(from_subsets=selected_subsets, to_subset=dst_subset_name)
+        result = data_helper.aggregate(from_subsets=selected_subsets, to_subset=dst_subset_name)
+        data_helper.update_dataset(result)
         st.toast("Aggregation Success!", icon="🎉")
 
     def gui(self, data_helper: MultipleDatasetHelper, col):
@@ -155,7 +157,8 @@ class TransformSplit(MultipleTransformBase):
         ratios = [split.ratio for split in subset_state]
         total = sum(ratios)
         if total == 1:
-            data_helper.transform("random_split", splits=subset_state)
+            result = data_helper.transform("random_split", splits=subset_state)
+            data_helper.update_dataset(result)
             st.toast("Split Success!", icon="🎉")
         else:
             st.toast("Sum of ratios is expected to be 1!", icon="🚨")
@@ -236,7 +239,8 @@ class TransformSubsetRename(MultipleTransformBase):
     @staticmethod
     def _remap_subset(data_helper, target_subset, target_name):
         mapping = {target_subset: target_name}
-        data_helper.transform("map_subsets", mapping=mapping)
+        result = data_helper.transform("map_subsets", mapping=mapping)
+        data_helper.update_dataset(result)
         st.toast("Rename Subset Success!", icon="🎉")
 
         subsets = [data_helper.dataset().subsets().keys()]
@@ -278,12 +282,14 @@ class TransformReindexing(MultipleTransformBase):
 
     @staticmethod
     def _reindex_with_index(data_helper, start_index):
-        data_helper.transform("reindex", start=start_index)
+        result = data_helper.transform("reindex", start=start_index)
+        data_helper.update_dataset(result)
         st.toast("Reindex Success!", icon="🎉")
 
     @staticmethod
     def _reindex_with_image(data_helper):
-        data_helper.transform("id_from_image_name")
+        result = data_helper.transform("id_from_image_name")
+        data_helper.update_dataset(result)
         st.toast("Reindex Success!", icon="🎉")
 
     def _display_unique_ids(self, data_helper):
@@ -346,7 +352,8 @@ class TransformFiltration(MultipleTransformBase):
         filter_args = filter_args_dict.get(selected_mode, None)
 
         try:
-            data_helper.filter(filter_expr, filter_args)
+            result = data_helper.filter(filter_expr, filter_args)
+            data_helper.update_dataset(result)
             st.toast("Filter Success!", icon="🎉")
         except Exception as e:
             st.toast(f"Error: {repr(e)}", icon="🚨")
@@ -419,11 +426,12 @@ class TransformRemove(MultipleTransformBase):
         return "This helps to remove some items or annotations within a dataset."
 
     @staticmethod
-    def _remove_item(self, data_helper, selected_id, selected_subset):
-        data_helper.transform(
+    def _remove_item(data_helper, selected_id, selected_subset):
+        result = data_helper.transform(
             "remove_items",
             ids=[(selected_id, selected_subset)],
         )
+        data_helper.update_dataset(result)
         st.toast("Remove Success!", icon="🎉")
 
     @staticmethod
@@ -432,26 +440,27 @@ class TransformRemove(MultipleTransformBase):
         if selected_ann_id != "All":
             ids.append((selected_ann_id,))
 
-        data_helper.transform(
+        result = data_helper.transform(
             "remove_annotations",
             ids=ids,
         )
+        data_helper.update_dataset(result)
         st.toast("Success!", icon="🎉")
 
     def gui(self, data_helper: MultipleDatasetHelper, col):
         keys = data_helper.subset_to_ids()
         c1, c2, c3 = st.columns(3)
         selected_subset = c1.selectbox(
-            "Select a subset", options=sorted(keys.keys()), key=f"selected_subset_{col}"
+            "Select a subset", options=sorted(keys.keys()), key=f"rm_selected_subset_{col}"
         )
         selected_id = c2.selectbox(
-            "Select an item", options=keys[selected_subset], key=f"selected_id_{col}"
+            "Select an item", options=keys[selected_subset], key=f"rm_selected_id_{col}"
         )
         dataset = data_helper.dataset()
         selected_item = dataset.get(selected_id, selected_subset)
         ann_ids = ["All"] + sorted({ann.id for ann in selected_item.annotations})
         selected_ann_id = c3.selectbox(
-            "Select an annotation:", ann_ids, key=f"selected_ann_id_{col}"
+            "Select an annotation:", ann_ids, key=f"rm_selected_ann_id_{col}"
         )
 
         bc1, bc2 = st.columns(2)
@@ -586,14 +595,13 @@ class TransformAutoCorrection(MultipleTransformBase):
         try:
             reports_src = data_helper.validate(selected_task)
             result = data_helper.transform("correct", reports=reports_src)
+            data_helper.update_dataset(result)
             reports_dst = data_helper.validate(selected_task)
             correct_reports = {"src": reports_src, "dst": reports_dst}
             state[f"correct_reports_{col[-1]}"] = correct_reports
             st.toast("Correction Success!", icon="🎉")
-            return result
         except Exception as e:
             st.toast(f"Error: {repr(e)}", icon="🚨")
-            return None
 
     def gui(self, data_helper: MultipleDatasetHelper, col):
         tasks = ["Classification", "Detection", "Segmentation"]

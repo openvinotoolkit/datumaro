@@ -95,7 +95,7 @@ def main():
                 "datasets.\n\nBy the way, the low-level analysis takes a bit of time to compute. Please bear with us "
                 "for a moment; your patience is much appreciated!",
             )
-            on = st.toggle("Show low-level table")
+            on = st.toggle("Show low-level table", key="low_lvl_tb_toggle")
             if on:
                 if low_level_df is None:
                     _, _, low_level_table, _ = comparator.compare_datasets(
@@ -189,7 +189,7 @@ def main():
 
                 # Convert the mappings dictionary to a DataFrame
                 selected_df = pd.DataFrame(
-                    mappings.items(), columns=[uploaded_file_1, uploaded_file_1]
+                    mappings.items(), columns=[uploaded_file_1, uploaded_file_2]
                 )
 
                 gb = GridOptionsBuilder.from_dataframe(selected_df)
