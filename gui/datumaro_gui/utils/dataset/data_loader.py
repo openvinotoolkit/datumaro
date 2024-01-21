@@ -188,7 +188,7 @@ class DatasetHelper:
             for item in self._dm_dataset:
                 keys[item.subset].append(item.id)
             self._subset_to_ids = keys
-        if self._subset_to_ids.keys() != self._dm_dataset.subsets().keys():
+        if self._dm_dataset and self._subset_to_ids.keys() != self._dm_dataset.subsets().keys():
             keys = defaultdict(list)
             for item in self._dm_dataset:
                 keys[item.subset].append(item.id)
