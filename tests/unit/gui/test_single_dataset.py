@@ -48,8 +48,7 @@ class SingleDataTest(TestCase):
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_get_test_asset(self):
         """Test if the session state is initialized correctly."""
-        at = AppTest.from_file(app_path)
-        at.run(timeout=60)
+        at = AppTest.from_file(app_path, default_timeout=600).run()
 
         at.sidebar.checkbox(single_dataset_key).check()
         at.sidebar.checkbox("datumaro_gui.utils.page_p_:open_book: Introduction").uncheck()

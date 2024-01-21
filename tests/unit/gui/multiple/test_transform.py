@@ -30,11 +30,7 @@ def run_transform():
 
     from gui.datumaro_gui.components.multiple import tabs
     from gui.datumaro_gui.utils.dataset.data_loader import MultipleDatasetHelper
-    from gui.datumaro_gui.utils.dataset.state import (
-        import_dataset,
-        multiple_state_keys,
-        reset_state,
-    )
+    from gui.datumaro_gui.utils.dataset.state import multiple_state_keys, reset_state
 
     from tests.utils.assets import get_test_asset_path
 
@@ -43,15 +39,20 @@ def run_transform():
     dataset_1_dir = get_test_asset_path("datumaro_dataset")
     data_helper_1 = MultipleDatasetHelper(dataset_1_dir)
     state["data_helper_1"] = data_helper_1
-    state["uploaded_file_1"] = os.path.basename(dataset_1_dir)
+    uploaded_file = os.path.basename(dataset_1_dir)
+    state["uploaded_file_1"] = uploaded_file
 
     dataset_2_dir = get_test_asset_path("voc_dataset", "voc_dataset1")
     data_helper_2 = MultipleDatasetHelper(dataset_2_dir)
     state["data_helper_2"] = data_helper_2
-    state["uploaded_file_2"] = os.path.basename(dataset_2_dir)
+    uploaded_file = os.path.basename(dataset_2_dir)
+    state["uploaded_file_2"] = uploaded_file
 
-    import_dataset(data_helper_1, "Dataset 1")
-    import_dataset(data_helper_2, "Dataset 2")
+    data_helper_1 = state["data_helper_1"]
+    data_helper_2 = state["data_helper_2"]
+
+    data_helper_1.import_dataset("datumaro")
+    data_helper_2.import_dataset("voc")
 
     tabs.call_transform()
 
@@ -67,11 +68,7 @@ def run_transform_remapped():
     from gui.datumaro_gui.components.multiple import tabs
     from gui.datumaro_gui.utils.dataset.data_loader import MultipleDatasetHelper
     from gui.datumaro_gui.utils.dataset.info import return_matches
-    from gui.datumaro_gui.utils.dataset.state import (
-        import_dataset,
-        multiple_state_keys,
-        reset_state,
-    )
+    from gui.datumaro_gui.utils.dataset.state import multiple_state_keys, reset_state
 
     from tests.utils.assets import get_test_asset_path
 
@@ -80,15 +77,20 @@ def run_transform_remapped():
     dataset_1_dir = get_test_asset_path("datumaro_dataset")
     data_helper_1 = MultipleDatasetHelper(dataset_1_dir)
     state["data_helper_1"] = data_helper_1
-    state["uploaded_file_1"] = os.path.basename(dataset_1_dir)
+    uploaded_file = os.path.basename(dataset_1_dir)
+    state["uploaded_file_1"] = uploaded_file
 
     dataset_2_dir = get_test_asset_path("voc_dataset", "voc_dataset1")
     data_helper_2 = MultipleDatasetHelper(dataset_2_dir)
     state["data_helper_2"] = data_helper_2
-    state["uploaded_file_2"] = os.path.basename(dataset_2_dir)
+    uploaded_file = os.path.basename(dataset_2_dir)
+    state["uploaded_file_2"] = uploaded_file
 
-    import_dataset(data_helper_1, "Dataset 1")
-    import_dataset(data_helper_2, "Dataset 2")
+    data_helper_1 = state["data_helper_1"]
+    data_helper_2 = state["data_helper_2"]
+
+    data_helper_1.import_dataset("datumaro")
+    data_helper_2.import_dataset("voc")
 
     categories_1 = state.data_helper_1._dm_dataset.categories()[
         AnnotationType.label

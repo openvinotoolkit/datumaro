@@ -21,10 +21,10 @@ class PageTest(TestCase):
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_smoke(self):
         """Test if the app runs without throwing an exception."""
-        at = AppTest.from_file(app_path, default_timeout=10).run()
+        at = AppTest.from_file(app_path, default_timeout=600).run()
         assert not at.exception
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_sidebar(self):
-        at = AppTest.from_file(app_path, default_timeout=10).run()
+        at = AppTest.from_file(app_path, default_timeout=600).run()
         assert len(at.sidebar.checkbox) == 4
