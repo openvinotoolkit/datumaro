@@ -106,7 +106,7 @@ class DatasetItemStorage:
         copied._order = copy(self._order)
         copied.data = copy(self.data)
         return copied
-    
+
     def __getitem__(self, idx: int) -> DatasetItem:
         _id, subset = self._order[idx]
         item = self.data[subset][_id]

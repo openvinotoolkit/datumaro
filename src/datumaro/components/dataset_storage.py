@@ -560,7 +560,7 @@ class DatasetStorage(IDataset):
     def __getitem__(self, idx: int) -> DatasetItem:
         try:
             return self._storage[idx]
-        except IndexError: # Data storage should be initialized
+        except IndexError:  # Data storage should be initialized
             self.init_cache()
             return self._storage[idx]
 
