@@ -40,6 +40,16 @@ class ImageOperationsTest(TestCase):
                 image_module.IMAGE_BACKEND.set(load_backend)
                 dst_image = image_module.load_image(path)
 
+                # If image_module.IMAGE_COLOR_CHANNEL.get() == image_module.ImageColorChannel.UNCHANGED
+                # OpenCV will read an image as BGR(A), but PIL will read an image as RGB(A).
+                if (
+                    c == 3
+                    and load_backend == image_module.ImageBackend.PIL
+                    and image_module.IMAGE_COLOR_CHANNEL.get()
+                    == image_module.ImageColorChannel.UNCHANGED
+                ):
+                    dst_image = np.flip(dst_image, -1)
+
                 self.assertTrue(
                     np.array_equal(src_image, dst_image),
                     "save: %s, load: %s" % (save_backend, load_backend),
@@ -59,6 +69,16 @@ class ImageOperationsTest(TestCase):
 
             image_module.IMAGE_BACKEND.set(load_backend)
             dst_image = image_module.decode_image(buffer)
+
+            # If image_module.IMAGE_COLOR_CHANNEL.get() == image_module.ImageColorChannel.UNCHANGED
+            # OpenCV will read an image as BGR(A), but PIL will read an image as RGB(A).
+            if (
+                c == 3
+                and load_backend == image_module.ImageBackend.PIL
+                and image_module.IMAGE_COLOR_CHANNEL.get()
+                == image_module.ImageColorChannel.UNCHANGED
+            ):
+                dst_image = np.flip(dst_image, -1)
 
             self.assertTrue(
                 np.array_equal(src_image, dst_image),
