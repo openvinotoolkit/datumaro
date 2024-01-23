@@ -231,32 +231,24 @@ class TransformSubsetRename(MultipleTransformBase):
         return "This helps to rename subset in dataset"
 
     @staticmethod
-    def display_subsets(data_helper):
-        subsets = [data_helper.dataset().subsets().keys()]
-        df = pd.DataFrame(subsets)
-        st.dataframe(df, use_container_width=True, hide_index=True, height=400)
-
-    @staticmethod
     def _remap_subset(data_helper, target_subset, target_name):
         mapping = {target_subset: target_name}
         result = data_helper.transform("map_subsets", mapping=mapping)
         data_helper.update_dataset(result)
         st.toast("Rename Subset Success!", icon="🎉")
 
-        subsets = [data_helper.dataset().subsets().keys()]
-        df = pd.DataFrame(subsets)
-        st.dataframe(df, use_container_width=True, hide_index=True, height=400)
-
     def gui(self, data_helper: MultipleDatasetHelper, col):
-        subsets = list(data_helper.dataset().subsets().keys())
+        subsets = list(data_helper._dm_dataset.subsets().keys())
 
         c1, c2 = st.columns(2)
         with c1:
             target_subset = st.selectbox(
-                "Select a subset to rename", subsets, key=f"subset_rename_sb_{col}"
+                "Select a subset to rename",
+                subsets,
+                key=f"subset_rename_sb_{col}",
             )
         with c2:
-            target_name = st.text_input("New subset name", key=f"subset_rename_input_{col}")
+            target_name = st.text_input("New subset name", key=f"subset_rename_ti_{col}")
 
         st.button(
             "Do Subset Rename",
