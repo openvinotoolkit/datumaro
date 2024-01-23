@@ -71,19 +71,9 @@ class ImageColorChannel(Enum):
         img = cv2.imdecode(image_buffer, cv2.IMREAD_COLOR)
 
         if self == ImageColorChannel.COLOR_BGR:
-            if len(img.shape) == 2:
-                return cv2.cvtColor(img, cv2.COLOR_GRAY2BGR)
-            if img.shape[-1] == 4:
-                return cv2.cvtColor(img, cv2.COLOR_BGRA2BGR)
-
             return img
 
         if self == ImageColorChannel.COLOR_RGB:
-            if len(img.shape) == 2:
-                return cv2.cvtColor(img, cv2.COLOR_GRAY2RGB)
-            if img.shape[-1] == 4:
-                return cv2.cvtColor(img, cv2.COLOR_BGRA2RGB)
-
             return cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
 
         raise ValueError
