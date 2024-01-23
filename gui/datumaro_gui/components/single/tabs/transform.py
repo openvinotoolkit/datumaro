@@ -277,6 +277,56 @@ class TransformSplit(TransformBase):
                 st.toast("Sum of ratios is expected to be 1!", icon="🚨")
 
 
+class TransformSubsetRename(TransformBase):
+    @property
+    def name(self) -> str:
+        return "Subset Rename"
+
+    @property
+    def info(self) -> str:
+        return "This helps to rename subset in dataset"
+
+    @staticmethod
+    def _remap_subset(data_helper, target_subset, target_name):
+        mapping = {target_subset: target_name}
+        data_helper.transform("map_subsets", mapping=mapping)
+        st.toast("Rename Subset Success!", icon="🎉")
+
+    def gui(self, data_helper: SingleDatasetHelper):
+        print(f"{__class__} called")
+
+        subsets = list(data_helper.dataset().subsets().keys())
+        c1, c2, c3 = st.columns([0.3, 0.4, 0.3])
+        with c1:
+            subset_info = get_subset_info(data_helper.dataset())
+            with elements("single-transform-subset-rename"):
+                board = Dashboard()
+                w = SimpleNamespace(
+                    dashboard=board,
+                    subset_info=Pie(
+                        name="Subset info",
+                        **{"board": board, "x": 0, "y": 0, "w": 4, "h": 4, "minW": 3, "minH": 3},
+                    ),
+                )
+                with st.container():
+                    with w.dashboard(rowHeight=100):
+                        w.subset_info(subset_info)
+        with c2:
+            target_subset = st.selectbox(
+                "Select a subset to rename", subsets, key="subset_rename_sb"
+            )
+        with c3:
+            target_name = st.text_input("New subset name", key="subset_rename_ti")
+
+        c2.button(
+            "Do Subset Rename",
+            use_container_width=True,
+            on_click=self._remap_subset,
+            args=(data_helper, target_subset, target_name),
+            key="subset_rename_btn",
+        )
+
+
 class TransformReindexing(TransformBase):
     class UniqueID(NamedTuple):
         subset: str
@@ -626,7 +676,14 @@ def main():
     data_helper: SingleDatasetHelper = state["data_helper"]
     transform_categories = (
         TransformCategory("Category Management", (TransformLabelRemap,)),
-        TransformCategory("Subset Management", (TransformAggregation, TransformSplit)),
+        TransformCategory(
+            "Subset Management",
+            (
+                TransformAggregation,
+                TransformSplit,
+                TransformSubsetRename,
+            ),
+        ),
         TransformCategory(
             "Item Management",
             (TransformReindexing, TransformFiltration, TransformRemove, TransformAutoCorrection),
