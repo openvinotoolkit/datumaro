@@ -2357,9 +2357,11 @@
 </li>
       <li><a href="docs/reference/_autosummary/datumaro.plugins.data_formats.coco.extractor_merger.html#datumaro.plugins.data_formats.coco.extractor_merger.COCOTaskMergedBase">COCOTaskMergedBase (class in datumaro.plugins.data_formats.coco.extractor_merger)</a>
 </li>
-      <li><a href="docs/reference/_autosummary/datumaro.util.image.html#datumaro.util.image.ImageColorScale.COLOR">COLOR (datumaro.util.image.ImageColorScale attribute)</a>
+      <li><a href="docs/reference/_autosummary/datumaro.util.image.html#datumaro.util.image.ImageColorChannel.COLOR_BGR">COLOR_BGR (datumaro.util.image.ImageColorChannel attribute)</a>
 </li>
       <li><a href="docs/reference/_autosummary/datumaro.plugins.data_formats.cityscapes.html#datumaro.plugins.data_formats.cityscapes.CityscapesPath.COLOR_IMAGE">COLOR_IMAGE (datumaro.plugins.data_formats.cityscapes.CityscapesPath attribute)</a>
+</li>
+      <li><a href="docs/reference/_autosummary/datumaro.util.image.html#datumaro.util.image.ImageColorChannel.COLOR_RGB">COLOR_RGB (datumaro.util.image.ImageColorChannel attribute)</a>
 </li>
       <li><a href="docs/reference/_autosummary/datumaro.plugins.synthetic_data.utils.html#datumaro.plugins.synthetic_data.utils.colorize">colorize() (in module datumaro.plugins.synthetic_data.utils)</a>
 </li>
@@ -2505,11 +2507,7 @@
       </ul></li>
       <li><a href="docs/reference/_autosummary/datumaro.cli.commands.convert.html#datumaro.cli.commands.convert.convert_command">convert_command() (in module datumaro.cli.commands.convert)</a>
 </li>
-      <li><a href="docs/reference/_autosummary/datumaro.util.image.html#datumaro.util.image.ImageColorScale.convert_cv2">convert_cv2() (datumaro.util.image.ImageColorScale method)</a>
-</li>
       <li><a href="docs/reference/_autosummary/datumaro.plugins.transforms.html#datumaro.plugins.transforms.MasksToPolygons.convert_mask">convert_mask() (datumaro.plugins.transforms.MasksToPolygons static method)</a>
-</li>
-      <li><a href="docs/reference/_autosummary/datumaro.util.image.html#datumaro.util.image.ImageColorScale.convert_pil">convert_pil() (datumaro.util.image.ImageColorScale method)</a>
 </li>
       <li><a href="docs/reference/_autosummary/datumaro.plugins.transforms.html#datumaro.plugins.transforms.PolygonsToMasks.convert_polygon">convert_polygon() (datumaro.plugins.transforms.PolygonsToMasks static method)</a>
 </li>
@@ -2644,6 +2642,8 @@
       <li><a href="docs/reference/_autosummary/datumaro.util.scope.html#datumaro.util.scope.Scope.current">current() (datumaro.util.scope.Scope class method)</a>
 </li>
       <li><a href="docs/reference/_autosummary/datumaro.plugins.data_formats.datumaro.base.html#datumaro.plugins.data_formats.datumaro.base.DatumaroBase.CURRENT_DATUMARO_FORMAT_VERSION">CURRENT_DATUMARO_FORMAT_VERSION (datumaro.plugins.data_formats.datumaro.base.DatumaroBase attribute)</a>
+</li>
+      <li><a href="docs/reference/_autosummary/datumaro.util.image.html#datumaro.util.image.ImageBackend.cv2">cv2 (datumaro.util.image.ImageBackend attribute)</a>
 </li>
       <li><a href="docs/reference/_autosummary/datumaro.plugins.data_formats.cvat.base.html#datumaro.plugins.data_formats.cvat.base.CvatBase">CvatBase (class in datumaro.plugins.data_formats.cvat.base)</a>
 </li>
@@ -4204,8 +4204,6 @@
         <li><a href="docs/reference/_autosummary/datumaro.plugins.data_formats.mpii.mpii_mat.html#module-datumaro.plugins.data_formats.mpii.mpii_mat">module</a>
 </li>
       </ul></li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li>
     datumaro.plugins.data_formats.mvtec
 
@@ -4213,6 +4211,8 @@
         <li><a href="docs/reference/_autosummary/datumaro.plugins.data_formats.mvtec.html#module-datumaro.plugins.data_formats.mvtec">module</a>
 </li>
       </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li>
     datumaro.plugins.data_formats.mvtec.base
 
@@ -5011,6 +5011,10 @@
         <li><a href="docs/reference/_autosummary/datumaro.plugins.data_formats.arrow.mapper.media.html#datumaro.plugins.data_formats.arrow.mapper.media.ImageMapper.decode">(datumaro.plugins.data_formats.arrow.mapper.media.ImageMapper class method)</a>
 </li>
       </ul></li>
+      <li><a href="docs/reference/_autosummary/datumaro.util.image.html#datumaro.util.image.ImageColorChannel.decode_by_cv2">decode_by_cv2() (datumaro.util.image.ImageColorChannel method)</a>
+</li>
+      <li><a href="docs/reference/_autosummary/datumaro.util.image.html#datumaro.util.image.ImageColorChannel.decode_by_pil">decode_by_pil() (datumaro.util.image.ImageColorChannel method)</a>
+</li>
       <li><a href="docs/reference/_autosummary/datumaro.plugins.data_formats.arrow.mapper.html#datumaro.plugins.data_formats.arrow.mapper.decode_image">decode_image() (in module datumaro.plugins.data_formats.arrow.mapper)</a>
 
       <ul>
@@ -8105,9 +8109,11 @@
         <li><a href="docs/reference/_autosummary/datumaro.components.merge.intersect_merge.html#datumaro.components.merge.intersect_merge.ImageAnnotationMerger">(class in datumaro.components.merge.intersect_merge)</a>
 </li>
       </ul></li>
+      <li><a href="docs/reference/_autosummary/datumaro.util.image.html#datumaro.util.image.ImageBackend">ImageBackend (class in datumaro.util.image)</a>
+</li>
       <li><a href="docs/reference/_autosummary/datumaro.util.image_cache.html#datumaro.util.image_cache.ImageCache">ImageCache (class in datumaro.util.image_cache)</a>
 </li>
-      <li><a href="docs/reference/_autosummary/datumaro.util.image.html#datumaro.util.image.ImageColorScale">ImageColorScale (class in datumaro.util.image)</a>
+      <li><a href="docs/reference/_autosummary/datumaro.util.image.html#datumaro.util.image.ImageColorChannel">ImageColorChannel (class in datumaro.util.image)</a>
 </li>
       <li><a href="docs/reference/_autosummary/datumaro.plugins.data_formats.image_dir.html#datumaro.plugins.data_formats.image_dir.ImageDirBase">ImageDirBase (class in datumaro.plugins.data_formats.image_dir)</a>
 </li>
@@ -8399,6 +8405,8 @@
         <li><a href="docs/reference/_autosummary/datumaro.plugins.data_formats.datumaro.page_mapper.html#datumaro.plugins.data_formats.datumaro.page_mapper.DatumPageMapper.infos">(datumaro.plugins.data_formats.datumaro.page_mapper.DatumPageMapper property)</a>
 </li>
       </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="docs/reference/_autosummary/datumaro.components.abstracts.merger.html#datumaro.components.abstracts.merger.DatasetItemStorageDatasetView.infos">infos() (datumaro.components.abstracts.merger.DatasetItemStorageDatasetView method)</a>
 
       <ul>
@@ -8511,8 +8519,6 @@
         <li><a href="docs/reference/_autosummary/datumaro.rust_api.html#datumaro.rust_api.DatumPageMapper.infos">(datumaro.rust_api.DatumPageMapper method)</a>
 </li>
       </ul></li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="docs/reference/_autosummary/datumaro.components.project.html#datumaro.components.project.DvcWrapper.init">init() (datumaro.components.project.DvcWrapper method)</a>
 
       <ul>
@@ -11988,6 +11994,8 @@
 </li>
       <li><a href="docs/reference/_autosummary/datumaro.util.pickle_util.html#datumaro.util.pickle_util.PickleLoader">PickleLoader (class in datumaro.util.pickle_util)</a>
 </li>
+      <li><a href="docs/reference/_autosummary/datumaro.util.image.html#datumaro.util.image.ImageBackend.PIL">PIL (datumaro.util.image.ImageBackend attribute)</a>
+</li>
       <li><a href="docs/reference/_autosummary/datumaro.components.project.html#datumaro.components.project.Pipeline">Pipeline (class in datumaro.components.project)</a>
 </li>
       <li><a href="docs/reference/_autosummary/datumaro.components.config_model.html#datumaro.components.config_model.PipelineConfig">PipelineConfig (class in datumaro.components.config_model)</a>
@@ -14339,7 +14347,7 @@
 <h2 id="U">U</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="docs/reference/_autosummary/datumaro.util.image.html#datumaro.util.image.ImageColorScale.UNCHANGED">UNCHANGED (datumaro.util.image.ImageColorScale attribute)</a>
+      <li><a href="docs/reference/_autosummary/datumaro.util.image.html#datumaro.util.image.ImageColorChannel.UNCHANGED">UNCHANGED (datumaro.util.image.ImageColorChannel attribute)</a>
 </li>
       <li><a href="docs/reference/_autosummary/datumaro.components.errors.html#datumaro.components.errors.UndeclaredLabelError">UndeclaredLabelError</a>, <a href="docs/reference/_autosummary/datumaro.plugins.data_formats.yolo.base.html#datumaro.plugins.data_formats.yolo.base.UndeclaredLabelError">[1]</a>
 </li>

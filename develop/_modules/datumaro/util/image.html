@@ -277,12 +277,11 @@
             <article class="bd-article" role="main">
               
   <h1>Source code for datumaro.util.image</h1><div class="highlight"><pre>
-<span></span><span class="c1"># Copyright (C) 2019-2023 Intel Corporation</span>
+<span></span><span class="c1"># Copyright (C) 2019-2024 Intel Corporation</span>
 <span class="c1">#</span>
 <span class="c1"># SPDX-License-Identifier: MIT</span>
 <span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">annotations</span>
 
-<span class="kn">import</span> <span class="nn">importlib</span>
 <span class="kn">import</span> <span class="nn">os</span>
 <span class="kn">import</span> <span class="nn">os.path</span> <span class="k">as</span> <span class="nn">osp</span>
 <span class="kn">import</span> <span class="nn">shlex</span>
@@ -305,20 +304,21 @@
     <span class="n">DTypeLike</span> <span class="o">=</span> <span class="n">Any</span>
 
 
-<span class="k">class</span> <span class="nc">_IMAGE_BACKENDS</span><span class="p">(</span><span class="n">Enum</span><span class="p">):</span>
+<div class="viewcode-block" id="ImageBackend"><a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.util.image.html#datumaro.plugins.data_formats.arrow.mapper.ImageBackend">[docs]</a><span class="k">class</span> <span class="nc">ImageBackend</span><span class="p">(</span><span class="n">Enum</span><span class="p">):</span>
     <span class="n">cv2</span> <span class="o">=</span> <span class="n">auto</span><span class="p">()</span>
-    <span class="n">PIL</span> <span class="o">=</span> <span class="n">auto</span><span class="p">()</span>
+    <span class="n">PIL</span> <span class="o">=</span> <span class="n">auto</span><span class="p">()</span></div>
 
 
-<span class="n">_IMAGE_BACKEND</span><span class="p">:</span> <span class="n">ContextVar</span><span class="p">[</span><span class="n">_IMAGE_BACKENDS</span><span class="p">]</span> <span class="o">=</span> <span class="n">ContextVar</span><span class="p">(</span><span class="s2">&quot;_IMAGE_BACKENDS&quot;</span><span class="p">)</span>
+<span class="n">IMAGE_BACKEND</span><span class="p">:</span> <span class="n">ContextVar</span><span class="p">[</span><span class="n">ImageBackend</span><span class="p">]</span> <span class="o">=</span> <span class="n">ContextVar</span><span class="p">(</span><span class="s2">&quot;IMAGE_BACKEND&quot;</span><span class="p">)</span>
 <span class="n">_image_loading_errors</span> <span class="o">=</span> <span class="p">(</span><span class="ne">FileNotFoundError</span><span class="p">,)</span>
 <span class="k">try</span><span class="p">:</span>
-    <span class="n">importlib</span><span class="o">.</span><span class="n">import_module</span><span class="p">(</span><span class="s2">&quot;cv2&quot;</span><span class="p">)</span>
-    <span class="n">_IMAGE_BACKEND</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">_IMAGE_BACKENDS</span><span class="o">.</span><span class="n">cv2</span><span class="p">)</span>
+    <span class="kn">import</span> <span class="nn">cv2</span>
+
+    <span class="n">IMAGE_BACKEND</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">ImageBackend</span><span class="o">.</span><span class="n">cv2</span><span class="p">)</span>
 <span class="k">except</span> <span class="ne">ModuleNotFoundError</span><span class="p">:</span>
     <span class="kn">import</span> <span class="nn">PIL</span>
 
-    <span class="n">_IMAGE_BACKEND</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">_IMAGE_BACKENDS</span><span class="o">.</span><span class="n">PIL</span><span class="p">)</span>
+    <span class="n">IMAGE_BACKEND</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">ImageBackend</span><span class="o">.</span><span class="n">PIL</span><span class="p">)</span>
     <span class="n">_image_loading_errors</span> <span class="o">=</span> <span class="p">(</span><span class="o">*</span><span class="n">_image_loading_errors</span><span class="p">,</span> <span class="n">PIL</span><span class="o">.</span><span class="n">UnidentifiedImageError</span><span class="p">)</span>
 
 <span class="kn">from</span> <span class="nn">datumaro.util.image_cache</span> <span class="kn">import</span> <span class="n">ImageCache</span>
@@ -328,39 +328,61 @@
     <span class="kn">from</span> <span class="nn">PIL.Image</span> <span class="kn">import</span> <span class="n">Image</span> <span class="k">as</span> <span class="n">PILImage</span>
 
 
-<div class="viewcode-block" id="ImageColorScale"><a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.util.image.html#datumaro.plugins.data_formats.arrow.mapper.ImageColorScale">[docs]</a><span class="k">class</span> <span class="nc">ImageColorScale</span><span class="p">(</span><span class="n">Enum</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Image color scale</span>
+<div class="viewcode-block" id="ImageColorChannel"><a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.util.image.html#datumaro.plugins.data_formats.arrow.mapper.ImageColorChannel">[docs]</a><span class="k">class</span> <span class="nc">ImageColorChannel</span><span class="p">(</span><span class="n">Enum</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Image color channel</span>
 
-<span class="sd">    - UNCHANGED: Use the original image&#39;s scale (default)</span>
-<span class="sd">    - COLOR: Use 3 channels (it can ignore the alpha channel or convert the gray scale image to BGR)</span>
+<span class="sd">    - UNCHANGED: Use the original image&#39;s channel (default)</span>
+<span class="sd">    - COLOR_BGR: Use BGR 3 channels (it can ignore the alpha channel or convert the gray scale image)</span>
+<span class="sd">    - COLOR_RGB: Use RGB 3 channels (it can ignore the alpha channel or convert the gray scale image)</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="n">UNCHANGED</span> <span class="o">=</span> <span class="mi">0</span>
-    <span class="n">COLOR</span> <span class="o">=</span> <span class="mi">1</span>
+    <span class="n">COLOR_BGR</span> <span class="o">=</span> <span class="mi">1</span>
+    <span class="n">COLOR_RGB</span> <span class="o">=</span> <span class="mi">2</span>
 
-<div class="viewcode-block" id="ImageColorScale.convert_cv2"><a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.util.image.html#datumaro.plugins.data_formats.arrow.mapper.ImageColorScale.convert_cv2">[docs]</a>    <span class="k">def</span> <span class="nf">convert_cv2</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">img</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
-        <span class="kn">import</span> <span class="nn">cv2</span>
+<div class="viewcode-block" id="ImageColorChannel.decode_by_cv2"><a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.util.image.html#datumaro.plugins.data_formats.arrow.mapper.ImageColorChannel.decode_by_cv2">[docs]</a>    <span class="k">def</span> <span class="nf">decode_by_cv2</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">image_bytes</span><span class="p">:</span> <span class="nb">bytes</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Convert image color channel for OpenCV image (np.ndarray).&quot;&quot;&quot;</span>
+        <span class="n">image_buffer</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">frombuffer</span><span class="p">(</span><span class="n">image_bytes</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">uint8</span><span class="p">)</span>
 
-        <span class="k">if</span> <span class="bp">self</span> <span class="o">==</span> <span class="n">ImageColorScale</span><span class="o">.</span><span class="n">COLOR</span><span class="p">:</span>
-            <span class="k">return</span> <span class="n">cv2</span><span class="o">.</span><span class="n">imdecode</span><span class="p">(</span><span class="n">img</span><span class="p">,</span> <span class="n">cv2</span><span class="o">.</span><span class="n">IMREAD_COLOR</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span> <span class="o">==</span> <span class="n">ImageColorChannel</span><span class="o">.</span><span class="n">UNCHANGED</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">cv2</span><span class="o">.</span><span class="n">imdecode</span><span class="p">(</span><span class="n">image_buffer</span><span class="p">,</span> <span class="n">cv2</span><span class="o">.</span><span class="n">IMREAD_UNCHANGED</span><span class="p">)</span>
 
-        <span class="k">return</span> <span class="n">cv2</span><span class="o">.</span><span class="n">imdecode</span><span class="p">(</span><span class="n">img</span><span class="p">,</span> <span class="n">cv2</span><span class="o">.</span><span class="n">IMREAD_UNCHANGED</span><span class="p">)</span></div>
+        <span class="n">img</span> <span class="o">=</span> <span class="n">cv2</span><span class="o">.</span><span class="n">imdecode</span><span class="p">(</span><span class="n">image_buffer</span><span class="p">,</span> <span class="n">cv2</span><span class="o">.</span><span class="n">IMREAD_COLOR</span><span class="p">)</span>
 
-<div class="viewcode-block" id="ImageColorScale.convert_pil"><a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.util.image.html#datumaro.plugins.data_formats.arrow.mapper.ImageColorScale.convert_pil">[docs]</a>    <span class="k">def</span> <span class="nf">convert_pil</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">img</span><span class="p">:</span> <span class="n">PILImage</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">PILImage</span><span class="p">:</span>
-        <span class="k">if</span> <span class="bp">self</span> <span class="o">==</span> <span class="n">ImageColorScale</span><span class="o">.</span><span class="n">COLOR</span><span class="p">:</span>
+        <span class="k">if</span> <span class="bp">self</span> <span class="o">==</span> <span class="n">ImageColorChannel</span><span class="o">.</span><span class="n">COLOR_BGR</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">img</span>
+
+        <span class="k">if</span> <span class="bp">self</span> <span class="o">==</span> <span class="n">ImageColorChannel</span><span class="o">.</span><span class="n">COLOR_RGB</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">cv2</span><span class="o">.</span><span class="n">cvtColor</span><span class="p">(</span><span class="n">img</span><span class="p">,</span> <span class="n">cv2</span><span class="o">.</span><span class="n">COLOR_BGR2RGB</span><span class="p">)</span>
+
+        <span class="k">raise</span> <span class="ne">ValueError</span></div>
+
+<div class="viewcode-block" id="ImageColorChannel.decode_by_pil"><a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.util.image.html#datumaro.plugins.data_formats.arrow.mapper.ImageColorChannel.decode_by_pil">[docs]</a>    <span class="k">def</span> <span class="nf">decode_by_pil</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">image_bytes</span><span class="p">:</span> <span class="nb">bytes</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">PILImage</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Convert image color channel for PIL Image.&quot;&quot;&quot;</span>
+        <span class="kn">from</span> <span class="nn">PIL</span> <span class="kn">import</span> <span class="n">Image</span>
+
+        <span class="n">img</span> <span class="o">=</span> <span class="n">Image</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="n">BytesIO</span><span class="p">(</span><span class="n">image_bytes</span><span class="p">))</span>
+
+        <span class="k">if</span> <span class="bp">self</span> <span class="o">==</span> <span class="n">ImageColorChannel</span><span class="o">.</span><span class="n">UNCHANGED</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">img</span>
+
+        <span class="k">if</span> <span class="bp">self</span> <span class="o">==</span> <span class="n">ImageColorChannel</span><span class="o">.</span><span class="n">COLOR_BGR</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">Image</span><span class="o">.</span><span class="n">fromarray</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">flip</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">img</span><span class="o">.</span><span class="n">convert</span><span class="p">(</span><span class="s2">&quot;RGB&quot;</span><span class="p">)),</span> <span class="o">-</span><span class="mi">1</span><span class="p">))</span>
+
+        <span class="k">if</span> <span class="bp">self</span> <span class="o">==</span> <span class="n">ImageColorChannel</span><span class="o">.</span><span class="n">COLOR_RGB</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">img</span><span class="o">.</span><span class="n">convert</span><span class="p">(</span><span class="s2">&quot;RGB&quot;</span><span class="p">)</span>
 
-        <span class="k">return</span> <span class="n">img</span></div></div>
+        <span class="k">raise</span> <span class="ne">ValueError</span></div></div>
 
 
-<span class="n">IMAGE_COLOR_SCALE</span><span class="p">:</span> <span class="n">ContextVar</span><span class="p">[</span><span class="n">ImageColorScale</span><span class="p">]</span> <span class="o">=</span> <span class="n">ContextVar</span><span class="p">(</span>
-    <span class="s2">&quot;IMAGE_COLOR_SCALE&quot;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="n">ImageColorScale</span><span class="o">.</span><span class="n">UNCHANGED</span>
+<span class="n">IMAGE_COLOR_CHANNEL</span><span class="p">:</span> <span class="n">ContextVar</span><span class="p">[</span><span class="n">ImageColorChannel</span><span class="p">]</span> <span class="o">=</span> <span class="n">ContextVar</span><span class="p">(</span>
+    <span class="s2">&quot;IMAGE_COLOR_CHANNEL&quot;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="n">ImageColorChannel</span><span class="o">.</span><span class="n">UNCHANGED</span>
 <span class="p">)</span>
 
 
 <div class="viewcode-block" id="decode_image_context"><a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.util.image.html#datumaro.plugins.data_formats.arrow.mapper.decode_image_context">[docs]</a><span class="nd">@contextmanager</span>
-<span class="k">def</span> <span class="nf">decode_image_context</span><span class="p">(</span><span class="n">color_scale</span><span class="p">:</span> <span class="n">ImageColorScale</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Change Datumaro image decoding color scale.</span>
+<span class="k">def</span> <span class="nf">decode_image_context</span><span class="p">(</span><span class="n">image_backend</span><span class="p">:</span> <span class="n">ImageBackend</span><span class="p">,</span> <span class="n">image_color_channel</span><span class="p">:</span> <span class="n">ImageColorChannel</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Change Datumaro image color channel while decoding.</span>
 
 <span class="sd">    For model training, it is recommended to use this context manager</span>
 <span class="sd">    to load images in the BGR 3-channel format. For example,</span>
@@ -368,15 +390,21 @@
 <span class="sd">    .. code-block:: python</span>
 
 <span class="sd">        import datumaro as dm</span>
-<span class="sd">        with decode_image_context(ImageColorScale.COLOR):</span>
+<span class="sd">        with decode_image_context(image_backend=ImageBackend.cv2, image_color_channel=ImageColorScale.COLOR):</span>
 <span class="sd">            item: dm.DatasetItem</span>
 <span class="sd">            img_data = item.media_as(dm.Image).data</span>
 <span class="sd">            assert img_data.shape[-1] == 3  # It should be a 3-channel image</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">curr_ctx</span> <span class="o">=</span> <span class="n">IMAGE_COLOR_SCALE</span><span class="o">.</span><span class="n">get</span><span class="p">()</span>
-    <span class="n">IMAGE_COLOR_SCALE</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">color_scale</span><span class="p">)</span>
+
+    <span class="n">curr_ctx</span> <span class="o">=</span> <span class="p">(</span><span class="n">IMAGE_BACKEND</span><span class="o">.</span><span class="n">get</span><span class="p">(),</span> <span class="n">IMAGE_COLOR_CHANNEL</span><span class="o">.</span><span class="n">get</span><span class="p">())</span>
+
+    <span class="n">IMAGE_BACKEND</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">image_backend</span><span class="p">)</span>
+    <span class="n">IMAGE_COLOR_CHANNEL</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">image_color_channel</span><span class="p">)</span>
+
     <span class="k">yield</span>
-    <span class="n">IMAGE_COLOR_SCALE</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">curr_ctx</span><span class="p">)</span></div>
+
+    <span class="n">IMAGE_BACKEND</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">curr_ctx</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+    <span class="n">IMAGE_COLOR_CHANNEL</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">curr_ctx</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span></div>
 
 
 <div class="viewcode-block" id="load_image"><a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.util.image.html#datumaro.plugins.data_formats.arrow.mapper.load_image">[docs]</a><span class="k">def</span> <span class="nf">load_image</span><span class="p">(</span><span class="n">path</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">dtype</span><span class="p">:</span> <span class="n">DTypeLike</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">uint8</span><span class="p">,</span> <span class="n">crypter</span><span class="p">:</span> <span class="n">Crypter</span> <span class="o">=</span> <span class="n">NULL_CRYPTER</span><span class="p">):</span>
@@ -384,7 +412,7 @@
 <span class="sd">    Reads an image in the HWC Grayscale/BGR(A) [0; 255] format (default dtype is uint8).</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="k">if</span> <span class="n">_IMAGE_BACKEND</span><span class="o">.</span><span class="n">get</span><span class="p">()</span> <span class="o">==</span> <span class="n">_IMAGE_BACKENDS</span><span class="o">.</span><span class="n">cv2</span><span class="p">:</span>
+    <span class="k">if</span> <span class="n">IMAGE_BACKEND</span><span class="o">.</span><span class="n">get</span><span class="p">()</span> <span class="o">==</span> <span class="n">ImageBackend</span><span class="o">.</span><span class="n">cv2</span><span class="p">:</span>
         <span class="c1"># cv2.imread does not support paths that are not representable</span>
         <span class="c1"># in the locale encoding on Windows, so we read the image bytes</span>
         <span class="c1"># ourselves.</span>
@@ -393,13 +421,13 @@
             <span class="n">image_bytes</span> <span class="o">=</span> <span class="n">crypter</span><span class="o">.</span><span class="n">decrypt</span><span class="p">(</span><span class="n">f</span><span class="o">.</span><span class="n">read</span><span class="p">())</span>
 
         <span class="k">return</span> <span class="n">decode_image</span><span class="p">(</span><span class="n">image_bytes</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">dtype</span><span class="p">)</span>
-    <span class="k">elif</span> <span class="n">_IMAGE_BACKEND</span><span class="o">.</span><span class="n">get</span><span class="p">()</span> <span class="o">==</span> <span class="n">_IMAGE_BACKENDS</span><span class="o">.</span><span class="n">PIL</span><span class="p">:</span>
+    <span class="k">elif</span> <span class="n">IMAGE_BACKEND</span><span class="o">.</span><span class="n">get</span><span class="p">()</span> <span class="o">==</span> <span class="n">ImageBackend</span><span class="o">.</span><span class="n">PIL</span><span class="p">:</span>
         <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="s2">&quot;rb&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
             <span class="n">image_bytes</span> <span class="o">=</span> <span class="n">crypter</span><span class="o">.</span><span class="n">decrypt</span><span class="p">(</span><span class="n">f</span><span class="o">.</span><span class="n">read</span><span class="p">())</span>
 
         <span class="k">return</span> <span class="n">decode_image</span><span class="p">(</span><span class="n">image_bytes</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">dtype</span><span class="p">)</span>
 
-    <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="n">_IMAGE_BACKEND</span><span class="p">)</span></div>
+    <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="n">IMAGE_BACKEND</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="copyto_image"><a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.util.image.html#datumaro.plugins.data_formats.arrow.mapper.copyto_image">[docs]</a><span class="k">def</span> <span class="nf">copyto_image</span><span class="p">(</span>
@@ -454,10 +482,10 @@
     <span class="c1"># NOTE: OpenCV documentation says &quot;If the image format is not supported,</span>
     <span class="c1"># the image will be converted to 8-bit unsigned and saved that way&quot;.</span>
     <span class="c1"># Conversion from np.int32 to np.uint8 is not working properly</span>
-    <span class="n">backend</span> <span class="o">=</span> <span class="n">_IMAGE_BACKEND</span><span class="o">.</span><span class="n">get</span><span class="p">()</span>
+    <span class="n">backend</span> <span class="o">=</span> <span class="n">IMAGE_BACKEND</span><span class="o">.</span><span class="n">get</span><span class="p">()</span>
     <span class="k">if</span> <span class="n">dtype</span> <span class="o">==</span> <span class="n">np</span><span class="o">.</span><span class="n">int32</span><span class="p">:</span>
-        <span class="n">backend</span> <span class="o">=</span> <span class="n">_IMAGE_BACKENDS</span><span class="o">.</span><span class="n">PIL</span>
-    <span class="k">if</span> <span class="n">backend</span> <span class="o">==</span> <span class="n">_IMAGE_BACKENDS</span><span class="o">.</span><span class="n">cv2</span><span class="p">:</span>
+        <span class="n">backend</span> <span class="o">=</span> <span class="n">ImageBackend</span><span class="o">.</span><span class="n">PIL</span>
+    <span class="k">if</span> <span class="n">backend</span> <span class="o">==</span> <span class="n">ImageBackend</span><span class="o">.</span><span class="n">cv2</span><span class="p">:</span>
         <span class="c1"># cv2.imwrite does not support paths that are not representable</span>
         <span class="c1"># in the locale encoding on Windows, so we write the image bytes</span>
         <span class="c1"># ourselves.</span>
@@ -469,7 +497,7 @@
                 <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">crypter</span><span class="o">.</span><span class="n">encrypt</span><span class="p">(</span><span class="n">image_bytes</span><span class="p">))</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">dst</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">crypter</span><span class="o">.</span><span class="n">encrypt</span><span class="p">(</span><span class="n">image_bytes</span><span class="p">))</span>
-    <span class="k">elif</span> <span class="n">backend</span> <span class="o">==</span> <span class="n">_IMAGE_BACKENDS</span><span class="o">.</span><span class="n">PIL</span><span class="p">:</span>
+    <span class="k">elif</span> <span class="n">backend</span> <span class="o">==</span> <span class="n">ImageBackend</span><span class="o">.</span><span class="n">PIL</span><span class="p">:</span>
         <span class="kn">from</span> <span class="nn">PIL</span> <span class="kn">import</span> <span class="n">Image</span>
 
         <span class="k">if</span> <span class="n">ext</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;.&quot;</span><span class="p">):</span>
@@ -496,7 +524,7 @@
     <span class="k">if</span> <span class="ow">not</span> <span class="n">kwargs</span><span class="p">:</span>
         <span class="n">kwargs</span> <span class="o">=</span> <span class="p">{}</span>
 
-    <span class="k">if</span> <span class="n">_IMAGE_BACKEND</span><span class="o">.</span><span class="n">get</span><span class="p">()</span> <span class="o">==</span> <span class="n">_IMAGE_BACKENDS</span><span class="o">.</span><span class="n">cv2</span><span class="p">:</span>
+    <span class="k">if</span> <span class="n">IMAGE_BACKEND</span><span class="o">.</span><span class="n">get</span><span class="p">()</span> <span class="o">==</span> <span class="n">ImageBackend</span><span class="o">.</span><span class="n">cv2</span><span class="p">:</span>
         <span class="kn">import</span> <span class="nn">cv2</span>
 
         <span class="n">params</span> <span class="o">=</span> <span class="p">[]</span>
@@ -512,7 +540,7 @@
         <span class="k">if</span> <span class="ow">not</span> <span class="n">success</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;Failed to encode image to &#39;</span><span class="si">%s</span><span class="s2">&#39; format&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">ext</span><span class="p">))</span>
         <span class="k">return</span> <span class="n">result</span><span class="o">.</span><span class="n">tobytes</span><span class="p">()</span>
-    <span class="k">elif</span> <span class="n">_IMAGE_BACKEND</span><span class="o">.</span><span class="n">get</span><span class="p">()</span> <span class="o">==</span> <span class="n">_IMAGE_BACKENDS</span><span class="o">.</span><span class="n">PIL</span><span class="p">:</span>
+    <span class="k">elif</span> <span class="n">IMAGE_BACKEND</span><span class="o">.</span><span class="n">get</span><span class="p">()</span> <span class="o">==</span> <span class="n">ImageBackend</span><span class="o">.</span><span class="n">PIL</span><span class="p">:</span>
         <span class="kn">from</span> <span class="nn">PIL</span> <span class="kn">import</span> <span class="n">Image</span>
 
         <span class="k">if</span> <span class="n">ext</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;.&quot;</span><span class="p">):</span>
@@ -535,21 +563,14 @@
 
 
 <div class="viewcode-block" id="decode_image"><a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.util.image.html#datumaro.plugins.data_formats.arrow.mapper.decode_image">[docs]</a><span class="k">def</span> <span class="nf">decode_image</span><span class="p">(</span><span class="n">image_bytes</span><span class="p">:</span> <span class="nb">bytes</span><span class="p">,</span> <span class="n">dtype</span><span class="p">:</span> <span class="n">DTypeLike</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">uint8</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
-    <span class="n">ctx_color_scale</span> <span class="o">=</span> <span class="n">IMAGE_COLOR_SCALE</span><span class="o">.</span><span class="n">get</span><span class="p">()</span>
+    <span class="n">ctx_color_scale</span> <span class="o">=</span> <span class="n">IMAGE_COLOR_CHANNEL</span><span class="o">.</span><span class="n">get</span><span class="p">()</span>
 
-    <span class="k">if</span> <span class="n">_IMAGE_BACKEND</span><span class="o">.</span><span class="n">get</span><span class="p">()</span> <span class="o">==</span> <span class="n">_IMAGE_BACKENDS</span><span class="o">.</span><span class="n">cv2</span><span class="p">:</span>
-        <span class="n">image</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">frombuffer</span><span class="p">(</span><span class="n">image_bytes</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">uint8</span><span class="p">)</span>
-        <span class="n">image</span> <span class="o">=</span> <span class="n">ctx_color_scale</span><span class="o">.</span><span class="n">convert_cv2</span><span class="p">(</span><span class="n">image</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">IMAGE_BACKEND</span><span class="o">.</span><span class="n">get</span><span class="p">()</span> <span class="o">==</span> <span class="n">ImageBackend</span><span class="o">.</span><span class="n">cv2</span><span class="p">:</span>
+        <span class="n">image</span> <span class="o">=</span> <span class="n">ctx_color_scale</span><span class="o">.</span><span class="n">decode_by_cv2</span><span class="p">(</span><span class="n">image_bytes</span><span class="p">)</span>
         <span class="n">image</span> <span class="o">=</span> <span class="n">image</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">dtype</span><span class="p">)</span>
-    <span class="k">elif</span> <span class="n">_IMAGE_BACKEND</span><span class="o">.</span><span class="n">get</span><span class="p">()</span> <span class="o">==</span> <span class="n">_IMAGE_BACKENDS</span><span class="o">.</span><span class="n">PIL</span><span class="p">:</span>
-        <span class="kn">from</span> <span class="nn">PIL</span> <span class="kn">import</span> <span class="n">Image</span>
-
-        <span class="n">image</span> <span class="o">=</span> <span class="n">Image</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="n">BytesIO</span><span class="p">(</span><span class="n">image_bytes</span><span class="p">))</span>
-        <span class="n">image</span> <span class="o">=</span> <span class="n">ctx_color_scale</span><span class="o">.</span><span class="n">convert_pil</span><span class="p">(</span><span class="n">image</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="n">IMAGE_BACKEND</span><span class="o">.</span><span class="n">get</span><span class="p">()</span> <span class="o">==</span> <span class="n">ImageBackend</span><span class="o">.</span><span class="n">PIL</span><span class="p">:</span>
+        <span class="n">image</span> <span class="o">=</span> <span class="n">ctx_color_scale</span><span class="o">.</span><span class="n">decode_by_pil</span><span class="p">(</span><span class="n">image_bytes</span><span class="p">)</span>
         <span class="n">image</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">image</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">dtype</span><span class="p">)</span>
-        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">image</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span> <span class="o">==</span> <span class="mi">3</span> <span class="ow">and</span> <span class="n">image</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="ow">in</span> <span class="p">{</span><span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">}:</span>
-            <span class="n">image</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">image</span><span class="p">)</span>  <span class="c1"># Release read-only</span>
-            <span class="n">image</span><span class="p">[:,</span> <span class="p">:,</span> <span class="p">:</span><span class="mi">3</span><span class="p">]</span> <span class="o">=</span> <span class="n">image</span><span class="p">[:,</span> <span class="p">:,</span> <span class="mi">2</span><span class="p">::</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>  <span class="c1"># RGB to BGR</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">()</span>
 

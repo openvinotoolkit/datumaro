@@ -38,7 +38,8 @@ datumaro.util.image
 
    .. autosummary::
    
-      ImageColorScale
+      ImageBackend
+      ImageColorChannel
       lazy_image
    
    
