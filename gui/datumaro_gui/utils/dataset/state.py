@@ -2,8 +2,8 @@
 #
 # SPDX-License-Identifier: MIT
 
-
 import os
+from datetime import datetime
 
 import streamlit as st
 from datumaro_gui.utils.dataset.data_loader import DatasetHelper
@@ -115,3 +115,10 @@ def import_dataset(data_helper, data_num: str = "Dataset"):
     selected_format = st.selectbox(f"Select a format to import {data_num}:", formats)
     if selected_format != "-" and selected_format != data_helper.format():
         data_helper.import_dataset(selected_format)
+
+
+def save_dataset(data_helper, filename):
+    save_path = os.path.join(
+        get_download_folder_path(), f"{filename}_{datetime.now().strftime('%Y%m%d_%H%M%S')}"
+    )
+    data_helper.export(save_path, format="datumaro", save_media=True)

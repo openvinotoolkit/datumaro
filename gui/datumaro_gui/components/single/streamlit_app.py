@@ -12,9 +12,10 @@ from datumaro_gui.utils.dataset.state import (
     format_selector,
     get_download_folder_path,
     reset_state,
+    save_dataset,
     single_state_keys,
 )
-from datumaro_gui.utils.drawing.css import custom_css
+from datumaro_gui.utils.drawing.css import box_style, custom_css
 from datumaro_gui.utils.readme import github_pypi_desc
 from streamlit import session_state as state
 
@@ -63,7 +64,7 @@ def main():
     if data_helper is not None:
         format = data_helper.format()
         if format == "":
-            selected_format = format_selector(data_helper=data_helper)
+            selected_format = format_selector(data_helper=data_helper, data_num=uploaded_file)
             if selected_format != "-":
                 data_helper.import_dataset(selected_format)
 
@@ -71,6 +72,25 @@ def main():
 
         st.title("")
         if dataset is not None:
+            st.markdown("<style>{}</style>".format(box_style), unsafe_allow_html=True)
+            current_dataset_name = state["uploaded_file"]
+            current_data_helper = state["data_helper"]
+            cont = st.container()
+            _, c2, c3, _ = cont.columns([1, 2, 1, 1])
+            with c2:
+                c2.markdown(
+                    f"<div class='smallbox'>Current Dataset <span class='bold'>{current_dataset_name}</span></div>",
+                    unsafe_allow_html=True,
+                )
+            with c3:
+                c3.button(
+                    "Save",
+                    on_click=save_dataset,
+                    args=(current_data_helper, current_dataset_name),
+                    key="bt_save_ds",
+                    use_container_width=True,
+                )
+
             selected_tab = sac.tabs(
                 [
                     sac.TabsItem(label="GENERAL", icon="incognito"),

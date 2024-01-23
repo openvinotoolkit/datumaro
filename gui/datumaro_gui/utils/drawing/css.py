@@ -52,6 +52,11 @@ box_style = """
     max-width: 1000px;
     margin: "5px 5px 5px 5px";
     }
+    .smallbox {
+    width: auto;
+    max-width: 1000px;
+    margin: "1px 1px 1px 1px";
+    }
     .stat_highlight {
     border-radius: 0.4rem;
     color: white;
