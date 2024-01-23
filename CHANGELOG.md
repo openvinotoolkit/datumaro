@@ -18,6 +18,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   (<https://github.com/openvinotoolkit/datumaro/pull/1174>)
 - Enhance Datumaro data format detect() to be memory-bounded and performant
   (<https://github.com/openvinotoolkit/datumaro/pull/1229>)
+- Remove Protobuf version limitation (<4)
+  (<https://github.com/openvinotoolkit/datumaro/pull/1248>)
 
 ### Bug fixes
 - Modify the draw function in the visualizer not to raise an error for unsupported annotation types.
