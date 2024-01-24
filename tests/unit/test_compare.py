@@ -387,11 +387,6 @@ class ExactComparatorTest(TestCase):
 
 
 class TableComparatorTest(unittest.TestCase):
-    @skipIf(
-        platform.system() == "Darwin",
-        "Segmentation fault only occurs on MacOS: "
-        "https://github.com/openvinotoolkit/datumaro/actions/runs/5086331272/jobs/9140703588",
-    )
     def test_compare_datasets(self):
         # Import datatset
         first_dataset = Dataset.import_from(get_test_asset_path("mnist_dataset"))
@@ -419,11 +414,6 @@ class TableComparatorTest(unittest.TestCase):
     @patch("datumaro.components.comparator.generate_next_file_name")
     @patch("builtins.open", new_callable=mock_open)
     @patch("datumaro.components.comparator.dump_json_file")
-    @skipIf(
-        platform.system() == "Darwin",
-        "Segmentation fault only occurs on MacOS: "
-        "https://github.com/openvinotoolkit/datumaro/actions/runs/5086331272/jobs/9140703588",
-    )
     def test_save_compare_report(
         self, mock_dump_json_file, mock_file, mock_generate_next_file_name, mock_makedirs
     ):
