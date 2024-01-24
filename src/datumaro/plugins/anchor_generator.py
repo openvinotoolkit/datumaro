@@ -1,8 +1,15 @@
-from typing import List, Tuple
+# Copyright (C) 2024 Intel Corporation
+#
+# SPDX-License-Identifier: MIT
+
+import logging as log
+from typing import List, Optional, Tuple
 
 import torch
 
 from datumaro.components.dataset import Dataset
+
+log.basicConfig(level=log.INFO)
 
 
 class BboxOverlaps2D:
@@ -77,33 +84,62 @@ class BboxOverlaps2D:
 
 
 class DataAwareAnchorGenerator:
-    def __init__(self, dataset: Dataset, img_size: Tuple[int, int], strides: List[int]):
+    def __init__(
+        self,
+        img_size: Tuple[int, int],
+        strides: List[int],
+        scales: List[List[float]],
+        ratios: List[List[float]],
+        pos_thr: float,
+        neg_thr: float,
+        device: Optional[str] = "cpu",
+    ):
+        """Data-aware anchor generator for optimizing appropriate anchor scales and ratios.
+        In general, anchor generator gets img_size and strides, and its assigner gets positive
+        and negative thresholds for solving matching problem in object detection tasks.
+
+        Args:
+            img_size (Tuple[int, int]): Image size of height and width.
+            strides (List[int]): Strides of feature map from feature pyramid network.
+            This implicitly indicates receptive field size and base size of anchor generator.
+            scales (List[float]): Initial scales for data-aware optimization.
+            ratios (List[float]): Initial ratios for data-aware optimization.
+            pos_thr (float): Positive threshold for matching in the following assigner.
+            neg_thr (float): Negative threshold for matching in the following assigner.
+            device (str): Device for computing gradient. Please refer to `torch.device`
+        """
+        assert len(strides) == len(scales) or len(strides) == len(ratios)
+        assert pos_thr >= neg_thr
+
         self.img_size = img_size
-        targets = []
-        for item in dataset:
-            height, width = item.media.data.shape[:2]
-            scale_h, scale_w = height // img_size[0], width // img_size[1]
+        self.strides = strides
+        self.scales = scales
+        self.ratios = ratios
+        self.pos_thr = pos_thr
+        self.neg_thr = neg_thr
 
-            for ann in item.annotations:
-                x, y, w, h = ann.get_bbox()
-                x /= scale_w
-                y /= scale_h
-                w /= scale_w
-                h /= scale_h
-
-                # targets.append(torch.Tensor([x, y, x + w, y + h]))
-                targets.append([x, y, x + w, y + h])
-        self.targets = torch.Tensor(targets)
-        # self.targets = torch.cat(targets, dim=0)
+        if not torch.cuda.is_available() and device == "cuda":
+            device == "cpu"
+        self.device = device
 
         self.shifts = []
-        for stride in strides:
+        for stride in self.strides:
             self.shifts.append(self.get_shifts(stride))
 
-        self.strides = strides
         self.iou_calculator = BboxOverlaps2D()
 
     def get_shifts(self, stride: int) -> torch.Tensor:
+        """Bounding box proposals from anchor generator is composed of shifts and base anchors,
+        where shifts is generated in mesh-grid manner and base anchors is combinations of ratios and
+        scales. This function is to create mesh-grid shifts in the original image space.
+
+        Args:
+            stride (int): Strides of feature map from feature pyramid network.
+
+        Returns:
+            Tensor: Shift point coordinates.
+        """
+
         def _meshgrid(x: torch.Tensor, y: torch.Tensor):
             # use shape instead of len to keep tracing while exporting to onnx
             xx = x.repeat(y.shape[0])
@@ -115,11 +151,24 @@ class DataAwareAnchorGenerator:
         shift_y = torch.arange(0, feat_h) * stride
 
         shift_xx, shift_yy = _meshgrid(shift_x, shift_y)
-        shifts = torch.stack([shift_xx, shift_yy, shift_xx, shift_yy], dim=-1)
+        shifts = torch.stack([shift_xx, shift_yy, shift_xx, shift_yy], dim=-1).to(self.device)
 
         return shifts
 
-    def get_anchors(self, base_size, shifts, scales, ratios) -> torch.Tensor:
+    def get_anchors(
+        self, base_size: int, shifts: torch.Tensor, scales: torch.Tensor, ratios: torch.Tensor
+    ) -> torch.Tensor:
+        """This function is to create base anchors, which combinates ratios and scales.
+
+        Args:
+            base_size (int): Strides of feature map from feature pyramid network.
+            shifts (Tensor): Shift point coordinates in the original image space.
+            scales (Tensor): Scales for creating base anchors.
+            ratios (Tensor): Ratios for creating base anchors.
+
+        Returns:
+            Tensor: Set of anchor bounding box coordinates.
+        """
         w, h = base_size, base_size
         x_center, y_center = 0.5 * w, 0.5 * h
 
@@ -142,7 +191,73 @@ class DataAwareAnchorGenerator:
 
         return anchors
 
-    def get_loss(self, targets, scales, ratios, pos_thr, neg_thr):
+    def initialize(self, targets, scales, ratios):
+        init_ratios = []
+        init_scales = []
+        for level, base_size in enumerate(self.strides):
+            if len(scales[level]) == 1:
+                representatives = [0.5]
+            elif len(scales[level]) == 2:
+                representatives = [0.4, 0.6]
+            elif len(scales[level]) == 3:
+                representatives = [0.25, 0.5, 0.75]
+            elif len(scales[level]) == 4:
+                representatives = [0.25, 0.4, 0.6, 0.75]
+            elif len(scales[level]) == 5:
+                representatives = [0.1, 0.25, 0.5, 0.75, 0.9]
+
+            anchors = self.get_anchors(base_size, self.shifts[level], scales[level], ratios[level])
+
+            overlaps = self.iou_calculator(targets, anchors)
+            gt_max_overlaps, _ = overlaps.max(dim=1)
+
+            scale_samples, ratio_samples = [], []
+            for target in targets[gt_max_overlaps > 0.1]:
+                h = target[3] - target[1]
+                w = target[2] - target[0]
+                r = h / w
+                affine_h = base_size * torch.sqrt(r)
+                affine_w = base_size / torch.sqrt(r)
+                s = max(h / affine_h, w / affine_w)
+
+                scale_samples.append(s)
+                ratio_samples.append(r)
+
+            if len(scale_samples) < len(representatives):
+                init_scales.append(scales[level])
+                init_ratios.append(ratios[level])
+            else:
+                init_scales.append(
+                    [
+                        torch.kthvalue(
+                            torch.Tensor(scale_samples), int(p * len(scale_samples))
+                        ).values.item()
+                        for p in representatives
+                    ]
+                )
+                init_ratios.append(
+                    [
+                        torch.kthvalue(
+                            torch.Tensor(ratio_samples), int(p * len(ratio_samples))
+                        ).values.item()
+                        for p in representatives
+                    ]
+                )
+
+        return torch.Tensor(init_scales), torch.Tensor(init_ratios)
+
+    def get_loss(self, targets: torch.Tensor, scales: torch.Tensor, ratios: torch.Tensor):
+        """This function is to create base anchors, which combinates ratios and scales.
+
+        Args:
+            targets (Tensor): Set of target bounding box coordinates.
+            scales (Tensor): Scales for creating base anchors.
+            ratios (Tensor): Ratios for creating base anchors.
+
+        Returns:
+            float: Cost.
+            float: Coverage rate.
+        """
         all_anchors = []
         for level, base_size in enumerate(self.strides):
             anchors = self.get_anchors(base_size, self.shifts[level], scales[level], ratios[level])
@@ -152,73 +267,108 @@ class DataAwareAnchorGenerator:
         overlaps = self.iou_calculator(targets, all_anchors)
 
         max_overlaps, _ = overlaps.max(dim=0)
-        print(
+        log.info(
             f"[ANCHOR] total: {overlaps.shape[1]}, "
-            f"pos: {sum(max_overlaps >= pos_thr)}, "
-            f"neg: {sum(max_overlaps < neg_thr)}"
+            f"pos: {sum(max_overlaps >= self.pos_thr)}, "
+            f"neg: {sum(max_overlaps < self.neg_thr)}"
         )
 
         gt_max_overlaps, _ = overlaps.max(dim=1)
-        print(
+        log.info(
             f"[GT] total: {overlaps.shape[0]}, "
-            f"pos: {sum(gt_max_overlaps >= pos_thr)}, "
-            f"neg: {sum(gt_max_overlaps < neg_thr)}"
+            f"pos: {sum(gt_max_overlaps >= self.pos_thr)}, "
+            f"neg: {sum(gt_max_overlaps < self.neg_thr)}"
         )
 
         cost = (
-            500 * gt_max_overlaps[(gt_max_overlaps >= pos_thr)].sum()
-            + max_overlaps[(max_overlaps >= pos_thr) | (max_overlaps < neg_thr)].sum()
+            500 * gt_max_overlaps[(gt_max_overlaps >= self.pos_thr)].sum()
+            + max_overlaps[(max_overlaps >= self.pos_thr)].sum()
+            - max_overlaps[(max_overlaps < self.neg_thr)].sum()
         )
+        log.info(f"Cost: {cost}")
 
         num_gts = overlaps.size(0)
-        pos_gt_inds = []
-        pos_anchor_inds = []
+        pos_gts = 0
         for i in range(num_gts):
-            if gt_max_overlaps[i] >= pos_thr:
+            if gt_max_overlaps[i] >= self.pos_thr:
                 max_iou_inds = (overlaps[i, :] == gt_max_overlaps[i]).nonzero()
                 if max_iou_inds.numel() != 0:
                     overlaps[:, max_iou_inds[0]] = 0
-                    pos_gt_inds.append(i)
-                    pos_anchor_inds.append(max_iou_inds[0])
-        print(f"GT coverage rate: {len(pos_gt_inds)/num_gts}")
+                    pos_gts += 1
+        coverage_rate = pos_gts / num_gts
+        log.info(f"Coverage rate: {coverage_rate}")
 
-        return cost
+        return cost, coverage_rate
 
-    def optimize(self, scales, ratios, pos_thr, neg_thr):
-        LR = 0.1
-        BATCH_SIZE = 1024
-        NUM_ITERS = 100
+    def optimize(
+        self,
+        dataset: Dataset,
+        subset: Optional[str] = None,
+        batch_size: Optional[int] = 1024,
+        learning_rate: Optional[float] = 0.1,
+        num_iters: Optional[int] = 100,
+    ):
+        """This function is to create base anchors, which combinates ratios and scales.
 
-        ratios = torch.Tensor(ratios).detach().requires_grad_(True)
-        scales = torch.Tensor(scales).detach().requires_grad_(True)
-        optimizer = torch.optim.Adam([ratios, scales], lr=LR)
+        Args:
+            dataset (Dataset): Desired dataset to optimize anchor scales and ratios.
+            batch_size (int): Minibatch size.
+            learning_rate (float): Learning rate.
+            num_iters (int): Number of iterations.
 
-        opt_iou = 0
+        Returns:
+            List[List[float]]: Optimized scales.
+            List[List[float]]: Optimized ratios.
+        """
+        targets = []
+        for item in dataset:
+            if subset and item.subset != subset:
+                continue
+            height, width = item.media.data.shape[:2]
+            scale_h, scale_w = height // self.img_size[0], width // self.img_size[1]
+
+            for ann in item.annotations:
+                x, y, w, h = ann.get_bbox()
+                x /= scale_w
+                y /= scale_h
+                w /= scale_w
+                h /= scale_h
+                targets.append([x, y, x + w, y + h])
+        targets = torch.Tensor(targets).to(self.device)
+
+        scales, ratios = torch.Tensor(self.scales).to(self.device), torch.Tensor(self.ratios).to(
+            self.device
+        )
+        scales, ratios = self.initialize(targets, scales, ratios)
+
+        scales = torch.Tensor(scales).to(self.device).detach().requires_grad_(True)
+        ratios = torch.Tensor(ratios).to(self.device).detach().requires_grad_(True)
+        optimizer = torch.optim.Adam([scales, ratios], lr=learning_rate)
+
         opt_iter = 0
+        opt_cov_rate = 0
         opt_scales = scales
         opt_ratios = ratios
-        for iter in range(NUM_ITERS):
-            random_indices = torch.randperm(self.targets.size(0))[:BATCH_SIZE]
-            iou = self.get_loss(
-                targets=self.targets[random_indices],
+        for iter in range(num_iters):
+            random_indices = torch.randperm(targets.size(0))[:batch_size]
+            cost, cov_rate = self.get_loss(
+                targets=targets[random_indices],
                 scales=scales,
                 ratios=ratios,
-                pos_thr=pos_thr,
-                neg_thr=neg_thr,
             )
-            print(f"iter: {iter} / iou: {iou} / scales: {scales} / ratios: {ratios}")
+            log.info(f"iter: {iter - 1} / cost: {cost} / scales: {scales} / ratios: {ratios}")
 
-            if iou > opt_iou:
+            if cov_rate >= opt_cov_rate:
                 opt_iter = iter
                 opt_scales = scales
                 opt_ratios = ratios
 
             optimizer.zero_grad()
-            (-iou).backward()
+            (-cost).backward()
             optimizer.step()
 
             ratios.data = torch.clamp(ratios.data, min=0.125, max=8)
             scales.data = torch.clamp(scales.data, min=0.0625, max=16)
 
-        print(f"optimized scale/ratio: {opt_scales}/{opt_ratios} @ iter {opt_iter}")
-        return opt_scales, opt_ratios
+        log.info(f"optimized scale/ratio: {opt_scales}/{opt_ratios} @ iter {opt_iter}")
+        return opt_scales.tolist(), opt_ratios.tolist()
