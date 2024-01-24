@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Jan. 2024 Release 1.5.2
 
+### Enhancements
+- Add memory bounded datumaro data format detect to release 1.5.1
+  (<https://github.com/openvinotoolkit/datumaro/pull/1241>)
+- Update protobuf version
+  (<https://github.com/openvinotoolkit/datumaro/pull/1248>)
+- Bump version string to 1.5.2
+  (<https://github.com/openvinotoolkit/datumaro/pull/1249>)
+
 ## Nov. 2023 Release 1.5.1
 
 ### Enhancements
