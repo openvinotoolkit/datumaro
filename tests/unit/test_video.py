@@ -4,8 +4,7 @@
 
 import filecmp
 import os.path as osp
-import platform
-from unittest import TestCase, skipIf
+from unittest import TestCase
 
 import numpy as np
 import pytest
@@ -43,11 +42,6 @@ class VideoTest:
         assert None is video.length
         assert (4, 6) == video.frame_size
 
-    @skipIf(
-        platform.system() == "Darwin",
-        "Segmentation fault only occurs on MacOS: "
-        "https://github.com/openvinotoolkit/datumaro/actions/runs/4252188380/jobs/7395458712",
-    )
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     @scoped
     def test_can_read_frames_sequentially(self, fxt_sample_video):
@@ -60,11 +54,6 @@ class VideoTest:
             assert frame.video is video
             assert np.array_equal(frame.data, np.ones((*video.frame_size, 3)) * idx)
 
-    @skipIf(
-        platform.system() == "Darwin",
-        "Segmentation fault only occurs on MacOS: "
-        "https://github.com/openvinotoolkit/datumaro/actions/runs/4252188380/jobs/7395458712",
-    )
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     @scoped
     def test_can_read_frames_randomly(self, fxt_sample_video):

@@ -20,4 +20,4 @@ or manually and used by other OpenVINO™ tools.
 
 The location of the ISIP consent file depends on the OS:
 - Windows: `%localappdata%\Intel Corporation\isip`,
-- Linux, MacOS: `$HOME/intel/isip`.
+- Linux: `$HOME/intel/isip`.
