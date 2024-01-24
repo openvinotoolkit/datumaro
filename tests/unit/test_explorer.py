@@ -1,7 +1,6 @@
-import platform
 from copy import deepcopy
 from functools import partial
-from unittest import TestCase, skipIf
+from unittest import TestCase
 
 import numpy as np
 
@@ -79,11 +78,6 @@ class ExplorerTest(TestCase):
         )
         return dataset
 
-    @skipIf(
-        platform.system() == "Darwin",
-        "Segmentation fault only occurs on MacOS: "
-        "https://github.com/openvinotoolkit/datumaro/actions/runs/4202399957/jobs/7324077250",
-    )
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_explore_img_query(self):
         """
@@ -124,11 +118,6 @@ class ExplorerTest(TestCase):
                 # There were two "train_img"s in "train" subset, and we queried "train_img"
                 self.assertEqual(query_without_hash_key.subset, item.subset)
 
-    @skipIf(
-        platform.system() == "Darwin",
-        "Segmentation fault only occurs on MacOS: "
-        "https://github.com/openvinotoolkit/datumaro/actions/runs/4202399957/jobs/7324077250",
-    )
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_explore_img_list_query(self):
         """
@@ -159,11 +148,6 @@ class ExplorerTest(TestCase):
 
             self.assertEqual(results[0].subset, results[1].subset)
 
-    @skipIf(
-        platform.system() == "Darwin",
-        "Segmentation fault only occurs on MacOS: "
-        "https://github.com/openvinotoolkit/datumaro/actions/runs/4202399957/jobs/7324077250",
-    )
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_explore_txt_query(self):
         """
@@ -191,11 +175,6 @@ class ExplorerTest(TestCase):
             )
             self.assertEqual(results[0].subset, results[1].subset)
 
-    @skipIf(
-        platform.system() == "Darwin",
-        "Segmentation fault only occurs on MacOS: "
-        "https://github.com/openvinotoolkit/datumaro/actions/runs/4202399957/jobs/7324077250",
-    )
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_explore_txt_list_query(self):
         """
@@ -224,11 +203,6 @@ class ExplorerTest(TestCase):
             )
             self.assertEqual(results[0].subset, results[1].subset)
 
-    @skipIf(
-        platform.system() == "Darwin",
-        "Segmentation fault only occurs on MacOS: "
-        "https://github.com/openvinotoolkit/datumaro/actions/runs/4202399957/jobs/7324077250",
-    )
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_multiframeimage_assert(self):
         """
@@ -251,11 +225,6 @@ class ExplorerTest(TestCase):
             Explorer(imported_dataset)
         self.assertIn("MultiframeImage", str(capture.exception))
 
-    @skipIf(
-        platform.system() == "Darwin",
-        "Segmentation fault only occurs on MacOS: "
-        "https://github.com/openvinotoolkit/datumaro/actions/runs/4202399957/jobs/7324077250",
-    )
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_pointcloud_assert(self):
         """
