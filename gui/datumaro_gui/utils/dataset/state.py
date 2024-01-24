@@ -117,8 +117,8 @@ def import_dataset(data_helper, data_num: str = "Dataset"):
         data_helper.import_dataset(selected_format)
 
 
-def save_dataset(data_helper, filename):
-    save_path = os.path.join(
-        get_download_folder_path(), f"{filename}_{datetime.now().strftime('%Y%m%d_%H%M%S')}"
-    )
+def save_dataset(data_helper, filename, save_folder: str = None):
+    if not save_folder:
+        save_folder = get_download_folder_path()
+    save_path = os.path.join(save_folder, f"{filename}_{datetime.now().strftime('%Y%m%d_%H%M%S')}")
     data_helper.export(save_path, format="datumaro", save_media=True)
