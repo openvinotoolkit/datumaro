@@ -2,9 +2,7 @@
 #
 # SPDX-License-Identifier: MIT
 
-import os.path as osp
-import tempfile
-from typing import Any, Dict, List
+from typing import List
 
 import numpy as np
 import pytest
@@ -16,8 +14,6 @@ from datumaro.components.media import Image
 from datumaro.plugins.anchor_generator import DataAwareAnchorGenerator
 
 from ..requirements import Requirements, mark_requirement
-
-from tests.utils.assets import get_test_asset_path
 
 try:
     import torch
@@ -75,6 +71,14 @@ def fxt_dataset():
     )
 
 
+IDS = [
+    "SUBSET",
+    "MORE_STRIDES",
+    "MORE_SCALES",
+    "MORE_RATIOS",
+]
+
+
 @pytest.mark.new
 @mark_requirement(Requirements.DATUM_GENERAL_REQ)
 class DataAwareAnchorGeneratorTest:
@@ -83,24 +87,31 @@ class DataAwareAnchorGeneratorTest:
         "fxt_subset,fxt_strides,fxt_scales,fxt_ratios",
         [
             (
-                None,
-                [32, 64],
-                [[1.0], [1.0]],
-                [[1.0], [1.0]],
-            ),
-            (
                 "train",
                 [32],
                 [[1.0]],
                 [[1.0]],
             ),
             (
-                "val",
-                [16],
-                [[1.0]],
+                None,
+                [32, 64],
+                [[1.0], [1.0]],
+                [[1.0], [1.0]],
+            ),
+            (
+                None,
+                [32],
+                [[1.0, 2.0, 4.0]],
                 [[1.0]],
             ),
+            (
+                None,
+                [32],
+                [[1.0]],
+                [[0.5, 1.0, 2.0]],
+            ),
         ],
+        ids=IDS,
     )
     def test_can_optimize_anchor_generator(
         self,
@@ -109,7 +120,6 @@ class DataAwareAnchorGeneratorTest:
         fxt_strides: List[int],
         fxt_scales: List[List[float]],
         fxt_ratios: List[List[float]],
-        request: pytest.FixtureRequest,
     ):
         prior_gen = DataAwareAnchorGenerator(
             img_size=(128, 128),
@@ -124,4 +134,18 @@ class DataAwareAnchorGeneratorTest:
             dataset=fxt_dataset, subset=fxt_subset, num_iters=10
         )
 
-        print(opt_scales, opt_ratios)
+        flag_scale = False
+        for opt_scales_per_level in opt_scales:
+            for opt_scale in opt_scales_per_level:
+                if abs(opt_scale - 1.0) < 0.1:
+                    flag_scale = True
+                    break
+        assert flag_scale
+
+        flag_ratio = False
+        for opt_ratios_per_level in opt_ratios:
+            for opt_ratio in opt_ratios_per_level:
+                if abs(opt_ratio - 0.5) < 0.1:
+                    flag_ratio = True
+                    break
+        assert flag_ratio
