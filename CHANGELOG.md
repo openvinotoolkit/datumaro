@@ -17,6 +17,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   (<https://github.com/openvinotoolkit/datumaro/pull/1235>)
 - Support Kaggle image data (`KaggleImageCsvBase`, `KaggleImageTxtBase`, `KaggleImageMaskBase`, `KaggleVocBase`, `KaggleYoloBase`)
   (<https://github.com/openvinotoolkit/datumaro/pull/1240>)
+- Add Data-aware Anchor Generator
+  (<https://github.com/openvinotoolkit/datumaro/pull/1251>)
 
 ### Enhancements
 - Optimize Python import to make CLI entrypoint faster
