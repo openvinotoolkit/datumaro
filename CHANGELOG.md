@@ -55,6 +55,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   (<https://github.com/openvinotoolkit/datumaro/pull/1243>)
 - Fix Kaggle importer when adding duplicated labels
   (<https://github.com/openvinotoolkit/datumaro/pull/1244>)
+- Fix input tensor shape in model interpreter for OpenVINO 2023.3
+  (<https://github.com/openvinotoolkit/datumaro/pull/1251>)
 
 ## 16/11/2023 - Release 1.5.1
 ### Enhancements
