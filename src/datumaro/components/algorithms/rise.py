@@ -79,6 +79,7 @@ class RISE:
         if len(image.shape) == 3:
             assert image.shape[2] in [3, 4], "Expected BGR or BGRA input"
         image = image[:, :, :3].astype(np.float32)
+        image = np.transpose(image, (2, 0, 1))
 
         model = self.model
         iou_thresh = self.iou_thresh

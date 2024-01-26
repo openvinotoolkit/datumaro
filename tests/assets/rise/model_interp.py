@@ -21,7 +21,6 @@ from datumaro.util.annotation_util import softmax
 class DummyModelInterpreter(IModelInterpreter):
     def preprocess(self, inp: DatasetItem) -> Tuple[LauncherInputType, PrepInfo]:
         img = inp.media_as(Image).data
-        img = np.transpose(img, (2, 0, 1))
         return super().preprocess(img)
 
     def postprocess(self, pred: ModelPred, info: PrepInfo) -> List[Annotation]:
