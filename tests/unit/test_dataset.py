@@ -2035,16 +2035,38 @@ class DatasetTest(TestCase):
         self.assertEqual(dataset.get_label_cat_names(), ["a", "b", "c"])
 
     def test_index_access(self):
-        dataset = Dataset.from_iterable([DatasetItem(id) for id in [1, 2, 3, 4]])
+        dataset = Dataset.from_iterable(DatasetItem(id) for id in range(5))
+        self.assertEqual(dataset[2].id, "2")
+
+        dataset.remove(2)
         self.assertEqual(dataset[2].id, "3")
 
-        dataset.remove(3)
-        self.assertEqual(dataset[2].id, "4")
+        dataset.put(DatasetItem(2))
+        self.assertEqual(dataset[4].id, "2")
+        self.assertRaises(IndexError, lambda: dataset[len(dataset)])
 
-        dataset.put(DatasetItem(3))
-        self.assertEqual(dataset[-1].id, "3")
-
-        self.assertRaises(IndexError, lambda: dataset[4])
+    def test_index_access_tile(self):
+        dataset = Dataset.from_iterable(
+            DatasetItem(
+                id,
+                media=Image.from_numpy(data=np.ones((10, 6, 3))),
+                annotations=[
+                    Bbox(1, 2, 3, 4, label=1),
+                ],
+            )
+            for id in range(5)
+        )
+        length = len(dataset)
+        n_rows, n_cols = (1, 2)
+        dataset.transform("tile", grid_size=(n_rows, n_cols), overlap=(0, 0), threshold_drop_ann=0)
+        tiled_length = length * n_rows * n_cols
+        for i in range(tiled_length):
+            dataset[i]
+        self.assertRaises(IndexError, lambda: dataset[tiled_length])
+        dataset.transform("merge_tile")
+        for i in range(length):
+            dataset[i]
+        self.assertRaises(IndexError, lambda: dataset[length])
 
 
 class DatasetItemTest(TestCase):
