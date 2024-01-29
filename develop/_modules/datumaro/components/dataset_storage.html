@@ -834,7 +834,14 @@
 
             <span class="n">safe_transforms</span> <span class="o">+=</span> <span class="p">[</span><span class="n">transform</span><span class="p">]</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">_transforms</span> <span class="o">=</span> <span class="n">safe_transforms</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_transforms</span> <span class="o">=</span> <span class="n">safe_transforms</span>
+
+    <span class="k">def</span> <span class="fm">__getitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">idx</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">DatasetItem</span><span class="p">:</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_storage</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span>
+        <span class="k">except</span> <span class="ne">IndexError</span><span class="p">:</span>  <span class="c1"># Data storage should be initialized</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">init_cache</span><span class="p">()</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_storage</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span></div>
 
 
 <div class="viewcode-block" id="StreamSubset"><a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.components.dataset_storage.html#datumaro.components.dataset.StreamSubset">[docs]</a><span class="k">class</span> <span class="nc">StreamSubset</span><span class="p">(</span><span class="n">IDataset</span><span class="p">):</span>

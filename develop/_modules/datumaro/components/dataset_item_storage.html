@@ -303,6 +303,7 @@
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">data</span> <span class="o">=</span> <span class="p">{}</span>  <span class="c1"># { subset_name: { id: DatasetItem } }</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_traversal_order</span> <span class="o">=</span> <span class="p">{}</span>  <span class="c1"># maintain the order of elements</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_order</span> <span class="o">=</span> <span class="p">[]</span>  <span class="c1"># allow indexing</span>
 
     <span class="k">def</span> <span class="fm">__iter__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Iterator</span><span class="p">[</span><span class="n">DatasetItem</span><span class="p">]:</span>
         <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_traversal_order</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
@@ -319,6 +320,8 @@
         <span class="n">subset</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="n">item</span><span class="o">.</span><span class="n">subset</span><span class="p">,</span> <span class="p">{})</span>
         <span class="n">is_new</span> <span class="o">=</span> <span class="n">subset</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">item</span><span class="o">.</span><span class="n">id</span><span class="p">)</span> <span class="ow">is</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_traversal_order</span><span class="p">[(</span><span class="n">item</span><span class="o">.</span><span class="n">id</span><span class="p">,</span> <span class="n">item</span><span class="o">.</span><span class="n">subset</span><span class="p">)]</span> <span class="o">=</span> <span class="n">item</span>
+        <span class="k">if</span> <span class="n">is_new</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_order</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">item</span><span class="o">.</span><span class="n">id</span><span class="p">,</span> <span class="n">item</span><span class="o">.</span><span class="n">subset</span><span class="p">))</span>
         <span class="n">subset</span><span class="p">[</span><span class="n">item</span><span class="o">.</span><span class="n">id</span><span class="p">]</span> <span class="o">=</span> <span class="n">item</span>
         <span class="k">return</span> <span class="n">is_new</span></div>
 
@@ -346,6 +349,7 @@
         <span class="k">if</span> <span class="n">is_removed</span><span class="p">:</span>
             <span class="c1"># TODO : investigate why &quot;del subset_data[id]&quot; cannot replace &quot;subset_data[id] = None&quot;.</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_traversal_order</span><span class="o">.</span><span class="n">pop</span><span class="p">((</span><span class="nb">id</span><span class="p">,</span> <span class="n">subset</span><span class="p">))</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_order</span><span class="o">.</span><span class="n">remove</span><span class="p">((</span><span class="nb">id</span><span class="p">,</span> <span class="n">subset</span><span class="p">))</span>
         <span class="k">return</span> <span class="n">is_removed</span></div>
 
     <span class="k">def</span> <span class="fm">__contains__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">DatasetItem</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]])</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
@@ -378,8 +382,14 @@
     <span class="k">def</span> <span class="nf">__copy__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="n">copied</span> <span class="o">=</span> <span class="n">DatasetItemStorage</span><span class="p">()</span>
         <span class="n">copied</span><span class="o">.</span><span class="n">_traversal_order</span> <span class="o">=</span> <span class="n">copy</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_traversal_order</span><span class="p">)</span>
+        <span class="n">copied</span><span class="o">.</span><span class="n">_order</span> <span class="o">=</span> <span class="n">copy</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_order</span><span class="p">)</span>
         <span class="n">copied</span><span class="o">.</span><span class="n">data</span> <span class="o">=</span> <span class="n">copy</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">copied</span></div>
+        <span class="k">return</span> <span class="n">copied</span>
+
+    <span class="k">def</span> <span class="fm">__getitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">idx</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">DatasetItem</span><span class="p">:</span>
+        <span class="n">_id</span><span class="p">,</span> <span class="n">subset</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_order</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span>
+        <span class="n">item</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="n">subset</span><span class="p">][</span><span class="n">_id</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">item</span></div>
 
 
 <div class="viewcode-block" id="DatasetItemStorageDatasetView"><a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.components.merge.intersect_merge.html#datumaro.components.abstracts.merger.DatasetItemStorageDatasetView">[docs]</a><span class="k">class</span> <span class="nc">DatasetItemStorageDatasetView</span><span class="p">(</span><span class="n">IDataset</span><span class="p">):</span>
