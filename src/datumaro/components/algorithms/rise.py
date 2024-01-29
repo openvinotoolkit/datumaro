@@ -79,7 +79,6 @@ class RISE:
         if len(image.shape) == 3:
             assert image.shape[2] in [3, 4], "Expected BGR or BGRA input"
         image = image[:, :, :3].astype(np.float32)
-        image = np.transpose(image, (2, 0, 1))
 
         model = self.model
         iou_thresh = self.iou_thresh
@@ -95,7 +94,7 @@ class RISE:
             samples = min(self.max_samples, samples)
         batch_size = self.batch_size
 
-        pred = next(iter(model.infer(_expand(image, 0))))
+        pred = next(iter(model.infer(_expand(np.transpose(image, (2, 0, 1)), 0))))
         result = model.postprocess(pred, None)
         result_labels, result_bboxes = self.split_outputs(result)
         if 0 < self.det_conf_thresh:
