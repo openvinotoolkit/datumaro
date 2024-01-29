@@ -166,7 +166,7 @@ class RISE:
             batch_inputs = full_batch_inputs[:current_batch_size]
             np.multiply(_expand(batch_masks), _expand(image, 0), out=batch_inputs)
 
-            preds = model.infer(batch_inputs)
+            preds = model.infer(np.transpose(batch_inputs, (0, 3, 1, 2)))
             results = [model.postprocess(pred, None) for pred in preds]
             for mask, result in zip(batch_masks, results):
                 result_labels, result_bboxes = self.split_outputs(result)
