@@ -2034,6 +2034,45 @@ class DatasetTest(TestCase):
         )
         self.assertEqual(dataset.get_label_cat_names(), ["a", "b", "c"])
 
+    def test_index_access(self):
+        dataset = Dataset.from_iterable(DatasetItem(id) for id in range(5))
+        self.assertEqual(dataset[2].id, "2")
+
+        dataset.remove(2)
+        self.assertEqual(dataset[2].id, "3")
+
+        dataset.put(DatasetItem(2))
+        self.assertEqual(dataset[4].id, "2")
+        self.assertRaises(IndexError, lambda: dataset[len(dataset)])
+
+    def test_index_access_tile(self):
+        dataset = Dataset.from_iterable(
+            DatasetItem(
+                id,
+                media=Image.from_numpy(data=np.ones((224, 224, 3))),
+                annotations=[
+                    Bbox(1, 2, 3, 4, label=1),
+                ],
+            )
+            for id in range(5)
+        )
+        length = len(dataset)
+        n_rows, n_cols = (4, 4)
+        dataset.transform("tile", grid_size=(n_rows, n_cols), overlap=(0, 0), threshold_drop_ann=0)
+        tiled_length = length * n_rows * n_cols
+        for i in range(length):
+            for row in range(n_rows):
+                for col in range(n_cols):
+                    idx = i * n_rows * n_cols + row * n_cols + col
+                    _id = f"{i}_tile_{row * n_cols + col}"
+                    self.assertEqual(dataset[idx].id, _id)
+        self.assertRaises(IndexError, lambda: dataset[tiled_length])
+
+        dataset.transform("merge_tile")
+        for i in range(length):
+            self.assertEqual(dataset[i].id, str(i))
+        self.assertRaises(IndexError, lambda: dataset[length])
+
 
 class DatasetItemTest(TestCase):
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
