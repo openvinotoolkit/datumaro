@@ -321,6 +321,7 @@
     <span class="n">DatasetImportError</span><span class="p">,</span>
     <span class="n">MultipleFormatsMatchError</span><span class="p">,</span>
     <span class="n">NoMatchingFormatsError</span><span class="p">,</span>
+    <span class="n">StreamedItemError</span><span class="p">,</span>
     <span class="n">UnknownFormatError</span><span class="p">,</span>
 <span class="p">)</span>
 <span class="kn">from</span> <span class="nn">datumaro.components.exporter</span> <span class="kn">import</span> <span class="n">ExportContext</span><span class="p">,</span> <span class="n">Exporter</span><span class="p">,</span> <span class="n">ExportErrorPolicy</span><span class="p">,</span> <span class="n">_ExportFail</span>
@@ -1212,7 +1213,9 @@
         <span class="k">return</span> <span class="n">deepcopy</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span></div>
 
     <span class="k">def</span> <span class="fm">__getitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">idx</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">DatasetItem</span><span class="p">:</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_data</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span></div>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_data</span><span class="o">.</span><span class="n">is_stream</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_data</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span>
+        <span class="k">raise</span> <span class="n">StreamedItemError</span><span class="p">()</span></div>
 
 
 <div class="viewcode-block" id="StreamDataset"><a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.components.dataset.html#datumaro.components.dataset.StreamDataset">[docs]</a><span class="k">class</span> <span class="nc">StreamDataset</span><span class="p">(</span><span class="n">Dataset</span><span class="p">):</span>

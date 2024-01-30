@@ -95,6 +95,7 @@ datumaro.components.errors
       RepeatedItemError
       SourceExistsError
       SourceUrlInsideProjectError
+      StreamedItemError
       UndeclaredLabelError
       UndefinedAttribute
       UndefinedLabel
