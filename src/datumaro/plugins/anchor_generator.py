@@ -122,13 +122,8 @@ try:
             self.pos_thr = pos_thr
             self.neg_thr = neg_thr
 
-            if not torch.cuda.is_available() and device == "cuda":
-                device == "cpu"
-            self.device = device
-
-            self.shifts = []
-            for stride in self.strides:
-                self.shifts.append(self.get_shifts(stride))
+            self.device = device if torch.cuda.is_available() and device == "cuda" else "cpu"
+            self.shifts = [self.get_shifts(stride) for stride in self.strides]
 
             self.iou_calculator = BboxOverlaps2D()
 
@@ -199,16 +194,16 @@ try:
             init_ratios = []
             init_scales = []
             for level, base_size in enumerate(self.strides):
-                if len(scales[level]) == 1:
-                    representatives = [0.5]
-                elif len(scales[level]) == 2:
-                    representatives = [0.4, 0.6]
-                elif len(scales[level]) == 3:
-                    representatives = [0.25, 0.5, 0.75]
-                elif len(scales[level]) == 4:
-                    representatives = [0.25, 0.4, 0.6, 0.75]
-                elif len(scales[level]) == 5:
-                    representatives = [0.1, 0.25, 0.5, 0.75, 0.9]
+                representatives_dict = {
+                    1: [0.5],
+                    2: [0.4, 0.6],
+                    3: [0.25, 0.5, 0.75],
+                    4: [0.25, 0.4, 0.6, 0.75],
+                    5: [0.1, 0.25, 0.5, 0.75, 0.9],
+                }
+                representatives = representatives_dict.get(len(scales[level]), None)
+                if not representatives:
+                    log.error("less than 5 number of strides are available.")
 
                 anchors = self.get_anchors(
                     base_size, self.shifts[level], scales[level], ratios[level]
@@ -349,8 +344,8 @@ try:
             ).to(self.device)
             scales, ratios = self.initialize(targets, scales, ratios)
 
-            scales = torch.Tensor(scales).to(self.device).detach().requires_grad_(True)
-            ratios = torch.Tensor(ratios).to(self.device).detach().requires_grad_(True)
+            scales = scales.detach().requires_grad_(True)
+            ratios = ratios.detach().requires_grad_(True)
             optimizer = torch.optim.Adam([scales, ratios], lr=learning_rate)
 
             opt_iter = 0
