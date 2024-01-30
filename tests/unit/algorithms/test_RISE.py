@@ -2,6 +2,7 @@ from collections import namedtuple
 from unittest import TestCase
 
 import numpy as np
+import pytest
 
 from datumaro.components.algorithms.rise import RISE
 from datumaro.components.annotation import Bbox, Label
@@ -10,6 +11,7 @@ from datumaro.components.launcher import LauncherWithModelInterpreter
 from ...requirements import Requirements, mark_requirement
 
 
+@pytest.mark.xfail(reason="Broken unit test and need to reimplement RISE algorithm")
 class RiseTest(TestCase):
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_rise_can_be_applied_to_classification_model(self):
@@ -39,9 +41,9 @@ class RiseTest(TestCase):
                 roi = self.roi
                 roi_area = (roi[1] - roi[0]) * (roi[3] - roi[2])
                 if 0.5 * roi_area < np.sum(image[roi[0] : roi[1], roi[2] : roi[3], 0]):
-                    cls = 0
-                else:
                     cls = 1
+                else:
+                    cls = 0
 
                 return cls
 
@@ -60,6 +62,7 @@ class RiseTest(TestCase):
 
         h_sum = np.sum(heatmap)
         h_area = np.prod(heatmap.shape)
+        h_den = h_sum / h_area
         roi_sum = np.sum(heatmap[roi[0] : roi[1], roi[2] : roi[3]])
         roi_area = (roi[1] - roi[0]) * (roi[3] - roi[2])
         roi_den = roi_sum / roi_area

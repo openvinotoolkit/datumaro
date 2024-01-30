@@ -45,6 +45,12 @@ class ExplorerTest(TestCase):
                     media=Image.from_numpy(data=test_img),
                     annotations=[Label(2, id=2), Caption("dog")],
                 ),
+                DatasetItem(
+                    id=4,
+                    subset="test",
+                    media=Image.from_numpy(data=test_img),
+                    annotations=[Label(2, id=2), Caption("dog")],
+                ),
             ]
         )
         return dataset
@@ -70,6 +76,12 @@ class ExplorerTest(TestCase):
                 ),
                 DatasetItem(
                     id=3,
+                    subset="test",
+                    media=Image.from_numpy(data=test_img),
+                    annotations=[Label(2, id=2), Caption("dog")],
+                ),
+                DatasetItem(
+                    id=4,
                     subset="test",
                     media=Image.from_numpy(data=test_img),
                     annotations=[Label(2, id=2), Caption("dog")],

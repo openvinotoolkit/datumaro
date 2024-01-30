@@ -17,6 +17,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   (<https://github.com/openvinotoolkit/datumaro/pull/1235>)
 - Support Kaggle image data (`KaggleImageCsvBase`, `KaggleImageTxtBase`, `KaggleImageMaskBase`, `KaggleVocBase`, `KaggleYoloBase`)
   (<https://github.com/openvinotoolkit/datumaro/pull/1240>)
+- Add `__getitem__()` for random accessing with O(1) time complexity
+  (<https://github.com/openvinotoolkit/datumaro/pull/1247>)
+- Add Data-aware Anchor Generator
+  (<https://github.com/openvinotoolkit/datumaro/pull/1251>)
 
 ### Enhancements
 - Optimize Python import to make CLI entrypoint faster
@@ -53,6 +57,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   (<https://github.com/openvinotoolkit/datumaro/pull/1243>)
 - Fix Kaggle importer when adding duplicated labels
   (<https://github.com/openvinotoolkit/datumaro/pull/1244>)
+- Fix input tensor shape in model interpreter for OpenVINO 2023.3
+  (<https://github.com/openvinotoolkit/datumaro/pull/1251>)
 
 ## 16/11/2023 - Release 1.5.1
 ### Enhancements

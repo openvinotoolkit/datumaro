@@ -42,6 +42,7 @@ from datumaro.components.errors import (
     DatasetImportError,
     MultipleFormatsMatchError,
     NoMatchingFormatsError,
+    StreamedItemError,
     UnknownFormatError,
 )
 from datumaro.components.exporter import ExportContext, Exporter, ExportErrorPolicy, _ExportFail
@@ -933,7 +934,9 @@ class Dataset(IDataset):
         return deepcopy(self)
 
     def __getitem__(self, idx: int) -> DatasetItem:
-        return self._data[idx]
+        if not self._data.is_stream:
+            return self._data[idx]
+        raise StreamedItemError()
 
 
 class StreamDataset(Dataset):
