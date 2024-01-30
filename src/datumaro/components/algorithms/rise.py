@@ -94,6 +94,7 @@ class RISE:
             samples = min(self.max_samples, samples)
         batch_size = self.batch_size
 
+        # model is expected to get NxCxHxW shaped input tensor
         pred = next(iter(model.infer(_expand(np.transpose(image, (2, 0, 1)), 0))))
         result = model.postprocess(pred, None)
         result_labels, result_bboxes = self.split_outputs(result)
