@@ -52,8 +52,7 @@ class TransformLabelRemap(MultipleTransformBase):
         mapping_dict.update({label: "background" for label in labels_set - set(mapping_dict)})
 
         default = "delete" if delete_unselected else "keep"
-        result = data_helper.transform("remap_labels", mapping=mapping_dict, default=default)
-        data_helper.update_dataset(result)
+        data_helper.transform("remap_labels", mapping=mapping_dict, default=default)
         st.toast("Remap Success!", icon="🎉")
 
     def gui(self, data_helper: MultipleDatasetHelper, col):
@@ -71,11 +70,13 @@ class TransformLabelRemap(MultipleTransformBase):
         mode = "default" if col == "c1" else "reverse"
         delete_unselected = st.toggle("Delete unselected labels", key=f"remap_del_tog_{col}")
 
-        st.button(
+        btn_label_remap = st.button(
             "Do Label Remap",
             use_container_width=True,
-            on_click=self._do_label_remap,
-            args=(
+            key=f"remap_btn_{col}",
+        )
+        if btn_label_remap:
+            self._do_label_remap(
                 data_helper,
                 mapping,
                 uploaded_file_2,
@@ -83,9 +84,7 @@ class TransformLabelRemap(MultipleTransformBase):
                 mode,
                 delete_unselected,
                 col,
-            ),
-            key=f"remap_btn_{col}",
-        )
+            )
 
 
 class TransformAggregation(MultipleTransformBase):
@@ -99,8 +98,7 @@ class TransformAggregation(MultipleTransformBase):
 
     @staticmethod
     def _do_aggregation(data_helper, selected_subsets, dst_subset_name):
-        result = data_helper.aggregate(from_subsets=selected_subsets, to_subset=dst_subset_name)
-        data_helper.update_dataset(result)
+        data_helper.aggregate(from_subsets=selected_subsets, to_subset=dst_subset_name)
         st.toast("Aggregation Success!", icon="🎉")
 
     def gui(self, data_helper: MultipleDatasetHelper, col):
@@ -114,13 +112,13 @@ class TransformAggregation(MultipleTransformBase):
         dst_subset_name = st.text_input(
             "Aggregated Subset Name:", "default", key=f"aggre_subset_name_{col}"
         )
-        st.button(
+        btn_aggregation = st.button(
             "Do aggregation",
             use_container_width=True,
-            on_click=self._do_aggregation,
-            args=(data_helper, selected_subsets, dst_subset_name),
             key=f"aggre_subset_btn_{col}",
         )
+        if btn_aggregation:
+            self._do_aggregation(data_helper, selected_subsets, dst_subset_name)
 
 
 class TransformSplit(MultipleTransformBase):
@@ -136,7 +134,6 @@ class TransformSplit(MultipleTransformBase):
     def info(self) -> str:
         return "This helps to divide a dataset into multiple subsets with a given ratio."
 
-    @staticmethod
     def _add_subset(self, col):
         subset_state = state[f"subset_{col[-1]}"]
         default_splits = (self.Split("train", 0.5), self.Split("val", 0.2), self.Split("test", 0.3))
@@ -157,8 +154,7 @@ class TransformSplit(MultipleTransformBase):
         ratios = [split.ratio for split in subset_state]
         total = sum(ratios)
         if total == 1:
-            result = data_helper.transform("random_split", splits=subset_state)
-            data_helper.update_dataset(result)
+            data_helper.transform("random_split", splits=subset_state)
             st.toast("Split Success!", icon="🎉")
         else:
             st.toast("Sum of ratios is expected to be 1!", icon="🚨")
@@ -167,20 +163,22 @@ class TransformSplit(MultipleTransformBase):
         c1, c2 = st.columns(2)
         subset_state = state[f"subset_{col[-1]}"]
 
-        c1.button(
+        btn_add_subset = c1.button(
             "Add subset",
             use_container_width=True,
-            on_click=self._add_subset,
-            args=(col),
             key=f"add_subset_btn_{col}",
         )
-        c2.button(
+        if btn_add_subset:
+            self._add_subset(col)
+
+        btn_split = c2.button(
             "Do split",
             use_container_width=True,
-            on_click=self._do_split,
-            args=(data_helper, subset_state),
             key=f"split_btn_{col}",
         )
+        if btn_split:
+            self._do_split(data_helper, subset_state)
+
         if len(subset_state) > 0:
             name, ratio, remove = st.columns([0.45, 0.45, 0.1])
             with name:
@@ -239,8 +237,7 @@ class TransformSubsetRename(MultipleTransformBase):
     @staticmethod
     def _remap_subset(data_helper, target_subset, target_name):
         mapping = {target_subset: target_name}
-        result = data_helper.transform("map_subsets", mapping=mapping)
-        data_helper.update_dataset(result)
+        data_helper.transform("map_subsets", mapping=mapping)
         st.toast("Rename Subset Success!", icon="🎉")
 
     def gui(self, data_helper: MultipleDatasetHelper, col):
@@ -256,13 +253,14 @@ class TransformSubsetRename(MultipleTransformBase):
         with c2:
             target_name = st.text_input("New subset name", key=f"subset_rename_ti_{col}")
 
-        st.button(
+        btn_subset_rename = st.button(
             "Do Subset Rename",
             use_container_width=True,
-            on_click=self._remap_subset,
-            args=(data_helper, target_subset, target_name),
             key=f"subset_rename_btn_{col}",
         )
+
+        if btn_subset_rename:
+            self._remap_subset(data_helper, target_subset, target_name)
 
 
 class TransformReindexing(MultipleTransformBase):
@@ -280,14 +278,12 @@ class TransformReindexing(MultipleTransformBase):
 
     @staticmethod
     def _reindex_with_index(data_helper, start_index):
-        result = data_helper.transform("reindex", start=start_index)
-        data_helper.update_dataset(result)
+        data_helper.transform("reindex", start=start_index)
         st.toast("Reindex Success!", icon="🎉")
 
     @staticmethod
     def _reindex_with_image(data_helper):
-        result = data_helper.transform("id_from_image_name")
-        data_helper.update_dataset(result)
+        data_helper.transform("id_from_image_name")
         st.toast("Reindex Success!", icon="🎉")
 
     def _display_unique_ids(self, data_helper):
@@ -304,21 +300,35 @@ class TransformReindexing(MultipleTransformBase):
             key=f"item_reindex_input_{col}",
         )
 
-        col2.button(
+        # col2.button(
+        #     f"Set IDs from {start_index}",
+        #     use_container_width=True,
+        #     on_click=self._reindex_with_index,
+        #     args=(data_helper, start_index),
+        #     key=f"item_reindex_btn_{col}",
+        # )
+        btn_reindex_idx = col2.button(
             f"Set IDs from {start_index}",
             use_container_width=True,
-            on_click=self._reindex_with_index,
-            args=(data_helper, start_index),
             key=f"item_reindex_btn_{col}",
         )
+        if btn_reindex_idx:
+            self._reindex_with_index(data_helper, start_index)
 
-        st.button(
+        # st.button(
+        #     "Set IDs with media name",
+        #     use_container_width=True,
+        #     on_click=self._reindex_with_image,
+        #     args=(data_helper),
+        #     key=f"item_media_name_btn_{col}",
+        # )
+        btn_reindex_media = st.button(
             "Set IDs with media name",
             use_container_width=True,
-            on_click=self._reindex_with_image,
-            args=(data_helper),
             key=f"item_media_name_btn_{col}",
         )
+        if btn_reindex_media:
+            self._reindex_with_image(data_helper)
 
         self._display_unique_ids(data_helper)
 
@@ -350,8 +360,7 @@ class TransformFiltration(MultipleTransformBase):
         filter_args = filter_args_dict.get(selected_mode, None)
 
         try:
-            result = data_helper.filter(filter_expr, filter_args)
-            data_helper.update_dataset(result)
+            data_helper.filter(filter_expr, filter_args)
             st.toast("Filter Success!", icon="🎉")
         except Exception as e:
             st.toast(f"Error: {repr(e)}", icon="🚨")
@@ -405,13 +414,20 @@ class TransformFiltration(MultipleTransformBase):
         if show_xml:
             self._display_xml_representation(data_helper, col)
 
-        st.button(
+        # st.button(
+        #     "Filter dataset",
+        #     use_container_width=True,
+        #     on_click=self._filter_dataset,
+        #     args=(data_helper, filter_expr, selected_mode),
+        #     key=f"filter_btn_{col}",
+        # )
+        btn_filter = st.button(
             "Filter dataset",
             use_container_width=True,
-            on_click=self._filter_dataset,
-            args=(data_helper, filter_expr, selected_mode),
             key=f"filter_btn_{col}",
         )
+        if btn_filter:
+            self._filter_dataset(data_helper, filter_expr, selected_mode)
 
 
 class TransformRemove(MultipleTransformBase):
@@ -425,11 +441,10 @@ class TransformRemove(MultipleTransformBase):
 
     @staticmethod
     def _remove_item(data_helper, selected_id, selected_subset):
-        result = data_helper.transform(
+        data_helper.transform(
             "remove_items",
             ids=[(selected_id, selected_subset)],
         )
-        data_helper.update_dataset(result)
         st.toast("Remove Success!", icon="🎉")
 
     @staticmethod
@@ -438,11 +453,10 @@ class TransformRemove(MultipleTransformBase):
         if selected_ann_id != "All":
             ids.append((selected_ann_id,))
 
-        result = data_helper.transform(
+        data_helper.transform(
             "remove_annotations",
             ids=ids,
         )
-        data_helper.update_dataset(result)
         st.toast("Success!", icon="🎉")
 
     def gui(self, data_helper: MultipleDatasetHelper, col):
@@ -462,21 +476,21 @@ class TransformRemove(MultipleTransformBase):
         )
 
         bc1, bc2 = st.columns(2)
-        bc1.button(
+        btn_remove_item = bc1.button(
             "Remove item",
             use_container_width=True,
-            on_click=self._remove_item,
-            args=(data_helper, selected_id, selected_subset),
             key=f"rm_item_btn_{col}",
         )
+        if btn_remove_item:
+            self._remove_item(data_helper, selected_id, selected_subset)
 
-        bc2.button(
+        btn_remove_annot = bc2.button(
             "Remove annotation",
             use_container_width=True,
-            on_click=self._remove_annotation,
-            args=(data_helper, selected_id, selected_subset, selected_ann_id),
             key=f"rm_ann_btn_{col}",
         )
+        if btn_remove_annot:
+            self._remove_annotation(data_helper, selected_id, selected_subset, selected_ann_id)
 
         num_items = len(dataset)
         rc1, rc2 = st.columns([0.3, 0.7])
@@ -592,8 +606,7 @@ class TransformAutoCorrection(MultipleTransformBase):
     def _correct_dataset(data_helper, selected_task, col):
         try:
             reports_src = data_helper.validate(selected_task)
-            result = data_helper.transform("correct", reports=reports_src)
-            data_helper.update_dataset(result)
+            data_helper.transform("correct", reports=reports_src)
             reports_dst = data_helper.validate(selected_task)
             correct_reports = {"src": reports_src, "dst": reports_dst}
             state[f"correct_reports_{col[-1]}"] = correct_reports
@@ -608,13 +621,13 @@ class TransformAutoCorrection(MultipleTransformBase):
             "Select a task", tasks, index=tasks.index(recommended_task), key=f"correct_task_{col}"
         )
 
-        st.button(
+        btn_correct = st.button(
             "Correct a dataset",
             use_container_width=True,
-            on_click=self._correct_dataset,
-            args=(data_helper, selected_task),
             key=f"correct_btn_{col}",
         )
+        if btn_correct:
+            self._correct_dataset(data_helper, selected_task, col)
 
         correct_reports = state[f"correct_reports_{col[-1]}"]
         if correct_reports is not None:
