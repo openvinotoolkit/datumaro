@@ -1,3 +1,7 @@
+# Copyright (C) 2024 Intel Corporation
+#
+# SPDX-License-Identifier: MIT
+
 from streamlit import session_state as state
 from streamlit_elements import mui, nivo
 

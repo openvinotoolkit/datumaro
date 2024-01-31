@@ -1,4 +1,4 @@
-# Copyright (C) 2023 Intel Corporation
+# Copyright (C) 2024 Intel Corporation
 #
 # SPDX-License-Identifier: MIT
 
@@ -13,8 +13,6 @@ class Pie(Dashboard.Item):
         self.name = name
 
     def __call__(self, json_data, legend=True):
-        data = json_data
-
         with mui.Paper(
             key=self._key,
             sx={
@@ -31,6 +29,6 @@ class Pie(Dashboard.Item):
 
             with mui.Box(sx={"flex": 1, "minHeight": 0}):
                 kwargs = self._get_default_kwargs_for_nivo_chart(
-                    data, Dashboard.Chart.Pie, legends=legend
+                    json_data, Dashboard.Chart.Pie, legends=legend
                 )
                 nivo.Pie(**kwargs)

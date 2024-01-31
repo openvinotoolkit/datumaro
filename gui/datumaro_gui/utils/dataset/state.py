@@ -1,4 +1,4 @@
-# Copyright (C) 2019-2023 Intel Corporation
+# Copyright (C) 2024 Intel Corporation
 #
 # SPDX-License-Identifier: MIT
 
@@ -12,9 +12,6 @@ single_state_keys = [
     "uploaded_file",
     "data_helper",
     "subset",
-    # "stats_image",
-    # "stats_anns",
-    # "image_size_info",
     "cls_summary",
     "cls_anomaly_info",
     "det_summary",

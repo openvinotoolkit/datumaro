@@ -1,4 +1,4 @@
-# Copyright (C) 2019-2023 Intel Corporation
+# Copyright (C) 2024 Intel Corporation
 #
 # SPDX-License-Identifier: MIT
 
@@ -13,8 +13,6 @@ class Bar(Dashboard.Item):
         self.name = name
 
     def __call__(self, json_data):
-        data = json_data
-
         with mui.Paper(
             key=self._key,
             sx={
@@ -31,7 +29,7 @@ class Bar(Dashboard.Item):
 
             with mui.Box(sx={"flex": 1, "minHeight": 0}):
                 nivo.Bar(
-                    data=data,
+                    data=json_data,
                     margin={"top": 40, "right": 80, "bottom": 80, "left": 80},
                     innerRadius=0.5,
                     padAngle=0.7,

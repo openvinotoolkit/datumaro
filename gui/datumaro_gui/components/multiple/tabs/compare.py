@@ -1,4 +1,4 @@
-# Copyright (C) 2019-2023 Intel Corporation
+# Copyright (C) 2024 Intel Corporation
 #
 # SPDX-License-Identifier: MIT
 
@@ -15,6 +15,23 @@ from streamlit_elements import elements
 
 from datumaro.components.annotation import AnnotationType
 from datumaro.components.comparator import TableComparator
+
+
+def normalize_string(s):
+    s = s.lower()
+    s = s.replace(" ", "")
+    return s
+
+
+def get_dataframe(table):
+    lines = table.split("\n")
+    data_lines = [re.split(r"\s*[|]\s*", line.strip("|")) for line in lines if "|" in line]
+    header = [header.strip() for header in data_lines[0] if header.strip()]
+
+    df = pd.DataFrame(data_lines[1:], columns=header)
+    df = df.applymap(lambda x: x.strip() if isinstance(x, str) else x)
+
+    return df
 
 
 def main():
@@ -45,27 +62,8 @@ def main():
                 first_dataset, second_dataset, "mid"
             )
 
-            ### high level
-            high_level_lines = high_level_table.split("\n")
-            high_level_data_lines = [
-                re.split(r"\s*[|]\s*", line.strip("|")) for line in high_level_lines if "|" in line
-            ]
-            high_level_header = [
-                header.strip() for header in high_level_data_lines[0] if header.strip()
-            ]
-            high_level_df = pd.DataFrame(high_level_data_lines[1:], columns=high_level_header)
-            high_level_df = high_level_df.applymap(lambda x: x.strip() if isinstance(x, str) else x)
-
-            ### mid level
-            mid_level_lines = mid_level_table.split("\n")
-            mid_level_data_lines = [
-                re.split(r"\s*[|]\s*", line.strip("|")) for line in mid_level_lines if "|" in line
-            ]
-            mid_level_header = [
-                header.strip() for header in mid_level_data_lines[0] if header.strip()
-            ]
-            mid_level_df = pd.DataFrame(mid_level_data_lines[1:], columns=mid_level_header)
-            mid_level_df = mid_level_df.applymap(lambda x: x.strip() if isinstance(x, str) else x)
+            high_level_df = get_dataframe(high_level_table)
+            mid_level_df = get_dataframe(mid_level_table)
 
             state["high_level_table"] = high_level_df
             state["mid_level_table"] = mid_level_df
@@ -101,19 +99,7 @@ def main():
                     _, _, low_level_table, _ = comparator.compare_datasets(
                         first_dataset, second_dataset, "low"
                     )
-                    low_level_lines = low_level_table.split("\n")
-                    low_level_data_lines = [
-                        re.split(r"\s*[|]\s*", line.strip("|"))
-                        for line in low_level_lines
-                        if "|" in line
-                    ]
-                    low_level_header = [
-                        header.strip() for header in low_level_data_lines[0] if header.strip()
-                    ]
-                    low_level_df = pd.DataFrame(low_level_data_lines[1:], columns=low_level_header)
-                    low_level_df = low_level_df.applymap(
-                        lambda x: x.strip() if isinstance(x, str) else x
-                    )
+                    low_level_df = get_dataframe(low_level_table)
                     state["low_level_table"] = low_level_df
 
                 c1.dataframe(low_level_df, use_container_width=True)

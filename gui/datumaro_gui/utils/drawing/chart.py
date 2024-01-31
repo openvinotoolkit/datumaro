@@ -1,3 +1,7 @@
+# Copyright (C) 2024 Intel Corporation
+#
+# SPDX-License-Identifier: MIT
+
 from streamlit_elements import mui, nivo
 
 from .dashboard import Dashboard
