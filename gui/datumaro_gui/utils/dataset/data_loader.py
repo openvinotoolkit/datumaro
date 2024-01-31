@@ -1,4 +1,4 @@
-# Copyright (C) 2019-2023 Intel Corporation
+# Copyright (C) 2024 Intel Corporation
 #
 # SPDX-License-Identifier: MIT
 
@@ -80,17 +80,6 @@ class DataRepo:
                     if len(zipinfo.filename) > start:
                         zipinfo.filename = zipinfo.filename[start:]
                         z.extract(zipinfo, directory)
-            # except AttributeError:
-            #     directory = (os.sep).join(uploaded_zip.split(os.sep)[:-1])
-            #     dataset_root = find_dataset_root(z.namelist())
-            #     result_path = os.path.join(directory, dataset_root)
-            #     start = len(dataset_root)
-            #     zipinfos = z.infolist()
-
-            #     for zipinfo in zipinfos:
-            #         if len(zipinfo.filename) > start:
-            #             zipinfo.filename = zipinfo.filename[start:]
-            #             z.extract(zipinfo, result_path)
         return directory
 
     def zip_dataset(_self, directory: str, output_fn: str = "dataset.zip") -> str:
@@ -216,7 +205,6 @@ class DatasetHelper:
 
     def transform(_self, method: str, **kwargs):
         _self._dm_dataset = _self._dm_dataset.transform(method, **kwargs)
-        # print(f"transform {method} called with {kwargs}")
         _self._init_dependent_variables()
         return _self._dm_dataset
 

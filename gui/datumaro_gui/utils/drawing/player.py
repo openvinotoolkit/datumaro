@@ -1,4 +1,4 @@
-# Copyright (C) 2019-2023 Intel Corporation
+# Copyright (C) 2024 Intel Corporation
 #
 # SPDX-License-Identifier: MIT
 
@@ -8,9 +8,11 @@ from .dashboard import Dashboard
 
 
 class Player(Dashboard.Item):
+    YOUTUBE_VIDEO_URL = "https://www.youtube.com/watch?v=CmSKVW1v0xM"
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self._url = "https://www.youtube.com/watch?v=CmSKVW1v0xM"
+        self._url = self.YOUTUBE_VIDEO_URL
 
     def _set_url(self, event):
         self._url = event.target.value
@@ -42,10 +44,12 @@ class Player(Dashboard.Item):
                     label="URL",
                     variant="standard",
                     sx={"flex": 0.97},
-                    onChange=lazy(self._set_url),
+                    onSubmit=lazy(self._set_url),
                 )
                 mui.IconButton(
-                    mui.icon.PlayCircleFilled, onClick=sync(), sx={"color": "primary.main"}
+                    mui.icon.PlayCircleFilled,
+                    onClick=sync(
+                        lambda: media.Player(self._url, controls=True, width="100%", height="100%")
+                    ),
+                    sx={"color": "primary.main"},
                 )
-
-            media.Player(self._url, controls=True, width="100%", height="100%")

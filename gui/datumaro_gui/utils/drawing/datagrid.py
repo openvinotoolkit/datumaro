@@ -1,6 +1,7 @@
-# Copyright (C) 2023 Intel Corporation
+# Copyright (C) 2024 Intel Corporation
 #
 # SPDX-License-Identifier: MIT
+
 from streamlit_elements import mui
 
 from .dashboard import Dashboard
@@ -36,7 +37,7 @@ class DataGrid(Dashboard.Item):
         self,
         data,
         grid_icon: Dashboard.Icon = None,
-        grid_name=None,
+        grid_name="Data grid",
         columns=None,
         checkbox_selection=True,
     ):
@@ -51,11 +52,8 @@ class DataGrid(Dashboard.Item):
             elevation=1,
         ):
             with self.title_bar(padding="10px 15px 10px 15px", dark_switcher=False):
-                if grid_icon is not None:
-                    grid_icon.mui()
-                else:
-                    mui.icon.ViewCompact()
-                mui.Typography(grid_name) if grid_name else mui.Typograph("Data grid")
+                (grid_icon.mui() if grid_icon else mui.icon.ViewCompact())
+                mui.Typography(grid_name)
 
             with mui.Box(sx={"flex": 1, "minHeight": 0}):
                 mui.DataGrid(

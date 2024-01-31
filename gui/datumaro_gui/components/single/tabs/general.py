@@ -1,4 +1,4 @@
-# Copyright (C) 2019-2023 Intel Corporation
+# Copyright (C) 2024 Intel Corporation
 #
 # SPDX-License-Identifier: MIT
 
@@ -23,16 +23,6 @@ def main():
     stats_image = data_helper.get_image_stats()  # state["stats_image"]
     stats_anns = data_helper.get_ann_stats()  # state["stats_anns"]
     image_size_info = data_helper.get_image_size_info()  # state["image_size_info"]
-
-    # if stats_image is None:
-    #     stats_image = data_helper.get_image_stats()
-    #     state["stats_image"] = stats_image
-    # if stats_anns is None:
-    #     stats_anns = data_helper.get_ann_stats()
-    #     state["stats_anns"] = stats_anns
-    # if image_size_info is None:
-    #     image_size_info = data_helper.get_image_size_info()
-    #     state["image_size_info"] = image_size_info
 
     image_mean = image_size_info["image_size"]["mean"]
 

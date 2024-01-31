@@ -1,4 +1,4 @@
-# Copyright (C) 2023 Intel Corporation
+# Copyright (C) 2024 Intel Corporation
 #
 # SPDX-License-Identifier: MIT
 
@@ -32,52 +32,32 @@ class Dashboard:
             yield
 
     class Icon(IntEnum):
-        Label = (0,)
-        Info = (1,)
-        Warning = (2,)
-        PieChart = (3,)
-        Radar = (4,)
-        Collections = (5,)
-        ScatterPlot = (6,)
+        Label, Info, Warning, PieChart, Radar, Collections, ScatterPlot = range(7)
 
         @property
         def mui(self):
-            if self == self.Label:
-                return mui.icon.Label
-            if self == self.Info:
-                return mui.icon.Info
-            if self == self.Warning:
-                return mui.icon.Warning
-            if self == self.PieChart:
-                return mui.icon.PieChart
-            if self == self.Radar:
-                return mui.icon.Radar
-            if self == self.Collections:
-                return mui.icon.Collections
-            if self == self.ScatterPlot:
-                return mui.icon.ScatterPlot
-            return None
+            return {
+                self.Label: mui.icon.Label,
+                self.Info: mui.icon.Info,
+                self.Warning: mui.icon.Warning,
+                self.PieChart: mui.icon.PieChart,
+                self.Radar: mui.icon.Radar,
+                self.Collections: mui.icon.Collections,
+                self.ScatterPlot: mui.icon.ScatterPlot,
+            }.get(self)
 
     class Chart(IntEnum):
-        Bar = (0,)
-        Pie = (1,)
-        Radar = (2,)
-        Sunburst = (3,)
-        ScatterPlot = (4,)
+        Bar, Pie, Radar, Sunburst, ScatterPlot = range(5)
 
         @property
         def icon(self):
-            if self == self.Bar:
-                return mui.icon.BarChart
-            if self == self.Pie:
-                return mui.icon.PieChart
-            if self == self.Radar:
-                return mui.icon.Radar
-            if self == self.Sunburst:
-                return mui.icon.DonutLarge
-            if self == self.ScatterPlot:
-                return mui.icon.ScatterPlot
-            return None
+            return {
+                self.Bar: mui.icon.BarChart,
+                self.Pie: mui.icon.PieChart,
+                self.Radar: mui.icon.Radar,
+                self.Sunburst: mui.icon.DonutLarge,
+                self.ScatterPlot: mui.icon.ScatterPlot,
+            }.get(self)
 
     class Item(ABC):
         def __init__(self, board, x, y, w, h, **item_props):

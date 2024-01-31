@@ -1,3 +1,7 @@
+# Copyright (C) 2024 Intel Corporation
+#
+# SPDX-License-Identifier: MIT
+
 import re
 
 # Define a custom CSS style
@@ -102,5 +106,6 @@ def apply_css_styles(css_string, *class_names):
 def merge_styles(*style_dicts):
     merged_styles = {}
     for style_dict in style_dicts:
-        merged_styles.update(style_dict)
-    return merged_styles
+        for key, value in style_dict.items():
+            merged_styles.setdefault(key, []).append(value)
+    return {key: " ".join(values) for key, values in merged_styles.items()}

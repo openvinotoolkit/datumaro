@@ -1,4 +1,4 @@
-# Copyright (C) 2023 Intel Corporation
+# Copyright (C) 2024 Intel Corporation
 #
 # SPDX-License-Identifier: MIT
 
@@ -9,20 +9,20 @@ from .dashboard import Dashboard
 
 class DatasetInfoBox(Dashboard.Item):
     def _draw_text_with_icon(self, icon, text, title=False):
-        padding = [5, 15, 5, 15]
+        padding = {"top": 5, "right": 15, "bottom": 5, "left": 15}
         if title:
             variant = "h6"
-            padding[0] = 15
+            padding["top"] = 15
         else:
             variant = "body2"
-            padding[3] = 40
+            padding["left"] = 40
 
         with mui.Stack(
             alignItems="center",
             direction="row",
             spacing=1,
             sx={
-                "padding": f"{padding[0]}px {padding[1]}px {padding[2]}px {padding[3]}px",
+                "padding": f"{padding['top']}px {padding['right']}px {padding['bottom']}px {padding['left']}px",
                 "borderBottom": 0,
                 "borderColor": "divider",
             },
@@ -76,10 +76,6 @@ class DatasetInfoBox(Dashboard.Item):
                 self._draw_text_with_icon(
                     mui.icon.FolderCopy, f"{data['n_subsets']} Subsets", title=True
                 )
-                # self._draw_text_with_icon(
-                #   mui.icon.InfoOutlined,
-                #   f"{n_images / len(num_subset_info):,.1f} Images / Subset"
-                # )
 
                 mui.Divider(sx={"padding": "5px"})
                 n_anns = data["n_anns"]

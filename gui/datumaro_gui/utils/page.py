@@ -1,4 +1,8 @@
-from typing import Callable, Optional
+# Copyright (C) 2024 Intel Corporation
+#
+# SPDX-License-Identifier: MIT
+
+from typing import Callable
 
 import streamlit as st
 
@@ -18,17 +22,12 @@ class PageGroup:
         self._default: str = None
         self._selected: str = None
 
-        # Fix some rollback issues when multiple pages are selected in the same run.
-        self._backup: Optional[str] = None
-
     @property
-    def selected(self) -> bool:
+    def selected(self) -> str:
         params = st.experimental_get_query_params()
-        return params[self._param][0] if self._param in params else self._default
+        return params.get(self._param, [self._default])[0]
 
     def item(self, label: str, callback: Callable, default=False) -> None:
-        self._backup = None
-
         key = f"{__name__}_{self._param}_{label}"
         page = self._normalize_label(label)
 
@@ -51,14 +50,7 @@ class PageGroup:
 
     def _on_change(self, page: str) -> None:
         params = st.experimental_get_query_params()
-
-        if self._backup is None:
-            if self._param in params:
-                self._backup = params[self._param][0]
-            params[self._param] = [page]
-        else:
-            params[self._param] = [self._backup]
-
+        params[self._param] = [page]
         st.experimental_set_query_params(**params)
 
     def _normalize_label(self, label: str) -> str:

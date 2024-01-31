@@ -1,4 +1,4 @@
-# Copyright (C) 2019-2023 Intel Corporation
+# Copyright (C) 2024 Intel Corporation
 #
 # SPDX-License-Identifier: MIT
 
@@ -113,8 +113,6 @@ def main():
                 "EXPORT": tabs.call_export,
             }
             tab_funcs.get(selected_tab, tabs.call_general)()
-        # else:
-        #     st.write("Can't load dataset")
 
 
 if __name__ == "__main__":
