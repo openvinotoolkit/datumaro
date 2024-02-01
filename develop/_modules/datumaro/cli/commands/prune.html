@@ -283,6 +283,7 @@
 
 <span class="kn">import</span> <span class="nn">argparse</span>
 <span class="kn">import</span> <span class="nn">logging</span> <span class="k">as</span> <span class="nn">log</span>
+<span class="kn">import</span> <span class="nn">os.path</span> <span class="k">as</span> <span class="nn">osp</span>
 
 <span class="kn">from</span> <span class="nn">datumaro.components.algorithms.hash_key_inference.prune</span> <span class="kn">import</span> <span class="n">Prune</span>
 <span class="kn">from</span> <span class="nn">datumaro.components.errors</span> <span class="kn">import</span> <span class="n">ProjectNotFoundError</span>
@@ -324,7 +325,13 @@
         <span class="n">formatter_class</span><span class="o">=</span><span class="n">MultilineFormatter</span><span class="p">,</span>
     <span class="p">)</span>
 
-    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;target&quot;</span><span class="p">,</span> <span class="n">nargs</span><span class="o">=</span><span class="s2">&quot;?&quot;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Target dataset revpath (default: project)&quot;</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">&quot;target&quot;</span><span class="p">,</span>
+        <span class="n">nargs</span><span class="o">=</span><span class="s2">&quot;?&quot;</span><span class="p">,</span>
+        <span class="n">default</span><span class="o">=</span><span class="s2">&quot;project&quot;</span><span class="p">,</span>
+        <span class="n">metavar</span><span class="o">=</span><span class="s2">&quot;revpath&quot;</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Target dataset revpath (default: project)&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
     <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;-m&quot;</span><span class="p">,</span> <span class="s2">&quot;--method&quot;</span><span class="p">,</span> <span class="n">dest</span><span class="o">=</span><span class="s2">&quot;method&quot;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Method to apply to the dataset&quot;</span><span class="p">)</span>
     <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
         <span class="s2">&quot;-r&quot;</span><span class="p">,</span> <span class="s2">&quot;--ratio&quot;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">float</span><span class="p">,</span> <span class="n">dest</span><span class="o">=</span><span class="s2">&quot;ratio&quot;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;How much to remain dataset after pruning&quot;</span>
@@ -389,12 +396,12 @@
     <span class="n">source_dataset</span> <span class="o">=</span> <span class="p">[</span><span class="n">parse_full_revpath</span><span class="p">(</span><span class="n">target</span><span class="p">,</span> <span class="n">project</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">target</span> <span class="ow">in</span> <span class="n">targets</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
 
     <span class="n">prune</span> <span class="o">=</span> <span class="n">Prune</span><span class="p">(</span><span class="n">source_dataset</span><span class="p">,</span> <span class="n">cluster_method</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">method</span><span class="p">,</span> <span class="n">hash_type</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">hash_type</span><span class="p">)</span>
-
-    <span class="n">source_dataset</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">source_dataset</span><span class="o">.</span><span class="n">data_path</span><span class="p">,</span> <span class="n">save_media</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">save_hashkey_meta</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-
     <span class="n">result</span> <span class="o">=</span> <span class="n">prune</span><span class="o">.</span><span class="n">get_pruned</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">ratio</span><span class="p">)</span>
 
     <span class="n">dst_dir</span> <span class="o">=</span> <span class="n">args</span><span class="o">.</span><span class="n">dst_dir</span> <span class="ow">or</span> <span class="n">source_dataset</span><span class="o">.</span><span class="n">data_path</span>
+    <span class="n">dst_dir</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="n">dst_dir</span> <span class="k">if</span> <span class="n">dst_dir</span> <span class="k">else</span> <span class="n">osp</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">project_dir</span><span class="p">,</span> <span class="nb">list</span><span class="p">(</span><span class="n">project</span><span class="o">.</span><span class="n">working_tree</span><span class="o">.</span><span class="n">sources</span><span class="p">)[</span><span class="mi">0</span><span class="p">])</span>
+    <span class="p">)</span>
     <span class="n">result</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">dst_dir</span><span class="p">,</span> <span class="n">save_media</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
     <span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Results have been saved to &#39;</span><span class="si">%s</span><span class="s2">&#39;&quot;</span> <span class="o">%</span> <span class="n">dst_dir</span><span class="p">)</span></div>
