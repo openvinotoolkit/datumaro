@@ -24,6 +24,7 @@ Supported Data Formats
    icdar
    image_zip
    imagenet
+   kaggle
    kinetics
    kitti
    kitti_raw
@@ -111,6 +112,9 @@ Supported Data Formats
    * `Dataset example (txt for classification) <https://github.com/openvinotoolkit/datumaro/tree/develop/tests/assets/imagenet_txt_dataset>`_
    * Detection format is the same as in PASCAL VOC
    * `Format documentation <imagenet.md>`_
+* Kaggle (``classification``, ``detection``, ``segmentation``) (import-only)
+   * `Dataset examples <https://github.com/openvinotoolkit/datumaro/tree/develop/tests/assets/kaggle_datasets>`_
+   * `Format documentation <kaggle.md>`_
 * KITTI (``segmentation``, ``detection``)
    * `Format specification <http://www.cvlibs.net/datasets/kitti/index.php>`_
    * `Dataset example <https://github.com/openvinotoolkit/datumaro/tree/develop/tests/assets/kitti_dataset>`_
