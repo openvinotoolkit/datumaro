@@ -6,7 +6,7 @@
 All datasets are available for downloading at [here](https://www.kaggle.com/datasets?tags=13207-Computer+Vision).
 However, since Kaggle doesn't enforce community to follow specific rule for dataset uploads, it is more natural to explore a dataset directoy structure by manual.
 So it eventually requires to take some time for importing those datasets into their machine learning codes.
-Therefore, Datumaro is providing ability to import them through Datumaro Python APIs.
+Therefore, Datumaro is providing an ability to import them through Datumaro Python APIs.
 
 Supported type of annotations:
 - `Label` (classification)
@@ -15,7 +15,7 @@ Supported type of annotations:
 
 ## Import Kaggle Image CSV dataset
 
-Indeed, Kaggle doesn't have any specific directory structure, and Datumaro hence requires more arguments for importing.
+Indeed, Kaggle doesn't have any specific directory structure, and Datumaro hence requires more user-aided arguments for importing.
 For `kaggle_image_csv` format, we want to have one `csv` file and `image_directory` as shown below.
 
 ```
@@ -42,6 +42,7 @@ import datumaro as dm
 
 dataset = dm.Dataset.import_from('<path_to_image_directory>', format='kaggle_image_csv', ann_file='<path_to_csv_file>', columns={"media": "column_name_of_media", "label": "column_name_of_label"})
 ```
+At this time, it's essential to specify the column names for media and label such as `dm.Dataset.import_from(..., columns={"media": "column_name_of_media", "label": "column_name_of_label"})`
 
 ## Import Kaggle Image Txt dataset
 
