@@ -251,7 +251,7 @@ class KaggleImageMaskBase(DatasetBase):
             return lambda: mask == c
 
         items = []
-        for media_name in os.listdir(self._path):
+        for media_name in sorted(os.listdir(self._path)):
             id = osp.splitext(media_name)[0]
 
             anns = []
@@ -304,7 +304,7 @@ class KaggleVocBase(SubsetBase):
         self._items = []
         self._size = None
 
-        for img_filename in os.listdir(path):
+        for img_filename in sorted(os.listdir(path)):
             if not img_filename.lower().endswith(tuple(IMAGE_EXTENSIONS)):
                 continue
             item_id = osp.splitext(img_filename)[0]
