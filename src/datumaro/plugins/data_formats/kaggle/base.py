@@ -251,7 +251,7 @@ class KaggleImageMaskBase(DatasetBase):
             return lambda: mask == c
 
         items = []
-        for media_name in os.listdir(self._path):
+        for media_name in sorted(os.listdir(self._path)):
             id = osp.splitext(media_name)[0]
 
             anns = []
