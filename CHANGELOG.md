@@ -33,6 +33,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   (<https://github.com/openvinotoolkit/datumaro/pull/1229>)
 - Change RoIImage and MosaicImage to have np.uint8 dtype as default
   (<https://github.com/openvinotoolkit/datumaro/pull/1245>)
+- Enable image backend and color channel format to be selectable
+  (<https://github.com/openvinotoolkit/datumaro/pull/1246>)
+- Enhance Datumaro data format detect() to be memory-bounded and performant
+  (<https://github.com/openvinotoolkit/datumaro/pull/1229>)
 
 ### Bug fixes
 - Fix wrong example of Datumaro dataset creation in document
@@ -62,7 +66,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Add default value for target in prune cli
   (<https://github.com/openvinotoolkit/datumaro/pull/1253>)
 
-## 16/11/2023 - Release 1.5.1
+## Jan. 2024 Release 1.5.2
+### Enhancements
+- Add memory bounded datumaro data format detect to release 1.5.1
+  (<https://github.com/openvinotoolkit/datumaro/pull/1241>)
+- Bump version string to 1.5.2
+  (<https://github.com/openvinotoolkit/datumaro/pull/1249>)
+- Remove Protobuf version limitation (<4)
+  (<https://github.com/openvinotoolkit/datumaro/pull/1248>)
+
+## Nov. 2023 Release 1.5.1
 ### Enhancements
 - Enhance Datumaro data format stream importer performance
   (<https://github.com/openvinotoolkit/datumaro/pull/1153>)
@@ -72,8 +85,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   (<https://github.com/openvinotoolkit/datumaro/pull/1174>)
 - Add ImportError to catch GitPython import error
   (<https://github.com/openvinotoolkit/datumaro/pull/1174>)
-- Enable image backend and color channel format to be selectable
-  (<https://github.com/openvinotoolkit/datumaro/pull/1246>)
 
 ### Bug fixes
 - Modify the draw function in the visualizer not to raise an error for unsupported annotation types.

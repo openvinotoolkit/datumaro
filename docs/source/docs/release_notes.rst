@@ -4,6 +4,15 @@ Release Notes
 .. toctree::
    :maxdepth: 1
 
+v1.5.2 (2024.01)
+----------------
+
+Enhancements
+^^^^^^^^^^^^
+
+- Add memory bounded datumaro data format detect
+- Remove Protobuf version limitation (<4)
+
 v1.5.1 (2023.11)
 ----------------
 
