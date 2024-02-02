@@ -6,17 +6,15 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## Jan. 2024 Release 1.5.2
-
 ### Enhancements
 - Add memory bounded datumaro data format detect to release 1.5.1
   (<https://github.com/openvinotoolkit/datumaro/pull/1241>)
-- Update protobuf version
-  (<https://github.com/openvinotoolkit/datumaro/pull/1248>)
 - Bump version string to 1.5.2
   (<https://github.com/openvinotoolkit/datumaro/pull/1249>)
+- Remove Protobuf version limitation (<4)
+  (<https://github.com/openvinotoolkit/datumaro/pull/1248>)
 
 ## Nov. 2023 Release 1.5.1
-
 ### Enhancements
 - Enhance Datumaro data format stream importer performance
   (<https://github.com/openvinotoolkit/datumaro/pull/1153>)
@@ -28,8 +26,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   (<https://github.com/openvinotoolkit/datumaro/pull/1174>)
 - Enhance Datumaro data format detect() to be memory-bounded and performant
   (<https://github.com/openvinotoolkit/datumaro/pull/1229>)
-- Remove Protobuf version limitation (<4)
-  (<https://github.com/openvinotoolkit/datumaro/pull/1248>)
 
 ### Bug fixes
 - Modify the draw function in the visualizer not to raise an error for unsupported annotation types.
