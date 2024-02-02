@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<annotation>
+  <folder>VOC2007</folder>
+  <filename>2007_000001.jpg</filename>
+  <size>
+    <width>20</width>
+    <height>10</height>
+    <depth>3</depth>
+  </size>
+  <segmented>1</segmented>
+  <object>
+    <name>cat</name>
+    <bndbox>
+      <xmin>1</xmin>
+      <ymin>2</ymin>
+      <xmax>3</xmax>
+      <ymax>4</ymax>
+    </bndbox>
+  </object>
+  <object>
+    <name>person</name>
+    <bndbox>
+      <xmin>4</xmin>
+      <ymin>5</ymin>
+      <xmax>6</xmax>
+      <ymax>7</ymax>
+    </bndbox>
+  </object>
+</annotation>

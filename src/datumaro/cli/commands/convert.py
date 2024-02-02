@@ -135,7 +135,7 @@ def convert_command(args):
         log.info(f"Source dataset format detected as {fmt}")
 
     if fmt == args.output_format:
-        log.error("The source data format and the output data format is same as {fmt}.")
+        log.error(f"The source data format and the output data format is same as {fmt}.")
         return 3
 
     source = osp.abspath(args.source)

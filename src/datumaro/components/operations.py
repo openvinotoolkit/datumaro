@@ -5,6 +5,7 @@
 import hashlib
 import logging as log
 import warnings
+from collections import defaultdict
 from copy import deepcopy
 from typing import Callable, Dict, Optional, Set, Tuple
 
@@ -225,10 +226,20 @@ def compute_image_statistics(dataset: IDataset):
 
 
 def compute_ann_statistics(dataset: IDataset):
-    labels = dataset.categories().get(AnnotationType.label, LabelCategories())
+    warnings.warn(
+        "We are planning to change the type of stats['annotations']['labels']['distribution'] "
+        "and stats['annotations']['segments']['pixel distribution'] from `list` to `(named) tuple`. "
+        "If you are checking the types in your code, please revisit it after upgrading datumaro>=2.0.0.",
+        FutureWarning,
+    )
+    labels: LabelCategories = dataset.categories().get(AnnotationType.label, LabelCategories())
 
     def get_label(ann):
-        return labels.items[ann.label].name if ann.label is not None else None
+        try:
+            return labels.items[ann.label].name if ann.label is not None else None
+        except IndexError:
+            log.warning(f"annotation({ann}) has undefined label({ann.label})")
+            return ann.label
 
     stats = {
         "images count": 0,
@@ -253,20 +264,25 @@ def compute_ann_statistics(dataset: IDataset):
     }
     label_stat = {
         "count": 0,
-        "distribution": {l.name: [0, 0] for l in labels.items},  # label -> (count, total%)
+        "distribution": defaultdict(lambda: [0, 0]),  # label -> (count, total%)
         "attributes": {},
     }
+
     stats["annotations"]["labels"] = label_stat
     segm_stat = {
         "avg. area": 0,
         "area distribution": [],  # a histogram with 10 bins
         # (min, min+10%), ..., (min+90%, max) -> (count, total%)
-        "pixel distribution": {l.name: [0, 0] for l in labels.items},  # label -> (count, total%)
+        "pixel distribution": defaultdict(lambda: [0, 0]),  # label -> (count, total%)
     }
     stats["annotations"]["segments"] = segm_stat
     segm_areas = []
     pixel_dist = segm_stat["pixel distribution"]
     total_pixels = 0
+
+    for l in labels.items:
+        label_stat["distribution"][l.name] = [0, 0]
+        pixel_dist[l.name] = [0, 0]
 
     for item in dataset:
         if len(item.annotations) == 0:

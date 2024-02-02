@@ -8,22 +8,24 @@ import os.path as osp
 import warnings
 from collections import Counter
 from enum import Enum, auto
-from itertools import zip_longest
-from typing import Union
+from typing import TYPE_CHECKING, Union
 
 import cv2
 import numpy as np
 
-from datumaro.components.media import Image
-
-with warnings.catch_warnings():
-    warnings.simplefilter("ignore")
-    import tensorboardX as tb
-
 from datumaro.components.annotation import AnnotationType, LabelCategories
 from datumaro.components.dataset import IDataset
+from datumaro.components.media import Image
 from datumaro.util import parse_str_enum_value
 from datumaro.util.image import save_image
+from datumaro.util.import_util import lazy_import
+
+if TYPE_CHECKING:
+    with warnings.catch_warnings():
+        warnings.simplefilter("ignore")
+        import tensorboardX as tb
+else:
+    tb = lazy_import("tensorboardX")
 
 
 class DistanceCompareVisualizer:
@@ -77,22 +79,18 @@ class DistanceCompareVisualizer:
         if len(a) != len(b):
             print("Datasets have different lengths: %s vs %s" % (len(a), len(b)))
 
-        a_classes = a.categories().get(AnnotationType.label, LabelCategories())
-        b_classes = b.categories().get(AnnotationType.label, LabelCategories())
-        class_mismatch = [
-            (idx, a_cls, b_cls)
-            for idx, (a_cls, b_cls) in enumerate(zip_longest(a_classes, b_classes))
-            if getattr(a_cls, "name", None) != getattr(b_cls, "name", None)
-        ]
-        if class_mismatch:
+        a_classes = set(a.get_label_cat_names())
+        b_classes = set(b.get_label_cat_names())
+
+        if a_classes ^ b_classes:
             print("Datasets have mismatching labels:")
-            for idx, a_class, b_class in class_mismatch:
-                if a_class and b_class:
-                    print("  #%s: %s != %s" % (idx, a_class.name, b_class.name))
-                elif a_class:
-                    print("  #%s:  > %s" % (idx, a_class.name))
-                else:
-                    print("  #%s:  < %s" % (idx, b_class.name))
+
+        for idx, diff in enumerate(a_classes - b_classes):
+            print(" #%s: > %s" % (idx, diff))
+
+        for idx, diff in enumerate(b_classes - a_classes, start=len((a_classes - b_classes))):
+            print(" #%s: < %s" % (idx, diff))
+
         self._a_classes = a.categories().get(AnnotationType.label)
         self._b_classes = b.categories().get(AnnotationType.label)
 

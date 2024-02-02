@@ -61,6 +61,12 @@ class Requirements:
     DATUM_BUG_618 = "ResizeTransform returns broken image pixels"
     DATUM_BUG_721 = "Explain command cannot find the model"
     DATUM_BUG_873 = "Error using datum stats"
+    DATUM_BUG_1204 = (
+        "Statistics raise an error when there is a label annotation not in the category"
+    )
+    DATUM_BUG_1214 = (
+        "Dataset.import_from() can import nested datasets that exist in the given path."
+    )
 
 
 class SkipMessages:

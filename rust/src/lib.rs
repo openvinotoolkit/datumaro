@@ -2,12 +2,11 @@
 //
 //  SPDX-License-Identifier: MIT
 
-mod coco_page_mapper;
-mod datum_page_mapper;
-mod json_section_page_mapper;
+pub mod coco_page_mapper;
+pub mod datum_page_mapper;
+pub mod json_section_page_mapper;
 mod page_mapper;
 mod page_maps;
-mod test_helpers;
 mod utils;
 use pyo3::prelude::*;
 

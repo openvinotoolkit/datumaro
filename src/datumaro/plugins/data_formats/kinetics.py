@@ -66,11 +66,13 @@ class KineticsBase(DatasetBase):
             return self._subset_media_files[subset]
 
         subset_path = self._subset_path(subset)
-        self._subset_media_files[subset] = {
-            osp.splitext(osp.basename(f))[0]: osp.join(subset_path, f)
-            for f in os.listdir(subset_path)
-            if osp.splitext(osp.basename(f))[1] in VIDEO_EXTENSIONS
-        }
+
+        self._subset_media_files[subset] = {}
+        for root, _, files in os.walk(subset_path):
+            for f in files:
+                key, file_extension = osp.splitext(f)
+                if file_extension.lstrip(".") in VIDEO_EXTENSIONS:
+                    self._subset_media_files[subset][key] = osp.join(root, f)
 
         return self._subset_media_files[subset]
 

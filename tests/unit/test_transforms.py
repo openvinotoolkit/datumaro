@@ -583,6 +583,25 @@ class TransformsTest(TestCase):
             )
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
+    def test_rename_item(self):
+        src_dataset = Dataset.from_iterable(
+            [
+                DatasetItem(id="frame_1"),
+                DatasetItem(id="frame_2"),
+                DatasetItem(id="frame_3"),
+            ]
+        )
+        expected = Dataset.from_iterable(
+            [
+                DatasetItem(id="1"),
+                DatasetItem(id="2"),
+                DatasetItem(id="3"),
+            ]
+        )
+        actual = transforms.Rename(src_dataset, "|^frame_|")
+        compare_datasets(self, expected, actual)
+
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_remap_labels(self):
         src_dataset = Dataset.from_iterable(
             [

@@ -27,6 +27,8 @@ class ClipVisualViTB32ModelInterpreter(IModelInterpreter):
         img = cv2.resize(img, (224, 224))
         img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
         img = (img - self.mean) / self.std
+        if len(img.shape) == 3 and img.shape[2] in {3, 4}:
+            img = np.transpose(img, (2, 0, 1))
         return img, None
 
     def postprocess(self, pred: ModelPred, info: PrepInfo) -> List[Annotation]:

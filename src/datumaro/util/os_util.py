@@ -67,7 +67,7 @@ def walk(path, max_depth: Optional[int] = None, min_depth: Optional[int] = None)
         min_depth = DEFAULT_MIN_DEPTH
 
     baselevel = path.count(osp.sep)
-    for dirpath, dirnames, filenames in os.walk(path, topdown=True):
+    for dirpath, dirnames, filenames in os.walk(path, topdown=True, followlinks=True):
         curlevel = dirpath.count(osp.sep)
         if baselevel + min_depth > curlevel:
             continue

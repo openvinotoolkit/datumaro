@@ -51,6 +51,9 @@ exclude_lines = [
     # Don't complain if non-runnable code isn't run:
     'if 0:',
     'if __name__ == .__main__.:',
+
+    # Don't complain for the type checking code:
+    'if TYPE_CHECKING:'
 ]
 
 # don't fail on the code that can be found

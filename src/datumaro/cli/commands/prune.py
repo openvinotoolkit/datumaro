@@ -4,6 +4,7 @@
 
 import argparse
 import logging as log
+import os.path as osp
 
 from datumaro.components.algorithms.hash_key_inference.prune import Prune
 from datumaro.components.errors import ProjectNotFoundError
@@ -45,7 +46,13 @@ def build_parser(parser_ctor=argparse.ArgumentParser):
         formatter_class=MultilineFormatter,
     )
 
-    parser.add_argument("target", nargs="?", help="Target dataset revpath (default: project)")
+    parser.add_argument(
+        "target",
+        nargs="?",
+        default="project",
+        metavar="revpath",
+        help="Target dataset revpath (default: project)",
+    )
     parser.add_argument("-m", "--method", dest="method", help="Method to apply to the dataset")
     parser.add_argument(
         "-r", "--ratio", type=float, dest="ratio", help="How much to remain dataset after pruning"
@@ -110,12 +117,12 @@ def prune_command(args):
     source_dataset = [parse_full_revpath(target, project)[0] for target in targets][0]
 
     prune = Prune(source_dataset, cluster_method=args.method, hash_type=args.hash_type)
-
-    source_dataset.save(source_dataset.data_path, save_media=True, save_hashkey_meta=True)
-
     result = prune.get_pruned(args.ratio)
 
     dst_dir = args.dst_dir or source_dataset.data_path
+    dst_dir = (
+        dst_dir if dst_dir else osp.join(args.project_dir, list(project.working_tree.sources)[0])
+    )
     result.save(dst_dir, save_media=True)
 
     log.info("Results have been saved to '%s'" % dst_dir)

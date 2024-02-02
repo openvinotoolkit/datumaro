@@ -88,6 +88,25 @@ class RoboflowDirPathExtracter(DirPathExtracter):
         return osp.join(rootpath, subset)
 
 
+class MmdetDirPathExtracter(DirPathExtracter):
+    @staticmethod
+    def find_rootpath(path: str) -> str:
+        """Find root path from annotation json file path."""
+        path = osp.abspath(path)
+        if osp.dirname(path).endswith(CocoPath.ANNOTATIONS_DIR):
+            return path.rsplit(CocoPath.ANNOTATIONS_DIR, maxsplit=1)[0]
+        raise DatasetImportError(
+            f"Annotation path ({path}) should be under the directory which is named {CocoPath.ANNOTATIONS_DIR}. "
+            "If not, Datumaro fails to find the root path for this dataset. "
+            "Please follow this instruction, https://github.com/cocodataset/cocoapi/blob/master/README.txt"
+        )
+
+    @staticmethod
+    def find_images_dir(rootpath: str, subset: str) -> str:
+        """Find images directory from the root path."""
+        return osp.join(rootpath, subset)
+
+
 class _CocoBase(SubsetBase):
     """
     Parses COCO annotations written in the following format:
@@ -121,6 +140,9 @@ class _CocoBase(SubsetBase):
         elif coco_importer_type == CocoImporterType.roboflow:
             self._rootpath = RoboflowDirPathExtracter.find_rootpath(path)
             self._images_dir = RoboflowDirPathExtracter.find_images_dir(self._rootpath, subset)
+        elif coco_importer_type == CocoImporterType.mmdet:
+            self._rootpath = MmdetDirPathExtracter.find_rootpath(path)
+            self._images_dir = MmdetDirPathExtracter.find_images_dir(self._rootpath, subset)
         else:
             raise DatasetImportError(f"Not supported type: {coco_importer_type}")
 

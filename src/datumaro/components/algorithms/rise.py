@@ -94,7 +94,8 @@ class RISE:
             samples = min(self.max_samples, samples)
         batch_size = self.batch_size
 
-        pred = next(iter(model.infer(_expand(image, 0))))
+        # model is expected to get NxCxHxW shaped input tensor
+        pred = next(iter(model.infer(_expand(np.transpose(image, (2, 0, 1)), 0))))
         result = model.postprocess(pred, None)
         result_labels, result_bboxes = self.split_outputs(result)
         if 0 < self.det_conf_thresh:
@@ -166,7 +167,7 @@ class RISE:
             batch_inputs = full_batch_inputs[:current_batch_size]
             np.multiply(_expand(batch_masks), _expand(image, 0), out=batch_inputs)
 
-            preds = model.infer(batch_inputs)
+            preds = model.infer(np.transpose(batch_inputs, (0, 3, 1, 2)))
             results = [model.postprocess(pred, None) for pred in preds]
             for mask, result in zip(batch_masks, results):
                 result_labels, result_bboxes = self.split_outputs(result)

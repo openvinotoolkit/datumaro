@@ -85,6 +85,6 @@ class COCOExtractorMerger(ExtractorMerger):
             grouped_by_subset[s.subset] += [s]
 
         self._subsets = {
-            subset: COCOTaskMergedBase(sources, subset)
+            subset: [COCOTaskMergedBase(sources, subset)]
             for subset, sources in grouped_by_subset.items()
         }

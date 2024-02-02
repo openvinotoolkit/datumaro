@@ -557,6 +557,13 @@ class DatasetStorage(IDataset):
 
         self._transforms = safe_transforms
 
+    def __getitem__(self, idx: int) -> DatasetItem:
+        try:
+            return self._storage[idx]
+        except IndexError:  # Data storage should be initialized
+            self.init_cache()
+            return self._storage[idx]
+
 
 class StreamSubset(IDataset):
     def __init__(self, source: IDataset, subset: str) -> None:

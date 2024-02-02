@@ -1,21 +1,17 @@
 # Copyright (C) 2023 Intel Corporation
 #
 # SPDX-License-Identifier: MIT
+from __future__ import annotations
+
 import logging as log
 import math
 import random
 import warnings
 from collections import defaultdict
-from typing import Iterable, List, Optional, Tuple, Union, overload
+from typing import TYPE_CHECKING, Iterable, List, Optional, Tuple, Union, overload
 
 import cv2
-import matplotlib.patches as patches
-import matplotlib.pyplot as plt
 import numpy as np
-from matplotlib.axes import Axes
-from matplotlib.figure import Figure
-from matplotlib.text import Text
-from mpl_toolkits.axes_grid1 import make_axes_locatable
 from PIL import ImageColor
 
 from datumaro.components.annotation import (
@@ -36,6 +32,11 @@ from datumaro.components.annotation import (
 )
 from datumaro.components.dataset_base import DatasetItem, IDataset
 from datumaro.components.media import Image
+
+if TYPE_CHECKING:
+    from matplotlib.axes import Axes
+    from matplotlib.figure import Figure
+    from matplotlib.text import Text
 
 CAPTION_BBOX_PAD = 0.2
 DEFAULT_COLOR_CYCLES: List[str] = [
@@ -88,6 +89,7 @@ class Visualizer:
         bbox_linewidth: float = 1.0,
         text_y_offset: float = 1.5,
         alpha: float = 1.0,
+        show_plot_title: bool = True,
     ) -> None:
         """
         Visualizer for Datumaro annotations
@@ -113,6 +115,9 @@ class Visualizer:
         alpha:
             Transparency value when drawing annotations. It should be in [0, 1].
             If alpha=0, we do not draw any annotations.
+        show_plot_title:
+            If True, show the plot title formatted as "ID: {item_id}, Subset: {subset}".
+            Otherwise, hide the plot title.
         """
         self.dataset = dataset
         self.figsize = figsize
@@ -123,6 +128,7 @@ class Visualizer:
 
         assert 0.0 <= alpha <= 1.0, "alpha should be in [0, 1]."
         self.alpha = alpha
+        self.show_plot_title = show_plot_title
 
         self._items = [item for item in self.dataset]
 
@@ -294,6 +300,8 @@ class Visualizer:
         grid_size: Tuple[Optional[int], Optional[int]] = (None, None),
     ) -> Figure:
         """Visualize several :class:`DatasetItem` as a gallery"""
+        import matplotlib.pyplot as plt
+
         if len(inputs) == 1:
             (items,) = inputs
             ids = [item.id for item in items]
@@ -385,6 +393,8 @@ class Visualizer:
         ax: Optional[Axes] = None,
     ) -> Figure:
         """Visualize one dataset item"""
+        import matplotlib.pyplot as plt
+
         if len(inputs) == 1:
             item_id, subset = None, None
             (item,) = inputs
@@ -425,17 +435,8 @@ class Visualizer:
         img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
         ax.imshow(img)
 
-        width = ax.transAxes.transform_point((1, 0))[0] - ax.transAxes.transform_point((0, 0))[0]
-        text = ax.set_title(f"ID: {item_id}, Subset: {subset}", loc="center", wrap=True)
-        text.__get_wrapped_text = text._get_wrapped_text
-
-        def _get_wrapped_text():
-            wrapped_text = text.__get_wrapped_text()
-            text._text = wrapped_text
-            return wrapped_text
-
-        text._get_wrapped_text = _get_wrapped_text
-        text._get_wrap_line_width = lambda: width
+        if self.show_plot_title:
+            self._plot_title(ax, item_id, subset)
 
         ax.set_axis_off()
 
@@ -462,6 +463,19 @@ class Visualizer:
                 self._draw(ann, label_categories, fig, ax, context[ann.type])
 
         return fig
+
+    def _plot_title(self, ax: Axes, item_id: str, subset: str) -> None:
+        width = ax.transAxes.transform_point((1, 0))[0] - ax.transAxes.transform_point((0, 0))[0]
+        text = ax.set_title(f"ID: {item_id}, Subset: {subset}", loc="center", wrap=True)
+        text.__get_wrapped_text = text._get_wrapped_text
+
+        def _get_wrapped_text():
+            wrapped_text = text.__get_wrapped_text()
+            text._text = wrapped_text
+            return wrapped_text
+
+        text._get_wrapped_text = _get_wrapped_text
+        text._get_wrap_line_width = lambda: width
 
     def _draw_label(
         self,
@@ -544,6 +558,8 @@ class Visualizer:
         ax: Axes,
         context: List,
     ) -> None:
+        import matplotlib.patches as patches
+
         label_text = label_categories[ann.label].name if label_categories is not None else ann.label
         color = self._get_color(ann)
         points = np.array(ann.points)
@@ -578,6 +594,8 @@ class Visualizer:
         ax: Axes,
         context: List,
     ) -> None:
+        import matplotlib.patches as patches
+
         label_text = label_categories[ann.label].name if label_categories is not None else ann.label
         color = self._get_color(ann)
         rect = patches.Rectangle(
@@ -670,6 +688,8 @@ class Visualizer:
         ax: Axes,
         context: List,
     ) -> None:
+        from mpl_toolkits.axes_grid1 import make_axes_locatable
+
         assert len(context) == 0, "It cannot visualize more than one DepthAnnotation per item."
 
         depth = ann.image.data
@@ -689,6 +709,8 @@ class Visualizer:
         ax: Axes,
         context: List,
     ) -> None:
+        import matplotlib.patches as patches
+
         label_text = label_categories[ann.label].name if label_categories is not None else ann.label
         color = self._get_color(ann)
         ellipse = patches.Ellipse(

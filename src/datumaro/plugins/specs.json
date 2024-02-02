@@ -1,23 +1,5 @@
 [
   {
-    "import_path": "datumaro.components.launcher.LauncherWithModelInterpreter",
-    "plugin_name": "launcher_with_model_interpreter",
-    "plugin_type": "Launcher",
-    "extra_deps": []
-  },
-  {
-    "import_path": "datumaro.components.merge.extractor_merger.ExtractorMerger",
-    "plugin_name": "extractor_merger",
-    "plugin_type": "DatasetBase",
-    "extra_deps": []
-  },
-  {
-    "import_path": "datumaro.components.transformer.ModelTransform",
-    "plugin_name": "model",
-    "plugin_type": "Transform",
-    "extra_deps": []
-  },
-  {
     "import_path": "datumaro.plugins.accuracy_checker_plugin.ac_launcher.AcLauncher",
     "plugin_name": "ac",
     "plugin_type": "Launcher",
@@ -555,6 +537,36 @@
     "extra_deps": []
   },
   {
+    "import_path": "datumaro.plugins.data_formats.kaggle.base.KaggleImageCsvBase",
+    "plugin_name": "kaggle_image_csv",
+    "plugin_type": "DatasetBase",
+    "extra_deps": []
+  },
+  {
+    "import_path": "datumaro.plugins.data_formats.kaggle.base.KaggleImageMaskBase",
+    "plugin_name": "kaggle_image_mask",
+    "plugin_type": "DatasetBase",
+    "extra_deps": []
+  },
+  {
+    "import_path": "datumaro.plugins.data_formats.kaggle.base.KaggleImageTxtBase",
+    "plugin_name": "kaggle_image_txt",
+    "plugin_type": "DatasetBase",
+    "extra_deps": []
+  },
+  {
+    "import_path": "datumaro.plugins.data_formats.kaggle.base.KaggleVocBase",
+    "plugin_name": "kaggle_voc",
+    "plugin_type": "DatasetBase",
+    "extra_deps": []
+  },
+  {
+    "import_path": "datumaro.plugins.data_formats.kaggle.base.KaggleYoloBase",
+    "plugin_name": "kaggle_yolo",
+    "plugin_type": "DatasetBase",
+    "extra_deps": []
+  },
+  {
     "import_path": "datumaro.plugins.data_formats.kinetics.KineticsBase",
     "plugin_name": "kinetics",
     "plugin_type": "DatasetBase",
@@ -725,6 +737,18 @@
   {
     "import_path": "datumaro.plugins.data_formats.mars.MarsImporter",
     "plugin_name": "mars",
+    "plugin_type": "Importer",
+    "extra_deps": []
+  },
+  {
+    "import_path": "datumaro.plugins.data_formats.mmdet.MmdetCocoBase",
+    "plugin_name": "mmdet_coco",
+    "plugin_type": "DatasetBase",
+    "extra_deps": []
+  },
+  {
+    "import_path": "datumaro.plugins.data_formats.mmdet.MmdetCocoImporter",
+    "plugin_name": "mmdet_coco",
     "plugin_type": "Importer",
     "extra_deps": []
   },
@@ -1414,6 +1438,12 @@
     "import_path": "datumaro.plugins.openvino_plugin.shift_launcher.ShiftLauncher",
     "plugin_name": "shift",
     "plugin_type": "Launcher",
+    "extra_deps": []
+  },
+  {
+    "import_path": "datumaro.plugins.sam_transforms.automatic_mask_gen.SAMAutomaticMaskGeneration",
+    "plugin_name": "samautomatic_mask_generation",
+    "plugin_type": "Transform",
     "extra_deps": []
   },
   {

@@ -7,7 +7,7 @@ import pytest
 import datumaro.components.lazy_plugin
 from datumaro.components.environment import Environment, PluginRegistry
 
-real_import_module = datumaro.components.lazy_plugin.import_module
+real_find_spec = datumaro.components.lazy_plugin.find_spec
 
 
 class EnvironmentTest:
@@ -50,10 +50,10 @@ class EnvironmentTest:
     def fxt_tf_failure_env(self, monkeypatch):
         def _patch(name, package=None):
             if name == "tensorflow":
-                raise ImportError()
-            return real_import_module(name, package)
+                return None
+            return real_find_spec(name, package)
 
-        monkeypatch.setattr(datumaro.components.lazy_plugin, "import_module", _patch)
+        monkeypatch.setattr(datumaro.components.lazy_plugin, "find_spec", _patch)
 
         Environment.release_builtin_plugins()
         env = Environment(use_lazy_import=True)
@@ -76,5 +76,4 @@ class EnvironmentTest:
             + sorted(env.validators)
         )
 
-        assert "ac" not in loaded_plugin_names
         assert "tf_detection_api" not in loaded_plugin_names

@@ -5,6 +5,67 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## \[Unreleased\]
+### New features
+- Support MMDetection COCO format
+  (<https://github.com/openvinotoolkit/datumaro/pull/1213>)
+- Develop JsonSectionPageMapper in Rust API
+  (<https://github.com/openvinotoolkit/datumaro/pull/1224>)
+- Add Filtering via User-Provided Python Functions
+  (<https://github.com/openvinotoolkit/datumaro/pull/1230>, <https://github.com/openvinotoolkit/datumaro/pull/1233>)
+- Remove supporting MacOS platform
+  (<https://github.com/openvinotoolkit/datumaro/pull/1235>)
+- Support Kaggle image data (`KaggleImageCsvBase`, `KaggleImageTxtBase`, `KaggleImageMaskBase`, `KaggleVocBase`, `KaggleYoloBase`)
+  (<https://github.com/openvinotoolkit/datumaro/pull/1240>)
+- Add `__getitem__()` for random accessing with O(1) time complexity
+  (<https://github.com/openvinotoolkit/datumaro/pull/1247>)
+- Add Data-aware Anchor Generator
+  (<https://github.com/openvinotoolkit/datumaro/pull/1251>)
+
+### Enhancements
+- Optimize Python import to make CLI entrypoint faster
+  (<https://github.com/openvinotoolkit/datumaro/pull/1182>)
+- Add ImageColorScale context manager
+  (<https://github.com/openvinotoolkit/datumaro/pull/1194>)
+- Enhance visualizer to toggle plot title visibility
+  (<https://github.com/openvinotoolkit/datumaro/pull/1228>)
+- Enhance Datumaro data format detect() to be memory-bounded and performant
+  (<https://github.com/openvinotoolkit/datumaro/pull/1229>)
+- Change RoIImage and MosaicImage to have np.uint8 dtype as default
+  (<https://github.com/openvinotoolkit/datumaro/pull/1245>)
+- Enable image backend and color channel format to be selectable
+  (<https://github.com/openvinotoolkit/datumaro/pull/1246>)
+- Enhance Datumaro data format detect() to be memory-bounded and performant
+  (<https://github.com/openvinotoolkit/datumaro/pull/1229>)
+
+### Bug fixes
+- Fix wrong example of Datumaro dataset creation in document
+  (<https://github.com/openvinotoolkit/datumaro/pull/1195>)
+- Fix wrong command to install datumaro from github
+  (<https://github.com/openvinotoolkit/datumaro/pull/1202>, <https://github.com/openvinotoolkit/datumaro/pull/1207>)
+- Update document to correct wrong `datum project import` command and add filtering example to filter out items containing annotations.
+  (<https://github.com/openvinotoolkit/datumaro/pull/1210>)
+- Fix label compare of distance method
+  (<https://github.com/openvinotoolkit/datumaro/pull/1205>)
+- Fix Datumaro visualizer's import errors after introducing lazy import
+  (<https://github.com/openvinotoolkit/datumaro/pull/1220>)
+- Fix broken link to supported formats in readme
+  (<https://github.com/openvinotoolkit/datumaro/pull/1221>)
+- Fix Kinetics data format to have media data
+  (<https://github.com/openvinotoolkit/datumaro/pull/1223>)
+- Handling undefined labels at the annotation statistics
+  (<https://github.com/openvinotoolkit/datumaro/pull/1232>)
+- Add unit test for item rename
+  (<https://github.com/openvinotoolkit/datumaro/pull/1237>)
+- Fix a bug in the previous behavior when importing nested datasets in the project
+  (<https://github.com/openvinotoolkit/datumaro/pull/1243>)
+- Fix Kaggle importer when adding duplicated labels
+  (<https://github.com/openvinotoolkit/datumaro/pull/1244>)
+- Fix input tensor shape in model interpreter for OpenVINO 2023.3
+  (<https://github.com/openvinotoolkit/datumaro/pull/1251>)
+- Add default value for target in prune cli
+  (<https://github.com/openvinotoolkit/datumaro/pull/1253>)
+
 ## Jan. 2024 Release 1.5.2
 ### Enhancements
 - Add memory bounded datumaro data format detect to release 1.5.1
@@ -24,8 +85,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   (<https://github.com/openvinotoolkit/datumaro/pull/1174>)
 - Add ImportError to catch GitPython import error
   (<https://github.com/openvinotoolkit/datumaro/pull/1174>)
-- Enhance Datumaro data format detect() to be memory-bounded and performant
-  (<https://github.com/openvinotoolkit/datumaro/pull/1229>)
 
 ### Bug fixes
 - Modify the draw function in the visualizer not to raise an error for unsupported annotation types.
@@ -43,6 +102,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## 15/09/2023 - Release 1.5.0
 ### New features
+- Add SAMAutomaticMaskGeneration transform
+  (<https://github.com/openvinotoolkit/datumaro/pull/1168>)
 - Add tabular data import/export
   (<https://github.com/openvinotoolkit/datumaro/pull/1089>)
 - Support video annotation import/export
@@ -73,6 +134,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   (<https://github.com/openvinotoolkit/datumaro/pull/1145>, <https://github.com/openvinotoolkit/datumaro/pull/1149>)
 
 ### Bug fixes
+- Coco exporter can export annotations even if there is no media, except for mask annotations which require media info.
+  (<https://github.com/openvinotoolkit/datumaro/issues/1147>)(<https://github.com/openvinotoolkit/datumaro/pull/1158>)
 - Fix bugs for Tile transform
   (<https://github.com/openvinotoolkit/datumaro/pull/1123>)
 - Disable Roboflow Tfrecord format when Tensorflow is not installed

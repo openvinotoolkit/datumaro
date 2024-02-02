@@ -751,3 +751,9 @@ class FarFromAttrMean(DatasetItemValidationError):
             f"'{self.attr_name}' = '{self.attr_value}' for the "
             f"'{self.label_name}' label: {self.mean}, got '{self.val}')."
         )
+
+
+@define(auto_exc=False)
+class StreamedItemError(DatasetError):
+    def __str__(self):
+        return "__getitem__ is disabled for StreamDataset. Use Dataset instead."

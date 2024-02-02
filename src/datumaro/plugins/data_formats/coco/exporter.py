@@ -381,7 +381,7 @@ class _InstancesExporter(_TaskExporter):
             )
 
         if use_masks:
-            if polygons:
+            if polygons and img_width > 0 and img_height > 0:
                 mask = mask_tools.rles_to_mask(polygons, img_width, img_height)
 
             if masks:
@@ -415,14 +415,16 @@ class _InstancesExporter(_TaskExporter):
             return
 
         if not item.media or not item.media.size:
+            h, w = 0, 0
             log.warning(
-                "Item '%s': skipping writing instances " "since no image info available" % item.id
+                "Item '%s': Mask annotations can be skipped since no image info available" % item.id
             )
-            return
-        h, w = item.media.size
+        else:
+            h, w = item.media.size
+
         instances = [self.find_instance_parts(i, w, h) for i in instances]
 
-        if self._context._crop_covered:
+        if self._context._crop_covered and w > 0 and h > 0:
             instances = self.crop_segments(instances, w, h)
 
         for instance in instances:

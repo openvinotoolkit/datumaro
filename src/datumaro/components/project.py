@@ -14,6 +14,7 @@ import unittest.mock
 from contextlib import ExitStack, suppress
 from enum import Enum, auto
 from typing import (
+    TYPE_CHECKING,
     Any,
     Dict,
     Generic,
@@ -26,9 +27,6 @@ from typing import (
     TypeVar,
     Union,
 )
-
-import networkx as nx
-import ruamel.yaml as yaml
 
 from datumaro.components.config import Config
 from datumaro.components.config_model import (
@@ -86,6 +84,14 @@ from datumaro.util.os_util import (
     rmtree,
 )
 from datumaro.util.scope import on_error_do, scope_add, scoped
+
+if TYPE_CHECKING:
+    import networkx as nx
+
+else:
+    from datumaro.util.import_util import lazy_import
+
+    nx = lazy_import("networkx")
 
 
 class ProjectSourceDataset(IDataset):
@@ -891,7 +897,7 @@ class ProjectBuildTargets(CrudProxy[BuildTarget]):
         self, target: str, expr: str, params: Optional[Dict] = None, name: Optional[str] = None
     ):
         params = params or {}
-        params["expr"] = expr
+        params["expr_or_filter_func"] = expr
         return self.add_stage(
             target,
             {
@@ -1415,6 +1421,8 @@ class DvcWrapper:
     # This ruamel parser is needed to preserve comments,
     # order and form (if multiple forms allowed by the standard)
     # of the entries in the file. It can be reused.
+    import ruamel.yaml as yaml
+
     yaml_parser = yaml.YAML(typ="rt")
 
     @classmethod

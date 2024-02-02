@@ -6,7 +6,11 @@ on:
       - 'develop'
       - 'releases/*'
   pull_request:
-    types: [edited, ready_for_review, opened, synchronize, reopened]
+    types:
+      - opened
+      - synchronize
+      - reopened
+      - ready_for_review
 
 # This is what will cancel the workflow concurrency
 concurrency:
@@ -20,8 +24,8 @@ jobs:
   pr_test:
     if: |
       github.event.pull_request.draft == false &&
-      !startsWith(github.event.pull_request.title, '[WIP]') &&
-      !startsWith(github.event.pull_request.title, '[Dependent]')
+      !(startsWith(github.event.pull_request.title, '[WIP]')) &&
+      !(startsWith(github.event.pull_request.title, '[Dependent]'))
     strategy:
       fail-fast: false
       matrix:
@@ -53,10 +57,10 @@ jobs:
           python -m pip install tox
       - name: Unit testing
         run: |
-          tox -e tests-py${{ matrix.tox-env-py }}-${{ matrix.tox-env-os }} --develop -- tests/unit --cov --cov-report=xml
+          tox -vvv -e tests-py${{ matrix.tox-env-py }}-${{ matrix.tox-env-os }} --develop -- tests/unit --cov --cov-report=xml
       - name: Integration testing
         run: |
-          tox -e tests-py${{ matrix.tox-env-py }}-${{ matrix.tox-env-os }} -- tests/integration
+          tox -vvv -e tests-py${{ matrix.tox-env-py }}-${{ matrix.tox-env-os }} -- tests/integration
       - name: Upload coverage reports to Codecov
         uses: codecov/codecov-action@v3
         with:

@@ -24,6 +24,7 @@ Supported Data Formats
    icdar
    image_zip
    imagenet
+   kaggle
    kinetics
    kitti
    kitti_raw
@@ -32,6 +33,7 @@ Supported Data Formats
    mapillary_vistas
    market1501
    mars
+   mmdet
    mnist
    mot
    mots
@@ -110,6 +112,9 @@ Supported Data Formats
    * `Dataset example (txt for classification) <https://github.com/openvinotoolkit/datumaro/tree/develop/tests/assets/imagenet_txt_dataset>`_
    * Detection format is the same as in PASCAL VOC
    * `Format documentation <imagenet.md>`_
+* Kaggle (``classification``, ``detection``, ``segmentation``) (import-only)
+   * `Dataset examples <https://github.com/openvinotoolkit/datumaro/tree/develop/tests/assets/kaggle_datasets>`_
+   * `Format documentation <kaggle.md>`_
 * KITTI (``segmentation``, ``detection``)
    * `Format specification <http://www.cvlibs.net/datasets/kitti/index.php>`_
    * `Dataset example <https://github.com/openvinotoolkit/datumaro/tree/develop/tests/assets/kitti_dataset>`_
@@ -141,6 +146,10 @@ Supported Data Formats
    * `Format specification <https://zheng-lab.cecs.anu.edu.au/Project/project_mars.html>`_
    * `Dataset example <https://github.com/openvinotoolkit/datumaro/tree/develop/tests/assets/mars_dataset>`_
    * `Format documentation <mars.md>`_
+* MMDet-COCO (``detection``, ``segmentation``)
+   * `Format specification <https://mmdetection.readthedocs.io/en/latest/user_guides/dataset_prepare.html>`_
+   * `Dataset example <https://github.com/openvinotoolkit/datumaro/tree/develop/tests/assets/coco_dataset/mmdet_coco>`_
+   * `Format documentation <mmdet.md>`_
 * MNIST (``classification``)
    * `Format specification <http://yann.lecun.com/exdb/mnist/>`_
    * `Dataset example <https://github.com/openvinotoolkit/datumaro/tree/develop/tests/assets/mnist_dataset>`_

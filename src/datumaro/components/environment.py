@@ -7,7 +7,7 @@ import importlib
 import logging as log
 import os.path as osp
 from functools import partial
-from inspect import isclass
+from inspect import getmodule, isclass
 from typing import (
     Callable,
     Dict,
@@ -202,7 +202,18 @@ class Environment:
                     continue
                 exports.append(getattr(module, symbol))
 
-        exports = [s for s in exports if isclass(s) and issubclass(s, types) and s not in types]
+        exports = [
+            s
+            for s in exports
+            if isclass(s)
+            and issubclass(s, types)
+            and s not in types
+            and (
+                getmodule(s)
+                is None  # Custom plugin (in the Datumaro project) can be a single file and have no module
+                or not getmodule(s).__package__.startswith("datumaro.components")
+            )
+        ]
 
         return exports
 

@@ -2,8 +2,10 @@
 #
 # SPDX-License-Identifier: MIT
 
+import logging as log
 from abc import ABC, abstractclassmethod
 from importlib import import_module
+from importlib.util import find_spec
 from typing import List, Optional, Sequence, Type, Union
 
 from datumaro.components.dataset_base import DatasetBase
@@ -56,11 +58,11 @@ def get_lazy_plugin(
     plugin_type: str,
     extra_deps: List[str] = [],
 ) -> Optional[LazyPlugin]:
-    try:
-        for extra_dep in extra_deps:
-            import_module(extra_dep)
-    except ImportError:
-        return None
+    for extra_dep in extra_deps:
+        spec = find_spec(extra_dep)
+        if spec is None:
+            log.debug(f"Cannot import extra dep={extra_dep} for plugin_name={plugin_name}.")
+            return None
 
     plugin_type_cls = STR_TO_PLUGIN_TYPES[plugin_type]
 
