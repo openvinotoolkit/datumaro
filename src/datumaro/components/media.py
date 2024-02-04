@@ -49,6 +49,12 @@ else:
 
     pd = lazy_import("pandas")
 
+try:
+    from PIL import Image as PILImage
+
+    _HAS_PIL = True
+except (ModuleNotFoundError, ImportError):
+    _HAS_PIL = False
 
 AnyData = TypeVar("AnyData", bytes, np.ndarray)
 
@@ -329,6 +335,18 @@ class ImageFromFile(FromFileMixin, Image):
                 raise MediaShapeError("An image should have 2 (gray) or 3 (bgra) dims.")
             self._size = tuple(map(int, data.shape[:2]))
         return data
+
+    @property
+    def size(self) -> Optional[Tuple[int, int]]:
+        """Returns (H, W)"""
+
+        if self._size is None:
+            if _HAS_PIL:
+                w, h = PILImage.open(self.path).size
+                self._size = (h, w)
+            else:
+                _ = super().size
+        return self._size
 
     def save(
         self,
