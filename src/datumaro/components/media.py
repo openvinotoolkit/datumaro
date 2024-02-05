@@ -29,6 +29,7 @@ from typing import (
 )
 
 import cv2
+import imagesize
 import numpy as np
 
 from datumaro.components.crypter import NULL_CRYPTER, Crypter
@@ -49,12 +50,6 @@ else:
 
     pd = lazy_import("pandas")
 
-try:
-    from PIL import Image as PILImage
-
-    _HAS_PIL = True
-except (ModuleNotFoundError, ImportError):
-    _HAS_PIL = False
 
 AnyData = TypeVar("AnyData", bytes, np.ndarray)
 
@@ -337,16 +332,13 @@ class ImageFromFile(FromFileMixin, Image):
         return data
 
     @property
-import imagesize
-
-...
-
     def size(self) -> Optional[Tuple[int, int]]:
         """Returns (H, W)"""
 
         if self._size is None:
             try:
                 width, height = imagesize.get(self.path)
+                assert width != -1 and height != -1
                 self._size = (height, width)
             except Exception:
                 _ = super().size
