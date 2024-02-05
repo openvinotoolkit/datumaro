@@ -337,14 +337,18 @@ class ImageFromFile(FromFileMixin, Image):
         return data
 
     @property
+import imagesize
+
+...
+
     def size(self) -> Optional[Tuple[int, int]]:
         """Returns (H, W)"""
 
         if self._size is None:
-            if _HAS_PIL:
-                w, h = PILImage.open(self.path).size
-                self._size = (h, w)
-            else:
+            try:
+                width, height = imagesize.get(self.path)
+                self._size = (height, width)
+            except Exception:
                 _ = super().size
         return self._size
 
