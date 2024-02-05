@@ -45,17 +45,20 @@ def main():
         ],
         "landmark": ["datumaro", "coco_person_keypoints", "voc_layout", "lfw"],
     }
-    selected_task = st.selectbox("Select a task to export:", tasks)
+    selected_task = st.selectbox("Select a task to export:", tasks, key="sb_task_export_sin")
     if selected_task:
-        selected_format = st.selectbox("Select a format to export:", formats[selected_task])
+        selected_format = st.selectbox(
+            "Select a format to export:", formats[selected_task], key="sb_format_export_sin"
+        )
 
     if selected_task and selected_format:
         selected_path = st.text_input(
             "Select a path to export:",
             value=osp.join(get_download_folder_path(), "dataset.zip"),
+            key="ti_path_export_sin",
         )
 
-    export_btn = st.button("Export")
+    export_btn = st.button("Export", key="btn_export_sin")
     if export_btn:
         data_helper: SingleDatasetHelper = state["data_helper"]
         data_helper.export(selected_path, format=selected_format, save_media=True)
