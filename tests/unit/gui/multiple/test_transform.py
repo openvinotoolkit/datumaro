@@ -1,4 +1,4 @@
-# Copyright (C) 2019-2023 Intel Corporation
+# Copyright (C) 2024 Intel Corporation
 #
 # SPDX-License-Identifier: MIT
 
@@ -13,13 +13,9 @@ from datumaro.components.annotation import AnnotationType
 from tests.requirements import Requirements, mark_requirement
 
 cwd = os.getcwd()
-app_path = os.path.join(cwd, "gui", "streamlit_app.py")
-
 import sys
 
 sys.path.append(os.path.join(cwd, "gui"))
-
-multiple_dataset_key = "datumaro_gui.utils.page_p_:telescope: Multiple datasets"
 
 
 def run_transform():
