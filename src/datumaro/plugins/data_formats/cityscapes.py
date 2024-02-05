@@ -265,12 +265,24 @@ class CityscapesBase(SubsetBase):
                 recursive=True,
             )
             mask_suffix = CityscapesPath.GT_INSTANCE_MASK_SUFFIX
+
+        self._categories = self._load_categories(
+            self._path, use_train_label_map=mask_suffix is CityscapesPath.LABEL_TRAIN_IDS_SUFFIX
+        )
+
+        label_ids = []
+        for label_cat in self._categories[AnnotationType.label]:
+            label_id, _ = self._categories[AnnotationType.label].find(label_cat.name)
+            if label_id:
+                label_ids.append(label_id)
+
         for mask_path in masks:
             item_id = self._get_id_from_mask_path(mask_path, mask_suffix)
 
             anns = []
             instances_mask = load_image(mask_path, dtype=np.int32)
-            segm_ids = np.unique(instances_mask)
+            # segm_ids = np.unique(instances_mask)
+            segm_ids = label_ids
             for segm_id in segm_ids:
                 # either is_crowd or ann_id should be set
                 if segm_id < 1000:
@@ -303,9 +315,6 @@ class CityscapesBase(SubsetBase):
                 id=item_id, subset=self._subset, media=Image.from_file(path=path)
             )
 
-        self._categories = self._load_categories(
-            self._path, use_train_label_map=mask_suffix is CityscapesPath.LABEL_TRAIN_IDS_SUFFIX
-        )
         return items
 
     @staticmethod

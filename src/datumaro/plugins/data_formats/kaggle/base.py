@@ -215,6 +215,7 @@ class KaggleImageMaskBase(DatasetBase):
         self._path = path
         self._mask_path = mask_path
 
+        self._label_ids = []
         self._categories = self._load_categories(labelmap_file)
         self._items = self._load_items()
 
@@ -241,6 +242,7 @@ class KaggleImageMaskBase(DatasetBase):
         for label_name, label_color in label_map.items():
             label_id = label_categories.find(label_name)[0]
             colormap[label_id] = label_color
+            self._label_ids.append(label_id)
 
         categories[AnnotationType.mask] = MaskCategories(colormap)
 
@@ -260,8 +262,8 @@ class KaggleImageMaskBase(DatasetBase):
                     instances_mask = load_image(
                         osp.join(self._mask_path, mask_name), dtype=np.int32
                     )
-                    label_ids = np.unique(instances_mask)
-                    for label_id in label_ids:
+                    # label_ids = np.unique(instances_mask)
+                    for label_id in self._label_ids:
                         anns.append(
                             Mask(
                                 image=_lazy_extract_mask(instances_mask, label_id),

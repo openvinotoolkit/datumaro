@@ -183,7 +183,7 @@ try:
                 x_center + 0.5 * ws,
                 y_center + 0.5 * hs,
             ]
-            base_anchors = torch.stack(base_anchors, dim=-1)
+            base_anchors = torch.stack(base_anchors, dim=-1).to(self.device)
 
             anchors = base_anchors[None, :, :] + shifts[:, None, :]
             anchors = anchors.view(-1, 4)
