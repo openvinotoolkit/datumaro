@@ -2,4 +2,3 @@
 -r requirements-default.txt
 
 opencv-python-headless>=4.1.0.25
-imagesize>=1.4.1

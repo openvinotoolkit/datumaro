@@ -12,6 +12,7 @@ ruamel.yaml>=0.17.0
 shapely>=1.7
 typing_extensions>=3.7.4.3
 tqdm
+imagesize>=1.4.1
 
 pycocotools>=2.0.4; platform_system != "Windows" or python_version >= '3.9'
 
