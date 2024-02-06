@@ -208,6 +208,14 @@ class OpenvinoLauncher(LauncherWithModelInterpreter):
         self._check_model_support(self._network, self._device)
         self._load_executable_net()
 
+    @property
+    def inputs(self):
+        return self._network.inputs
+
+    @property
+    def outputs(self):
+        return self._network.outputs
+
     def _check_model_support(self, net, device):
         not_supported_layers = set(
             name for name, dev in self._core.query_model(net, device).items() if not dev

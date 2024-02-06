@@ -98,7 +98,7 @@ def build_parser(parser_ctor=argparse.ArgumentParser):
     rise_parser.add_argument(
         "-s",
         "--max-samples",
-        default=None,
+        default=100,
         type=int,
         help="Number of algorithm iterations (default: mask size ^ 2)",
     )
@@ -203,13 +203,9 @@ def explain_command(args):
 
     rise = RISE(
         model,
-        max_samples=args.max_samples,
-        mask_width=args.mask_width,
-        mask_height=args.mask_height,
+        num_masks=args.max_samples,
+        mask_size=args.mask_width,
         prob=args.prob,
-        iou_thresh=args.iou_thresh,
-        nms_thresh=args.nms_iou_thresh,
-        det_conf_thresh=args.det_conf_thresh,
         batch_size=args.batch_size,
     )
 

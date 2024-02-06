@@ -1,74 +1,58 @@
+import os.path as osp
 from collections import namedtuple
 from unittest import TestCase
 
+import cv2
 import numpy as np
 import pytest
 
 from datumaro.components.algorithms.rise import RISE
 from datumaro.components.annotation import Bbox, Label
 from datumaro.components.launcher import LauncherWithModelInterpreter
+from datumaro.plugins.openvino_plugin.launcher import OpenvinoLauncher
 
-from ...requirements import Requirements, mark_requirement
+from tests.requirements import Requirements, mark_requirement
+from tests.utils.assets import get_test_asset_path
 
 
-@pytest.mark.xfail(reason="Broken unit test and need to reimplement RISE algorithm")
 class RiseTest(TestCase):
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_rise_can_be_applied_to_classification_model(self):
-        class TestLauncher(LauncherWithModelInterpreter):
-            def __init__(self, class_count, roi, **kwargs):
-                self.class_count = class_count
-                self.roi = roi
+        model = OpenvinoLauncher(
+            model_name="googlenet-v4-tf",
+            output_layers="InceptionV4/Logits/PreLogitsFlatten/flatten_1/Reshape:0",
+        )
 
-            def preprocess(self, img):
-                return img, None
+        rise = RISE(model, num_masks=10, mask_size=7, prob=0.5)
 
-            def postprocess(self, pred, info):
-                cls = pred
-                cls_conf = 0.5
-                other_conf = (1.0 - cls_conf) / (self.class_count - 1)
+        image = cv2.imread(osp.join(get_test_asset_path("rise"), "catdog.png"))
+        saliency = next(rise.apply(image))
 
-                return [
-                    Label(i, attributes={"score": cls_conf if cls == i else other_conf})
-                    for i in range(self.class_count)
-                ]
+        logit_size = model.outputs[0].shape
+        self.assertEqual(saliency.shape[0], logit_size[1])
 
-            def infer(self, inputs):
-                for inp in inputs:
-                    yield self._process(inp)
+        image_size = model.inputs[0].shape
+        self.assertEqual(saliency.shape[1], image_size[1])
+        self.assertEqual(saliency.shape[2], image_size[2])
 
-            def _process(self, image):
-                roi = self.roi
-                roi_area = (roi[1] - roi[0]) * (roi[3] - roi[2])
-                if 0.5 * roi_area < np.sum(image[roi[0] : roi[1], roi[2] : roi[3], 0]):
-                    cls = 1
-                else:
-                    cls = 0
+        class_indices = [244, 282]  # bullmastiff and tabby of imagenet.class
+        rois = [[100, 20, 180, 100], [180, 160, 240, 260]]  # location of bullmastiff and tabby
 
-                return cls
+        for cls_idx in range(len(class_indices)):
+            norm_saliency = saliency[class_indices[cls_idx]]
+            roi = rois[cls_idx]
+            saliency_dense_roi = (
+                np.sum(norm_saliency[roi[1] : roi[3], roi[0] : roi[2]])
+                / (roi[3] - roi[1])
+                / (roi[2] - roi[0])
+            )
+            saliency_dense_total = (
+                np.sum(norm_saliency) / norm_saliency.shape[0] / norm_saliency.shape[1]
+            )
 
-        roi = [70, 90, 7, 90]
-        model = TestLauncher(class_count=3, roi=roi)
+            self.assertLess(saliency_dense_total, saliency_dense_roi)
 
-        rise = RISE(model, max_samples=(7 * 7) ** 2, mask_width=7, mask_height=7)
-
-        image = np.ones((100, 100, 3))
-        heatmaps = next(rise.apply(image))
-
-        self.assertEqual(1, len(heatmaps))
-
-        heatmap = heatmaps[0]
-        self.assertEqual(image.shape[:2], heatmap.shape)
-
-        h_sum = np.sum(heatmap)
-        h_area = np.prod(heatmap.shape)
-        h_den = h_sum / h_area
-        roi_sum = np.sum(heatmap[roi[0] : roi[1], roi[2] : roi[3]])
-        roi_area = (roi[1] - roi[0]) * (roi[3] - roi[2])
-        roi_den = roi_sum / roi_area
-        hrest_den = (h_sum - roi_sum) / (h_area - roi_area)
-        self.assertLess(hrest_den, roi_den)
-
+    @pytest.mark.xfail(reason="Broken unit test and need to reimplement RISE algorithm")
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_rise_can_be_applied_to_detection_model(self):
         ROI = namedtuple("ROI", ["threshold", "x", "y", "w", "h", "label"])
