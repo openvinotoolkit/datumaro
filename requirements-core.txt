@@ -46,7 +46,7 @@ pyemd
 pyarrow
 
 # ava data format
-protobuf
+protobuf==4.*
 
 # Comparator
 tabulate
