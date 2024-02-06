@@ -54,10 +54,9 @@ class TransformLabelRemap(TransformBase):
         return "This helps to remap labels of dataset."
 
     @staticmethod
-    def _do_label_remap(data_helper, grid_table, delete_unselected):
+    def _do_label_remap(data_helper, selected_rows, delete_unselected):
         print(f"{__class__} called")
-        sel_row = grid_table["selected_rows"]
-        mapping_dict = {item["src"]: item["dst"] for item in sel_row}
+        mapping_dict = {item["src"]: item["dst"] for item in selected_rows}
         default = "delete" if delete_unselected else "keep"
         data_helper.transform("remap_labels", mapping=mapping_dict, default=default)
         st.toast("Remap Success!", icon="🎉")
@@ -86,7 +85,9 @@ class TransformLabelRemap(TransformBase):
                     with w.dashboard(rowHeight=100):
                         w.cat_info(cat_info_dict)
         with c2:
-            hide_empty_labels = st.toggle("Hide empty labels", value=True)
+            hide_empty_labels = st.toggle(
+                "Hide empty labels", value=True, key="tg_hide_empty_labels_sin"
+            )
             if hide_empty_labels:
                 label_names = []
                 counts = []
@@ -100,6 +101,7 @@ class TransformLabelRemap(TransformBase):
                 for label in label_names:
                     counts.append(stats_anns["annotations"]["labels"]["distribution"][label][0])
             mapping = pd.DataFrame({"src": label_names, "dst": label_names, "count": counts})
+            state["mapping"] = mapping
             gb = GridOptionsBuilder.from_dataframe(mapping)
             gb.configure_pagination(enabled=True)
             gb.configure_selection(selection_mode="multiple", use_checkbox=True)
@@ -116,14 +118,16 @@ class TransformLabelRemap(TransformBase):
                 theme="streamlit",
                 custom_css={"#gridToolBar": {"padding-bottom": "0px !important"}},
             )
-
-            delete_unselected = st.toggle("Delete unselected labels")
+            delete_unselected = st.toggle(
+                "Delete unselected labels", key="tg_delete_unselected_sin"
+            )
 
             st.button(
                 "Do Label Remap",
                 use_container_width=True,
                 on_click=self._do_label_remap,
-                args=(data_helper, grid_table, delete_unselected),
+                args=(data_helper, grid_table["selected_rows"], delete_unselected),
+                key="btn_do_label_remap_sin",
             )
 
 
@@ -164,15 +168,21 @@ class TransformAggregation(TransformBase):
                         w.subset_info(subset_info)
         with c2:
             selected_subsets = st.multiselect(
-                "Select subsets to be aggregated", subsets, default=subsets
+                "Select subsets to be aggregated",
+                subsets,
+                default=subsets,
+                key="ms_selected_subsets_agg_sin",
             )
-            dst_subset_name = st.text_input("Aggreated Subset Name:", "default")
-            st.button(
+            dst_subset_name = st.text_input(
+                "Aggregated Subset Name:", "default", key="ti_dst_subset_name_agg_sin"
+            )
+            btn_do_aggr = st.button(
                 "Do aggregation",
                 use_container_width=True,
-                on_click=self._do_aggregation,
-                args=(data_helper, selected_subsets, dst_subset_name),
+                key="btn_agg_sin",
             )
+            if btn_do_aggr:
+                self._do_aggregation(data_helper, selected_subsets, dst_subset_name)
 
 
 class TransformSplit(TransformBase):
@@ -189,10 +199,11 @@ class TransformSplit(TransformBase):
         return "This helps to divide a dataset into multiple subsets with a given ratio."
 
     def _add_subset(self):
+        subset_state = state["subset"]
         default_splits = (self.Split("train", 0.5), self.Split("val", 0.2), self.Split("test", 0.3))
         idx = 0  # default is 'train'
         default_names = tuple(split.subset for split in default_splits)
-        for split in reversed(state["subset"]):
+        for split in reversed(subset_state):
             print(split)
             if split.subset in default_names:
                 idx = (default_names.index(split.subset) + 1) % len(default_names)
@@ -204,11 +215,11 @@ class TransformSplit(TransformBase):
         state["subset"].pop(idx)
 
     @staticmethod
-    def _do_split(data_helper):
-        ratios = [split.ratio for split in state["subset"]]
+    def _do_split(data_helper, subset_state):
+        ratios = [split.ratio for split in subset_state]
         total = sum(ratios)
         if total == 1:
-            data_helper.transform("random_split", splits=state["subset"])
+            data_helper.transform("random_split", splits=subset_state)
             st.toast("Split Success!", icon="🎉")
         else:
             st.toast("Sum of ratios is expected to be 1!", icon="🚨")
@@ -217,10 +228,17 @@ class TransformSplit(TransformBase):
         print(f"{__class__} called")
 
         c1, c2 = st.columns(2)
-        c1.button("Add subset", use_container_width=True, on_click=self._add_subset)
-        c2.button(
-            "Do split", use_container_width=True, on_click=self._do_split, args=(data_helper,)
+        subset_state = state["subset"]
+
+        btn_add_subset = c1.button(
+            "Add subset", use_container_width=True, key="btn_add_subset_split_sin"
         )
+        if btn_add_subset:
+            self._add_subset()
+
+        btn_split = c2.button("Do split", use_container_width=True, key="btn_do_split_sin")
+        if btn_split:
+            self._do_split(data_helper, subset_state)
 
         chart, name, ratio, remove = st.columns([0.3, 0.3, 0.3, 0.1])
         dataset = data_helper.dataset()
@@ -239,7 +257,7 @@ class TransformSplit(TransformBase):
                     with w.dashboard():
                         w.subset_info(subset_info)
 
-        if len(state["subset"]) > 0:
+        if len(subset_state) > 0:
             with name:
                 st.write("Name")
             with ratio:
@@ -247,31 +265,31 @@ class TransformSplit(TransformBase):
             with remove:
                 st.write("x")
 
-            for idx, split in enumerate(state["subset"]):
+            for idx, split in enumerate(subset_state):
                 with name:
                     subset_name = st.text_input(
-                        key=f"subset_name_{idx}",
+                        key=f"ti_subset_name_split_sin_{idx}",
                         label="name",
                         value=split.subset,
                         label_visibility="collapsed",
                     )
                 with ratio:
                     subset_ratio = st.text_input(
-                        key=f"subset_ratio_{idx}",
+                        key=f"ti_subset_ratio_split_sin_{idx}",
                         label="ratio",
                         value=split.ratio,
                         label_visibility="collapsed",
                     )
                 with remove:
                     st.button(
-                        key=f"subset_remove_{idx}",
+                        key=f"btn_subset_remove_split_sin_{idx}",
                         label=":no_entry:",
                         on_click=self._delete_subset,
                         args=(idx,),
                     )
                 state["subset"][idx] = self.Split(subset_name, float(subset_ratio))
 
-            ratios = [split.ratio for split in state["subset"]]
+            ratios = [split.ratio for split in subset_state]
             total = sum(ratios)
             if total != 1:
                 st.toast("Sum of ratios is expected to be 1!", icon="🚨")
@@ -313,18 +331,18 @@ class TransformSubsetRename(TransformBase):
                         w.subset_info(subset_info)
         with c2:
             target_subset = st.selectbox(
-                "Select a subset to rename", subsets, key="subset_rename_sb"
+                "Select a subset to rename", subsets, key="sb_subset_rename_sin"
             )
         with c3:
-            target_name = st.text_input("New subset name", key="subset_rename_ti")
+            target_name = st.text_input("New subset name", key="ti_subset_rename_sin")
 
-        c2.button(
+        btn_subset_rename = c2.button(
             "Do Subset Rename",
             use_container_width=True,
-            on_click=self._remap_subset,
-            args=(data_helper, target_subset, target_name),
-            key="subset_rename_btn",
+            key="btn_subset_rename_sin",
         )
+        if btn_subset_rename:
+            self._remap_subset(data_helper, target_subset, target_name)
 
 
 class TransformReindexing(TransformBase):
@@ -352,20 +370,29 @@ class TransformReindexing(TransformBase):
 
     def gui(self, data_helper: SingleDatasetHelper):
         col1, col2 = st.columns(2)
-        start_index = col1.number_input("start number", min_value=0, label_visibility="collapsed")
-        col2.button(
+        start_index = col1.number_input(
+            "start number",
+            min_value=0,
+            label_visibility="collapsed",
+            key="ni_start_idx_reindex_sin",
+        )
+        btn_reindex_idx = col2.button(
             f"Set IDs from {start_index}",
             use_container_width=True,
-            on_click=self._reindex_with_index,
-            args=(data_helper, start_index),
+            key="btn_start_idx_reindex_sin",
         )
+        if btn_reindex_idx:
+            self._reindex_with_index(data_helper, start_index)
 
-        st.button(
+        btn_reindex_media_name = st.button(
             "Set IDs with media name",
             use_container_width=True,
-            on_click=self._reindex_with_image,
-            args=(data_helper,),
+            key="btn_start_media_name_reindex_sin",
         )
+        if btn_reindex_media_name:
+            self._reindex_with_image(
+                data_helper,
+            )
 
         ids = []
         for item in data_helper.dataset():
@@ -417,6 +444,7 @@ class TransformFiltration(TransformBase):
             selected_mode = st.selectbox(
                 "Select filtering mode",
                 ["items", "annotations", "items+annotations"],
+                key="sb_selected_mode_filt_sin",
             )
         with filter_:
             filter_expr = st.text_input(
@@ -424,17 +452,17 @@ class TransformFiltration(TransformBase):
                 disabled=False,
                 placeholder='Eg. /item[subset="train"]',
                 value=None,
+                key="ti_filter_expr_filt_sin",
             )
         if selected_mode == "items+annotations":
             st.warning("Dataset items with no annotations would be removed")
-        st.button(
-            "Filter dataset",
-            use_container_width=True,
-            on_click=self._filter_dataset,
-            args=(data_helper, filter_expr, selected_mode),
+        btn_filter = st.button(
+            "Filter dataset", use_container_width=True, key="btn_filter_filt_sin"
         )
+        if btn_filter:
+            self._filter_dataset(data_helper, filter_expr, selected_mode)
 
-        show_xml = st.toggle("Show XML Representations")
+        show_xml = st.toggle("Show XML Representations", key="tg_show_xml_filt_sin")
         if show_xml:
             dataset = data_helper.dataset()
             if dataset is None or len(dataset) == 0:
@@ -443,11 +471,23 @@ class TransformFiltration(TransformBase):
                 keys = data_helper.subset_to_ids()
                 if len(keys.keys()) > 1:
                     c1, c2 = st.columns(2)
-                    selected_subset = c1.selectbox("Select a subset", options=sorted(keys.keys()))
-                    selected_id = c2.selectbox("Select an item", options=keys[selected_subset])
+                    selected_subset = c1.selectbox(
+                        "Select a subset",
+                        options=sorted(keys.keys()),
+                        key="sb_selected_subset_filt_sin",
+                    )
+                    selected_id = c2.selectbox(
+                        "Select an item",
+                        options=keys[selected_subset],
+                        key="sb_selected_id_filt_sin",
+                    )
                 else:
-                    selected_subset = keys.keys()[0]
-                    selected_id = st.selectbox("Select an item", options=keys[selected_subset])
+                    selected_subset = list(keys.keys())[0]
+                    selected_id = st.selectbox(
+                        "Select an item",
+                        options=keys[selected_subset],
+                        key="sb_selected_id_2_filt_sin",
+                    )
 
                 xml_str = data_helper.get_xml(selected_subset, selected_id)
                 if xml_str:
@@ -494,28 +534,30 @@ class TransformRemove(TransformBase):
     def gui(self, data_helper: SingleDatasetHelper):
         keys = data_helper.subset_to_ids()
         c1, c2, c3 = st.columns(3)
-        selected_subset = c1.selectbox("Select a subset", options=sorted(keys.keys()))
-        selected_id = c2.selectbox("Select an item", options=keys[selected_subset])
+        selected_subset = c1.selectbox(
+            "Select a subset", options=sorted(keys.keys()), key="sb_select_subset_remove_sin"
+        )
+        selected_id = c2.selectbox(
+            "Select an item", options=keys[selected_subset], key="sb_select_id_remove_sin"
+        )
         dataset = data_helper.dataset()
         selected_item = dataset.get(selected_id, selected_subset)
         ann_ids = [
             "All",
         ] + sorted(list({ann.id for ann in selected_item.annotations}))
-        selected_ann_id = c3.selectbox("Select an annotation:", ann_ids)
+        selected_ann_id = c3.selectbox("Select an annotation", ann_ids, key="sb_select_ann_id_sin")
 
         bc1, bc2 = st.columns(2)
-        bc1.button(
-            "Remove item",
-            use_container_width=True,
-            on_click=self._remove_item,
-            args=(data_helper, selected_id, selected_subset),
+        btn_remove_item = bc1.button(
+            "Remove item", use_container_width=True, key="btn_remove_item_remove_sin"
         )
-        bc2.button(
-            "Remove annotation",
-            use_container_width=True,
-            on_click=self._remove_annotation,
-            args=(data_helper, selected_id, selected_subset, selected_ann_id),
+        if btn_remove_item:
+            self._remove_item(data_helper, selected_id, selected_subset)
+        btn_remove_annot = bc2.button(
+            "Remove annotation", use_container_width=True, key="btn_remove_annot_remove_sin"
         )
+        if btn_remove_annot:
+            self._remove_annotation(data_helper, selected_id, selected_subset, selected_ann_id)
 
         num_items = len(dataset)
         rc1, rc2 = st.columns([0.3, 0.7])
@@ -630,7 +672,7 @@ class TransformAutoCorrection(TransformBase):
             reports_src = data_helper.validate(selected_task)
             data_helper.transform("correct", reports=reports_src)
             reports_dst = data_helper.validate(selected_task)
-            state["correct-reports"] = {"src": reports_src, "dst": reports_dst}
+            state["correct_reports"] = {"src": reports_src, "dst": reports_dst}
             st.toast("Correction Success!", icon="🎉")
         except Exception as e:
             st.toast(f"Error: {repr(e)}", icon="🚨")
@@ -638,24 +680,29 @@ class TransformAutoCorrection(TransformBase):
     def gui(self, data_helper: SingleDatasetHelper):
         tasks = ["Classification", "Detection", "Segmentation"]
         recommended_task = self._recommend_task(data_helper.get_ann_stats())
-        selected_task = st.selectbox("Select a task", tasks, index=tasks.index(recommended_task))
-
-        st.button(
-            "Correct a dataset",
-            use_container_width=True,
-            on_click=self._correct_dataset,
-            args=(data_helper, selected_task),
+        selected_task = st.selectbox(
+            "Select a task",
+            tasks,
+            index=tasks.index(recommended_task),
+            key="sb_select_task_auto_corr_sin",
         )
 
-        if state["correct-reports"] is not None:
-            summary_src = self._get_validation_summary(state["correct-reports"]["src"])
-            summary_dst = self._get_validation_summary(state["correct-reports"]["dst"])
+        btn_correct = st.button(
+            "Correct a dataset", use_container_width=True, key="btn_auto_corr_sin"
+        )
+        if btn_correct:
+            self._correct_dataset(data_helper, selected_task)
+
+        if state["correct_reports"] is not None:
+            print(state["correct_reports"])
+            summary_src = self._get_validation_summary(state["correct_reports"]["src"])
+            summary_dst = self._get_validation_summary(state["correct_reports"]["dst"])
             st.dataframe(
                 self._get_compared_df(summary_src, summary_dst),
                 use_container_width=True,
                 hide_index=True,
             )
-            state["correct-reports"] = None  # reset state
+            state["correct_reports"] = None  # reset state
         else:
             reports = data_helper.validate(selected_task)
             summary = self._get_validation_summary(reports)
@@ -699,11 +746,13 @@ def main():
         for category in transform_categories:
             sac.divider(label=category.type, icon="map", align="center", bold=False)
             for transform in category.transforms:
+                transform_name = transform().name
                 st.button(
-                    transform().name,
+                    transform_name,
                     use_container_width=True,
                     on_click=on_click,
                     args=(transform,),
+                    key="btn_" + "_".join(word.lower() for word in transform_name.split()),
                 )
     with c2:
         print(f"transform->c2 called : {state['selected_transform']}")
