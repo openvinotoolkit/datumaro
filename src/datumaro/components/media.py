@@ -29,6 +29,7 @@ from typing import (
 )
 
 import cv2
+import imagesize
 import numpy as np
 
 from datumaro.components.crypter import NULL_CRYPTER, Crypter
@@ -329,6 +330,19 @@ class ImageFromFile(FromFileMixin, Image):
                 raise MediaShapeError("An image should have 2 (gray) or 3 (bgra) dims.")
             self._size = tuple(map(int, data.shape[:2]))
         return data
+
+    @property
+    def size(self) -> Optional[Tuple[int, int]]:
+        """Returns (H, W)"""
+
+        if self._size is None:
+            try:
+                width, height = imagesize.get(self.path)
+                assert width != -1 and height != -1
+                self._size = (height, width)
+            except Exception:
+                _ = super().size
+        return self._size
 
     def save(
         self,
