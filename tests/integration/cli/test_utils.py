@@ -6,7 +6,6 @@ from unittest.mock import PropertyMock, patch
 import numpy as np
 import pytest
 
-from datumaro.components.media_manager import MediaManager
 from datumaro.util.scope import on_exit_do, scope_add, scoped
 
 from ...requirements import Requirements, mark_requirement
@@ -22,7 +21,6 @@ class VideoSplittingTest:
     @patch("datumaro.components.media.VideoFrame.data", new_callable=PropertyMock)
     def test_can_split_video(self, mock_video_frame_data):
         mock_video_frame_data.return_value = np.full((32, 32, 3), fill_value=0, dtype=np.uint8)
-        on_exit_do(MediaManager.get_instance().clear)
 
         test_dir = scope_add(TestDir())
         video_path = osp.join(test_dir, "video.avi")
