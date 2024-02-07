@@ -160,6 +160,15 @@ class _YoloUltralyticsImporter(_YoloLooseImporter):
     META_FILE = YoloUltralyticsPath.META_FILE
     FORMAT = YoloFormatType.yolo_ultralytics.name
 
+    @classmethod
+    def _check_ann_file_impl(cls, fp: TextIOWrapper) -> bool:
+        try:
+            return _YoloLooseImporter._check_ann_file_impl(fp)
+        except DatasetImportError as e:
+            if e.args[0] == "Empty file is not allowed.":
+                return True
+            raise
+
 
 class YoloImporter(Importer):
     SUB_IMPORTERS: Dict[YoloFormatType, Importer] = {
