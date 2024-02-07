@@ -1,7 +1,0 @@
-Algorithm package
-=================
-
-.. toctree::
-   :glob:
-
-   *

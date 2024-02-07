@@ -1,7 +1,0 @@
-Utilities
-#########
-
-.. toctree::
-    :glob:
-
-    *

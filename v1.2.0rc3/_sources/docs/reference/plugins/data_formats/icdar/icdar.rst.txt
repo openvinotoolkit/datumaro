@@ -1,7 +1,0 @@
-ICDAR package
-=============
-
-.. toctree::
-   :glob:
-
-   *
