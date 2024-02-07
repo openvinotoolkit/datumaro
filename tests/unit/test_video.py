@@ -13,7 +13,6 @@ from datumaro.components.annotation import Bbox, Label
 from datumaro.components.dataset import Dataset
 from datumaro.components.dataset_base import DatasetItem
 from datumaro.components.media import Image, Video, VideoFrame
-from datumaro.components.media_manager import MediaManager
 from datumaro.components.project import Project
 from datumaro.util.scope import Scope, on_exit_do, scope_add, scoped
 
@@ -122,8 +121,6 @@ class VideoExtractorTest:
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     @scoped
     def test_can_read_frames(self, fxt_sample_video):
-        on_exit_do(MediaManager.get_instance().clear)
-
         expected = Dataset.from_iterable(
             [
                 DatasetItem(
@@ -145,7 +142,6 @@ class VideoExtractorTest:
     @scoped
     def test_can_split_and_load(self, fxt_sample_video):
         test_dir = scope_add(TestDir())
-        on_exit_do(MediaManager.get_instance().clear)
 
         expected = Dataset.from_iterable(
             [

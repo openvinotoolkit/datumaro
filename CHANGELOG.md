@@ -65,6 +65,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   (<https://github.com/openvinotoolkit/datumaro/pull/1251>)
 - Add default value for target in prune cli
   (<https://github.com/openvinotoolkit/datumaro/pull/1253>)
+- Remove deprecated MediaManager
+  (<https://github.com/openvinotoolkit/datumaro/pull/1262>)
 
 ## Jan. 2024 Release 1.5.2
 ### Enhancements

@@ -57,7 +57,6 @@ from .components.hl_ops import HLOps
 from .components.importer import FailingImportErrorPolicy, Importer, ImportErrorPolicy
 from .components.launcher import Launcher
 from .components.media import Image, MediaElement, Video, VideoFrame
-from .components.media_manager import MediaManager
 from .components.progress_reporting import (
     NullProgressReporter,
     ProgressReporter,
