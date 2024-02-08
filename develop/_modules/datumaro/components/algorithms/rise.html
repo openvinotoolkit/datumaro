@@ -277,30 +277,21 @@
             <article class="bd-article" role="main">
               
   <h1>Source code for datumaro.components.algorithms.rise</h1><div class="highlight"><pre>
-<span></span><span class="c1"># Copyright (C) 2019-2020 Intel Corporation</span>
+<span></span><span class="c1"># Copyright (C) 2019-2024 Intel Corporation</span>
 <span class="c1">#</span>
 <span class="c1"># SPDX-License-Identifier: MIT</span>
 
 <span class="c1"># pylint: disable=unused-variable</span>
 
-<span class="kn">from</span> <span class="nn">math</span> <span class="kn">import</span> <span class="n">ceil</span>
-
+<span class="kn">import</span> <span class="nn">cv2</span>
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 
-<span class="kn">from</span> <span class="nn">datumaro.components.annotation</span> <span class="kn">import</span> <span class="n">AnnotationType</span>
-<span class="kn">from</span> <span class="nn">datumaro.util.annotation_util</span> <span class="kn">import</span> <span class="n">nms</span>
+<span class="kn">from</span> <span class="nn">datumaro.components.dataset</span> <span class="kn">import</span> <span class="n">Dataset</span>
+<span class="kn">from</span> <span class="nn">datumaro.components.dataset_base</span> <span class="kn">import</span> <span class="n">DatasetItem</span>
+<span class="kn">from</span> <span class="nn">datumaro.components.media</span> <span class="kn">import</span> <span class="n">Image</span>
+<span class="kn">from</span> <span class="nn">datumaro.util</span> <span class="kn">import</span> <span class="n">take_by</span>
 
 <span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;RISE&quot;</span><span class="p">]</span>
-
-
-<span class="k">def</span> <span class="nf">_flatmatvec</span><span class="p">(</span><span class="n">mat</span><span class="p">):</span>
-    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">mat</span><span class="p">,</span> <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">mat</span><span class="p">),</span> <span class="o">-</span><span class="mi">1</span><span class="p">))</span>
-
-
-<span class="k">def</span> <span class="nf">_expand</span><span class="p">(</span><span class="n">array</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-    <span class="k">if</span> <span class="n">axis</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="n">axis</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">array</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
-    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">expand_dims</span><span class="p">(</span><span class="n">array</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="n">axis</span><span class="p">)</span>
 
 
 <div class="viewcode-block" id="RISE"><a class="viewcode-back" href="../../../../docs/reference/_autosummary/datumaro.components.algorithms.rise.html#datumaro.components.algorithms.rise.RISE">[docs]</a><span class="k">class</span> <span class="nc">RISE</span><span class="p">:</span>
@@ -313,189 +304,107 @@
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">model</span><span class="p">,</span>
-        <span class="n">max_samples</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-        <span class="n">mask_width</span><span class="o">=</span><span class="mi">7</span><span class="p">,</span>
-        <span class="n">mask_height</span><span class="o">=</span><span class="mi">7</span><span class="p">,</span>
-        <span class="n">prob</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span>
-        <span class="n">iou_thresh</span><span class="o">=</span><span class="mf">0.9</span><span class="p">,</span>
-        <span class="n">nms_thresh</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span>
-        <span class="n">det_conf_thresh</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span>
-        <span class="n">batch_size</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+        <span class="n">num_masks</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">100</span><span class="p">,</span>
+        <span class="n">mask_size</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">7</span><span class="p">,</span>
+        <span class="n">prob</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.5</span><span class="p">,</span>
+        <span class="n">batch_size</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span>
     <span class="p">):</span>
+        <span class="k">assert</span> <span class="n">prob</span> <span class="o">&gt;=</span> <span class="mi">0</span> <span class="ow">and</span> <span class="n">prob</span> <span class="o">&lt;=</span> <span class="mi">1</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">model</span> <span class="o">=</span> <span class="n">model</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">max_samples</span> <span class="o">=</span> <span class="n">max_samples</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">mask_height</span> <span class="o">=</span> <span class="n">mask_height</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">mask_width</span> <span class="o">=</span> <span class="n">mask_width</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">num_masks</span> <span class="o">=</span> <span class="n">num_masks</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mask_size</span> <span class="o">=</span> <span class="n">mask_size</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">prob</span> <span class="o">=</span> <span class="n">prob</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">iou_thresh</span> <span class="o">=</span> <span class="n">iou_thresh</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">nms_thresh</span> <span class="o">=</span> <span class="n">nms_thresh</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">det_conf_thresh</span> <span class="o">=</span> <span class="n">det_conf_thresh</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">batch_size</span> <span class="o">=</span> <span class="n">batch_size</span>
 
-<div class="viewcode-block" id="RISE.split_outputs"><a class="viewcode-back" href="../../../../docs/reference/_autosummary/datumaro.components.algorithms.rise.html#datumaro.components.algorithms.rise.RISE.split_outputs">[docs]</a>    <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">split_outputs</span><span class="p">(</span><span class="n">annotations</span><span class="p">):</span>
-        <span class="n">labels</span> <span class="o">=</span> <span class="p">[]</span>
-        <span class="n">bboxes</span> <span class="o">=</span> <span class="p">[]</span>
-        <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="n">annotations</span><span class="p">:</span>
-            <span class="k">if</span> <span class="n">r</span><span class="o">.</span><span class="n">type</span> <span class="ow">is</span> <span class="n">AnnotationType</span><span class="o">.</span><span class="n">label</span><span class="p">:</span>
-                <span class="n">labels</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">r</span><span class="p">)</span>
-            <span class="k">elif</span> <span class="n">r</span><span class="o">.</span><span class="n">type</span> <span class="ow">is</span> <span class="n">AnnotationType</span><span class="o">.</span><span class="n">bbox</span><span class="p">:</span>
-                <span class="n">bboxes</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">r</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">labels</span><span class="p">,</span> <span class="n">bboxes</span></div>
+<div class="viewcode-block" id="RISE.normalize_saliency"><a class="viewcode-back" href="../../../../docs/reference/_autosummary/datumaro.components.algorithms.rise.html#datumaro.components.algorithms.rise.RISE.normalize_saliency">[docs]</a>    <span class="k">def</span> <span class="nf">normalize_saliency</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">saliency</span><span class="p">):</span>
+        <span class="n">normalized_saliency</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty_like</span><span class="p">(</span><span class="n">saliency</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">idx</span><span class="p">,</span> <span class="n">sal</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">saliency</span><span class="p">):</span>
+            <span class="n">normalized_saliency</span><span class="p">[</span><span class="n">idx</span><span class="p">,</span> <span class="o">...</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">sal</span> <span class="o">-</span> <span class="n">np</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">sal</span><span class="p">))</span> <span class="o">/</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">sal</span><span class="p">)</span> <span class="o">-</span> <span class="n">np</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">sal</span><span class="p">))</span>
+        <span class="k">return</span> <span class="n">normalized_saliency</span></div>
 
-<div class="viewcode-block" id="RISE.normalize_hmaps"><a class="viewcode-back" href="../../../../docs/reference/_autosummary/datumaro.components.algorithms.rise.html#datumaro.components.algorithms.rise.RISE.normalize_hmaps">[docs]</a>    <span class="k">def</span> <span class="nf">normalize_hmaps</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">heatmaps</span><span class="p">,</span> <span class="n">counts</span><span class="p">):</span>
-        <span class="n">eps</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">finfo</span><span class="p">(</span><span class="n">heatmaps</span><span class="o">.</span><span class="n">dtype</span><span class="p">)</span><span class="o">.</span><span class="n">eps</span>
-        <span class="n">mhmaps</span> <span class="o">=</span> <span class="n">_flatmatvec</span><span class="p">(</span><span class="n">heatmaps</span><span class="p">)</span>
-        <span class="n">mhmaps</span> <span class="o">/=</span> <span class="n">_expand</span><span class="p">(</span><span class="n">counts</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">prob</span> <span class="o">+</span> <span class="n">eps</span><span class="p">)</span>
-        <span class="n">mhmaps</span> <span class="o">-=</span> <span class="n">_expand</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">mhmaps</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">))</span>
-        <span class="n">mhmaps</span> <span class="o">/=</span> <span class="n">_expand</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">mhmaps</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span> <span class="o">+</span> <span class="n">eps</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">mhmaps</span><span class="p">,</span> <span class="n">heatmaps</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span></div>
+<div class="viewcode-block" id="RISE.generate_masks"><a class="viewcode-back" href="../../../../docs/reference/_autosummary/datumaro.components.algorithms.rise.html#datumaro.components.algorithms.rise.RISE.generate_masks">[docs]</a>    <span class="k">def</span> <span class="nf">generate_masks</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">image_size</span><span class="p">):</span>
+        <span class="n">cell_size</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ceil</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">image_size</span><span class="p">)</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">mask_size</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">int8</span><span class="p">)</span>
+        <span class="n">up_size</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">([(</span><span class="bp">self</span><span class="o">.</span><span class="n">mask_size</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">*</span> <span class="n">cs</span> <span class="k">for</span> <span class="n">cs</span> <span class="ow">in</span> <span class="n">cell_size</span><span class="p">])</span>
+
+        <span class="n">grid</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">rand</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">num_masks</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">mask_size</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">mask_size</span><span class="p">)</span> <span class="o">&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">prob</span>
+        <span class="n">grid</span> <span class="o">=</span> <span class="n">grid</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s2">&quot;float32&quot;</span><span class="p">)</span>
+
+        <span class="n">masks</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">num_masks</span><span class="p">,</span> <span class="o">*</span><span class="n">image_size</span><span class="p">))</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">num_masks</span><span class="p">):</span>
+            <span class="c1"># Random shifts</span>
+            <span class="n">x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">randint</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">cell_size</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+            <span class="n">y</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">randint</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">cell_size</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+
+            <span class="c1"># Linear upsampling and cropping</span>
+            <span class="n">masks</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="o">...</span><span class="p">]</span> <span class="o">=</span> <span class="n">cv2</span><span class="o">.</span><span class="n">resize</span><span class="p">(</span><span class="n">grid</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">up_size</span><span class="p">,</span> <span class="n">interpolation</span><span class="o">=</span><span class="n">cv2</span><span class="o">.</span><span class="n">INTER_LINEAR</span><span class="p">)[</span>
+                <span class="n">x</span> <span class="p">:</span> <span class="n">x</span> <span class="o">+</span> <span class="n">image_size</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">y</span> <span class="p">:</span> <span class="n">y</span> <span class="o">+</span> <span class="n">image_size</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+            <span class="p">]</span>
+
+        <span class="k">return</span> <span class="n">masks</span></div>
+
+<div class="viewcode-block" id="RISE.generate_masked_dataset"><a class="viewcode-back" href="../../../../docs/reference/_autosummary/datumaro.components.algorithms.rise.html#datumaro.components.algorithms.rise.RISE.generate_masked_dataset">[docs]</a>    <span class="k">def</span> <span class="nf">generate_masked_dataset</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">image</span><span class="p">,</span> <span class="n">image_size</span><span class="p">,</span> <span class="n">masks</span><span class="p">):</span>
+        <span class="n">input_image</span> <span class="o">=</span> <span class="n">cv2</span><span class="o">.</span><span class="n">resize</span><span class="p">(</span><span class="n">image</span><span class="p">,</span> <span class="n">image_size</span><span class="p">,</span> <span class="n">interpolation</span><span class="o">=</span><span class="n">cv2</span><span class="o">.</span><span class="n">INTER_LINEAR</span><span class="p">)</span>
+
+        <span class="n">items</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="nb">id</span><span class="p">,</span> <span class="n">mask</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">masks</span><span class="p">):</span>
+            <span class="n">masked_image</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">expand_dims</span><span class="p">(</span><span class="n">mask</span><span class="p">,</span> <span class="n">axis</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span> <span class="o">*</span> <span class="n">input_image</span>
+            <span class="n">items</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                <span class="n">DatasetItem</span><span class="p">(</span>
+                    <span class="nb">id</span><span class="o">=</span><span class="nb">id</span><span class="p">,</span>
+                    <span class="n">media</span><span class="o">=</span><span class="n">Image</span><span class="o">.</span><span class="n">from_numpy</span><span class="p">(</span><span class="n">masked_image</span><span class="p">),</span>
+                <span class="p">)</span>
+            <span class="p">)</span>
+        <span class="k">return</span> <span class="n">Dataset</span><span class="o">.</span><span class="n">from_iterable</span><span class="p">(</span><span class="n">items</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="RISE.apply"><a class="viewcode-back" href="../../../../docs/reference/_autosummary/datumaro.components.algorithms.rise.html#datumaro.components.algorithms.rise.RISE.apply">[docs]</a>    <span class="k">def</span> <span class="nf">apply</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">image</span><span class="p">,</span> <span class="n">progressive</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
-        <span class="kn">import</span> <span class="nn">cv2</span>
-
         <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">image</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span> <span class="ow">in</span> <span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">],</span> <span class="s2">&quot;Expected an input image in (H, W, C) format&quot;</span>
         <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">image</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span> <span class="o">==</span> <span class="mi">3</span><span class="p">:</span>
             <span class="k">assert</span> <span class="n">image</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="ow">in</span> <span class="p">[</span><span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">],</span> <span class="s2">&quot;Expected BGR or BGRA input&quot;</span>
         <span class="n">image</span> <span class="o">=</span> <span class="n">image</span><span class="p">[:,</span> <span class="p">:,</span> <span class="p">:</span><span class="mi">3</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
 
         <span class="n">model</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span>
-        <span class="n">iou_thresh</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">iou_thresh</span>
 
-        <span class="n">image_size</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">((</span><span class="n">image</span><span class="o">.</span><span class="n">shape</span><span class="p">[:</span><span class="mi">2</span><span class="p">]))</span>
-        <span class="n">mask_size</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">mask_height</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">mask_width</span><span class="p">))</span>
-        <span class="n">cell_size</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ceil</span><span class="p">(</span><span class="n">image_size</span> <span class="o">/</span> <span class="n">mask_size</span><span class="p">)</span>
-        <span class="n">upsampled_size</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ceil</span><span class="p">((</span><span class="n">mask_size</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">*</span> <span class="n">cell_size</span><span class="p">)</span>
+        <span class="n">image_size</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">inputs</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">shape</span>
+        <span class="n">logit_size</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">outputs</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">shape</span>
 
-        <span class="n">rng</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">shape</span><span class="o">=</span><span class="kc">None</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">rand</span><span class="p">(</span><span class="o">*</span><span class="n">shape</span><span class="p">)</span>
-        <span class="n">samples</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">prod</span><span class="p">(</span><span class="n">image_size</span><span class="p">)</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">max_samples</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="n">samples</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">max_samples</span><span class="p">,</span> <span class="n">samples</span><span class="p">)</span>
-        <span class="n">batch_size</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">batch_size</span>
+        <span class="n">batch_size</span> <span class="o">=</span> <span class="n">image_size</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">image_size</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="ow">in</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">3</span><span class="p">]:</span>  <span class="c1"># for CxHxW</span>
+            <span class="n">image_size</span> <span class="o">=</span> <span class="p">(</span><span class="n">image_size</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span> <span class="n">image_size</span><span class="p">[</span><span class="mi">3</span><span class="p">])</span>
+        <span class="k">elif</span> <span class="n">image_size</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span> <span class="ow">in</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">3</span><span class="p">]:</span>  <span class="c1"># for HxWxC</span>
+            <span class="n">image_size</span> <span class="o">=</span> <span class="p">(</span><span class="n">image_size</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">image_size</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span>
 
-        <span class="c1"># model is expected to get NxCxHxW shaped input tensor</span>
-        <span class="n">pred</span> <span class="o">=</span> <span class="nb">next</span><span class="p">(</span><span class="nb">iter</span><span class="p">(</span><span class="n">model</span><span class="o">.</span><span class="n">infer</span><span class="p">(</span><span class="n">_expand</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span><span class="n">image</span><span class="p">,</span> <span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">)),</span> <span class="mi">0</span><span class="p">))))</span>
-        <span class="n">result</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">postprocess</span><span class="p">(</span><span class="n">pred</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
-        <span class="n">result_labels</span><span class="p">,</span> <span class="n">result_bboxes</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">split_outputs</span><span class="p">(</span><span class="n">result</span><span class="p">)</span>
-        <span class="k">if</span> <span class="mi">0</span> <span class="o">&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">det_conf_thresh</span><span class="p">:</span>
-            <span class="n">result_bboxes</span> <span class="o">=</span> <span class="p">[</span>
-                <span class="n">b</span> <span class="k">for</span> <span class="n">b</span> <span class="ow">in</span> <span class="n">result_bboxes</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">det_conf_thresh</span> <span class="o">&lt;=</span> <span class="n">b</span><span class="o">.</span><span class="n">attributes</span><span class="p">[</span><span class="s2">&quot;score&quot;</span><span class="p">]</span>
-            <span class="p">]</span>
-        <span class="k">if</span> <span class="mi">0</span> <span class="o">&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">nms_thresh</span><span class="p">:</span>
-            <span class="n">result_bboxes</span> <span class="o">=</span> <span class="n">nms</span><span class="p">(</span><span class="n">result_bboxes</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">nms_thresh</span><span class="p">)</span>
+        <span class="n">masks</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">generate_masks</span><span class="p">(</span><span class="n">image_size</span><span class="o">=</span><span class="n">image_size</span><span class="p">)</span>
+        <span class="n">masked_dataset</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">generate_masked_dataset</span><span class="p">(</span><span class="n">image</span><span class="p">,</span> <span class="n">image_size</span><span class="p">,</span> <span class="n">masks</span><span class="p">)</span>
 
-        <span class="n">predicted_labels</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
-        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">result_labels</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
-            <span class="n">predicted_label</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">result_labels</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">r</span><span class="p">:</span> <span class="n">r</span><span class="o">.</span><span class="n">attributes</span><span class="p">[</span><span class="s2">&quot;score&quot;</span><span class="p">])</span><span class="o">.</span><span class="n">label</span>
-            <span class="n">predicted_labels</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">predicted_label</span><span class="p">)</span>
-        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">result_bboxes</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
-            <span class="k">for</span> <span class="n">bbox</span> <span class="ow">in</span> <span class="n">result_bboxes</span><span class="p">:</span>
-                <span class="n">predicted_labels</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">bbox</span><span class="o">.</span><span class="n">label</span><span class="p">)</span>
-        <span class="n">predicted_labels</span> <span class="o">=</span> <span class="p">{</span><span class="n">label</span><span class="p">:</span> <span class="n">idx</span> <span class="k">for</span> <span class="n">idx</span><span class="p">,</span> <span class="n">label</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">predicted_labels</span><span class="p">)}</span>
+        <span class="n">saliency</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">logit_size</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="o">*</span><span class="n">image_size</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">batch_id</span><span class="p">,</span> <span class="n">batch</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">take_by</span><span class="p">(</span><span class="n">masked_dataset</span><span class="p">,</span> <span class="n">batch_size</span><span class="p">)):</span>
+            <span class="n">outputs</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">launch</span><span class="p">(</span><span class="n">batch</span><span class="p">)</span>
 
-        <span class="n">predicted_bboxes</span> <span class="o">=</span> <span class="n">result_bboxes</span>
+            <span class="k">for</span> <span class="n">sample_id</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">batch</span><span class="p">)):</span>
+                <span class="n">mask</span> <span class="o">=</span> <span class="n">masks</span><span class="p">[</span><span class="n">batch_size</span> <span class="o">*</span> <span class="n">batch_id</span> <span class="o">+</span> <span class="n">sample_id</span><span class="p">]</span>
+                <span class="k">for</span> <span class="n">class_idx</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">logit_size</span><span class="p">[</span><span class="mi">1</span><span class="p">]):</span>
+                    <span class="n">score</span> <span class="o">=</span> <span class="n">outputs</span><span class="p">[</span><span class="n">sample_id</span><span class="p">][</span><span class="n">class_idx</span><span class="p">]</span><span class="o">.</span><span class="n">attributes</span><span class="p">[</span><span class="s2">&quot;score&quot;</span><span class="p">]</span>
+                    <span class="n">saliency</span><span class="p">[</span><span class="n">class_idx</span><span class="p">,</span> <span class="o">...</span><span class="p">]</span> <span class="o">+=</span> <span class="n">score</span> <span class="o">*</span> <span class="n">mask</span>
 
-        <span class="n">heatmaps_count</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">predicted_labels</span><span class="p">)</span> <span class="o">+</span> <span class="nb">len</span><span class="p">(</span><span class="n">predicted_bboxes</span><span class="p">)</span>
-        <span class="n">heatmaps</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">heatmaps_count</span><span class="p">,</span> <span class="o">*</span><span class="n">image_size</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
-        <span class="n">total_counts</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">heatmaps_count</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">int32</span><span class="p">)</span>
-        <span class="n">confs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">heatmaps_count</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
-
-        <span class="n">heatmap_id</span> <span class="o">=</span> <span class="mi">0</span>
-
-        <span class="c1"># label_heatmaps = None</span>
-        <span class="n">label_total_counts</span> <span class="o">=</span> <span class="kc">None</span>
-        <span class="n">label_confs</span> <span class="o">=</span> <span class="kc">None</span>
-        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">predicted_labels</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
-            <span class="n">step</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">predicted_labels</span><span class="p">)</span>
-            <span class="c1"># label_heatmaps = heatmaps[heatmap_id : heatmap_id + step]</span>
-            <span class="n">label_total_counts</span> <span class="o">=</span> <span class="n">total_counts</span><span class="p">[</span><span class="n">heatmap_id</span> <span class="p">:</span> <span class="n">heatmap_id</span> <span class="o">+</span> <span class="n">step</span><span class="p">]</span>
-            <span class="n">label_confs</span> <span class="o">=</span> <span class="n">confs</span><span class="p">[</span><span class="n">heatmap_id</span> <span class="p">:</span> <span class="n">heatmap_id</span> <span class="o">+</span> <span class="n">step</span><span class="p">]</span>
-            <span class="n">heatmap_id</span> <span class="o">+=</span> <span class="n">step</span>
-
-        <span class="c1"># bbox_heatmaps = None</span>
-        <span class="n">bbox_total_counts</span> <span class="o">=</span> <span class="kc">None</span>
-        <span class="n">bbox_confs</span> <span class="o">=</span> <span class="kc">None</span>
-        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">predicted_bboxes</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
-            <span class="n">step</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">predicted_bboxes</span><span class="p">)</span>
-            <span class="c1"># bbox_heatmaps = heatmaps[heatmap_id : heatmap_id + step]</span>
-            <span class="n">bbox_total_counts</span> <span class="o">=</span> <span class="n">total_counts</span><span class="p">[</span><span class="n">heatmap_id</span> <span class="p">:</span> <span class="n">heatmap_id</span> <span class="o">+</span> <span class="n">step</span><span class="p">]</span>
-            <span class="n">bbox_confs</span> <span class="o">=</span> <span class="n">confs</span><span class="p">[</span><span class="n">heatmap_id</span> <span class="p">:</span> <span class="n">heatmap_id</span> <span class="o">+</span> <span class="n">step</span><span class="p">]</span>
-            <span class="n">heatmap_id</span> <span class="o">+=</span> <span class="n">step</span>
-
-        <span class="n">ups_mask</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">(</span><span class="n">upsampled_size</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
-        <span class="n">masks</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">((</span><span class="n">batch_size</span><span class="p">,</span> <span class="o">*</span><span class="n">image_size</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
-
-        <span class="n">full_batch_inputs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">((</span><span class="n">batch_size</span><span class="p">,</span> <span class="o">*</span><span class="n">image</span><span class="o">.</span><span class="n">shape</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
-        <span class="n">current_heatmaps</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty_like</span><span class="p">(</span><span class="n">heatmaps</span><span class="p">)</span>
-        <span class="k">for</span> <span class="n">b</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">ceil</span><span class="p">(</span><span class="n">samples</span> <span class="o">/</span> <span class="n">batch_size</span><span class="p">)):</span>
-            <span class="n">batch_pos</span> <span class="o">=</span> <span class="n">b</span> <span class="o">*</span> <span class="n">batch_size</span>
-            <span class="n">current_batch_size</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">samples</span> <span class="o">-</span> <span class="n">batch_pos</span><span class="p">,</span> <span class="n">batch_size</span><span class="p">)</span>
-
-            <span class="n">batch_masks</span> <span class="o">=</span> <span class="n">masks</span><span class="p">[:</span><span class="n">current_batch_size</span><span class="p">]</span>
-            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">current_batch_size</span><span class="p">):</span>
-                <span class="n">mask</span> <span class="o">=</span> <span class="p">(</span><span class="n">rng</span><span class="p">(</span><span class="n">mask_size</span><span class="p">)</span> <span class="o">&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">prob</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
-                <span class="n">cv2</span><span class="o">.</span><span class="n">resize</span><span class="p">(</span><span class="n">mask</span><span class="p">,</span> <span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">upsampled_size</span><span class="p">[</span><span class="mi">1</span><span class="p">]),</span> <span class="nb">int</span><span class="p">(</span><span class="n">upsampled_size</span><span class="p">[</span><span class="mi">0</span><span class="p">])),</span> <span class="n">ups_mask</span><span class="p">)</span>
-
-                <span class="n">offsets</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="n">rng</span><span class="p">((</span><span class="mi">2</span><span class="p">,))</span> <span class="o">*</span> <span class="n">cell_size</span><span class="p">)</span>
-                <span class="n">mask</span> <span class="o">=</span> <span class="n">ups_mask</span><span class="p">[</span>
-                    <span class="nb">int</span><span class="p">(</span><span class="n">offsets</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="p">:</span> <span class="nb">int</span><span class="p">(</span><span class="n">image_size</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="n">offsets</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span>
-                    <span class="nb">int</span><span class="p">(</span><span class="n">offsets</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span> <span class="p">:</span> <span class="nb">int</span><span class="p">(</span><span class="n">image_size</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="n">offsets</span><span class="p">[</span><span class="mi">1</span><span class="p">]),</span>
-                <span class="p">]</span>
-                <span class="n">batch_masks</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">mask</span>
-
-            <span class="n">batch_inputs</span> <span class="o">=</span> <span class="n">full_batch_inputs</span><span class="p">[:</span><span class="n">current_batch_size</span><span class="p">]</span>
-            <span class="n">np</span><span class="o">.</span><span class="n">multiply</span><span class="p">(</span><span class="n">_expand</span><span class="p">(</span><span class="n">batch_masks</span><span class="p">),</span> <span class="n">_expand</span><span class="p">(</span><span class="n">image</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="n">out</span><span class="o">=</span><span class="n">batch_inputs</span><span class="p">)</span>
-
-            <span class="n">preds</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">infer</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span><span class="n">batch_inputs</span><span class="p">,</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">)))</span>
-            <span class="n">results</span> <span class="o">=</span> <span class="p">[</span><span class="n">model</span><span class="o">.</span><span class="n">postprocess</span><span class="p">(</span><span class="n">pred</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span> <span class="k">for</span> <span class="n">pred</span> <span class="ow">in</span> <span class="n">preds</span><span class="p">]</span>
-            <span class="k">for</span> <span class="n">mask</span><span class="p">,</span> <span class="n">result</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">batch_masks</span><span class="p">,</span> <span class="n">results</span><span class="p">):</span>
-                <span class="n">result_labels</span><span class="p">,</span> <span class="n">result_bboxes</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">split_outputs</span><span class="p">(</span><span class="n">result</span><span class="p">)</span>
-
-                <span class="n">confs</span><span class="o">.</span><span class="n">fill</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
-                <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">predicted_labels</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
-                    <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="n">result_labels</span><span class="p">:</span>
-                        <span class="n">idx</span> <span class="o">=</span> <span class="n">predicted_labels</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">r</span><span class="o">.</span><span class="n">label</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
-                        <span class="k">if</span> <span class="n">idx</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-                            <span class="n">label_total_counts</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span> <span class="o">+=</span> <span class="mi">1</span>
-                            <span class="n">label_confs</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span> <span class="o">+=</span> <span class="n">r</span><span class="o">.</span><span class="n">attributes</span><span class="p">[</span><span class="s2">&quot;score&quot;</span><span class="p">]</span>
-                    <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="n">result_bboxes</span><span class="p">:</span>
-                        <span class="n">idx</span> <span class="o">=</span> <span class="n">predicted_labels</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">r</span><span class="o">.</span><span class="n">label</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
-                        <span class="k">if</span> <span class="n">idx</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-                            <span class="n">label_total_counts</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span> <span class="o">+=</span> <span class="mi">1</span>
-                            <span class="n">label_confs</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span> <span class="o">+=</span> <span class="n">r</span><span class="o">.</span><span class="n">attributes</span><span class="p">[</span><span class="s2">&quot;score&quot;</span><span class="p">]</span>
-
-                <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">predicted_bboxes</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">0</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">result_bboxes</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
-                    <span class="k">if</span> <span class="mi">0</span> <span class="o">&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">det_conf_thresh</span><span class="p">:</span>
-                        <span class="n">result_bboxes</span> <span class="o">=</span> <span class="p">[</span>
-                            <span class="n">b</span>
-                            <span class="k">for</span> <span class="n">b</span> <span class="ow">in</span> <span class="n">result_bboxes</span>
-                            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">det_conf_thresh</span> <span class="o">&lt;=</span> <span class="n">b</span><span class="o">.</span><span class="n">attributes</span><span class="p">[</span><span class="s2">&quot;score&quot;</span><span class="p">]</span>
-                        <span class="p">]</span>
-                    <span class="k">if</span> <span class="mi">0</span> <span class="o">&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">nms_thresh</span><span class="p">:</span>
-                        <span class="n">result_bboxes</span> <span class="o">=</span> <span class="n">nms</span><span class="p">(</span><span class="n">result_bboxes</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">nms_thresh</span><span class="p">)</span>
-
-                    <span class="k">for</span> <span class="n">detection</span> <span class="ow">in</span> <span class="n">result_bboxes</span><span class="p">:</span>
-                        <span class="k">for</span> <span class="n">pred_idx</span><span class="p">,</span> <span class="n">pred</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">predicted_bboxes</span><span class="p">):</span>
-                            <span class="k">if</span> <span class="n">pred</span><span class="o">.</span><span class="n">label</span> <span class="o">!=</span> <span class="n">detection</span><span class="o">.</span><span class="n">label</span><span class="p">:</span>
-                                <span class="k">continue</span>
-
-                            <span class="n">iou</span> <span class="o">=</span> <span class="n">pred</span><span class="o">.</span><span class="n">iou</span><span class="p">(</span><span class="n">detection</span><span class="p">)</span>
-                            <span class="k">assert</span> <span class="n">iou</span> <span class="o">==</span> <span class="o">-</span><span class="mi">1</span> <span class="ow">or</span> <span class="mi">0</span> <span class="o">&lt;=</span> <span class="n">iou</span> <span class="ow">and</span> <span class="n">iou</span> <span class="o">&lt;=</span> <span class="mi">1</span>
-                            <span class="k">if</span> <span class="n">iou</span> <span class="o">&lt;</span> <span class="n">iou_thresh</span><span class="p">:</span>
-                                <span class="k">continue</span>
-
-                            <span class="n">bbox_total_counts</span><span class="p">[</span><span class="n">pred_idx</span><span class="p">]</span> <span class="o">+=</span> <span class="mi">1</span>
-
-                            <span class="n">conf</span> <span class="o">=</span> <span class="n">detection</span><span class="o">.</span><span class="n">attributes</span><span class="p">[</span><span class="s2">&quot;score&quot;</span><span class="p">]</span>
-                            <span class="n">bbox_confs</span><span class="p">[</span><span class="n">pred_idx</span><span class="p">]</span> <span class="o">+=</span> <span class="n">conf</span>
-
-                <span class="n">np</span><span class="o">.</span><span class="n">multiply</span><span class="o">.</span><span class="n">outer</span><span class="p">(</span><span class="n">confs</span><span class="p">,</span> <span class="n">mask</span><span class="p">,</span> <span class="n">out</span><span class="o">=</span><span class="n">current_heatmaps</span><span class="p">)</span>
-                <span class="n">heatmaps</span> <span class="o">+=</span> <span class="n">current_heatmaps</span>
+                <span class="c1"># [TODO] wonjuleee: support DRISE for detection model explainability</span>
+                <span class="c1"># if isinstance(self.target, Label):</span>
+                <span class="c1">#     logits = outputs[sample_id][0].vector</span>
+                <span class="c1">#     max_score = logits[self.target.label]</span>
+                <span class="c1"># elif isinstance(self.target, Bbox):</span>
+                <span class="c1">#     preds = outputs[sample_id][0]</span>
+                <span class="c1">#     max_score = 0</span>
+                <span class="c1">#     for box in preds:</span>
+                <span class="c1">#         if box[0] == self.target.label:</span>
+                <span class="c1">#             confidence, box = box[1], box[2]</span>
+                <span class="c1">#             score = iou(self.target.get_bbox, box) * confidence</span>
+                <span class="c1">#             if score &gt; max_score:</span>
+                <span class="c1">#                 max_score = score</span>
+                <span class="c1"># saliency += max_score * mask</span>
 
                 <span class="k">if</span> <span class="n">progressive</span><span class="p">:</span>
-                    <span class="k">yield</span> <span class="bp">self</span><span class="o">.</span><span class="n">normalize_hmaps</span><span class="p">(</span><span class="n">heatmaps</span><span class="o">.</span><span class="n">copy</span><span class="p">(),</span> <span class="n">total_counts</span><span class="p">)</span>
+                    <span class="k">yield</span> <span class="bp">self</span><span class="o">.</span><span class="n">normalize_saliency</span><span class="p">(</span><span class="n">saliency</span><span class="p">)</span>
 
-        <span class="k">yield</span> <span class="bp">self</span><span class="o">.</span><span class="n">normalize_hmaps</span><span class="p">(</span><span class="n">heatmaps</span><span class="p">,</span> <span class="n">total_counts</span><span class="p">)</span></div></div>
+        <span class="k">yield</span> <span class="bp">self</span><span class="o">.</span><span class="n">normalize_saliency</span><span class="p">(</span><span class="n">saliency</span><span class="p">)</span></div></div>
 </pre></div>
 
             </article>
