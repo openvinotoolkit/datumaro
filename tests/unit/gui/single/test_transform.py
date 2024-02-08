@@ -194,7 +194,7 @@ class TransformLabelRemapTest(TestCase):
         assert transform.info == "This helps to remap labels of dataset."
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
-    def test_do_label_remap_success(self):
+    def test_do_label_remap(self):
         """Test if _do_label_remap function of TransformLabelRemap in single dataset is worked out correctly."""
         at = AppTest.from_function(run_transform, default_timeout=600).run()
 
@@ -444,7 +444,7 @@ class TransformSplitTest(TestCase):
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_add_subset_default_splits(self):
-        """Test if _add_subset with deafult splits in split method of TransformSplit is worked out correctly."""
+        """Test if _add_subset with default splits in split method of TransformSplit is worked out correctly."""
         at = AppTest.from_function(run_transform_coco, default_timeout=600).run()
 
         # Click Split btn
@@ -604,7 +604,7 @@ class TransformSubsetRenameTest(TestCase):
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_remap_subset(self):
-        """Test if _remap_subset function of TransformSubsetRename in single dataset page is opened correctly."""
+        """Test if _remap_subset function of TransformSubsetRename in single dataset is worked out correctly."""
         at = AppTest.from_function(run_transform, default_timeout=600).run()
 
         # Click Subset Rename btn
@@ -1265,6 +1265,7 @@ class TransformAutoCorrectionTest(TestCase):
         # dataframe
         assert len(at.dataframe) == 1
 
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_recommend_task(self):
         """Test if _recommend_task function of TransformAutoCorrection in single dataset is worked out correctly."""
         at = AppTest.from_function(run_transform, default_timeout=600).run()
@@ -1277,6 +1278,7 @@ class TransformAutoCorrectionTest(TestCase):
             == "Classification"
         )
 
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_get_validation_summary_with_reports(self):
         """Test if _get_validation_summary function of TransformAutoCorrection in single dataset is worked out correctly."""
 
@@ -1296,12 +1298,14 @@ class TransformAutoCorrectionTest(TestCase):
             "warning": {"MissingAnnotation": 1},
         }
 
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_get_validation_summary_empty_reports(self):
         """Test if _get_validation_summary function with empty reports of TransformAutoCorrection in single dataset is worked out correctly."""
         reports = {"validation_reports": []}
         summary = TransformAutoCorrection._get_validation_summary(reports)
         assert summary is None
 
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_get_df(self):
         """Test if _get_df function of TransformAutoCorrection in single dataset is worked out correctly."""
 
@@ -1321,6 +1325,7 @@ class TransformAutoCorrectionTest(TestCase):
         # Assert expected DataFrame contents
         assert expected.equals(result)
 
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_get_compared_df(self):
         """Test if _get_compared_df function of TransformAutoCorrection in single dataset is worked out correctly."""
 
