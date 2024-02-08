@@ -1,8 +1,9 @@
-# Copyright (C) 2019-2024 Intel Corporation
+# Copyright (C) 2019-2023 Intel Corporation
 #
 # SPDX-License-Identifier: MIT
 from __future__ import annotations
 
+import importlib
 import os
 import os.path as osp
 import shlex
@@ -25,21 +26,20 @@ except ImportError:
     DTypeLike = Any
 
 
-class ImageBackend(Enum):
+class _IMAGE_BACKENDS(Enum):
     cv2 = auto()
     PIL = auto()
 
 
-IMAGE_BACKEND: ContextVar[ImageBackend] = ContextVar("IMAGE_BACKEND")
+_IMAGE_BACKEND: ContextVar[_IMAGE_BACKENDS] = ContextVar("_IMAGE_BACKENDS")
 _image_loading_errors = (FileNotFoundError,)
 try:
-    import cv2
-
-    IMAGE_BACKEND.set(ImageBackend.cv2)
+    importlib.import_module("cv2")
+    _IMAGE_BACKEND.set(_IMAGE_BACKENDS.cv2)
 except ModuleNotFoundError:
     import PIL
 
-    IMAGE_BACKEND.set(ImageBackend.PIL)
+    _IMAGE_BACKEND.set(_IMAGE_BACKENDS.PIL)
     _image_loading_errors = (*_image_loading_errors, PIL.UnidentifiedImageError)
 
 from datumaro.util.image_cache import ImageCache
@@ -49,61 +49,39 @@ if TYPE_CHECKING:
     from PIL.Image import Image as PILImage
 
 
-class ImageColorChannel(Enum):
-    """Image color channel
+class ImageColorScale(Enum):
+    """Image color scale
 
-    - UNCHANGED: Use the original image's channel (default)
-    - COLOR_BGR: Use BGR 3 channels (it can ignore the alpha channel or convert the gray scale image)
-    - COLOR_RGB: Use RGB 3 channels (it can ignore the alpha channel or convert the gray scale image)
+    - UNCHANGED: Use the original image's scale (default)
+    - COLOR: Use 3 channels (it can ignore the alpha channel or convert the gray scale image to BGR)
     """
 
     UNCHANGED = 0
-    COLOR_BGR = 1
-    COLOR_RGB = 2
+    COLOR = 1
 
-    def decode_by_cv2(self, image_bytes: bytes) -> np.ndarray:
-        """Convert image color channel for OpenCV image (np.ndarray)."""
-        image_buffer = np.frombuffer(image_bytes, dtype=np.uint8)
+    def convert_cv2(self, img: np.ndarray) -> np.ndarray:
+        import cv2
 
-        if self == ImageColorChannel.UNCHANGED:
-            return cv2.imdecode(image_buffer, cv2.IMREAD_UNCHANGED)
+        if self == ImageColorScale.COLOR:
+            return cv2.imdecode(img, cv2.IMREAD_COLOR)
 
-        img = cv2.imdecode(image_buffer, cv2.IMREAD_COLOR)
+        return cv2.imdecode(img, cv2.IMREAD_UNCHANGED)
 
-        if self == ImageColorChannel.COLOR_BGR:
-            return img
-
-        if self == ImageColorChannel.COLOR_RGB:
-            return cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
-
-        raise ValueError
-
-    def decode_by_pil(self, image_bytes: bytes) -> PILImage:
-        """Convert image color channel for PIL Image."""
-        from PIL import Image
-
-        img = Image.open(BytesIO(image_bytes))
-
-        if self == ImageColorChannel.UNCHANGED:
-            return img
-
-        if self == ImageColorChannel.COLOR_BGR:
-            return Image.fromarray(np.flip(np.asarray(img.convert("RGB")), -1))
-
-        if self == ImageColorChannel.COLOR_RGB:
+    def convert_pil(self, img: PILImage) -> PILImage:
+        if self == ImageColorScale.COLOR:
             return img.convert("RGB")
 
-        raise ValueError
+        return img
 
 
-IMAGE_COLOR_CHANNEL: ContextVar[ImageColorChannel] = ContextVar(
-    "IMAGE_COLOR_CHANNEL", default=ImageColorChannel.UNCHANGED
+IMAGE_COLOR_SCALE: ContextVar[ImageColorScale] = ContextVar(
+    "IMAGE_COLOR_SCALE", default=ImageColorScale.UNCHANGED
 )
 
 
 @contextmanager
-def decode_image_context(image_backend: ImageBackend, image_color_channel: ImageColorChannel):
-    """Change Datumaro image color channel while decoding.
+def decode_image_context(color_scale: ImageColorScale):
+    """Change Datumaro image decoding color scale.
 
     For model training, it is recommended to use this context manager
     to load images in the BGR 3-channel format. For example,
@@ -111,21 +89,15 @@ def decode_image_context(image_backend: ImageBackend, image_color_channel: Image
     .. code-block:: python
 
         import datumaro as dm
-        with decode_image_context(image_backend=ImageBackend.cv2, image_color_channel=ImageColorScale.COLOR):
+        with decode_image_context(ImageColorScale.COLOR):
             item: dm.DatasetItem
             img_data = item.media_as(dm.Image).data
             assert img_data.shape[-1] == 3  # It should be a 3-channel image
     """
-
-    curr_ctx = (IMAGE_BACKEND.get(), IMAGE_COLOR_CHANNEL.get())
-
-    IMAGE_BACKEND.set(image_backend)
-    IMAGE_COLOR_CHANNEL.set(image_color_channel)
-
+    curr_ctx = IMAGE_COLOR_SCALE.get()
+    IMAGE_COLOR_SCALE.set(color_scale)
     yield
-
-    IMAGE_BACKEND.set(curr_ctx[0])
-    IMAGE_COLOR_CHANNEL.set(curr_ctx[1])
+    IMAGE_COLOR_SCALE.set(curr_ctx)
 
 
 def load_image(path: str, dtype: DTypeLike = np.uint8, crypter: Crypter = NULL_CRYPTER):
@@ -161,13 +133,13 @@ def load_image(path: str, dtype: DTypeLike = np.uint8, crypter: Crypter = NULL_C
             image_bytes = crypter.decrypt(f.read())
 
         return decode_image(image_bytes, dtype=dtype)
-    elif IMAGE_BACKEND.get() == ImageBackend.PIL:
+    elif _IMAGE_BACKEND.get() == _IMAGE_BACKENDS.PIL:
         with open(path, "rb") as f:
             image_bytes = crypter.decrypt(f.read())
 
         return decode_image(image_bytes, dtype=dtype)
 
-    raise NotImplementedError(IMAGE_BACKEND)
+    raise NotImplementedError(_IMAGE_BACKEND)
 
 
 def copyto_image(
@@ -222,10 +194,10 @@ def save_image(
     # NOTE: OpenCV documentation says "If the image format is not supported,
     # the image will be converted to 8-bit unsigned and saved that way".
     # Conversion from np.int32 to np.uint8 is not working properly
-    backend = IMAGE_BACKEND.get()
+    backend = _IMAGE_BACKEND.get()
     if dtype == np.int32:
-        backend = ImageBackend.PIL
-    if backend == ImageBackend.cv2:
+        backend = _IMAGE_BACKENDS.PIL
+    if backend == _IMAGE_BACKENDS.cv2:
         # cv2.imwrite does not support paths that are not representable
         # in the locale encoding on Windows, so we write the image bytes
         # ourselves.
@@ -237,7 +209,7 @@ def save_image(
                 f.write(crypter.encrypt(image_bytes))
         else:
             dst.write(crypter.encrypt(image_bytes))
-    elif backend == ImageBackend.PIL:
+    elif backend == _IMAGE_BACKENDS.PIL:
         from PIL import Image
 
         if ext.startswith("."):
@@ -264,7 +236,7 @@ def encode_image(image: np.ndarray, ext: str, dtype: DTypeLike = np.uint8, **kwa
     if not kwargs:
         kwargs = {}
 
-    if IMAGE_BACKEND.get() == ImageBackend.cv2:
+    if _IMAGE_BACKEND.get() == _IMAGE_BACKENDS.cv2:
         import cv2
 
         params = []
@@ -280,7 +252,7 @@ def encode_image(image: np.ndarray, ext: str, dtype: DTypeLike = np.uint8, **kwa
         if not success:
             raise Exception("Failed to encode image to '%s' format" % (ext))
         return result.tobytes()
-    elif IMAGE_BACKEND.get() == ImageBackend.PIL:
+    elif _IMAGE_BACKEND.get() == _IMAGE_BACKENDS.PIL:
         from PIL import Image
 
         if ext.startswith("."):
@@ -303,14 +275,21 @@ def encode_image(image: np.ndarray, ext: str, dtype: DTypeLike = np.uint8, **kwa
 
 
 def decode_image(image_bytes: bytes, dtype: DTypeLike = np.uint8) -> np.ndarray:
-    ctx_color_scale = IMAGE_COLOR_CHANNEL.get()
+    ctx_color_scale = IMAGE_COLOR_SCALE.get()
 
-    if IMAGE_BACKEND.get() == ImageBackend.cv2:
-        image = ctx_color_scale.decode_by_cv2(image_bytes)
+    if _IMAGE_BACKEND.get() == _IMAGE_BACKENDS.cv2:
+        image = np.frombuffer(image_bytes, dtype=np.uint8)
+        image = ctx_color_scale.convert_cv2(image)
         image = image.astype(dtype)
-    elif IMAGE_BACKEND.get() == ImageBackend.PIL:
-        image = ctx_color_scale.decode_by_pil(image_bytes)
+    elif _IMAGE_BACKEND.get() == _IMAGE_BACKENDS.PIL:
+        from PIL import Image
+
+        image = Image.open(BytesIO(image_bytes))
+        image = ctx_color_scale.convert_pil(image)
         image = np.asarray(image, dtype=dtype)
+        if len(image.shape) == 3 and image.shape[2] in {3, 4}:
+            image = np.array(image)  # Release read-only
+            image[:, :, :3] = image[:, :, 2::-1]  # RGB to BGR
     else:
         raise NotImplementedError()
 
