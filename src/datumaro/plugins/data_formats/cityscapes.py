@@ -281,16 +281,19 @@ class CityscapesBase(SubsetBase):
 
             anns = []
             instances_mask = load_image(mask_path, dtype=np.int32)
+            mask_id = 1
             for label_id in label_ids:
                 if label_id not in instances_mask:
                     continue
                 binary_mask = self._lazy_extract_mask(instances_mask, label_id)
                 anns.append(
                     Mask(
+                        id=mask_id,
                         image=binary_mask,
                         label=label_id,
                     )
                 )
+                mask_id += 1
 
             image = image_path_by_id.pop(item_id, None)
             if image:
@@ -428,8 +431,8 @@ class CityscapesExporter(Exporter):
                     masks,
                     instance_ids=[
                         self._label_id_mapping(m.label)
-                        if m.attributes.get("is_crowd", False)
-                        else self._label_id_mapping(m.label) * 1000 + (m.id or (i + 1))
+                        # if m.attributes.get("is_crowd", False)
+                        # else self._label_id_mapping(m.label) * 1000 + (m.id or (i + 1))
                         for i, m in enumerate(masks)
                     ],
                     instance_labels=[self._label_id_mapping(m.label) for m in masks],
