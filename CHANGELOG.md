@@ -35,8 +35,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   (<https://github.com/openvinotoolkit/datumaro/pull/1245>)
 - Enable image backend and color channel format to be selectable
   (<https://github.com/openvinotoolkit/datumaro/pull/1246>)
-- Enhance Datumaro data format detect() to be memory-bounded and performant
-  (<https://github.com/openvinotoolkit/datumaro/pull/1229>)
+- Enhance RISE algortihm for explainable AI
+  (<https://github.com/openvinotoolkit/datumaro/pull/1263>)
 
 ### Bug fixes
 - Fix wrong example of Datumaro dataset creation in document

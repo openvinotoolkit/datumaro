@@ -12,6 +12,7 @@ from datumaro.components.annotation import (
     Annotation,
     AnnotationType,
     FeatureVector,
+    Label,
     LabelCategories,
 )
 from datumaro.components.dataset_base import DatasetItem
@@ -20,6 +21,7 @@ from datumaro.components.media import Image
 
 
 class GooglenetV4TfModelInterpreter(IModelInterpreter):
+    LOGIT_KEY = "InceptionV4/Logits/Predictions"
     FEAT_KEY = "InceptionV4/Logits/PreLogitsFlatten/flatten_1/Reshape:0"
 
     def preprocess(self, inp: DatasetItem) -> Tuple[LauncherInputType, PrepInfo]:
@@ -29,11 +31,20 @@ class GooglenetV4TfModelInterpreter(IModelInterpreter):
         return img, None
 
     def postprocess(self, pred: ModelPred, info: PrepInfo) -> List[Annotation]:
+        logit = pred.get(self.LOGIT_KEY)
+        if logit is None:
+            raise DatumaroError(f'"{self.LOGIT_KEY}" key should exist in the model prediction.')
+
         feature_vector = pred.get(self.FEAT_KEY)
         if feature_vector is None:
             raise DatumaroError(f'"{self.FEAT_KEY}" key should exist in the model prediction.')
 
-        return [FeatureVector(feature_vector)]
+        outputs = [
+            Label(label=label, attributes={"score": score}) for label, score in enumerate(logit)
+        ]
+        outputs += [FeatureVector(feature_vector)]
+
+        return outputs  # [FeatureVector(logit), FeatureVector(feature_vector)]
 
     def get_categories(self):
         # output categories - label map etc.

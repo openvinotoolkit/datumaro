@@ -4,7 +4,6 @@
 
 # ruff: noqa: E501
 
-import itertools
 from collections import defaultdict
 from typing import TYPE_CHECKING, Dict, List, Optional
 
@@ -79,8 +78,9 @@ class FeatureAccumulator:
         running_stats = RunningStats1D()
 
         for batch in take_by(dataset, self._batch_size):
-            features = self.model.launch(batch)
-            running_stats.add(list(itertools.chain(*features)))
+            outputs = self.model.launch(batch)[0]
+            features = [outputs[-1]]  # extracted feature vector of googlenet-v4
+            running_stats.add(features)
 
         return running_stats
 
@@ -99,10 +99,11 @@ class FeatureAccumulatorByLabel(FeatureAccumulator):
                     inputs.append(np.atleast_3d(item.media.data))
                     targets.append(ann.label)
 
-            features = self.model.launch(batch)
+            outputs = self.model.launch(batch)[0]
+            features = [outputs[-1]]  # extracted feature vector of googlenet-v4
 
-            for feat, target in zip(features, targets):
-                running_stats[target].add(feat)
+            for target in targets:
+                running_stats[target].add(features)
 
         return running_stats
 
