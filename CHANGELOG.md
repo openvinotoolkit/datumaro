@@ -37,6 +37,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   (<https://github.com/openvinotoolkit/datumaro/pull/1246>)
 - Enhance RISE algortihm for explainable AI
   (<https://github.com/openvinotoolkit/datumaro/pull/1263>)
+- Enhance explore unit test to use real dataset from ImageNet
+  (<https://github.com/openvinotoolkit/datumaro/pull/1266>)
 
 ### Bug fixes
 - Fix wrong example of Datumaro dataset creation in document
