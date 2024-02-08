@@ -281,24 +281,14 @@ class CityscapesBase(SubsetBase):
 
             anns = []
             instances_mask = load_image(mask_path, dtype=np.int32)
-            # segm_ids = np.unique(instances_mask)
-            segm_ids = label_ids
-            for segm_id in segm_ids:
-                # either is_crowd or ann_id should be set
-                if segm_id < 1000:
-                    label_id = segm_id
-                    is_crowd = True
-                    ann_id = None
-                else:
-                    label_id = segm_id // 1000
-                    is_crowd = False
-                    ann_id = segm_id % 1000
+            for label_id in label_ids:
+                if label_id not in instances_mask:
+                    continue
+                binary_mask = self._lazy_extract_mask(instances_mask, label_id)
                 anns.append(
                     Mask(
-                        image=self._lazy_extract_mask(instances_mask, segm_id),
+                        image=binary_mask,
                         label=label_id,
-                        id=ann_id,
-                        attributes={"is_crowd": is_crowd},
                     )
                 )
 

@@ -67,19 +67,8 @@ class CityscapesImportTest(TestCase):
                     subset="test",
                     media=Image.from_numpy(data=np.ones((1, 5, 3))),
                     annotations=[
-                        Mask(np.array([[1, 1, 0, 0, 0]]), label=3, attributes={"is_crowd": True}),
-                        Mask(
-                            np.array([[0, 0, 1, 0, 0]]),
-                            id=1,
-                            label=27,
-                            attributes={"is_crowd": False},
-                        ),
-                        Mask(
-                            np.array([[0, 0, 0, 1, 1]]),
-                            id=2,
-                            label=27,
-                            attributes={"is_crowd": False},
-                        ),
+                        Mask(np.array([[1, 1, 0, 0, 0]]), label=3),
+                        Mask(np.array([[0, 0, 1, 1, 1]]), label=27),
                     ],
                 ),
                 DatasetItem(
@@ -87,14 +76,9 @@ class CityscapesImportTest(TestCase):
                     subset="test",
                     media=Image.from_numpy(data=np.ones((1, 5, 3))),
                     annotations=[
-                        Mask(
-                            np.array([[1, 1, 0, 0, 0]]),
-                            id=1,
-                            label=31,
-                            attributes={"is_crowd": False},
-                        ),
-                        Mask(np.array([[0, 0, 1, 0, 0]]), label=12, attributes={"is_crowd": True}),
-                        Mask(np.array([[0, 0, 0, 1, 1]]), label=3, attributes={"is_crowd": True}),
+                        Mask(np.array([[1, 1, 0, 0, 0]]), label=31),
+                        Mask(np.array([[0, 0, 1, 0, 0]]), label=12),
+                        Mask(np.array([[0, 0, 0, 1, 1]]), label=3),
                     ],
                 ),
                 DatasetItem(
@@ -102,13 +86,8 @@ class CityscapesImportTest(TestCase):
                     subset="train",
                     media=Image.from_numpy(data=np.ones((1, 5, 3))),
                     annotations=[
-                        Mask(np.array([[1, 1, 0, 1, 1]]), label=3, attributes={"is_crowd": True}),
-                        Mask(
-                            np.array([[0, 0, 1, 0, 0]]),
-                            id=1,
-                            label=24,
-                            attributes={"is_crowd": False},
-                        ),
+                        Mask(np.array([[1, 1, 0, 1, 1]]), label=3),
+                        Mask(np.array([[0, 0, 1, 0, 0]]), label=24),
                     ],
                 ),
                 DatasetItem(
@@ -116,13 +95,8 @@ class CityscapesImportTest(TestCase):
                     subset="val",
                     media=Image.from_numpy(data=np.ones((1, 5, 3))),
                     annotations=[
-                        Mask(np.array([[1, 0, 0, 1, 1]]), label=3, attributes={"is_crowd": True}),
-                        Mask(
-                            np.array([[0, 1, 1, 0, 0]]),
-                            id=24,
-                            label=1,
-                            attributes={"is_crowd": False},
-                        ),
+                        Mask(np.array([[1, 0, 0, 1, 1]]), label=3),
+                        Mask(np.array([[0, 1, 1, 0, 0]]), label=1),
                     ],
                 ),
             ],
@@ -130,6 +104,9 @@ class CityscapesImportTest(TestCase):
         )
 
         parsed_dataset = Dataset.import_from(DUMMY_DATASET_DIR, "cityscapes")
+
+        for item in parsed_dataset:
+            print(item)
 
         compare_datasets(self, source_dataset, parsed_dataset)
 
@@ -142,8 +119,8 @@ class CityscapesImportTest(TestCase):
                     subset="test",
                     media=Image.from_numpy(data=np.ones((1, 5, 3))),
                     annotations=[
-                        Mask(np.array([[1, 1, 0, 0, 0]]), label=19, attributes={"is_crowd": True}),
-                        Mask(np.array([[0, 0, 1, 1, 1]]), label=14, attributes={"is_crowd": True}),
+                        Mask(np.array([[1, 1, 0, 0, 0]]), label=19),
+                        Mask(np.array([[0, 0, 1, 1, 1]]), label=14),
                     ],
                 ),
                 DatasetItem(
@@ -151,9 +128,9 @@ class CityscapesImportTest(TestCase):
                     subset="test",
                     media=Image.from_numpy(data=np.ones((1, 5, 3))),
                     annotations=[
-                        Mask(np.array([[1, 1, 0, 0, 0]]), label=16, attributes={"is_crowd": True}),
-                        Mask(np.array([[0, 0, 1, 0, 0]]), label=3, attributes={"is_crowd": True}),
-                        Mask(np.array([[0, 0, 0, 1, 1]]), label=19, attributes={"is_crowd": True}),
+                        Mask(np.array([[1, 1, 0, 0, 0]]), label=16),
+                        Mask(np.array([[0, 0, 1, 0, 0]]), label=3),
+                        Mask(np.array([[0, 0, 0, 1, 1]]), label=19),
                     ],
                 ),
                 DatasetItem(
@@ -161,8 +138,8 @@ class CityscapesImportTest(TestCase):
                     subset="train",
                     media=Image.from_numpy(data=np.ones((1, 5, 3))),
                     annotations=[
-                        Mask(np.array([[1, 1, 0, 1, 1]]), label=19, attributes={"is_crowd": True}),
-                        Mask(np.array([[0, 0, 1, 0, 0]]), label=11, attributes={"is_crowd": True}),
+                        Mask(np.array([[1, 1, 0, 1, 1]]), label=19),
+                        Mask(np.array([[0, 0, 1, 0, 0]]), label=11),
                     ],
                 ),
                 DatasetItem(
@@ -170,7 +147,7 @@ class CityscapesImportTest(TestCase):
                     subset="val",
                     media=Image.from_numpy(data=np.ones((1, 5, 3))),
                     annotations=[
-                        Mask(np.array([[1, 1, 1, 1, 1]]), label=19, attributes={"is_crowd": True}),
+                        Mask(np.array([[1, 1, 1, 1, 1]]), label=19),
                     ],
                 ),
             ],
@@ -701,6 +678,13 @@ class CityscapesExporterTest(TestCase):
                 {"2_leftImg8bit.png"},
                 set(os.listdir(osp.join(path, "leftImg8bit", "b"))),
             )
+
+            for item in expected:
+                print("e", item)
+
+            for item in Dataset.import_from(path, "cityscapes"):
+                print("a", item)
+
             compare_datasets(
                 self,
                 expected,
