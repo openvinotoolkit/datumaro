@@ -1,3 +1,4 @@
+import os.path as osp
 from copy import deepcopy
 from functools import partial
 from unittest import TestCase
@@ -5,91 +6,19 @@ from unittest import TestCase
 import numpy as np
 
 from datumaro.components.algorithms.hash_key_inference.explorer import Explorer
-from datumaro.components.annotation import Caption, Label
+from datumaro.components.annotation import AnnotationType, Caption, Label
 from datumaro.components.dataset import Dataset
 from datumaro.components.dataset_base import DatasetItem
 from datumaro.components.errors import MediaTypeError
 from datumaro.components.media import Image
 from datumaro.plugins.data_formats.datumaro.exporter import DatumaroExporter
 
-from ..requirements import Requirements, mark_requirement
-
+from tests.requirements import Requirements, mark_requirement
+from tests.utils.assets import get_test_asset_path
 from tests.utils.test_utils import TestDir
 
 
 class ExplorerTest(TestCase):
-    @property
-    def test_dataset(self):
-        train_img = np.full((5, 5, 3), 255, dtype=np.uint8)
-        train_img[2, :] = 0
-        test_img = np.full((5, 5, 3), 0, dtype=np.uint8)
-        test_img[2, :] = 255
-
-        dataset = Dataset.from_iterable(
-            [
-                DatasetItem(
-                    id=1,
-                    subset="train",
-                    media=Image.from_numpy(data=train_img),
-                    annotations=[Label(1, id=1), Caption("cat")],
-                ),
-                DatasetItem(
-                    id=2,
-                    subset="train",
-                    media=Image.from_numpy(data=train_img),
-                    annotations=[Label(1, id=1), Caption("cat")],
-                ),
-                DatasetItem(
-                    id=3,
-                    subset="test",
-                    media=Image.from_numpy(data=test_img),
-                    annotations=[Label(2, id=2), Caption("dog")],
-                ),
-                DatasetItem(
-                    id=4,
-                    subset="test",
-                    media=Image.from_numpy(data=test_img),
-                    annotations=[Label(2, id=2), Caption("dog")],
-                ),
-            ]
-        )
-        return dataset
-
-    @property
-    def test_dataset_black_white(self):
-        train_img = np.full((5, 5, 3), 255, dtype=np.uint8)
-        test_img = np.full((5, 5, 3), 0, dtype=np.uint8)
-
-        dataset = Dataset.from_iterable(
-            [
-                DatasetItem(
-                    id=1,
-                    subset="train",
-                    media=Image.from_numpy(data=train_img),
-                    annotations=[Label(1, id=1), Caption("cat")],
-                ),
-                DatasetItem(
-                    id=2,
-                    subset="train",
-                    media=Image.from_numpy(data=train_img),
-                    annotations=[Label(1, id=1), Caption("cat")],
-                ),
-                DatasetItem(
-                    id=3,
-                    subset="test",
-                    media=Image.from_numpy(data=test_img),
-                    annotations=[Label(2, id=2), Caption("dog")],
-                ),
-                DatasetItem(
-                    id=4,
-                    subset="test",
-                    media=Image.from_numpy(data=test_img),
-                    annotations=[Label(2, id=2), Caption("dog")],
-                ),
-            ]
-        )
-        return dataset
-
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_explore_img_query(self):
         """
@@ -107,28 +36,14 @@ class ExplorerTest(TestCase):
         2. Set Explorer and try explore_topk to find similar media of image query.
         3. Check whether each result have same subset as query.
         """
-        with TestDir() as test_dir:
-            converter = partial(DatumaroExporter.convert, save_media=True)
-            converter(self.test_dataset, test_dir)
-            imported_dataset = Dataset.import_from(test_dir, "datumaro")
-            for i, item in enumerate(imported_dataset):
-                if i == 1:
-                    query = item
-            explorer = Explorer(imported_dataset)
-            results = explorer.explore_topk(query, topk=2)
+        dataset = Dataset.import_from(get_test_asset_path("explore_dataset"), "imagenet")
+        query_item = dataset[0]
 
-            for item in results:
-                # There were two "train_img"s in "train" subset, and we queried "train_img"
-                self.assertEqual(query.subset, item.subset)
+        explorer = Explorer(dataset)
+        results = explorer.explore_topk(query_item, topk=3)
 
-            query_without_hash_key = deepcopy(item)
-            query_without_hash_key.annotations = []
-
-            results = explorer.explore_topk(query_without_hash_key, topk=2)
-
-            for item in results:
-                # There were two "train_img"s in "train" subset, and we queried "train_img"
-                self.assertEqual(query_without_hash_key.subset, item.subset)
+        for item in results:
+            self.assertEqual(query_item.annotations[0].label, item.annotations[0].label)
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_explore_img_list_query(self):
@@ -147,18 +62,15 @@ class ExplorerTest(TestCase):
         2. Set Explorer and try explore_topk to find similar media of image query.
         3. Check whether each result have same subset as query.
         """
-        with TestDir() as test_dir:
-            converter = partial(DatumaroExporter.convert, save_media=True)
-            converter(self.test_dataset, test_dir)
-            imported_dataset = Dataset.import_from(test_dir, "datumaro")
-            query_list = []
-            for i, item in enumerate(imported_dataset):
-                if i in [1, 2]:
-                    query_list.append(item)
-            explorer = Explorer(imported_dataset)
-            results = explorer.explore_topk(query_list, topk=2)
+        dataset = Dataset.import_from(get_test_asset_path("explore_dataset"), "imagenet")
+        query_list = [dataset[i] for i in [0, 1]]
 
-            self.assertEqual(results[0].subset, results[1].subset)
+        explorer = Explorer(dataset)
+        results = explorer.explore_topk(query_list, topk=3)
+
+        for item in results:
+            self.assertEqual(query_list[0].annotations[0].label, item.annotations[0].label)
+            self.assertEqual(query_list[1].annotations[0].label, item.annotations[0].label)
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_explore_txt_query(self):
@@ -177,15 +89,15 @@ class ExplorerTest(TestCase):
         2. Set Explorer and try explore_topk to find similar media of text query.
         3. Check whether each result have same subset as query.
         """
-        with TestDir() as test_dir:
-            converter = partial(DatumaroExporter.convert, save_media=True)
-            converter(self.test_dataset, test_dir)
-            imported_dataset = Dataset.import_from(test_dir, "datumaro")
-            explorer = Explorer(imported_dataset)
-            results = explorer.explore_topk(
-                "a photo of a upper white and bottom black background", topk=2
-            )
-            self.assertEqual(results[0].subset, results[1].subset)
+        dataset = Dataset.import_from(get_test_asset_path("explore_dataset"), "imagenet")
+        query_txt = "dog"
+        query_label, _ = dataset.categories()[AnnotationType.label].find(query_txt)
+
+        explorer = Explorer(dataset)
+        results = explorer.explore_topk(query_txt, topk=3)
+
+        for item in results:
+            self.assertEqual(query_label, item.annotations[0].label)
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_explore_txt_list_query(self):
@@ -204,16 +116,15 @@ class ExplorerTest(TestCase):
         2. Set Explorer and try explore_topk to find similar media of list of text query.
         3. Check whether each result have same subset as query.
         """
-        with TestDir() as test_dir:
-            converter = partial(DatumaroExporter.convert, save_media=True)
-            converter(self.test_dataset, test_dir)
-            imported_dataset = Dataset.import_from(test_dir, "datumaro")
-            explorer = Explorer(imported_dataset)
-            results = explorer.explore_topk(
-                ["a photo of a upper white and bottom black background"],
-                topk=2,
-            )
-            self.assertEqual(results[0].subset, results[1].subset)
+        dataset = Dataset.import_from(get_test_asset_path("explore_dataset"), "imagenet")
+        query_list = ["dog", "fluffy"]
+        query_label, _ = dataset.categories()[AnnotationType.label].find(query_list[0])
+
+        explorer = Explorer(dataset)
+        results = explorer.explore_topk(query_list, topk=3)
+
+        for item in results:
+            self.assertEqual(query_label, item.annotations[0].label)
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_multiframeimage_assert(self):
