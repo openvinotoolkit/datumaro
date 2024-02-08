@@ -49,7 +49,7 @@
     <script>DOCUMENTATION_OPTIONS.pagename = 'docs/reference/_autosummary/datumaro.components.media';</script>
     <link rel="index" title="Index" href="../../../genindex.html" />
     <link rel="search" title="Search" href="../../../search.html" />
-    <link rel="next" title="datumaro.components.media_manager" href="datumaro.components.media_manager.html" />
+    <link rel="next" title="datumaro.components.merge" href="datumaro.components.merge.html" />
     <link rel="prev" title="datumaro.components.lazy_plugin" href="datumaro.components.lazy_plugin.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="docsearch:language" content="en">
@@ -469,7 +469,6 @@
 <li class="toctree-l4"><a class="reference internal" href="datumaro.components.launcher.html">datumaro.components.launcher</a></li>
 <li class="toctree-l4"><a class="reference internal" href="datumaro.components.lazy_plugin.html">datumaro.components.lazy_plugin</a></li>
 <li class="toctree-l4 current active"><a class="current reference internal" href="#">datumaro.components.media</a></li>
-<li class="toctree-l4"><a class="reference internal" href="datumaro.components.media_manager.html">datumaro.components.media_manager</a></li>
 <li class="toctree-l4"><a class="reference internal" href="datumaro.components.merge.html">datumaro.components.merge</a></li>
 <li class="toctree-l4"><a class="reference internal" href="datumaro.components.operations.html">datumaro.components.operations</a></li>
 <li class="toctree-l4"><a class="reference internal" href="datumaro.components.progress_reporting.html">datumaro.components.progress_reporting</a></li>
@@ -893,6 +892,12 @@
 <dt class="sig sig-object py" id="datumaro.components.media.ImageFromFile.data">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">data</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Optional" title="(in Python v3.12)"><span class="pre">Optional</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v1.26)"><span class="pre">ndarray</span></a><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#datumaro.components.media.ImageFromFile.data" title="Permalink to this definition">#</a></dt>
 <dd><p>Image data in BGRA HWC [0; 255] (uint8) format</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="datumaro.components.media.ImageFromFile.size">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">size</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Optional" title="(in Python v3.12)"><span class="pre">Optional</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Tuple" title="(in Python v3.12)"><span class="pre">Tuple</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.12)"><span class="pre">int</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.12)"><span class="pre">int</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#datumaro.components.media.ImageFromFile.size" title="Permalink to this definition">#</a></dt>
+<dd><p>Returns (H, W)</p>
 </dd></dl>
 
 <dl class="py method">
@@ -1433,10 +1438,10 @@ Otherwise, whole row data will be returned.</p>
           <p class="prev-next-title">datumaro.components.lazy_plugin</p>
       </div>
   </a>
-  <a class='right-next' id="next-link" href="datumaro.components.media_manager.html" title="next page">
+  <a class='right-next' id="next-link" href="datumaro.components.merge.html" title="next page">
   <div class="prev-next-info">
       <p class="prev-next-subtitle">next</p>
-      <p class="prev-next-title">datumaro.components.media_manager</p>
+      <p class="prev-next-title">datumaro.components.merge</p>
   </div>
   <i class="fa-solid fa-angle-right"></i>
   </a>
@@ -1831,6 +1836,15 @@ Otherwise, whole row data will be returned.</p>
      <code class="docutils literal notranslate">
       <span class="pre">
        ImageFromFile.data
+      </span>
+     </code>
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#datumaro.components.media.ImageFromFile.size">
+     <code class="docutils literal notranslate">
+      <span class="pre">
+       ImageFromFile.size
       </span>
      </code>
     </a>

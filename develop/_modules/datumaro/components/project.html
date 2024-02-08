@@ -351,7 +351,6 @@
     <span class="n">VcsError</span><span class="p">,</span>
 <span class="p">)</span>
 <span class="kn">from</span> <span class="nn">datumaro.components.launcher</span> <span class="kn">import</span> <span class="n">Launcher</span>
-<span class="kn">from</span> <span class="nn">datumaro.components.media_manager</span> <span class="kn">import</span> <span class="n">MediaManager</span>
 <span class="kn">from</span> <span class="nn">datumaro.util</span> <span class="kn">import</span> <span class="n">find</span><span class="p">,</span> <span class="n">parse_json_file</span><span class="p">,</span> <span class="n">parse_str_enum_value</span>
 <span class="kn">from</span> <span class="nn">datumaro.util.log_utils</span> <span class="kn">import</span> <span class="n">catch_logs</span><span class="p">,</span> <span class="n">logging_disabled</span>
 <span class="kn">from</span> <span class="nn">datumaro.util.os_util</span> <span class="kn">import</span> <span class="p">(</span>
@@ -2091,8 +2090,6 @@
         <span class="k">return</span> <span class="n">project</span></div>
 
 <div class="viewcode-block" id="Project.close"><a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.components.project.html#datumaro.cli.commands.require_project.modification.export.Project.close">[docs]</a>    <span class="k">def</span> <span class="nf">close</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="n">MediaManager</span><span class="o">.</span><span class="n">get_instance</span><span class="p">()</span><span class="o">.</span><span class="n">clear</span><span class="p">()</span>
-
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_dvc</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_dvc</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_dvc</span> <span class="o">=</span> <span class="kc">None</span>
@@ -2290,8 +2287,6 @@
 <div class="viewcode-block" id="Project.remove_cache_obj"><a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.components.project.html#datumaro.cli.commands.require_project.modification.export.Project.remove_cache_obj">[docs]</a>    <span class="k">def</span> <span class="nf">remove_cache_obj</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ref</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">Revision</span><span class="p">,</span> <span class="n">ObjectId</span><span class="p">]):</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">readonly</span><span class="p">:</span>
             <span class="k">raise</span> <span class="n">ReadonlyProjectError</span><span class="p">()</span>
-
-        <span class="n">MediaManager</span><span class="o">.</span><span class="n">get_instance</span><span class="p">()</span><span class="o">.</span><span class="n">clear</span><span class="p">()</span>
 
         <span class="n">obj_type</span><span class="p">,</span> <span class="n">obj_hash</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_parse_ref</span><span class="p">(</span><span class="n">ref</span><span class="p">)</span>
 
@@ -2643,8 +2638,6 @@
         <span class="k">if</span> <span class="n">name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">working_tree</span><span class="o">.</span><span class="n">sources</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">force</span><span class="p">:</span>
             <span class="k">raise</span> <span class="n">UnknownSourceError</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
 
-        <span class="n">MediaManager</span><span class="o">.</span><span class="n">get_instance</span><span class="p">()</span><span class="o">.</span><span class="n">clear</span><span class="p">()</span>
-
         <span class="bp">self</span><span class="o">.</span><span class="n">working_tree</span><span class="o">.</span><span class="n">sources</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
 
         <span class="n">data_dir</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">source_data_dir</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
@@ -2780,8 +2773,6 @@
             <span class="n">sources</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">sources</span><span class="p">)</span>
 
         <span class="n">rev</span> <span class="o">=</span> <span class="n">rev</span> <span class="ow">or</span> <span class="s2">&quot;HEAD&quot;</span>
-
-        <span class="n">MediaManager</span><span class="o">.</span><span class="n">get_instance</span><span class="p">()</span><span class="o">.</span><span class="n">clear</span><span class="p">()</span>
 
         <span class="k">if</span> <span class="n">sources</span><span class="p">:</span>
             <span class="n">rev_tree</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_rev</span><span class="p">(</span><span class="n">rev</span><span class="p">)</span>
@@ -2992,8 +2983,6 @@
 
         <span class="k">if</span> <span class="n">name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">models</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">KeyError</span><span class="p">(</span><span class="s2">&quot;Unknown model &#39;</span><span class="si">%s</span><span class="s2">&#39;&quot;</span> <span class="o">%</span> <span class="n">name</span><span class="p">)</span>
-
-        <span class="n">MediaManager</span><span class="o">.</span><span class="n">get_instance</span><span class="p">()</span><span class="o">.</span><span class="n">clear</span><span class="p">()</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">_config</span><span class="o">.</span><span class="n">models</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
 

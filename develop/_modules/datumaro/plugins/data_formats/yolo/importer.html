@@ -439,6 +439,15 @@
     <span class="n">META_FILE</span> <span class="o">=</span> <span class="n">YoloUltralyticsPath</span><span class="o">.</span><span class="n">META_FILE</span>
     <span class="n">FORMAT</span> <span class="o">=</span> <span class="n">YoloFormatType</span><span class="o">.</span><span class="n">yolo_ultralytics</span><span class="o">.</span><span class="n">name</span>
 
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">_check_ann_file_impl</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">fp</span><span class="p">:</span> <span class="n">TextIOWrapper</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">_YoloLooseImporter</span><span class="o">.</span><span class="n">_check_ann_file_impl</span><span class="p">(</span><span class="n">fp</span><span class="p">)</span>
+        <span class="k">except</span> <span class="n">DatasetImportError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">e</span><span class="o">.</span><span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;Empty file is not allowed.&quot;</span><span class="p">:</span>
+                <span class="k">return</span> <span class="kc">True</span>
+            <span class="k">raise</span>
+
 
 <div class="viewcode-block" id="YoloImporter"><a class="viewcode-back" href="../../../../../docs/reference/_autosummary/datumaro.plugins.data_formats.yolo.importer.html#datumaro.plugins.data_formats.yolo.importer.YoloImporter">[docs]</a><span class="k">class</span> <span class="nc">YoloImporter</span><span class="p">(</span><span class="n">Importer</span><span class="p">):</span>
     <span class="n">SUB_IMPORTERS</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="n">YoloFormatType</span><span class="p">,</span> <span class="n">Importer</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
