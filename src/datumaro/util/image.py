@@ -136,13 +136,6 @@ def load_image(path: str, dtype: DTypeLike = np.uint8, crypter: Crypter = NULL_C
     _image_loading_errors = (FileNotFoundError,)
     try:
         importlib.import_module("cv2")
-        _IMAGE_BACKEND.set(_IMAGE_BACKENDS.cv2)
-    except ModuleNotFoundError:
-        import PIL
-
-    _image_loading_errors = (FileNotFoundError,)
-    try:
-        importlib.import_module("cv2")
         IMAGE_BACKEND.set(ImageBackend.cv2)
     except ModuleNotFoundError:
         import PIL

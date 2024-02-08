@@ -1,7 +1,5 @@
 # Who We Are?
 
-
-
 ## Contributing
 
 [(Back to top)](#dataset-management-framework-datumaro)
