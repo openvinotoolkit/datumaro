@@ -62,12 +62,12 @@ class PluginRegistry(Registry[Type[CliPlugin]]):
             )
 
     def _filter(self, t):
-        skip = {self.skip} if isclass(self.skip) else set(self.skip or [])
-        skip = tuple(skip | set((self.accept,)))
+        skip = {self._SKIP} if isclass(self._SKIP) else set(self._SKIP or [])
+        skip = tuple(skip | set((self._ACCEPT,)))
         if (
-            not issubclass(t, self.accept)
+            not issubclass(t, self._ACCEPT)
             or t in skip
-            or (self.decline and issubclass(t, self.decline))
+            or (self._DECLINE and issubclass(t, self._DECLINE))
         ):
             return False
         if getattr(t, "__not_plugin__", None):
