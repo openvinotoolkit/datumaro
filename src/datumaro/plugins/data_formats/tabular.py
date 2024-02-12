@@ -177,6 +177,10 @@ class TabularDataImporter(Importer):
                 return [{"url": path, "format": TabularDataBase.NAME}]
         return []
 
+    @classmethod
+    def get_file_extensions(cls) -> List[str]:
+        return list({f".{ext}" for ext in TABULAR_EXTENSIONS})
+
 
 class TabularDataExporter(Exporter):
     """

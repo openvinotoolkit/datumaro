@@ -215,6 +215,10 @@ class CifarImporter(Importer):
 
         return sources
 
+    @classmethod
+    def get_file_extensions(cls) -> List[str]:
+        return list({osp.splitext(p)[1] for p in (CifarPath.META_10_FILE, CifarPath.META_100_FILE)})
+
 
 class CifarExporter(Exporter):
     DEFAULT_IMAGE_EXT = ".png"

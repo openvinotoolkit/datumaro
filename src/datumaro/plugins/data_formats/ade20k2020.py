@@ -8,7 +8,7 @@ import logging as log
 import os
 import os.path as osp
 import re
-from typing import Optional
+from typing import List, Optional
 
 import numpy as np
 
@@ -217,9 +217,11 @@ class Ade20k2020Base(DatasetBase):
 
 
 class Ade20k2020Importer(Importer):
+    _ANNO_EXT = ".json"
+
     @classmethod
     def detect(cls, context: FormatDetectionContext) -> None:
-        annot_path = context.require_file("*/**/*.json")
+        annot_path = context.require_file(f"*/**/*{cls._ANNO_EXT}")
 
         with context.probe_text_file(
             annot_path,
@@ -244,3 +246,7 @@ class Ade20k2020Importer(Importer):
                         }
                     ]
         return []
+
+    @classmethod
+    def get_file_extensions(cls) -> List[str]:
+        return [cls._ANNO_EXT]

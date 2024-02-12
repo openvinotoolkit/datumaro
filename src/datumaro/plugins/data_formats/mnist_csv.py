@@ -5,7 +5,7 @@
 import errno
 import os
 import os.path as osp
-from typing import Optional
+from typing import List, Optional
 
 import numpy as np
 
@@ -116,12 +116,20 @@ class MnistCsvBase(SubsetBase):
 
 class MnistCsvImporter(Importer):
     DETECT_CONFIDENCE = FormatDetectionConfidence.MEDIUM
+    _ANNO_EXT = ".csv"
 
     @classmethod
     def find_sources(cls, path):
         return cls._find_sources_recursive(
-            path, ".csv", "mnist_csv", file_filter=lambda p: osp.basename(p).find("mnist_") != -1
+            path,
+            cls._ANNO_EXT,
+            "mnist_csv",
+            file_filter=lambda p: osp.basename(p).find("mnist_") != -1,
         )
+
+    @classmethod
+    def get_file_extensions(cls) -> List[str]:
+        return [cls._ANNO_EXT]
 
 
 class MnistCsvExporter(Exporter):

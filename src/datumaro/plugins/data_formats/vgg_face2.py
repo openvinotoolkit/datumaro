@@ -6,7 +6,7 @@ import csv
 import errno
 import os
 import os.path as osp
-from typing import Optional
+from typing import List, Optional
 
 from datumaro.components.annotation import AnnotationType, Bbox, Label, LabelCategories, Points
 from datumaro.components.dataset_base import DatasetBase, DatasetItem
@@ -198,12 +198,14 @@ class VggFace2Base(DatasetBase):
 
 
 class VggFace2Importer(Importer):
+    _ANNO_EXT = ".csv"
+
     @classmethod
     def detect(cls, context: FormatDetectionContext) -> None:
         with context.require_any():
             for prefix in (VggFace2Path.BBOXES_FILE, VggFace2Path.LANDMARKS_FILE):
                 with context.alternative():
-                    context.require_file(f"{VggFace2Path.ANNOTATION_DIR}/{prefix}*.csv")
+                    context.require_file(f"{VggFace2Path.ANNOTATION_DIR}/{prefix}*{cls._ANNO_EXT}")
 
     @classmethod
     def find_sources(cls, path):
@@ -228,6 +230,10 @@ class VggFace2Importer(Importer):
                     }
                 ]
         return []
+
+    @classmethod
+    def get_file_extensions(cls) -> List[str]:
+        return [cls._ANNO_EXT]
 
 
 class VggFace2Exporter(Exporter):

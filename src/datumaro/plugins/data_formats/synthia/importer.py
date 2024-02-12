@@ -3,6 +3,7 @@
 # SPDX-License-Identifier: MIT
 
 import os.path as osp
+from typing import List
 
 from datumaro.components.format_detection import FormatDetectionConfidence, FormatDetectionContext
 from datumaro.components.importer import Importer
@@ -25,6 +26,10 @@ class _SynthiaImporter(Importer):
     @classmethod
     def find_sources(cls, path):
         return [{"url": path, "format": cls.FORMAT}]
+
+    @classmethod
+    def get_file_extensions(cls) -> List[str]:
+        return [".png"]
 
 
 class SynthiaRandImporter(_SynthiaImporter):

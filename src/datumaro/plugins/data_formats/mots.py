@@ -9,7 +9,7 @@ import os
 import os.path as osp
 from enum import Enum
 from glob import iglob
-from typing import Optional
+from typing import List, Optional
 
 import numpy as np
 
@@ -148,6 +148,10 @@ class MotsImporter(Importer):
                     s.setdefault("options", {})["subset"] = p
                 subsets.extend(detected)
         return subsets
+
+    @classmethod
+    def get_file_extensions(cls) -> List[str]:
+        return [".png", ".txt"]
 
 
 class MotsPngExporter(Exporter):

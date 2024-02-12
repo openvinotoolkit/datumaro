@@ -6,7 +6,7 @@ import errno
 import os
 import os.path as osp
 import re
-from typing import Optional
+from typing import List, Optional
 
 from datumaro.components.annotation import AnnotationType, Bbox, Label, LabelCategories
 from datumaro.components.dataset_base import DatasetItem, SubsetBase
@@ -171,15 +171,21 @@ class WiderFaceBase(SubsetBase):
 
 
 class WiderFaceImporter(Importer):
+    _ANNO_EXT = ".txt"
+
     @classmethod
     def detect(cls, context: FormatDetectionContext) -> None:
-        context.require_file(f"{WiderFacePath.ANNOTATIONS_DIR}/*.txt")
+        context.require_file(f"{WiderFacePath.ANNOTATIONS_DIR}/*{cls._ANNO_EXT}")
 
     @classmethod
     def find_sources(cls, path):
         return cls._find_sources_recursive(
-            path, ".txt", "wider_face", dirname=WiderFacePath.ANNOTATIONS_DIR
+            path, cls._ANNO_EXT, "wider_face", dirname=WiderFacePath.ANNOTATIONS_DIR
         )
+
+    @classmethod
+    def get_file_extensions(cls) -> List[str]:
+        return [cls._ANNO_EXT]
 
 
 class WiderFaceExporter(Exporter):

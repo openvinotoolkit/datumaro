@@ -5,7 +5,7 @@
 import errno
 import os
 import os.path as osp
-from typing import Optional
+from typing import List, Optional
 
 from datumaro.components.annotation import (
     AnnotationType,
@@ -273,3 +273,7 @@ class CelebaImporter(Importer):
             source["url"] = root_dir
 
         return sources
+
+    @classmethod
+    def get_file_extensions(cls) -> List[str]:
+        return [osp.splitext(cls.PATH_CLS.LABELS_FILE)[1]]

@@ -4,7 +4,7 @@
 
 import os
 import os.path as osp
-from typing import Optional
+from typing import List, Optional
 
 from defusedxml import ElementTree as ET
 
@@ -279,9 +279,11 @@ class KittiRawBase(SubsetBase):
 
 
 class KittiRawImporter(Importer):
+    _ANNO_EXT = ".xml"
+
     @classmethod
     def detect(cls, context: FormatDetectionContext) -> None:
-        annot_file = context.require_file("*.xml")
+        annot_file = context.require_file(f"*{cls._ANNO_EXT}")
 
         with context.probe_text_file(
             annot_file,
@@ -300,3 +302,7 @@ class KittiRawImporter(Importer):
     @classmethod
     def find_sources(cls, path):
         return cls._find_sources_recursive(path, ".xml", "kitti_raw")
+
+    @classmethod
+    def get_file_extensions(cls) -> List[str]:
+        return [cls._ANNO_EXT]

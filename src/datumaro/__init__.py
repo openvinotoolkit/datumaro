@@ -51,7 +51,7 @@ from .components.dataset_base import (
     SubsetBase,
 )
 from .components.dataset_item_storage import ItemStatus
-from .components.environment import Environment, PluginRegistry
+from .components.environment import Environment
 from .components.exporter import Exporter, ExportErrorPolicy, FailingExportErrorPolicy
 from .components.hl_ops import HLOps
 from .components.importer import FailingImportErrorPolicy, Importer, ImportErrorPolicy
@@ -64,6 +64,7 @@ from .components.progress_reporting import (
     SimpleProgressReporter,
     TQDMProgressReporter,
 )
+from .components.registry import PluginRegistry
 from .components.transformer import ItemTransform, ModelTransform, Transform
 from .components.validator import Validator
 from .components.visualizer import Visualizer

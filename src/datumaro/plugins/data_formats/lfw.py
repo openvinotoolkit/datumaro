@@ -6,7 +6,7 @@ import errno
 import os
 import os.path as osp
 import re
-from typing import Optional
+from typing import List, Optional
 
 from datumaro.components.annotation import AnnotationType, Label, LabelCategories, Points
 from datumaro.components.dataset_base import DatasetItem, SubsetBase
@@ -234,6 +234,10 @@ class LfwImporter(Importer):
         return cls._find_sources_recursive(
             path, ext, "lfw", filename=base, dirname=LfwPath.ANNOTATION_DIR
         )
+
+    @classmethod
+    def get_file_extensions(cls) -> List[str]:
+        return [osp.splitext(LfwPath.PAIRS_FILE)[1]]
 
 
 class LfwExporter(Exporter):

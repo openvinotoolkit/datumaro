@@ -4,7 +4,7 @@
 
 import os
 import re
-from typing import Optional
+from typing import List, Optional
 
 from datumaro.components.importer import ImportContext, Importer
 from datumaro.components.lazy_plugin import extra_deps
@@ -18,11 +18,13 @@ tf = _import_tf()
 
 @extra_deps("tensorflow")
 class RoboflowTfrecordImporter(Importer):
+    _ANNO_EXT = ".tfrecord"
+
     @classmethod
     def find_sources(cls, path):
         sources = cls._find_sources_recursive(
             path=path,
-            ext=".tfrecord",
+            ext=cls._ANNO_EXT,
             extractor_name="roboflow_tfrecord",
         )
         if len(sources) == 0:
@@ -51,6 +53,10 @@ class RoboflowTfrecordImporter(Importer):
         ]
 
         return sources
+
+    @classmethod
+    def get_file_extensions(cls) -> List[str]:
+        return [cls._ANNO_EXT]
 
 
 class RoboflowTfrecordBase(TfDetectionApiBase):

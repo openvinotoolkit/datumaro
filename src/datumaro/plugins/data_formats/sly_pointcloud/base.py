@@ -5,7 +5,7 @@
 import errno
 import os.path as osp
 from glob import iglob
-from typing import Optional
+from typing import List, Optional
 
 from datumaro.components.annotation import AnnotationType, Cuboid3d, LabelCategories
 from datumaro.components.dataset_base import DatasetItem, SubsetBase
@@ -187,7 +187,12 @@ class SuperviselyPointCloudBase(SubsetBase):
 
 class SuperviselyPointCloudImporter(Importer):
     NAME = "sly_pointcloud"
+    _ANNO_EXT = ".json"
 
     @classmethod
     def find_sources(cls, path):
-        return cls._find_sources_recursive(path, ".json", "sly_pointcloud", filename="meta")
+        return cls._find_sources_recursive(path, cls._ANNO_EXT, "sly_pointcloud", filename="meta")
+
+    @classmethod
+    def get_file_extensions(cls) -> List[str]:
+        return [cls._ANNO_EXT]

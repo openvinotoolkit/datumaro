@@ -5,7 +5,7 @@
 import csv
 import errno
 import os.path as osp
-from typing import Optional
+from typing import List, Optional
 
 from datumaro.components.annotation import AnnotationType, Bbox, LabelCategories
 from datumaro.components.dataset_base import DatasetItem, SubsetBase
@@ -91,3 +91,7 @@ class VottCsvImporter(Importer):
     @classmethod
     def detect(cls, context: FormatDetectionContext) -> None:
         context.require_file("*" + VottCsvPath.ANNO_FILE_SUFFIX)
+
+    @classmethod
+    def get_file_extensions(cls) -> List[str]:
+        return [osp.splitext(VottCsvPath.ANNO_FILE_SUFFIX)[1]]

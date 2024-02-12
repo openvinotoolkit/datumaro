@@ -227,15 +227,25 @@ class MotSeqBase(SubsetBase):
 
 
 class MotSeqImporter(Importer):
+    _ANNO_EXT = ".txt"
+
     @classmethod
     def detect(cls, context: FormatDetectionContext) -> None:
-        context.require_file("gt/gt.txt")
+        context.require_file(f"gt/gt{cls._ANNO_EXT}")
 
     @classmethod
     def find_sources(cls, path):
         return cls._find_sources_recursive(
-            path, ".txt", "mot_seq", dirname="gt", filename=osp.splitext(MotPath.GT_FILENAME)[0]
+            path,
+            cls._ANNO_EXT,
+            "mot_seq",
+            dirname="gt",
+            filename=osp.splitext(MotPath.GT_FILENAME)[0],
         )
+
+    @classmethod
+    def get_file_extensions(cls) -> List[str]:
+        return [cls._ANNO_EXT]
 
 
 class MotSeqGtExporter(Exporter):

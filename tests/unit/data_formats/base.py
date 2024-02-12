@@ -28,7 +28,7 @@ class TestDataFormatBase:
             pytest.skip(reason="importer is None.")
 
         detected_formats = DEFAULT_ENVIRONMENT.detect_dataset(fxt_dataset_dir)
-        assert [importer.NAME] == detected_formats
+        assert [importer.NAME] == detected_formats, f"{[importer.NAME]} != {detected_formats}"
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_import(

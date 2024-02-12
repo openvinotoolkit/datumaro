@@ -7,7 +7,7 @@ import logging as log
 import os
 import os.path as osp
 import warnings
-from typing import Optional
+from typing import List, Optional
 
 from datumaro.components.annotation import AnnotationType, Label, LabelCategories
 from datumaro.components.dataset_base import DatasetItem, SubsetBase
@@ -17,7 +17,7 @@ from datumaro.components.format_detection import FormatDetectionConfidence, Form
 from datumaro.components.importer import ImportContext, Importer, with_subset_dirs
 from datumaro.components.media import Image
 from datumaro.util.definitions import SUBSET_NAME_BLACKLIST
-from datumaro.util.image import find_images
+from datumaro.util.image import IMAGE_EXTENSIONS, find_images
 
 
 class ImagenetPath:
@@ -127,6 +127,10 @@ class ImagenetImporter(Importer):
             return [{"url": path, "format": ImagenetBase.NAME}]
 
         return []
+
+    @classmethod
+    def get_file_extensions(cls) -> List[str]:
+        return list(IMAGE_EXTENSIONS)
 
 
 @with_subset_dirs

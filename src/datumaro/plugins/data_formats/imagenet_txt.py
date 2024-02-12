@@ -6,7 +6,7 @@ import errno
 import os
 import os.path as osp
 from enum import Enum, auto
-from typing import Iterable, Optional, Sequence, Tuple, Union
+from typing import Iterable, List, Optional, Sequence, Tuple, Union
 
 from datumaro.components.annotation import AnnotationType, Label, LabelCategories
 from datumaro.components.cli_plugin import CliPlugin
@@ -139,9 +139,13 @@ class ImagenetTxtBase(SubsetBase):
 
 
 class ImagenetTxtImporter(Importer, CliPlugin):
+    _ANNO_EXT = ".txt"
+
     @classmethod
     def detect(cls, context: FormatDetectionContext) -> None:
-        annot_path = context.require_file("*.txt", exclude_fnames=ImagenetTxtPath.LABELS_FILE)
+        annot_path = context.require_file(
+            f"*{cls._ANNO_EXT}", exclude_fnames=ImagenetTxtPath.LABELS_FILE
+        )
 
         with context.probe_text_file(
             annot_path,
@@ -188,6 +192,10 @@ class ImagenetTxtImporter(Importer, CliPlugin):
             file_filter = None
 
         return cls._find_sources_recursive(path, ".txt", "imagenet_txt", file_filter=file_filter)
+
+    @classmethod
+    def get_file_extensions(cls) -> List[str]:
+        return [cls._ANNO_EXT]
 
 
 class ImagenetTxtExporter(Exporter):

@@ -8,7 +8,7 @@ import os
 import os.path as osp
 from collections import OrderedDict
 from enum import Enum, auto
-from typing import Optional, Tuple
+from typing import List, Optional, Tuple
 
 import numpy as np
 
@@ -246,9 +246,13 @@ class CamvidBase(SubsetBase):
 
 
 class CamvidImporter(Importer):
+    _ANNO_EXT = ".txt"
+
     @classmethod
     def detect(cls, context: FormatDetectionContext) -> None:
-        annot_path = context.require_file("*.txt", exclude_fnames=CamvidPath.LABELMAP_FILE)
+        annot_path = context.require_file(
+            f"*{cls._ANNO_EXT}", exclude_fnames=CamvidPath.LABELMAP_FILE
+        )
 
         with context.probe_text_file(
             annot_path,
@@ -273,6 +277,10 @@ class CamvidImporter(Importer):
             "camvid",
             file_filter=lambda p: osp.basename(p) != CamvidPath.LABELMAP_FILE,
         )
+
+    @classmethod
+    def get_file_extensions(cls) -> List[str]:
+        return [cls._ANNO_EXT]
 
 
 class LabelmapType(Enum):

@@ -2,6 +2,7 @@
 #
 # SPDX-License-Identifier: MIT
 
+import glob
 import importlib
 import os
 import os.path as osp
@@ -12,7 +13,7 @@ import sys
 import unicodedata
 from contextlib import ExitStack, contextmanager, redirect_stderr, redirect_stdout
 from io import StringIO
-from typing import Iterable, Iterator, Optional, Union
+from typing import Iterable, Iterator, List, Optional, Set, Union
 
 try:
     # Declare functions to remove files and directories.
@@ -303,3 +304,11 @@ def extract_subset_name_from_parent(url: str, start: str) -> str:
         return DEFAULT_SUBSET_NAME
 
     return subdir_name
+
+
+def get_all_file_extensions(path: str, ignore_dirs: Set[str]) -> List[str]:
+    extensions = set()
+    for p in glob.iglob(osp.join(path, "**", "*.*"), recursive=True):
+        if ignore_dirs.isdisjoint(p.split(os.sep)):
+            extensions.add(osp.splitext(p)[1])
+    return list(extensions)

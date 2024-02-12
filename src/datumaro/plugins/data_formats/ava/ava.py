@@ -6,7 +6,7 @@ import csv
 import errno
 import os
 import os.path as osp
-from typing import Optional
+from typing import List, Optional
 
 import google.protobuf.text_format as text_format
 
@@ -157,10 +157,12 @@ class AvaBase(SubsetBase):
 
 
 class AvaImporter(Importer):
+    _ANNO_EXT = "csv"
+
     @classmethod
     def find_sources(cls, path):
         ann_files = find_files(
-            osp.join(path, AvaPath.ANNOTATION_DIR), exts="csv", recursive=True, max_depth=1
+            osp.join(path, AvaPath.ANNOTATION_DIR), exts=cls._ANNO_EXT, recursive=True, max_depth=1
         )
 
         sources = []
@@ -174,6 +176,10 @@ class AvaImporter(Importer):
     def detect(cls, context: FormatDetectionContext) -> FormatDetectionConfidence:
         super().detect(context)
         return FormatDetectionConfidence.MEDIUM
+
+    @classmethod
+    def get_file_extensions(cls) -> List[str]:
+        return [f".{cls._ANNO_EXT}"]
 
 
 class AvaExporter(Exporter):

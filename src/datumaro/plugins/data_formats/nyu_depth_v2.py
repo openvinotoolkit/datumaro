@@ -5,7 +5,7 @@
 import errno
 import glob
 import os.path as osp
-from typing import Optional
+from typing import List, Optional
 
 import h5py
 import numpy as np
@@ -52,10 +52,16 @@ class NyuDepthV2Base(SubsetBase):
 
 
 class NyuDepthV2Importer(Importer):
+    _FORMAT_EXT = ".h5"
+
     @classmethod
     def detect(cls, context: FormatDetectionContext) -> None:
-        context.require_file("*.h5")
+        context.require_file(f"*{cls._FORMAT_EXT}")
 
     @classmethod
     def find_sources(cls, path):
         return [{"url": path, "format": "nyu_depth_v2"}]
+
+    @classmethod
+    def get_file_extensions(cls) -> List[str]:
+        return [cls._FORMAT_EXT]

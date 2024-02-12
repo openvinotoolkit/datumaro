@@ -5,7 +5,7 @@
 import errno
 import glob
 import os.path as osp
-from typing import Optional
+from typing import List, Optional
 
 import nibabel as nib
 import numpy as np
@@ -107,3 +107,7 @@ class BratsImporter(Importer):
     @classmethod
     def find_sources(cls, path):
         return cls._find_sources_recursive(path, "", "brats", filename=f"{BratsPath.IMAGES_DIR}*")
+
+    @classmethod
+    def get_file_extensions(cls) -> List[str]:
+        return [osp.splitext(BratsPath.DATA_EXT)[-1]]
