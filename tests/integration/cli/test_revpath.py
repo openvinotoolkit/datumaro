@@ -131,7 +131,7 @@ class TestRevpath(TestCase):
         test_dir = scope_add(TestDir())
         assets = {
             "ade20k2017_dataset/dataset/training/street/1_atr.txt": "training/street/1_atr.txt",
-            "mot_dataset/mot_seq/gt/gt.txt": "gt/gt.txt"
+            "mot_dataset/mot_seq/gt/gt.txt": "gt/gt.txt",
         }
 
         dataset_url = osp.join(test_dir, "source")
@@ -145,10 +145,7 @@ class TestRevpath(TestCase):
             dst = osp.join(dataset_url, local_dir)
             if local_dir:
                 os.makedirs(dst)
-            shutil.copy(
-                osp.join(assets_dir, asset),
-                dst
-            )
+            shutil.copy(osp.join(assets_dir, asset), dst)
 
         with self.subTest("no context"):
             with self.assertRaises(WrongRevpathError) as cm:

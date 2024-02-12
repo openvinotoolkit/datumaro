@@ -6,7 +6,7 @@ import logging
 import os
 import os.path as osp
 import pickle
-from typing import List, Sequence, Callable  # nosec B403
+from typing import Callable, List, Sequence  # nosec B403
 from unittest import TestCase, mock
 
 import numpy as np
@@ -57,7 +57,7 @@ from datumaro.components.launcher import Launcher
 from datumaro.components.media import Image, MediaElement, Video
 from datumaro.components.merge.intersect_merge import IntersectMerge
 from datumaro.components.progress_reporting import NullProgressReporter, ProgressReporter
-from datumaro.components.registry import ImporterRegistry, DatasetBaseRegistry
+from datumaro.components.registry import DatasetBaseRegistry, ImporterRegistry
 from datumaro.components.transformer import ItemTransform, Transform
 from datumaro.plugins.transforms import ProjectInfos, RemapLabels
 
@@ -69,18 +69,25 @@ from tests.utils.test_utils import TestDir, compare_datasets, compare_datasets_s
 class DatasetTest(TestCase):
     def build_default_environment(
         self,
-        importers_override: Callable[[Environment, List]]=None,
-        extractors_override: Callable[[Environment, List]]=None
+        importers_override: Callable[[Environment, List]] = None,
+        extractors_override: Callable[[Environment, List]] = None,
     ) -> Environment:
         env = Environment()
-        importers = importers_override if importers_override(env) is not None else [env.importers[DEFAULT_FORMAT]]
-        extractors = extractors_override if extractors_override(env) is not None else [env.extractors[DEFAULT_FORMAT]]
+        importers = (
+            importers_override
+            if importers_override(env) is not None
+            else [env.importers[DEFAULT_FORMAT]]
+        )
+        extractors = (
+            extractors_override
+            if extractors_override(env) is not None
+            else [env.extractors[DEFAULT_FORMAT]]
+        )
         env._importers = ImporterRegistry()
         env._importers.batch_register(importers)
         env._extractors = DatasetBaseRegistry()
         env._extractors.batch_register(extractors)
         return env
-
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_create_from_extractors(self):
@@ -328,7 +335,7 @@ class DatasetTest(TestCase):
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_report_no_dataset_found(self):
-        env  = self.build_default_environment()
+        env = self.build_default_environment()
 
         with TestDir() as test_dir, self.assertRaises(DatasetNotFoundError):
             Dataset.import_from(test_dir, DEFAULT_FORMAT, env=env)
@@ -336,14 +343,11 @@ class DatasetTest(TestCase):
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_report_multiple_formats_match(self):
         env = self.build_default_environment(
-            importers_override=lambda env: [
-                env.importers[DEFAULT_FORMAT],
-                env.importers["coco"]
-            ],
+            importers_override=lambda env: [env.importers[DEFAULT_FORMAT], env.importers["coco"]],
             extractors_override=lambda env: [
                 env.extractors[DEFAULT_FORMAT],
-                env.extractors["coco"]
-            ]
+                env.extractors["coco"],
+            ],
         )
         env.importers["coco"][1] = env.importers[DEFAULT_FORMAT][1]
         env.extractors["coco"][1] = env.extractors[DEFAULT_FORMAT][1]
@@ -363,8 +367,7 @@ class DatasetTest(TestCase):
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_report_no_matching_formats(self):
-        env = Environment()
-        self.override_environment(env, importers=[], extractors=[])
+        env = self.build_default_environment(importers=[], extractors=[])
 
         source_dataset = Dataset.from_iterable(
             [
@@ -381,8 +384,7 @@ class DatasetTest(TestCase):
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_report_unknown_format_requested(self):
-        env = Environment()
-        self.override_environment(env, importers=[], extractors=[])
+        env = self.build_default_environment(importers=[], extractors=[])
 
         source_dataset = Dataset.from_iterable(
             [
