@@ -1,3 +1,7 @@
+# Copyright (C) 2023 Intel Corporation
+#
+# SPDX-License-Identifier: MIT
+
 from collections import defaultdict
 from inspect import isclass
 from typing import Dict, Generator, Generic, Iterable, Iterator, Optional, Tuple, Type, TypeVar
