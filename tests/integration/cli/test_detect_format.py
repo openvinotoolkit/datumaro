@@ -116,7 +116,6 @@ class DetectFormatTest(TestCase):
         self.assertIn(Ade20k2017Importer.NAME, output)
 
         self.assertIn(CamvidImporter.NAME, output)
-        self.assertIn(CamvidImporter.ANNO_PATH, output)
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_json_report(self):
@@ -148,4 +147,4 @@ class DetectFormatTest(TestCase):
         self.assertEqual(camvid_rejection["reason"], "unmet_requirements")
         self.assertIn("message", camvid_rejection)
         self.assertIsInstance(camvid_rejection["message"], str)
-        self.assertTrue(CamvidImporter.ANNO_PATH in camvid_rejection["message"])
+        self.assertTrue(CamvidImporter._ANNO_EXT in camvid_rejection["message"])

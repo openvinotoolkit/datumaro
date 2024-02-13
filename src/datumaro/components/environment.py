@@ -232,7 +232,7 @@ class Environment:
         ignore_dirs = {"__MSOSX", "__MACOSX"}
         all_matched_formats: Set[DetectedFormat] = set()
 
-        extensions = get_all_file_extensions(path, ignore_dirs)
+        extensions = get_all_file_extensions(path, ignore_dirs) or [""]
 
         importers = {
             importer

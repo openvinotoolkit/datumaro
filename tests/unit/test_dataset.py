@@ -69,19 +69,15 @@ from tests.utils.test_utils import TestDir, compare_datasets, compare_datasets_s
 class DatasetTest(TestCase):
     def build_default_environment(
         self,
-        importers_override: Callable[[Environment, List]] = None,
-        extractors_override: Callable[[Environment, List]] = None,
+        importers_override: Callable[[Environment], List] = None,
+        extractors_override: Callable[[Environment], List] = None,
     ) -> Environment:
         env = Environment()
-        importers = (
-            importers_override
-            if importers_override(env) is not None
-            else [env.importers[DEFAULT_FORMAT]]
-        )
+        default_importers = [env.importers[DEFAULT_FORMAT]]
+        default_extractors = [env.extractors[DEFAULT_FORMAT]]
+        importers = importers_override(env) if importers_override is not None else default_importers
         extractors = (
-            extractors_override
-            if extractors_override(env) is not None
-            else [env.extractors[DEFAULT_FORMAT]]
+            extractors_override(env) if extractors_override is not None else default_extractors
         )
         env._importers = ImporterRegistry()
         env._importers.batch_register(importers)
@@ -342,15 +338,9 @@ class DatasetTest(TestCase):
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_report_multiple_formats_match(self):
-        env = self.build_default_environment(
-            importers_override=lambda env: [env.importers[DEFAULT_FORMAT], env.importers["coco"]],
-            extractors_override=lambda env: [
-                env.extractors[DEFAULT_FORMAT],
-                env.extractors["coco"],
-            ],
-        )
-        env.importers["coco"][1] = env.importers[DEFAULT_FORMAT][1]
-        env.extractors["coco"][1] = env.extractors[DEFAULT_FORMAT][1]
+        env = self.build_default_environment()
+        env.importers.register("coco_instances", env.importers[DEFAULT_FORMAT])
+        env.extractors.register("coco_instances", env.extractors[DEFAULT_FORMAT])
 
         source_dataset = Dataset.from_iterable(
             [
@@ -367,7 +357,7 @@ class DatasetTest(TestCase):
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_report_no_matching_formats(self):
-        env = self.build_default_environment(importers=[], extractors=[])
+        env = self.build_default_environment(lambda _: [], lambda _: [])
 
         source_dataset = Dataset.from_iterable(
             [
@@ -384,7 +374,7 @@ class DatasetTest(TestCase):
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_report_unknown_format_requested(self):
-        env = self.build_default_environment(importers=[], extractors=[])
+        env = self.build_default_environment(lambda _: [], lambda _: [])
 
         source_dataset = Dataset.from_iterable(
             [
