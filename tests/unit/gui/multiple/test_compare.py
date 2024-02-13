@@ -80,22 +80,29 @@ class CompareTest(TestCase):
         assert not at.session_state.mapping
 
         # toggle
-        assert not at.toggle("low_lvl_tb_toggle").value
+        toggle_key = "tg_low_lvl_on_comp_mul"
+        assert at.toggle(toggle_key).label == "Show low-level table"
+        assert not at.toggle(toggle_key).value
 
         # dataframe
         assert len(at.dataframe) == 4
 
         # button
-        assert not at.button("mapping_btn").value
+        button_key = "btn_mapping_comp_mul"
+        assert at.button(button_key).label == "Finalize mapping"
+        assert not at.button(button_key).value
 
         # slider
-        assert at.slider("sim_slider")
+        slider_key = "sd_threshold_comp_mul"
+        assert at.slider(slider_key).label == "Desired similarity threshold"
+        assert at.slider(slider_key).min == 0.0
+        assert at.slider(slider_key).max == 1.0
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_compare_low_level_table(self):
         at = AppTest.from_function(run_compare, default_timeout=600).run()
 
-        at.toggle("low_lvl_tb_toggle").set_value(True).run()
+        at.toggle("tg_low_lvl_on_comp_mul").set_value(True).run()
 
         assert not at.session_state.low_level_table.empty
         assert len(at.caption.values) == 4

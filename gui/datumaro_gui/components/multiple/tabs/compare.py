@@ -39,8 +39,8 @@ def main():
     data_helper_2: MultipleDatasetHelper = state["data_helper_2"]
     first_dataset = data_helper_1.dataset()
     second_dataset = data_helper_2.dataset()
-    uploaded_file_1 = state["uploaded_file_1"].name[:-4]
-    uploaded_file_2 = state["uploaded_file_2"].name[:-4]
+    uploaded_file_1 = state["uploaded_file_1"]
+    uploaded_file_2 = state["uploaded_file_2"]
     high_level_df = state["high_level_table"]
     mid_level_df = state["mid_level_table"]
     low_level_df = state["low_level_table"]
@@ -93,7 +93,7 @@ def main():
                 "datasets.\n\nBy the way, the low-level analysis takes a bit of time to compute. Please bear with us "
                 "for a moment; your patience is much appreciated!",
             )
-            on = st.toggle("Show low-level table")
+            on = st.toggle("Show low-level table", key="tg_low_lvl_on_comp_mul")
             if on:
                 if low_level_df is None:
                     _, _, low_level_table, _ = comparator.compare_datasets(
@@ -155,7 +155,12 @@ def main():
                     return s
 
                 threshold = st.slider(
-                    "Desired similarity threshold", 0.0, 1.0, 0.7, step=0.1, key="sim_slider"
+                    "Desired similarity threshold",
+                    0.0,
+                    1.0,
+                    0.7,
+                    step=0.1,
+                    key="sd_threshold_comp_mul",
                 )
                 # Iterate over items in the first list
                 for item1 in unmatches[uploaded_file_1]:
@@ -175,7 +180,7 @@ def main():
 
                 # Convert the mappings dictionary to a DataFrame
                 selected_df = pd.DataFrame(
-                    mappings.items(), columns=[uploaded_file_1, uploaded_file_1]
+                    mappings.items(), columns=[uploaded_file_1, uploaded_file_2]
                 )
 
                 gb = GridOptionsBuilder.from_dataframe(selected_df)
@@ -206,7 +211,7 @@ def main():
                 )
 
                 if (
-                    st.button("Finalize mapping", key="mapping_btn")
+                    st.button("Finalize mapping", key="btn_mapping_comp_mul")
                     and grid_table["selected_rows"] is not None
                 ):
                     sel_row = grid_table["selected_rows"]

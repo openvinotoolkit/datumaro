@@ -50,7 +50,9 @@ def main():
     uploaded_file_1 = state["uploaded_file_1"]
     uploaded_file_2 = state["uploaded_file_2"]
     dataset_names = [uploaded_file_1, uploaded_file_2, "Merged Dataset"]
-    selected_dataset = st.selectbox("Select dataset to export : ", dataset_names, index=2)
+    selected_dataset = st.selectbox(
+        "Select dataset to export : ", dataset_names, index=2, key="sb_export_ds_mult"
+    )
     dataset_dict = {uploaded_file_1: data_helper_1, uploaded_file_2: data_helper_2}
 
     if selected_dataset == "Merged Dataset" and "data_helper_merged" not in state:
@@ -72,7 +74,7 @@ def main():
                 key="ti_path_export_mult",
             )
 
-        export_btn = st.button("Export", "btn_export_mult")
+        export_btn = st.button("Export", key="btn_export_mult")
         if export_btn:
             data_helper = dataset_dict.get(selected_dataset, None)
             data_helper.export(selected_path, format=selected_format, save_media=True)
