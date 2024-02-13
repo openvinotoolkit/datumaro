@@ -34,8 +34,7 @@ class ImageBackend(Enum):
 IMAGE_BACKEND: ContextVar[ImageBackend] = ContextVar("IMAGE_BACKEND")
 _image_loading_errors = (FileNotFoundError,)
 try:
-    import cv2
-
+    importlib.import_module("cv2")
     IMAGE_BACKEND.set(ImageBackend.cv2)
 except ModuleNotFoundError:
     import PIL
@@ -297,10 +296,14 @@ def decode_image(image_bytes: bytes, dtype: DTypeLike = np.uint8) -> np.ndarray:
     ctx_color_scale = IMAGE_COLOR_CHANNEL.get()
 
     if IMAGE_BACKEND.get() == ImageBackend.cv2:
-        image = ctx_color_scale.decode_by_cv2(image_bytes)
+        image = np.frombuffer(image_bytes, dtype=np.uint8)
+        image = ctx_color_scale.convert_cv2(image)
         image = image.astype(dtype)
     elif IMAGE_BACKEND.get() == ImageBackend.PIL:
-        image = ctx_color_scale.decode_by_pil(image_bytes)
+        from PIL import Image
+
+        image = Image.open(BytesIO(image_bytes))
+        image = ctx_color_scale.convert_pil(image)
         image = np.asarray(image, dtype=dtype)
     else:
         raise NotImplementedError()
