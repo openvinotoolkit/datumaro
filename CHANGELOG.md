@@ -35,6 +35,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   (<https://github.com/openvinotoolkit/datumaro/pull/1245>)
 - Enable image backend and color channel format to be selectable
   (<https://github.com/openvinotoolkit/datumaro/pull/1246>)
+- Boost up `CityscapesBase` and `KaggleImageMaskBase` by dropping `np.unique`
+  (<https://github.com/openvinotoolkit/datumaro/pull/1261>)
 - Enhance RISE algortihm for explainable AI
   (<https://github.com/openvinotoolkit/datumaro/pull/1263>)
 - Enhance explore unit test to use real dataset from ImageNet

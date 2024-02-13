@@ -265,30 +265,35 @@ class CityscapesBase(SubsetBase):
                 recursive=True,
             )
             mask_suffix = CityscapesPath.GT_INSTANCE_MASK_SUFFIX
+
+        self._categories = self._load_categories(
+            self._path, use_train_label_map=mask_suffix is CityscapesPath.LABEL_TRAIN_IDS_SUFFIX
+        )
+
+        label_ids = []
+        for label_cat in self._categories[AnnotationType.label]:
+            label_id, _ = self._categories[AnnotationType.label].find(label_cat.name)
+            if label_id:
+                label_ids.append(label_id)
+
         for mask_path in masks:
             item_id = self._get_id_from_mask_path(mask_path, mask_suffix)
 
             anns = []
             instances_mask = load_image(mask_path, dtype=np.int32)
-            segm_ids = np.unique(instances_mask)
-            for segm_id in segm_ids:
-                # either is_crowd or ann_id should be set
-                if segm_id < 1000:
-                    label_id = segm_id
-                    is_crowd = True
-                    ann_id = None
-                else:
-                    label_id = segm_id // 1000
-                    is_crowd = False
-                    ann_id = segm_id % 1000
+            mask_id = 1
+            for label_id in label_ids:
+                if label_id not in instances_mask:
+                    continue
+                binary_mask = self._lazy_extract_mask(instances_mask, label_id)
                 anns.append(
                     Mask(
-                        image=self._lazy_extract_mask(instances_mask, segm_id),
+                        id=mask_id,
+                        image=binary_mask,
                         label=label_id,
-                        id=ann_id,
-                        attributes={"is_crowd": is_crowd},
                     )
                 )
+                mask_id += 1
 
             image = image_path_by_id.pop(item_id, None)
             if image:
@@ -303,9 +308,6 @@ class CityscapesBase(SubsetBase):
                 id=item_id, subset=self._subset, media=Image.from_file(path=path)
             )
 
-        self._categories = self._load_categories(
-            self._path, use_train_label_map=mask_suffix is CityscapesPath.LABEL_TRAIN_IDS_SUFFIX
-        )
         return items
 
     @staticmethod
@@ -429,8 +431,8 @@ class CityscapesExporter(Exporter):
                     masks,
                     instance_ids=[
                         self._label_id_mapping(m.label)
-                        if m.attributes.get("is_crowd", False)
-                        else self._label_id_mapping(m.label) * 1000 + (m.id or (i + 1))
+                        # if m.attributes.get("is_crowd", False)
+                        # else self._label_id_mapping(m.label) * 1000 + (m.id or (i + 1))
                         for i, m in enumerate(masks)
                     ],
                     instance_labels=[self._label_id_mapping(m.label) for m in masks],
