@@ -11,3 +11,4 @@ pytest-csv
 # DatumaroApp
 streamlit
 streamlit_antd_components
+streamlit_elements
