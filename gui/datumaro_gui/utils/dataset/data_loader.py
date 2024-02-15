@@ -6,7 +6,7 @@ import os
 import shutil
 import zipfile
 from collections import defaultdict
-from typing import Union
+from typing import Dict, List, Union
 
 import numpy as np
 from streamlit.runtime.uploaded_file_manager import UploadedFile
@@ -50,7 +50,7 @@ class DataRepo:
         :return: path to dataset directory
         """
 
-        def find_dataset_root(filelist: list[str]):
+        def find_dataset_root(filelist: List[str]):
             common_path = os.path.commonpath(filelist)
             while common_path + os.sep in filelist:
                 filelist.remove(common_path + os.sep)
@@ -150,7 +150,7 @@ class DatasetHelper:
         self._xml_items = {}
         self._subset_to_ids = {}
 
-    def detect_format(self) -> list[str]:
+    def detect_format(self) -> List[str]:
         if self._detected_formats is None:
             self._detected_formats = DEFAULT_ENVIRONMENT.detect_dataset(path=self._dataset_dir)
         return self._detected_formats
@@ -171,7 +171,7 @@ class DatasetHelper:
     def format(self) -> str:
         return self._format
 
-    def subset_to_ids(self) -> dict[str, list]:
+    def subset_to_ids(self) -> Dict[str, list]:
         if not self._subset_to_ids and self._dm_dataset:
             keys = defaultdict(list)
             for item in self._dm_dataset:

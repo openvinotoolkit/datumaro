@@ -5,7 +5,7 @@
 import abc
 from collections import defaultdict
 from types import SimpleNamespace
-from typing import NamedTuple, NewType, Union
+from typing import Dict, NamedTuple, NewType, Union
 
 import pandas as pd
 import streamlit as st
@@ -500,7 +500,7 @@ class TransformRemove(MultipleTransformBase):
                 st.pyplot(fig, use_container_width=True)
 
 
-SummaryType = NewType("SummaryType", dict[dict[str, int]])
+SummaryType = NewType("SummaryType", Dict[str, int])
 
 
 class TransformAutoCorrection(MultipleTransformBase):
@@ -642,22 +642,16 @@ def render_dataset_management_section(
 ):
     with st.expander("Category Management"):
         ######## Remap
-        sac.divider(
-            label="Label remapping", icon="map", align="center", bold=False, key=f"remap_{col_name}"
-        )
+        sac.divider(label="Label remapping", icon="map", align="center", key=f"remap_{col_name}")
         TransformLabelRemap().gui(data_helper=data_helper, col=col_name)
 
     with st.expander("Subset Management"):
         ######## Aggregation
-        sac.divider(
-            label="Aggregation", icon="columns", align="center", bold=False, key=f"aggre_{col_name}"
-        )
+        sac.divider(label="Aggregation", icon="columns", align="center", key=f"aggre_{col_name}")
         TransformAggregation().gui(data_helper, col_name)
 
         ######## Split
-        sac.divider(
-            label="Split", icon="columns-gap", align="center", bold=False, key=f"split_{col_name}"
-        )
+        sac.divider(label="Split", icon="columns-gap", align="center", key=f"split_{col_name}")
         TransformSplit().gui(data_helper, col_name)
 
         ######## Subset Rename
@@ -665,7 +659,6 @@ def render_dataset_management_section(
             label="Subset Rename",
             icon="columns-gap",
             align="center",
-            bold=False,
             key=f"subset_rename_{col_name}",
         )
         TransformSubsetRename().gui(data_helper, col_name)
@@ -676,7 +669,6 @@ def render_dataset_management_section(
             label="Reindexing",
             icon="stickies-fill",
             align="center",
-            bold=False,
             key=f"reindex_{col_name}",
         )
         TransformReindexing().gui(data_helper, col_name)
@@ -686,15 +678,12 @@ def render_dataset_management_section(
             label="Filtration",
             icon="funnel-fill",
             align="center",
-            bold=False,
             key=f"filter_{col_name}",
         )
         TransformFiltration().gui(data_helper, col_name)
 
         ######## Remove
-        sac.divider(
-            label="Remove", icon="eraser-fill", align="center", bold=False, key=f"remove_{col_name}"
-        )
+        sac.divider(label="Remove", icon="eraser-fill", align="center", key=f"remove_{col_name}")
         TransformRemove().gui(data_helper, col_name)
 
         ######## Auto correction
@@ -702,7 +691,6 @@ def render_dataset_management_section(
             label="Auto-correction",
             icon="hammer",
             align="center",
-            bold=False,
             key=f"auto_correct_{col_name}",
         )
         TransformAutoCorrection().gui(data_helper, col_name)

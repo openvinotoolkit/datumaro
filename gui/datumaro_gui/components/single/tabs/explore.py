@@ -4,7 +4,7 @@
 
 import copy
 from abc import ABCMeta, abstractmethod
-from typing import Union
+from typing import List, Union
 
 import numpy as np
 import streamlit as st
@@ -77,7 +77,7 @@ class QueryText(Query):
 
 
 class QueryLabel(Query):
-    def __init__(self, labels: list[str]):
+    def __init__(self, labels: List[str]):
         self.labels = labels  # assume it is sorted.
 
     def label(self) -> str:

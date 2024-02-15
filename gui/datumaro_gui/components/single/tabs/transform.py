@@ -6,7 +6,7 @@ import abc
 import logging as log
 from collections import defaultdict
 from types import SimpleNamespace
-from typing import NamedTuple, NewType, Union
+from typing import Dict, NamedTuple, NewType, Tuple, Union
 
 import pandas as pd
 import streamlit as st
@@ -578,7 +578,7 @@ class TransformRemove(TransformBase):
                 st.pyplot(fig, use_container_width=True)
 
 
-SummaryType = NewType("SummaryType", dict[dict[str, int]])
+SummaryType = NewType("SummaryType", Dict[str, int])
 
 
 class TransformAutoCorrection(TransformBase):
@@ -711,7 +711,7 @@ class TransformAutoCorrection(TransformBase):
 
 class TransformCategory(NamedTuple):
     type: str
-    transforms: tuple[TransformBase]
+    transforms: Tuple[TransformBase]
 
 
 def on_click(transform: TransformBase):
@@ -744,7 +744,7 @@ def main():
     with c1:
         st.subheader("Transforms")
         for category in transform_categories:
-            sac.divider(label=category.type, icon="map", align="center", bold=False)
+            sac.divider(label=category.type, icon="map", align="center")
             for transform in category.transforms:
                 transform_name = transform().name
                 st.button(
