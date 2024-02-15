@@ -12,4 +12,4 @@ pytest-csv
 streamlit
 streamlit_antd_components
 streamlit_elements
-st_aggrid
+streamlit-aggrid
