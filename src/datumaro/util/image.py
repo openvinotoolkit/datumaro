@@ -3,7 +3,6 @@
 # SPDX-License-Identifier: MIT
 from __future__ import annotations
 
-import importlib
 import os
 import os.path as osp
 import shlex
@@ -34,7 +33,8 @@ class ImageBackend(Enum):
 IMAGE_BACKEND: ContextVar[ImageBackend] = ContextVar("IMAGE_BACKEND")
 _image_loading_errors = (FileNotFoundError,)
 try:
-    importlib.import_module("cv2")
+    import cv2
+
     IMAGE_BACKEND.set(ImageBackend.cv2)
 except ModuleNotFoundError:
     import PIL
@@ -132,15 +132,6 @@ def load_image(path: str, dtype: DTypeLike = np.uint8, crypter: Crypter = NULL_C
     """
     Reads an image in the HWC Grayscale/BGR(A) [0; 255] format (default dtype is uint8).
     """
-    _image_loading_errors = (FileNotFoundError,)
-    try:
-        importlib.import_module("cv2")
-        IMAGE_BACKEND.set(ImageBackend.cv2)
-    except ModuleNotFoundError:
-        import PIL
-
-        IMAGE_BACKEND.set(ImageBackend.PIL)
-        _image_loading_errors = (*_image_loading_errors, PIL.UnidentifiedImageError)
 
     if IMAGE_BACKEND.get() == ImageBackend.cv2:
         # cv2.imread does not support paths that are not representable
@@ -296,14 +287,10 @@ def decode_image(image_bytes: bytes, dtype: DTypeLike = np.uint8) -> np.ndarray:
     ctx_color_scale = IMAGE_COLOR_CHANNEL.get()
 
     if IMAGE_BACKEND.get() == ImageBackend.cv2:
-        image = np.frombuffer(image_bytes, dtype=np.uint8)
-        image = ctx_color_scale.convert_cv2(image)
+        image = ctx_color_scale.decode_by_cv2(image_bytes)
         image = image.astype(dtype)
     elif IMAGE_BACKEND.get() == ImageBackend.PIL:
-        from PIL import Image
-
-        image = Image.open(BytesIO(image_bytes))
-        image = ctx_color_scale.convert_pil(image)
+        image = ctx_color_scale.decode_by_pil(image_bytes)
         image = np.asarray(image, dtype=dtype)
     else:
         raise NotImplementedError()
