@@ -3,6 +3,7 @@
 # SPDX-License-Identifier: MIT
 from __future__ import annotations
 
+import importlib
 import os
 import os.path as osp
 import shlex
@@ -132,6 +133,11 @@ def load_image(path: str, dtype: DTypeLike = np.uint8, crypter: Crypter = NULL_C
     """
     Reads an image in the HWC Grayscale/BGR(A) [0; 255] format (default dtype is uint8).
     """
+    try:
+        importlib.import_module("cv2")
+        IMAGE_BACKEND.set(ImageBackend.cv2)
+    except ModuleNotFoundError:
+        IMAGE_BACKEND.set(ImageBackend.PIL)
 
     if IMAGE_BACKEND.get() == ImageBackend.cv2:
         # cv2.imread does not support paths that are not representable
