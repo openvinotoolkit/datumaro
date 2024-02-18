@@ -72,7 +72,7 @@ class DatasetTest(TestCase):
         importers_override: Callable[[Environment], List] = None,
         extractors_override: Callable[[Environment], List] = None,
     ) -> Environment:
-        env = Environment()
+        env = Environment(use_lazy_import=False)
         default_importers = [env.importers[DEFAULT_FORMAT]]
         default_extractors = [env.extractors[DEFAULT_FORMAT]]
         importers = importers_override(env) if importers_override is not None else default_importers

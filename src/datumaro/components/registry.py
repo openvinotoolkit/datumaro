@@ -102,11 +102,16 @@ class ImporterRegistry(PluginRegistry):
         super().__init__()
         self.extension_groups = defaultdict(list)
 
-    def register(self, name: str, value: Type[Importer]) -> Type[Importer]:
+    def register(
+        self, name: str, value: Type[Importer] | LazyPlugin
+    ) -> Type[Importer] | LazyPlugin:
         super().register(name, value)
-        importer = self.get(name)
-        for extension in importer.get_file_extensions():
-            self.extension_groups[extension].append((name, importer))
+        if issubclass(value, LazyPlugin):
+            file_extensions = value.METADATA["file_extensions"]
+        else:
+            file_extensions = value.get_file_extensions()
+        for extension in file_extensions:
+            self.extension_groups[extension].append((name, value))
         return value
 
 

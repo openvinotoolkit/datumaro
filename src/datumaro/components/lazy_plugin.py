@@ -6,7 +6,7 @@ import logging as log
 from abc import ABC, abstractclassmethod
 from importlib import import_module
 from importlib.util import find_spec
-from typing import List, Optional, Sequence, Type, Union
+from typing import Dict, List, Optional, Sequence, Type, Union
 
 from datumaro.components.dataset_base import DatasetBase
 from datumaro.components.errors import DatumaroError
@@ -57,6 +57,7 @@ def get_lazy_plugin(
     plugin_name: str,
     plugin_type: str,
     extra_deps: List[str] = [],
+    metadata: Dict = {},
 ) -> Optional[LazyPlugin]:
     for extra_dep in extra_deps:
         spec = find_spec(extra_dep)
@@ -68,6 +69,7 @@ def get_lazy_plugin(
 
     class LazyPluginImpl(LazyPlugin, plugin_type_cls):
         NAME = plugin_name
+        METADATA = metadata
 
         @classmethod
         def get_plugin_cls(cls) -> PLUGIN_TYPES:

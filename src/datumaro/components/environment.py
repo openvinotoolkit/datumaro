@@ -235,9 +235,9 @@ class Environment:
         extensions = get_all_file_extensions(path, ignore_dirs) or [""]
 
         importers = {
-            importer
+            (name, importer.get_plugin_cls() if self._use_lazy_import else importer)
             for extension in extensions
-            for importer in self.importers.extension_groups.get(extension, [])
+            for name, importer in self.importers.extension_groups.get(extension, [])
         }
         for _ in range(depth + 1):
             detected_formats = detect_dataset_format(
