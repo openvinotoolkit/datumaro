@@ -383,7 +383,7 @@
     <span class="s2">&quot;HIDE_WINDOWS_KNOWN_ERRORS&quot;</span><span class="p">,</span>
 <span class="p">]</span>
 
-<span class="n">log</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
+<span class="n">_logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
 
 
 <span class="k">def</span> <span class="nf">_read_win_env_flag</span><span class="p">(</span><span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">default</span><span class="p">:</span> <span class="nb">bool</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
@@ -403,7 +403,7 @@
     <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
         <span class="k">return</span> <span class="n">default</span>
 
-    <span class="n">log</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
+    <span class="n">_logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
         <span class="s2">&quot;The </span><span class="si">%s</span><span class="s2"> environment variable is deprecated. Its effect has never been documented and changes without warning.&quot;</span><span class="p">,</span>
         <span class="n">name</span><span class="p">,</span>
     <span class="p">)</span>
@@ -414,7 +414,7 @@
         <span class="k">return</span> <span class="kc">False</span>
     <span class="k">if</span> <span class="n">adjusted_value</span> <span class="ow">in</span> <span class="p">{</span><span class="s2">&quot;1&quot;</span><span class="p">,</span> <span class="s2">&quot;true&quot;</span><span class="p">,</span> <span class="s2">&quot;yes&quot;</span><span class="p">}:</span>
         <span class="k">return</span> <span class="kc">True</span>
-    <span class="n">log</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">%s</span><span class="s2"> has unrecognized value </span><span class="si">%r</span><span class="s2">, treating as </span><span class="si">%r</span><span class="s2">.&quot;</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">value</span><span class="p">,</span> <span class="n">default</span><span class="p">)</span>
+    <span class="n">_logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">%s</span><span class="s2"> has unrecognized value </span><span class="si">%r</span><span class="s2">, treating as </span><span class="si">%r</span><span class="s2">.&quot;</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">value</span><span class="p">,</span> <span class="n">default</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">default</span>
 
 
@@ -745,7 +745,7 @@
             <span class="c1"># retcode = process.poll()</span>
             <span class="n">is_cygwin</span> <span class="o">=</span> <span class="s2">&quot;CYGWIN&quot;</span> <span class="ow">in</span> <span class="n">uname_out</span>
         <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">ex</span><span class="p">:</span>
-            <span class="n">log</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Failed checking if running in CYGWIN due to: </span><span class="si">%r</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">ex</span><span class="p">)</span>
+            <span class="n">_logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Failed checking if running in CYGWIN due to: </span><span class="si">%r</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">ex</span><span class="p">)</span>
         <span class="n">_is_cygwin_cache</span><span class="p">[</span><span class="n">git_executable</span><span class="p">]</span> <span class="o">=</span> <span class="n">is_cygwin</span>
 
     <span class="k">return</span> <span class="n">is_cygwin</span>
@@ -1571,11 +1571,6 @@
 
 
 <span class="c1"># } END classes</span>
-
-
-<span class="k">class</span> <span class="nc">NullHandler</span><span class="p">(</span><span class="n">logging</span><span class="o">.</span><span class="n">Handler</span><span class="p">):</span>
-    <span class="k">def</span> <span class="nf">emit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">record</span><span class="p">:</span> <span class="nb">object</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="k">pass</span>
 </pre></div>
 
             </article>

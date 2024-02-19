@@ -544,30 +544,35 @@
                 <span class="n">recursive</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
             <span class="p">)</span>
             <span class="n">mask_suffix</span> <span class="o">=</span> <span class="n">CityscapesPath</span><span class="o">.</span><span class="n">GT_INSTANCE_MASK_SUFFIX</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_categories</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_load_categories</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_path</span><span class="p">,</span> <span class="n">use_train_label_map</span><span class="o">=</span><span class="n">mask_suffix</span> <span class="ow">is</span> <span class="n">CityscapesPath</span><span class="o">.</span><span class="n">LABEL_TRAIN_IDS_SUFFIX</span>
+        <span class="p">)</span>
+
+        <span class="n">label_ids</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">label_cat</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_categories</span><span class="p">[</span><span class="n">AnnotationType</span><span class="o">.</span><span class="n">label</span><span class="p">]:</span>
+            <span class="n">label_id</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_categories</span><span class="p">[</span><span class="n">AnnotationType</span><span class="o">.</span><span class="n">label</span><span class="p">]</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="n">label_cat</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">label_id</span><span class="p">:</span>
+                <span class="n">label_ids</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">label_id</span><span class="p">)</span>
+
         <span class="k">for</span> <span class="n">mask_path</span> <span class="ow">in</span> <span class="n">masks</span><span class="p">:</span>
             <span class="n">item_id</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_id_from_mask_path</span><span class="p">(</span><span class="n">mask_path</span><span class="p">,</span> <span class="n">mask_suffix</span><span class="p">)</span>
 
             <span class="n">anns</span> <span class="o">=</span> <span class="p">[]</span>
             <span class="n">instances_mask</span> <span class="o">=</span> <span class="n">load_image</span><span class="p">(</span><span class="n">mask_path</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">int32</span><span class="p">)</span>
-            <span class="n">segm_ids</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="n">instances_mask</span><span class="p">)</span>
-            <span class="k">for</span> <span class="n">segm_id</span> <span class="ow">in</span> <span class="n">segm_ids</span><span class="p">:</span>
-                <span class="c1"># either is_crowd or ann_id should be set</span>
-                <span class="k">if</span> <span class="n">segm_id</span> <span class="o">&lt;</span> <span class="mi">1000</span><span class="p">:</span>
-                    <span class="n">label_id</span> <span class="o">=</span> <span class="n">segm_id</span>
-                    <span class="n">is_crowd</span> <span class="o">=</span> <span class="kc">True</span>
-                    <span class="n">ann_id</span> <span class="o">=</span> <span class="kc">None</span>
-                <span class="k">else</span><span class="p">:</span>
-                    <span class="n">label_id</span> <span class="o">=</span> <span class="n">segm_id</span> <span class="o">//</span> <span class="mi">1000</span>
-                    <span class="n">is_crowd</span> <span class="o">=</span> <span class="kc">False</span>
-                    <span class="n">ann_id</span> <span class="o">=</span> <span class="n">segm_id</span> <span class="o">%</span> <span class="mi">1000</span>
+            <span class="n">mask_id</span> <span class="o">=</span> <span class="mi">1</span>
+            <span class="k">for</span> <span class="n">label_id</span> <span class="ow">in</span> <span class="n">label_ids</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">label_id</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">instances_mask</span><span class="p">:</span>
+                    <span class="k">continue</span>
+                <span class="n">binary_mask</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_lazy_extract_mask</span><span class="p">(</span><span class="n">instances_mask</span><span class="p">,</span> <span class="n">label_id</span><span class="p">)</span>
                 <span class="n">anns</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
                     <span class="n">Mask</span><span class="p">(</span>
-                        <span class="n">image</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_lazy_extract_mask</span><span class="p">(</span><span class="n">instances_mask</span><span class="p">,</span> <span class="n">segm_id</span><span class="p">),</span>
+                        <span class="nb">id</span><span class="o">=</span><span class="n">mask_id</span><span class="p">,</span>
+                        <span class="n">image</span><span class="o">=</span><span class="n">binary_mask</span><span class="p">,</span>
                         <span class="n">label</span><span class="o">=</span><span class="n">label_id</span><span class="p">,</span>
-                        <span class="nb">id</span><span class="o">=</span><span class="n">ann_id</span><span class="p">,</span>
-                        <span class="n">attributes</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;is_crowd&quot;</span><span class="p">:</span> <span class="n">is_crowd</span><span class="p">},</span>
                     <span class="p">)</span>
                 <span class="p">)</span>
+                <span class="n">mask_id</span> <span class="o">+=</span> <span class="mi">1</span>
 
             <span class="n">image</span> <span class="o">=</span> <span class="n">image_path_by_id</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="n">item_id</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
             <span class="k">if</span> <span class="n">image</span><span class="p">:</span>
@@ -582,9 +587,6 @@
                 <span class="nb">id</span><span class="o">=</span><span class="n">item_id</span><span class="p">,</span> <span class="n">subset</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_subset</span><span class="p">,</span> <span class="n">media</span><span class="o">=</span><span class="n">Image</span><span class="o">.</span><span class="n">from_file</span><span class="p">(</span><span class="n">path</span><span class="o">=</span><span class="n">path</span><span class="p">)</span>
             <span class="p">)</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">_categories</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_load_categories</span><span class="p">(</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_path</span><span class="p">,</span> <span class="n">use_train_label_map</span><span class="o">=</span><span class="n">mask_suffix</span> <span class="ow">is</span> <span class="n">CityscapesPath</span><span class="o">.</span><span class="n">LABEL_TRAIN_IDS_SUFFIX</span>
-        <span class="p">)</span>
         <span class="k">return</span> <span class="n">items</span>
 
     <span class="nd">@staticmethod</span>
@@ -708,8 +710,8 @@
                     <span class="n">masks</span><span class="p">,</span>
                     <span class="n">instance_ids</span><span class="o">=</span><span class="p">[</span>
                         <span class="bp">self</span><span class="o">.</span><span class="n">_label_id_mapping</span><span class="p">(</span><span class="n">m</span><span class="o">.</span><span class="n">label</span><span class="p">)</span>
-                        <span class="k">if</span> <span class="n">m</span><span class="o">.</span><span class="n">attributes</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;is_crowd&quot;</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
-                        <span class="k">else</span> <span class="bp">self</span><span class="o">.</span><span class="n">_label_id_mapping</span><span class="p">(</span><span class="n">m</span><span class="o">.</span><span class="n">label</span><span class="p">)</span> <span class="o">*</span> <span class="mi">1000</span> <span class="o">+</span> <span class="p">(</span><span class="n">m</span><span class="o">.</span><span class="n">id</span> <span class="ow">or</span> <span class="p">(</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">))</span>
+                        <span class="c1"># if m.attributes.get(&quot;is_crowd&quot;, False)</span>
+                        <span class="c1"># else self._label_id_mapping(m.label) * 1000 + (m.id or (i + 1))</span>
                         <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">m</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">masks</span><span class="p">)</span>
                     <span class="p">],</span>
                     <span class="n">instance_labels</span><span class="o">=</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_label_id_mapping</span><span class="p">(</span><span class="n">m</span><span class="o">.</span><span class="n">label</span><span class="p">)</span> <span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <span class="n">masks</span><span class="p">],</span>
