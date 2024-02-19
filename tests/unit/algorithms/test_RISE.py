@@ -36,7 +36,7 @@ class RiseTest(TestCase):
         self.assertEqual(saliency.shape[2], image_size[2])
 
         class_indices = [244, 282]  # bullmastiff and tabby of imagenet.class
-        rois = [[100, 20, 180, 100], [180, 160, 240, 260]]  # location of bullmastiff and tabby
+        rois = [[90, 10, 190, 110], [170, 150, 250, 270]]  # location of bullmastiff and tabby
 
         for cls_idx in range(len(class_indices)):
             norm_saliency = saliency[class_indices[cls_idx]]
