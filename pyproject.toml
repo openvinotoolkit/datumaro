@@ -23,7 +23,7 @@ omit = [
 
 [tool.cibuildwheel]
 # reference docs - https://cibuildwheel.readthedocs.io/en/stable/options/#build-skip
-build = "cp38-*_x86_64 cp39-*_x86_64 cp310-*_x86_64 cp311-*_x86_64 cp38-*_amd64 cp39-*_amd64 cp310-*_amd64 cp311-*_amd64"
+build = "cp39-*_x86_64 cp310-*_x86_64 cp311-*_x86_64 cp39-*_amd64 cp310-*_amd64 cp311-*_amd64"
 skip = "*macos*"
 
 [tool.cibuildwheel.linux]
@@ -63,7 +63,7 @@ skip_empty = true
 
 [tool.black]
 line-length = 100
-target-version = ['py38']
+target-version = ['py310']
 
 [tool.ruff]
 # Enable pycodestyle (`E`) and Pyflakes (`F`) codes by default.
@@ -118,7 +118,7 @@ line-length = 120
 dummy-variable-rgx = "^(_+|(_+[a-zA-Z0-9_]*[a-zA-Z0-9]+?))$"
 
 # minimum target version
-target-version = "py38"
+target-version = "py39"
 
 # ignore-init-module-imports = true
 
