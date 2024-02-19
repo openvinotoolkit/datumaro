@@ -12,14 +12,12 @@ jobs:
       fail-fast: false
       matrix:
         os: ['ubuntu-20.04', 'windows-2022']
-        python-version: ['3.8', '3.9', '3.10', '3.11']
+        python-version: ['3.9', '3.10', '3.11']
         include:
           - os: "ubuntu-20.04"
             tox-env-os: "lin"
           - os: "windows-2022"
             tox-env-os: "win"
-          - python-version: "3.8"
-            tox-env-py: "38"
           - python-version: "3.9"
             tox-env-py: "39"
           - python-version: "3.10"

@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## \[Unreleased\]
 ### New features
+- Changed supported Python version range (>=3.9, <=3.11)
+  (<>)
 - Support MMDetection COCO format
   (<https://github.com/openvinotoolkit/datumaro/pull/1213>)
 - Develop JsonSectionPageMapper in Rust API

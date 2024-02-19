@@ -12,7 +12,7 @@ For feature requests and issues, please feel free to create a GitHub Issue in th
 ## Development and pull requests
 
 ### Prerequisites
-- Python (3.8+)
+- Python (3.9+)
 
 To set up your development environment, please follow the steps below.
 
