@@ -73,6 +73,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   (<https://github.com/openvinotoolkit/datumaro/pull/1253>)
 - Remove deprecated MediaManager
   (<https://github.com/openvinotoolkit/datumaro/pull/1262>)
+- Fix explore command without project
+  (<https://github.com/openvinotoolkit/datumaro/pull/1271>)
 
 ## Jan. 2024 Release 1.5.2
 ### Enhancements
