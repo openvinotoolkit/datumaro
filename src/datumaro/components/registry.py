@@ -4,7 +4,18 @@
 
 from collections import defaultdict
 from inspect import isclass
-from typing import Dict, Generator, Generic, Iterable, Iterator, Optional, Tuple, Type, TypeVar
+from typing import (
+    Dict,
+    Generator,
+    Generic,
+    Iterable,
+    Iterator,
+    Optional,
+    Tuple,
+    Type,
+    TypeVar,
+    Union,
+)
 
 from datumaro.components.cli_plugin import CliPlugin
 from datumaro.components.dataset_base import DatasetBase, SubsetBase
@@ -103,8 +114,8 @@ class ImporterRegistry(PluginRegistry):
         self.extension_groups = defaultdict(list)
 
     def register(
-        self, name: str, value: Type[Importer] | LazyPlugin
-    ) -> Type[Importer] | LazyPlugin:
+        self, name: str, value: Union[Type[Importer], LazyPlugin]
+    ) -> Union[Type[Importer], LazyPlugin]:
         super().register(name, value)
         if issubclass(value, LazyPlugin):
             file_extensions = value.METADATA["file_extensions"]
