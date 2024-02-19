@@ -171,6 +171,34 @@ class ExploreTest(TestCase):
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     @scoped
+    def test_can_explore_dataset_w_target(self):
+        test_dir = scope_add(TestDir())
+        proj_dir = osp.join(test_dir, "proj")
+        dataset_url = osp.join(test_dir, "dataset")
+        train_image_path = osp.join(dataset_url, "images", "train", "1.jpg")
+        saved_result_path = osp.join(proj_dir, "explore_result")
+
+        self.test_dataset.export(dataset_url, "datumaro", save_media=True)
+
+        run(
+            self,
+            "explore",
+            dataset_url,
+            "--query-img-path",
+            train_image_path,
+            "-topk",
+            "2",
+            "-s",
+            "-o",
+            saved_result_path,
+        )
+
+        results = glob(osp.join(saved_result_path, "**", "*"), recursive=True)
+
+        self.assertIn(osp.join(saved_result_path, "train", "1.jpg"), results)
+
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
+    @scoped
     def test_can_explore_dataset_wo_target(self):
         test_dir = scope_add(TestDir())
         proj_dir = osp.join(test_dir, "proj")

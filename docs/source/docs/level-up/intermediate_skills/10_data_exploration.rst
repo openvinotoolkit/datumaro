@@ -65,6 +65,12 @@ The Python example for the usage of explorer is described in :doc:`here <../../j
 
         ``QUERY_STR`` could be text description or list of them
 
+        .. code-block:: bash
+
+            datum explore <target> --query-str QUERY_STR -topk TOPK_NUM -s -o DST_DIR
+
+        To save the result, specify the output directory as ``DST_DIR``
+
     .. tab-item:: ProjectCLI
 
         With the project-based CLI, we first require to ``create`` a project by

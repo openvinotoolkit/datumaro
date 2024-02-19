@@ -5,7 +5,6 @@
 import argparse
 import logging as log
 import os
-import os.path as osp
 import shutil
 import uuid
 
@@ -89,6 +88,13 @@ def build_parser(parser_ctor=argparse.ArgumentParser):
         help="Save explorer result files on explore_result folder",
     )
     parser.add_argument(
+        "-o",
+        "--output-dir",
+        dest="dst_dir",
+        default=None,
+        help="Directory to save explore results " "(default: generate automatically)",
+    )
+    parser.add_argument(
         "--stage",
         type=str_to_bool,
         default=True,
@@ -112,6 +118,7 @@ def get_sensitive_args():
             "target",
             "topk",
             "project_dir",
+            "dst_dir",
         ]
     }
 
@@ -130,22 +137,20 @@ def explore_command(args):
     else:
         targets = list(project.working_tree.sources)
 
-    source_datasets = []
-    for target in targets:
-        target_dataset, _ = parse_full_revpath(target, project)
-        source_datasets.append(target_dataset)
+    source_datasets = [parse_full_revpath(target, project)[0] for target in targets]
 
     explorer_args = {"save_hashkey": True}
-    build_tree = project.working_tree.clone()
-    for target in targets:
-        build_tree.build_targets.add_explore_stage(target, params=explorer_args)
+    if project:
+        build_tree = project.working_tree.clone()
+        for target in targets:
+            build_tree.build_targets.add_explore_stage(target, params=explorer_args)
 
     explorer = Explorer(*source_datasets)
     for dataset in source_datasets:
         dst_dir = dataset.data_path
         dataset.save(dst_dir, save_media=True, save_hashkey_meta=True)
 
-    if args.stage:
+    if args.stage and project:
         project.working_tree.config.update(build_tree.config)
         project.working_tree.save()
 
@@ -179,14 +184,14 @@ def explore_command(args):
         log.info(f"id: {result.id} | subset: {result.subset} | path : {path}")
 
     if args.save:
-        saved_result_path = osp.join(args.project_dir, "explore_result")
-        if osp.exists(saved_result_path):
+        saved_result_path = args.dst_dir or os.path.join(args.project_dir, "explore_result")
+        if os.path.exists(saved_result_path):
             shutil.rmtree(saved_result_path)
         os.makedirs(saved_result_path)
         for result in results:
-            saved_subset_path = osp.join(saved_result_path, result.subset)
-            if not osp.exists(saved_subset_path):
+            saved_subset_path = os.path.join(saved_result_path, result.subset)
+            if not os.path.exists(saved_subset_path):
                 os.makedirs(saved_subset_path)
-            shutil.copyfile(path, osp.join(saved_subset_path, result.id + ".jpg"))
+            shutil.copyfile(path, os.path.join(saved_subset_path, result.id + ".jpg"))
 
     return 0
