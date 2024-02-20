@@ -285,7 +285,7 @@
 <span class="kn">import</span> <span class="nn">os.path</span> <span class="k">as</span> <span class="nn">osp</span>
 <span class="kn">import</span> <span class="nn">re</span>
 <span class="kn">from</span> <span class="nn">collections</span> <span class="kn">import</span> <span class="n">OrderedDict</span>
-<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Optional</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">List</span><span class="p">,</span> <span class="n">Optional</span>
 
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 
@@ -479,11 +479,13 @@
 
 <div class="viewcode-block" id="TfDetectionApiImporter"><a class="viewcode-back" href="../../../../../docs/reference/_autosummary/datumaro.plugins.data_formats.tf_detection_api.base.html#datumaro.plugins.data_formats.tf_detection_api.base.TfDetectionApiImporter">[docs]</a><span class="nd">@extra_deps</span><span class="p">(</span><span class="s2">&quot;tensorflow&quot;</span><span class="p">)</span>
 <span class="k">class</span> <span class="nc">TfDetectionApiImporter</span><span class="p">(</span><span class="n">Importer</span><span class="p">):</span>
+    <span class="n">_FORMAT_EXT</span> <span class="o">=</span> <span class="s2">&quot;.tfrecord&quot;</span>
+
 <div class="viewcode-block" id="TfDetectionApiImporter.find_sources"><a class="viewcode-back" href="../../../../../docs/reference/_autosummary/datumaro.plugins.data_formats.tf_detection_api.base.html#datumaro.plugins.data_formats.tf_detection_api.base.TfDetectionApiImporter.find_sources">[docs]</a>    <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">find_sources</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">path</span><span class="p">):</span>
         <span class="n">sources</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="n">_find_sources_recursive</span><span class="p">(</span>
             <span class="n">path</span><span class="o">=</span><span class="n">path</span><span class="p">,</span>
-            <span class="n">ext</span><span class="o">=</span><span class="s2">&quot;.tfrecord&quot;</span><span class="p">,</span>
+            <span class="n">ext</span><span class="o">=</span><span class="bp">cls</span><span class="o">.</span><span class="n">_FORMAT_EXT</span><span class="p">,</span>
             <span class="n">extractor_name</span><span class="o">=</span><span class="s2">&quot;tf_detection_api&quot;</span><span class="p">,</span>
         <span class="p">)</span>
         <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">sources</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
@@ -507,7 +509,11 @@
             <span class="k">for</span> <span class="n">_</span><span class="p">,</span> <span class="n">url</span> <span class="ow">in</span> <span class="n">subsets</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
         <span class="p">]</span>
 
-        <span class="k">return</span> <span class="n">sources</span></div></div>
+        <span class="k">return</span> <span class="n">sources</span></div>
+
+<div class="viewcode-block" id="TfDetectionApiImporter.get_file_extensions"><a class="viewcode-back" href="../../../../../docs/reference/_autosummary/datumaro.plugins.data_formats.tf_detection_api.base.html#datumaro.plugins.data_formats.tf_detection_api.base.TfDetectionApiImporter.get_file_extensions">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">get_file_extensions</span><span class="p">(</span><span class="bp">cls</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+        <span class="k">return</span> <span class="p">[</span><span class="bp">cls</span><span class="o">.</span><span class="n">_FORMAT_EXT</span><span class="p">]</span></div></div>
 </pre></div>
 
             </article>

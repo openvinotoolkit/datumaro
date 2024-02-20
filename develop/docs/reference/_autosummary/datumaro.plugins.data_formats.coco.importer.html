@@ -473,6 +473,7 @@
 <li class="toctree-l4"><a class="reference internal" href="datumaro.components.operations.html">datumaro.components.operations</a></li>
 <li class="toctree-l4"><a class="reference internal" href="datumaro.components.progress_reporting.html">datumaro.components.progress_reporting</a></li>
 <li class="toctree-l4"><a class="reference internal" href="datumaro.components.project.html">datumaro.components.project</a></li>
+<li class="toctree-l4"><a class="reference internal" href="datumaro.components.registry.html">datumaro.components.registry</a></li>
 <li class="toctree-l4"><a class="reference internal" href="datumaro.components.shift_analyzer.html">datumaro.components.shift_analyzer</a></li>
 <li class="toctree-l4"><a class="reference internal" href="datumaro.components.transformer.html">datumaro.components.transformer</a></li>
 <li class="toctree-l4"><a class="reference internal" href="datumaro.components.validator.html">datumaro.components.validator</a></li>
@@ -635,6 +636,11 @@
 <em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">find_sources</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/datumaro/plugins/data_formats/coco/importer.html#CocoImporter.find_sources"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.plugins.data_formats.coco.importer.CocoImporter.find_sources" title="Permalink to this definition">#</a></dt>
 <dd></dd></dl>
 
+<dl class="py method">
+<dt class="sig sig-object py" id="datumaro.plugins.data_formats.coco.importer.CocoImporter.get_file_extensions">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">get_file_extensions</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.List" title="(in Python v3.12)"><span class="pre">List</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../../_modules/datumaro/plugins/data_formats/coco/importer.html#CocoImporter.get_file_extensions"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.plugins.data_formats.coco.importer.CocoImporter.get_file_extensions" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
 <dl class="py property">
 <dt class="sig sig-object py" id="datumaro.plugins.data_formats.coco.importer.CocoImporter.can_stream">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">can_stream</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.12)"><span class="pre">bool</span></a></em><a class="headerlink" href="#datumaro.plugins.data_formats.coco.importer.CocoImporter.can_stream" title="Permalink to this definition">#</a></dt>
@@ -775,6 +781,15 @@ Otherwise, use the return type to merge the extractors.</p>
      <code class="docutils literal notranslate">
       <span class="pre">
        CocoImporter.find_sources()
+      </span>
+     </code>
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#datumaro.plugins.data_formats.coco.importer.CocoImporter.get_file_extensions">
+     <code class="docutils literal notranslate">
+      <span class="pre">
+       CocoImporter.get_file_extensions()
       </span>
      </code>
     </a>

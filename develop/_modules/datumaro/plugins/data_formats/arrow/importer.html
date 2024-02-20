@@ -296,6 +296,8 @@
 
 
 <div class="viewcode-block" id="ArrowImporter"><a class="viewcode-back" href="../../../../../docs/reference/_autosummary/datumaro.plugins.data_formats.arrow.importer.html#datumaro.plugins.data_formats.arrow.ArrowImporter">[docs]</a><span class="k">class</span> <span class="nc">ArrowImporter</span><span class="p">(</span><span class="n">Importer</span><span class="p">):</span>
+    <span class="n">_FORMAT_EXT</span> <span class="o">=</span> <span class="s2">&quot;.arrow&quot;</span>
+
 <div class="viewcode-block" id="ArrowImporter.detect"><a class="viewcode-back" href="../../../../../docs/reference/_autosummary/datumaro.plugins.data_formats.arrow.importer.html#datumaro.plugins.data_formats.arrow.ArrowImporter.detect">[docs]</a>    <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">detect</span><span class="p">(</span>
         <span class="bp">cls</span><span class="p">,</span>
@@ -324,7 +326,7 @@
 
         <span class="k">return</span> <span class="bp">cls</span><span class="o">.</span><span class="n">_find_sources_recursive</span><span class="p">(</span>
             <span class="n">path</span><span class="o">=</span><span class="n">path</span><span class="p">,</span>
-            <span class="n">ext</span><span class="o">=</span><span class="s2">&quot;.arrow&quot;</span><span class="p">,</span>
+            <span class="n">ext</span><span class="o">=</span><span class="bp">cls</span><span class="o">.</span><span class="n">_FORMAT_EXT</span><span class="p">,</span>
             <span class="n">extractor_name</span><span class="o">=</span><span class="bp">cls</span><span class="o">.</span><span class="n">NAME</span><span class="p">,</span>
             <span class="n">file_filter</span><span class="o">=</span><span class="n">_filter</span><span class="p">,</span>
             <span class="n">max_depth</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
@@ -349,7 +351,11 @@
                 <span class="n">schema</span> <span class="o">=</span> <span class="n">reader</span><span class="o">.</span><span class="n">schema</span>
         <span class="n">DatumaroArrow</span><span class="o">.</span><span class="n">check_signature</span><span class="p">(</span><span class="n">schema</span><span class="o">.</span><span class="n">metadata</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="sa">b</span><span class="s2">&quot;signature&quot;</span><span class="p">,</span> <span class="sa">b</span><span class="s2">&quot;&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">decode</span><span class="p">())</span>
         <span class="n">DatumaroArrow</span><span class="o">.</span><span class="n">check_version</span><span class="p">(</span><span class="n">schema</span><span class="o">.</span><span class="n">metadata</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="sa">b</span><span class="s2">&quot;version&quot;</span><span class="p">,</span> <span class="sa">b</span><span class="s2">&quot;&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">decode</span><span class="p">())</span>
-        <span class="n">DatumaroArrow</span><span class="o">.</span><span class="n">check_schema</span><span class="p">(</span><span class="n">schema</span><span class="p">)</span></div>
+        <span class="n">DatumaroArrow</span><span class="o">.</span><span class="n">check_schema</span><span class="p">(</span><span class="n">schema</span><span class="p">)</span>
+
+<div class="viewcode-block" id="ArrowImporter.get_file_extensions"><a class="viewcode-back" href="../../../../../docs/reference/_autosummary/datumaro.plugins.data_formats.arrow.importer.html#datumaro.plugins.data_formats.arrow.ArrowImporter.get_file_extensions">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">get_file_extensions</span><span class="p">(</span><span class="bp">cls</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+        <span class="k">return</span> <span class="p">[</span><span class="bp">cls</span><span class="o">.</span><span class="n">_FORMAT_EXT</span><span class="p">]</span></div></div>
 </pre></div>
 
             </article>

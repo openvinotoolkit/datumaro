@@ -284,7 +284,7 @@
 <span class="kn">import</span> <span class="nn">errno</span>
 <span class="kn">import</span> <span class="nn">glob</span>
 <span class="kn">import</span> <span class="nn">os.path</span> <span class="k">as</span> <span class="nn">osp</span>
-<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Optional</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">List</span><span class="p">,</span> <span class="n">Optional</span>
 
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 
@@ -440,7 +440,11 @@
 
 <div class="viewcode-block" id="CommonSemanticSegmentationImporter.find_sources"><a class="viewcode-back" href="../../../../docs/reference/_autosummary/datumaro.plugins.data_formats.common_semantic_segmentation.html#datumaro.plugins.data_formats.common_semantic_segmentation.CommonSemanticSegmentationImporter.find_sources">[docs]</a>    <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">find_sources</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">path</span><span class="p">):</span>
-        <span class="k">return</span> <span class="p">[{</span><span class="s2">&quot;url&quot;</span><span class="p">:</span> <span class="n">path</span><span class="p">,</span> <span class="s2">&quot;format&quot;</span><span class="p">:</span> <span class="s2">&quot;common_semantic_segmentation&quot;</span><span class="p">}]</span></div></div>
+        <span class="k">return</span> <span class="p">[{</span><span class="s2">&quot;url&quot;</span><span class="p">:</span> <span class="n">path</span><span class="p">,</span> <span class="s2">&quot;format&quot;</span><span class="p">:</span> <span class="s2">&quot;common_semantic_segmentation&quot;</span><span class="p">}]</span></div>
+
+<div class="viewcode-block" id="CommonSemanticSegmentationImporter.get_file_extensions"><a class="viewcode-back" href="../../../../docs/reference/_autosummary/datumaro.plugins.data_formats.common_semantic_segmentation.html#datumaro.plugins.data_formats.common_semantic_segmentation.CommonSemanticSegmentationImporter.get_file_extensions">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">get_file_extensions</span><span class="p">(</span><span class="bp">cls</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+        <span class="k">return</span> <span class="p">[</span><span class="n">osp</span><span class="o">.</span><span class="n">splitext</span><span class="p">(</span><span class="n">DATASET_META_FILE</span><span class="p">)[</span><span class="mi">1</span><span class="p">]]</span></div></div>
 
 
 <div class="viewcode-block" id="CommonSemanticSegmentationWithSubsetDirsImporter"><a class="viewcode-back" href="../../../../docs/reference/_autosummary/datumaro.plugins.data_formats.common_semantic_segmentation.html#datumaro.plugins.data_formats.common_semantic_segmentation.CommonSemanticSegmentationWithSubsetDirsImporter">[docs]</a><span class="nd">@with_subset_dirs</span>

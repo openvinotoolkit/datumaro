@@ -286,7 +286,7 @@
 <span class="kn">import</span> <span class="nn">os</span>
 <span class="kn">import</span> <span class="nn">os.path</span> <span class="k">as</span> <span class="nn">osp</span>
 <span class="kn">import</span> <span class="nn">warnings</span>
-<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Optional</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">List</span><span class="p">,</span> <span class="n">Optional</span>
 
 <span class="kn">from</span> <span class="nn">datumaro.components.annotation</span> <span class="kn">import</span> <span class="n">AnnotationType</span><span class="p">,</span> <span class="n">Label</span><span class="p">,</span> <span class="n">LabelCategories</span>
 <span class="kn">from</span> <span class="nn">datumaro.components.dataset_base</span> <span class="kn">import</span> <span class="n">DatasetItem</span><span class="p">,</span> <span class="n">SubsetBase</span>
@@ -296,7 +296,7 @@
 <span class="kn">from</span> <span class="nn">datumaro.components.importer</span> <span class="kn">import</span> <span class="n">ImportContext</span><span class="p">,</span> <span class="n">Importer</span><span class="p">,</span> <span class="n">with_subset_dirs</span>
 <span class="kn">from</span> <span class="nn">datumaro.components.media</span> <span class="kn">import</span> <span class="n">Image</span>
 <span class="kn">from</span> <span class="nn">datumaro.util.definitions</span> <span class="kn">import</span> <span class="n">SUBSET_NAME_BLACKLIST</span>
-<span class="kn">from</span> <span class="nn">datumaro.util.image</span> <span class="kn">import</span> <span class="n">find_images</span>
+<span class="kn">from</span> <span class="nn">datumaro.util.image</span> <span class="kn">import</span> <span class="n">IMAGE_EXTENSIONS</span><span class="p">,</span> <span class="n">find_images</span>
 
 
 <div class="viewcode-block" id="ImagenetPath"><a class="viewcode-back" href="../../../../docs/reference/_autosummary/datumaro.plugins.data_formats.imagenet.html#datumaro.plugins.data_formats.imagenet.ImagenetPath">[docs]</a><span class="k">class</span> <span class="nc">ImagenetPath</span><span class="p">:</span>
@@ -405,7 +405,11 @@
         <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="n">find_images</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">recursive</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">max_depth</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">min_depth</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
             <span class="k">return</span> <span class="p">[{</span><span class="s2">&quot;url&quot;</span><span class="p">:</span> <span class="n">path</span><span class="p">,</span> <span class="s2">&quot;format&quot;</span><span class="p">:</span> <span class="n">ImagenetBase</span><span class="o">.</span><span class="n">NAME</span><span class="p">}]</span>
 
-        <span class="k">return</span> <span class="p">[]</span></div></div>
+        <span class="k">return</span> <span class="p">[]</span></div>
+
+<div class="viewcode-block" id="ImagenetImporter.get_file_extensions"><a class="viewcode-back" href="../../../../docs/reference/_autosummary/datumaro.plugins.data_formats.imagenet.html#datumaro.plugins.data_formats.imagenet.ImagenetImporter.get_file_extensions">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">get_file_extensions</span><span class="p">(</span><span class="bp">cls</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+        <span class="k">return</span> <span class="nb">list</span><span class="p">(</span><span class="n">IMAGE_EXTENSIONS</span><span class="p">)</span></div></div>
 
 
 <div class="viewcode-block" id="ImagenetWithSubsetDirsImporter"><a class="viewcode-back" href="../../../../docs/reference/_autosummary/datumaro.plugins.data_formats.imagenet.html#datumaro.plugins.data_formats.imagenet.ImagenetWithSubsetDirsImporter">[docs]</a><span class="nd">@with_subset_dirs</span>

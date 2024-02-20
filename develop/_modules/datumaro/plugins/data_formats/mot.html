@@ -506,15 +506,25 @@
 
 
 <div class="viewcode-block" id="MotSeqImporter"><a class="viewcode-back" href="../../../../docs/reference/_autosummary/datumaro.plugins.data_formats.mot.html#datumaro.plugins.data_formats.mot.MotSeqImporter">[docs]</a><span class="k">class</span> <span class="nc">MotSeqImporter</span><span class="p">(</span><span class="n">Importer</span><span class="p">):</span>
+    <span class="n">_ANNO_EXT</span> <span class="o">=</span> <span class="s2">&quot;.txt&quot;</span>
+
 <div class="viewcode-block" id="MotSeqImporter.detect"><a class="viewcode-back" href="../../../../docs/reference/_autosummary/datumaro.plugins.data_formats.mot.html#datumaro.plugins.data_formats.mot.MotSeqImporter.detect">[docs]</a>    <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">detect</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">context</span><span class="p">:</span> <span class="n">FormatDetectionContext</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="n">context</span><span class="o">.</span><span class="n">require_file</span><span class="p">(</span><span class="s2">&quot;gt/gt.txt&quot;</span><span class="p">)</span></div>
+        <span class="n">context</span><span class="o">.</span><span class="n">require_file</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;gt/gt</span><span class="si">{</span><span class="bp">cls</span><span class="o">.</span><span class="n">_ANNO_EXT</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="MotSeqImporter.find_sources"><a class="viewcode-back" href="../../../../docs/reference/_autosummary/datumaro.plugins.data_formats.mot.html#datumaro.plugins.data_formats.mot.MotSeqImporter.find_sources">[docs]</a>    <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">find_sources</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">path</span><span class="p">):</span>
         <span class="k">return</span> <span class="bp">cls</span><span class="o">.</span><span class="n">_find_sources_recursive</span><span class="p">(</span>
-            <span class="n">path</span><span class="p">,</span> <span class="s2">&quot;.txt&quot;</span><span class="p">,</span> <span class="s2">&quot;mot_seq&quot;</span><span class="p">,</span> <span class="n">dirname</span><span class="o">=</span><span class="s2">&quot;gt&quot;</span><span class="p">,</span> <span class="n">filename</span><span class="o">=</span><span class="n">osp</span><span class="o">.</span><span class="n">splitext</span><span class="p">(</span><span class="n">MotPath</span><span class="o">.</span><span class="n">GT_FILENAME</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
-        <span class="p">)</span></div></div>
+            <span class="n">path</span><span class="p">,</span>
+            <span class="bp">cls</span><span class="o">.</span><span class="n">_ANNO_EXT</span><span class="p">,</span>
+            <span class="s2">&quot;mot_seq&quot;</span><span class="p">,</span>
+            <span class="n">dirname</span><span class="o">=</span><span class="s2">&quot;gt&quot;</span><span class="p">,</span>
+            <span class="n">filename</span><span class="o">=</span><span class="n">osp</span><span class="o">.</span><span class="n">splitext</span><span class="p">(</span><span class="n">MotPath</span><span class="o">.</span><span class="n">GT_FILENAME</span><span class="p">)[</span><span class="mi">0</span><span class="p">],</span>
+        <span class="p">)</span></div>
+
+<div class="viewcode-block" id="MotSeqImporter.get_file_extensions"><a class="viewcode-back" href="../../../../docs/reference/_autosummary/datumaro.plugins.data_formats.mot.html#datumaro.plugins.data_formats.mot.MotSeqImporter.get_file_extensions">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">get_file_extensions</span><span class="p">(</span><span class="bp">cls</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+        <span class="k">return</span> <span class="p">[</span><span class="bp">cls</span><span class="o">.</span><span class="n">_ANNO_EXT</span><span class="p">]</span></div></div>
 
 
 <div class="viewcode-block" id="MotSeqGtExporter"><a class="viewcode-back" href="../../../../docs/reference/_autosummary/datumaro.plugins.data_formats.mot.html#datumaro.plugins.data_formats.mot.MotSeqGtExporter">[docs]</a><span class="k">class</span> <span class="nc">MotSeqGtExporter</span><span class="p">(</span><span class="n">Exporter</span><span class="p">):</span>

@@ -321,6 +321,10 @@
 
         <span class="k">return</span> <span class="n">sources</span></div>
 
+<div class="viewcode-block" id="RoboflowCocoImporter.get_file_extensions"><a class="viewcode-back" href="../../../../../docs/reference/_autosummary/datumaro.plugins.data_formats.roboflow.importer.html#datumaro.plugins.data_formats.roboflow.importer.RoboflowCocoImporter.get_file_extensions">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">get_file_extensions</span><span class="p">(</span><span class="bp">cls</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+        <span class="k">return</span> <span class="p">[</span><span class="n">osp</span><span class="o">.</span><span class="n">splitext</span><span class="p">(</span><span class="bp">cls</span><span class="o">.</span><span class="n">ANN_FILE_NAME</span><span class="p">)[</span><span class="mi">1</span><span class="p">]]</span></div>
+
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">can_stream</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
         <span class="k">return</span> <span class="kc">True</span>
@@ -409,7 +413,11 @@
             <span class="k">for</span> <span class="n">subset</span><span class="p">,</span> <span class="n">url</span> <span class="ow">in</span> <span class="n">subsets</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
         <span class="p">]</span>
 
-        <span class="k">return</span> <span class="n">sources</span></div></div>
+        <span class="k">return</span> <span class="n">sources</span></div>
+
+<div class="viewcode-block" id="RoboflowVocImporter.get_file_extensions"><a class="viewcode-back" href="../../../../../docs/reference/_autosummary/datumaro.plugins.data_formats.roboflow.importer.html#datumaro.plugins.data_formats.roboflow.importer.RoboflowVocImporter.get_file_extensions">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">get_file_extensions</span><span class="p">(</span><span class="bp">cls</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+        <span class="k">return</span> <span class="p">[</span><span class="bp">cls</span><span class="o">.</span><span class="n">FORMAT_EXT</span><span class="p">]</span></div></div>
 
 
 <div class="viewcode-block" id="RoboflowYoloImporter"><a class="viewcode-back" href="../../../../../docs/reference/_autosummary/datumaro.plugins.data_formats.roboflow.importer.html#datumaro.plugins.data_formats.roboflow.importer.RoboflowYoloImporter">[docs]</a><span class="k">class</span> <span class="nc">RoboflowYoloImporter</span><span class="p">(</span><span class="n">RoboflowVocImporter</span><span class="p">):</span>

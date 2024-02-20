@@ -285,7 +285,7 @@
 <span class="kn">import</span> <span class="nn">os</span>
 <span class="kn">import</span> <span class="nn">os.path</span> <span class="k">as</span> <span class="nn">osp</span>
 <span class="kn">from</span> <span class="nn">enum</span> <span class="kn">import</span> <span class="n">Enum</span>
-<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Optional</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">List</span><span class="p">,</span> <span class="n">Optional</span>
 <span class="kn">from</span> <span class="nn">zipfile</span> <span class="kn">import</span> <span class="n">ZIP_BZIP2</span><span class="p">,</span> <span class="n">ZIP_DEFLATED</span><span class="p">,</span> <span class="n">ZIP_LZMA</span><span class="p">,</span> <span class="n">ZIP_STORED</span><span class="p">,</span> <span class="n">ZipFile</span>
 
 <span class="kn">from</span> <span class="nn">datumaro.components.dataset_base</span> <span class="kn">import</span> <span class="n">DatasetItem</span><span class="p">,</span> <span class="n">SubsetBase</span>
@@ -330,9 +330,15 @@
 
 
 <div class="viewcode-block" id="ImageZipImporter"><a class="viewcode-back" href="../../../../docs/reference/_autosummary/datumaro.plugins.data_formats.image_zip.html#datumaro.plugins.data_formats.image_zip.ImageZipImporter">[docs]</a><span class="k">class</span> <span class="nc">ImageZipImporter</span><span class="p">(</span><span class="n">Importer</span><span class="p">):</span>
+    <span class="n">_FORMAT_EXT</span> <span class="o">=</span> <span class="s2">&quot;.zip&quot;</span>
+
 <div class="viewcode-block" id="ImageZipImporter.find_sources"><a class="viewcode-back" href="../../../../docs/reference/_autosummary/datumaro.plugins.data_formats.image_zip.html#datumaro.plugins.data_formats.image_zip.ImageZipImporter.find_sources">[docs]</a>    <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">find_sources</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">path</span><span class="p">):</span>
-        <span class="k">return</span> <span class="bp">cls</span><span class="o">.</span><span class="n">_find_sources_recursive</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="s2">&quot;.zip&quot;</span><span class="p">,</span> <span class="s2">&quot;image_zip&quot;</span><span class="p">)</span></div></div>
+        <span class="k">return</span> <span class="bp">cls</span><span class="o">.</span><span class="n">_find_sources_recursive</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="bp">cls</span><span class="o">.</span><span class="n">_FORMAT_EXT</span><span class="p">,</span> <span class="s2">&quot;image_zip&quot;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="ImageZipImporter.get_file_extensions"><a class="viewcode-back" href="../../../../docs/reference/_autosummary/datumaro.plugins.data_formats.image_zip.html#datumaro.plugins.data_formats.image_zip.ImageZipImporter.get_file_extensions">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">get_file_extensions</span><span class="p">(</span><span class="bp">cls</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+        <span class="k">return</span> <span class="p">[</span><span class="bp">cls</span><span class="o">.</span><span class="n">_FORMAT_EXT</span><span class="p">]</span></div></div>
 
 
 <div class="viewcode-block" id="ImageZipExporter"><a class="viewcode-back" href="../../../../docs/reference/_autosummary/datumaro.plugins.data_formats.image_zip.html#datumaro.plugins.data_formats.image_zip.ImageZipExporter">[docs]</a><span class="k">class</span> <span class="nc">ImageZipExporter</span><span class="p">(</span><span class="n">Exporter</span><span class="p">):</span>

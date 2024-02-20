@@ -296,9 +296,11 @@
 
 
 <span class="k">class</span> <span class="nc">_YoloStrictImporter</span><span class="p">(</span><span class="n">Importer</span><span class="p">):</span>
+    <span class="n">_FORMAT_EXT</span> <span class="o">=</span> <span class="s2">&quot;.data&quot;</span>
+
     <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">detect</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">context</span><span class="p">:</span> <span class="n">FormatDetectionContext</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="n">context</span><span class="o">.</span><span class="n">require_file</span><span class="p">(</span><span class="s2">&quot;obj.data&quot;</span><span class="p">)</span>
+        <span class="n">context</span><span class="o">.</span><span class="n">require_file</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;obj</span><span class="si">{</span><span class="bp">cls</span><span class="o">.</span><span class="n">_FORMAT_EXT</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 
     <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">find_sources</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">path</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]:</span>
@@ -318,6 +320,10 @@
             <span class="p">]</span>
 
         <span class="k">return</span> <span class="nb">sum</span><span class="p">([</span><span class="n">_extract_subset_wise_sources</span><span class="p">(</span><span class="n">source</span><span class="p">)</span> <span class="k">for</span> <span class="n">source</span> <span class="ow">in</span> <span class="n">sources</span><span class="p">],</span> <span class="p">[])</span>
+
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">get_file_extensions</span><span class="p">(</span><span class="bp">cls</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+        <span class="k">return</span> <span class="p">[</span><span class="bp">cls</span><span class="o">.</span><span class="n">_FORMAT_EXT</span><span class="p">]</span>
 
 
 <span class="k">class</span> <span class="nc">_YoloLooseImporter</span><span class="p">(</span><span class="n">Importer</span><span class="p">):</span>
@@ -434,6 +440,10 @@
     <span class="k">def</span> <span class="nf">can_stream</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
         <span class="k">return</span> <span class="kc">True</span>
 
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">get_file_extensions</span><span class="p">(</span><span class="bp">cls</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+        <span class="k">return</span> <span class="p">[</span><span class="s2">&quot;.txt&quot;</span><span class="p">]</span>
+
 
 <span class="k">class</span> <span class="nc">_YoloUltralyticsImporter</span><span class="p">(</span><span class="n">_YoloLooseImporter</span><span class="p">):</span>
     <span class="n">META_FILE</span> <span class="o">=</span> <span class="n">YoloUltralyticsPath</span><span class="o">.</span><span class="n">META_FILE</span>
@@ -474,7 +484,17 @@
         <span class="k">return</span> <span class="p">[]</span></div>
 
 <div class="viewcode-block" id="YoloImporter.get_extractor_merger"><a class="viewcode-back" href="../../../../../docs/reference/_autosummary/datumaro.plugins.data_formats.yolo.importer.html#datumaro.plugins.data_formats.yolo.importer.YoloImporter.get_extractor_merger">[docs]</a>    <span class="k">def</span> <span class="nf">get_extractor_merger</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Type</span><span class="p">[</span><span class="n">ExtractorMerger</span><span class="p">]]:</span>
-        <span class="k">return</span> <span class="n">ExtractorMerger</span></div></div>
+        <span class="k">return</span> <span class="n">ExtractorMerger</span></div>
+
+<div class="viewcode-block" id="YoloImporter.get_file_extensions"><a class="viewcode-back" href="../../../../../docs/reference/_autosummary/datumaro.plugins.data_formats.yolo.importer.html#datumaro.plugins.data_formats.yolo.importer.YoloImporter.get_file_extensions">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">get_file_extensions</span><span class="p">(</span><span class="bp">cls</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+        <span class="k">return</span> <span class="nb">list</span><span class="p">(</span>
+            <span class="p">{</span>
+                <span class="n">ext</span>
+                <span class="k">for</span> <span class="n">importer</span> <span class="ow">in</span> <span class="bp">cls</span><span class="o">.</span><span class="n">SUB_IMPORTERS</span><span class="o">.</span><span class="n">values</span><span class="p">()</span>
+                <span class="k">for</span> <span class="n">ext</span> <span class="ow">in</span> <span class="n">importer</span><span class="o">.</span><span class="n">get_file_extensions</span><span class="p">()</span>
+            <span class="p">}</span>
+        <span class="p">)</span></div></div>
 </pre></div>
 
             </article>

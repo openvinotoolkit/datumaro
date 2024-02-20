@@ -473,6 +473,7 @@
 <li class="toctree-l4"><a class="reference internal" href="datumaro.components.operations.html">datumaro.components.operations</a></li>
 <li class="toctree-l4"><a class="reference internal" href="datumaro.components.progress_reporting.html">datumaro.components.progress_reporting</a></li>
 <li class="toctree-l4"><a class="reference internal" href="datumaro.components.project.html">datumaro.components.project</a></li>
+<li class="toctree-l4"><a class="reference internal" href="datumaro.components.registry.html">datumaro.components.registry</a></li>
 <li class="toctree-l4"><a class="reference internal" href="datumaro.components.shift_analyzer.html">datumaro.components.shift_analyzer</a></li>
 <li class="toctree-l4"><a class="reference internal" href="datumaro.components.transformer.html">datumaro.components.transformer</a></li>
 <li class="toctree-l4"><a class="reference internal" href="datumaro.components.validator.html">datumaro.components.validator</a></li>
@@ -593,95 +594,45 @@
 <tr class="row-odd"><td><p><a class="reference internal" href="#datumaro.components.environment.Environment" title="datumaro.components.environment.Environment"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Environment</span></code></a>([use_lazy_import])</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#datumaro.components.environment.PluginRegistry" title="datumaro.components.environment.PluginRegistry"><code class="xref py py-obj docutils literal notranslate"><span class="pre">PluginRegistry</span></code></a>([filter])</p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#datumaro.components.environment.Registry" title="datumaro.components.environment.Registry"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Registry</span></code></a>()</p></td>
-<td><p></p></td>
-</tr>
 </tbody>
 </table>
-<dl class="py class">
-<dt class="sig sig-object py" id="datumaro.components.environment.Registry">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">datumaro.components.environment.</span></span><span class="sig-name descname"><span class="pre">Registry</span></span><a class="reference internal" href="../../../_modules/datumaro/components/environment.html#Registry"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.components.environment.Registry" title="Permalink to this definition">#</a></dt>
-<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Generic" title="(in Python v3.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Generic</span></code></a>[<code class="xref py py-obj docutils literal notranslate"><span class="pre">T</span></code>]</p>
-<dl class="py method">
-<dt class="sig sig-object py" id="datumaro.components.environment.Registry.register">
-<span class="sig-name descname"><span class="pre">register</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">value</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">T</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">T</span></span></span><a class="reference internal" href="../../../_modules/datumaro/components/environment.html#Registry.register"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.components.environment.Registry.register" title="Permalink to this definition">#</a></dt>
-<dd></dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="datumaro.components.environment.Registry.unregister">
-<span class="sig-name descname"><span class="pre">unregister</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><span class="pre">str</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Optional" title="(in Python v3.12)"><span class="pre">Optional</span></a><span class="p"><span class="pre">[</span></span><span class="pre">T</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../../_modules/datumaro/components/environment.html#Registry.unregister"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.components.environment.Registry.unregister" title="Permalink to this definition">#</a></dt>
-<dd></dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="datumaro.components.environment.Registry.get">
-<span class="sig-name descname"><span class="pre">get</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">key</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><span class="pre">str</span></a></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/datumaro/components/environment.html#Registry.get"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.components.environment.Registry.get" title="Permalink to this definition">#</a></dt>
-<dd><p>Returns a class or a factory function</p>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="datumaro.components.environment.Registry.items">
-<span class="sig-name descname"><span class="pre">items</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Generator" title="(in Python v3.12)"><span class="pre">Generator</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Tuple" title="(in Python v3.12)"><span class="pre">Tuple</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">T</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.12)"><span class="pre">None</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.12)"><span class="pre">None</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../../_modules/datumaro/components/environment.html#Registry.items"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.components.environment.Registry.items" title="Permalink to this definition">#</a></dt>
-<dd></dd></dl>
-
-</dd></dl>
-
-<dl class="py class">
-<dt class="sig sig-object py" id="datumaro.components.environment.PluginRegistry">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">datumaro.components.environment.</span></span><span class="sig-name descname"><span class="pre">PluginRegistry</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filter</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Optional" title="(in Python v3.12)"><span class="pre">Optional</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Callable" title="(in Python v3.12)"><span class="pre">Callable</span></a><span class="p"><span class="pre">[</span></span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Type" title="(in Python v3.12)"><span class="pre">Type</span></a><span class="p"><span class="pre">[</span></span><a class="reference internal" href="datumaro.components.cli_plugin.html#datumaro.components.cli_plugin.CliPlugin" title="datumaro.components.cli_plugin.CliPlugin"><span class="pre">CliPlugin</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.12)"><span class="pre">bool</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/datumaro/components/environment.html#PluginRegistry"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.components.environment.PluginRegistry" title="Permalink to this definition">#</a></dt>
-<dd><p>Bases: <a class="reference internal" href="#datumaro.components.environment.Registry" title="datumaro.components.environment.Registry"><code class="xref py py-class docutils literal notranslate"><span class="pre">Registry</span></code></a>[<a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Type" title="(in Python v3.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Type</span></code></a>[<a class="reference internal" href="datumaro.components.cli_plugin.html#datumaro.components.cli_plugin.CliPlugin" title="datumaro.components.cli_plugin.CliPlugin"><code class="xref py py-class docutils literal notranslate"><span class="pre">CliPlugin</span></code></a>]]</p>
-<dl class="py method">
-<dt class="sig sig-object py" id="datumaro.components.environment.PluginRegistry.get">
-<span class="sig-name descname"><span class="pre">get</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">key</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><span class="pre">str</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Type" title="(in Python v3.12)"><span class="pre">Type</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Union" title="(in Python v3.12)"><span class="pre">Union</span></a><span class="p"><span class="pre">[</span></span><a class="reference internal" href="datumaro.components.transformer.html#datumaro.components.transformer.Transform" title="datumaro.components.transformer.Transform"><span class="pre">Transform</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference internal" href="datumaro.components.exporter.html#datumaro.components.exporter.Exporter" title="datumaro.components.exporter.Exporter"><span class="pre">Exporter</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference internal" href="datumaro.components.generator.html#datumaro.components.generator.DatasetGenerator" title="datumaro.components.generator.DatasetGenerator"><span class="pre">DatasetGenerator</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference internal" href="datumaro.components.importer.html#datumaro.components.importer.Importer" title="datumaro.components.importer.Importer"><span class="pre">Importer</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference internal" href="datumaro.components.launcher.html#datumaro.components.launcher.Launcher" title="datumaro.components.launcher.Launcher"><span class="pre">Launcher</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference internal" href="datumaro.components.validator.html#datumaro.components.validator.Validator" title="datumaro.components.validator.Validator"><span class="pre">Validator</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference internal" href="datumaro.components.dataset_base.html#datumaro.components.dataset_base.DatasetBase" title="datumaro.components.dataset_base.DatasetBase"><span class="pre">DatasetBase</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../../_modules/datumaro/components/environment.html#PluginRegistry.get"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.components.environment.PluginRegistry.get" title="Permalink to this definition">#</a></dt>
-<dd><p>Returns a class or a factory function</p>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="datumaro.components.environment.PluginRegistry.batch_register">
-<span class="sig-name descname"><span class="pre">batch_register</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">values</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Iterable" title="(in Python v3.12)"><span class="pre">Iterable</span></a><span class="p"><span class="pre">[</span></span><a class="reference internal" href="datumaro.components.cli_plugin.html#datumaro.components.cli_plugin.CliPlugin" title="datumaro.components.cli_plugin.CliPlugin"><span class="pre">CliPlugin</span></a><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/datumaro/components/environment.html#PluginRegistry.batch_register"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.components.environment.PluginRegistry.batch_register" title="Permalink to this definition">#</a></dt>
-<dd></dd></dl>
-
-</dd></dl>
-
 <dl class="py class">
 <dt class="sig sig-object py" id="datumaro.components.environment.Environment">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">datumaro.components.environment.</span></span><span class="sig-name descname"><span class="pre">Environment</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">use_lazy_import</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.12)"><span class="pre">bool</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/datumaro/components/environment.html#Environment"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.components.environment.Environment" title="Permalink to this definition">#</a></dt>
 <dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
 <dl class="py property">
 <dt class="sig sig-object py" id="datumaro.components.environment.Environment.extractors">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">extractors</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="#datumaro.components.environment.PluginRegistry" title="datumaro.components.environment.PluginRegistry"><span class="pre">PluginRegistry</span></a></em><a class="headerlink" href="#datumaro.components.environment.Environment.extractors" title="Permalink to this definition">#</a></dt>
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">extractors</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="datumaro.components.registry.html#datumaro.components.registry.DatasetBaseRegistry" title="datumaro.components.registry.DatasetBaseRegistry"><span class="pre">DatasetBaseRegistry</span></a></em><a class="headerlink" href="#datumaro.components.environment.Environment.extractors" title="Permalink to this definition">#</a></dt>
 <dd></dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="datumaro.components.environment.Environment.importers">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">importers</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="#datumaro.components.environment.PluginRegistry" title="datumaro.components.environment.PluginRegistry"><span class="pre">PluginRegistry</span></a></em><a class="headerlink" href="#datumaro.components.environment.Environment.importers" title="Permalink to this definition">#</a></dt>
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">importers</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="datumaro.components.registry.html#datumaro.components.registry.ImporterRegistry" title="datumaro.components.registry.ImporterRegistry"><span class="pre">ImporterRegistry</span></a></em><a class="headerlink" href="#datumaro.components.environment.Environment.importers" title="Permalink to this definition">#</a></dt>
 <dd></dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="datumaro.components.environment.Environment.launchers">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">launchers</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="#datumaro.components.environment.PluginRegistry" title="datumaro.components.environment.PluginRegistry"><span class="pre">PluginRegistry</span></a></em><a class="headerlink" href="#datumaro.components.environment.Environment.launchers" title="Permalink to this definition">#</a></dt>
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">launchers</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="datumaro.components.registry.html#datumaro.components.registry.LauncherRegistry" title="datumaro.components.registry.LauncherRegistry"><span class="pre">LauncherRegistry</span></a></em><a class="headerlink" href="#datumaro.components.environment.Environment.launchers" title="Permalink to this definition">#</a></dt>
 <dd></dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="datumaro.components.environment.Environment.exporters">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">exporters</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="#datumaro.components.environment.PluginRegistry" title="datumaro.components.environment.PluginRegistry"><span class="pre">PluginRegistry</span></a></em><a class="headerlink" href="#datumaro.components.environment.Environment.exporters" title="Permalink to this definition">#</a></dt>
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">exporters</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="datumaro.components.registry.html#datumaro.components.registry.ExporterRegistry" title="datumaro.components.registry.ExporterRegistry"><span class="pre">ExporterRegistry</span></a></em><a class="headerlink" href="#datumaro.components.environment.Environment.exporters" title="Permalink to this definition">#</a></dt>
 <dd></dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="datumaro.components.environment.Environment.generators">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">generators</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="#datumaro.components.environment.PluginRegistry" title="datumaro.components.environment.PluginRegistry"><span class="pre">PluginRegistry</span></a></em><a class="headerlink" href="#datumaro.components.environment.Environment.generators" title="Permalink to this definition">#</a></dt>
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">generators</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="datumaro.components.registry.html#datumaro.components.registry.GeneratorRegistry" title="datumaro.components.registry.GeneratorRegistry"><span class="pre">GeneratorRegistry</span></a></em><a class="headerlink" href="#datumaro.components.environment.Environment.generators" title="Permalink to this definition">#</a></dt>
 <dd></dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="datumaro.components.environment.Environment.transforms">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">transforms</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="#datumaro.components.environment.PluginRegistry" title="datumaro.components.environment.PluginRegistry"><span class="pre">PluginRegistry</span></a></em><a class="headerlink" href="#datumaro.components.environment.Environment.transforms" title="Permalink to this definition">#</a></dt>
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">transforms</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="datumaro.components.registry.html#datumaro.components.registry.TransformRegistry" title="datumaro.components.registry.TransformRegistry"><span class="pre">TransformRegistry</span></a></em><a class="headerlink" href="#datumaro.components.environment.Environment.transforms" title="Permalink to this definition">#</a></dt>
 <dd></dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="datumaro.components.environment.Environment.validators">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">validators</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="#datumaro.components.environment.PluginRegistry" title="datumaro.components.environment.PluginRegistry"><span class="pre">PluginRegistry</span></a></em><a class="headerlink" href="#datumaro.components.environment.Environment.validators" title="Permalink to this definition">#</a></dt>
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">validators</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="datumaro.components.registry.html#datumaro.components.registry.ValidatorRegistry" title="datumaro.components.registry.ValidatorRegistry"><span class="pre">ValidatorRegistry</span></a></em><a class="headerlink" href="#datumaro.components.environment.Environment.validators" title="Permalink to this definition">#</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
@@ -781,82 +732,6 @@
 </div>
 <nav id="bd-toc-nav" class="page-toc">
     <ul class="visible nav section-nav flex-column">
- <li class="toc-h2 nav-item toc-entry">
-  <a class="reference internal nav-link" href="#datumaro.components.environment.Registry">
-   <code class="docutils literal notranslate">
-    <span class="pre">
-     Registry
-    </span>
-   </code>
-  </a>
-  <ul class="nav section-nav flex-column">
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.components.environment.Registry.register">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       Registry.register()
-      </span>
-     </code>
-    </a>
-   </li>
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.components.environment.Registry.unregister">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       Registry.unregister()
-      </span>
-     </code>
-    </a>
-   </li>
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.components.environment.Registry.get">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       Registry.get()
-      </span>
-     </code>
-    </a>
-   </li>
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.components.environment.Registry.items">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       Registry.items()
-      </span>
-     </code>
-    </a>
-   </li>
-  </ul>
- </li>
- <li class="toc-h2 nav-item toc-entry">
-  <a class="reference internal nav-link" href="#datumaro.components.environment.PluginRegistry">
-   <code class="docutils literal notranslate">
-    <span class="pre">
-     PluginRegistry
-    </span>
-   </code>
-  </a>
-  <ul class="nav section-nav flex-column">
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.components.environment.PluginRegistry.get">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       PluginRegistry.get()
-      </span>
-     </code>
-    </a>
-   </li>
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.components.environment.PluginRegistry.batch_register">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       PluginRegistry.batch_register()
-      </span>
-     </code>
-    </a>
-   </li>
-  </ul>
- </li>
  <li class="toc-h2 nav-item toc-entry">
   <a class="reference internal nav-link" href="#datumaro.components.environment.Environment">
    <code class="docutils literal notranslate">

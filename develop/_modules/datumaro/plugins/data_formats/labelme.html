@@ -287,7 +287,7 @@
 <span class="kn">import</span> <span class="nn">os.path</span> <span class="k">as</span> <span class="nn">osp</span>
 <span class="kn">from</span> <span class="nn">collections</span> <span class="kn">import</span> <span class="n">defaultdict</span>
 <span class="kn">from</span> <span class="nn">glob</span> <span class="kn">import</span> <span class="n">glob</span><span class="p">,</span> <span class="n">iglob</span>
-<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Optional</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">List</span><span class="p">,</span> <span class="n">Optional</span>
 
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 <span class="kn">from</span> <span class="nn">defusedxml</span> <span class="kn">import</span> <span class="n">ElementTree</span>
@@ -574,9 +574,11 @@
 
 
 <div class="viewcode-block" id="LabelMeImporter"><a class="viewcode-back" href="../../../../docs/reference/_autosummary/datumaro.plugins.data_formats.labelme.html#datumaro.plugins.data_formats.labelme.LabelMeImporter">[docs]</a><span class="k">class</span> <span class="nc">LabelMeImporter</span><span class="p">(</span><span class="n">Importer</span><span class="p">):</span>
+    <span class="n">_ANNO_EXT</span> <span class="o">=</span> <span class="s2">&quot;.xml&quot;</span>
+
 <div class="viewcode-block" id="LabelMeImporter.detect"><a class="viewcode-back" href="../../../../docs/reference/_autosummary/datumaro.plugins.data_formats.labelme.html#datumaro.plugins.data_formats.labelme.LabelMeImporter.detect">[docs]</a>    <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">detect</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">context</span><span class="p">:</span> <span class="n">FormatDetectionContext</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="n">annot_paths</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">require_files</span><span class="p">(</span><span class="s2">&quot;**/*.xml&quot;</span><span class="p">)</span>
+        <span class="n">annot_paths</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">require_files</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;**/*</span><span class="si">{</span><span class="bp">cls</span><span class="o">.</span><span class="n">_ANNO_EXT</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 
         <span class="k">for</span> <span class="n">annot_path</span> <span class="ow">in</span> <span class="n">annot_paths</span><span class="p">:</span>
             <span class="k">with</span> <span class="n">context</span><span class="o">.</span><span class="n">probe_text_file</span><span class="p">(</span>
@@ -629,7 +631,11 @@
             <span class="p">)</span>
         <span class="k">except</span> <span class="ne">StopIteration</span><span class="p">:</span>
             <span class="k">pass</span>
-        <span class="k">return</span> <span class="n">subsets</span></div></div>
+        <span class="k">return</span> <span class="n">subsets</span></div>
+
+<div class="viewcode-block" id="LabelMeImporter.get_file_extensions"><a class="viewcode-back" href="../../../../docs/reference/_autosummary/datumaro.plugins.data_formats.labelme.html#datumaro.plugins.data_formats.labelme.LabelMeImporter.get_file_extensions">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">get_file_extensions</span><span class="p">(</span><span class="bp">cls</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+        <span class="k">return</span> <span class="p">[</span><span class="bp">cls</span><span class="o">.</span><span class="n">_ANNO_EXT</span><span class="p">]</span></div></div>
 
 
 <div class="viewcode-block" id="LabelMeExporter"><a class="viewcode-back" href="../../../../docs/reference/_autosummary/datumaro.plugins.data_formats.labelme.html#datumaro.plugins.data_formats.labelme.LabelMeExporter">[docs]</a><span class="k">class</span> <span class="nc">LabelMeExporter</span><span class="p">(</span><span class="n">Exporter</span><span class="p">):</span>

@@ -283,6 +283,7 @@
 <span class="kn">import</span> <span class="nn">glob</span>
 <span class="kn">import</span> <span class="nn">logging</span> <span class="k">as</span> <span class="nn">log</span>
 <span class="kn">import</span> <span class="nn">os.path</span> <span class="k">as</span> <span class="nn">osp</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">List</span>
 
 <span class="kn">from</span> <span class="nn">datumaro.components.dataset_base</span> <span class="kn">import</span> <span class="n">DEFAULT_SUBSET_NAME</span>
 <span class="kn">from</span> <span class="nn">datumaro.components.errors</span> <span class="kn">import</span> <span class="n">DatasetNotFoundError</span>
@@ -390,7 +391,11 @@
                 <span class="n">subset</span> <span class="o">=</span> <span class="n">osp</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">osp</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">osp</span><span class="o">.</span><span class="n">relpath</span><span class="p">(</span><span class="n">ann_path</span><span class="p">,</span> <span class="n">path</span><span class="p">)))</span>
                 <span class="n">subsets</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="n">subset</span><span class="p">,</span> <span class="p">{})[</span><span class="n">task</span><span class="p">]</span> <span class="o">=</span> <span class="n">osp</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">subset</span><span class="p">)</span>
 
-        <span class="k">return</span> <span class="n">subsets</span></div></div>
+        <span class="k">return</span> <span class="n">subsets</span></div>
+
+<div class="viewcode-block" id="MapillaryVistasImporter.get_file_extensions"><a class="viewcode-back" href="../../../../../docs/reference/_autosummary/datumaro.plugins.data_formats.mapillary_vistas.importer.html#datumaro.plugins.data_formats.mapillary_vistas.importer.MapillaryVistasImporter.get_file_extensions">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">get_file_extensions</span><span class="p">(</span><span class="bp">cls</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+        <span class="k">return</span> <span class="p">[</span><span class="s2">&quot;.jpg&quot;</span><span class="p">,</span> <span class="s2">&quot;.png&quot;</span><span class="p">,</span> <span class="s2">&quot;.json&quot;</span><span class="p">]</span></div></div>
 
 
 <div class="viewcode-block" id="MapillaryVistasInstancesImporter"><a class="viewcode-back" href="../../../../../docs/reference/_autosummary/datumaro.plugins.data_formats.mapillary_vistas.importer.html#datumaro.plugins.data_formats.mapillary_vistas.importer.MapillaryVistasInstancesImporter">[docs]</a><span class="k">class</span> <span class="nc">MapillaryVistasInstancesImporter</span><span class="p">(</span><span class="n">MapillaryVistasImporter</span><span class="p">):</span>

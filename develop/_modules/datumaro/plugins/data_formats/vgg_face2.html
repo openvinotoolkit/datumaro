@@ -285,7 +285,7 @@
 <span class="kn">import</span> <span class="nn">errno</span>
 <span class="kn">import</span> <span class="nn">os</span>
 <span class="kn">import</span> <span class="nn">os.path</span> <span class="k">as</span> <span class="nn">osp</span>
-<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Optional</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">List</span><span class="p">,</span> <span class="n">Optional</span>
 
 <span class="kn">from</span> <span class="nn">datumaro.components.annotation</span> <span class="kn">import</span> <span class="n">AnnotationType</span><span class="p">,</span> <span class="n">Bbox</span><span class="p">,</span> <span class="n">Label</span><span class="p">,</span> <span class="n">LabelCategories</span><span class="p">,</span> <span class="n">Points</span>
 <span class="kn">from</span> <span class="nn">datumaro.components.dataset_base</span> <span class="kn">import</span> <span class="n">DatasetBase</span><span class="p">,</span> <span class="n">DatasetItem</span>
@@ -477,12 +477,14 @@
 
 
 <div class="viewcode-block" id="VggFace2Importer"><a class="viewcode-back" href="../../../../docs/reference/_autosummary/datumaro.plugins.data_formats.vgg_face2.html#datumaro.plugins.data_formats.vgg_face2.VggFace2Importer">[docs]</a><span class="k">class</span> <span class="nc">VggFace2Importer</span><span class="p">(</span><span class="n">Importer</span><span class="p">):</span>
+    <span class="n">_ANNO_EXT</span> <span class="o">=</span> <span class="s2">&quot;.csv&quot;</span>
+
 <div class="viewcode-block" id="VggFace2Importer.detect"><a class="viewcode-back" href="../../../../docs/reference/_autosummary/datumaro.plugins.data_formats.vgg_face2.html#datumaro.plugins.data_formats.vgg_face2.VggFace2Importer.detect">[docs]</a>    <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">detect</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">context</span><span class="p">:</span> <span class="n">FormatDetectionContext</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="k">with</span> <span class="n">context</span><span class="o">.</span><span class="n">require_any</span><span class="p">():</span>
             <span class="k">for</span> <span class="n">prefix</span> <span class="ow">in</span> <span class="p">(</span><span class="n">VggFace2Path</span><span class="o">.</span><span class="n">BBOXES_FILE</span><span class="p">,</span> <span class="n">VggFace2Path</span><span class="o">.</span><span class="n">LANDMARKS_FILE</span><span class="p">):</span>
                 <span class="k">with</span> <span class="n">context</span><span class="o">.</span><span class="n">alternative</span><span class="p">():</span>
-                    <span class="n">context</span><span class="o">.</span><span class="n">require_file</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">VggFace2Path</span><span class="o">.</span><span class="n">ANNOTATION_DIR</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="n">prefix</span><span class="si">}</span><span class="s2">*.csv&quot;</span><span class="p">)</span></div>
+                    <span class="n">context</span><span class="o">.</span><span class="n">require_file</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">VggFace2Path</span><span class="o">.</span><span class="n">ANNOTATION_DIR</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="n">prefix</span><span class="si">}</span><span class="s2">*</span><span class="si">{</span><span class="bp">cls</span><span class="o">.</span><span class="n">_ANNO_EXT</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="VggFace2Importer.find_sources"><a class="viewcode-back" href="../../../../docs/reference/_autosummary/datumaro.plugins.data_formats.vgg_face2.html#datumaro.plugins.data_formats.vgg_face2.VggFace2Importer.find_sources">[docs]</a>    <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">find_sources</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">path</span><span class="p">):</span>
@@ -506,7 +508,11 @@
                         <span class="s2">&quot;format&quot;</span><span class="p">:</span> <span class="n">VggFace2Base</span><span class="o">.</span><span class="n">NAME</span><span class="p">,</span>
                     <span class="p">}</span>
                 <span class="p">]</span>
-        <span class="k">return</span> <span class="p">[]</span></div></div>
+        <span class="k">return</span> <span class="p">[]</span></div>
+
+<div class="viewcode-block" id="VggFace2Importer.get_file_extensions"><a class="viewcode-back" href="../../../../docs/reference/_autosummary/datumaro.plugins.data_formats.vgg_face2.html#datumaro.plugins.data_formats.vgg_face2.VggFace2Importer.get_file_extensions">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">get_file_extensions</span><span class="p">(</span><span class="bp">cls</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+        <span class="k">return</span> <span class="p">[</span><span class="bp">cls</span><span class="o">.</span><span class="n">_ANNO_EXT</span><span class="p">]</span></div></div>
 
 
 <div class="viewcode-block" id="VggFace2Exporter"><a class="viewcode-back" href="../../../../docs/reference/_autosummary/datumaro.plugins.data_formats.vgg_face2.html#datumaro.plugins.data_formats.vgg_face2.VggFace2Exporter">[docs]</a><span class="k">class</span> <span class="nc">VggFace2Exporter</span><span class="p">(</span><span class="n">Exporter</span><span class="p">):</span>

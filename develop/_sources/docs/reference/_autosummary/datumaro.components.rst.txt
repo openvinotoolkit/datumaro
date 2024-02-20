@@ -57,6 +57,7 @@ datumaro.components
    datumaro.components.operations
    datumaro.components.progress_reporting
    datumaro.components.project
+   datumaro.components.registry
    datumaro.components.shift_analyzer
    datumaro.components.transformer
    datumaro.components.validator

@@ -286,7 +286,7 @@
 <span class="kn">import</span> <span class="nn">logging</span> <span class="k">as</span> <span class="nn">log</span>
 <span class="kn">import</span> <span class="nn">os</span>
 <span class="kn">import</span> <span class="nn">os.path</span> <span class="k">as</span> <span class="nn">osp</span>
-<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Optional</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">List</span><span class="p">,</span> <span class="n">Optional</span>
 
 <span class="kn">from</span> <span class="nn">datumaro.components.annotation</span> <span class="kn">import</span> <span class="n">AnnotationType</span><span class="p">,</span> <span class="n">Label</span><span class="p">,</span> <span class="n">LabelCategories</span>
 <span class="kn">from</span> <span class="nn">datumaro.components.dataset</span> <span class="kn">import</span> <span class="n">DatasetItem</span>
@@ -300,7 +300,7 @@
 <div class="viewcode-block" id="MarsPath"><a class="viewcode-back" href="../../../../docs/reference/_autosummary/datumaro.plugins.data_formats.mars.html#datumaro.plugins.data_formats.mars.MarsPath">[docs]</a><span class="k">class</span> <span class="nc">MarsPath</span><span class="p">:</span>
     <span class="n">SUBSET_DIR_PATTERN</span> <span class="o">=</span> <span class="s2">&quot;bbox_*&quot;</span>
     <span class="n">IMAGE_DIR_PATTERNS</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;[0-9]&quot;</span> <span class="o">*</span> <span class="mi">4</span><span class="p">,</span> <span class="s2">&quot;00-1&quot;</span><span class="p">]</span>
-    <span class="n">IMAGE_NAME_POSTFIX</span> <span class="o">=</span> <span class="s2">&quot;C[0-9]&quot;</span> <span class="o">+</span> <span class="s2">&quot;T&quot;</span> <span class="o">+</span> <span class="s2">&quot;[0-9]&quot;</span> <span class="o">*</span> <span class="mi">4</span> <span class="o">+</span> <span class="s2">&quot;F&quot;</span> <span class="o">+</span> <span class="s2">&quot;[0-9]&quot;</span> <span class="o">*</span> <span class="mi">3</span> <span class="o">+</span> <span class="s2">&quot;.*&quot;</span></div>
+    <span class="n">IMAGE_NAME_POSTFIX</span> <span class="o">=</span> <span class="s2">&quot;C[0-9]&quot;</span> <span class="o">+</span> <span class="s2">&quot;T&quot;</span> <span class="o">+</span> <span class="s2">&quot;[0-9]&quot;</span> <span class="o">*</span> <span class="mi">4</span> <span class="o">+</span> <span class="s2">&quot;F&quot;</span> <span class="o">+</span> <span class="s2">&quot;[0-9]&quot;</span> <span class="o">*</span> <span class="mi">3</span> <span class="o">+</span> <span class="s2">&quot;.jpg&quot;</span></div>
 
 
 <div class="viewcode-block" id="MarsBase"><a class="viewcode-back" href="../../../../docs/reference/_autosummary/datumaro.plugins.data_formats.mars.html#datumaro.plugins.data_formats.mars.MarsBase">[docs]</a><span class="k">class</span> <span class="nc">MarsBase</span><span class="p">(</span><span class="n">DatasetBase</span><span class="p">):</span>
@@ -419,7 +419,11 @@
                 <span class="nb">next</span><span class="p">(</span><span class="n">glob</span><span class="o">.</span><span class="n">iglob</span><span class="p">(</span><span class="n">pattern</span><span class="p">))</span>
                 <span class="k">return</span> <span class="p">[{</span><span class="s2">&quot;url&quot;</span><span class="p">:</span> <span class="n">path</span><span class="p">,</span> <span class="s2">&quot;format&quot;</span><span class="p">:</span> <span class="s2">&quot;mars&quot;</span><span class="p">}]</span>
             <span class="k">except</span> <span class="ne">StopIteration</span><span class="p">:</span>
-                <span class="k">continue</span></div></div>
+                <span class="k">continue</span></div>
+
+<div class="viewcode-block" id="MarsImporter.get_file_extensions"><a class="viewcode-back" href="../../../../docs/reference/_autosummary/datumaro.plugins.data_formats.mars.html#datumaro.plugins.data_formats.mars.MarsImporter.get_file_extensions">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">get_file_extensions</span><span class="p">(</span><span class="bp">cls</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+        <span class="k">return</span> <span class="p">[</span><span class="n">osp</span><span class="o">.</span><span class="n">splitext</span><span class="p">(</span><span class="n">MarsPath</span><span class="o">.</span><span class="n">IMAGE_NAME_POSTFIX</span><span class="p">)[</span><span class="mi">1</span><span class="p">]]</span></div></div>
 </pre></div>
 
             </article>

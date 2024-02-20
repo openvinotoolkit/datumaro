@@ -492,7 +492,11 @@
         <span class="n">sources</span> <span class="o">+=</span> <span class="n">_find</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">CifarPath</span><span class="o">.</span><span class="n">META_10_FILE</span><span class="p">)</span>
         <span class="n">sources</span> <span class="o">+=</span> <span class="n">_find</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">CifarPath</span><span class="o">.</span><span class="n">META_100_FILE</span><span class="p">)</span>
 
-        <span class="k">return</span> <span class="n">sources</span></div></div>
+        <span class="k">return</span> <span class="n">sources</span></div>
+
+<div class="viewcode-block" id="CifarImporter.get_file_extensions"><a class="viewcode-back" href="../../../../docs/reference/_autosummary/datumaro.plugins.data_formats.cifar.html#datumaro.plugins.data_formats.cifar.CifarImporter.get_file_extensions">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">get_file_extensions</span><span class="p">(</span><span class="bp">cls</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+        <span class="k">return</span> <span class="nb">list</span><span class="p">({</span><span class="n">osp</span><span class="o">.</span><span class="n">splitext</span><span class="p">(</span><span class="n">p</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="p">(</span><span class="n">CifarPath</span><span class="o">.</span><span class="n">META_10_FILE</span><span class="p">,</span> <span class="n">CifarPath</span><span class="o">.</span><span class="n">META_100_FILE</span><span class="p">)})</span></div></div>
 
 
 <div class="viewcode-block" id="CifarExporter"><a class="viewcode-back" href="../../../../docs/reference/_autosummary/datumaro.plugins.data_formats.cifar.html#datumaro.plugins.data_formats.cifar.CifarExporter">[docs]</a><span class="k">class</span> <span class="nc">CifarExporter</span><span class="p">(</span><span class="n">Exporter</span><span class="p">):</span>
