@@ -17,7 +17,11 @@ def get_lazy_plugins():
         plugin
         for plugin in [
             get_lazy_plugin(
-                spec["import_path"], spec["plugin_name"], spec["plugin_type"], spec["extra_deps"]
+                spec["import_path"],
+                spec["plugin_name"],
+                spec["plugin_type"],
+                spec.get("extra_deps", []),
+                spec.get("metadata", {}),
             )
             for spec in parse_json_file(str(_SPECS_JSON_PATH))
         ]

@@ -6,7 +6,7 @@ import os
 import os.path as osp
 import re
 from collections import OrderedDict
-from typing import Optional
+from typing import List, Optional
 
 import numpy as np
 
@@ -200,11 +200,13 @@ class TfDetectionApiBase(SubsetBase):
 
 @extra_deps("tensorflow")
 class TfDetectionApiImporter(Importer):
+    _FORMAT_EXT = ".tfrecord"
+
     @classmethod
     def find_sources(cls, path):
         sources = cls._find_sources_recursive(
             path=path,
-            ext=".tfrecord",
+            ext=cls._FORMAT_EXT,
             extractor_name="tf_detection_api",
         )
         if len(sources) == 0:
@@ -229,3 +231,7 @@ class TfDetectionApiImporter(Importer):
         ]
 
         return sources
+
+    @classmethod
+    def get_file_extensions(cls) -> List[str]:
+        return [cls._FORMAT_EXT]

@@ -9,7 +9,7 @@ import os
 import os.path as osp
 from collections import OrderedDict
 from enum import Enum, auto
-from typing import Optional
+from typing import List, Optional
 
 import numpy as np
 
@@ -353,6 +353,18 @@ class CityscapesImporter(Importer):
             )
 
         return sources
+
+    @classmethod
+    def get_file_extensions(cls) -> List[str]:
+        return list(
+            {
+                osp.splitext(p)[1]
+                for p in (
+                    CityscapesPath.GT_INSTANCE_MASK_SUFFIX,
+                    CityscapesPath.LABEL_TRAIN_IDS_SUFFIX,
+                )
+            }
+        )
 
 
 class LabelmapType(Enum):

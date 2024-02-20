@@ -7,7 +7,7 @@ import errno
 import glob
 import logging as log
 import os.path as osp
-from typing import Optional
+from typing import List, Optional
 
 import numpy as np
 
@@ -284,9 +284,11 @@ class IcdarTextSegmentationBase(_IcdarBase):
 
 
 class IcdarWordRecognitionImporter(Importer):
+    _ANNO_EXT = ".txt"
+
     @classmethod
     def detect(cls, context: FormatDetectionContext) -> None:
-        annot_path = context.require_file("*/gt.txt")
+        annot_path = context.require_file(f"*/gt{cls._ANNO_EXT}")
 
         with context.probe_text_file(
             annot_path,
@@ -303,24 +305,40 @@ class IcdarWordRecognitionImporter(Importer):
     def find_sources(cls, path):
         return cls._find_sources_recursive(path, ".txt", "icdar_word_recognition")
 
+    @classmethod
+    def get_file_extensions(cls) -> List[str]:
+        return [cls._ANNO_EXT]
+
 
 class IcdarTextLocalizationImporter(Importer):
+    _ANNO_EXT = ".txt"
+
     @classmethod
     def detect(cls, context: FormatDetectionContext) -> None:
-        context.require_file("**/gt_*.txt")
+        context.require_file(f"**/gt_*{cls._ANNO_EXT}")
 
     @classmethod
     def find_sources(cls, path):
         return cls._find_sources_recursive(path, "", "icdar_text_localization")
 
+    @classmethod
+    def get_file_extensions(cls) -> List[str]:
+        return [cls._ANNO_EXT]
+
 
 class IcdarTextSegmentationImporter(Importer):
+    _ANNO_EXT = ".txt"
+
     @classmethod
     def detect(cls, context: FormatDetectionContext) -> None:
-        gt_txt_path = context.require_file("**/*_GT.txt")
+        gt_txt_path = context.require_file(f"**/*_GT{cls._ANNO_EXT}")
         gt_bmp_path = osp.splitext(gt_txt_path)[0] + ".bmp"
         context.require_file(glob.escape(gt_bmp_path))
 
     @classmethod
     def find_sources(cls, path):
         return cls._find_sources_recursive(path, "", "icdar_text_segmentation")
+
+    @classmethod
+    def get_file_extensions(cls) -> List[str]:
+        return [cls._ANNO_EXT]

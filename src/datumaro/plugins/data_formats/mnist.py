@@ -6,7 +6,7 @@ import errno
 import gzip
 import os
 import os.path as osp
-from typing import Optional
+from typing import List, Optional
 
 import numpy as np
 
@@ -126,15 +126,21 @@ class MnistBase(SubsetBase):
 
 
 class MnistImporter(Importer):
+    _FORMAT_EXT = ".gz"
+
     @classmethod
     def find_sources(cls, path):
         return cls._find_sources_recursive(
             path,
-            ".gz",
+            cls._FORMAT_EXT,
             "mnist",
             file_filter=lambda p: 1 < len(osp.basename(p).split("-"))
             and osp.basename(p).split("-")[1] == "labels",
         )
+
+    @classmethod
+    def get_file_extensions(cls) -> List[str]:
+        return [cls._FORMAT_EXT]
 
 
 class MnistExporter(Exporter):

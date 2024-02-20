@@ -6,7 +6,7 @@ import logging
 import os
 import os.path as osp
 import pickle
-from typing import List, Sequence  # nosec B403
+from typing import Callable, List, Sequence  # nosec B403
 from unittest import TestCase, mock
 
 import numpy as np
@@ -57,6 +57,7 @@ from datumaro.components.launcher import Launcher
 from datumaro.components.media import Image, MediaElement, Video
 from datumaro.components.merge.intersect_merge import IntersectMerge
 from datumaro.components.progress_reporting import NullProgressReporter, ProgressReporter
+from datumaro.components.registry import DatasetBaseRegistry, ImporterRegistry
 from datumaro.components.transformer import ItemTransform, Transform
 from datumaro.plugins.transforms import ProjectInfos, RemapLabels
 
@@ -66,6 +67,24 @@ from tests.utils.test_utils import TestDir, compare_datasets, compare_datasets_s
 
 
 class DatasetTest(TestCase):
+    def build_default_environment(
+        self,
+        importers_override: Callable[[Environment], List] = None,
+        extractors_override: Callable[[Environment], List] = None,
+    ) -> Environment:
+        env = Environment(use_lazy_import=False)
+        default_importers = [env.importers[DEFAULT_FORMAT]]
+        default_extractors = [env.extractors[DEFAULT_FORMAT]]
+        importers = importers_override(env) if importers_override is not None else default_importers
+        extractors = (
+            extractors_override(env) if extractors_override is not None else default_extractors
+        )
+        env._importers = ImporterRegistry()
+        env._importers.batch_register(importers)
+        env._extractors = DatasetBaseRegistry()
+        env._extractors.batch_register(extractors)
+        return env
+
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_create_from_extractors(self):
         class SrcExtractor1(DatasetBase):
@@ -229,10 +248,7 @@ class DatasetTest(TestCase):
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_detect(self):
-        env = Environment()
-        env.importers._items = {DEFAULT_FORMAT: env.importers[DEFAULT_FORMAT]}
-        env.extractors._items = {DEFAULT_FORMAT: env.extractors[DEFAULT_FORMAT]}
-
+        env = self.build_default_environment()
         dataset = Dataset.from_iterable(
             [
                 DatasetItem(id=1, annotations=[Label(2)]),
@@ -249,9 +265,7 @@ class DatasetTest(TestCase):
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_detect_with_nested_folder(self):
-        env = Environment()
-        env.importers._items = {DEFAULT_FORMAT: env.importers[DEFAULT_FORMAT]}
-        env.extractors._items = {DEFAULT_FORMAT: env.extractors[DEFAULT_FORMAT]}
+        env = self.build_default_environment()
 
         dataset = Dataset.from_iterable(
             [
@@ -297,9 +311,7 @@ class DatasetTest(TestCase):
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_detect_and_import(self):
-        env = Environment()
-        env.importers._items = {DEFAULT_FORMAT: env.importers[DEFAULT_FORMAT]}
-        env.extractors._items = {DEFAULT_FORMAT: env.extractors[DEFAULT_FORMAT]}
+        env = self.build_default_environment()
 
         source_dataset = Dataset.from_iterable(
             [
@@ -319,28 +331,16 @@ class DatasetTest(TestCase):
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_report_no_dataset_found(self):
-        env = Environment()
-        env.importers._items = {
-            DEFAULT_FORMAT: env.importers[DEFAULT_FORMAT],
-        }
-        env.extractors._items = {
-            DEFAULT_FORMAT: env.extractors[DEFAULT_FORMAT],
-        }
+        env = self.build_default_environment()
 
         with TestDir() as test_dir, self.assertRaises(DatasetNotFoundError):
             Dataset.import_from(test_dir, DEFAULT_FORMAT, env=env)
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_report_multiple_formats_match(self):
-        env = Environment()
-        env.importers._items = {
-            "a": env.importers[DEFAULT_FORMAT],
-            "b": env.importers[DEFAULT_FORMAT],
-        }
-        env.extractors._items = {
-            "a": env.extractors[DEFAULT_FORMAT],
-            "b": env.extractors[DEFAULT_FORMAT],
-        }
+        env = self.build_default_environment()
+        env.importers.register("coco_instances", env.importers[DEFAULT_FORMAT])
+        env.extractors.register("coco_instances", env.extractors[DEFAULT_FORMAT])
 
         source_dataset = Dataset.from_iterable(
             [
@@ -357,9 +357,7 @@ class DatasetTest(TestCase):
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_report_no_matching_formats(self):
-        env = Environment()
-        env.importers._items = {}
-        env.extractors._items = {}
+        env = self.build_default_environment(lambda _: [], lambda _: [])
 
         source_dataset = Dataset.from_iterable(
             [
@@ -376,9 +374,7 @@ class DatasetTest(TestCase):
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_report_unknown_format_requested(self):
-        env = Environment()
-        env.importers._items = {}
-        env.extractors._items = {}
+        env = self.build_default_environment(lambda _: [], lambda _: [])
 
         source_dataset = Dataset.from_iterable(
             [

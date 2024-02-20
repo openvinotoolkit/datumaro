@@ -44,6 +44,10 @@ class DatumaroImporter(Importer):
             dirname=cls.PATH_CLS.ANNOTATIONS_DIR,
         )
 
+    @classmethod
+    def get_file_extensions(cls) -> List[str]:
+        return [cls.PATH_CLS.ANNOTATION_EXT]
+
     @property
     def can_stream(self) -> bool:
         return True

@@ -51,6 +51,10 @@ class Importer(CliPlugin):
         return cls.DETECT_CONFIDENCE
 
     @classmethod
+    def get_file_extensions(cls) -> List[str]:
+        raise NotImplementedError()
+
+    @classmethod
     def find_sources(cls, path: str) -> List[Dict]:
         raise NotImplementedError()
 

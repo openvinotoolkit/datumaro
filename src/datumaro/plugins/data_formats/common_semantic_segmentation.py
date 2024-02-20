@@ -5,7 +5,7 @@
 import errno
 import glob
 import os.path as osp
-from typing import Optional
+from typing import List, Optional
 
 import numpy as np
 
@@ -162,6 +162,10 @@ class CommonSemanticSegmentationImporter(Importer):
     @classmethod
     def find_sources(cls, path):
         return [{"url": path, "format": "common_semantic_segmentation"}]
+
+    @classmethod
+    def get_file_extensions(cls) -> List[str]:
+        return [osp.splitext(DATASET_META_FILE)[1]]
 
 
 @with_subset_dirs

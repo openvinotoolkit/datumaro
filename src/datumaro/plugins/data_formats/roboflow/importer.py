@@ -42,6 +42,10 @@ class RoboflowCocoImporter(Importer):
 
         return sources
 
+    @classmethod
+    def get_file_extensions(cls) -> List[str]:
+        return [osp.splitext(cls.ANN_FILE_NAME)[1]]
+
     @property
     def can_stream(self) -> bool:
         return True
@@ -131,6 +135,10 @@ class RoboflowVocImporter(Importer):
         ]
 
         return sources
+
+    @classmethod
+    def get_file_extensions(cls) -> List[str]:
+        return [cls.FORMAT_EXT]
 
 
 class RoboflowYoloImporter(RoboflowVocImporter):

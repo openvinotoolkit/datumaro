@@ -15,7 +15,7 @@ import os
 import os.path as osp
 import re
 import types
-from typing import Optional, Union
+from typing import List, Optional, Union
 
 import cv2
 import numpy as np
@@ -617,6 +617,10 @@ class OpenImagesImporter(Importer):
             elif glob.glob(osp.join(glob.escape(path), pattern)):
                 return [{"url": path, "format": OpenImagesBase.NAME}]
         return []
+
+    @classmethod
+    def get_file_extensions(cls) -> List[str]:
+        return list({osp.splitext(p)[1] for p in cls.POSSIBLE_ANNOTATION_PATTERNS})
 
 
 class _LazyCsvDictWriter:

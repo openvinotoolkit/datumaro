@@ -4,7 +4,7 @@
 
 import errno
 import os.path as osp
-from typing import Optional
+from typing import List, Optional
 
 import scipy.io as spio
 
@@ -142,10 +142,16 @@ class MpiiBase(SubsetBase):
 
 
 class MpiiImporter(Importer):
+    _FORMAT_EXT = ".mat"
+
     @classmethod
     def find_sources(cls, path):
-        return cls._find_sources_recursive(path, ".mat", "mpii")
+        return cls._find_sources_recursive(path, cls._FORMAT_EXT, "mpii")
 
     @classmethod
     def detect(cls, context: FormatDetectionContext) -> None:
-        context.require_file("*.mat")
+        context.require_file(f"*{cls._FORMAT_EXT}")
+
+    @classmethod
+    def get_file_extensions(cls) -> List[str]:
+        return [cls._FORMAT_EXT]

@@ -3,7 +3,7 @@
 # SPDX-License-Identifier: MIT
 
 import os.path as osp
-from typing import Optional, Type
+from typing import List, Optional, Type
 
 from datumaro.components.format_detection import FormatDetectionContext
 from datumaro.components.importer import Importer
@@ -22,6 +22,7 @@ class _VocImporter(Importer):
         VocTask.voc_layout: ("voc_layout", "Layout"),
         VocTask.voc_action: ("voc_action", "Action"),
     }
+    ANNO_EXT = ".txt"
 
     @classmethod
     def detect(cls, context: FormatDetectionContext) -> None:
@@ -34,7 +35,9 @@ class _VocImporter(Importer):
             task_dirs = {task_dir for _, task_dir in cls._TASKS.values()}
             for task_dir in sorted(task_dirs):
                 with context.alternative():
-                    context.require_file(osp.join(VocPath.SUBSETS_DIR, task_dir, "*.txt"))
+                    context.require_file(
+                        osp.join(VocPath.SUBSETS_DIR, task_dir, f"*{cls.ANNO_EXT}")
+                    )
 
     @classmethod
     def find_sources(cls, path):
@@ -71,6 +74,10 @@ class _VocImporter(Importer):
 
     def get_extractor_merger(self) -> Optional[Type[ExtractorMerger]]:
         return ExtractorMerger
+
+    @classmethod
+    def get_file_extensions(cls) -> List[str]:
+        return [cls.ANNO_EXT]
 
 
 class VocImporter(_VocImporter):

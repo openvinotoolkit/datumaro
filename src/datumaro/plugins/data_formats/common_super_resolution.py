@@ -4,7 +4,7 @@
 
 import errno
 import os.path as osp
-from typing import Optional
+from typing import List, Optional
 
 from datumaro.components.annotation import SuperResolutionAnnotation
 from datumaro.components.dataset_base import DatasetItem, SubsetBase
@@ -80,11 +80,21 @@ class CommonSuperResolutionBase(SubsetBase):
 
 
 class CommonSuperResolutionImporter(Importer):
+    _FORMAT_EXT = ".jpg"
+
     @classmethod
     def detect(cls, context: FormatDetectionContext) -> None:
-        context.require_file(osp.join(CommonSuperResolutionPath.HR_IMAGES_DIR, "**", "*"))
-        context.require_file(osp.join(CommonSuperResolutionPath.LR_IMAGES_DIR, "**", "*"))
+        context.require_file(
+            osp.join(CommonSuperResolutionPath.HR_IMAGES_DIR, "**", f"*{cls._FORMAT_EXT}")
+        )
+        context.require_file(
+            osp.join(CommonSuperResolutionPath.LR_IMAGES_DIR, "**", f"*{cls._FORMAT_EXT}")
+        )
 
     @classmethod
     def find_sources(cls, path):
         return [{"url": path, "format": "common_super_resolution"}]
+
+    @classmethod
+    def get_file_extensions(cls) -> List[str]:
+        return [cls._FORMAT_EXT]

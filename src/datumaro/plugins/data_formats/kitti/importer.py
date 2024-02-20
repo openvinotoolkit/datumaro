@@ -5,6 +5,7 @@
 import logging as log
 import os.path as osp
 from glob import glob
+from typing import List
 
 from datumaro.components.errors import DatasetNotFoundError
 from datumaro.components.format_detection import FormatDetectionConfidence, FormatDetectionContext
@@ -84,24 +85,39 @@ class KittiImporter(Importer):
                 with context.alternative():
                     importer_cls.detect(context)
 
+    @classmethod
+    def get_file_extensions(cls) -> List[str]:
+        sub_importers = [KittiDetectionImporter, KittiSegmentationImporter]
+        return list({ext for importer in sub_importers for ext in importer.get_file_extensions()})
+
 
 class KittiDetectionImporter(KittiImporter):
     _TASK = KittiTask.detection
     _TASKS = {_TASK: KittiImporter._TASKS[_TASK]}
+    _ANNO_EXT = ".txt"
 
     @classmethod
     def detect(cls, context: FormatDetectionContext) -> FormatDetectionConfidence:
         # left color camera label files
-        context.require_file("**/label_2/*.txt")
+        context.require_file(f"**/label_2/*{cls._ANNO_EXT}")
         return cls.DETECT_CONFIDENCE
+
+    @classmethod
+    def get_file_extensions(cls) -> List[str]:
+        return [cls._ANNO_EXT]
 
 
 class KittiSegmentationImporter(KittiImporter):
     _TASK = KittiTask.segmentation
     _TASKS = {_TASK: KittiImporter._TASKS[_TASK]}
+    _FORMAT_EXT = ".png"
 
     @classmethod
     def detect(cls, context: FormatDetectionContext) -> FormatDetectionConfidence:
         # instance segmentation masks
-        context.require_file("**/instance/*.png")
+        context.require_file(f"**/instance/*{cls._FORMAT_EXT}")
         return cls.DETECT_CONFIDENCE
+
+    @classmethod
+    def get_file_extensions(cls) -> List[str]:
+        return [cls._FORMAT_EXT]

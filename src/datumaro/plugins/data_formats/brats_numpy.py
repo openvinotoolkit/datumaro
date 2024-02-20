@@ -4,7 +4,7 @@
 
 import errno
 import os.path as osp
-from typing import Optional
+from typing import List, Optional
 
 import numpy as np
 
@@ -113,3 +113,7 @@ class BratsNumpyImporter(Importer):
         return cls._find_sources_recursive(
             path, "", "brats_numpy", filename=BratsNumpyPath.IDS_FILE
         )
+
+    @classmethod
+    def get_file_extensions(cls) -> List[str]:
+        return [osp.splitext(BratsNumpyPath.IDS_FILE)[1]]

@@ -4,6 +4,7 @@
 
 import os.path as osp
 from glob import glob
+from typing import List
 
 from datumaro.components.format_detection import FormatDetectionConfidence
 from datumaro.components.importer import Importer
@@ -39,6 +40,10 @@ class MvtecImporter(Importer):
                     )
 
         return sources
+
+    @classmethod
+    def get_file_extensions(cls) -> List[str]:
+        return [".png"]
 
 
 class MvtecClassificationImporter(MvtecImporter):

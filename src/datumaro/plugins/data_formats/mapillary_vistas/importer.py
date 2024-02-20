@@ -4,6 +4,7 @@
 import glob
 import logging as log
 import os.path as osp
+from typing import List
 
 from datumaro.components.dataset_base import DEFAULT_SUBSET_NAME
 from datumaro.components.errors import DatasetNotFoundError
@@ -112,6 +113,10 @@ class MapillaryVistasImporter(Importer):
                 subsets.setdefault(subset, {})[task] = osp.join(path, subset)
 
         return subsets
+
+    @classmethod
+    def get_file_extensions(cls) -> List[str]:
+        return [".jpg", ".png", ".json"]
 
 
 class MapillaryVistasInstancesImporter(MapillaryVistasImporter):

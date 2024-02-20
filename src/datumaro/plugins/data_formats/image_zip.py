@@ -6,7 +6,7 @@ import logging as log
 import os
 import os.path as osp
 from enum import Enum
-from typing import Optional
+from typing import List, Optional
 from zipfile import ZIP_BZIP2, ZIP_DEFLATED, ZIP_LZMA, ZIP_STORED, ZipFile
 
 from datumaro.components.dataset_base import DatasetItem, SubsetBase
@@ -51,9 +51,15 @@ class ImageZipBase(SubsetBase):
 
 
 class ImageZipImporter(Importer):
+    _FORMAT_EXT = ".zip"
+
     @classmethod
     def find_sources(cls, path):
-        return cls._find_sources_recursive(path, ".zip", "image_zip")
+        return cls._find_sources_recursive(path, cls._FORMAT_EXT, "image_zip")
+
+    @classmethod
+    def get_file_extensions(cls) -> List[str]:
+        return [cls._FORMAT_EXT]
 
 
 class ImageZipExporter(Exporter):

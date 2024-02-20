@@ -4,7 +4,7 @@
 
 import errno
 import os.path as osp
-from typing import Optional
+from typing import List, Optional
 
 from datumaro.components.annotation import AnnotationType, Bbox, LabelCategories
 from datumaro.components.dataset_base import DatasetItem, SubsetBase
@@ -113,3 +113,7 @@ class VottJsonImporter(Importer):
     @classmethod
     def detect(cls, context: FormatDetectionContext) -> None:
         context.require_file("*" + VottJsonPath.ANNO_FILE_SUFFIX)
+
+    @classmethod
+    def get_file_extensions(cls) -> List[str]:
+        return [osp.splitext(VottJsonPath.ANNO_FILE_SUFFIX)[1]]

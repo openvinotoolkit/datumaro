@@ -5,14 +5,14 @@
 import logging as log
 import os
 import os.path as osp
-from typing import Optional
+from typing import List, Optional
 
 from datumaro.components.dataset_base import DatasetItem, SubsetBase
 from datumaro.components.exporter import Exporter
 from datumaro.components.format_detection import FormatDetectionConfidence
 from datumaro.components.importer import ImportContext, Importer
 from datumaro.components.media import Image
-from datumaro.util.image import find_images
+from datumaro.util.image import IMAGE_EXTENSIONS, find_images
 
 
 class ImageDirImporter(Importer):
@@ -36,6 +36,10 @@ class ImageDirImporter(Importer):
         if not osp.isdir(path):
             return []
         return [{"url": path, "format": ImageDirBase.NAME}]
+
+    @classmethod
+    def get_file_extensions(cls) -> List[str]:
+        return list(IMAGE_EXTENSIONS)
 
 
 class ImageDirBase(SubsetBase):

@@ -8,7 +8,7 @@ import logging as log
 import os
 import os.path as osp
 import re
-from typing import Optional
+from typing import List, Optional
 
 import numpy as np
 
@@ -169,9 +169,11 @@ class Ade20k2017Base(DatasetBase):
 
 
 class Ade20k2017Importer(Importer):
+    _ANNO_EXT = ".txt"
+
     @classmethod
     def detect(cls, context: FormatDetectionContext) -> None:
-        context.require_file("*/**/*_atr.txt")
+        context.require_file(f"*/**/*_atr{cls._ANNO_EXT}")
 
     @classmethod
     def find_sources(cls, path):
@@ -185,3 +187,7 @@ class Ade20k2017Importer(Importer):
                         }
                     ]
         return []
+
+    @classmethod
+    def get_file_extensions(cls) -> List[str]:
+        return [cls._ANNO_EXT]

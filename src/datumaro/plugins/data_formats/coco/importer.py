@@ -5,7 +5,7 @@
 import logging as log
 import os.path as osp
 from glob import glob
-from typing import Optional
+from typing import List, Optional
 
 from datumaro.components.dataset_base import DEFAULT_SUBSET_NAME
 from datumaro.components.errors import DatasetNotFoundError
@@ -37,6 +37,7 @@ class CocoImporter(Importer):
         CocoTask.stuff: CocoStuffBase,
     }
     _IMPORTER_TYPE = CocoImporterType.default
+    _ANNO_EXT = ".json"
 
     @classmethod
     def build_cmdline_parser(cls, **kwargs):
@@ -65,7 +66,7 @@ class CocoImporter(Importer):
         with context.require_any():
             for task in cls._TASKS.keys():
                 with context.alternative():
-                    context.require_file(f"annotations/{task.name}_*.json")
+                    context.require_file(f"annotations/{task.name}_*{cls._ANNO_EXT}")
 
     def __call__(self, path, stream: bool = False, **extra_params):
         subsets = self.find_sources(path)
@@ -157,6 +158,10 @@ class CocoImporter(Importer):
             subsets.setdefault(subset_name, {})[ann_type] = subset_path
 
         return subsets
+
+    @classmethod
+    def get_file_extensions(cls) -> List[str]:
+        return [cls._ANNO_EXT]
 
     @property
     def can_stream(self) -> bool:

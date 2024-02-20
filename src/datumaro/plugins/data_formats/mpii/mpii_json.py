@@ -4,7 +4,7 @@
 
 import errno
 import os.path as osp
-from typing import Optional
+from typing import List, Optional
 
 import numpy as np
 
@@ -173,3 +173,7 @@ class MpiiJsonImporter(Importer):
     @classmethod
     def detect(cls, context: FormatDetectionContext) -> None:
         context.require_file(MpiiJsonPath.ANNOTATION_FILE)
+
+    @classmethod
+    def get_file_extensions(cls) -> List[str]:
+        return [osp.splitext(MpiiJsonPath.ANNOTATION_FILE)[1]]

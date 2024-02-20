@@ -129,19 +129,23 @@ class TestRevpath(TestCase):
     @scoped
     def test_ambiguous_format(self):
         test_dir = scope_add(TestDir())
+        assets = {
+            "ade20k2017_dataset/dataset/training/street/1_atr.txt": "training/street/1_atr.txt",
+            "mot_dataset/mot_seq/gt/gt.txt": "gt/gt.txt",
+        }
 
         dataset_url = osp.join(test_dir, "source")
 
         # create an ambiguous dataset by merging annotations from
         # datasets in different formats
-        annotation_dir = osp.join(dataset_url, "training/street")
         assets_dir = get_test_asset_path()
-        os.makedirs(annotation_dir)
-        for asset in [
-            "ade20k2017_dataset/dataset/training/street/1_atr.txt",
-            "ade20k2020_dataset/dataset/training/street/1.json",
-        ]:
-            shutil.copy(osp.join(assets_dir, asset), annotation_dir)
+
+        for asset, local_asset in assets.items():
+            local_dir = osp.dirname(local_asset)
+            dst = osp.join(dataset_url, local_dir)
+            if local_dir:
+                os.makedirs(dst)
+            shutil.copy(osp.join(assets_dir, asset), dst)
 
         with self.subTest("no context"):
             with self.assertRaises(WrongRevpathError) as cm:

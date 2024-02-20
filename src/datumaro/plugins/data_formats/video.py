@@ -3,7 +3,7 @@
 # SPDX-License-Identifier: MIT
 
 import os.path as osp
-from typing import Optional, Tuple
+from typing import List, Optional, Tuple
 
 import cv2
 import numpy as np
@@ -96,6 +96,10 @@ class VideoFramesImporter(Importer):
         if not osp.isfile(path):
             return []
         return [{"url": path, "format": VideoFramesBase.NAME}]
+
+    @classmethod
+    def get_file_extensions(cls) -> List[str]:
+        return list({f".{ext}" for ext in VIDEO_EXTENSIONS})
 
 
 class VideoFramesBase(DatasetBase):

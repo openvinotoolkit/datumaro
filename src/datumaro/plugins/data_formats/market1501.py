@@ -6,7 +6,7 @@ import errno
 import os
 import os.path as osp
 import re
-from typing import Optional
+from typing import List, Optional
 
 from datumaro.components.dataset_base import DatasetBase, DatasetItem
 from datumaro.components.errors import MediaTypeError
@@ -117,6 +117,10 @@ class Market1501Importer(Importer):
                 (Market1501Path.BBOX_DIR, Market1501Path.QUERY_DIR, Market1501Path.LIST_PREFIX)
             ):
                 return [{"url": path, "format": Market1501Base.NAME}]
+
+    @classmethod
+    def get_file_extensions(cls) -> List[str]:
+        return [".jpg"]
 
 
 class Market1501Exporter(Exporter):

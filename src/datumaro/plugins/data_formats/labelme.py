@@ -8,7 +8,7 @@ import os
 import os.path as osp
 from collections import defaultdict
 from glob import glob, iglob
-from typing import Optional
+from typing import List, Optional
 
 import numpy as np
 from defusedxml import ElementTree
@@ -295,9 +295,11 @@ class LabelMeBase(DatasetBase):
 
 
 class LabelMeImporter(Importer):
+    _ANNO_EXT = ".xml"
+
     @classmethod
     def detect(cls, context: FormatDetectionContext) -> None:
-        annot_paths = context.require_files("**/*.xml")
+        annot_paths = context.require_files(f"**/*{cls._ANNO_EXT}")
 
         for annot_path in annot_paths:
             with context.probe_text_file(
@@ -351,6 +353,10 @@ class LabelMeImporter(Importer):
         except StopIteration:
             pass
         return subsets
+
+    @classmethod
+    def get_file_extensions(cls) -> List[str]:
+        return [cls._ANNO_EXT]
 
 
 class LabelMeExporter(Exporter):

@@ -7,7 +7,7 @@ import glob
 import logging as log
 import os
 import os.path as osp
-from typing import Optional
+from typing import List, Optional
 
 from datumaro.components.annotation import AnnotationType, Label, LabelCategories
 from datumaro.components.dataset import DatasetItem
@@ -21,7 +21,7 @@ from datumaro.util.image import find_images
 class MarsPath:
     SUBSET_DIR_PATTERN = "bbox_*"
     IMAGE_DIR_PATTERNS = ["[0-9]" * 4, "00-1"]
-    IMAGE_NAME_POSTFIX = "C[0-9]" + "T" + "[0-9]" * 4 + "F" + "[0-9]" * 3 + ".*"
+    IMAGE_NAME_POSTFIX = "C[0-9]" + "T" + "[0-9]" * 4 + "F" + "[0-9]" * 3 + ".jpg"
 
 
 class MarsBase(DatasetBase):
@@ -141,3 +141,7 @@ class MarsImporter(Importer):
                 return [{"url": path, "format": "mars"}]
             except StopIteration:
                 continue
+
+    @classmethod
+    def get_file_extensions(cls) -> List[str]:
+        return [osp.splitext(MarsPath.IMAGE_NAME_POSTFIX)[1]]

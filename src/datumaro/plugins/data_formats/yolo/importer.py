@@ -17,9 +17,11 @@ from .format import YoloFormatType, YoloLoosePath, YoloPath, YoloUltralyticsPath
 
 
 class _YoloStrictImporter(Importer):
+    _FORMAT_EXT = ".data"
+
     @classmethod
     def detect(cls, context: FormatDetectionContext) -> None:
-        context.require_file("obj.data")
+        context.require_file(f"obj{cls._FORMAT_EXT}")
 
     @classmethod
     def find_sources(cls, path: str) -> List[Dict[str, Any]]:
@@ -39,6 +41,10 @@ class _YoloStrictImporter(Importer):
             ]
 
         return sum([_extract_subset_wise_sources(source) for source in sources], [])
+
+    @classmethod
+    def get_file_extensions(cls) -> List[str]:
+        return [cls._FORMAT_EXT]
 
 
 class _YoloLooseImporter(Importer):
@@ -155,6 +161,10 @@ class _YoloLooseImporter(Importer):
     def can_stream(self) -> bool:
         return True
 
+    @classmethod
+    def get_file_extensions(cls) -> List[str]:
+        return [".txt"]
+
 
 class _YoloUltralyticsImporter(_YoloLooseImporter):
     META_FILE = YoloUltralyticsPath.META_FILE
@@ -196,3 +206,13 @@ class YoloImporter(Importer):
 
     def get_extractor_merger(self) -> Optional[Type[ExtractorMerger]]:
         return ExtractorMerger
+
+    @classmethod
+    def get_file_extensions(cls) -> List[str]:
+        return list(
+            {
+                ext
+                for importer in cls.SUB_IMPORTERS.values()
+                for ext in importer.get_file_extensions()
+            }
+        )

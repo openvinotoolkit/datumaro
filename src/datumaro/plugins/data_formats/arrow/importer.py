@@ -17,6 +17,8 @@ __all__ = ["ArrowImporter"]
 
 
 class ArrowImporter(Importer):
+    _FORMAT_EXT = ".arrow"
+
     @classmethod
     def detect(
         cls,
@@ -45,7 +47,7 @@ class ArrowImporter(Importer):
 
         return cls._find_sources_recursive(
             path=path,
-            ext=".arrow",
+            ext=cls._FORMAT_EXT,
             extractor_name=cls.NAME,
             file_filter=_filter,
             max_depth=0,
@@ -71,3 +73,7 @@ class ArrowImporter(Importer):
         DatumaroArrow.check_signature(schema.metadata.get(b"signature", b"").decode())
         DatumaroArrow.check_version(schema.metadata.get(b"version", b"").decode())
         DatumaroArrow.check_schema(schema)
+
+    @classmethod
+    def get_file_extensions(cls) -> List[str]:
+        return [cls._FORMAT_EXT]

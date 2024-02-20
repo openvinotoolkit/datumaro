@@ -8,127 +8,39 @@ import logging as log
 import os.path as osp
 from functools import partial
 from inspect import getmodule, isclass
-from typing import (
-    Callable,
-    Dict,
-    Generator,
-    Generic,
-    Iterable,
-    Iterator,
-    List,
-    Optional,
-    Sequence,
-    Set,
-    Tuple,
-    Type,
-    TypeVar,
-)
+from typing import Callable, List, Optional, Sequence, Set
 
-from datumaro.components.cli_plugin import CliPlugin, plugin_types
+from datumaro.components.cli_plugin import plugin_types
 from datumaro.components.format_detection import (
     DetectedFormat,
     FormatDetectionConfidence,
     RejectionReason,
     detect_dataset_format,
 )
-from datumaro.components.lazy_plugin import PLUGIN_TYPES, LazyPlugin
-from datumaro.util.os_util import import_foreign_module, split_path
-
-T = TypeVar("T")
-
-
-class Registry(Generic[T]):
-    def __init__(self):
-        self._items: Dict[str, T] = {}
-
-    def register(self, name: str, value: T) -> T:
-        self._items[name] = value
-        return value
-
-    def unregister(self, name: str) -> Optional[T]:
-        return self._items.pop(name, None)
-
-    def get(self, key: str):
-        """Returns a class or a factory function"""
-        return self._items[key]
-
-    def __getitem__(self, key: str) -> T:
-        return self.get(key)
-
-    def __contains__(self, key) -> bool:
-        return key in self._items
-
-    def __iter__(self) -> Iterator[str]:
-        return iter(self._items)
-
-    def items(self) -> Generator[Tuple[str, T], None, None]:
-        for key in self:
-            yield key, self.get(key)
-
-
-class PluginRegistry(Registry[Type[CliPlugin]]):
-    def __init__(
-        self, filter: Callable[[Type[CliPlugin]], bool] = None
-    ):  # pylint: disable=redefined-builtin
-        super().__init__()
-        self._filter = filter
-
-    def get(self, key: str) -> PLUGIN_TYPES:
-        """Returns a class or a factory function"""
-        item = self._items[key]
-        if issubclass(item, LazyPlugin):
-            return item.get_plugin_cls()
-        return item
-
-    def batch_register(self, values: Iterable[CliPlugin]):
-        for v in values:
-            if self._filter and not self._filter(v):
-                continue
-
-            self.register(v.NAME, v)
+from datumaro.components.registry import (
+    DatasetBaseRegistry,
+    ExporterRegistry,
+    GeneratorRegistry,
+    ImporterRegistry,
+    LauncherRegistry,
+    PluginRegistry,
+    TransformRegistry,
+    ValidatorRegistry,
+)
+from datumaro.util.os_util import get_all_file_extensions, import_foreign_module, split_path
 
 
 class Environment:
     _builtin_plugins = None
 
-    @classmethod
-    def _make_filter(cls, accept, decline=None, skip=None):
-        accept = (accept,) if isclass(accept) else tuple(accept)
-        skip = {skip} if isclass(skip) else set(skip or [])
-        skip = tuple(skip | set(accept))
-        return partial(cls._check_type, accept=accept, decline=decline, skip=skip)
-
-    @staticmethod
-    def _check_type(t, *, accept, decline, skip):
-        if not issubclass(t, accept) or t in skip or (decline and issubclass(t, decline)):
-            return False
-        if getattr(t, "__not_plugin__", None):
-            return False
-        return True
-
     def __init__(self, use_lazy_import: bool = True):
-        from datumaro.components.dataset_base import DatasetBase, SubsetBase
-        from datumaro.components.exporter import Exporter
-        from datumaro.components.generator import DatasetGenerator
-        from datumaro.components.importer import Importer
-        from datumaro.components.launcher import Launcher
-        from datumaro.components.transformer import ItemTransform, Transform
-        from datumaro.components.validator import Validator
-
-        _filter = self._make_filter
-        self._extractors = PluginRegistry(
-            _filter(
-                DatasetBase,
-                decline=Transform,
-                skip=(SubsetBase, Transform, ItemTransform),
-            )
-        )
-        self._importers = PluginRegistry(_filter(Importer))
-        self._launchers = PluginRegistry(_filter(Launcher))
-        self._exporters = PluginRegistry(_filter(Exporter))
-        self._generators = PluginRegistry(_filter(DatasetGenerator))
-        self._transforms = PluginRegistry(_filter(Transform, skip=ItemTransform))
-        self._validators = PluginRegistry(_filter(Validator))
+        self._extractors = DatasetBaseRegistry()
+        self._importers = ImporterRegistry()
+        self._launchers = LauncherRegistry()
+        self._exporters = ExporterRegistry()
+        self._generators = GeneratorRegistry()
+        self._transforms = TransformRegistry()
+        self._validators = ValidatorRegistry()
         self._builtins_initialized = False
         self._use_lazy_import = use_lazy_import
 
@@ -139,31 +51,31 @@ class Environment:
         return getattr(self, name)
 
     @property
-    def extractors(self) -> PluginRegistry:
+    def extractors(self) -> DatasetBaseRegistry:
         return self._get_plugin_registry("_extractors")
 
     @property
-    def importers(self) -> PluginRegistry:
+    def importers(self) -> ImporterRegistry:
         return self._get_plugin_registry("_importers")
 
     @property
-    def launchers(self) -> PluginRegistry:
+    def launchers(self) -> LauncherRegistry:
         return self._get_plugin_registry("_launchers")
 
     @property
-    def exporters(self) -> PluginRegistry:
+    def exporters(self) -> ExporterRegistry:
         return self._get_plugin_registry("_exporters")
 
     @property
-    def generators(self) -> PluginRegistry:
+    def generators(self) -> GeneratorRegistry:
         return self._get_plugin_registry("_generators")
 
     @property
-    def transforms(self) -> PluginRegistry:
+    def transforms(self) -> TransformRegistry:
         return self._get_plugin_registry("_transforms")
 
     @property
-    def validators(self) -> PluginRegistry:
+    def validators(self) -> ValidatorRegistry:
         return self._get_plugin_registry("_validators")
 
     @staticmethod
@@ -320,12 +232,16 @@ class Environment:
         ignore_dirs = {"__MSOSX", "__MACOSX"}
         all_matched_formats: Set[DetectedFormat] = set()
 
+        extensions = get_all_file_extensions(path, ignore_dirs) or [""]
+
+        importers = {
+            (name, importer.get_plugin_cls() if self._use_lazy_import else importer)
+            for extension in extensions
+            for name, importer in self.importers.extension_groups.get(extension, [])
+        }
         for _ in range(depth + 1):
             detected_formats = detect_dataset_format(
-                (
-                    (format_name, importer.detect)
-                    for format_name, importer in self.importers.items()
-                ),
+                ((format_name, importer.detect) for format_name, importer in importers),
                 path,
                 rejection_callback=rejection_callback,
             )

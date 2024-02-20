@@ -6,7 +6,7 @@ import csv
 import errno
 import os
 import os.path as osp
-from typing import Optional
+from typing import List, Optional
 
 from datumaro.components.annotation import AnnotationType, Label, LabelCategories
 from datumaro.components.dataset_base import DatasetBase, DatasetItem
@@ -134,11 +134,13 @@ class KineticsBase(DatasetBase):
 
 
 class KineticsImporter(Importer):
+    _ANNO_EXTS = [".json", ".csv"]
+
     @classmethod
     def detect(cls, context: FormatDetectionContext) -> None:
         with context.require_any():
             with context.alternative():
-                ann_file = context.require_file("*.json")
+                ann_file = context.require_file(f"*{cls._ANNO_EXTS[0]}")
 
                 with context.probe_text_file(
                     ann_file,
@@ -159,7 +161,7 @@ class KineticsImporter(Importer):
                         raise Exception
 
             with context.alternative():
-                ann_file = context.require_file("*.csv")
+                ann_file = context.require_file(f"*{cls._ANNO_EXTS[1]}")
 
                 with context.probe_text_file(
                     ann_file,
@@ -174,3 +176,7 @@ class KineticsImporter(Importer):
         if find_files(path, ["csv", "json"]):
             return [{"url": path, "format": KineticsBase.NAME}]
         return []
+
+    @classmethod
+    def get_file_extensions(cls) -> List[str]:
+        return cls._ANNO_EXTS
