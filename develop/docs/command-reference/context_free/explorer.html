@@ -596,7 +596,7 @@
 <p>Usage:</p>
 <div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">datum explore [target] [--query-img-path &lt;path/to/image&gt;]</span>
 <span class="go">              [--query-item-id &lt;/id/of/image/datasetitem&gt; --query-item-subset &lt;subset/of/image&gt;]</span>
-<span class="go">              [--query-str &lt;text_query&gt;] [-topk TOPK] [-p PROJECT_DIR] [-s SAVE] [--stage STAGE]</span>
+<span class="go">              [--query-str &lt;text_query&gt;] [-topk TOPK] [-p PROJECT_DIR] [-s SAVE] [-o DST_DIR] [--stage STAGE]</span>
 </pre></div>
 </div>
 <p>Parameters:</p>
@@ -610,6 +610,7 @@ By default, prints info about the joined <code class="docutils literal notransla
 <li><p><code class="docutils literal notranslate"><span class="pre">-topk</span></code> (int) - Number how much you want to find similar data.</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">-p,</span> <span class="pre">--project</span></code> (string) - Directory of the project to operate on (default: current directory).</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">-s,</span> <span class="pre">--save</span></code> (bool) - Save explorer result files on explore_result folder.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">-o,</span> <span class="pre">--output-dir</span></code> (string) - Output directory. By default, a new directory is created in the current directory.</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">--stage</span></code> (bool) - Include this action as a project build step.
 If true, this operation will be saved in the project
 build tree, allowing to reproduce the resulting dataset later.

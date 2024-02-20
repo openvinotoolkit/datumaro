@@ -14,7 +14,7 @@ Usage:
 ```console
 datum explore [target] [--query-img-path <path/to/image>]
               [--query-item-id </id/of/image/datasetitem> --query-item-subset <subset/of/image>]
-              [--query-str <text_query>] [-topk TOPK] [-p PROJECT_DIR] [-s SAVE] [--stage STAGE]
+              [--query-str <text_query>] [-topk TOPK] [-p PROJECT_DIR] [-s SAVE] [-o DST_DIR] [--stage STAGE]
 ```
 
 Parameters:
@@ -27,6 +27,7 @@ Parameters:
 - `-topk` (int) - Number how much you want to find similar data.
 - `-p, --project` (string) - Directory of the project to operate on (default: current directory).
 - `-s, --save` (bool) - Save explorer result files on explore_result folder.
+- `-o, --output-dir` (string) - Output directory. By default, a new directory is created in the current directory.
 - `--stage` (bool) - Include this action as a project build step.
   If true, this operation will be saved in the project
   build tree, allowing to reproduce the resulting dataset later.
