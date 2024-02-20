@@ -18,10 +18,12 @@ def main():
         c1, c2 = st.columns([1, 2])
         with c1:
             st.subheader("Parameters")
-            selected_subset = st.selectbox("Select a subset:", dataset.subsets())
+            selected_subset = st.selectbox(
+                "Select a subset:", dataset.subsets(), key="sb_select_subset_viz"
+            )
             if selected_subset:
                 ids = [item.id for item in dataset.get_subset(selected_subset)]
-                selected_id = st.selectbox("Select a dataset item:", ids)
+                selected_id = st.selectbox("Select a dataset item:", ids, key="sb_select_id_viz")
 
             if selected_id:
                 item = dataset.get(selected_id, selected_subset)
@@ -31,12 +33,15 @@ def main():
                 options = [
                     "All",
                 ] + sorted(list(ann_ids))
-                selected_ann_id = st.selectbox("Select annotation:", options)
+                selected_ann_id = st.selectbox(
+                    "Select annotation:", options, key="sb_select_ann_id_viz"
+                )
 
             selected_alpha = st.select_slider(
                 "Choose a transparency of annotations",
                 options=np.arange(0, 110, 10),
                 value=20,
+                key="ss_select_alpha_viz",
             )
 
             visualizer = Visualizer(

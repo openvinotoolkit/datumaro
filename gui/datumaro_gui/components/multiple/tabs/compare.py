@@ -93,7 +93,7 @@ def main():
                 "datasets.\n\nBy the way, the low-level analysis takes a bit of time to compute. Please bear with us "
                 "for a moment; your patience is much appreciated!",
             )
-            on = st.toggle("Show low-level table", key="low_lvl_tb_toggle")
+            on = st.toggle("Show low-level table", key="tg_low_lvl_on_comp_mul")
             if on:
                 if low_level_df is None:
                     _, _, low_level_table, _ = comparator.compare_datasets(
@@ -155,7 +155,12 @@ def main():
                     return s
 
                 threshold = st.slider(
-                    "Desired similarity threshold", 0.0, 1.0, 0.7, step=0.1, key="sim_slider"
+                    "Desired similarity threshold",
+                    0.0,
+                    1.0,
+                    0.7,
+                    step=0.1,
+                    key="sd_threshold_comp_mul",
                 )
                 # Iterate over items in the first list
                 for item1 in unmatches[uploaded_file_1]:
@@ -206,7 +211,7 @@ def main():
                 )
 
                 if (
-                    st.button("Finalize mapping", key="mapping_btn")
+                    st.button("Finalize mapping", key="btn_mapping_comp_mul")
                     and grid_table["selected_rows"] is not None
                 ):
                     sel_row = grid_table["selected_rows"]

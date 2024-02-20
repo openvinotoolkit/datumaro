@@ -1,10 +1,10 @@
-import streamlit as st
-
 from pathlib import Path
+
+import streamlit as st
 
 
 def main():
-    st.markdown((Path(__file__).parents[2]/"ABOUTUS.md").read_text())
+    st.markdown((Path(__file__).parents[2] / "ABOUTUS.md").read_text())
 
 
 if __name__ == "__main__":

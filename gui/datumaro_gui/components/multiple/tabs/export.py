@@ -74,7 +74,7 @@ def main():
                 key="ti_path_export_mult",
             )
 
-        export_btn = st.button("Export", "btn_export_mult")
+        export_btn = st.button("Export", key="btn_export_mult")
         if export_btn:
             data_helper = dataset_dict.get(selected_dataset, None)
             data_helper.export(selected_path, format=selected_format, save_media=True)

@@ -4,7 +4,7 @@
 
 import copy
 from abc import ABCMeta, abstractmethod
-from typing import Union
+from typing import List, Union
 
 import numpy as np
 import streamlit as st
@@ -77,7 +77,7 @@ class QueryText(Query):
 
 
 class QueryLabel(Query):
-    def __init__(self, labels: list[str]):
+    def __init__(self, labels: List[str]):
         self.labels = labels  # assume it is sorted.
 
     def label(self) -> str:
@@ -123,7 +123,9 @@ def query_list(title=""):
                         st.image(selected_item.path)
                     except Exception:
                         pass
-            if st.button("Remove from Query List", disabled=current_selected is None):
+            if st.button(
+                "Remove from Query List", disabled=current_selected is None, key="btn_remove_query"
+            ):
                 item = state["explore_queries"].pop(current_selected)
                 if isinstance(item, QueryUplodedImage):
                     file_id = state["explore_user_uploaded_images"].get(item.path)
@@ -172,6 +174,7 @@ def result_list(
                 "Choose a transparency of annotations",
                 options=np.arange(0, 110, 10),
                 value=20,
+                key="ss_selected_alpha_for_result",
             )
             try:
                 visualizer = Visualizer(
@@ -274,7 +277,9 @@ def main():
             st.subheader("Query Parameters")
             query = None
             ## query form
-            query_type = st.radio("Query Type", options=query_types, horizontal=True)
+            query_type = st.radio(
+                "Query Type", options=query_types, horizontal=True, key="rd_query_type"
+            )
             if query_type == "User Image":
                 uploaded_img = st.file_uploader(
                     "Upload an image file",
@@ -288,50 +293,52 @@ def main():
                     st.image(path)
                     query = QueryUplodedImage(id=uploaded_img.name, path=path)
             elif query_type == "Dataset Image":
-                selected_subset = st.selectbox("Select a subset:", dataset.subsets())
+                selected_subset = st.selectbox(
+                    "Select a subset:", dataset.subsets(), key="sb_select_subset_exp"
+                )
                 if selected_subset:
                     ids = [item.id for item in dataset.get_subset(selected_subset)]
-                    selected_id = st.selectbox("Select a dataset item:", ids)
+                    selected_id = st.selectbox(
+                        "Select a dataset item:", ids, key="sb_select_id_exp"
+                    )
 
                 query = QueryImage(dataset.get(selected_id, selected_subset))
                 if query is not None:
                     st.image(query.path)
             elif query_type == "Text":
-                query = QueryText(st.text_input("Input text query:"))
+                query = QueryText(st.text_input("Input text query:", key="ti_query_text_exp"))
             elif query_type == "Label":
                 labels = [item.name for item in label_cat.items]
                 if len(labels) > 0:
                     labels.sort()
-                    selected_labels = st.multiselect("Select Label(s)", labels)
+                    selected_labels = st.multiselect(
+                        "Select Label(s)", labels, key="ms_select_label"
+                    )
                     if len(selected_labels) > 0:
                         query = QueryLabel(selected_labels)
             else:
                 raise NotImplementedError
 
-            if st.button("Add to Query List", use_container_width=True):
+            if st.button("Add to Query List", use_container_width=True, key="btn_add_query"):
                 if query is not None and query not in state["explore_queries"]:
                     state["explore_queries"].append(query)
 
             query_list("Query List")
-            topk = st.number_input("Top K:", value=state["explore_topk"])
+            topk = st.number_input("Top K:", value=state["explore_topk"], key="ni_topk")
             if topk != state["explore_topk"]:
                 state["explore_topk"] = topk
             search = st.button(
-                "Search", disabled=not state["explore_queries"], use_container_width=True
+                "Search",
+                disabled=not state["explore_queries"],
+                use_container_width=True,
+                key="btn_search",
             )
 
         with c2:
             st.subheader("Results")
             if search is True:
                 try:
-                    # progress_bar = st.progress(0, text="Searching...")
-                    # for percentage_complete in range(100):
                     results = explore_topk(dataset, topk)
-                    # progress_bar.progress(
-                    #     percentage_complete + 1,
-                    #     text=f"Searching Dataset [{percentage_complete+1}/100]",
-                    # )
-                    # progress_bar.empty()
                 except Exception as e:
                     st.write(
                         "An error occur while searching. Please re-import dataset and try again."

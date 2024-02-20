@@ -23,7 +23,8 @@ single_state_keys = [
     "defined_attr",
     "undefined_attr",
     "selected_transform",
-    "correct-reports",
+    "correct_reports",
+    "mapping",
 ]
 
 multiple_state_keys = [

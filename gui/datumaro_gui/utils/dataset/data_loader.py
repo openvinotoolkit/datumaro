@@ -6,7 +6,7 @@ import os
 import shutil
 import zipfile
 from collections import defaultdict
-from typing import Union
+from typing import Dict, List, Union
 
 import numpy as np
 from streamlit.runtime.uploaded_file_manager import UploadedFile
@@ -50,7 +50,7 @@ class DataRepo:
         :return: path to dataset directory
         """
 
-        def find_dataset_root(filelist: list[str]):
+        def find_dataset_root(filelist: List[str]):
             common_path = os.path.commonpath(filelist)
             while common_path + os.sep in filelist:
                 filelist.remove(common_path + os.sep)
@@ -150,28 +150,28 @@ class DatasetHelper:
         self._xml_items = {}
         self._subset_to_ids = {}
 
-    def detect_format(_self) -> list[str]:
-        if _self._detected_formats is None:
-            _self._detected_formats = DEFAULT_ENVIRONMENT.detect_dataset(path=_self._dataset_dir)
-        return _self._detected_formats
+    def detect_format(self) -> List[str]:
+        if self._detected_formats is None:
+            self._detected_formats = DEFAULT_ENVIRONMENT.detect_dataset(path=self._dataset_dir)
+        return self._detected_formats
 
-    def import_dataset(_self, format) -> Dataset:
-        if format != _self._format:
-            _self._format = format
-            _self._dm_dataset = Dataset.import_from(path=_self._dataset_dir, format=_self._format)
-            _self._init_dependent_variables()
-        return _self._dm_dataset
+    def import_dataset(self, format) -> Dataset:
+        if format != self._format:
+            self._format = format
+            self._dm_dataset = Dataset.import_from(path=self._dataset_dir, format=self._format)
+            self._init_dependent_variables()
+        return self._dm_dataset
 
     def update_dataset(self, dataset):
         return NotImplementedError()
 
-    def dataset(_self) -> Dataset:
-        return _self._dm_dataset
+    def dataset(self) -> Dataset:
+        return self._dm_dataset
 
     def format(self) -> str:
         return self._format
 
-    def subset_to_ids(self) -> dict[str, list]:
+    def subset_to_ids(self) -> Dict[str, list]:
         if not self._subset_to_ids and self._dm_dataset:
             keys = defaultdict(list)
             for item in self._dm_dataset:
@@ -196,17 +196,17 @@ class DatasetHelper:
             self._val_reports[task] = reports
         return self._val_reports[task]
 
-    def aggregate(_self, from_subsets, to_subset) -> Dataset:
-        _self._dm_dataset = HLOps.aggregate(
-            _self._dm_dataset, from_subsets=from_subsets, to_subset=to_subset
+    def aggregate(self, from_subsets, to_subset) -> Dataset:
+        self._dm_dataset = HLOps.aggregate(
+            self._dm_dataset, from_subsets=from_subsets, to_subset=to_subset
         )
-        _self._val_reports = {}
-        return _self._dm_dataset
+        self._val_reports = {}
+        return self._dm_dataset
 
-    def transform(_self, method: str, **kwargs):
-        _self._dm_dataset = _self._dm_dataset.transform(method, **kwargs)
-        _self._init_dependent_variables()
-        return _self._dm_dataset
+    def transform(self, method: str, **kwargs):
+        self._dm_dataset = self._dm_dataset.transform(method, **kwargs)
+        self._init_dependent_variables()
+        return self._dm_dataset
 
     def filter(self, expr: str, filter_args):
         self._dm_dataset = self._dm_dataset.filter(expr, **filter_args)
@@ -223,12 +223,12 @@ class DatasetHelper:
             self._xml_items[key] = xml_item
         return xml_item
 
-    def export(_self, save_dir: str, format: str, **kwargs):
+    def export(self, save_dir: str, format: str, **kwargs):
         if os.path.exists(save_dir):
             shutil.rmtree(save_dir)
         if not os.path.exists(save_dir):
             os.makedirs(save_dir)
-        _self._dm_dataset.export(save_dir=save_dir, format=format, **kwargs)
+        self._dm_dataset.export(save_dir=save_dir, format=format, **kwargs)
 
     def merge(self, source_datasets, merge_policy, report_path=None, **kwargs):
         return NotImplementedError()

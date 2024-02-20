@@ -56,6 +56,19 @@ COLS_NEGATIVE_INVALID = [
     {"field": "values", "headerName": "Values", "flex": 1},
 ]
 
+CHART_KWARGS = {
+    "axisBottom": {
+        "tickSize": 5,
+        "legend": "Width",
+        "legendOffset": 40,
+    },
+    "axisLeft": {
+        "tickSize": 5,
+        "legend": "Height",
+        "legendOffset": -45,
+    },
+}
+
 
 @st.cache_data
 def get_image_size_dist(image_size_info):
@@ -67,29 +80,18 @@ def get_image_size_dist(image_size_info):
             total += len(sizes)
         return data, total
 
-    chart_kwargs = {
-        "axisBottom": {
-            "tickSize": 5,
-            "legend": "Width",
-            "legendOffset": 40,
-        },
-        "axisLeft": {
-            "tickSize": 5,
-            "legend": "Height",
-            "legendOffset": -45,
-        },
-        # "blendMode": "soft-light",
-    }
-
     tab_data = []
     start_time = time.time()
     subset_data, subset_total = get_scatter_data(image_size_info["by_subsets"])
+    if subset_total == 0:
+        return None
+
     tab_data.append(
         {
             "title": f"By Subsets ({subset_total} Images)",
             "data": subset_data,
             "chart_type": Dashboard.Chart.ScatterPlot,
-            "chart_kwargs": chart_kwargs,
+            "chart_kwargs": CHART_KWARGS,
         }
     )
     print("get_scatter_data by subsets time : ", time.time() - start_time)
@@ -102,13 +104,10 @@ def get_image_size_dist(image_size_info):
             "title": f"By Labels ({label_total} Labels)",
             "data": label_data,
             "chart_type": Dashboard.Chart.ScatterPlot,
-            "chart_kwargs": chart_kwargs,
+            "chart_kwargs": CHART_KWARGS,
         }
     )
     print("tab data append time : ", time.time() - start_time)
-
-    if subset_total == 0 and label_total == 0:
-        tab_data = None
 
     return tab_data
 
@@ -371,7 +370,7 @@ def get_anomaly_info(val_report):
             }
         )
 
-    return anomaly_info  # for data_frid
+    return anomaly_info  # for data_grid
 
 
 @st.cache_data
