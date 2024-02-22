@@ -1,0 +1,52 @@
+datumaro.plugins.transforms
+===========================
+
+.. automodule:: datumaro.plugins.transforms
+
+   
+   
+   
+
+   
+   
+   
+
+   
+   
+   .. rubric:: Classes
+
+   .. autosummary::
+   
+      AnnsToLabels
+      BboxValuesDecrement
+      BoxesToMasks
+      BoxesToPolygons
+      Correct
+      CropCoveredSegments
+      IdFromImageName
+      MapSubsets
+      MasksToPolygons
+      MergeInstanceSegments
+      PolygonsToMasks
+      ProjectInfos
+      ProjectLabels
+      RandomSplit
+      Reindex
+      ReindexAnnotations
+      RemapLabels
+      RemoveAnnotations
+      RemoveAttributes
+      RemoveItems
+      Rename
+      ResizeTransform
+      ShapesToBoxes
+      Sort
+   
+   
+
+   
+   
+   
+
+
+
