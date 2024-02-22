@@ -1,7 +1,0 @@
-YOLO package
-===================
-
-.. toctree::
-   :glob:
-
-   *

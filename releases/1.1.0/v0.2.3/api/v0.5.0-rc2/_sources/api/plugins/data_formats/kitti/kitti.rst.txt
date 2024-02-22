@@ -1,7 +1,0 @@
-KITTI package
-====================
-
-.. toctree::
-   :glob:
-
-   *

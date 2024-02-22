@@ -1,7 +1,0 @@
-VOC package
-==================
-
-.. toctree::
-   :glob:
-
-   *
