@@ -25,6 +25,10 @@ from datumaro.components.dataset_base import DEFAULT_SUBSET_NAME, DatasetBase, S
 from datumaro.components.errors import InvalidAnnotationError, InvalidFieldError, MissingFieldError
 from datumaro.components.importer import ImportContext
 from datumaro.components.media import Image, ImageFromFile
+from datumaro.plugins.data_formats.coco.base import CocoInstancesBase
+from datumaro.plugins.data_formats.coco.format import CocoTask
+from datumaro.plugins.data_formats.coco.page_mapper import COCOPageMapper
+from datumaro.util import parse_json_file
 from datumaro.util.image import IMAGE_EXTENSIONS, load_image
 
 T = TypeVar("T")
@@ -62,6 +66,18 @@ class KaggleImageCsvBase(DatasetBase):
         else:
             return osp.join(self._path, media_name)
 
+    def _parse_bbox_coords(self, bbox_str):
+        bbox_str = bbox_str.strip()
+
+        # Check if the string starts with "[" and ends with "]"
+        if bbox_str.startswith("[") and bbox_str.endswith("]"):
+            bbox_str = bbox_str[1:-1]
+
+        coords = list(filter(None, re.split(r"\s|,", bbox_str)))
+
+        # expected to output [x1, y1, x2, y2]
+        return [float(coord.strip()) for coord in coords]
+
     def _load_annotations(self, datas: list, indices: Dict[str, int], bbox_flag: bool):
         if "label" in indices:
             label_name = str(datas[indices["label"]])
@@ -70,12 +86,23 @@ class KaggleImageCsvBase(DatasetBase):
                 self._label_cat.add(label_name)
                 label, _ = self._label_cat.find(label_name)
         else:
-            self._label_cat.add("object")
+            _, cat = self._label_cat.find("object")
+            if not cat:
+                self._label_cat.add("object")
             label = 0
 
         if "label" in indices and not bbox_flag:
             return Label(label=label)
         elif bbox_flag:
+            if "bbox" in indices:
+                coords = self._parse_bbox_coords(datas[indices["bbox"]])
+                return Bbox(
+                    label=label,
+                    x=coords[0],
+                    y=coords[1],
+                    w=coords[2] - coords[0],
+                    h=coords[3] - coords[1],
+                )
             if "width" in indices and "height" in indices:
                 return Bbox(
                     label=label,
@@ -103,18 +130,23 @@ class KaggleImageCsvBase(DatasetBase):
 
         bbox_flag = False
         if "bbox" in columns:
-            for key in ["x1", "x2", "y1", "y2", "width", "height"]:
-                if columns["bbox"].get(key, None):
-                    indices.update({key: df_fields.index(columns["bbox"][key])})
             bbox_flag = True
+            if isinstance(columns["bbox"], Dict):
+                for key in ["x1", "x2", "y1", "y2", "width", "height"]:
+                    if columns["bbox"].get(key, None):
+                        indices.update({key: df_fields.index(columns["bbox"][key])})
 
-            # bbox should have ['x1', 'x2', 'y1', 'y2'] or ['x1', 'x2', 'width', 'height']
-            if not (
-                all(item in indices for item in ["x1", "x2", "y1", "y2"])
-                or all(item in indices for item in ["x1", "y1", "width", "height"])
-            ):
-                warnings.warn("Insufficient box coordinate is given for importing bounding boxes.")
-                bbox_flag = False
+                # bbox should have ['x1', 'x2', 'y1', 'y2'] or ['x1', 'x2', 'width', 'height']
+                if not (
+                    all(item in indices for item in ["x1", "x2", "y1", "y2"])
+                    or all(item in indices for item in ["x1", "y1", "width", "height"])
+                ):
+                    warnings.warn(
+                        "Insufficient box coordinate is given for importing bounding boxes."
+                    )
+                    bbox_flag = False
+            elif isinstance(columns["bbox"], str):
+                indices.update({"bbox": df_fields.index(columns["bbox"])})
 
         items = dict()
         for ind, row in df.iterrows():
@@ -167,17 +199,19 @@ class KaggleImageTxtBase(KaggleImageCsvBase):
     def _load_items(self, ann_file: str, columns: Dict[str, Union[int, Dict]]):
         bbox_flag = False
         if "bbox" in columns:
-            bbox_columns = columns.pop("bbox")
             bbox_flag = True
-
-            # bbox should have ['x1', 'x2', 'y1', 'y2'] or ['x1', 'x2', 'width', 'height']
-            if not (
-                all(item in bbox_columns for item in ["x1", "x2", "y1", "y2"])
-                or all(item in bbox_columns for item in ["x1", "y1", "width", "height"])
-            ):
-                warnings.warn("Insufficient box coordinate is given for importing bounding boxes.")
-                bbox_flag = False
-            columns.update(bbox_columns)
+            if isinstance(columns["bbox"], Dict):
+                bbox_columns = columns.pop("bbox")
+                # bbox should have ['x1', 'x2', 'y1', 'y2'] or ['x1', 'x2', 'width', 'height']
+                if not (
+                    all(item in bbox_columns for item in ["x1", "x2", "y1", "y2"])
+                    or all(item in bbox_columns for item in ["x1", "y1", "width", "height"])
+                ):
+                    warnings.warn(
+                        "Insufficient box coordinate is given for importing bounding boxes."
+                    )
+                    bbox_flag = False
+                columns.update(bbox_columns)
 
         items = dict()
         with open(ann_file, "r", encoding="utf-8") as f:
@@ -444,3 +478,50 @@ class KaggleYoloBase(KaggleVocBase, SubsetBase):
             annotations.append(Bbox(id=obj_id, label=label_id, x=x, y=y, w=w, h=h))
 
         return annotations
+
+
+class KaggleCocoBase(CocoInstancesBase, SubsetBase):
+    def __init__(
+        self,
+        path: str,
+        ann_file: str,
+        *,
+        subset: Optional[str] = None,
+        ctx: Optional[ImportContext] = None,
+        stream: bool = False,
+    ):
+        SubsetBase.__init__(self, subset=subset, ctx=ctx)
+
+        self._rootpath = path
+        self._images_dir = path
+        self._path = ann_file
+        self._task = CocoTask.instances
+        self._merge_instance_polygons = False
+
+        keep_original_category_ids = False
+
+        self._stream = stream
+        if not stream:
+            self._page_mapper = None  # No use in case of stream = False
+
+            json_data = parse_json_file(ann_file)
+
+            self._load_categories(
+                json_data,
+                keep_original_ids=keep_original_category_ids,
+            )
+
+            self._items = self._load_items(json_data)
+
+            del json_data
+        else:
+            self._page_mapper = COCOPageMapper(ann_file)
+
+            categories_data = self._page_mapper.stream_parse_categories_data()
+
+            self._load_categories(
+                {"categories": categories_data},
+                keep_original_ids=keep_original_category_ids,
+            )
+
+            self._length = None
