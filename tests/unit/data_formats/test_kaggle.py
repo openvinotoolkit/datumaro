@@ -28,12 +28,11 @@ DUMMY_DATASET_IMAGE_MASK_LABELMAP = get_test_asset_path(
 DUMMY_DATASET_VOC1_DIR = get_test_asset_path("kaggle_dataset", "relaxed_voc1")
 DUMMY_DATASET_VOC2_DIR = get_test_asset_path("kaggle_dataset", "relaxed_voc2")
 DUMMY_DATASET_YOLO_DIR = get_test_asset_path("kaggle_dataset", "relaxed_yolo")
-
-IMAGE_DIR = "images"
+DUMMY_DATASET_COCO_DIR = get_test_asset_path("kaggle_dataset", "relaxed_coco")
 
 
 @pytest.fixture
-def fxt_img_dataset():
+def fxt_img_dataset() -> Dataset:
     return Dataset.from_iterable(
         [
             DatasetItem(
@@ -72,7 +71,7 @@ def fxt_img_dataset():
 
 
 @pytest.fixture
-def fxt_img_mask_dataset():
+def fxt_img_mask_dataset() -> Dataset:
     colormap = {
         0: (0, 0, 0),  # background
         1: (255, 255, 255),  # cat
@@ -107,7 +106,7 @@ def fxt_img_mask_dataset():
 
 
 @pytest.fixture
-def fxt_img_mask_labelmap_dataset():
+def fxt_img_mask_labelmap_dataset() -> Dataset:
     colormap = {
         0: (0, 0, 0),  # background
         1: (255, 0, 0),  # cat
@@ -155,7 +154,7 @@ def fxt_img_mask_labelmap_dataset():
 
 
 @pytest.fixture
-def fxt_voc_dataset():
+def fxt_voc_dataset() -> Dataset:
     return Dataset.from_iterable(
         [
             DatasetItem(
@@ -192,7 +191,7 @@ def fxt_voc_dataset():
 
 
 @pytest.fixture
-def fxt_yolo_dataset():
+def fxt_yolo_dataset() -> Dataset:
     return Dataset.from_iterable(
         [
             DatasetItem(
@@ -218,6 +217,33 @@ def fxt_yolo_dataset():
     )
 
 
+@pytest.fixture()
+def fxt_coco_dataset() -> Dataset:
+    return Dataset.from_iterable(
+        [
+            DatasetItem(
+                id="train_001",
+                subset="default",
+                media=Image.from_numpy(data=np.ones((5, 10, 3))),
+                attributes={"id": 1},
+                annotations=[
+                    Bbox(2, 1, 3, 1, label=0, group=0, id=0, attributes={"is_crowd": False})
+                ],
+            ),
+            DatasetItem(
+                id="train_002",
+                subset="default",
+                media=Image.from_numpy(data=np.ones((10, 5, 3))),
+                attributes={"id": 2},
+                annotations=[
+                    Bbox(0, 0, 2, 4, label=1, group=1, id=1, attributes={"is_crowd": False})
+                ],
+            ),
+        ],
+        categories=["label_0", "label_1"],
+    )
+
+
 IDS = [
     "IMAGE_CSV",
     "IMAGE_CSV_WO_EXT",
@@ -228,6 +254,7 @@ IDS = [
     "VOC1",
     "VOC2",
     "YOLO",
+    "COCO",
 ]
 
 
@@ -323,6 +350,13 @@ class KaggleImporterTest(TestDataFormatBase):
                 "fxt_yolo_dataset",
                 KaggleYoloBase,
                 {"ann_path": DUMMY_DATASET_YOLO_DIR},
+            ),
+            (
+                DUMMY_DATASET_COCO_DIR,
+                "",
+                "fxt_coco_dataset",
+                KaggleCocoBase,
+                {"ann_file": osp.join(DUMMY_DATASET_COCO_DIR, "annotations.json")},
             ),
         ],
         indirect=["fxt_expected_dataset"],
