@@ -36,7 +36,7 @@ class RiseTest(TestCase):
         self.assertEqual(saliency.shape[2], image_size[2])
 
         class_indices = [244, 282]  # bullmastiff and tabby of imagenet.class
-        rois = [[90, 10, 190, 110], [170, 150, 250, 270]]  # location of bullmastiff and tabby
+        rois = [[100, 20, 180, 100], [180, 160, 240, 260]]  # location of bullmastiff and tabby
 
         for cls_idx in range(len(class_indices)):
             norm_saliency = saliency[class_indices[cls_idx]]
@@ -46,11 +46,14 @@ class RiseTest(TestCase):
                 / (roi[3] - roi[1])
                 / (roi[2] - roi[0])
             )
-            saliency_dense_total = (
-                np.sum(norm_saliency) / norm_saliency.shape[0] / norm_saliency.shape[1]
+            saliency_dense_wo_roi = (
+                np.sum(norm_saliency) - np.sum(norm_saliency[roi[1] : roi[3], roi[0] : roi[2]])
+            ) / (
+                (norm_saliency.shape[0] * norm_saliency.shape[1])
+                - ((roi[3] - roi[1]) * (roi[2] - roi[0]))
             )
 
-            self.assertLess(saliency_dense_total, saliency_dense_roi)
+            self.assertLess(saliency_dense_wo_roi, saliency_dense_roi)
 
     @pytest.mark.xfail(reason="Broken unit test and need to reimplement RISE algorithm")
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
