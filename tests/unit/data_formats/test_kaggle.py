@@ -283,9 +283,10 @@ def fxt_coco_dataset() -> Dataset:
 
 IDS = [
     "IMAGE_CSV",
+    "IMAGE_CSV_WO_EXT",
     "IMAGE_CSV_DET",
     "IMAGE_CSV_DET2",
-    "IMAGE_CSV_WO_EXT",
+    "IMAGE_CSV_DET3",
     "IMAGE_TXT",
     "IMAGE_TXT_WO_EXT",
     "IMAGE_MASK",
@@ -323,6 +324,16 @@ class KaggleImporterTest(TestDataFormatBase):
                 },
             ),
             (
+                DUMMY_DATASET_IMAGE_CSV_DIR,
+                "images",
+                "fxt_img_dataset",
+                KaggleImageCsvBase,
+                {
+                    "ann_file": osp.join(DUMMY_DATASET_IMAGE_CSV_DIR, "ann_wo_ext.csv"),
+                    "columns": {"media": "image_name", "label": "label_name"},
+                },
+            ),
+            (
                 DUMMY_DATASET_IMAGE_CSV_DET_DIR,
                 "images",
                 "fxt_img_det_dataset",
@@ -351,13 +362,13 @@ class KaggleImporterTest(TestDataFormatBase):
                 },
             ),
             (
-                DUMMY_DATASET_IMAGE_CSV_DIR,
+                DUMMY_DATASET_IMAGE_CSV_DET_DIR,
                 "images",
-                "fxt_img_dataset",
+                "fxt_img_det_dataset",
                 KaggleImageCsvBase,
                 {
-                    "ann_file": osp.join(DUMMY_DATASET_IMAGE_CSV_DIR, "ann_wo_ext.csv"),
-                    "columns": {"media": "image_name", "label": "label_name"},
+                    "ann_file": osp.join(DUMMY_DATASET_IMAGE_CSV_DET_DIR, "ann3.csv"),
+                    "columns": {"media": "image_name", "label": "label_name", "bbox": "bbox"},
                 },
             ),
             (
