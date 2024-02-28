@@ -57,23 +57,21 @@ class KaggleImageCsvBase(DatasetBase):
         self._categories = {AnnotationType.label: self._label_cat}
 
     def _get_media_path(self, media_name: str):
-        if not media_name.lower().endswith(tuple(IMAGE_EXTENSIONS)):
-            for ext in IMAGE_EXTENSIONS:
-                media_path = osp.join(self._path, media_name + ext)
-                if osp.exists(media_path):
-                    return media_path
-            return None
-        else:
-            return osp.join(self._path, media_name)
+        media_path = osp.join(self._path, media_name)
+        if osp.exists(media_path):
+            return media_path
+
+        for ext in IMAGE_EXTENSIONS:
+            media_path_with_ext = media_path + ext
+            if osp.exists(media_path_with_ext):
+                return media_path_with_ext
+
+        return None
 
     def _parse_bbox_coords(self, bbox_str):
-        bbox_str = bbox_str.strip()
-
-        # Check if the string starts with "[" and ends with "]"
-        if bbox_str.startswith("[") and bbox_str.endswith("]"):
-            bbox_str = bbox_str[1:-1]
-
-        coords = list(filter(None, re.split(r"\s|,", bbox_str)))
+        coords = re.findall(r"[-+]?\d*\.\d+|\d+", bbox_str)
+        if len(coords) != 4:
+            raise ValueError("Bounding box coordinates must have exactly 4 values.")
 
         # expected to output [x1, y1, x2, y2]
         return [float(coord.strip()) for coord in coords]
@@ -93,7 +91,7 @@ class KaggleImageCsvBase(DatasetBase):
 
         if "label" in indices and not bbox_flag:
             return Label(label=label)
-        elif bbox_flag:
+        if bbox_flag:
             if "bbox" in indices:
                 coords = self._parse_bbox_coords(datas[indices["bbox"]])
                 return Bbox(
@@ -129,29 +127,29 @@ class KaggleImageCsvBase(DatasetBase):
             indices.update({"label": df_fields.index(columns["label"])})
 
         bbox_flag = False
-        if "bbox" in columns:
+        bbox_index = columns.get("bbox")
+        if bbox_index:
             bbox_flag = True
-            if isinstance(columns["bbox"], Dict):
-                for key in ["x1", "x2", "y1", "y2", "width", "height"]:
-                    if columns["bbox"].get(key, None):
-                        indices.update({key: df_fields.index(columns["bbox"][key])})
-
-                # bbox should have ['x1', 'x2', 'y1', 'y2'] or ['x1', 'x2', 'width', 'height']
-                if not (
-                    all(item in indices for item in ["x1", "x2", "y1", "y2"])
-                    or all(item in indices for item in ["x1", "y1", "width", "height"])
-                ):
-                    warnings.warn(
-                        "Insufficient box coordinate is given for importing bounding boxes."
-                    )
-                    bbox_flag = False
-            elif isinstance(columns["bbox"], str):
-                indices.update({"bbox": df_fields.index(columns["bbox"])})
+            bbox_indices = {"x1", "x2", "y1", "y2", "width", "height"}
+            if isinstance(bbox_index, str):
+                indices["bbox"] = df_fields.index(bbox_index)
+            elif isinstance(bbox_index, dict):
+                indices.update(
+                    {
+                        key: df_fields.index(bbox_index[key])
+                        for key in bbox_indices
+                        if bbox_index.get(key)
+                    }
+                )
+            if not (
+                {"x1", "x2", "y1", "y2"} <= bbox_indices
+                or {"x1", "y1", "width", "height"} <= bbox_indices
+            ):
+                warnings.warn("Insufficient box coordinate is given for importing bounding boxes.")
+                bbox_flag = False
 
         items = dict()
-        for ind, row in df.iterrows():
-            if ind == 0:
-                continue
+        for _, row in df.iloc[1:].iterrows():  # Skip header row
             data_info = list(row)
 
             media_name = data_info[indices["media"]]
@@ -200,9 +198,8 @@ class KaggleImageTxtBase(KaggleImageCsvBase):
         bbox_flag = False
         if "bbox" in columns:
             bbox_flag = True
-            if isinstance(columns["bbox"], Dict):
-                bbox_columns = columns.pop("bbox")
-                # bbox should have ['x1', 'x2', 'y1', 'y2'] or ['x1', 'x2', 'width', 'height']
+            bbox_columns = columns.pop("bbox")
+            if isinstance(bbox_columns, dict):
                 if not (
                     all(item in bbox_columns for item in ["x1", "x2", "y1", "y2"])
                     or all(item in bbox_columns for item in ["x1", "y1", "width", "height"])
