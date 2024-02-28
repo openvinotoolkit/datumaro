@@ -283,6 +283,7 @@
 
 <span class="kn">import</span> <span class="nn">os</span>
 <span class="kn">import</span> <span class="nn">os.path</span> <span class="k">as</span> <span class="nn">osp</span>
+<span class="kn">import</span> <span class="nn">re</span>
 <span class="kn">import</span> <span class="nn">warnings</span>
 <span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Type</span><span class="p">,</span> <span class="n">TypeVar</span><span class="p">,</span> <span class="n">Union</span>
 
@@ -303,6 +304,10 @@
 <span class="kn">from</span> <span class="nn">datumaro.components.errors</span> <span class="kn">import</span> <span class="n">InvalidAnnotationError</span><span class="p">,</span> <span class="n">InvalidFieldError</span><span class="p">,</span> <span class="n">MissingFieldError</span>
 <span class="kn">from</span> <span class="nn">datumaro.components.importer</span> <span class="kn">import</span> <span class="n">ImportContext</span>
 <span class="kn">from</span> <span class="nn">datumaro.components.media</span> <span class="kn">import</span> <span class="n">Image</span><span class="p">,</span> <span class="n">ImageFromFile</span>
+<span class="kn">from</span> <span class="nn">datumaro.plugins.data_formats.coco.base</span> <span class="kn">import</span> <span class="n">CocoInstancesBase</span>
+<span class="kn">from</span> <span class="nn">datumaro.plugins.data_formats.coco.format</span> <span class="kn">import</span> <span class="n">CocoTask</span>
+<span class="kn">from</span> <span class="nn">datumaro.plugins.data_formats.coco.page_mapper</span> <span class="kn">import</span> <span class="n">COCOPageMapper</span>
+<span class="kn">from</span> <span class="nn">datumaro.util</span> <span class="kn">import</span> <span class="n">parse_json_file</span>
 <span class="kn">from</span> <span class="nn">datumaro.util.image</span> <span class="kn">import</span> <span class="n">IMAGE_EXTENSIONS</span><span class="p">,</span> <span class="n">load_image</span>
 
 <span class="n">T</span> <span class="o">=</span> <span class="n">TypeVar</span><span class="p">(</span><span class="s2">&quot;T&quot;</span><span class="p">)</span>
@@ -321,43 +326,115 @@
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">ctx</span><span class="o">=</span><span class="n">ctx</span><span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">_subset</span> <span class="o">=</span> <span class="n">subset</span>
-
         <span class="bp">self</span><span class="o">.</span><span class="n">_path</span> <span class="o">=</span> <span class="n">path</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_columns</span> <span class="o">=</span> <span class="n">columns</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">_items</span><span class="p">,</span> <span class="n">label_cat</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_load_items</span><span class="p">(</span><span class="n">ann_file</span><span class="p">,</span> <span class="n">columns</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_categories</span> <span class="o">=</span> <span class="p">{</span><span class="n">AnnotationType</span><span class="o">.</span><span class="n">label</span><span class="p">:</span> <span class="n">label_cat</span><span class="p">}</span>
+        <span class="k">if</span> <span class="s2">&quot;media&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">columns</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">MissingFieldError</span><span class="p">(</span><span class="s2">&quot;media&quot;</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_label_cat</span> <span class="o">=</span> <span class="n">LabelCategories</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_items</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_load_items</span><span class="p">(</span><span class="n">ann_file</span><span class="p">,</span> <span class="n">columns</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_categories</span> <span class="o">=</span> <span class="p">{</span><span class="n">AnnotationType</span><span class="o">.</span><span class="n">label</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_label_cat</span><span class="p">}</span>
+
+    <span class="k">def</span> <span class="nf">_get_media_path</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">media_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+        <span class="n">media_path</span> <span class="o">=</span> <span class="n">osp</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_path</span><span class="p">,</span> <span class="n">media_name</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">osp</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">media_path</span><span class="p">):</span>
+            <span class="k">return</span> <span class="n">media_path</span>
+
+        <span class="k">for</span> <span class="n">ext</span> <span class="ow">in</span> <span class="n">IMAGE_EXTENSIONS</span><span class="p">:</span>
+            <span class="n">media_path_with_ext</span> <span class="o">=</span> <span class="n">media_path</span> <span class="o">+</span> <span class="n">ext</span>
+            <span class="k">if</span> <span class="n">osp</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">media_path_with_ext</span><span class="p">):</span>
+                <span class="k">return</span> <span class="n">media_path_with_ext</span>
+
+        <span class="k">return</span> <span class="kc">None</span>
+
+    <span class="k">def</span> <span class="nf">_parse_bbox_coords</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">bbox_str</span><span class="p">):</span>
+        <span class="n">coords</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;[-+]?\d*\.\d+|\d+&quot;</span><span class="p">,</span> <span class="n">bbox_str</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">coords</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">4</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Bounding box coordinates must have exactly 4 values.&quot;</span><span class="p">)</span>
+
+        <span class="c1"># expected to output [x1, y1, x2, y2]</span>
+        <span class="k">return</span> <span class="p">[</span><span class="nb">float</span><span class="p">(</span><span class="n">coord</span><span class="o">.</span><span class="n">strip</span><span class="p">())</span> <span class="k">for</span> <span class="n">coord</span> <span class="ow">in</span> <span class="n">coords</span><span class="p">]</span>
+
+    <span class="k">def</span> <span class="nf">_load_annotations</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">datas</span><span class="p">:</span> <span class="nb">list</span><span class="p">,</span> <span class="n">indices</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">int</span><span class="p">],</span> <span class="n">bbox_flag</span><span class="p">:</span> <span class="nb">bool</span><span class="p">):</span>
+        <span class="k">if</span> <span class="s2">&quot;label&quot;</span> <span class="ow">in</span> <span class="n">indices</span><span class="p">:</span>
+            <span class="n">label_name</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">datas</span><span class="p">[</span><span class="n">indices</span><span class="p">[</span><span class="s2">&quot;label&quot;</span><span class="p">]])</span>
+            <span class="n">label</span><span class="p">,</span> <span class="n">cat</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_label_cat</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="n">label_name</span><span class="p">)</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">cat</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_label_cat</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">label_name</span><span class="p">)</span>
+                <span class="n">label</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_label_cat</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="n">label_name</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">_</span><span class="p">,</span> <span class="n">cat</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_label_cat</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s2">&quot;object&quot;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">cat</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_label_cat</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="s2">&quot;object&quot;</span><span class="p">)</span>
+            <span class="n">label</span> <span class="o">=</span> <span class="mi">0</span>
+
+        <span class="k">if</span> <span class="s2">&quot;label&quot;</span> <span class="ow">in</span> <span class="n">indices</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">bbox_flag</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">Label</span><span class="p">(</span><span class="n">label</span><span class="o">=</span><span class="n">label</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">bbox_flag</span><span class="p">:</span>
+            <span class="k">if</span> <span class="s2">&quot;bbox&quot;</span> <span class="ow">in</span> <span class="n">indices</span><span class="p">:</span>
+                <span class="n">coords</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_parse_bbox_coords</span><span class="p">(</span><span class="n">datas</span><span class="p">[</span><span class="n">indices</span><span class="p">[</span><span class="s2">&quot;bbox&quot;</span><span class="p">]])</span>
+                <span class="k">return</span> <span class="n">Bbox</span><span class="p">(</span>
+                    <span class="n">label</span><span class="o">=</span><span class="n">label</span><span class="p">,</span>
+                    <span class="n">x</span><span class="o">=</span><span class="n">coords</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
+                    <span class="n">y</span><span class="o">=</span><span class="n">coords</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span>
+                    <span class="n">w</span><span class="o">=</span><span class="n">coords</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">-</span> <span class="n">coords</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
+                    <span class="n">h</span><span class="o">=</span><span class="n">coords</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span> <span class="o">-</span> <span class="n">coords</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span>
+                <span class="p">)</span>
+            <span class="k">if</span> <span class="s2">&quot;width&quot;</span> <span class="ow">in</span> <span class="n">indices</span> <span class="ow">and</span> <span class="s2">&quot;height&quot;</span> <span class="ow">in</span> <span class="n">indices</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">Bbox</span><span class="p">(</span>
+                    <span class="n">label</span><span class="o">=</span><span class="n">label</span><span class="p">,</span>
+                    <span class="n">x</span><span class="o">=</span><span class="nb">float</span><span class="p">(</span><span class="n">datas</span><span class="p">[</span><span class="n">indices</span><span class="p">[</span><span class="s2">&quot;x1&quot;</span><span class="p">]]),</span>
+                    <span class="n">y</span><span class="o">=</span><span class="nb">float</span><span class="p">(</span><span class="n">datas</span><span class="p">[</span><span class="n">indices</span><span class="p">[</span><span class="s2">&quot;y1&quot;</span><span class="p">]]),</span>
+                    <span class="n">w</span><span class="o">=</span><span class="nb">float</span><span class="p">(</span><span class="n">datas</span><span class="p">[</span><span class="n">indices</span><span class="p">[</span><span class="s2">&quot;width&quot;</span><span class="p">]]),</span>
+                    <span class="n">h</span><span class="o">=</span><span class="nb">float</span><span class="p">(</span><span class="n">datas</span><span class="p">[</span><span class="n">indices</span><span class="p">[</span><span class="s2">&quot;height&quot;</span><span class="p">]]),</span>
+                <span class="p">)</span>
+            <span class="k">if</span> <span class="s2">&quot;x2&quot;</span> <span class="ow">in</span> <span class="n">indices</span> <span class="ow">and</span> <span class="s2">&quot;y2&quot;</span> <span class="ow">in</span> <span class="n">indices</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">Bbox</span><span class="p">(</span>
+                    <span class="n">label</span><span class="o">=</span><span class="n">label</span><span class="p">,</span>
+                    <span class="n">x</span><span class="o">=</span><span class="nb">float</span><span class="p">(</span><span class="n">datas</span><span class="p">[</span><span class="n">indices</span><span class="p">[</span><span class="s2">&quot;x1&quot;</span><span class="p">]]),</span>
+                    <span class="n">y</span><span class="o">=</span><span class="nb">float</span><span class="p">(</span><span class="n">datas</span><span class="p">[</span><span class="n">indices</span><span class="p">[</span><span class="s2">&quot;y1&quot;</span><span class="p">]]),</span>
+                    <span class="n">w</span><span class="o">=</span><span class="nb">float</span><span class="p">(</span><span class="n">datas</span><span class="p">[</span><span class="n">indices</span><span class="p">[</span><span class="s2">&quot;x2&quot;</span><span class="p">]])</span> <span class="o">-</span> <span class="nb">float</span><span class="p">(</span><span class="n">datas</span><span class="p">[</span><span class="n">indices</span><span class="p">[</span><span class="s2">&quot;x1&quot;</span><span class="p">]]),</span>
+                    <span class="n">h</span><span class="o">=</span><span class="nb">float</span><span class="p">(</span><span class="n">datas</span><span class="p">[</span><span class="n">indices</span><span class="p">[</span><span class="s2">&quot;y2&quot;</span><span class="p">]])</span> <span class="o">-</span> <span class="nb">float</span><span class="p">(</span><span class="n">datas</span><span class="p">[</span><span class="n">indices</span><span class="p">[</span><span class="s2">&quot;y1&quot;</span><span class="p">]]),</span>
+                <span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">_load_items</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ann_file</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">columns</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">list</span><span class="p">]]):</span>
         <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">ann_file</span><span class="p">,</span> <span class="n">header</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">on_bad_lines</span><span class="o">=</span><span class="s2">&quot;skip&quot;</span><span class="p">)</span>
+        <span class="n">df_fields</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
 
-        <span class="n">indices</span> <span class="o">=</span> <span class="p">{}</span>
-        <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">field</span> <span class="ow">in</span> <span class="n">columns</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
-            <span class="k">if</span> <span class="n">key</span> <span class="o">==</span> <span class="s2">&quot;bbox&quot;</span><span class="p">:</span>
-                <span class="n">indices</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
-                <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">field</span><span class="p">:</span>
-                    <span class="n">indices</span><span class="p">[</span><span class="n">key</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">v</span><span class="p">))</span>
-            <span class="k">else</span><span class="p">:</span>
-                <span class="n">indices</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">field</span><span class="p">)</span>
+        <span class="n">indices</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;media&quot;</span><span class="p">:</span> <span class="n">df_fields</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">columns</span><span class="p">[</span><span class="s2">&quot;media&quot;</span><span class="p">])}</span>
+        <span class="k">if</span> <span class="s2">&quot;label&quot;</span> <span class="ow">in</span> <span class="n">columns</span><span class="p">:</span>
+            <span class="n">indices</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="s2">&quot;label&quot;</span><span class="p">:</span> <span class="n">df_fields</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">columns</span><span class="p">[</span><span class="s2">&quot;label&quot;</span><span class="p">])})</span>
 
-        <span class="n">label_cat</span> <span class="o">=</span> <span class="n">LabelCategories</span><span class="p">()</span>
-        <span class="n">items</span> <span class="o">=</span> <span class="p">[]</span>
-        <span class="k">for</span> <span class="n">ind</span><span class="p">,</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">df</span><span class="o">.</span><span class="n">iterrows</span><span class="p">():</span>
-            <span class="k">if</span> <span class="n">ind</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
-                <span class="k">continue</span>
+        <span class="n">bbox_flag</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="n">bbox_index</span> <span class="o">=</span> <span class="n">columns</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;bbox&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">bbox_index</span><span class="p">:</span>
+            <span class="n">bbox_flag</span> <span class="o">=</span> <span class="kc">True</span>
+            <span class="n">bbox_indices</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;x1&quot;</span><span class="p">,</span> <span class="s2">&quot;x2&quot;</span><span class="p">,</span> <span class="s2">&quot;y1&quot;</span><span class="p">,</span> <span class="s2">&quot;y2&quot;</span><span class="p">,</span> <span class="s2">&quot;width&quot;</span><span class="p">,</span> <span class="s2">&quot;height&quot;</span><span class="p">}</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">bbox_index</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+                <span class="n">indices</span><span class="p">[</span><span class="s2">&quot;bbox&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">df_fields</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">bbox_index</span><span class="p">)</span>
+            <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">bbox_index</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
+                <span class="n">indices</span><span class="o">.</span><span class="n">update</span><span class="p">(</span>
+                    <span class="p">{</span>
+                        <span class="n">key</span><span class="p">:</span> <span class="n">df_fields</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">bbox_index</span><span class="p">[</span><span class="n">key</span><span class="p">])</span>
+                        <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">bbox_indices</span>
+                        <span class="k">if</span> <span class="n">bbox_index</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">key</span><span class="p">)</span>
+                    <span class="p">}</span>
+                <span class="p">)</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span>
+                <span class="p">{</span><span class="s2">&quot;x1&quot;</span><span class="p">,</span> <span class="s2">&quot;x2&quot;</span><span class="p">,</span> <span class="s2">&quot;y1&quot;</span><span class="p">,</span> <span class="s2">&quot;y2&quot;</span><span class="p">}</span> <span class="o">&lt;=</span> <span class="n">bbox_indices</span>
+                <span class="ow">or</span> <span class="p">{</span><span class="s2">&quot;x1&quot;</span><span class="p">,</span> <span class="s2">&quot;y1&quot;</span><span class="p">,</span> <span class="s2">&quot;width&quot;</span><span class="p">,</span> <span class="s2">&quot;height&quot;</span><span class="p">}</span> <span class="o">&lt;=</span> <span class="n">bbox_indices</span>
+            <span class="p">):</span>
+                <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s2">&quot;Insufficient box coordinate is given for importing bounding boxes.&quot;</span><span class="p">)</span>
+                <span class="n">bbox_flag</span> <span class="o">=</span> <span class="kc">False</span>
+
+        <span class="n">items</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">_</span><span class="p">,</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">df</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span><span class="o">.</span><span class="n">iterrows</span><span class="p">():</span>  <span class="c1"># Skip header row</span>
             <span class="n">data_info</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">row</span><span class="p">)</span>
 
             <span class="n">media_name</span> <span class="o">=</span> <span class="n">data_info</span><span class="p">[</span><span class="n">indices</span><span class="p">[</span><span class="s2">&quot;media&quot;</span><span class="p">]]</span>
-            <span class="nb">id</span> <span class="o">=</span> <span class="n">osp</span><span class="o">.</span><span class="n">splitext</span><span class="p">(</span><span class="n">media_name</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="n">item_id</span> <span class="o">=</span> <span class="n">osp</span><span class="o">.</span><span class="n">splitext</span><span class="p">(</span><span class="n">media_name</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
 
-            <span class="k">if</span> <span class="ow">not</span> <span class="n">media_name</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="nb">tuple</span><span class="p">(</span><span class="n">IMAGE_EXTENSIONS</span><span class="p">)):</span>
-                <span class="k">for</span> <span class="n">ext</span> <span class="ow">in</span> <span class="n">IMAGE_EXTENSIONS</span><span class="p">:</span>
-                    <span class="n">media_path</span> <span class="o">=</span> <span class="n">osp</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_path</span><span class="p">,</span> <span class="n">media_name</span> <span class="o">+</span> <span class="n">ext</span><span class="p">)</span>
-                    <span class="k">if</span> <span class="n">osp</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">media_path</span><span class="p">):</span>
-                        <span class="k">break</span>
-            <span class="k">else</span><span class="p">:</span>
-                <span class="n">media_path</span> <span class="o">=</span> <span class="n">osp</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_path</span><span class="p">,</span> <span class="n">media_name</span><span class="p">)</span>
-
+            <span class="n">media_path</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_media_path</span><span class="p">(</span><span class="n">media_name</span><span class="p">)</span>
             <span class="k">if</span> <span class="ow">not</span> <span class="n">osp</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">media_path</span><span class="p">):</span>
                 <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
                     <span class="sa">f</span><span class="s2">&quot;&#39;</span><span class="si">{</span><span class="n">media_path</span><span class="si">}</span><span class="s2">&#39; is not existed in the directory, &quot;</span>
@@ -365,27 +442,17 @@
                 <span class="p">)</span>
                 <span class="k">continue</span>
 
-            <span class="n">annotations</span> <span class="o">=</span> <span class="p">[]</span>
-            <span class="k">if</span> <span class="s2">&quot;label&quot;</span> <span class="ow">in</span> <span class="n">indices</span><span class="p">:</span>
-                <span class="n">label_name</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">data_info</span><span class="p">[</span><span class="n">indices</span><span class="p">[</span><span class="s2">&quot;label&quot;</span><span class="p">]])</span>
-                <span class="n">label</span><span class="p">,</span> <span class="n">cat</span> <span class="o">=</span> <span class="n">label_cat</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="n">label_name</span><span class="p">)</span>
-
-                <span class="k">if</span> <span class="ow">not</span> <span class="n">cat</span><span class="p">:</span>
-                    <span class="n">label_cat</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">label_name</span><span class="p">)</span>
-                    <span class="n">label</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">label_cat</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="n">label_name</span><span class="p">)</span>
-
-                <span class="n">annotations</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">Label</span><span class="p">(</span><span class="n">label</span><span class="o">=</span><span class="n">label</span><span class="p">))</span>
-
-            <span class="n">items</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
-                <span class="n">DatasetItem</span><span class="p">(</span>
-                    <span class="nb">id</span><span class="o">=</span><span class="nb">id</span><span class="p">,</span>
+            <span class="n">ann</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_load_annotations</span><span class="p">(</span><span class="n">data_info</span><span class="p">,</span> <span class="n">indices</span><span class="p">,</span> <span class="n">bbox_flag</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">item_id</span> <span class="ow">in</span> <span class="n">items</span><span class="p">:</span>
+                <span class="n">items</span><span class="p">[</span><span class="n">item_id</span><span class="p">]</span><span class="o">.</span><span class="n">annotations</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">ann</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">items</span><span class="p">[</span><span class="n">item_id</span><span class="p">]</span> <span class="o">=</span> <span class="n">DatasetItem</span><span class="p">(</span>
+                    <span class="nb">id</span><span class="o">=</span><span class="n">item_id</span><span class="p">,</span>
                     <span class="n">subset</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_subset</span><span class="p">,</span>
                     <span class="n">media</span><span class="o">=</span><span class="n">Image</span><span class="o">.</span><span class="n">from_file</span><span class="p">(</span><span class="n">path</span><span class="o">=</span><span class="n">media_path</span><span class="p">),</span>
-                    <span class="n">annotations</span><span class="o">=</span><span class="n">annotations</span><span class="p">,</span>
+                    <span class="n">annotations</span><span class="o">=</span><span class="p">[</span><span class="n">ann</span><span class="p">],</span>
                 <span class="p">)</span>
-            <span class="p">)</span>
-
-        <span class="k">return</span> <span class="n">items</span><span class="p">,</span> <span class="n">label_cat</span>
+        <span class="k">return</span> <span class="n">items</span><span class="o">.</span><span class="n">values</span><span class="p">()</span>
 
 <div class="viewcode-block" id="KaggleImageCsvBase.categories"><a class="viewcode-back" href="../../../../../docs/reference/_autosummary/datumaro.plugins.data_formats.kaggle.base.html#datumaro.plugins.data_formats.kaggle.base.KaggleImageCsvBase.categories">[docs]</a>    <span class="k">def</span> <span class="nf">categories</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_categories</span></div>
@@ -394,7 +461,7 @@
         <span class="k">yield from</span> <span class="bp">self</span><span class="o">.</span><span class="n">_items</span></div>
 
 
-<div class="viewcode-block" id="KaggleImageTxtBase"><a class="viewcode-back" href="../../../../../docs/reference/_autosummary/datumaro.plugins.data_formats.kaggle.base.html#datumaro.plugins.data_formats.kaggle.base.KaggleImageTxtBase">[docs]</a><span class="k">class</span> <span class="nc">KaggleImageTxtBase</span><span class="p">(</span><span class="n">DatasetBase</span><span class="p">):</span>
+<div class="viewcode-block" id="KaggleImageTxtBase"><a class="viewcode-back" href="../../../../../docs/reference/_autosummary/datumaro.plugins.data_formats.kaggle.base.html#datumaro.plugins.data_formats.kaggle.base.KaggleImageTxtBase">[docs]</a><span class="k">class</span> <span class="nc">KaggleImageTxtBase</span><span class="p">(</span><span class="n">KaggleImageCsvBase</span><span class="p">):</span>
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">path</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
@@ -404,42 +471,33 @@
         <span class="n">subset</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="n">DEFAULT_SUBSET_NAME</span><span class="p">,</span>
         <span class="n">ctx</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">ImportContext</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">):</span>
-        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">ctx</span><span class="o">=</span><span class="n">ctx</span><span class="p">)</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">path</span><span class="o">=</span><span class="n">path</span><span class="p">,</span> <span class="n">ann_file</span><span class="o">=</span><span class="n">ann_file</span><span class="p">,</span> <span class="n">columns</span><span class="o">=</span><span class="n">columns</span><span class="p">,</span> <span class="n">subset</span><span class="o">=</span><span class="n">subset</span><span class="p">,</span> <span class="n">ctx</span><span class="o">=</span><span class="n">ctx</span><span class="p">)</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">_subset</span> <span class="o">=</span> <span class="n">subset</span>
+    <span class="k">def</span> <span class="nf">_load_items</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ann_file</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">columns</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="n">Dict</span><span class="p">]]):</span>
+        <span class="n">bbox_flag</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="k">if</span> <span class="s2">&quot;bbox&quot;</span> <span class="ow">in</span> <span class="n">columns</span><span class="p">:</span>
+            <span class="n">bbox_flag</span> <span class="o">=</span> <span class="kc">True</span>
+            <span class="n">bbox_columns</span> <span class="o">=</span> <span class="n">columns</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;bbox&quot;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">bbox_columns</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span>
+                    <span class="nb">all</span><span class="p">(</span><span class="n">item</span> <span class="ow">in</span> <span class="n">bbox_columns</span> <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;x1&quot;</span><span class="p">,</span> <span class="s2">&quot;x2&quot;</span><span class="p">,</span> <span class="s2">&quot;y1&quot;</span><span class="p">,</span> <span class="s2">&quot;y2&quot;</span><span class="p">])</span>
+                    <span class="ow">or</span> <span class="nb">all</span><span class="p">(</span><span class="n">item</span> <span class="ow">in</span> <span class="n">bbox_columns</span> <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;x1&quot;</span><span class="p">,</span> <span class="s2">&quot;y1&quot;</span><span class="p">,</span> <span class="s2">&quot;width&quot;</span><span class="p">,</span> <span class="s2">&quot;height&quot;</span><span class="p">])</span>
+                <span class="p">):</span>
+                    <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
+                        <span class="s2">&quot;Insufficient box coordinate is given for importing bounding boxes.&quot;</span>
+                    <span class="p">)</span>
+                    <span class="n">bbox_flag</span> <span class="o">=</span> <span class="kc">False</span>
+                <span class="n">columns</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">bbox_columns</span><span class="p">)</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">_path</span> <span class="o">=</span> <span class="n">path</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_columns</span> <span class="o">=</span> <span class="n">columns</span>
-
-        <span class="bp">self</span><span class="o">.</span><span class="n">_items</span><span class="p">,</span> <span class="n">label_cat</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_load_items</span><span class="p">(</span><span class="n">ann_file</span><span class="p">,</span> <span class="n">columns</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_categories</span> <span class="o">=</span> <span class="p">{</span><span class="n">AnnotationType</span><span class="o">.</span><span class="n">label</span><span class="p">:</span> <span class="n">label_cat</span><span class="p">}</span>
-
-    <span class="k">def</span> <span class="nf">_load_items</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ann_file</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">columns</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">list</span><span class="p">]]):</span>
-        <span class="n">label_cat</span> <span class="o">=</span> <span class="n">LabelCategories</span><span class="p">()</span>
-
-        <span class="n">item_ids</span> <span class="o">=</span> <span class="p">[]</span>
-        <span class="n">items</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">items</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
         <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">ann_file</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
             <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">f</span><span class="p">:</span>
-                <span class="n">line</span> <span class="o">=</span> <span class="n">line</span><span class="o">.</span><span class="n">split</span><span class="p">()</span>
+                <span class="n">line</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;\s|,&quot;</span><span class="p">,</span> <span class="n">line</span><span class="p">)</span>
+
                 <span class="n">media_name</span> <span class="o">=</span> <span class="n">line</span><span class="p">[</span><span class="n">columns</span><span class="p">[</span><span class="s2">&quot;media&quot;</span><span class="p">]]</span>
                 <span class="n">item_id</span> <span class="o">=</span> <span class="n">osp</span><span class="o">.</span><span class="n">splitext</span><span class="p">(</span><span class="n">media_name</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
 
-                <span class="k">if</span> <span class="n">item_id</span> <span class="ow">in</span> <span class="n">item_ids</span><span class="p">:</span>
-                    <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
-                        <span class="sa">f</span><span class="s2">&quot;There is duplicated &#39;</span><span class="si">{</span><span class="nb">id</span><span class="si">}</span><span class="s2">&#39; in </span><span class="si">{</span><span class="n">ann_file</span><span class="si">}</span><span class="s2">, &quot;</span>
-                        <span class="sa">f</span><span class="s2">&quot;so we skip to create an dataset item according to </span><span class="si">{</span><span class="n">line</span><span class="si">}</span><span class="s2">.&quot;</span>
-                    <span class="p">)</span>
-                    <span class="k">continue</span>
-
-                <span class="k">if</span> <span class="ow">not</span> <span class="n">media_name</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="nb">tuple</span><span class="p">(</span><span class="n">IMAGE_EXTENSIONS</span><span class="p">)):</span>
-                    <span class="k">for</span> <span class="n">ext</span> <span class="ow">in</span> <span class="n">IMAGE_EXTENSIONS</span><span class="p">:</span>
-                        <span class="n">media_path</span> <span class="o">=</span> <span class="n">osp</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_path</span><span class="p">,</span> <span class="n">media_name</span> <span class="o">+</span> <span class="n">ext</span><span class="p">)</span>
-                        <span class="k">if</span> <span class="n">osp</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">media_path</span><span class="p">):</span>
-                            <span class="k">break</span>
-                <span class="k">else</span><span class="p">:</span>
-                    <span class="n">media_path</span> <span class="o">=</span> <span class="n">osp</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_path</span><span class="p">,</span> <span class="n">media_name</span><span class="p">)</span>
-
+                <span class="n">media_path</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_media_path</span><span class="p">(</span><span class="n">media_name</span><span class="p">)</span>
                 <span class="k">if</span> <span class="ow">not</span> <span class="n">osp</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">media_path</span><span class="p">):</span>
                     <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
                         <span class="sa">f</span><span class="s2">&quot;&#39;</span><span class="si">{</span><span class="n">media_path</span><span class="si">}</span><span class="s2">&#39; is not existed in the directory, &quot;</span>
@@ -447,34 +505,18 @@
                     <span class="p">)</span>
                     <span class="k">continue</span>
 
-                <span class="n">annotations</span> <span class="o">=</span> <span class="p">[]</span>
-                <span class="k">if</span> <span class="s2">&quot;label&quot;</span> <span class="ow">in</span> <span class="n">columns</span><span class="p">:</span>
-                    <span class="n">label_name</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">line</span><span class="p">[</span><span class="n">columns</span><span class="p">[</span><span class="s2">&quot;label&quot;</span><span class="p">]])</span>
-                    <span class="n">label</span><span class="p">,</span> <span class="n">cat</span> <span class="o">=</span> <span class="n">label_cat</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="n">label_name</span><span class="p">)</span>
-
-                    <span class="k">if</span> <span class="ow">not</span> <span class="n">cat</span><span class="p">:</span>
-                        <span class="n">label_cat</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">label_name</span><span class="p">)</span>
-                        <span class="n">label</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">label_cat</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="n">label_name</span><span class="p">)</span>
-
-                    <span class="n">annotations</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">Label</span><span class="p">(</span><span class="n">label</span><span class="o">=</span><span class="n">label</span><span class="p">))</span>
-
-                <span class="n">item_ids</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">item_id</span><span class="p">)</span>
-                <span class="n">items</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
-                    <span class="n">DatasetItem</span><span class="p">(</span>
+                <span class="n">ann</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_load_annotations</span><span class="p">(</span><span class="n">line</span><span class="p">,</span> <span class="n">columns</span><span class="p">,</span> <span class="n">bbox_flag</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">item_id</span> <span class="ow">in</span> <span class="n">items</span><span class="p">:</span>
+                    <span class="n">items</span><span class="p">[</span><span class="n">item_id</span><span class="p">]</span><span class="o">.</span><span class="n">annotations</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">ann</span><span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">items</span><span class="p">[</span><span class="n">item_id</span><span class="p">]</span> <span class="o">=</span> <span class="n">DatasetItem</span><span class="p">(</span>
                         <span class="nb">id</span><span class="o">=</span><span class="n">item_id</span><span class="p">,</span>
                         <span class="n">subset</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_subset</span><span class="p">,</span>
                         <span class="n">media</span><span class="o">=</span><span class="n">Image</span><span class="o">.</span><span class="n">from_file</span><span class="p">(</span><span class="n">path</span><span class="o">=</span><span class="n">media_path</span><span class="p">),</span>
-                        <span class="n">annotations</span><span class="o">=</span><span class="n">annotations</span><span class="p">,</span>
+                        <span class="n">annotations</span><span class="o">=</span><span class="p">[</span><span class="n">ann</span><span class="p">],</span>
                     <span class="p">)</span>
-                <span class="p">)</span>
 
-        <span class="k">return</span> <span class="n">items</span><span class="p">,</span> <span class="n">label_cat</span>
-
-<div class="viewcode-block" id="KaggleImageTxtBase.categories"><a class="viewcode-back" href="../../../../../docs/reference/_autosummary/datumaro.plugins.data_formats.kaggle.base.html#datumaro.plugins.data_formats.kaggle.base.KaggleImageTxtBase.categories">[docs]</a>    <span class="k">def</span> <span class="nf">categories</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_categories</span></div>
-
-    <span class="k">def</span> <span class="fm">__iter__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">yield from</span> <span class="bp">self</span><span class="o">.</span><span class="n">_items</span></div>
+        <span class="k">return</span> <span class="n">items</span><span class="o">.</span><span class="n">values</span><span class="p">()</span></div>
 
 
 <div class="viewcode-block" id="KaggleImageMaskBase"><a class="viewcode-back" href="../../../../../docs/reference/_autosummary/datumaro.plugins.data_formats.kaggle.base.html#datumaro.plugins.data_formats.kaggle.base.KaggleImageMaskBase">[docs]</a><span class="k">class</span> <span class="nc">KaggleImageMaskBase</span><span class="p">(</span><span class="n">DatasetBase</span><span class="p">):</span>
@@ -712,6 +754,53 @@
             <span class="n">annotations</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">Bbox</span><span class="p">(</span><span class="nb">id</span><span class="o">=</span><span class="n">obj_id</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="n">label_id</span><span class="p">,</span> <span class="n">x</span><span class="o">=</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="n">y</span><span class="p">,</span> <span class="n">w</span><span class="o">=</span><span class="n">w</span><span class="p">,</span> <span class="n">h</span><span class="o">=</span><span class="n">h</span><span class="p">))</span>
 
         <span class="k">return</span> <span class="n">annotations</span></div>
+
+
+<div class="viewcode-block" id="KaggleCocoBase"><a class="viewcode-back" href="../../../../../docs/reference/_autosummary/datumaro.plugins.data_formats.kaggle.base.html#datumaro.plugins.data_formats.kaggle.base.KaggleCocoBase">[docs]</a><span class="k">class</span> <span class="nc">KaggleCocoBase</span><span class="p">(</span><span class="n">CocoInstancesBase</span><span class="p">,</span> <span class="n">SubsetBase</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">path</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="n">ann_file</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="o">*</span><span class="p">,</span>
+        <span class="n">subset</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">ctx</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">ImportContext</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">stream</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="p">):</span>
+        <span class="n">SubsetBase</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">subset</span><span class="o">=</span><span class="n">subset</span><span class="p">,</span> <span class="n">ctx</span><span class="o">=</span><span class="n">ctx</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_rootpath</span> <span class="o">=</span> <span class="n">path</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_images_dir</span> <span class="o">=</span> <span class="n">path</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_path</span> <span class="o">=</span> <span class="n">ann_file</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_task</span> <span class="o">=</span> <span class="n">CocoTask</span><span class="o">.</span><span class="n">instances</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_merge_instance_polygons</span> <span class="o">=</span> <span class="kc">False</span>
+
+        <span class="n">keep_original_category_ids</span> <span class="o">=</span> <span class="kc">False</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_stream</span> <span class="o">=</span> <span class="n">stream</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">stream</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_page_mapper</span> <span class="o">=</span> <span class="kc">None</span>  <span class="c1"># No use in case of stream = False</span>
+
+            <span class="n">json_data</span> <span class="o">=</span> <span class="n">parse_json_file</span><span class="p">(</span><span class="n">ann_file</span><span class="p">)</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">_load_categories</span><span class="p">(</span>
+                <span class="n">json_data</span><span class="p">,</span>
+                <span class="n">keep_original_ids</span><span class="o">=</span><span class="n">keep_original_category_ids</span><span class="p">,</span>
+            <span class="p">)</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">_items</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_load_items</span><span class="p">(</span><span class="n">json_data</span><span class="p">)</span>
+
+            <span class="k">del</span> <span class="n">json_data</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_page_mapper</span> <span class="o">=</span> <span class="n">COCOPageMapper</span><span class="p">(</span><span class="n">ann_file</span><span class="p">)</span>
+
+            <span class="n">categories_data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_page_mapper</span><span class="o">.</span><span class="n">stream_parse_categories_data</span><span class="p">()</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">_load_categories</span><span class="p">(</span>
+                <span class="p">{</span><span class="s2">&quot;categories&quot;</span><span class="p">:</span> <span class="n">categories_data</span><span class="p">},</span>
+                <span class="n">keep_original_ids</span><span class="o">=</span><span class="n">keep_original_category_ids</span><span class="p">,</span>
+            <span class="p">)</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">_length</span> <span class="o">=</span> <span class="kc">None</span></div>
 </pre></div>
 
             </article>

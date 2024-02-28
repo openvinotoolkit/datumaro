@@ -17,6 +17,7 @@ datumaro.plugins.data\_formats.kaggle.base
 
    .. autosummary::
    
+      KaggleCocoBase
       KaggleImageCsvBase
       KaggleImageMaskBase
       KaggleImageTxtBase
