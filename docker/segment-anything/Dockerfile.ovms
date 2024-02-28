@@ -1,4 +1,4 @@
-FROM openvino/model_server:2023.0-gpu AS ovms
+FROM openvino/model_server:2023.0-gpu@sha256:c29fa4c2c7bd0432f85e69fd2ed28bff9c3e27defaf0055b3c9b314df21a9d38 AS ovms
 
 USER root
 

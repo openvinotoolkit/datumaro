@@ -1,6 +1,6 @@
 ARG model_type
 
-FROM pytorch/pytorch:1.13.1-cuda11.6-cudnn8-runtime AS onnx-exporter-base
+FROM pytorch/pytorch:1.13.1-cuda11.6-cudnn8-runtime@sha256:1e26efd426b0fecbfe7cf3d3ae5003fada6ac5a76eddc1e042857f5d049605ee AS onnx-exporter-base
 
 ARG http_proxy
 ARG https_proxy
@@ -9,14 +9,13 @@ ARG no_proxy
 RUN apt update && apt install -y git curl && \
     rm -rf /var/lib/apt/lists/*
 
-RUN pip install opencv-python pycocotools matplotlib onnxruntime onnx
+COPY requirements.txt /tmp/requirements.txt
+RUN pip install --no-cache-dir --require-hashes --no-deps -r /tmp/requirements.txt && rm /tmp/requirements.txt
 
 WORKDIR /ws
 RUN mkdir -p /ws/output
-RUN git clone https://github.com/facebookresearch/segment-anything.git
-
-WORKDIR /ws/segment-anything
-RUN pip install -e .
+RUN pip install -e git+https://github.com/facebookresearch/segment-anything/@6fdee8f2727f4506cfbbe553e23b895e27956588#egg=segment_anything
+WORKDIR /ws/src/segment-anything
 
 # From https://github.com/facebookresearch/segment-anything/tree/main#model-checkpoints
 # vit_h: https://dl.fbaipublicfiles.com/segment_anything/sam_vit_h_4b8939.pth
