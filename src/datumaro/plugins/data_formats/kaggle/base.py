@@ -4,6 +4,7 @@
 
 import os
 import os.path as osp
+import re
 import warnings
 from typing import Dict, Optional, Type, TypeVar, Union
 
@@ -24,6 +25,10 @@ from datumaro.components.dataset_base import DEFAULT_SUBSET_NAME, DatasetBase, S
 from datumaro.components.errors import InvalidAnnotationError, InvalidFieldError, MissingFieldError
 from datumaro.components.importer import ImportContext
 from datumaro.components.media import Image, ImageFromFile
+from datumaro.plugins.data_formats.coco.base import CocoInstancesBase
+from datumaro.plugins.data_formats.coco.format import CocoTask
+from datumaro.plugins.data_formats.coco.page_mapper import COCOPageMapper
+from datumaro.util import parse_json_file
 from datumaro.util.image import IMAGE_EXTENSIONS, load_image
 
 T = TypeVar("T")
@@ -42,43 +47,115 @@ class KaggleImageCsvBase(DatasetBase):
         super().__init__(ctx=ctx)
 
         self._subset = subset
-
         self._path = path
-        self._columns = columns
 
-        self._items, label_cat = self._load_items(ann_file, columns)
-        self._categories = {AnnotationType.label: label_cat}
+        if "media" not in columns:
+            raise MissingFieldError("media")
+
+        self._label_cat = LabelCategories()
+        self._items = self._load_items(ann_file, columns)
+        self._categories = {AnnotationType.label: self._label_cat}
+
+    def _get_media_path(self, media_name: str):
+        media_path = osp.join(self._path, media_name)
+        if osp.exists(media_path):
+            return media_path
+
+        for ext in IMAGE_EXTENSIONS:
+            media_path_with_ext = media_path + ext
+            if osp.exists(media_path_with_ext):
+                return media_path_with_ext
+
+        return None
+
+    def _parse_bbox_coords(self, bbox_str):
+        coords = re.findall(r"[-+]?\d*\.\d+|\d+", bbox_str)
+        if len(coords) != 4:
+            raise ValueError("Bounding box coordinates must have exactly 4 values.")
+
+        # expected to output [x1, y1, x2, y2]
+        return [float(coord.strip()) for coord in coords]
+
+    def _load_annotations(self, datas: list, indices: Dict[str, int], bbox_flag: bool):
+        if "label" in indices:
+            label_name = str(datas[indices["label"]])
+            label, cat = self._label_cat.find(label_name)
+            if not cat:
+                self._label_cat.add(label_name)
+                label, _ = self._label_cat.find(label_name)
+        else:
+            _, cat = self._label_cat.find("object")
+            if not cat:
+                self._label_cat.add("object")
+            label = 0
+
+        if "label" in indices and not bbox_flag:
+            return Label(label=label)
+        if bbox_flag:
+            if "bbox" in indices:
+                coords = self._parse_bbox_coords(datas[indices["bbox"]])
+                return Bbox(
+                    label=label,
+                    x=coords[0],
+                    y=coords[1],
+                    w=coords[2] - coords[0],
+                    h=coords[3] - coords[1],
+                )
+            if "width" in indices and "height" in indices:
+                return Bbox(
+                    label=label,
+                    x=float(datas[indices["x1"]]),
+                    y=float(datas[indices["y1"]]),
+                    w=float(datas[indices["width"]]),
+                    h=float(datas[indices["height"]]),
+                )
+            if "x2" in indices and "y2" in indices:
+                return Bbox(
+                    label=label,
+                    x=float(datas[indices["x1"]]),
+                    y=float(datas[indices["y1"]]),
+                    w=float(datas[indices["x2"]]) - float(datas[indices["x1"]]),
+                    h=float(datas[indices["y2"]]) - float(datas[indices["y1"]]),
+                )
 
     def _load_items(self, ann_file: str, columns: Dict[str, Union[str, list]]):
         df = pd.read_csv(ann_file, header=None, on_bad_lines="skip")
+        df_fields = list(df.iloc[0])
 
-        indices = {}
-        for key, field in columns.items():
-            if key == "bbox":
-                indices[key] = []
-                for v in field:
-                    indices[key].append(list(df.iloc[0]).index(v))
-            else:
-                indices[key] = list(df.iloc[0]).index(field)
+        indices = {"media": df_fields.index(columns["media"])}
+        if "label" in columns:
+            indices.update({"label": df_fields.index(columns["label"])})
 
-        label_cat = LabelCategories()
-        items = []
-        for ind, row in df.iterrows():
-            if ind == 0:
-                continue
+        bbox_flag = False
+        bbox_index = columns.get("bbox")
+        if bbox_index:
+            bbox_flag = True
+            bbox_indices = {"x1", "x2", "y1", "y2", "width", "height"}
+            if isinstance(bbox_index, str):
+                indices["bbox"] = df_fields.index(bbox_index)
+            elif isinstance(bbox_index, dict):
+                indices.update(
+                    {
+                        key: df_fields.index(bbox_index[key])
+                        for key in bbox_indices
+                        if bbox_index.get(key)
+                    }
+                )
+            if not (
+                {"x1", "x2", "y1", "y2"} <= bbox_indices
+                or {"x1", "y1", "width", "height"} <= bbox_indices
+            ):
+                warnings.warn("Insufficient box coordinate is given for importing bounding boxes.")
+                bbox_flag = False
+
+        items = dict()
+        for _, row in df.iloc[1:].iterrows():  # Skip header row
             data_info = list(row)
 
             media_name = data_info[indices["media"]]
-            id = osp.splitext(media_name)[0]
+            item_id = osp.splitext(media_name)[0]
 
-            if not media_name.lower().endswith(tuple(IMAGE_EXTENSIONS)):
-                for ext in IMAGE_EXTENSIONS:
-                    media_path = osp.join(self._path, media_name + ext)
-                    if osp.exists(media_path):
-                        break
-            else:
-                media_path = osp.join(self._path, media_name)
-
+            media_path = self._get_media_path(media_name)
             if not osp.exists(media_path):
                 warnings.warn(
                     f"'{media_path}' is not existed in the directory, "
@@ -86,27 +163,17 @@ class KaggleImageCsvBase(DatasetBase):
                 )
                 continue
 
-            annotations = []
-            if "label" in indices:
-                label_name = str(data_info[indices["label"]])
-                label, cat = label_cat.find(label_name)
-
-                if not cat:
-                    label_cat.add(label_name)
-                    label, _ = label_cat.find(label_name)
-
-                annotations.append(Label(label=label))
-
-            items.append(
-                DatasetItem(
-                    id=id,
+            ann = self._load_annotations(data_info, indices, bbox_flag)
+            if item_id in items:
+                items[item_id].annotations.append(ann)
+            else:
+                items[item_id] = DatasetItem(
+                    id=item_id,
                     subset=self._subset,
                     media=Image.from_file(path=media_path),
-                    annotations=annotations,
+                    annotations=[ann],
                 )
-            )
-
-        return items, label_cat
+        return items.values()
 
     def categories(self):
         return self._categories
@@ -115,7 +182,7 @@ class KaggleImageCsvBase(DatasetBase):
         yield from self._items
 
 
-class KaggleImageTxtBase(DatasetBase):
+class KaggleImageTxtBase(KaggleImageCsvBase):
     def __init__(
         self,
         path: str,
@@ -125,42 +192,33 @@ class KaggleImageTxtBase(DatasetBase):
         subset: Optional[str] = DEFAULT_SUBSET_NAME,
         ctx: Optional[ImportContext] = None,
     ):
-        super().__init__(ctx=ctx)
+        super().__init__(path=path, ann_file=ann_file, columns=columns, subset=subset, ctx=ctx)
 
-        self._subset = subset
+    def _load_items(self, ann_file: str, columns: Dict[str, Union[int, Dict]]):
+        bbox_flag = False
+        if "bbox" in columns:
+            bbox_flag = True
+            bbox_columns = columns.pop("bbox")
+            if isinstance(bbox_columns, dict):
+                if not (
+                    all(item in bbox_columns for item in ["x1", "x2", "y1", "y2"])
+                    or all(item in bbox_columns for item in ["x1", "y1", "width", "height"])
+                ):
+                    warnings.warn(
+                        "Insufficient box coordinate is given for importing bounding boxes."
+                    )
+                    bbox_flag = False
+                columns.update(bbox_columns)
 
-        self._path = path
-        self._columns = columns
-
-        self._items, label_cat = self._load_items(ann_file, columns)
-        self._categories = {AnnotationType.label: label_cat}
-
-    def _load_items(self, ann_file: str, columns: Dict[str, Union[int, list]]):
-        label_cat = LabelCategories()
-
-        item_ids = []
-        items = []
+        items = dict()
         with open(ann_file, "r", encoding="utf-8") as f:
             for line in f:
-                line = line.split()
+                line = re.split(r"\s|,", line)
+
                 media_name = line[columns["media"]]
                 item_id = osp.splitext(media_name)[0]
 
-                if item_id in item_ids:
-                    warnings.warn(
-                        f"There is duplicated '{id}' in {ann_file}, "
-                        f"so we skip to create an dataset item according to {line}."
-                    )
-                    continue
-
-                if not media_name.lower().endswith(tuple(IMAGE_EXTENSIONS)):
-                    for ext in IMAGE_EXTENSIONS:
-                        media_path = osp.join(self._path, media_name + ext)
-                        if osp.exists(media_path):
-                            break
-                else:
-                    media_path = osp.join(self._path, media_name)
-
+                media_path = self._get_media_path(media_name)
                 if not osp.exists(media_path):
                     warnings.warn(
                         f"'{media_path}' is not existed in the directory, "
@@ -168,34 +226,18 @@ class KaggleImageTxtBase(DatasetBase):
                     )
                     continue
 
-                annotations = []
-                if "label" in columns:
-                    label_name = str(line[columns["label"]])
-                    label, cat = label_cat.find(label_name)
-
-                    if not cat:
-                        label_cat.add(label_name)
-                        label, _ = label_cat.find(label_name)
-
-                    annotations.append(Label(label=label))
-
-                item_ids.append(item_id)
-                items.append(
-                    DatasetItem(
+                ann = self._load_annotations(line, columns, bbox_flag)
+                if item_id in items:
+                    items[item_id].annotations.append(ann)
+                else:
+                    items[item_id] = DatasetItem(
                         id=item_id,
                         subset=self._subset,
                         media=Image.from_file(path=media_path),
-                        annotations=annotations,
+                        annotations=[ann],
                     )
-                )
 
-        return items, label_cat
-
-    def categories(self):
-        return self._categories
-
-    def __iter__(self):
-        yield from self._items
+        return items.values()
 
 
 class KaggleImageMaskBase(DatasetBase):
@@ -433,3 +475,50 @@ class KaggleYoloBase(KaggleVocBase, SubsetBase):
             annotations.append(Bbox(id=obj_id, label=label_id, x=x, y=y, w=w, h=h))
 
         return annotations
+
+
+class KaggleCocoBase(CocoInstancesBase, SubsetBase):
+    def __init__(
+        self,
+        path: str,
+        ann_file: str,
+        *,
+        subset: Optional[str] = None,
+        ctx: Optional[ImportContext] = None,
+        stream: bool = False,
+    ):
+        SubsetBase.__init__(self, subset=subset, ctx=ctx)
+
+        self._rootpath = path
+        self._images_dir = path
+        self._path = ann_file
+        self._task = CocoTask.instances
+        self._merge_instance_polygons = False
+
+        keep_original_category_ids = False
+
+        self._stream = stream
+        if not stream:
+            self._page_mapper = None  # No use in case of stream = False
+
+            json_data = parse_json_file(ann_file)
+
+            self._load_categories(
+                json_data,
+                keep_original_ids=keep_original_category_ids,
+            )
+
+            self._items = self._load_items(json_data)
+
+            del json_data
+        else:
+            self._page_mapper = COCOPageMapper(ann_file)
+
+            categories_data = self._page_mapper.stream_parse_categories_data()
+
+            self._load_categories(
+                {"categories": categories_data},
+                keep_original_ids=keep_original_category_ids,
+            )
+
+            self._length = None

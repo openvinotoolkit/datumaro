@@ -617,6 +617,11 @@
     }
   },
   {
+    "import_path": "datumaro.plugins.data_formats.kaggle.base.KaggleCocoBase",
+    "plugin_name": "kaggle_coco",
+    "plugin_type": "DatasetBase"
+  },
+  {
     "import_path": "datumaro.plugins.data_formats.kaggle.base.KaggleImageCsvBase",
     "plugin_name": "kaggle_image_csv",
     "plugin_type": "DatasetBase"

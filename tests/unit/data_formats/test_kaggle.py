@@ -20,7 +20,9 @@ from tests.utils.assets import get_test_asset_path
 from tests.utils.test_utils import compare_datasets
 
 DUMMY_DATASET_IMAGE_CSV_DIR = get_test_asset_path("kaggle_dataset", "image_csv")
+DUMMY_DATASET_IMAGE_CSV_DET_DIR = get_test_asset_path("kaggle_dataset", "image_csv_det")
 DUMMY_DATASET_IMAGE_TXT_DIR = get_test_asset_path("kaggle_dataset", "image_txt")
+DUMMY_DATASET_IMAGE_TXT_DET_DIR = get_test_asset_path("kaggle_dataset", "image_txt_det")
 DUMMY_DATASET_IMAGE_MASK = get_test_asset_path("kaggle_dataset", "image_mask")
 DUMMY_DATASET_IMAGE_MASK_LABELMAP = get_test_asset_path(
     "kaggle_dataset", "image_mask_with_labelmap"
@@ -28,12 +30,11 @@ DUMMY_DATASET_IMAGE_MASK_LABELMAP = get_test_asset_path(
 DUMMY_DATASET_VOC1_DIR = get_test_asset_path("kaggle_dataset", "relaxed_voc1")
 DUMMY_DATASET_VOC2_DIR = get_test_asset_path("kaggle_dataset", "relaxed_voc2")
 DUMMY_DATASET_YOLO_DIR = get_test_asset_path("kaggle_dataset", "relaxed_yolo")
-
-IMAGE_DIR = "images"
+DUMMY_DATASET_COCO_DIR = get_test_asset_path("kaggle_dataset", "relaxed_coco")
 
 
 @pytest.fixture
-def fxt_img_dataset():
+def fxt_img_dataset() -> Dataset:
     return Dataset.from_iterable(
         [
             DatasetItem(
@@ -72,7 +73,79 @@ def fxt_img_dataset():
 
 
 @pytest.fixture
-def fxt_img_mask_dataset():
+def fxt_img_det_dataset() -> Dataset:
+    return Dataset.from_iterable(
+        [
+            DatasetItem(
+                id="1",
+                subset="default",
+                media=Image.from_numpy(data=np.ones((5, 10, 3))),
+                annotations=[
+                    Bbox(0, 1, 1, 1, label=0),
+                    Bbox(1, 2, 2, 1, label=1),
+                ],
+            ),
+            DatasetItem(
+                id="2",
+                subset="default",
+                media=Image.from_numpy(data=np.ones((5, 10, 3))),
+                annotations=[
+                    Bbox(0, 0, 1, 1, label=1),
+                ],
+            ),
+            DatasetItem(
+                id="3",
+                subset="default",
+                media=Image.from_numpy(data=np.ones((5, 10, 3))),
+                annotations=[
+                    Bbox(0, 2, 2, 2, label=0),
+                    Bbox(0, 0, 1, 1, label=0),
+                    Bbox(1, 1, 1, 1, label=1),
+                ],
+            ),
+        ],
+        categories=["dog", "cat"],
+    )
+
+
+@pytest.fixture
+def fxt_img_single_det_dataset() -> Dataset:
+    return Dataset.from_iterable(
+        [
+            DatasetItem(
+                id="1",
+                subset="default",
+                media=Image.from_numpy(data=np.ones((5, 10, 3))),
+                annotations=[
+                    Bbox(0, 1, 1, 1, label=0),
+                    Bbox(1, 2, 2, 1, label=0),
+                ],
+            ),
+            DatasetItem(
+                id="2",
+                subset="default",
+                media=Image.from_numpy(data=np.ones((5, 10, 3))),
+                annotations=[
+                    Bbox(0, 0, 1, 1, label=0),
+                ],
+            ),
+            DatasetItem(
+                id="3",
+                subset="default",
+                media=Image.from_numpy(data=np.ones((5, 10, 3))),
+                annotations=[
+                    Bbox(0, 2, 2, 2, label=0),
+                    Bbox(0, 0, 1, 1, label=0),
+                    Bbox(1, 1, 1, 1, label=0),
+                ],
+            ),
+        ],
+        categories=["object"],
+    )
+
+
+@pytest.fixture
+def fxt_img_mask_dataset() -> Dataset:
     colormap = {
         0: (0, 0, 0),  # background
         1: (255, 255, 255),  # cat
@@ -107,7 +180,7 @@ def fxt_img_mask_dataset():
 
 
 @pytest.fixture
-def fxt_img_mask_labelmap_dataset():
+def fxt_img_mask_labelmap_dataset() -> Dataset:
     colormap = {
         0: (0, 0, 0),  # background
         1: (255, 0, 0),  # cat
@@ -155,7 +228,7 @@ def fxt_img_mask_labelmap_dataset():
 
 
 @pytest.fixture
-def fxt_voc_dataset():
+def fxt_voc_dataset() -> Dataset:
     return Dataset.from_iterable(
         [
             DatasetItem(
@@ -192,7 +265,7 @@ def fxt_voc_dataset():
 
 
 @pytest.fixture
-def fxt_yolo_dataset():
+def fxt_yolo_dataset() -> Dataset:
     return Dataset.from_iterable(
         [
             DatasetItem(
@@ -218,16 +291,49 @@ def fxt_yolo_dataset():
     )
 
 
+@pytest.fixture()
+def fxt_coco_dataset() -> Dataset:
+    return Dataset.from_iterable(
+        [
+            DatasetItem(
+                id="train_001",
+                subset="default",
+                media=Image.from_numpy(data=np.ones((5, 10, 3))),
+                attributes={"id": 1},
+                annotations=[
+                    Bbox(2, 1, 3, 1, label=0, group=0, id=0, attributes={"is_crowd": False})
+                ],
+            ),
+            DatasetItem(
+                id="train_002",
+                subset="default",
+                media=Image.from_numpy(data=np.ones((10, 5, 3))),
+                attributes={"id": 2},
+                annotations=[
+                    Bbox(0, 0, 2, 4, label=1, group=1, id=1, attributes={"is_crowd": False})
+                ],
+            ),
+        ],
+        categories=["label_0", "label_1"],
+    )
+
+
 IDS = [
     "IMAGE_CSV",
     "IMAGE_CSV_WO_EXT",
+    "IMAGE_CSV_DET",
+    "IMAGE_CSV_DET2",
+    "IMAGE_CSV_DET3",
     "IMAGE_TXT",
     "IMAGE_TXT_WO_EXT",
+    "IMAGE_TXT_DET",
+    "IMAGE_TXT_DET_SINGLE",
     "IMAGE_MASK",
     "IMAGE_MASK_LABELMAP",
     "VOC1",
     "VOC2",
     "YOLO",
+    "COCO",
 ]
 
 
@@ -267,6 +373,44 @@ class KaggleImporterTest(TestDataFormatBase):
                 },
             ),
             (
+                DUMMY_DATASET_IMAGE_CSV_DET_DIR,
+                "images",
+                "fxt_img_det_dataset",
+                KaggleImageCsvBase,
+                {
+                    "ann_file": osp.join(DUMMY_DATASET_IMAGE_CSV_DET_DIR, "ann.csv"),
+                    "columns": {
+                        "media": "image_name",
+                        "label": "label_name",
+                        "bbox": {"x1": "x1", "y1": "y1", "x2": "x2", "y2": "y2"},
+                    },
+                },
+            ),
+            (
+                DUMMY_DATASET_IMAGE_CSV_DET_DIR,
+                "images",
+                "fxt_img_det_dataset",
+                KaggleImageCsvBase,
+                {
+                    "ann_file": osp.join(DUMMY_DATASET_IMAGE_CSV_DET_DIR, "ann2.csv"),
+                    "columns": {
+                        "media": "image_name",
+                        "label": "label_name",
+                        "bbox": {"x1": "x1", "y1": "y1", "width": "w", "height": "h"},
+                    },
+                },
+            ),
+            (
+                DUMMY_DATASET_IMAGE_CSV_DET_DIR,
+                "images",
+                "fxt_img_det_dataset",
+                KaggleImageCsvBase,
+                {
+                    "ann_file": osp.join(DUMMY_DATASET_IMAGE_CSV_DET_DIR, "ann3.csv"),
+                    "columns": {"media": "image_name", "label": "label_name", "bbox": "bbox"},
+                },
+            ),
+            (
                 DUMMY_DATASET_IMAGE_TXT_DIR,
                 "images",
                 "fxt_img_dataset",
@@ -284,6 +428,30 @@ class KaggleImporterTest(TestDataFormatBase):
                 {
                     "ann_file": osp.join(DUMMY_DATASET_IMAGE_TXT_DIR, "ann_wo_ext.txt"),
                     "columns": {"media": 0, "label": 1},
+                },
+            ),
+            (
+                DUMMY_DATASET_IMAGE_TXT_DET_DIR,
+                "images",
+                "fxt_img_det_dataset",
+                KaggleImageTxtBase,
+                {
+                    "ann_file": osp.join(DUMMY_DATASET_IMAGE_TXT_DET_DIR, "ann.txt"),
+                    "columns": {
+                        "media": 0,
+                        "label": 1,
+                        "bbox": {"x1": 2, "y1": 3, "x2": 4, "y2": 5},
+                    },
+                },
+            ),
+            (
+                DUMMY_DATASET_IMAGE_TXT_DET_DIR,
+                "images",
+                "fxt_img_single_det_dataset",
+                KaggleImageTxtBase,
+                {
+                    "ann_file": osp.join(DUMMY_DATASET_IMAGE_TXT_DET_DIR, "ann_single_obj.txt"),
+                    "columns": {"media": 0, "bbox": {"x1": 1, "y1": 2, "width": 3, "height": 4}},
                 },
             ),
             (
@@ -323,6 +491,13 @@ class KaggleImporterTest(TestDataFormatBase):
                 "fxt_yolo_dataset",
                 KaggleYoloBase,
                 {"ann_path": DUMMY_DATASET_YOLO_DIR},
+            ),
+            (
+                DUMMY_DATASET_COCO_DIR,
+                "",
+                "fxt_coco_dataset",
+                KaggleCocoBase,
+                {"ann_file": osp.join(DUMMY_DATASET_COCO_DIR, "annotations.json")},
             ),
         ],
         indirect=["fxt_expected_dataset"],
