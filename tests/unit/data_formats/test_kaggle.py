@@ -22,6 +22,7 @@ from tests.utils.test_utils import compare_datasets
 DUMMY_DATASET_IMAGE_CSV_DIR = get_test_asset_path("kaggle_dataset", "image_csv")
 DUMMY_DATASET_IMAGE_CSV_DET_DIR = get_test_asset_path("kaggle_dataset", "image_csv_det")
 DUMMY_DATASET_IMAGE_TXT_DIR = get_test_asset_path("kaggle_dataset", "image_txt")
+DUMMY_DATASET_IMAGE_TXT_DET_DIR = get_test_asset_path("kaggle_dataset", "image_txt_det")
 DUMMY_DATASET_IMAGE_MASK = get_test_asset_path("kaggle_dataset", "image_mask")
 DUMMY_DATASET_IMAGE_MASK_LABELMAP = get_test_asset_path(
     "kaggle_dataset", "image_mask_with_labelmap"
@@ -104,6 +105,42 @@ def fxt_img_det_dataset() -> Dataset:
             ),
         ],
         categories=["dog", "cat"],
+    )
+
+
+@pytest.fixture
+def fxt_img_single_det_dataset() -> Dataset:
+    return Dataset.from_iterable(
+        [
+            DatasetItem(
+                id="1",
+                subset="default",
+                media=Image.from_numpy(data=np.ones((5, 10, 3))),
+                annotations=[
+                    Bbox(0, 1, 1, 1, label=0),
+                    Bbox(1, 2, 2, 1, label=0),
+                ],
+            ),
+            DatasetItem(
+                id="2",
+                subset="default",
+                media=Image.from_numpy(data=np.ones((5, 10, 3))),
+                annotations=[
+                    Bbox(0, 0, 1, 1, label=0),
+                ],
+            ),
+            DatasetItem(
+                id="3",
+                subset="default",
+                media=Image.from_numpy(data=np.ones((5, 10, 3))),
+                annotations=[
+                    Bbox(0, 2, 2, 2, label=0),
+                    Bbox(0, 0, 1, 1, label=0),
+                    Bbox(1, 1, 1, 1, label=0),
+                ],
+            ),
+        ],
+        categories=["object"],
     )
 
 
@@ -289,6 +326,8 @@ IDS = [
     "IMAGE_CSV_DET3",
     "IMAGE_TXT",
     "IMAGE_TXT_WO_EXT",
+    "IMAGE_TXT_DET",
+    "IMAGE_TXT_DET_SINGLE",
     "IMAGE_MASK",
     "IMAGE_MASK_LABELMAP",
     "VOC1",
@@ -389,6 +428,30 @@ class KaggleImporterTest(TestDataFormatBase):
                 {
                     "ann_file": osp.join(DUMMY_DATASET_IMAGE_TXT_DIR, "ann_wo_ext.txt"),
                     "columns": {"media": 0, "label": 1},
+                },
+            ),
+            (
+                DUMMY_DATASET_IMAGE_TXT_DET_DIR,
+                "images",
+                "fxt_img_det_dataset",
+                KaggleImageTxtBase,
+                {
+                    "ann_file": osp.join(DUMMY_DATASET_IMAGE_TXT_DET_DIR, "ann.txt"),
+                    "columns": {
+                        "media": 0,
+                        "label": 1,
+                        "bbox": {"x1": 2, "y1": 3, "x2": 4, "y2": 5},
+                    },
+                },
+            ),
+            (
+                DUMMY_DATASET_IMAGE_TXT_DET_DIR,
+                "images",
+                "fxt_img_single_det_dataset",
+                KaggleImageTxtBase,
+                {
+                    "ann_file": osp.join(DUMMY_DATASET_IMAGE_TXT_DET_DIR, "ann_single_obj.txt"),
+                    "columns": {"media": 0, "bbox": {"x1": 1, "y1": 2, "width": 3, "height": 4}},
                 },
             ),
             (
