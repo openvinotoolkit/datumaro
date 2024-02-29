@@ -10,12 +10,15 @@ RUN apt update && apt install -y git curl && \
     rm -rf /var/lib/apt/lists/*
 
 COPY requirements.txt /tmp/requirements.txt
-RUN pip install --no-cache-dir --require-hashes --no-deps -r /tmp/requirements.txt && rm /tmp/requirements.txt
 
 WORKDIR /ws
+
 RUN mkdir -p /ws/output
-RUN pip install -e git+https://github.com/facebookresearch/segment-anything/@6fdee8f2727f4506cfbbe553e23b895e27956588#egg=segment_anything
+# install segment-anything with pinned hash
+RUN pip install --no-deps -e git+https://github.com/facebookresearch/segment-anything/@6fdee8f2727f4506cfbbe553e23b895e27956588#egg=segment_anything
 WORKDIR /ws/src/segment-anything
+# install dependencies of segment-anything
+RUN pip install --require-hashes --no-deps -r /tmp/requirements.txt && rm /tmp/requirements.txt
 
 # From https://github.com/facebookresearch/segment-anything/tree/main#model-checkpoints
 # vit_h: https://dl.fbaipublicfiles.com/segment_anything/sam_vit_h_4b8939.pth
