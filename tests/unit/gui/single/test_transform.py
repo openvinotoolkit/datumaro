@@ -136,33 +136,6 @@ def run_transform_voc2():
     tabs.call_transform()
 
 
-def run_transform_explore_dataset():
-    import os
-
-    import streamlit as state
-    from streamlit import session_state as state
-
-    from gui.datumaro_gui.components.single import tabs
-    from gui.datumaro_gui.utils.dataset.data_loader import SingleDatasetHelper
-    from gui.datumaro_gui.utils.dataset.state import reset_state, single_state_keys
-
-    from tests.utils.assets import get_test_asset_path
-
-    reset_state(single_state_keys, state)
-
-    dataset_dir = get_test_asset_path("explore_dataset")
-    data_helper = SingleDatasetHelper(dataset_dir)
-    state["data_helper"] = data_helper
-    uploaded_file = os.path.basename(dataset_dir)
-    state["uploaded_file"] = uploaded_file
-
-    data_helper = state["data_helper"]
-
-    data_helper.import_dataset("imagenet")
-
-    tabs.call_transform()
-
-
 class TransformTest(TestCase):
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_transform_page_open(self):
@@ -176,7 +149,7 @@ class TransformTest(TestCase):
         assert len(at.columns) == 4
 
         # button
-        assert len(at.button) == 9
+        assert len(at.button) == 10
         button_labels = [
             "Label Remapping",
             "Aggregation",
@@ -186,8 +159,8 @@ class TransformTest(TestCase):
             "Filtration",
             "Remove",
             "Auto-correction",
-            "Do Label Remap",
             "Near Duplicate Removal",
+            "Do Label Remap",
         ]
         button_keys = [
             "btn_label_remapping",
