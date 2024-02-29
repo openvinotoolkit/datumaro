@@ -20,6 +20,7 @@ from gui.datumaro_gui.components.single.tabs.transform import (
     TransformAutoCorrection,
     TransformFiltration,
     TransformLabelRemap,
+    TransformNDR,
     TransformReindexing,
     TransformRemove,
     TransformSplit,
@@ -135,6 +136,33 @@ def run_transform_voc2():
     tabs.call_transform()
 
 
+def run_transform_explore_dataset():
+    import os
+
+    import streamlit as state
+    from streamlit import session_state as state
+
+    from gui.datumaro_gui.components.single import tabs
+    from gui.datumaro_gui.utils.dataset.data_loader import SingleDatasetHelper
+    from gui.datumaro_gui.utils.dataset.state import reset_state, single_state_keys
+
+    from tests.utils.assets import get_test_asset_path
+
+    reset_state(single_state_keys, state)
+
+    dataset_dir = get_test_asset_path("explore_dataset")
+    data_helper = SingleDatasetHelper(dataset_dir)
+    state["data_helper"] = data_helper
+    uploaded_file = os.path.basename(dataset_dir)
+    state["uploaded_file"] = uploaded_file
+
+    data_helper = state["data_helper"]
+
+    data_helper.import_dataset("imagenet")
+
+    tabs.call_transform()
+
+
 class TransformTest(TestCase):
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_transform_page_open(self):
@@ -159,6 +187,7 @@ class TransformTest(TestCase):
             "Remove",
             "Auto-correction",
             "Do Label Remap",
+            "Near Duplicate Removal",
         ]
         button_keys = [
             "btn_label_remapping",
@@ -169,6 +198,7 @@ class TransformTest(TestCase):
             "btn_filtration",
             "btn_remove",
             "btn_auto-correction",
+            "btn_near_duplicate_removal",
             "btn_do_label_remap_sin",
         ]
         assert [btn.label for btn in at.button] == button_labels
@@ -1445,3 +1475,165 @@ class TransformAutoCorrectionTest(TestCase):
         ]
         assert list(at.dataframe.values[0]["count(src)"]) == [1, 3, 0, 1, 0, 1, 0, 0]
         assert list(at.dataframe.values[0]["count(dst)"]) == [0, 0, 1, 0, 3, 3, 1, 3]
+
+
+class TransformNDRTest:
+    def test_name(self):
+        transform = TransformNDR()
+        assert transform.name == "Near Duplicate Removal"
+
+    def test_info(self):
+        transform = TransformNDR()
+        assert transform.info == "This helps to remove near-duplicated images in a subset"
+
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
+    def test_transform_ndr_page_open(self):
+        """Test if ndr method of transform in single dataset page is opened correctly."""
+        at = AppTest.from_function(run_transform, default_timeout=600).run()
+
+        # Click NDR btn
+        at.button("btn_near_duplicate_removal").click().run()
+
+        # info
+        assert len(at.info) == 1
+        assert at.info.values == ["This helps to remove near-duplicated images in a subset"]
+
+        # selectbox
+        selectbox_key = "sb_select_subset_ndr_sin"
+        assert at.selectbox(selectbox_key)
+        assert at.selectbox(selectbox_key).label == "Select a subset to apply NDR:"
+        assert at.selectbox(selectbox_key).options == list(
+            at.session_state.data_helper.dataset().subsets().keys()
+        )
+
+        # text_input
+        text_input_key = "ti_select_subset_ndr_sin"
+        assert at.text_input(text_input_key)
+        assert at.text_input(text_input_key).label == "Subset name for the removed data:"
+
+        # toggle
+        toggle_key = "tg_advanced_opt_ndr_sin"
+        assert at.toggle(toggle_key)
+        assert not at.toggle(toggle_key).value
+        assert at.toggle(toggle_key).label == "Advanced option"
+
+        # button
+        button_key = "btn_find_ndr_sin"
+        assert at.button(button_key)
+        assert at.button(button_key).label == "Find Near Duplicate"
+
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
+    def test_remove_duplicated(self):
+        """Test if _remove_duplicated function of TransformNDR in single dataset is worked out correctly."""
+        at = AppTest.from_function(run_transform, default_timeout=600).run()
+
+        assert len(at.session_state.data_helper.dataset()) == 4
+
+        TransformNDR._remove_duplicated(at.session_state.data_helper, "test")
+
+        assert len(at.session_state.data_helper.dataset()) == 3
+
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
+    def test_ndr_check_selectbox(self):
+        """Test if selectbox api for ndr method of TransformNDR in single dataset is worked out correctly."""
+        at = AppTest.from_function(run_transform, default_timeout=600).run()
+
+        # Click NDR btn
+        at.button("btn_near_duplicate_removal").click().run()
+
+        # selectbox
+        selectbox_key = "sb_select_subset_ndr_sin"
+
+        # Before
+        assert at.selectbox(selectbox_key).value == "test"
+
+        # Unselect train
+        at.selectbox(selectbox_key).select("train").run()
+
+        # After
+        assert at.selectbox(selectbox_key).value == "train"
+
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
+    def test_ndr_check_text_input(self):
+        """Test if text_input api for ndr method of TransformNDR in single dataset is worked out correctly."""
+        at = AppTest.from_function(run_transform, default_timeout=600).run()
+
+        # Click NDR btn
+        at.button("btn_near_duplicate_removal").click().run()
+
+        # text_input
+        text_input_key = "ti_select_subset_ndr_sin"
+
+        # Before
+        assert not at.text_input(text_input_key).value
+
+        # After
+        dst_text_input = "train"
+        at.text_input(text_input_key).input(dst_text_input).run()
+        assert at.text_input(text_input_key).value == dst_text_input
+
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
+    def test_ndr_check_toggle(self):
+        """Test if toggle api for ndr method of TransformNDR in single dataset is worked out correctly."""
+        at = AppTest.from_function(run_transform, default_timeout=600).run()
+
+        # Click NDR btn
+        at.button("btn_near_duplicate_removal").click().run()
+
+        # toggle
+        toggle_key = "tg_advanced_opt_ndr_sin"
+
+        # Before
+        assert not at.toggle(toggle_key).value
+
+        # Turn on toggle
+        at.toggle(toggle_key).set_value(True).run()
+
+        # After
+        assert at.toggle(toggle_key).value
+
+        # number_input
+        number_input_key = "ni_num_cut_ndr_sin"
+        num_items = len(at.session_state.data_helper.dataset().get_subset("test"))
+        assert at.number_input(number_input_key)
+        assert at.number_input(number_input_key).label == "Maximum output dataset size:"
+        assert at.number_input(number_input_key).value == num_items
+
+        # radio
+        radio_key = "rd_over_sample_ndr_sin"
+        assert at.radio(radio_key)
+        assert at.radio(radio_key).label == "Oversample Policy"
+        assert at.radio(radio_key).options == ["random", "similarity"]
+
+        radio_key = "rd_under_sample_ndr_sin"
+        assert at.radio(radio_key)
+        assert at.radio(radio_key).label == "Undersample Policy"
+        assert at.radio(radio_key).options == ["uniform", "inverse"]
+
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
+    def test_ndr_check_button(self):
+        """Test if button api for ndr method of TransformNDR in single dataset is worked out correctly."""
+        at = AppTest.from_function(run_transform, default_timeout=600).run()
+
+        # Click NDR btn
+        at.button("btn_near_duplicate_removal").click().run()
+
+        at.text_input("ti_select_subset_ndr_sin").input("test").run()
+
+        # button
+        button_key = "btn_find_ndr_sin"
+
+        # Click find button
+        at.button(button_key).click().run()
+
+        button_key = "btn_remove_ndr_sin"
+        assert at.button(button_key)
+
+        # Before
+        assert len(at.session_state.data_helper.dataset()) == 4
+
+        # Click remove button
+        at.button(button_key).click().run()
+
+        # After
+        assert len(at.session_state.data_helper.dataset()) == 3

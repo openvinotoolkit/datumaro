@@ -13,7 +13,7 @@ import streamlit as st
 import streamlit_antd_components as sac
 from datumaro_gui.utils.dataset.data_loader import SingleDatasetHelper
 from datumaro_gui.utils.dataset.info import get_category_info, get_subset_info
-from datumaro_gui.utils.drawing import Dashboard, Pie, Radar
+from datumaro_gui.utils.drawing import Dashboard, Gallery, Pie, Radar
 from st_aggrid import AgGrid, GridOptionsBuilder, GridUpdateMode
 from streamlit import session_state as state
 from streamlit_elements import elements
@@ -55,14 +55,12 @@ class TransformLabelRemap(TransformBase):
 
     @staticmethod
     def _do_label_remap(data_helper, selected_rows, delete_unselected):
-        print(f"{__class__} called")
         mapping_dict = {item["src"]: item["dst"] for item in selected_rows}
         default = "delete" if delete_unselected else "keep"
         data_helper.transform("remap_labels", mapping=mapping_dict, default=default)
         st.toast("Remap Success!", icon="🎉")
 
     def gui(self, data_helper: SingleDatasetHelper):
-        print(f"{__class__} called")
         dataset = data_helper.dataset()
         stats_anns = data_helper.get_ann_stats()
         labels: LabelCategories = dataset.categories().get(AnnotationType.label, LabelCategories())
@@ -142,7 +140,6 @@ class TransformAggregation(TransformBase):
 
     @staticmethod
     def _do_aggregation(data_helper, selected_subsets, dst_subset_name):
-        print(f"selected_subsets = {selected_subsets}, dst_subset_name={dst_subset_name}")
         data_helper.aggregate(from_subsets=selected_subsets, to_subset=dst_subset_name)
         st.toast("Aggregation Success!", icon="🎉")
 
@@ -709,6 +706,156 @@ class TransformAutoCorrection(TransformBase):
             st.dataframe(self._get_df(summary), use_container_width=True, hide_index=True)
 
 
+class TransformNDR(TransformBase):
+    @property
+    def name(self) -> str:
+        return "Near Duplicate Removal"
+
+    @property
+    def info(self) -> str:
+        return "This helps to remove near-duplicated images in a subset"
+
+    @staticmethod
+    def _run_ndr(
+        data_helper, working_subset, duplicated_subset, num_cut, over_sample, under_sample
+    ):
+        try:
+            result = data_helper.transform(
+                "ndr",
+                working_subset=working_subset,
+                duplicated_subset=duplicated_subset,
+                num_cut=num_cut,
+                over_sample=over_sample,
+                under_sample=under_sample,
+            )
+            try:
+                duplicated = result.get_subset(duplicated_subset)
+            except KeyError:
+                duplicated = []
+            if len(duplicated) > 0:
+                st.toast("NDR Success!", icon="🎉")
+            else:
+                st.toast("No duplication found!", icon="⚠️")
+        except Exception as e:
+            st.toast(f"Error: {repr(e)}", icon="🚨")
+
+    @staticmethod
+    def _remove_duplicated(data_helper, duplicated_subset):
+        try:
+            duplicated = data_helper.dataset().get_subset(duplicated_subset)
+        except KeyError:
+            st.toast("No items to remove!", icon="⚠️")
+            return
+
+        ids = []
+        for item in duplicated:
+            ids.append((item.id, duplicated_subset))
+
+        try:
+            data_helper.transform("remove_items", ids=ids)
+            st.toast("Removal Success!", icon="🎉")
+        except Exception as e:
+            st.toast(f"Error: {repr(e)}", icon="🚨")
+
+    def gui(self, data_helper: SingleDatasetHelper):
+        subsets = list(data_helper.dataset().subsets().keys())
+
+        c1, c2 = st.columns([0.3, 0.7])
+        with c1:
+            subset_info = get_subset_info(data_helper.dataset())
+            with elements("single-transform-ndr-subset"):
+                board = Dashboard()
+                w = SimpleNamespace(
+                    dashboard=board,
+                    subset_info=Pie(
+                        name="Subset info",
+                        **{"board": board, "x": 0, "y": 0, "w": 4, "h": 4, "minW": 3, "minH": 3},
+                    ),
+                )
+                with st.container():
+                    with w.dashboard(rowHeight=100):
+                        w.subset_info(subset_info)
+        with c2:
+            working_subset = st.selectbox(
+                "Select a subset to apply NDR:", subsets, key="sb_select_subset_ndr_sin"
+            )
+            duplicated_subset = st.text_input(
+                "Subset name for the removed data:", key="ti_select_subset_ndr_sin"
+            )
+            advanced_option = st.toggle("Advanced option", key="tg_advanced_opt_ndr_sin")
+            if advanced_option:
+                num_items = len(data_helper.dataset().get_subset(working_subset))
+                num_cut = st.number_input(
+                    "Maximum output dataset size:",
+                    value=min(100, num_items),
+                    step=1,
+                    key="ni_num_cut_ndr_sin",
+                )
+                over_sample = st.radio(
+                    "Oversample Policy",
+                    ["random", "similarity"],
+                    help="Specify the strategy when num_cut > length of the result after removal.",
+                    captions=[
+                        "Sample from removed data randomly",
+                        "Select from removed data with ascending order of similarity",
+                    ],
+                    key="rd_over_sample_ndr_sin",
+                )
+                under_sample = st.radio(
+                    "Undersample Policy",
+                    ["uniform", "inverse"],
+                    help="Specify the strategy when num_cut < length of the result after removal.",
+                    captions=[
+                        "Sample data with uniform distribution",
+                        "Select data with reciprocal of the number",
+                    ],
+                    key="rd_under_sample_ndr_sin",
+                )
+            else:
+                num_cut = None
+                over_sample = None
+                under_sample = None
+
+            btn_find_nd = st.button(
+                "Find Near Duplicate",
+                use_container_width=True,
+                key="btn_find_ndr_sin",
+            )
+            if btn_find_nd:
+                self._run_ndr(
+                    data_helper,
+                    working_subset,
+                    duplicated_subset,
+                    num_cut,
+                    over_sample,
+                    under_sample,
+                )
+            try:
+                duplicated = data_helper.dataset().get_subset(duplicated_subset)
+            except KeyError:
+                duplicated = []
+
+            btn_remove_nd = st.button(
+                "Remove Near Duplicate",
+                use_container_width=True,
+                disabled=len(duplicated) == 0,
+                key="btn_remove_ndr_sin",
+            )
+            if btn_remove_nd:
+                self._remove_duplicated(data_helper, duplicated_subset)
+
+            if len(duplicated) > 0:
+                with elements("single-transform-ndr-duplicated"):
+                    board = Dashboard()
+                    w = SimpleNamespace(
+                        dashboard=board,
+                        player=Gallery(board, 0, 0, 8, 3, minH=3),
+                    )
+                    with st.container():
+                        with w.dashboard(rowHeight=100):
+                            w.player(duplicated, max_number=12, title=duplicated_subset)
+
+
 class TransformCategory(NamedTuple):
     type: str
     transforms: Tuple[TransformBase]
@@ -733,12 +880,17 @@ def main():
         ),
         TransformCategory(
             "Item Management",
-            (TransformReindexing, TransformFiltration, TransformRemove, TransformAutoCorrection),
+            (
+                TransformReindexing,
+                TransformFiltration,
+                TransformRemove,
+                TransformAutoCorrection,
+                TransformNDR,
+            ),
         ),
     )
     if "selected_transform" not in state or state["selected_transform"] is None:
         state["selected_transform"] = transform_categories[0].transforms[0]()
-        print(state["selected_transform"])
 
     c1, c2 = st.columns([0.3, 0.7])
     with c1:
@@ -755,7 +907,6 @@ def main():
                     key="btn_" + "_".join(word.lower() for word in transform_name.split()),
                 )
     with c2:
-        print(f"transform->c2 called : {state['selected_transform']}")
         transform = state["selected_transform"]
         st.subheader(transform.name)
         info_str = transform.info
