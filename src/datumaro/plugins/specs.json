@@ -1,14 +1,5 @@
 [
   {
-    "import_path": "datumaro.plugins.accuracy_checker_plugin.ac_launcher.AcLauncher",
-    "plugin_name": "ac",
-    "plugin_type": "Launcher",
-    "extra_deps": [
-      "openvino.tools",
-      "tensorflow"
-    ]
-  },
-  {
     "import_path": "datumaro.plugins.configurable_validator.ConfigurableValidator",
     "plugin_name": "configurable",
     "plugin_type": "Validator"
@@ -23,7 +14,9 @@
     "plugin_name": "ade20k2017",
     "plugin_type": "Importer",
     "metadata": {
-      "file_extensions": [".txt"]
+      "file_extensions": [
+        ".txt"
+      ]
     }
   },
   {
@@ -36,7 +29,9 @@
     "plugin_name": "ade20k2020",
     "plugin_type": "Importer",
     "metadata": {
-      "file_extensions": [".json"]
+      "file_extensions": [
+        ".json"
+      ]
     }
   },
   {
@@ -54,7 +49,9 @@
     "plugin_name": "arrow",
     "plugin_type": "Importer",
     "metadata": {
-      "file_extensions": [".arrow"]
+      "file_extensions": [
+        ".arrow"
+      ]
     }
   },
   {
@@ -72,7 +69,9 @@
     "plugin_name": "ava",
     "plugin_type": "Importer",
     "metadata": {
-      "file_extensions": [".csv"]
+      "file_extensions": [
+        ".csv"
+      ]
     }
   },
   {
@@ -85,7 +84,9 @@
     "plugin_name": "brats",
     "plugin_type": "Importer",
     "metadata": {
-      "file_extensions": [".gz"]
+      "file_extensions": [
+        ".gz"
+      ]
     }
   },
   {
@@ -98,7 +99,9 @@
     "plugin_name": "brats_numpy",
     "plugin_type": "Importer",
     "metadata": {
-      "file_extensions": [".p"]
+      "file_extensions": [
+        ".p"
+      ]
     }
   },
   {
@@ -116,7 +119,9 @@
     "plugin_name": "camvid",
     "plugin_type": "Importer",
     "metadata": {
-      "file_extensions": [".txt"]
+      "file_extensions": [
+        ".txt"
+      ]
     }
   },
   {
@@ -129,7 +134,9 @@
     "plugin_name": "align_celeba",
     "plugin_type": "Importer",
     "metadata": {
-      "file_extensions": [".txt"]
+      "file_extensions": [
+        ".txt"
+      ]
     }
   },
   {
@@ -142,7 +149,9 @@
     "plugin_name": "celeba",
     "plugin_type": "Importer",
     "metadata": {
-      "file_extensions": [".txt"]
+      "file_extensions": [
+        ".txt"
+      ]
     }
   },
   {
@@ -160,7 +169,10 @@
     "plugin_name": "cifar",
     "plugin_type": "Importer",
     "metadata": {
-      "file_extensions": [".meta", ""]
+      "file_extensions": [
+        "",
+        ".meta"
+      ]
     }
   },
   {
@@ -178,7 +190,9 @@
     "plugin_name": "cityscapes",
     "plugin_type": "Importer",
     "metadata": {
-      "file_extensions": [".png"]
+      "file_extensions": [
+        ".png"
+      ]
     }
   },
   {
@@ -261,7 +275,9 @@
     "plugin_name": "coco_captions",
     "plugin_type": "Importer",
     "metadata": {
-      "file_extensions": [".json"]
+      "file_extensions": [
+        ".json"
+      ]
     }
   },
   {
@@ -269,7 +285,9 @@
     "plugin_name": "coco_image_info",
     "plugin_type": "Importer",
     "metadata": {
-      "file_extensions": [".json"]
+      "file_extensions": [
+        ".json"
+      ]
     }
   },
   {
@@ -277,7 +295,9 @@
     "plugin_name": "coco",
     "plugin_type": "Importer",
     "metadata": {
-      "file_extensions": [".json"]
+      "file_extensions": [
+        ".json"
+      ]
     }
   },
   {
@@ -285,7 +305,9 @@
     "plugin_name": "coco_instances",
     "plugin_type": "Importer",
     "metadata": {
-      "file_extensions": [".json"]
+      "file_extensions": [
+        ".json"
+      ]
     }
   },
   {
@@ -293,7 +315,9 @@
     "plugin_name": "coco_labels",
     "plugin_type": "Importer",
     "metadata": {
-      "file_extensions": [".json"]
+      "file_extensions": [
+        ".json"
+      ]
     }
   },
   {
@@ -301,7 +325,9 @@
     "plugin_name": "coco_panoptic",
     "plugin_type": "Importer",
     "metadata": {
-      "file_extensions": [".json"]
+      "file_extensions": [
+        ".json"
+      ]
     }
   },
   {
@@ -309,7 +335,9 @@
     "plugin_name": "coco_person_keypoints",
     "plugin_type": "Importer",
     "metadata": {
-      "file_extensions": [".json"]
+      "file_extensions": [
+        ".json"
+      ]
     }
   },
   {
@@ -317,7 +345,9 @@
     "plugin_name": "coco_stuff",
     "plugin_type": "Importer",
     "metadata": {
-      "file_extensions": [".json"]
+      "file_extensions": [
+        ".json"
+      ]
     }
   },
   {
@@ -330,7 +360,9 @@
     "plugin_name": "common_semantic_segmentation",
     "plugin_type": "Importer",
     "metadata": {
-      "file_extensions": [".json"]
+      "file_extensions": [
+        ".json"
+      ]
     }
   },
   {
@@ -338,7 +370,9 @@
     "plugin_name": "common_semantic_segmentation_with_subset_dirs",
     "plugin_type": "Importer",
     "metadata": {
-      "file_extensions": [".json"]
+      "file_extensions": [
+        ".json"
+      ]
     }
   },
   {
@@ -351,7 +385,9 @@
     "plugin_name": "common_super_resolution",
     "plugin_type": "Importer",
     "metadata": {
-      "file_extensions": [".jpg"]
+      "file_extensions": [
+        ".jpg"
+      ]
     }
   },
   {
@@ -364,7 +400,9 @@
     "plugin_name": "cvat",
     "plugin_type": "Importer",
     "metadata": {
-      "file_extensions": [".xml"]
+      "file_extensions": [
+        ".xml"
+      ]
     }
   },
   {
@@ -387,7 +425,9 @@
     "plugin_name": "datumaro",
     "plugin_type": "Importer",
     "metadata": {
-      "file_extensions": [".json"]
+      "file_extensions": [
+        ".json"
+      ]
     }
   },
   {
@@ -405,7 +445,9 @@
     "plugin_name": "datumaro_binary",
     "plugin_type": "Importer",
     "metadata": {
-      "file_extensions": [".datum"]
+      "file_extensions": [
+        ".datum"
+      ]
     }
   },
   {
@@ -418,7 +460,9 @@
     "plugin_name": "icdar_text_localization",
     "plugin_type": "Importer",
     "metadata": {
-      "file_extensions": [".txt"]
+      "file_extensions": [
+        ".txt"
+      ]
     }
   },
   {
@@ -431,7 +475,9 @@
     "plugin_name": "icdar_text_segmentation",
     "plugin_type": "Importer",
     "metadata": {
-      "file_extensions": [".txt"]
+      "file_extensions": [
+        ".txt"
+      ]
     }
   },
   {
@@ -444,7 +490,9 @@
     "plugin_name": "icdar_word_recognition",
     "plugin_type": "Importer",
     "metadata": {
-      "file_extensions": [".txt"]
+      "file_extensions": [
+        ".txt"
+      ]
     }
   },
   {
@@ -478,28 +526,28 @@
     "plugin_type": "Importer",
     "metadata": {
       "file_extensions": [
-        ".jpg",
         ".jpeg",
+        ".sr",
+        ".pfm",
+        ".pic",
+        ".bmp",
+        ".tif",
+        ".exr",
+        ".tiff",
+        ".dib",
+        ".hdr",
+        ".png",
+        ".webp",
+        ".pxm",
+        ".pnm",
+        ".tga",
+        ".pgm",
+        ".pbm",
         ".jpe",
         ".jp2",
-        ".png",
-        ".bmp",
-        ".dib",
-        ".tif",
-        ".tiff",
-        ".tga",
-        ".webp",
-        ".pfm",
-        ".sr",
-        ".ras",
-        ".exr",
-        ".hdr",
-        ".pic",
-        ".pbm",
-        ".pgm",
         ".ppm",
-        ".pxm",
-        ".pnm"
+        ".ras",
+        ".jpg"
       ]
     }
   },
@@ -518,7 +566,9 @@
     "plugin_name": "image_zip",
     "plugin_type": "Importer",
     "metadata": {
-      "file_extensions": [".zip"]
+      "file_extensions": [
+        ".zip"
+      ]
     }
   },
   {
@@ -537,28 +587,28 @@
     "plugin_type": "Importer",
     "metadata": {
       "file_extensions": [
-        ".jpg",
         ".jpeg",
+        ".sr",
+        ".pfm",
+        ".pic",
+        ".bmp",
+        ".tif",
+        ".exr",
+        ".tiff",
+        ".dib",
+        ".hdr",
+        ".png",
+        ".webp",
+        ".pxm",
+        ".pnm",
+        ".tga",
+        ".pgm",
+        ".pbm",
         ".jpe",
         ".jp2",
-        ".png",
-        ".bmp",
-        ".dib",
-        ".tif",
-        ".tiff",
-        ".tga",
-        ".webp",
-        ".pfm",
-        ".sr",
-        ".ras",
-        ".exr",
-        ".hdr",
-        ".pic",
-        ".pbm",
-        ".pgm",
         ".ppm",
-        ".pxm",
-        ".pnm"
+        ".ras",
+        ".jpg"
       ]
     }
   },
@@ -573,28 +623,28 @@
     "plugin_type": "Importer",
     "metadata": {
       "file_extensions": [
-        ".jpg",
         ".jpeg",
+        ".sr",
+        ".pfm",
+        ".pic",
+        ".bmp",
+        ".tif",
+        ".exr",
+        ".tiff",
+        ".dib",
+        ".hdr",
+        ".png",
+        ".webp",
+        ".pxm",
+        ".pnm",
+        ".tga",
+        ".pgm",
+        ".pbm",
         ".jpe",
         ".jp2",
-        ".png",
-        ".bmp",
-        ".dib",
-        ".tif",
-        ".tiff",
-        ".tga",
-        ".webp",
-        ".pfm",
-        ".sr",
-        ".ras",
-        ".exr",
-        ".hdr",
-        ".pic",
-        ".pbm",
-        ".pgm",
         ".ppm",
-        ".pxm",
-        ".pnm"
+        ".ras",
+        ".jpg"
       ]
     }
   },
@@ -613,7 +663,9 @@
     "plugin_name": "imagenet_txt",
     "plugin_type": "Importer",
     "metadata": {
-      "file_extensions": [".txt"]
+      "file_extensions": [
+        ".txt"
+      ]
     }
   },
   {
@@ -656,7 +708,10 @@
     "plugin_name": "kinetics",
     "plugin_type": "Importer",
     "metadata": {
-      "file_extensions": [".json", ".csv"]
+      "file_extensions": [
+        ".json",
+        ".csv"
+      ]
     }
   },
   {
@@ -689,7 +744,9 @@
     "plugin_name": "kitti_detection",
     "plugin_type": "Importer",
     "metadata": {
-      "file_extensions": [".txt"]
+      "file_extensions": [
+        ".txt"
+      ]
     }
   },
   {
@@ -697,7 +754,10 @@
     "plugin_name": "kitti",
     "plugin_type": "Importer",
     "metadata": {
-      "file_extensions": [".txt", ".png"]
+      "file_extensions": [
+        ".png",
+        ".txt"
+      ]
     }
   },
   {
@@ -705,7 +765,9 @@
     "plugin_name": "kitti_segmentation",
     "plugin_type": "Importer",
     "metadata": {
-      "file_extensions": [".png"]
+      "file_extensions": [
+        ".png"
+      ]
     }
   },
   {
@@ -718,7 +780,9 @@
     "plugin_name": "kitti_raw",
     "plugin_type": "Importer",
     "metadata": {
-      "file_extensions": [".xml"]
+      "file_extensions": [
+        ".xml"
+      ]
     }
   },
   {
@@ -741,7 +805,9 @@
     "plugin_name": "label_me",
     "plugin_type": "Importer",
     "metadata": {
-      "file_extensions": [".xml"]
+      "file_extensions": [
+        ".xml"
+      ]
     }
   },
   {
@@ -759,7 +825,9 @@
     "plugin_name": "lfw",
     "plugin_type": "Importer",
     "metadata": {
-      "file_extensions": [".txt"]
+      "file_extensions": [
+        ".txt"
+      ]
     }
   },
   {
@@ -777,7 +845,11 @@
     "plugin_name": "mapillary_vistas",
     "plugin_type": "Importer",
     "metadata": {
-      "file_extensions": [".jpg", ".png", ".json"]
+      "file_extensions": [
+        ".jpg",
+        ".png",
+        ".json"
+      ]
     }
   },
   {
@@ -785,7 +857,11 @@
     "plugin_name": "mapillary_vistas_instances",
     "plugin_type": "Importer",
     "metadata": {
-      "file_extensions": [".jpg", ".png", ".json"]
+      "file_extensions": [
+        ".jpg",
+        ".png",
+        ".json"
+      ]
     }
   },
   {
@@ -793,7 +869,11 @@
     "plugin_name": "mapillary_vistas_panoptic",
     "plugin_type": "Importer",
     "metadata": {
-      "file_extensions": [".jpg", ".png", ".json"]
+      "file_extensions": [
+        ".jpg",
+        ".png",
+        ".json"
+      ]
     }
   },
   {
@@ -811,7 +891,9 @@
     "plugin_name": "market1501",
     "plugin_type": "Importer",
     "metadata": {
-      "file_extensions": [".jpg"]
+      "file_extensions": [
+        ".jpg"
+      ]
     }
   },
   {
@@ -824,7 +906,9 @@
     "plugin_name": "mars",
     "plugin_type": "Importer",
     "metadata": {
-      "file_extensions": [".jpg"]
+      "file_extensions": [
+        ".jpg"
+      ]
     }
   },
   {
@@ -837,7 +921,9 @@
     "plugin_name": "mmdet_coco",
     "plugin_type": "Importer",
     "metadata": {
-      "file_extensions": [".json"]
+      "file_extensions": [
+        ".json"
+      ]
     }
   },
   {
@@ -855,7 +941,9 @@
     "plugin_name": "mnist",
     "plugin_type": "Importer",
     "metadata": {
-      "file_extensions": [".gz"]
+      "file_extensions": [
+        ".gz"
+      ]
     }
   },
   {
@@ -873,7 +961,9 @@
     "plugin_name": "mnist_csv",
     "plugin_type": "Importer",
     "metadata": {
-      "file_extensions": [".csv"]
+      "file_extensions": [
+        ".csv"
+      ]
     }
   },
   {
@@ -891,7 +981,9 @@
     "plugin_name": "mot_seq",
     "plugin_type": "Importer",
     "metadata": {
-      "file_extensions": [".txt"]
+      "file_extensions": [
+        ".txt"
+      ]
     }
   },
   {
@@ -899,7 +991,10 @@
     "plugin_name": "mots",
     "plugin_type": "Importer",
     "metadata": {
-      "file_extensions": [".png", ".txt"]
+      "file_extensions": [
+        ".png",
+        ".txt"
+      ]
     }
   },
   {
@@ -922,7 +1017,9 @@
     "plugin_name": "mpii_json",
     "plugin_type": "Importer",
     "metadata": {
-      "file_extensions": [".json"]
+      "file_extensions": [
+        ".json"
+      ]
     }
   },
   {
@@ -935,7 +1032,9 @@
     "plugin_name": "mpii",
     "plugin_type": "Importer",
     "metadata": {
-      "file_extensions": [".mat"]
+      "file_extensions": [
+        ".mat"
+      ]
     }
   },
   {
@@ -978,7 +1077,9 @@
     "plugin_name": "mvtec_classification",
     "plugin_type": "Importer",
     "metadata": {
-      "file_extensions": [".png"]
+      "file_extensions": [
+        ".png"
+      ]
     }
   },
   {
@@ -986,7 +1087,9 @@
     "plugin_name": "mvtec_detection",
     "plugin_type": "Importer",
     "metadata": {
-      "file_extensions": [".png"]
+      "file_extensions": [
+        ".png"
+      ]
     }
   },
   {
@@ -994,7 +1097,9 @@
     "plugin_name": "mvtec",
     "plugin_type": "Importer",
     "metadata": {
-      "file_extensions": [".png"]
+      "file_extensions": [
+        ".png"
+      ]
     }
   },
   {
@@ -1002,7 +1107,9 @@
     "plugin_name": "mvtec_segmentation",
     "plugin_type": "Importer",
     "metadata": {
-      "file_extensions": [".png"]
+      "file_extensions": [
+        ".png"
+      ]
     }
   },
   {
@@ -1015,7 +1122,9 @@
     "plugin_name": "nyu_depth_v2",
     "plugin_type": "Importer",
     "metadata": {
-      "file_extensions": [".h5"]
+      "file_extensions": [
+        ".h5"
+      ]
     }
   },
   {
@@ -1033,7 +1142,9 @@
     "plugin_name": "open_images",
     "plugin_type": "Importer",
     "metadata": {
-      "file_extensions": [".csv"]
+      "file_extensions": [
+        ".csv"
+      ]
     }
   },
   {
@@ -1067,30 +1178,13 @@
     "plugin_type": "DatasetBase"
   },
   {
-    "import_path": "datumaro.plugins.data_formats.roboflow.base_tfrecord.RoboflowTfrecordBase",
-    "plugin_name": "roboflow_tfrecord",
-    "plugin_type": "DatasetBase",
-    "extra_deps": [
-      "tensorflow"
-    ]
-  },
-  {
-    "import_path": "datumaro.plugins.data_formats.roboflow.base_tfrecord.RoboflowTfrecordImporter",
-    "plugin_name": "roboflow_tfrecord",
-    "plugin_type": "Importer",
-    "extra_deps": [
-      "tensorflow"
-    ],
-    "metadata": {
-      "file_extensions": [".tfrecord"]
-    }
-  },
-  {
     "import_path": "datumaro.plugins.data_formats.roboflow.importer.RoboflowCocoImporter",
     "plugin_name": "roboflow_coco",
     "plugin_type": "Importer",
     "metadata": {
-      "file_extensions": [".json"]
+      "file_extensions": [
+        ".json"
+      ]
     }
   },
   {
@@ -1098,7 +1192,9 @@
     "plugin_name": "roboflow_create_ml",
     "plugin_type": "Importer",
     "metadata": {
-      "file_extensions": [".json"]
+      "file_extensions": [
+        ".json"
+      ]
     }
   },
   {
@@ -1106,7 +1202,9 @@
     "plugin_name": "roboflow_multiclass",
     "plugin_type": "Importer",
     "metadata": {
-      "file_extensions": [".csv"]
+      "file_extensions": [
+        ".csv"
+      ]
     }
   },
   {
@@ -1114,7 +1212,9 @@
     "plugin_name": "roboflow_voc",
     "plugin_type": "Importer",
     "metadata": {
-      "file_extensions": [".xml"]
+      "file_extensions": [
+        ".xml"
+      ]
     }
   },
   {
@@ -1122,7 +1222,9 @@
     "plugin_name": "roboflow_yolo",
     "plugin_type": "Importer",
     "metadata": {
-      "file_extensions": [".txt"]
+      "file_extensions": [
+        ".txt"
+      ]
     }
   },
   {
@@ -1130,7 +1232,9 @@
     "plugin_name": "roboflow_yolo_obb",
     "plugin_type": "Importer",
     "metadata": {
-      "file_extensions": [".txt"]
+      "file_extensions": [
+        ".txt"
+      ]
     }
   },
   {
@@ -1148,7 +1252,9 @@
     "plugin_name": "segment_anything",
     "plugin_type": "Importer",
     "metadata": {
-      "file_extensions": [".json"]
+      "file_extensions": [
+        ".json"
+      ]
     }
   },
   {
@@ -1161,7 +1267,9 @@
     "plugin_name": "sly_pointcloud",
     "plugin_type": "Importer",
     "metadata": {
-      "file_extensions": [".json"]
+      "file_extensions": [
+        ".json"
+      ]
     }
   },
   {
@@ -1189,7 +1297,9 @@
     "plugin_name": "synthia_al",
     "plugin_type": "Importer",
     "metadata": {
-      "file_extensions": [".png"]
+      "file_extensions": [
+        ".png"
+      ]
     }
   },
   {
@@ -1197,7 +1307,9 @@
     "plugin_name": "synthia_rand",
     "plugin_type": "Importer",
     "metadata": {
-      "file_extensions": [".png"]
+      "file_extensions": [
+        ".png"
+      ]
     }
   },
   {
@@ -1205,7 +1317,9 @@
     "plugin_name": "synthia_sf",
     "plugin_type": "Importer",
     "metadata": {
-      "file_extensions": [".png"]
+      "file_extensions": [
+        ".png"
+      ]
     }
   },
   {
@@ -1223,35 +1337,10 @@
     "plugin_name": "tabular",
     "plugin_type": "Importer",
     "metadata": {
-      "file_extensions": [".csv"]
+      "file_extensions": [
+        ".csv"
+      ]
     }
-  },
-  {
-    "import_path": "datumaro.plugins.data_formats.tf_detection_api.base.TfDetectionApiBase",
-    "plugin_name": "tf_detection_api",
-    "plugin_type": "DatasetBase",
-    "extra_deps": [
-      "tensorflow"
-    ]
-  },
-  {
-    "import_path": "datumaro.plugins.data_formats.tf_detection_api.base.TfDetectionApiImporter",
-    "plugin_name": "tf_detection_api",
-    "plugin_type": "Importer",
-    "extra_deps": [
-      "tensorflow"
-    ],
-    "metadata": {
-      "file_extensions": [".tfrecord"]
-    }
-  },
-  {
-    "import_path": "datumaro.plugins.data_formats.tf_detection_api.exporter.TfDetectionApiExporter",
-    "plugin_name": "tf_detection_api",
-    "plugin_type": "Exporter",
-    "extra_deps": [
-      "tensorflow"
-    ]
   },
   {
     "import_path": "datumaro.plugins.data_formats.vgg_face2.VggFace2Base",
@@ -1268,7 +1357,9 @@
     "plugin_name": "vgg_face2",
     "plugin_type": "Importer",
     "metadata": {
-      "file_extensions": [".csv"]
+      "file_extensions": [
+        ".csv"
+      ]
     }
   },
   {
@@ -1283,32 +1374,32 @@
     "metadata": {
       "file_extensions": [
         ".3gp",
-        ".3g2",
-        ".asf",
-        ".wmv",
-        ".avi",
-        ".divx",
-        ".evo",
-        ".f4v",
-        ".flv",
-        ".mkv",
-        ".mk3d",
-        ".mp4",
-        ".mpg",
-        ".mpeg",
-        ".m2p",
-        ".ps",
-        ".ts",
-        ".m2ts",
-        ".mxf",
-        ".ogg",
-        ".ogv",
-        ".ogx",
-        ".mov",
-        ".qt",
         ".rmvb",
+        ".mpeg",
+        ".mxf",
+        ".flv",
+        ".ogv",
+        ".qt",
         ".vob",
-        ".webm"
+        ".m2p",
+        ".ts",
+        ".asf",
+        ".mk3d",
+        ".divx",
+        ".mkv",
+        ".mpg",
+        ".f4v",
+        ".wmv",
+        ".ps",
+        ".ogg",
+        ".webm",
+        ".evo",
+        ".3g2",
+        ".mp4",
+        ".m2ts",
+        ".mov",
+        ".ogx",
+        ".avi"
       ]
     }
   },
@@ -1324,32 +1415,32 @@
     "metadata": {
       "file_extensions": [
         ".3gp",
-        ".3g2",
-        ".asf",
-        ".wmv",
-        ".avi",
-        ".divx",
-        ".evo",
-        ".f4v",
-        ".flv",
-        ".mkv",
-        ".mk3d",
-        ".mp4",
-        ".mpg",
-        ".mpeg",
-        ".m2p",
-        ".ps",
-        ".ts",
-        ".m2ts",
-        ".mxf",
-        ".ogg",
-        ".ogv",
-        ".ogx",
-        ".mov",
-        ".qt",
         ".rmvb",
+        ".mpeg",
+        ".mxf",
+        ".flv",
+        ".ogv",
+        ".qt",
         ".vob",
-        ".webm"
+        ".m2p",
+        ".ts",
+        ".asf",
+        ".mk3d",
+        ".divx",
+        ".mkv",
+        ".mpg",
+        ".f4v",
+        ".wmv",
+        ".ps",
+        ".ogg",
+        ".webm",
+        ".evo",
+        ".3g2",
+        ".mp4",
+        ".m2ts",
+        ".mov",
+        ".ogx",
+        ".avi"
       ]
     }
   },
@@ -1428,7 +1519,9 @@
     "plugin_name": "voc_action",
     "plugin_type": "Importer",
     "metadata": {
-      "file_extensions": [".txt"]
+      "file_extensions": [
+        ".txt"
+      ]
     }
   },
   {
@@ -1436,7 +1529,9 @@
     "plugin_name": "voc_classification",
     "plugin_type": "Importer",
     "metadata": {
-      "file_extensions": [".txt"]
+      "file_extensions": [
+        ".txt"
+      ]
     }
   },
   {
@@ -1444,7 +1539,9 @@
     "plugin_name": "voc_detection",
     "plugin_type": "Importer",
     "metadata": {
-      "file_extensions": [".txt"]
+      "file_extensions": [
+        ".txt"
+      ]
     }
   },
   {
@@ -1452,7 +1549,9 @@
     "plugin_name": "voc",
     "plugin_type": "Importer",
     "metadata": {
-      "file_extensions": [".txt"]
+      "file_extensions": [
+        ".txt"
+      ]
     }
   },
   {
@@ -1460,7 +1559,9 @@
     "plugin_name": "voc_instance_segmentation",
     "plugin_type": "Importer",
     "metadata": {
-      "file_extensions": [".txt"]
+      "file_extensions": [
+        ".txt"
+      ]
     }
   },
   {
@@ -1468,7 +1569,9 @@
     "plugin_name": "voc_layout",
     "plugin_type": "Importer",
     "metadata": {
-      "file_extensions": [".txt"]
+      "file_extensions": [
+        ".txt"
+      ]
     }
   },
   {
@@ -1476,7 +1579,9 @@
     "plugin_name": "voc_segmentation",
     "plugin_type": "Importer",
     "metadata": {
-      "file_extensions": [".txt"]
+      "file_extensions": [
+        ".txt"
+      ]
     }
   },
   {
@@ -1489,7 +1594,9 @@
     "plugin_name": "vott_csv",
     "plugin_type": "Importer",
     "metadata": {
-      "file_extensions": [".csv"]
+      "file_extensions": [
+        ".csv"
+      ]
     }
   },
   {
@@ -1502,7 +1609,9 @@
     "plugin_name": "vott_json",
     "plugin_type": "Importer",
     "metadata": {
-      "file_extensions": [".json"]
+      "file_extensions": [
+        ".json"
+      ]
     }
   },
   {
@@ -1520,7 +1629,9 @@
     "plugin_name": "wider_face",
     "plugin_type": "Importer",
     "metadata": {
-      "file_extensions": [".txt"]
+      "file_extensions": [
+        ".txt"
+      ]
     }
   },
   {
@@ -1553,7 +1664,10 @@
     "plugin_name": "yolo",
     "plugin_type": "Importer",
     "metadata": {
-      "file_extensions": [".data", ".txt"]
+      "file_extensions": [
+        ".data",
+        ".txt"
+      ]
     }
   },
   {
