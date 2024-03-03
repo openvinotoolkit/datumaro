@@ -1,5 +1,14 @@
 [
   {
+    "import_path": "datumaro.plugins.accuracy_checker_plugin.ac_launcher.AcLauncher",
+    "plugin_name": "ac",
+    "plugin_type": "Launcher",
+    "extra_deps": [
+      "openvino.tools",
+      "tensorflow"
+    ]
+  },
+  {
     "import_path": "datumaro.plugins.configurable_validator.ConfigurableValidator",
     "plugin_name": "configurable",
     "plugin_type": "Validator"
@@ -526,28 +535,28 @@
     "plugin_type": "Importer",
     "metadata": {
       "file_extensions": [
-        ".jpeg",
-        ".sr",
-        ".pfm",
-        ".pic",
         ".bmp",
-        ".tif",
-        ".exr",
-        ".tiff",
         ".dib",
+        ".exr",
         ".hdr",
-        ".png",
-        ".webp",
-        ".pxm",
-        ".pnm",
-        ".tga",
-        ".pgm",
-        ".pbm",
-        ".jpe",
         ".jp2",
+        ".jpe",
+        ".jpeg",
+        ".jpg",
+        ".pbm",
+        ".pfm",
+        ".pgm",
+        ".pic",
+        ".png",
+        ".pnm",
         ".ppm",
+        ".pxm",
         ".ras",
-        ".jpg"
+        ".sr",
+        ".tga",
+        ".tif",
+        ".tiff",
+        ".webp"
       ]
     }
   },
@@ -587,28 +596,28 @@
     "plugin_type": "Importer",
     "metadata": {
       "file_extensions": [
-        ".jpeg",
-        ".sr",
-        ".pfm",
-        ".pic",
         ".bmp",
-        ".tif",
-        ".exr",
-        ".tiff",
         ".dib",
+        ".exr",
         ".hdr",
-        ".png",
-        ".webp",
-        ".pxm",
-        ".pnm",
-        ".tga",
-        ".pgm",
-        ".pbm",
-        ".jpe",
         ".jp2",
+        ".jpe",
+        ".jpeg",
+        ".jpg",
+        ".pbm",
+        ".pfm",
+        ".pgm",
+        ".pic",
+        ".png",
+        ".pnm",
         ".ppm",
+        ".pxm",
         ".ras",
-        ".jpg"
+        ".sr",
+        ".tga",
+        ".tif",
+        ".tiff",
+        ".webp"
       ]
     }
   },
@@ -623,28 +632,28 @@
     "plugin_type": "Importer",
     "metadata": {
       "file_extensions": [
-        ".jpeg",
-        ".sr",
-        ".pfm",
-        ".pic",
         ".bmp",
-        ".tif",
-        ".exr",
-        ".tiff",
         ".dib",
+        ".exr",
         ".hdr",
-        ".png",
-        ".webp",
-        ".pxm",
-        ".pnm",
-        ".tga",
-        ".pgm",
-        ".pbm",
-        ".jpe",
         ".jp2",
+        ".jpe",
+        ".jpeg",
+        ".jpg",
+        ".pbm",
+        ".pfm",
+        ".pgm",
+        ".pic",
+        ".png",
+        ".pnm",
         ".ppm",
+        ".pxm",
         ".ras",
-        ".jpg"
+        ".sr",
+        ".tga",
+        ".tif",
+        ".tiff",
+        ".webp"
       ]
     }
   },
@@ -709,8 +718,8 @@
     "plugin_type": "Importer",
     "metadata": {
       "file_extensions": [
-        ".json",
-        ".csv"
+        ".csv",
+        ".json"
       ]
     }
   },
@@ -847,8 +856,8 @@
     "metadata": {
       "file_extensions": [
         ".jpg",
-        ".png",
-        ".json"
+        ".json",
+        ".png"
       ]
     }
   },
@@ -859,8 +868,8 @@
     "metadata": {
       "file_extensions": [
         ".jpg",
-        ".png",
-        ".json"
+        ".json",
+        ".png"
       ]
     }
   },
@@ -871,8 +880,8 @@
     "metadata": {
       "file_extensions": [
         ".jpg",
-        ".png",
-        ".json"
+        ".json",
+        ".png"
       ]
     }
   },
@@ -1178,6 +1187,27 @@
     "plugin_type": "DatasetBase"
   },
   {
+    "import_path": "datumaro.plugins.data_formats.roboflow.base_tfrecord.RoboflowTfrecordBase",
+    "plugin_name": "roboflow_tfrecord",
+    "plugin_type": "DatasetBase",
+    "extra_deps": [
+      "tensorflow"
+    ]
+  },
+  {
+    "import_path": "datumaro.plugins.data_formats.roboflow.base_tfrecord.RoboflowTfrecordImporter",
+    "plugin_name": "roboflow_tfrecord",
+    "plugin_type": "Importer",
+    "extra_deps": [
+      "tensorflow"
+    ],
+    "metadata": {
+      "file_extensions": [
+        ".tfrecord"
+      ]
+    }
+  },
+  {
     "import_path": "datumaro.plugins.data_formats.roboflow.importer.RoboflowCocoImporter",
     "plugin_name": "roboflow_coco",
     "plugin_type": "Importer",
@@ -1343,6 +1373,35 @@
     }
   },
   {
+    "import_path": "datumaro.plugins.data_formats.tf_detection_api.base.TfDetectionApiBase",
+    "plugin_name": "tf_detection_api",
+    "plugin_type": "DatasetBase",
+    "extra_deps": [
+      "tensorflow"
+    ]
+  },
+  {
+    "import_path": "datumaro.plugins.data_formats.tf_detection_api.base.TfDetectionApiImporter",
+    "plugin_name": "tf_detection_api",
+    "plugin_type": "Importer",
+    "extra_deps": [
+      "tensorflow"
+    ],
+    "metadata": {
+      "file_extensions": [
+        ".tfrecord"
+      ]
+    }
+  },
+  {
+    "import_path": "datumaro.plugins.data_formats.tf_detection_api.exporter.TfDetectionApiExporter",
+    "plugin_name": "tf_detection_api",
+    "plugin_type": "Exporter",
+    "extra_deps": [
+      "tensorflow"
+    ]
+  },
+  {
     "import_path": "datumaro.plugins.data_formats.vgg_face2.VggFace2Base",
     "plugin_name": "vgg_face2",
     "plugin_type": "DatasetBase"
@@ -1373,33 +1432,33 @@
     "plugin_type": "Importer",
     "metadata": {
       "file_extensions": [
-        ".3gp",
-        ".rmvb",
-        ".mpeg",
-        ".mxf",
-        ".flv",
-        ".ogv",
-        ".qt",
-        ".vob",
-        ".m2p",
-        ".ts",
-        ".asf",
-        ".mk3d",
-        ".divx",
-        ".mkv",
-        ".mpg",
-        ".f4v",
-        ".wmv",
-        ".ps",
-        ".ogg",
-        ".webm",
-        ".evo",
         ".3g2",
-        ".mp4",
+        ".3gp",
+        ".asf",
+        ".avi",
+        ".divx",
+        ".evo",
+        ".f4v",
+        ".flv",
+        ".m2p",
         ".m2ts",
+        ".mk3d",
+        ".mkv",
         ".mov",
+        ".mp4",
+        ".mpeg",
+        ".mpg",
+        ".mxf",
+        ".ogg",
+        ".ogv",
         ".ogx",
-        ".avi"
+        ".ps",
+        ".qt",
+        ".rmvb",
+        ".ts",
+        ".vob",
+        ".webm",
+        ".wmv"
       ]
     }
   },
@@ -1414,33 +1473,33 @@
     "plugin_type": "Importer",
     "metadata": {
       "file_extensions": [
-        ".3gp",
-        ".rmvb",
-        ".mpeg",
-        ".mxf",
-        ".flv",
-        ".ogv",
-        ".qt",
-        ".vob",
-        ".m2p",
-        ".ts",
-        ".asf",
-        ".mk3d",
-        ".divx",
-        ".mkv",
-        ".mpg",
-        ".f4v",
-        ".wmv",
-        ".ps",
-        ".ogg",
-        ".webm",
-        ".evo",
         ".3g2",
-        ".mp4",
+        ".3gp",
+        ".asf",
+        ".avi",
+        ".divx",
+        ".evo",
+        ".f4v",
+        ".flv",
+        ".m2p",
         ".m2ts",
+        ".mk3d",
+        ".mkv",
         ".mov",
+        ".mp4",
+        ".mpeg",
+        ".mpg",
+        ".mxf",
+        ".ogg",
+        ".ogv",
         ".ogx",
-        ".avi"
+        ".ps",
+        ".qt",
+        ".rmvb",
+        ".ts",
+        ".vob",
+        ".webm",
+        ".wmv"
       ]
     }
   },

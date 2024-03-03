@@ -53,7 +53,7 @@ if __name__ == "__main__":
                 plugin_spec["extra_deps"] = extra_deps
             # Setting metadata for importers
             if hasattr(plugin, "get_file_extensions"):
-                plugin_spec["metadata"] = {"file_extensions": plugin.get_file_extensions()}
+                plugin_spec["metadata"] = {"file_extensions": sorted(plugin.get_file_extensions())}
             plugin_specs.append(plugin_spec)
 
     _enroll_to_plugin_specs(env.extractors, "DatasetBase")
