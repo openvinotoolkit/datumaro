@@ -32,7 +32,6 @@ from gui.datumaro_gui.components.single.tabs.analyze import (
     get_radar_data_for_label_dist_by_type,
     get_repeated_images,
     get_segments_dist,
-    get_tab_data_for_attr_dist_by_type,
     get_tab_data_for_label_dist_by_type,
     get_tab_data_for_val_attr_dist,
     get_tab_data_for_val_label_dist,
@@ -40,7 +39,7 @@ from gui.datumaro_gui.components.single.tabs.analyze import (
     get_unannotated_images,
     get_validation_summary,
 )
-from gui.datumaro_gui.utils.drawing import Chart, ChartWithTab, Dashboard, DataGrid, DatasetInfoBox
+from gui.datumaro_gui.utils.drawing import Dashboard
 
 
 def run_analyze():
