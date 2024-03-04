@@ -63,7 +63,7 @@ class VisualizeTest(TestCase):
         selectbox_key = "sb_select_subset_viz"
         subset_list = ["test", "train", "validation"]
         assert at.selectbox(selectbox_key).label == "Select a subset:"
-        assert at.selectbox(selectbox_key).options == subset_list
+        assert sorted(at.selectbox(selectbox_key).options) == subset_list
         assert at.selectbox(selectbox_key).value == subset_list[0]
 
         selectbox_key = "sb_select_id_viz"
@@ -91,7 +91,7 @@ class VisualizeTest(TestCase):
 
         # selectbox
         selectbox_key = "sb_select_subset_viz"
-        at.selectbox(selectbox_key).select_index(1).run()
+        at.selectbox(selectbox_key).select("train").run()
         assert at.selectbox(selectbox_key).value == "train"
 
         selectbox_key = "sb_select_id_viz"

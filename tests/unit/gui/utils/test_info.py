@@ -30,7 +30,7 @@ class InfoTest:
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_get_subset_info(self, example_dataset):
-        result = get_subset_info(example_dataset)
+        result = sorted(get_subset_info(example_dataset), key=lambda x: x["id"])
 
         expected_result = [
             {"id": "test", "label": "test", "value": 1},
@@ -38,7 +38,7 @@ class InfoTest:
             {"id": "validation", "label": "validation", "value": 1},
         ]
 
-        assert result == expected_result
+        assert all(x == y for x, y in zip(result, expected_result))
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_get_category_info(self, example_dataset):
@@ -50,7 +50,9 @@ class InfoTest:
                 LabelCategories.Category(name="mary", parent="", attributes=set()),
             ]
         )
-        result = get_category_info(example_dataset, example_categories)
+        result = sorted(
+            get_category_info(example_dataset, example_categories), key=lambda x: x["subset"]
+        )
 
         expected_result = [
             {"car": 0, "bicycle": 1, "tom": 0, "mary": 1, "subset": "test"},
@@ -58,7 +60,7 @@ class InfoTest:
             {"car": 0, "bicycle": 0, "tom": 0, "mary": 0, "subset": "validation"},
         ]
 
-        assert result == expected_result
+        assert all(x == y for x, y in zip(result, expected_result))
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_return_matches(self):

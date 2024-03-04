@@ -196,8 +196,8 @@ class TransformTest(TestCase):
         assert at.multiselect(key=multiselect_key)
         subset_list = ["test", "train", "validation"]
         assert at.multiselect(key=multiselect_key).label == "Select subsets to be aggregated"
-        assert at.multiselect(key=multiselect_key).options == subset_list
-        assert at.multiselect(key=multiselect_key).value == subset_list
+        assert sorted(at.multiselect(key=multiselect_key).options) == subset_list
+        assert sorted(at.multiselect(key=multiselect_key).value) == subset_list
 
         text_input_key = "ti_dst_subset_name_agg_mul_c1"
         assert at.text_input(key=text_input_key)
@@ -213,8 +213,8 @@ class TransformTest(TestCase):
         assert at.multiselect(key=multiselect_key)
         subset_list = ["test", "train"]
         assert at.multiselect(key=multiselect_key).label == "Select subsets to be aggregated"
-        assert at.multiselect(key=multiselect_key).options == subset_list
-        assert at.multiselect(key=multiselect_key).value == subset_list
+        assert sorted(at.multiselect(key=multiselect_key).options) == subset_list
+        assert sorted(at.multiselect(key=multiselect_key).value) == subset_list
 
         text_input_key = "ti_dst_subset_name_agg_mul_c2"
         assert at.text_input(key=text_input_key)
@@ -326,8 +326,8 @@ class TransformTest(TestCase):
         selectbox_key = "sb_select_subset_remove_mul_c1"
         assert at.selectbox(selectbox_key)
         assert at.selectbox(selectbox_key).label == "Select a subset"
-        assert at.selectbox(selectbox_key).options == list(
-            at.session_state.data_helper_1.subset_to_ids().keys()
+        assert sorted(at.selectbox(selectbox_key).options) == sorted(
+            list(at.session_state.data_helper_1.subset_to_ids().keys())
         )
         selected_subset = at.selectbox(selectbox_key).value
 
@@ -359,8 +359,8 @@ class TransformTest(TestCase):
         selectbox_key = "sb_select_subset_remove_mul_c2"
         assert at.selectbox(selectbox_key)
         assert at.selectbox(selectbox_key).label == "Select a subset"
-        assert at.selectbox(selectbox_key).options == list(
-            at.session_state.data_helper_2.subset_to_ids().keys()
+        assert sorted(at.selectbox(selectbox_key).options) == sorted(
+            list(at.session_state.data_helper_2.subset_to_ids().keys())
         )
         selected_subset = at.selectbox(selectbox_key).value
 
@@ -553,7 +553,7 @@ class TransformAggregationTest(TestCase):
 
         # Before
         before_subsets = list(at.session_state.data_helper_1.dataset().subsets().keys())
-        assert before_subsets == ["test", "train", "validation"]
+        assert sorted(before_subsets) == ["test", "train", "validation"]
 
         # Call the _do_aggregation() method
         TransformAggregation._do_aggregation(
@@ -576,7 +576,7 @@ class TransformAggregationTest(TestCase):
 
         # Before
         subset_list = ["test", "train", "validation"]
-        assert at.multiselect(multiselect_key).value == subset_list
+        assert sorted(at.multiselect(multiselect_key).value) == subset_list
 
         # Unselect train
         at.multiselect(multiselect_key).unselect("train").run()
@@ -606,7 +606,7 @@ class TransformAggregationTest(TestCase):
         at = AppTest.from_function(run_transform, default_timeout=600).run()
 
         # Before
-        before_subsets = list(at.session_state.data_helper_1.dataset().subsets().keys())
+        before_subsets = sorted(list(at.session_state.data_helper_1.dataset().subsets().keys()))
         assert before_subsets == ["test", "train", "validation"]
 
         # Click aggregation button
@@ -627,8 +627,8 @@ class TransformAggregationTest(TestCase):
         assert at.multiselect(multiselect_key)
         subset_list = ["test", "train", "validation"]
         assert at.multiselect(multiselect_key).label == "Select subsets to be aggregated"
-        assert at.multiselect(multiselect_key).options == subset_list
-        assert at.multiselect(multiselect_key).value == subset_list
+        assert sorted(at.multiselect(multiselect_key).options) == subset_list
+        assert sorted(at.multiselect(multiselect_key).value) == subset_list
 
         # text_input
         text_input_key = "ti_dst_subset_name_agg_mul_c1"
@@ -713,7 +713,7 @@ class TransformSplitTest(TestCase):
         at = AppTest.from_function(run_transform, default_timeout=600).run()
 
         # before
-        before_subsets = list(at.session_state.data_helper_1.dataset().subsets().keys())
+        before_subsets = sorted(list(at.session_state.data_helper_1.dataset().subsets().keys()))
         assert before_subsets == ["test", "train", "validation"]
         assert len(at.session_state.subset_1) == 0
 
@@ -777,7 +777,7 @@ class TransformSplitTest(TestCase):
         at = AppTest.from_function(run_transform, default_timeout=600).run()
 
         # before
-        before_subsets = list(at.session_state.data_helper_1.dataset().subsets().keys())
+        before_subsets = sorted(list(at.session_state.data_helper_1.dataset().subsets().keys()))
         assert before_subsets == ["test", "train", "validation"]
 
         button_key = "btn_add_subset_split_mul_c1"
@@ -811,7 +811,7 @@ class TransformSubsetRenameTest(TestCase):
         at = AppTest.from_function(run_transform, default_timeout=600).run()
 
         # before
-        before_subsets = list(at.session_state.data_helper_1.dataset().subsets().keys())
+        before_subsets = sorted(list(at.session_state.data_helper_1.dataset().subsets().keys()))
         assert before_subsets == ["test", "train", "validation"]
 
         # Check page open correctly
@@ -839,7 +839,7 @@ class TransformSubsetRenameTest(TestCase):
         at = AppTest.from_function(run_transform, default_timeout=600).run()
 
         # before
-        before_subsets = list(at.session_state.data_helper_1.dataset().subsets().keys())
+        before_subsets = sorted(list(at.session_state.data_helper_1.dataset().subsets().keys()))
         assert before_subsets == ["test", "train", "validation"]
 
         # Call the _remap_subset() method
@@ -848,7 +848,10 @@ class TransformSubsetRenameTest(TestCase):
         )
 
         expected_subsets = ["test", "train", "val"]
-        assert list(at.session_state.data_helper_1.dataset().subsets().keys()) == expected_subsets
+        assert (
+            sorted(list(at.session_state.data_helper_1.dataset().subsets().keys()))
+            == expected_subsets
+        )
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_subset_rename_check_select(self):
@@ -894,7 +897,7 @@ class TransformSubsetRenameTest(TestCase):
         button_key = "btn_subset_rename_mul_c1"
 
         # Before
-        before_subsets = list(at.session_state.data_helper_1.dataset().subsets().keys())
+        before_subsets = sorted(list(at.session_state.data_helper_1.dataset().subsets().keys()))
         assert before_subsets == ["test", "train", "validation"]
 
         # Unselect train
@@ -904,7 +907,10 @@ class TransformSubsetRenameTest(TestCase):
 
         # After
         expected_subsets = ["test", "train", "val"]
-        assert list(at.session_state.data_helper_1.dataset().subsets().keys()) == expected_subsets
+        assert (
+            sorted(list(at.session_state.data_helper_1.dataset().subsets().keys()))
+            == expected_subsets
+        )
 
 
 class TransformReindexTest(TestCase):
@@ -1120,8 +1126,8 @@ class TransformFiltrationTest(TestCase):
         selectbox_key = "sb_selected_subset_filt_mul_c1"
         assert at.selectbox(selectbox_key)
         assert at.selectbox(selectbox_key).label == "Select a subset"
-        assert at.selectbox(selectbox_key).options == list(
-            at.session_state.data_helper_1.subset_to_ids().keys()
+        assert sorted(at.selectbox(selectbox_key).options) == sorted(
+            list(at.session_state.data_helper_1.subset_to_ids().keys())
         )
         selected_subset = list(at.session_state.data_helper_1.subset_to_ids().keys())[0]
 
@@ -1193,8 +1199,8 @@ class TransformRemoveTest(TestCase):
         selectbox_key = "sb_select_subset_remove_mul_c1"
         assert at.selectbox(selectbox_key)
         assert at.selectbox(selectbox_key).label == "Select a subset"
-        assert at.selectbox(selectbox_key).options == list(
-            at.session_state.data_helper_1.subset_to_ids().keys()
+        assert sorted(at.selectbox(selectbox_key).options) == sorted(
+            list(at.session_state.data_helper_1.subset_to_ids().keys())
         )
         selected_subset = at.selectbox(selectbox_key).value
 

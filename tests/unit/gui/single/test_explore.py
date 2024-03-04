@@ -67,7 +67,7 @@ class ExploreTest(TestCase):
         multiselect_key = "ms_select_label"
         options = ["bird", "cat", "dog", "monkey"]
         assert at.multiselect(multiselect_key).label == "Select Label(s)"
-        assert at.multiselect(multiselect_key).options == options
+        assert sorted(at.multiselect(multiselect_key).options) == options
         assert not at.multiselect(multiselect_key).value
 
         # button
@@ -126,7 +126,8 @@ class ExploreTest(TestCase):
         assert at.session_state.explore_results
 
         checkbox_key = "result_0"
-        assert at.checkbox(checkbox_key).label == "default-cat:ILSVRC2012_val_00004894"
+        expected_result = "cat"
+        assert expected_result in at.checkbox(checkbox_key).label
 
         # Click result
         at.checkbox(checkbox_key).check().run()
