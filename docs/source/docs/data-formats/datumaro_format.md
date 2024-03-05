@@ -21,7 +21,7 @@ Here is the example of `json` annotation file:
 ```json
 {
     "dm_format_version": "1.0",
-    "infos": {
+    "info": {
         "task": "anomaly_detection",
         "creation time": "2023.4.1"
     },
