@@ -127,14 +127,11 @@ def decode_image_context(image_backend: ImageBackend, image_color_channel: Image
     IMAGE_BACKEND.set(curr_ctx[0])
     IMAGE_COLOR_CHANNEL.set(curr_ctx[1])
 
+
 def load_image(path: str, dtype: DTypeLike = np.uint8, crypter: Crypter = NULL_CRYPTER):
     """
     Reads an image in the HWC Grayscale/BGR(A) [0; 255] format (default dtype is uint8).
     """
-    try:
-        IMAGE_BACKEND.set(ImageBackend.cv2)
-    except ModuleNotFoundError:
-        IMAGE_BACKEND.set(ImageBackend.PIL)
 
     if IMAGE_BACKEND.get() == ImageBackend.cv2:
         # cv2.imread does not support paths that are not representable
