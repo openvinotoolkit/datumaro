@@ -43,14 +43,18 @@ if __name__ == "__main__":
             mod = plugin.__module__
             class_name = plugin.__name__
             plugin_name = plugin.NAME
-            plugin_specs += [
-                {
-                    "import_path": f"{mod}.{class_name}",
-                    "plugin_name": plugin_name,
-                    "plugin_type": plugin_type,
-                    "extra_deps": get_extra_deps(plugin),
-                }
-            ]
+            extra_deps = get_extra_deps(plugin)
+            plugin_spec = {
+                "import_path": f"{mod}.{class_name}",
+                "plugin_name": plugin_name,
+                "plugin_type": plugin_type,
+            }
+            if extra_deps:
+                plugin_spec["extra_deps"] = extra_deps
+            # Setting metadata for importers
+            if hasattr(plugin, "get_file_extensions"):
+                plugin_spec["metadata"] = {"file_extensions": sorted(plugin.get_file_extensions())}
+            plugin_specs.append(plugin_spec)
 
     _enroll_to_plugin_specs(env.extractors, "DatasetBase")
     _enroll_to_plugin_specs(env.importers, "Importer")
