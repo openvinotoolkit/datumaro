@@ -9,7 +9,7 @@ coverage
 pytest-csv
 
 # DatumaroApp
-streamlit
+streamlit~=1.29.0
 streamlit_antd_components
 streamlit_elements
 streamlit-aggrid
