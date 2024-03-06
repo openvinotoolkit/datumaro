@@ -322,14 +322,18 @@
             <span class="n">mod</span> <span class="o">=</span> <span class="n">plugin</span><span class="o">.</span><span class="vm">__module__</span>
             <span class="n">class_name</span> <span class="o">=</span> <span class="n">plugin</span><span class="o">.</span><span class="vm">__name__</span>
             <span class="n">plugin_name</span> <span class="o">=</span> <span class="n">plugin</span><span class="o">.</span><span class="n">NAME</span>
-            <span class="n">plugin_specs</span> <span class="o">+=</span> <span class="p">[</span>
-                <span class="p">{</span>
-                    <span class="s2">&quot;import_path&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">mod</span><span class="si">}</span><span class="s2">.</span><span class="si">{</span><span class="n">class_name</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
-                    <span class="s2">&quot;plugin_name&quot;</span><span class="p">:</span> <span class="n">plugin_name</span><span class="p">,</span>
-                    <span class="s2">&quot;plugin_type&quot;</span><span class="p">:</span> <span class="n">plugin_type</span><span class="p">,</span>
-                    <span class="s2">&quot;extra_deps&quot;</span><span class="p">:</span> <span class="n">get_extra_deps</span><span class="p">(</span><span class="n">plugin</span><span class="p">),</span>
-                <span class="p">}</span>
-            <span class="p">]</span>
+            <span class="n">extra_deps</span> <span class="o">=</span> <span class="n">get_extra_deps</span><span class="p">(</span><span class="n">plugin</span><span class="p">)</span>
+            <span class="n">plugin_spec</span> <span class="o">=</span> <span class="p">{</span>
+                <span class="s2">&quot;import_path&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">mod</span><span class="si">}</span><span class="s2">.</span><span class="si">{</span><span class="n">class_name</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;plugin_name&quot;</span><span class="p">:</span> <span class="n">plugin_name</span><span class="p">,</span>
+                <span class="s2">&quot;plugin_type&quot;</span><span class="p">:</span> <span class="n">plugin_type</span><span class="p">,</span>
+            <span class="p">}</span>
+            <span class="k">if</span> <span class="n">extra_deps</span><span class="p">:</span>
+                <span class="n">plugin_spec</span><span class="p">[</span><span class="s2">&quot;extra_deps&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">extra_deps</span>
+            <span class="c1"># Setting metadata for importers</span>
+            <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">plugin</span><span class="p">,</span> <span class="s2">&quot;get_file_extensions&quot;</span><span class="p">):</span>
+                <span class="n">plugin_spec</span><span class="p">[</span><span class="s2">&quot;metadata&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;file_extensions&quot;</span><span class="p">:</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">plugin</span><span class="o">.</span><span class="n">get_file_extensions</span><span class="p">())}</span>
+            <span class="n">plugin_specs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">plugin_spec</span><span class="p">)</span>
 
     <span class="n">_enroll_to_plugin_specs</span><span class="p">(</span><span class="n">env</span><span class="o">.</span><span class="n">extractors</span><span class="p">,</span> <span class="s2">&quot;DatasetBase&quot;</span><span class="p">)</span>
     <span class="n">_enroll_to_plugin_specs</span><span class="p">(</span><span class="n">env</span><span class="o">.</span><span class="n">importers</span><span class="p">,</span> <span class="s2">&quot;Importer&quot;</span><span class="p">)</span>
