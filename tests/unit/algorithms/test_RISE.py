@@ -16,6 +16,7 @@ from tests.utils.assets import get_test_asset_path
 
 
 class RiseTest(TestCase):
+    @pytest.mark.xfail(reason="See ticket no. 134782")
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_rise_can_be_applied_to_classification_model(self):
         model = OpenvinoLauncher(
