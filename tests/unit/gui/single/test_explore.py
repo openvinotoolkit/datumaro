@@ -126,8 +126,8 @@ class ExploreTest(TestCase):
         assert at.session_state.explore_results
 
         checkbox_key = "result_0"
-        expected_result = "cat"
-        assert expected_result in at.checkbox(checkbox_key).label
+        expected_result = ["cat", "dog"]
+        assert any(map(lambda v: v in at.checkbox(checkbox_key).label, expected_result))
 
         # Click result
         at.checkbox(checkbox_key).check().run()

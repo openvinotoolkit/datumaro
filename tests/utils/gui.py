@@ -27,7 +27,20 @@ def compare_single_datahelper(data_helper, expected):
 
 def compare_single_stats(data_helper, expected):
     # Check _init_dependent_variables
-    assert data_helper._image_stats["dataset"] == expected
+    assert data_helper._image_stats["dataset"]["images count"] == expected["images count"]
+    assert (
+        data_helper._image_stats["dataset"]["unique images count"]
+        == expected["unique images count"]
+    )
+    assert (
+        data_helper._image_stats["dataset"]["repeated images count"]
+        == expected["repeated images count"]
+    )
+    assert (
+        sorted(data_helper._image_stats["dataset"]["repeated images"], key=lambda x: x[0])
+        == expected["repeated images"]
+    )
+
     assert data_helper._image_stats["subsets"]["train"]["images count"] == 2
     assert data_helper._image_stats["subsets"]["test"]["images count"] == 1
     assert data_helper._image_stats["subsets"]["validation"]["images count"] == 1

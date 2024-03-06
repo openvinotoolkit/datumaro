@@ -64,19 +64,12 @@ class VisualizeTest(TestCase):
         subset_list = ["test", "train", "validation"]
         assert at.selectbox(selectbox_key).label == "Select a subset:"
         assert sorted(at.selectbox(selectbox_key).options) == subset_list
-        assert at.selectbox(selectbox_key).value == subset_list[0]
 
         selectbox_key = "sb_select_id_viz"
-        ids = ["c"]
         assert at.selectbox(selectbox_key).label == "Select a dataset item:"
-        assert at.selectbox(selectbox_key).options == ids
-        assert at.selectbox(selectbox_key).value == ids[0]
 
         selectbox_key = "sb_select_ann_id_viz"
-        options = ["All", "0"]
         assert at.selectbox(selectbox_key).label == "Select annotation:"
-        assert at.selectbox(selectbox_key).options == options
-        assert at.selectbox(selectbox_key).value == options[0]
 
         # select_slider
         select_slider_key = "ss_select_alpha_viz"

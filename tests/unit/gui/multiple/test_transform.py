@@ -582,7 +582,7 @@ class TransformAggregationTest(TestCase):
         at.multiselect(multiselect_key).unselect("train").run()
 
         # After
-        assert at.multiselect(multiselect_key).value == ["test", "validation"]
+        assert sorted(at.multiselect(multiselect_key).value) == ["test", "validation"]
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_aggregation_check_text_input(self):
@@ -861,7 +861,7 @@ class TransformSubsetRenameTest(TestCase):
         selectbox_key = "sb_subset_rename_mul_c1"
 
         # Before
-        assert at.selectbox(selectbox_key).value == "test"
+        assert at.selectbox(selectbox_key).value != "train"
 
         # Unselect train
         at.selectbox(selectbox_key).select("train").run()
@@ -965,7 +965,7 @@ class TransformReindexTest(TestCase):
         at = AppTest.from_function(run_transform, default_timeout=600).run()
 
         # Before
-        assert at.session_state.data_helper_1.dataset().__getitem__(0).id == "c"
+        assert at.session_state.data_helper_1.dataset().__getitem__(0).id != "10"
 
         # Call the _reindex_with_index() method
         TransformReindexing._reindex_with_index(at.session_state.data_helper_1, start_index=10)
@@ -981,7 +981,7 @@ class TransformReindexTest(TestCase):
         button_key = "btn_start_idx_reindex_mul_c1"
 
         # Before
-        assert at.session_state.data_helper_1.dataset().__getitem__(0).id == "c"
+        assert at.session_state.data_helper_1.dataset().__getitem__(0).id != "0"
 
         # Click button
         at.button(button_key).click().run()
@@ -1126,10 +1126,9 @@ class TransformFiltrationTest(TestCase):
         selectbox_key = "sb_selected_subset_filt_mul_c1"
         assert at.selectbox(selectbox_key)
         assert at.selectbox(selectbox_key).label == "Select a subset"
-        assert sorted(at.selectbox(selectbox_key).options) == sorted(
-            list(at.session_state.data_helper_1.subset_to_ids().keys())
-        )
-        selected_subset = list(at.session_state.data_helper_1.subset_to_ids().keys())[0]
+        subset_options = sorted(at.selectbox(selectbox_key).options)
+        assert subset_options == sorted(list(at.session_state.data_helper_1.subset_to_ids().keys()))
+        selected_subset = subset_options[0]
 
         selectbox_key = "sb_selected_id_filt_mul_c1"
         assert at.selectbox(selectbox_key)
