@@ -7,3 +7,9 @@ pytest-stress
 pytest-html
 coverage
 pytest-csv
+
+# DatumaroApp
+streamlit~=1.29.0
+streamlit_antd_components
+streamlit_elements
+streamlit-aggrid

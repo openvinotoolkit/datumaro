@@ -25,6 +25,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   (<https://github.com/openvinotoolkit/datumaro/pull/1251>)
 - Support bounding box import within Kaggle extractors and add `KaggleCocoBase`
   (<https://github.com/openvinotoolkit/datumaro/pull/1273>)
+- Implement Datumaroapp GUI for datumaro
+  (<https://github.com/openvinotoolkit/datumaro/pull/1279>)
 
 ### Enhancements
 - Optimize Python import to make CLI entrypoint faster

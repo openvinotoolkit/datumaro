@@ -1,0 +1,11 @@
+# Core
+streamlit~=1.29.0
+pydantic~=1.10.12
+
+# Streamlit components
+streamlit-elements
+streamlit-antd-components
+streamlit-aggrid
+
+# Dependencies
+requests
