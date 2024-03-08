@@ -1,4 +1,4 @@
-# Copyright (C) 2023 Intel Corporation
+# Copyright (C) 2024 Intel Corporation
 #
 # SPDX-License-Identifier: MIT
 from __future__ import annotations
@@ -188,6 +188,8 @@ class Visualizer:
             return self._draw_depth_annotation(ann, label_categories, fig, ax, context)
         if ann.type == AnnotationType.ellipse:
             return self._draw_ellipse(ann, label_categories, fig, ax, context)
+        if ann.type == AnnotationType.hash_key:
+            return None
 
         # warning instead of raising an error for unsupported annotation types.
         log.warning(f"Ignore unknown ann.type={ann.type}")
