@@ -45,6 +45,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   (<https://github.com/openvinotoolkit/datumaro/pull/1263>)
 - Enhance explore unit test to use real dataset from ImageNet
   (<https://github.com/openvinotoolkit/datumaro/pull/1266>)
+- Fix each method of the comparator to be used separately
+  (<https://github.com/openvinotoolkit/datumaro/pull/1290>)
 
 ### Bug fixes
 - Fix wrong example of Datumaro dataset creation in document
