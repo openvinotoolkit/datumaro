@@ -2,6 +2,7 @@
 #
 # SPDX-License-Identifier: MIT
 
+import logging as log
 import os
 
 import streamlit as st
@@ -23,7 +24,7 @@ from . import tabs
 
 
 def main():
-    print("__single__.main is called")
+    log.info("__single__.main is called")
     st.write(github_pypi_desc)
     st.markdown(custom_css, unsafe_allow_html=True)
 
@@ -40,18 +41,17 @@ def main():
     )
     filename = file_selector(input_path)
 
-    print(f'state["single_filename"] = {state["single_filename"]}')
+    log.info(f'state["single_filename"] = {state["single_filename"]}')
     if filename != state["single_filename"]:
         # change dataset
         state["single_filename"] = filename
-        print(f'state["single_filename"] changed to {state["single_filename"]}')
+        log.info(f'state["single_filename"] changed to {state["single_filename"]}')
         reset_state(single_state_keys, state)
 
         if filename is not None:
             if filename.endswith(".zip"):
                 data_repo = DataRepo()
                 filename = data_repo.unzip_dataset(filename)
-                print(filename)
 
             data_helper = SingleDatasetHelper(filename)
             state["data_helper"] = data_helper

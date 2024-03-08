@@ -144,7 +144,7 @@ class TransformAggregation(TransformBase):
         st.toast("Aggregation Success!", icon="🎉")
 
     def gui(self, data_helper: SingleDatasetHelper):
-        print(f"{__class__} called")
+        log.info(f"{__class__} called")
 
         subsets = list(data_helper.dataset().subsets().keys())
 
@@ -201,7 +201,6 @@ class TransformSplit(TransformBase):
         idx = 0  # default is 'train'
         default_names = tuple(split.subset for split in default_splits)
         for split in reversed(subset_state):
-            print(split)
             if split.subset in default_names:
                 idx = (default_names.index(split.subset) + 1) % len(default_names)
                 break
@@ -222,7 +221,7 @@ class TransformSplit(TransformBase):
             st.toast("Sum of ratios is expected to be 1!", icon="🚨")
 
     def gui(self, data_helper: SingleDatasetHelper):
-        print(f"{__class__} called")
+        log.info(f"{__class__} called")
 
         c1, c2 = st.columns(2)
         subset_state = state["subset"]
@@ -308,7 +307,7 @@ class TransformSubsetRename(TransformBase):
         st.toast("Rename Subset Success!", icon="🎉")
 
     def gui(self, data_helper: SingleDatasetHelper):
-        print(f"{__class__} called")
+        log.info(f"{__class__} called")
 
         subsets = list(data_helper.dataset().subsets().keys())
         c1, c2, c3 = st.columns([0.3, 0.4, 0.3])
@@ -691,7 +690,7 @@ class TransformAutoCorrection(TransformBase):
             self._correct_dataset(data_helper, selected_task)
 
         if state["correct_reports"] is not None:
-            print(state["correct_reports"])
+            log.info(state["correct_reports"])
             summary_src = self._get_validation_summary(state["correct_reports"]["src"])
             summary_dst = self._get_validation_summary(state["correct_reports"]["dst"])
             st.dataframe(
@@ -866,7 +865,7 @@ def on_click(transform: TransformBase):
 
 
 def main():
-    print(f"{__file__} called")
+    log.info(f"{__file__} called")
     data_helper: SingleDatasetHelper = state["data_helper"]
     transform_categories = (
         TransformCategory("Category Management", (TransformLabelRemap,)),

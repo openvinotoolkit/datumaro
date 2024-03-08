@@ -3,6 +3,7 @@
 # SPDX-License-Identifier: MIT
 
 
+import logging as log
 import os
 
 import streamlit as st
@@ -24,7 +25,7 @@ from . import tabs
 
 
 def main():
-    print("__multiple__.main is called")
+    log.info("__multiple__.main is called")
     st.write(github_pypi_desc)
     st.markdown(custom_css, unsafe_allow_html=True)
 
@@ -41,14 +42,14 @@ def main():
     )
     filename = multiple_file_selector(input_path)
 
-    print(f'state["multiple_filename"] = {state["multiple_filename"]}')
+    log.info(f'state["multiple_filename"] = {state["multiple_filename"]}')
     if filename != state["multiple_filename"] and filename is not None and len(filename) > 1:
         if len(filename) > 2:
             st.error("You could not upload more than 2 datasets in once", icon="🚨")
 
         # change dataset
         state["multiple_filename"] = filename
-        print(f'state["multiple_filename"] changed to {state["multiple_filename"]}')
+        log.info(f'state["multiple_filename"] changed to {state["multiple_filename"]}')
         reset_state(multiple_state_keys, state)
 
         filename_1, filename_2 = filename
@@ -56,7 +57,6 @@ def main():
             if filename_1.endswith(".zip"):
                 data_repo = DataRepo()
                 filename_1 = data_repo.unzip_dataset(filename_1)
-                print(filename_1)
 
             data_helper = MultipleDatasetHelper(filename_1)
             state["data_helper_1"] = data_helper
@@ -69,7 +69,6 @@ def main():
             if filename_2.endswith(".zip"):
                 data_repo = DataRepo()
                 filename_2 = data_repo.unzip_dataset(filename_2)
-                print(filename_2)
 
             data_helper = MultipleDatasetHelper(filename_2)
             state["data_helper_2"] = data_helper
