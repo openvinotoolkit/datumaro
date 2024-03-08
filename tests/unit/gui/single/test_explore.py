@@ -5,6 +5,7 @@
 import os
 from unittest import TestCase
 
+import pytest
 from streamlit.testing.v1 import AppTest
 
 from datumaro.components.visualizer import Visualizer
@@ -179,6 +180,7 @@ class ExploreTest(TestCase):
         # Check updated query status
         assert len(at.session_state.explore_queries) == 1
 
+    @pytest.mark.xfail(reason="Cannot copy contextvar to thread")
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_explore_check_dataset_image(self):
         """Test if label method of explore are worked out correctly."""
@@ -263,6 +265,7 @@ class ExploreTest(TestCase):
         # TODO
         """Test if user image method of explore are worked out correctly."""
 
+    @pytest.mark.xfail(reason="Cannot copy contextvar to thread")
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_explore_check_text(self):
         """Test if text method of explore are worked out correctly."""

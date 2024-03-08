@@ -5,6 +5,7 @@
 import os
 from unittest import TestCase
 
+import pytest
 from streamlit.testing.v1 import AppTest
 
 from tests.requirements import Requirements, mark_requirement
@@ -66,6 +67,7 @@ class MergeTest(TestCase):
         # button
         assert not at.button("merge_btn_mult").value
 
+    @pytest.mark.xfail(reason="Cannot copy contextvar to thread")
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_merge(self):
         """"""

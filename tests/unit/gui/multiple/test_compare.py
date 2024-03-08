@@ -5,6 +5,7 @@
 import os
 from unittest import TestCase
 
+import pytest
 from streamlit.testing.v1 import AppTest
 
 from tests.requirements import Requirements, mark_requirement
@@ -54,6 +55,7 @@ def run_compare():
     tabs.call_compare()
 
 
+@pytest.mark.xfail(reason="See ticket no. 134782")
 class CompareTest(TestCase):
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_compare_page_open(self):

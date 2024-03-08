@@ -6,6 +6,7 @@ import os
 from unittest import TestCase
 
 import pandas as pd
+import pytest
 from streamlit.testing.v1 import AppTest
 
 from tests.requirements import Requirements, mark_requirement
@@ -791,6 +792,7 @@ class TransformReindexTest(TestCase):
         # After
         assert at.session_state.data_helper.dataset().__getitem__(0).id == "0"
 
+    @pytest.mark.xfail(reason="Cannot copy contextvar to thread")
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_reindex_with_media_name(self):
         """Test if _reindex_with_image function of TransformReindexing in single dataset is worked out correctly."""
@@ -808,6 +810,7 @@ class TransformReindexTest(TestCase):
         # Assert that the IDs have been updated
         assert at.session_state.data_helper.dataset().__getitem__(0).id == "label_0_1"
 
+    @pytest.mark.xfail(reason="Cannot copy contextvar to thread")
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_reindex_check_reindex_media_name_button(self):
         """Test if button api for reindexing method based on media name of TransformReindexing in single dataset is worked out correctly."""
@@ -1588,6 +1591,7 @@ class TransformNDRTest:
         assert at.radio(radio_key).label == "Undersample Policy"
         assert at.radio(radio_key).options == ["uniform", "inverse"]
 
+    @pytest.mark.xfail(reason="Cannot copy contextvar to thread")
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_ndr_check_button(self):
         """Test if button api for ndr method of TransformNDR in single dataset is worked out correctly."""

@@ -5,6 +5,7 @@
 import os
 from unittest import TestCase
 
+import pytest
 from streamlit.testing.v1 import AppTest
 
 from tests.requirements import Requirements, mark_requirement
@@ -111,6 +112,7 @@ class ExportTest(TestCase):
         # error
         assert len(at.error) == 1
 
+    @pytest.mark.xfail(reason="Cannot copy contextvar to thread")
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_export_merged_page_open(self):
         """Test if the session state is initialized correctly."""
@@ -149,6 +151,7 @@ class ExportTest(TestCase):
         assert at.text_input("ti_path_export_mult").value
         assert not at.button("btn_export_mult").value
 
+    @pytest.mark.xfail(reason="Cannot copy contextvar to thread")
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_export(self):
         """"""

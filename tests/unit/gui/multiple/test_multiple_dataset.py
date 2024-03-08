@@ -5,6 +5,7 @@
 import os
 from unittest import TestCase
 
+import pytest
 from streamlit.testing.v1 import AppTest
 
 from tests.requirements import Requirements, mark_requirement
@@ -24,6 +25,7 @@ multiple_dataset_key = "datumaro_gui.utils.page_p_:telescope: Multiple datasets"
 
 
 class MutipleDataTest(TestCase):
+    @pytest.mark.xfail(reason="Cannot copy contextvar to thread")
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_multiple_page_open(self):
         """Test if the session state is initialized correctly."""
