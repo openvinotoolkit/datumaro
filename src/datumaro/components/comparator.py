@@ -1,4 +1,4 @@
-# Copyright (C) 2023 Intel Corporation
+# Copyright (C) 2023-2024 Intel Corporation
 #
 # SPDX-License-Identifier: MIT
 
@@ -604,7 +604,9 @@ class TableComparator:
 
         return table, data_dict
 
-    def compare_datasets(self, first: Dataset, second: Dataset) -> Tuple[str, str, str, Dict]:
+    def compare_datasets(
+        self, first: Dataset, second: Dataset, mode: str = "all"
+    ) -> Tuple[str, str, str, Dict]:
         """Compares two datasets and generates comparison reports.
 
         Args:
@@ -618,13 +620,20 @@ class TableComparator:
         first_info = self._analyze_dataset(first)
         second_info = self._analyze_dataset(second)
 
-        high_level_table, high_level_dict = self._create_high_level_comparison_table(
-            first_info, second_info
-        )
-        mid_level_table, mid_level_dict = self._create_mid_level_comparison_table(
-            first_info, second_info
-        )
-        low_level_table, low_level_dict = self._create_low_level_comparison_table(first, second)
+        high_level_table, high_level_dict = None, {}
+        mid_level_table, mid_level_dict = None, {}
+        low_level_table, low_level_dict = None, {}
+
+        if mode in ["high", "all"]:
+            high_level_table, high_level_dict = self._create_high_level_comparison_table(
+                first_info, second_info
+            )
+        if mode in ["mid", "all"]:
+            mid_level_table, mid_level_dict = self._create_mid_level_comparison_table(
+                first_info, second_info
+            )
+        if mode in ["low", "all"]:
+            low_level_table, low_level_dict = self._create_low_level_comparison_table(first, second)
 
         comparison_dict = dict(
             high_level=high_level_dict, mid_level=mid_level_dict, low_level=low_level_dict

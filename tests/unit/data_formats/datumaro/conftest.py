@@ -397,7 +397,7 @@ def fxt_legacy_dataset_pair(test_dir):
                     Label(id=0, label=0),
                     Label(id=1, label=1),
                     Label(id=2, label=2),
-                    Label(id=3, label=5),
+                    Label(id=3, label=3),
                 ],
             ),
             DatasetItem(
