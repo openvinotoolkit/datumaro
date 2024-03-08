@@ -277,7 +277,7 @@
             <article class="bd-article" role="main">
               
   <h1>Source code for datumaro.components.comparator</h1><div class="highlight"><pre>
-<span></span><span class="c1"># Copyright (C) 2023 Intel Corporation</span>
+<span></span><span class="c1"># Copyright (C) 2023-2024 Intel Corporation</span>
 <span class="c1">#</span>
 <span class="c1"># SPDX-License-Identifier: MIT</span>
 
@@ -883,7 +883,9 @@
 
         <span class="k">return</span> <span class="n">table</span><span class="p">,</span> <span class="n">data_dict</span>
 
-<div class="viewcode-block" id="TableComparator.compare_datasets"><a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.components.hl_ops.html#datumaro.components.comparator.TableComparator.compare_datasets">[docs]</a>    <span class="k">def</span> <span class="nf">compare_datasets</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">first</span><span class="p">:</span> <span class="n">Dataset</span><span class="p">,</span> <span class="n">second</span><span class="p">:</span> <span class="n">Dataset</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">,</span> <span class="n">Dict</span><span class="p">]:</span>
+<div class="viewcode-block" id="TableComparator.compare_datasets"><a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.components.hl_ops.html#datumaro.components.comparator.TableComparator.compare_datasets">[docs]</a>    <span class="k">def</span> <span class="nf">compare_datasets</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">first</span><span class="p">:</span> <span class="n">Dataset</span><span class="p">,</span> <span class="n">second</span><span class="p">:</span> <span class="n">Dataset</span><span class="p">,</span> <span class="n">mode</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;all&quot;</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">,</span> <span class="n">Dict</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Compares two datasets and generates comparison reports.</span>
 
 <span class="sd">        Args:</span>
@@ -897,13 +899,20 @@
         <span class="n">first_info</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_analyze_dataset</span><span class="p">(</span><span class="n">first</span><span class="p">)</span>
         <span class="n">second_info</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_analyze_dataset</span><span class="p">(</span><span class="n">second</span><span class="p">)</span>
 
-        <span class="n">high_level_table</span><span class="p">,</span> <span class="n">high_level_dict</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_create_high_level_comparison_table</span><span class="p">(</span>
-            <span class="n">first_info</span><span class="p">,</span> <span class="n">second_info</span>
-        <span class="p">)</span>
-        <span class="n">mid_level_table</span><span class="p">,</span> <span class="n">mid_level_dict</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_create_mid_level_comparison_table</span><span class="p">(</span>
-            <span class="n">first_info</span><span class="p">,</span> <span class="n">second_info</span>
-        <span class="p">)</span>
-        <span class="n">low_level_table</span><span class="p">,</span> <span class="n">low_level_dict</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_create_low_level_comparison_table</span><span class="p">(</span><span class="n">first</span><span class="p">,</span> <span class="n">second</span><span class="p">)</span>
+        <span class="n">high_level_table</span><span class="p">,</span> <span class="n">high_level_dict</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="p">{}</span>
+        <span class="n">mid_level_table</span><span class="p">,</span> <span class="n">mid_level_dict</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="p">{}</span>
+        <span class="n">low_level_table</span><span class="p">,</span> <span class="n">low_level_dict</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="p">{}</span>
+
+        <span class="k">if</span> <span class="n">mode</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;high&quot;</span><span class="p">,</span> <span class="s2">&quot;all&quot;</span><span class="p">]:</span>
+            <span class="n">high_level_table</span><span class="p">,</span> <span class="n">high_level_dict</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_create_high_level_comparison_table</span><span class="p">(</span>
+                <span class="n">first_info</span><span class="p">,</span> <span class="n">second_info</span>
+            <span class="p">)</span>
+        <span class="k">if</span> <span class="n">mode</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;mid&quot;</span><span class="p">,</span> <span class="s2">&quot;all&quot;</span><span class="p">]:</span>
+            <span class="n">mid_level_table</span><span class="p">,</span> <span class="n">mid_level_dict</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_create_mid_level_comparison_table</span><span class="p">(</span>
+                <span class="n">first_info</span><span class="p">,</span> <span class="n">second_info</span>
+            <span class="p">)</span>
+        <span class="k">if</span> <span class="n">mode</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;low&quot;</span><span class="p">,</span> <span class="s2">&quot;all&quot;</span><span class="p">]:</span>
+            <span class="n">low_level_table</span><span class="p">,</span> <span class="n">low_level_dict</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_create_low_level_comparison_table</span><span class="p">(</span><span class="n">first</span><span class="p">,</span> <span class="n">second</span><span class="p">)</span>
 
         <span class="n">comparison_dict</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span>
             <span class="n">high_level</span><span class="o">=</span><span class="n">high_level_dict</span><span class="p">,</span> <span class="n">mid_level</span><span class="o">=</span><span class="n">mid_level_dict</span><span class="p">,</span> <span class="n">low_level</span><span class="o">=</span><span class="n">low_level_dict</span>

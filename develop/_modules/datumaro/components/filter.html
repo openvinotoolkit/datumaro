@@ -277,7 +277,7 @@
             <article class="bd-article" role="main">
               
   <h1>Source code for datumaro.components.filter</h1><div class="highlight"><pre>
-<span></span><span class="c1"># Copyright (C) 2019-2023 Intel Corporation</span>
+<span></span><span class="c1"># Copyright (C) 2019-2024 Intel Corporation</span>
 <span class="c1">#</span>
 <span class="c1"># SPDX-License-Identifier: MIT</span>
 <span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">annotations</span>
@@ -294,6 +294,7 @@
     <span class="n">Bbox</span><span class="p">,</span>
     <span class="n">Caption</span><span class="p">,</span>
     <span class="n">Ellipse</span><span class="p">,</span>
+    <span class="n">HashKey</span><span class="p">,</span>
     <span class="n">Label</span><span class="p">,</span>
     <span class="n">Mask</span><span class="p">,</span>
     <span class="n">Points</span><span class="p">,</span>
@@ -536,6 +537,9 @@
             <span class="k">return</span> <span class="bp">cls</span><span class="o">.</span><span class="n">encode_caption_object</span><span class="p">(</span><span class="n">o</span><span class="p">)</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">o</span><span class="p">,</span> <span class="n">Ellipse</span><span class="p">):</span>
             <span class="k">return</span> <span class="bp">cls</span><span class="o">.</span><span class="n">encode_ellipse_object</span><span class="p">(</span><span class="n">o</span><span class="p">,</span> <span class="n">categories</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">o</span><span class="p">,</span> <span class="n">HashKey</span><span class="p">):</span>
+            <span class="k">return</span> <span class="bp">cls</span><span class="o">.</span><span class="n">encode_annotation_base</span><span class="p">(</span><span class="n">o</span><span class="p">)</span>
+
         <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s2">&quot;Unexpected annotation object passed: </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">o</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="DatasetItemEncoder.to_string"><a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.components.filter.html#datumaro.components.dataset.DatasetItemEncoder.to_string">[docs]</a>    <span class="nd">@staticmethod</span>
