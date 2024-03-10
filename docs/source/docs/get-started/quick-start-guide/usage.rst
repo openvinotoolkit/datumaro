@@ -46,3 +46,37 @@ formats and providing high performance operations:
 
     # export the resulting dataset in COCO format
     dataset.export('dst/dir', 'coco', save_images=True)
+
+DatumaroApp module
+-------------
+
+Datumaro also provides a solution to users via GUI, which is DatumaroApp. This visually represents the features
+necessary for performing complex tasks such as data processing, allowing users to easily
+understand and interact with them, thereby enhancing user experience and enabling tasks to be
+performed more intuitively. Additionally, it allows users with limited coding or programming
+experience to use the solution. This enables users to immediately use the solution without the
+need for separate development or setup processes, allowing them to start using the solution and
+performing necessary tasks immediately.
+
+.. image:: ../../../../images/gui/intro.png
+
+Datumaro provides solutions not only for individual datasets but also for multiple datasets.
+You can utilize these functionalities through the GUI. Simply select the desired dataset format
+from the sidebar.
+
+Please click on "Single Dataset" on sidebar to proceed.
+
+.. image:: ../../../../images/gui/select_path_to_import_data.png
+
+Enter the location where the desired dataset is located in the 'Path' field below, and then select
+the dataset from among the options available.
+
+.. image:: ../../../../images/gui/select_file.png
+
+Select the desired dataset from among those available in the folder. Whether your dataset is in a zip
+file or a regular folder, both are importable.
+
+# 사진
+
+You can review information about the selected dataset below. You can view Dataset Information, Subset Info,
+Category Info, and a sample of the dataset. For other functionalities, you can proceed through different tabs.
