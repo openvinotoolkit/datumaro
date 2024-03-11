@@ -6,7 +6,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
 
-    <title>datumaro.plugins.anchor_generator &#8212; Datumaro 1.6.0rc1 documentation</title>
+    <title>datumaro.plugins.accuracy_checker_plugin.details.representation &#8212; Datumaro 1.6.0rc1 documentation</title>
   
   
   
@@ -46,11 +46,11 @@
     <script src="../../../_static/copybutton.js"></script>
     <script src="../../../_static/design-tabs.js"></script>
     <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
-    <script>DOCUMENTATION_OPTIONS.pagename = 'docs/reference/_autosummary/datumaro.plugins.anchor_generator';</script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'docs/reference/_autosummary/datumaro.plugins.accuracy_checker_plugin.details.representation';</script>
     <link rel="index" title="Index" href="../../../genindex.html" />
     <link rel="search" title="Search" href="../../../search.html" />
-    <link rel="next" title="datumaro.plugins.configurable_validator" href="datumaro.plugins.configurable_validator.html" />
-    <link rel="prev" title="datumaro.plugins.accuracy_checker_plugin.details.representation" href="datumaro.plugins.accuracy_checker_plugin.details.representation.html" />
+    <link rel="next" title="datumaro.plugins.anchor_generator" href="datumaro.plugins.anchor_generator.html" />
+    <link rel="prev" title="datumaro.plugins.accuracy_checker_plugin.details.ac" href="datumaro.plugins.accuracy_checker_plugin.details.ac.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="docsearch:language" content="en">
   </head>
@@ -483,8 +483,8 @@
 <li class="toctree-l3"><a class="reference internal" href="datumaro.errors.html">datumaro.errors</a></li>
 <li class="toctree-l3"><a class="reference internal" href="datumaro.ops.html">datumaro.ops</a></li>
 <li class="toctree-l3 current active has-children"><a class="reference internal" href="datumaro.plugins.html">datumaro.plugins</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-18" name="toctree-checkbox-18" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-18"><i class="fa-solid fa-chevron-down"></i></label><ul class="current">
-<li class="toctree-l4"><a class="reference internal" href="datumaro.plugins.accuracy_checker_plugin.html">datumaro.plugins.accuracy_checker_plugin</a></li>
-<li class="toctree-l4 current active"><a class="current reference internal" href="#">datumaro.plugins.anchor_generator</a></li>
+<li class="toctree-l4 current active"><a class="reference internal" href="datumaro.plugins.accuracy_checker_plugin.html">datumaro.plugins.accuracy_checker_plugin</a></li>
+<li class="toctree-l4"><a class="reference internal" href="datumaro.plugins.anchor_generator.html">datumaro.plugins.anchor_generator</a></li>
 <li class="toctree-l4"><a class="reference internal" href="datumaro.plugins.configurable_validator.html">datumaro.plugins.configurable_validator</a></li>
 <li class="toctree-l4"><a class="reference internal" href="datumaro.plugins.data_formats.html">datumaro.plugins.data_formats</a></li>
 <li class="toctree-l4"><a class="reference internal" href="datumaro.plugins.explorer.html">datumaro.plugins.explorer</a></li>
@@ -586,139 +586,28 @@
             
             <article class="bd-article" role="main">
               
-  <section id="module-datumaro.plugins.anchor_generator">
-<span id="datumaro-plugins-anchor-generator"></span><h1>datumaro.plugins.anchor_generator<a class="headerlink" href="#module-datumaro.plugins.anchor_generator" title="Permalink to this heading">#</a></h1>
-<p class="rubric">Classes</p>
+  <section id="module-datumaro.plugins.accuracy_checker_plugin.details.representation">
+<span id="datumaro-plugins-accuracy-checker-plugin-details-representation"></span><h1>datumaro.plugins.accuracy_checker_plugin.details.representation<a class="headerlink" href="#module-datumaro.plugins.accuracy_checker_plugin.details.representation" title="Permalink to this heading">#</a></h1>
+<p class="rubric">Functions</p>
 <table class="autosummary longtable table autosummary">
 <tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="#datumaro.plugins.anchor_generator.BboxOverlaps2D" title="datumaro.plugins.anchor_generator.BboxOverlaps2D"><code class="xref py py-obj docutils literal notranslate"><span class="pre">BboxOverlaps2D</span></code></a>([scale, dtype])</p></td>
-<td><p>2D Overlaps (e.g.</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#datumaro.plugins.accuracy_checker_plugin.details.representation.import_prediction" title="datumaro.plugins.accuracy_checker_plugin.details.representation.import_prediction"><code class="xref py py-obj docutils literal notranslate"><span class="pre">import_prediction</span></code></a>(pred)</p></td>
+<td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#datumaro.plugins.anchor_generator.DataAwareAnchorGenerator" title="datumaro.plugins.anchor_generator.DataAwareAnchorGenerator"><code class="xref py py-obj docutils literal notranslate"><span class="pre">DataAwareAnchorGenerator</span></code></a>(img_size, strides, ...)</p></td>
-<td><p>Data-aware anchor generator for optimizing appropriate anchor scales and ratios.</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#datumaro.plugins.accuracy_checker_plugin.details.representation.import_predictions" title="datumaro.plugins.accuracy_checker_plugin.details.representation.import_predictions"><code class="xref py py-obj docutils literal notranslate"><span class="pre">import_predictions</span></code></a>(predictions)</p></td>
+<td><p></p></td>
 </tr>
 </tbody>
 </table>
-<dl class="py class">
-<dt class="sig sig-object py" id="datumaro.plugins.anchor_generator.BboxOverlaps2D">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">datumaro.plugins.anchor_generator.</span></span><span class="sig-name descname"><span class="pre">BboxOverlaps2D</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">scale</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dtype</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/datumaro/plugins/anchor_generator.html#BboxOverlaps2D"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.plugins.anchor_generator.BboxOverlaps2D" title="Permalink to this definition">#</a></dt>
-<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
-<p>2D Overlaps (e.g. IoUs, GIoUs) Calculator.</p>
-</dd></dl>
-
-<dl class="py class">
-<dt class="sig sig-object py" id="datumaro.plugins.anchor_generator.DataAwareAnchorGenerator">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">datumaro.plugins.anchor_generator.</span></span><span class="sig-name descname"><span class="pre">DataAwareAnchorGenerator</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">img_size</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Tuple" title="(in Python v3.12)"><span class="pre">Tuple</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.12)"><span class="pre">int</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.12)"><span class="pre">int</span></a><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">strides</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.List" title="(in Python v3.12)"><span class="pre">List</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.12)"><span class="pre">int</span></a><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">scales</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.List" title="(in Python v3.12)"><span class="pre">List</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.List" title="(in Python v3.12)"><span class="pre">List</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.12)"><span class="pre">float</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ratios</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.List" title="(in Python v3.12)"><span class="pre">List</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.List" title="(in Python v3.12)"><span class="pre">List</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.12)"><span class="pre">float</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pos_thr</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.12)"><span class="pre">float</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">neg_thr</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.12)"><span class="pre">float</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">device</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Optional" title="(in Python v3.12)"><span class="pre">Optional</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'cpu'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/datumaro/plugins/anchor_generator.html#DataAwareAnchorGenerator"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.plugins.anchor_generator.DataAwareAnchorGenerator" title="Permalink to this definition">#</a></dt>
-<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
-<p>Data-aware anchor generator for optimizing appropriate anchor scales and ratios.
-In general, anchor generator gets img_size and strides, and its assigner gets positive
-and negative thresholds for solving matching problem in object detection tasks.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>img_size</strong> (<em>Tuple</em><em>[</em><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.12)"><em>int</em></a><em>, </em><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.12)"><em>int</em></a><em>]</em>) – Image size of height and width.</p></li>
-<li><p><strong>strides</strong> (<em>List</em><em>[</em><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.12)"><em>int</em></a><em>]</em>) – Strides of feature map from feature pyramid network.</p></li>
-<li><p><strong>generator.</strong> (<em>This implicitly indicates receptive field size and base size</em><em> of </em><em>anchor</em>) – </p></li>
-<li><p><strong>scales</strong> (<em>List</em><em>[</em><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.12)"><em>float</em></a><em>]</em>) – Initial scales for data-aware optimization.</p></li>
-<li><p><strong>ratios</strong> (<em>List</em><em>[</em><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.12)"><em>float</em></a><em>]</em>) – Initial ratios for data-aware optimization.</p></li>
-<li><p><strong>pos_thr</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.12)"><em>float</em></a>) – Positive threshold for matching in the following assigner.</p></li>
-<li><p><strong>neg_thr</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.12)"><em>float</em></a>) – Negative threshold for matching in the following assigner.</p></li>
-<li><p><strong>device</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><em>str</em></a>) – Device for computing gradient. Please refer to <cite>torch.device</cite></p></li>
-</ul>
-</dd>
-</dl>
-<dl class="py method">
-<dt class="sig sig-object py" id="datumaro.plugins.anchor_generator.DataAwareAnchorGenerator.get_shifts">
-<span class="sig-name descname"><span class="pre">get_shifts</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">stride</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.12)"><span class="pre">int</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tensor</span></span></span><a class="reference internal" href="../../../_modules/datumaro/plugins/anchor_generator.html#DataAwareAnchorGenerator.get_shifts"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.plugins.anchor_generator.DataAwareAnchorGenerator.get_shifts" title="Permalink to this definition">#</a></dt>
-<dd><p>Bounding box proposals from anchor generator is composed of shifts and base anchors,
-where shifts is generated in mesh-grid manner and base anchors is combinations of ratios and
-scales. This function is to create mesh-grid shifts in the original image space.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>stride</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.12)"><em>int</em></a>) – Strides of feature map from feature pyramid network.</p>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>Shift point coordinates.</p>
-</dd>
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>Tensor</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="datumaro.plugins.anchor_generator.DataAwareAnchorGenerator.get_anchors">
-<span class="sig-name descname"><span class="pre">get_anchors</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">base_size</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.12)"><span class="pre">int</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">shifts</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">scales</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ratios</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Tensor</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tensor</span></span></span><a class="reference internal" href="../../../_modules/datumaro/plugins/anchor_generator.html#DataAwareAnchorGenerator.get_anchors"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.plugins.anchor_generator.DataAwareAnchorGenerator.get_anchors" title="Permalink to this definition">#</a></dt>
-<dd><p>This function is to create base anchors, which combinates ratios and scales.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>base_size</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.12)"><em>int</em></a>) – Strides of feature map from feature pyramid network.</p></li>
-<li><p><strong>shifts</strong> (<em>Tensor</em>) – Shift point coordinates in the original image space.</p></li>
-<li><p><strong>scales</strong> (<em>Tensor</em>) – Scales for creating base anchors.</p></li>
-<li><p><strong>ratios</strong> (<em>Tensor</em>) – Ratios for creating base anchors.</p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>Set of anchor bounding box coordinates.</p>
-</dd>
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>Tensor</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="datumaro.plugins.anchor_generator.DataAwareAnchorGenerator.initialize">
-<span class="sig-name descname"><span class="pre">initialize</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">targets</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">scales</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ratios</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/datumaro/plugins/anchor_generator.html#DataAwareAnchorGenerator.initialize"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.plugins.anchor_generator.DataAwareAnchorGenerator.initialize" title="Permalink to this definition">#</a></dt>
+<dl class="py function">
+<dt class="sig sig-object py" id="datumaro.plugins.accuracy_checker_plugin.details.representation.import_predictions">
+<span class="sig-prename descclassname"><span class="pre">datumaro.plugins.accuracy_checker_plugin.details.representation.</span></span><span class="sig-name descname"><span class="pre">import_predictions</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">predictions</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/datumaro/plugins/accuracy_checker_plugin/details/representation.html#import_predictions"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.plugins.accuracy_checker_plugin.details.representation.import_predictions" title="Permalink to this definition">#</a></dt>
 <dd></dd></dl>
 
-<dl class="py method">
-<dt class="sig sig-object py" id="datumaro.plugins.anchor_generator.DataAwareAnchorGenerator.get_loss">
-<span class="sig-name descname"><span class="pre">get_loss</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">targets</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">scales</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ratios</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Tensor</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/datumaro/plugins/anchor_generator.html#DataAwareAnchorGenerator.get_loss"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.plugins.anchor_generator.DataAwareAnchorGenerator.get_loss" title="Permalink to this definition">#</a></dt>
-<dd><p>This function is to create base anchors, which combinates ratios and scales.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>targets</strong> (<em>Tensor</em>) – Set of target bounding box coordinates.</p></li>
-<li><p><strong>scales</strong> (<em>Tensor</em>) – Scales for creating base anchors.</p></li>
-<li><p><strong>ratios</strong> (<em>Tensor</em>) – Ratios for creating base anchors.</p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>Cost.
-float: Coverage rate.</p>
-</dd>
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.12)">float</a></p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="datumaro.plugins.anchor_generator.DataAwareAnchorGenerator.optimize">
-<span class="sig-name descname"><span class="pre">optimize</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dataset</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="datumaro.components.dataset.html#datumaro.components.dataset.Dataset" title="datumaro.components.dataset.Dataset"><span class="pre">Dataset</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">subset</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Optional" title="(in Python v3.12)"><span class="pre">Optional</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">batch_size</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Optional" title="(in Python v3.12)"><span class="pre">Optional</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.12)"><span class="pre">int</span></a><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1024</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">learning_rate</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Optional" title="(in Python v3.12)"><span class="pre">Optional</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.12)"><span class="pre">float</span></a><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_iters</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Optional" title="(in Python v3.12)"><span class="pre">Optional</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.12)"><span class="pre">int</span></a><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">100</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/datumaro/plugins/anchor_generator.html#DataAwareAnchorGenerator.optimize"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.plugins.anchor_generator.DataAwareAnchorGenerator.optimize" title="Permalink to this definition">#</a></dt>
-<dd><p>This function is to create base anchors, which combinates ratios and scales.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>dataset</strong> (<a class="reference internal" href="datumaro.components.algorithms.rise.html#datumaro.components.algorithms.rise.Dataset" title="datumaro.components.algorithms.rise.Dataset"><em>Dataset</em></a>) – Desired dataset to optimize anchor scales and ratios.</p></li>
-<li><p><strong>batch_size</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.12)"><em>int</em></a>) – Minibatch size.</p></li>
-<li><p><strong>learning_rate</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.12)"><em>float</em></a>) – Learning rate.</p></li>
-<li><p><strong>num_iters</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.12)"><em>int</em></a>) – Number of iterations.</p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>Optimized scales.
-List[List[float]]: Optimized ratios.</p>
-</dd>
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>List[List[<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.12)">float</a>]]</p>
-</dd>
-</dl>
-</dd></dl>
-
-</dd></dl>
+<dl class="py function">
+<dt class="sig sig-object py" id="datumaro.plugins.accuracy_checker_plugin.details.representation.import_prediction">
+<span class="sig-prename descclassname"><span class="pre">datumaro.plugins.accuracy_checker_plugin.details.representation.</span></span><span class="sig-name descname"><span class="pre">import_prediction</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pred</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/datumaro/plugins/accuracy_checker_plugin/details/representation.html#import_prediction"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.plugins.accuracy_checker_plugin.details.representation.import_prediction" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
 
 </section>
 
@@ -730,17 +619,17 @@ List[List[float]]: Optimized ratios.</p>
             <footer class="bd-footer-article">
                 <!-- Previous / next buttons -->
 <div class='prev-next-area'>
-  <a class='left-prev' id="prev-link" href="datumaro.plugins.accuracy_checker_plugin.details.representation.html" title="previous page">
+  <a class='left-prev' id="prev-link" href="datumaro.plugins.accuracy_checker_plugin.details.ac.html" title="previous page">
       <i class="fa-solid fa-angle-left"></i>
       <div class="prev-next-info">
           <p class="prev-next-subtitle">previous</p>
-          <p class="prev-next-title">datumaro.plugins.accuracy_checker_plugin.details.representation</p>
+          <p class="prev-next-title">datumaro.plugins.accuracy_checker_plugin.details.ac</p>
       </div>
   </a>
-  <a class='right-next' id="next-link" href="datumaro.plugins.configurable_validator.html" title="next page">
+  <a class='right-next' id="next-link" href="datumaro.plugins.anchor_generator.html" title="next page">
   <div class="prev-next-info">
       <p class="prev-next-subtitle">next</p>
-      <p class="prev-next-title">datumaro.plugins.configurable_validator</p>
+      <p class="prev-next-title">datumaro.plugins.anchor_generator</p>
   </div>
   <i class="fa-solid fa-angle-right"></i>
   </a>
@@ -761,69 +650,22 @@ List[List[float]]: Optimized ratios.</p>
 <nav id="bd-toc-nav" class="page-toc">
     <ul class="visible nav section-nav flex-column">
  <li class="toc-h2 nav-item toc-entry">
-  <a class="reference internal nav-link" href="#datumaro.plugins.anchor_generator.BboxOverlaps2D">
+  <a class="reference internal nav-link" href="#datumaro.plugins.accuracy_checker_plugin.details.representation.import_predictions">
    <code class="docutils literal notranslate">
     <span class="pre">
-     BboxOverlaps2D
+     import_predictions()
     </span>
    </code>
   </a>
  </li>
  <li class="toc-h2 nav-item toc-entry">
-  <a class="reference internal nav-link" href="#datumaro.plugins.anchor_generator.DataAwareAnchorGenerator">
+  <a class="reference internal nav-link" href="#datumaro.plugins.accuracy_checker_plugin.details.representation.import_prediction">
    <code class="docutils literal notranslate">
     <span class="pre">
-     DataAwareAnchorGenerator
+     import_prediction()
     </span>
    </code>
   </a>
-  <ul class="nav section-nav flex-column">
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.plugins.anchor_generator.DataAwareAnchorGenerator.get_shifts">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       DataAwareAnchorGenerator.get_shifts()
-      </span>
-     </code>
-    </a>
-   </li>
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.plugins.anchor_generator.DataAwareAnchorGenerator.get_anchors">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       DataAwareAnchorGenerator.get_anchors()
-      </span>
-     </code>
-    </a>
-   </li>
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.plugins.anchor_generator.DataAwareAnchorGenerator.initialize">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       DataAwareAnchorGenerator.initialize()
-      </span>
-     </code>
-    </a>
-   </li>
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.plugins.anchor_generator.DataAwareAnchorGenerator.get_loss">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       DataAwareAnchorGenerator.get_loss()
-      </span>
-     </code>
-    </a>
-   </li>
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.plugins.anchor_generator.DataAwareAnchorGenerator.optimize">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       DataAwareAnchorGenerator.optimize()
-      </span>
-     </code>
-    </a>
-   </li>
-  </ul>
  </li>
 </ul>
 
@@ -842,7 +684,7 @@ List[List[float]]: Optimized ratios.</p>
 <div class="toc-item">
   
 <div class="tocsection sourcelink">
-    <a href="../../../_sources/docs/reference/_autosummary/datumaro.plugins.anchor_generator.rst.txt">
+    <a href="../../../_sources/docs/reference/_autosummary/datumaro.plugins.accuracy_checker_plugin.details.representation.rst.txt">
         <i class="fa-solid fa-file-lines"></i> Show Source
     </a>
 </div>
