@@ -25,7 +25,7 @@ jobs:
         run: python -m cibuildwheel --output-dir wheelhouse
       - uses: actions/upload-artifact@v4
         with:
-          name: artifact-wheels
+          name: artifact-wheels_${{ matrix.os }}
           path: ./wheelhouse/*.whl
 
   build_sdist:
@@ -44,7 +44,7 @@ jobs:
         run: python -m build --sdist
       - uses: actions/upload-artifact@v3
         with:
-          name: artifact-sdist
+          name: artifact-sdist_${{ matrix.os }}
           path: dist/*.tar.gz
 
   publish_package:
