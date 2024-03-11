@@ -1,7 +1,10 @@
 
+
 <!DOCTYPE html>
 
-<html lang="en">
+
+<html lang="en" data-content_root="" >
+
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
@@ -16,15 +19,15 @@
   </script>
   
   <!-- Loaded before other Sphinx assets -->
-  <link href="../../../_static/styles/theme.css?digest=796348d33e8b1d947c94" rel="stylesheet">
-<link href="../../../_static/styles/bootstrap.css?digest=796348d33e8b1d947c94" rel="stylesheet">
-<link href="../../../_static/styles/pydata-sphinx-theme.css?digest=796348d33e8b1d947c94" rel="stylesheet">
+  <link href="../../../_static/styles/theme.css?digest=8d27b9dea8ad943066ae" rel="stylesheet" />
+<link href="../../../_static/styles/bootstrap.css?digest=8d27b9dea8ad943066ae" rel="stylesheet" />
+<link href="../../../_static/styles/pydata-sphinx-theme.css?digest=8d27b9dea8ad943066ae" rel="stylesheet" />
 
   
-  <link href="../../../_static/vendor/fontawesome/6.1.2/css/all.min.css?digest=796348d33e8b1d947c94" rel="stylesheet">
-  <link rel="preload" as="font" type="font/woff2" crossorigin href="../../../_static/vendor/fontawesome/6.1.2/webfonts/fa-solid-900.woff2">
-<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../_static/vendor/fontawesome/6.1.2/webfonts/fa-brands-400.woff2">
-<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../_static/vendor/fontawesome/6.1.2/webfonts/fa-regular-400.woff2">
+  <link href="../../../_static/vendor/fontawesome/6.5.1/css/all.min.css?digest=8d27b9dea8ad943066ae" rel="stylesheet" />
+  <link rel="preload" as="font" type="font/woff2" crossorigin href="../../../_static/vendor/fontawesome/6.5.1/webfonts/fa-solid-900.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../_static/vendor/fontawesome/6.5.1/webfonts/fa-brands-400.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../_static/vendor/fontawesome/6.5.1/webfonts/fa-regular-400.woff2" />
 
     <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="../../../_static/copybutton.css" />
@@ -33,8 +36,9 @@
     <link rel="stylesheet" type="text/css" href="../../../_static/css/custom.css" />
   
   <!-- Pre-loaded scripts that we'll load fully later -->
-  <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=796348d33e8b1d947c94">
-<link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=796348d33e8b1d947c94">
+  <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=8d27b9dea8ad943066ae" />
+<link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=8d27b9dea8ad943066ae" />
+  <script src="../../../_static/vendor/fontawesome/6.5.1/js/all.min.js?digest=8d27b9dea8ad943066ae"></script>
 
     <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
     <script src="../../../_static/jquery.js"></script>
@@ -51,111 +55,141 @@
     <link rel="search" title="Search" href="../../../search.html" />
     <link rel="next" title="datumaro.components.registry" href="datumaro.components.registry.html" />
     <link rel="prev" title="datumaro.components.progress_reporting" href="datumaro.components.progress_reporting.html" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <meta name="docsearch:language" content="en">
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
   </head>
   
   
-  <body data-spy="scroll" data-target="#bd-toc-nav" data-offset="180" data-default-mode="">
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
 
   
   
-  <a class="skip-link" href="#main-content">Skip to main content</a>
+  <a id="pst-skip-link" class="skip-link" href="#main-content">Skip to main content</a>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>
+    Back to top
+  </button>
 
   
-  <input type="checkbox" class="sidebar-toggle" name="__primary" id="__primary">
+  <input type="checkbox"
+          class="sidebar-toggle"
+          name="__primary"
+          id="__primary"/>
   <label class="overlay overlay-primary" for="__primary"></label>
-
   
-  <input type="checkbox" class="sidebar-toggle" name="__secondary" id="__secondary">
+  <input type="checkbox"
+          class="sidebar-toggle"
+          name="__secondary"
+          id="__secondary"/>
   <label class="overlay overlay-secondary" for="__secondary"></label>
-
   
   <div class="search-button__wrapper">
     <div class="search-button__overlay"></div>
     <div class="search-button__search-container">
-      
-<form class="bd-search d-flex align-items-center" action="../../../search.html" method="get">
+<form class="bd-search d-flex align-items-center"
+      action="../../../search.html"
+      method="get">
   <i class="fa-solid fa-magnifying-glass"></i>
-  <input type="search" class="form-control" name="q" id="search-input" placeholder="Search the docs ..." aria-label="Search the docs ..." autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">
+  <input type="search"
+         class="form-control"
+         name="q"
+         id="search-input"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
   <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
-</form>
-    </div>
+</form></div>
   </div>
-
   
-  <nav class="bd-header navbar navbar-expand-lg bd-navbar" id="navbar-main"><div class="bd-header__inner bd-page-width">
+    <header class="bd-header navbar navbar-expand-lg bd-navbar">
+<div class="bd-header__inner bd-page-width">
   <label class="sidebar-toggle primary-toggle" for="__primary">
-      <span class="fa-solid fa-bars"></span>
+    <span class="fa-solid fa-bars"></span>
   </label>
-  <div id="navbar-start">
-    
-    
   
+  
+  <div class="col-lg-3 navbar-header-items__start">
+    
+      <div class="navbar-item">
 
+  
 
 <a class="navbar-brand logo" href="../../../index.html">
-
   
   
   
   
   
+    
+    
+      
+    
+    
+    <img src="../../../_static/datumaro-logo.png" class="logo__image only-light" alt="Datumaro 1.6.0rc1 documentation - Home"/>
+    <script>document.write(`<img src="../../../_static/datumaro-logo.png" class="logo__image only-dark" alt="Datumaro 1.6.0rc1 documentation - Home"/>`);</script>
   
   
-
-  
-    <img src="../../../_static/datumaro-logo.png" class="logo__image only-light" alt="Logo image">
-    <img src="../../../_static/datumaro-logo.png" class="logo__image only-dark" alt="Logo image">
-  
-  
-</a>
+</a></div>
     
   </div>
-
   
   <div class="col-lg-9 navbar-header-items">
-    <div id="navbar-center" class="mr-auto">
+    
+    <div class="me-auto navbar-header-items__center">
       
-      <div class="navbar-center-item">
-        <nav class="navbar-nav">
-    <p class="sidebar-header-items__title" role="heading" aria-level="1" aria-label="Site Navigation">
-        Site Navigation
-    </p>
-    <ul id="navbar-main-elements" class="navbar-nav">
-        
+        <div class="navbar-item">
+<nav class="navbar-nav">
+  <ul class="bd-navbar-elements navbar-nav">
+    
                     <li class="nav-item current active">
                       <a class="nav-link nav-internal" href="../../index.html">
                         Docs
                       </a>
                     </li>
                 
-    </ul>
-</nav>
-      </div>
+  </ul>
+</nav></div>
       
     </div>
-
-    <div id="navbar-end">
+    
+    
+    <div class="navbar-header-items__end">
       
-        <div class="navbar-end-item navbar-persistent--container">
+        <div class="navbar-item navbar-persistent--container">
           
-<button class="btn btn-sm navbar-btn search-button search-button__button" title="Search" aria-label="Search" data-toggle="tooltip">
-  <i class="fa-solid fa-magnifying-glass"></i>
-</button>
+
+ <script>
+ document.write(`
+   <button class="btn navbar-btn search-button-field search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass"></i>
+    <span class="search-button__default-text">Search</span>
+    <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+   </button>
+ `);
+ </script>
         </div>
       
       
-      <div class="navbar-end-item">
-        <button class="theme-switch-button btn btn-sm btn-outline-primary navbar-btn rounded-circle" title="light/dark" aria-label="light/dark" data-toggle="tooltip">
-    <span class="theme-switch" data-mode="light"><i class="fa-solid fa-sun"></i></span>
-    <span class="theme-switch" data-mode="dark"><i class="fa-solid fa-moon"></i></span>
-    <span class="theme-switch" data-mode="auto"><i class="fa-solid fa-circle-half-stroke"></i></span>
-</button>
-      </div>
+        <div class="navbar-item">
+
+<script>
+document.write(`
+  <button class="btn btn-sm navbar-btn theme-switch-button" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="theme-switch nav-link" data-mode="light"><i class="fa-solid fa-sun fa-lg"></i></span>
+    <span class="theme-switch nav-link" data-mode="dark"><i class="fa-solid fa-moon fa-lg"></i></span>
+    <span class="theme-switch nav-link" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg"></i></span>
+  </button>
+`);
+</script></div>
       
-      <div class="navbar-end-item">
-        <ul id="navbar-icon-links" class="navbar-nav" aria-label="Icon Links">
+        <div class="navbar-item"><ul class="navbar-icon-links navbar-nav"
+    aria-label="Icon Links">
         <li class="nav-item">
           
           
@@ -164,79 +198,87 @@
           
           
           
-          <a href="https://github.com/openvinotoolkit/datumaro" title="GitHub" class="nav-link" rel="noopener" target="_blank" data-toggle="tooltip"><img src="../../../_static/github_icon.png" class="icon-link-image" alt="GitHub"/></a>
+          
+          <a href="https://github.com/openvinotoolkit/datumaro" title="GitHub" class="nav-link" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><img src="../../../_static/github_icon.png" class="icon-link-image" alt="GitHub"/></a>
         </li>
-      </ul>
-      </div>
+</ul></div>
       
     </div>
+    
   </div>
-
-
   
   
     <div class="navbar-persistent--mobile">
-<button class="btn btn-sm navbar-btn search-button search-button__button" title="Search" aria-label="Search" data-toggle="tooltip">
-  <i class="fa-solid fa-magnifying-glass"></i>
-</button>
+
+ <script>
+ document.write(`
+   <button class="btn navbar-btn search-button-field search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass"></i>
+    <span class="search-button__default-text">Search</span>
+    <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+   </button>
+ `);
+ </script>
     </div>
   
 
   
-  <label class="sidebar-toggle secondary-toggle" for="__secondary">
+    <label class="sidebar-toggle secondary-toggle" for="__secondary" tabindex="0">
       <span class="fa-solid fa-outdent"></span>
-  </label>
+    </label>
   
-
 </div>
-  </nav>
+
+    </header>
   
 
   <div class="bd-container">
     <div class="bd-container__inner bd-page-width">
       
+      
+      
       <div class="bd-sidebar-primary bd-sidebar">
         
+
   
   <div class="sidebar-header-items sidebar-primary__section">
     
     
       <div class="sidebar-header-items__center">
-      
-      <div class="navbar-center-item">
-        <nav class="navbar-nav">
-    <p class="sidebar-header-items__title" role="heading" aria-level="1" aria-label="Site Navigation">
-        Site Navigation
-    </p>
-    <ul id="navbar-main-elements" class="navbar-nav">
         
+          <div class="navbar-item">
+<nav class="navbar-nav">
+  <ul class="bd-navbar-elements navbar-nav">
+    
                     <li class="nav-item current active">
                       <a class="nav-link nav-internal" href="../../index.html">
                         Docs
                       </a>
                     </li>
                 
-    </ul>
-</nav>
-      </div>
-      
+  </ul>
+</nav></div>
+        
       </div>
     
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
 
-    
-    
-    <div class="sidebar-header-items__end">
-      
-      <div class="navbar-end-item">
-        <button class="theme-switch-button btn btn-sm btn-outline-primary navbar-btn rounded-circle" title="light/dark" aria-label="light/dark" data-toggle="tooltip">
-    <span class="theme-switch" data-mode="light"><i class="fa-solid fa-sun"></i></span>
-    <span class="theme-switch" data-mode="dark"><i class="fa-solid fa-moon"></i></span>
-    <span class="theme-switch" data-mode="auto"><i class="fa-solid fa-circle-half-stroke"></i></span>
-</button>
-      </div>
-      
-      <div class="navbar-end-item">
-        <ul id="navbar-icon-links" class="navbar-nav" aria-label="Icon Links">
+<script>
+document.write(`
+  <button class="btn btn-sm navbar-btn theme-switch-button" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="theme-switch nav-link" data-mode="light"><i class="fa-solid fa-sun fa-lg"></i></span>
+    <span class="theme-switch nav-link" data-mode="dark"><i class="fa-solid fa-moon fa-lg"></i></span>
+    <span class="theme-switch nav-link" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg"></i></span>
+  </button>
+`);
+</script></div>
+        
+          <div class="navbar-item"><ul class="navbar-icon-links navbar-nav"
+    aria-label="Icon Links">
         <li class="nav-item">
           
           
@@ -245,23 +287,21 @@
           
           
           
-          <a href="https://github.com/openvinotoolkit/datumaro" title="GitHub" class="nav-link" rel="noopener" target="_blank" data-toggle="tooltip"><img src="../../../_static/github_icon.png" class="icon-link-image" alt="GitHub"/></a>
+          
+          <a href="https://github.com/openvinotoolkit/datumaro" title="GitHub" class="nav-link" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><img src="../../../_static/github_icon.png" class="icon-link-image" alt="GitHub"/></a>
         </li>
-      </ul>
+</ul></div>
+        
       </div>
-      
-    </div>
     
   </div>
-
   
-  <div class="sidebar-start-items sidebar-primary__section">
-    <div class="sidebar-start-items__item"><nav class="bd-links" id="bd-docs-nav" aria-label="Section navigation">
-  <p class="bd-links__title" role="heading" aria-level="1">
-    Section Navigation
-  </p>
-  <div class="bd-toc-item navbar-nav">
-    <p aria-level="2" class="caption" role="heading"><span class="caption-text">Get Started</span></p>
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+<nav class="bd-docs-nav bd-links"
+     aria-label="Section Navigation">
+  <p class="bd-links__title" role="heading" aria-level="1">Section Navigation</p>
+  <div class="bd-toc-item navbar-nav"><p aria-level="2" class="caption" role="heading"><span class="caption-text">Get Started</span></p>
 <ul class="nav bd-sidenav">
 <li class="toctree-l1"><a class="reference internal" href="../../get-started/introduction.html">Introduction</a></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../../get-started/quick-start-guide/index.html">Quick Start Guide</a><input class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-1"><i class="fa-solid fa-chevron-down"></i></label><ul>
@@ -556,36 +596,70 @@
 </ul>
 </li>
 </ul>
-
-  </div>
-</nav>
+</div>
+</nav></div>
     </div>
-  </div>
   
-
   
-  <div class="sidebar-end-items sidebar-primary__section">
-    <div class="sidebar-end-items__item">
-    </div>
+  <div class="sidebar-primary-items__end sidebar-primary__section">
   </div>
-
   
   <div id="rtd-footer-container"></div>
 
+
       </div>
+      
       <main id="main-content" class="bd-main">
         
         
-        <div class="bd-content">
-          <div class="bd-article-container">
-            
-            <div class="bd-header-article">
-                
-            </div>
-            
-            
-            <article class="bd-article" role="main">
+          <div class="bd-content">
+            <div class="bd-article-container">
               
+              <div class="bd-header-article">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+
+
+
+
+<nav aria-label="Breadcrumb">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../../../index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+    
+    <li class="breadcrumb-item"><a href="../../index.html" class="nav-link">Docs</a></li>
+    
+    
+    <li class="breadcrumb-item"><i class="fa-solid fa-ellipsis"></i></li>
+    
+    
+    <li class="breadcrumb-item"><a href="datumaro.components.html" class="nav-link">datumaro.components</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page">datumaro.com...</li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
   <section id="module-datumaro.components.project">
 <span id="datumaro-components-project"></span><h1>datumaro.components.project<a class="headerlink" href="#module-datumaro.components.project" title="Permalink to this heading">#</a></h1>
 <p class="rubric">Classes</p>
@@ -1518,1468 +1592,279 @@ restores the sources from the current revision.</p>
 </section>
 
 
-            </article>
-            
-            
-            
-            <footer class="bd-footer-article">
-                <!-- Previous / next buttons -->
-<div class='prev-next-area'>
-  <a class='left-prev' id="prev-link" href="datumaro.components.progress_reporting.html" title="previous page">
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="datumaro.components.progress_reporting.html"
+       title="previous page">
       <i class="fa-solid fa-angle-left"></i>
       <div class="prev-next-info">
-          <p class="prev-next-subtitle">previous</p>
-          <p class="prev-next-title">datumaro.components.progress_reporting</p>
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">datumaro.components.progress_reporting</p>
       </div>
-  </a>
-  <a class='right-next' id="next-link" href="datumaro.components.registry.html" title="next page">
-  <div class="prev-next-info">
-      <p class="prev-next-subtitle">next</p>
-      <p class="prev-next-title">datumaro.components.registry</p>
-  </div>
-  <i class="fa-solid fa-angle-right"></i>
-  </a>
+    </a>
+    <a class="right-next"
+       href="datumaro.components.registry.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">datumaro.components.registry</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
 </div>
-            </footer>
-            
-          </div>
-          
-          
-          
-            <div class="bd-sidebar-secondary bd-toc">
+                </footer>
               
-<div class="toc-item">
-  
-<div class="tocsection onthispage">
-    <i class="fa-solid fa-list"></i> On this page
-</div>
-<nav id="bd-toc-nav" class="page-toc">
-    <ul class="visible nav section-nav flex-column">
- <li class="toc-h2 nav-item toc-entry">
-  <a class="reference internal nav-link" href="#datumaro.components.project.ProjectSourceDataset">
-   <code class="docutils literal notranslate">
-    <span class="pre">
-     ProjectSourceDataset
-    </span>
-   </code>
-  </a>
-  <ul class="nav section-nav flex-column">
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.components.project.ProjectSourceDataset.save">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       ProjectSourceDataset.save()
-      </span>
-     </code>
-    </a>
-   </li>
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.components.project.ProjectSourceDataset.readonly">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       ProjectSourceDataset.readonly
-      </span>
-     </code>
-    </a>
-   </li>
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.components.project.ProjectSourceDataset.config">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       ProjectSourceDataset.config
-      </span>
-     </code>
-    </a>
-   </li>
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.components.project.ProjectSourceDataset.subsets">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       ProjectSourceDataset.subsets()
-      </span>
-     </code>
-    </a>
-   </li>
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.components.project.ProjectSourceDataset.get_subset">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       ProjectSourceDataset.get_subset()
-      </span>
-     </code>
-    </a>
-   </li>
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.components.project.ProjectSourceDataset.infos">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       ProjectSourceDataset.infos()
-      </span>
-     </code>
-    </a>
-   </li>
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.components.project.ProjectSourceDataset.categories">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       ProjectSourceDataset.categories()
-      </span>
-     </code>
-    </a>
-   </li>
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.components.project.ProjectSourceDataset.get">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       ProjectSourceDataset.get()
-      </span>
-     </code>
-    </a>
-   </li>
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.components.project.ProjectSourceDataset.media_type">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       ProjectSourceDataset.media_type()
-      </span>
-     </code>
-    </a>
-   </li>
-  </ul>
- </li>
- <li class="toc-h2 nav-item toc-entry">
-  <a class="reference internal nav-link" href="#datumaro.components.project.IgnoreMode">
-   <code class="docutils literal notranslate">
-    <span class="pre">
-     IgnoreMode
-    </span>
-   </code>
-  </a>
-  <ul class="nav section-nav flex-column">
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.components.project.IgnoreMode.rewrite">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       IgnoreMode.rewrite
-      </span>
-     </code>
-    </a>
-   </li>
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.components.project.IgnoreMode.append">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       IgnoreMode.append
-      </span>
-     </code>
-    </a>
-   </li>
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.components.project.IgnoreMode.remove">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       IgnoreMode.remove
-      </span>
-     </code>
-    </a>
-   </li>
-  </ul>
- </li>
- <li class="toc-h2 nav-item toc-entry">
-  <a class="reference internal nav-link" href="#datumaro.components.project.CrudProxy">
-   <code class="docutils literal notranslate">
-    <span class="pre">
-     CrudProxy
-    </span>
-   </code>
-  </a>
-  <ul class="nav section-nav flex-column">
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.components.project.CrudProxy.get">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       CrudProxy.get()
-      </span>
-     </code>
-    </a>
-   </li>
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.components.project.CrudProxy.items">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       CrudProxy.items()
-      </span>
-     </code>
-    </a>
-   </li>
-  </ul>
- </li>
- <li class="toc-h2 nav-item toc-entry">
-  <a class="reference internal nav-link" href="#datumaro.components.project.ProjectSources">
-   <code class="docutils literal notranslate">
-    <span class="pre">
-     ProjectSources
-    </span>
-   </code>
-  </a>
- </li>
- <li class="toc-h2 nav-item toc-entry">
-  <a class="reference internal nav-link" href="#datumaro.components.project.BuildStageType">
-   <code class="docutils literal notranslate">
-    <span class="pre">
-     BuildStageType
-    </span>
-   </code>
-  </a>
-  <ul class="nav section-nav flex-column">
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.components.project.BuildStageType.source">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       BuildStageType.source
-      </span>
-     </code>
-    </a>
-   </li>
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.components.project.BuildStageType.project">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       BuildStageType.project
-      </span>
-     </code>
-    </a>
-   </li>
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.components.project.BuildStageType.transform">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       BuildStageType.transform
-      </span>
-     </code>
-    </a>
-   </li>
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.components.project.BuildStageType.filter">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       BuildStageType.filter
-      </span>
-     </code>
-    </a>
-   </li>
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.components.project.BuildStageType.convert">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       BuildStageType.convert
-      </span>
-     </code>
-    </a>
-   </li>
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.components.project.BuildStageType.inference">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       BuildStageType.inference
-      </span>
-     </code>
-    </a>
-   </li>
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.components.project.BuildStageType.explore">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       BuildStageType.explore
-      </span>
-     </code>
-    </a>
-   </li>
-  </ul>
- </li>
- <li class="toc-h2 nav-item toc-entry">
-  <a class="reference internal nav-link" href="#datumaro.components.project.Pipeline">
-   <code class="docutils literal notranslate">
-    <span class="pre">
-     Pipeline
-    </span>
-   </code>
-  </a>
-  <ul class="nav section-nav flex-column">
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.components.project.Pipeline.head">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       Pipeline.head
-      </span>
-     </code>
-    </a>
-   </li>
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.components.project.Pipeline.head_node">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       Pipeline.head_node
-      </span>
-     </code>
-    </a>
-   </li>
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.components.project.Pipeline.get_slice">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       Pipeline.get_slice()
-      </span>
-     </code>
-    </a>
-   </li>
-  </ul>
- </li>
- <li class="toc-h2 nav-item toc-entry">
-  <a class="reference internal nav-link" href="#datumaro.components.project.ProjectBuilder">
-   <code class="docutils literal notranslate">
-    <span class="pre">
-     ProjectBuilder
-    </span>
-   </code>
-  </a>
-  <ul class="nav section-nav flex-column">
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.components.project.ProjectBuilder.make_dataset">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       ProjectBuilder.make_dataset()
-      </span>
-     </code>
-    </a>
-   </li>
-  </ul>
- </li>
- <li class="toc-h2 nav-item toc-entry">
-  <a class="reference internal nav-link" href="#datumaro.components.project.ProjectBuildTargets">
-   <code class="docutils literal notranslate">
-    <span class="pre">
-     ProjectBuildTargets
-    </span>
-   </code>
-  </a>
-  <ul class="nav section-nav flex-column">
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.components.project.ProjectBuildTargets.MAIN_TARGET">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       ProjectBuildTargets.MAIN_TARGET
-      </span>
-     </code>
-    </a>
-   </li>
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.components.project.ProjectBuildTargets.BASE_STAGE">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       ProjectBuildTargets.BASE_STAGE
-      </span>
-     </code>
-    </a>
-   </li>
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.components.project.ProjectBuildTargets.add_target">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       ProjectBuildTargets.add_target()
-      </span>
-     </code>
-    </a>
-   </li>
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.components.project.ProjectBuildTargets.add_stage">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       ProjectBuildTargets.add_stage()
-      </span>
-     </code>
-    </a>
-   </li>
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.components.project.ProjectBuildTargets.remove_target">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       ProjectBuildTargets.remove_target()
-      </span>
-     </code>
-    </a>
-   </li>
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.components.project.ProjectBuildTargets.remove_stage">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       ProjectBuildTargets.remove_stage()
-      </span>
-     </code>
-    </a>
-   </li>
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.components.project.ProjectBuildTargets.add_transform_stage">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       ProjectBuildTargets.add_transform_stage()
-      </span>
-     </code>
-    </a>
-   </li>
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.components.project.ProjectBuildTargets.add_inference_stage">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       ProjectBuildTargets.add_inference_stage()
-      </span>
-     </code>
-    </a>
-   </li>
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.components.project.ProjectBuildTargets.add_filter_stage">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       ProjectBuildTargets.add_filter_stage()
-      </span>
-     </code>
-    </a>
-   </li>
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.components.project.ProjectBuildTargets.add_convert_stage">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       ProjectBuildTargets.add_convert_stage()
-      </span>
-     </code>
-    </a>
-   </li>
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.components.project.ProjectBuildTargets.add_explore_stage">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       ProjectBuildTargets.add_explore_stage()
-      </span>
-     </code>
-    </a>
-   </li>
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.components.project.ProjectBuildTargets.make_target_name">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       ProjectBuildTargets.make_target_name()
-      </span>
-     </code>
-    </a>
-   </li>
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.components.project.ProjectBuildTargets.split_target_name">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       ProjectBuildTargets.split_target_name()
-      </span>
-     </code>
-    </a>
-   </li>
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.components.project.ProjectBuildTargets.strip_target_name">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       ProjectBuildTargets.strip_target_name()
-      </span>
-     </code>
-    </a>
-   </li>
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.components.project.ProjectBuildTargets.make_pipeline">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       ProjectBuildTargets.make_pipeline()
-      </span>
-     </code>
-    </a>
-   </li>
-  </ul>
- </li>
- <li class="toc-h2 nav-item toc-entry">
-  <a class="reference internal nav-link" href="#datumaro.components.project.GitWrapper">
-   <code class="docutils literal notranslate">
-    <span class="pre">
-     GitWrapper
-    </span>
-   </code>
-  </a>
-  <ul class="nav section-nav flex-column">
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.components.project.GitWrapper.module">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       GitWrapper.module()
-      </span>
-     </code>
-    </a>
-   </li>
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.components.project.GitWrapper.initialized">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       GitWrapper.initialized
-      </span>
-     </code>
-    </a>
-   </li>
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.components.project.GitWrapper.init">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       GitWrapper.init()
-      </span>
-     </code>
-    </a>
-   </li>
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.components.project.GitWrapper.close">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       GitWrapper.close()
-      </span>
-     </code>
-    </a>
-   </li>
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.components.project.GitWrapper.checkout">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       GitWrapper.checkout()
-      </span>
-     </code>
-    </a>
-   </li>
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.components.project.GitWrapper.add">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       GitWrapper.add()
-      </span>
-     </code>
-    </a>
-   </li>
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.components.project.GitWrapper.commit">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       GitWrapper.commit()
-      </span>
-     </code>
-    </a>
-   </li>
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.components.project.GitWrapper.GitTree">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       GitWrapper.GitTree
-      </span>
-     </code>
-    </a>
-   </li>
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.components.project.GitWrapper.GitStatus">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       GitWrapper.GitStatus
-      </span>
-     </code>
-    </a>
-   </li>
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.components.project.GitWrapper.status">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       GitWrapper.status()
-      </span>
-     </code>
-    </a>
-   </li>
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.components.project.GitWrapper.is_ref">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       GitWrapper.is_ref()
-      </span>
-     </code>
-    </a>
-   </li>
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.components.project.GitWrapper.has_commits">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       GitWrapper.has_commits()
-      </span>
-     </code>
-    </a>
-   </li>
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.components.project.GitWrapper.get_tree">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       GitWrapper.get_tree()
-      </span>
-     </code>
-    </a>
-   </li>
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.components.project.GitWrapper.write_tree">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       GitWrapper.write_tree()
-      </span>
-     </code>
-    </a>
-   </li>
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.components.project.GitWrapper.head">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       GitWrapper.head
-      </span>
-     </code>
-    </a>
-   </li>
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.components.project.GitWrapper.branch">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       GitWrapper.branch
-      </span>
-     </code>
-    </a>
-   </li>
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.components.project.GitWrapper.rev_parse">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       GitWrapper.rev_parse()
-      </span>
-     </code>
-    </a>
-   </li>
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.components.project.GitWrapper.ignore">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       GitWrapper.ignore()
-      </span>
-     </code>
-    </a>
-   </li>
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.components.project.GitWrapper.HASH_LEN">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       GitWrapper.HASH_LEN
-      </span>
-     </code>
-    </a>
-   </li>
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.components.project.GitWrapper.is_hash">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       GitWrapper.is_hash()
-      </span>
-     </code>
-    </a>
-   </li>
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.components.project.GitWrapper.log">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       GitWrapper.log()
-      </span>
-     </code>
-    </a>
-   </li>
-  </ul>
- </li>
- <li class="toc-h2 nav-item toc-entry">
-  <a class="reference internal nav-link" href="#datumaro.components.project.DvcWrapper">
-   <code class="docutils literal notranslate">
-    <span class="pre">
-     DvcWrapper
-    </span>
-   </code>
-  </a>
-  <ul class="nav section-nav flex-column">
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.components.project.DvcWrapper.module">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       DvcWrapper.module()
-      </span>
-     </code>
-    </a>
-   </li>
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.components.project.DvcWrapper.DvcError">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       DvcWrapper.DvcError
-      </span>
-     </code>
-    </a>
-   </li>
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.components.project.DvcWrapper.initialized">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       DvcWrapper.initialized
-      </span>
-     </code>
-    </a>
-   </li>
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.components.project.DvcWrapper.init">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       DvcWrapper.init()
-      </span>
-     </code>
-    </a>
-   </li>
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.components.project.DvcWrapper.close">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       DvcWrapper.close()
-      </span>
-     </code>
-    </a>
-   </li>
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.components.project.DvcWrapper.checkout">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       DvcWrapper.checkout()
-      </span>
-     </code>
-    </a>
-   </li>
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.components.project.DvcWrapper.add">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       DvcWrapper.add()
-      </span>
-     </code>
-    </a>
-   </li>
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.components.project.DvcWrapper.is_cached">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       DvcWrapper.is_cached()
-      </span>
-     </code>
-    </a>
-   </li>
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.components.project.DvcWrapper.obj_path">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       DvcWrapper.obj_path()
-      </span>
-     </code>
-    </a>
-   </li>
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.components.project.DvcWrapper.ignore">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       DvcWrapper.ignore()
-      </span>
-     </code>
-    </a>
-   </li>
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.components.project.DvcWrapper.yaml">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       DvcWrapper.yaml
-      </span>
-     </code>
-    </a>
-   </li>
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.components.project.DvcWrapper.yaml_parser">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       DvcWrapper.yaml_parser
-      </span>
-     </code>
-    </a>
-   </li>
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.components.project.DvcWrapper.get_hash_from_dvcfile">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       DvcWrapper.get_hash_from_dvcfile()
-      </span>
-     </code>
-    </a>
-   </li>
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.components.project.DvcWrapper.FILE_HASH_LEN">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       DvcWrapper.FILE_HASH_LEN
-      </span>
-     </code>
-    </a>
-   </li>
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.components.project.DvcWrapper.DIR_HASH_SUFFIX">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       DvcWrapper.DIR_HASH_SUFFIX
-      </span>
-     </code>
-    </a>
-   </li>
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.components.project.DvcWrapper.DIR_HASH_LEN">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       DvcWrapper.DIR_HASH_LEN
-      </span>
-     </code>
-    </a>
-   </li>
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.components.project.DvcWrapper.is_file_hash">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       DvcWrapper.is_file_hash()
-      </span>
-     </code>
-    </a>
-   </li>
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.components.project.DvcWrapper.is_dir_hash">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       DvcWrapper.is_dir_hash()
-      </span>
-     </code>
-    </a>
-   </li>
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.components.project.DvcWrapper.is_hash">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       DvcWrapper.is_hash()
-      </span>
-     </code>
-    </a>
-   </li>
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.components.project.DvcWrapper.write_obj">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       DvcWrapper.write_obj()
-      </span>
-     </code>
-    </a>
-   </li>
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.components.project.DvcWrapper.remove_cache_obj">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       DvcWrapper.remove_cache_obj()
-      </span>
-     </code>
-    </a>
-   </li>
-  </ul>
- </li>
- <li class="toc-h2 nav-item toc-entry">
-  <a class="reference internal nav-link" href="#datumaro.components.project.Tree">
-   <code class="docutils literal notranslate">
-    <span class="pre">
-     Tree
-    </span>
-   </code>
-  </a>
-  <ul class="nav section-nav flex-column">
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.components.project.Tree.save">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       Tree.save()
-      </span>
-     </code>
-    </a>
-   </li>
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.components.project.Tree.dump">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       Tree.dump()
-      </span>
-     </code>
-    </a>
-   </li>
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.components.project.Tree.clone">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       Tree.clone()
-      </span>
-     </code>
-    </a>
-   </li>
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.components.project.Tree.sources">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       Tree.sources
-      </span>
-     </code>
-    </a>
-   </li>
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.components.project.Tree.build_targets">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       Tree.build_targets
-      </span>
-     </code>
-    </a>
-   </li>
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.components.project.Tree.config">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       Tree.config
-      </span>
-     </code>
-    </a>
-   </li>
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.components.project.Tree.env">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       Tree.env
-      </span>
-     </code>
-    </a>
-   </li>
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.components.project.Tree.rev">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       Tree.rev
-      </span>
-     </code>
-    </a>
-   </li>
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.components.project.Tree.make_pipeline">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       Tree.make_pipeline()
-      </span>
-     </code>
-    </a>
-   </li>
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.components.project.Tree.make_dataset">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       Tree.make_dataset()
-      </span>
-     </code>
-    </a>
-   </li>
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.components.project.Tree.is_working_tree">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       Tree.is_working_tree
-      </span>
-     </code>
-    </a>
-   </li>
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.components.project.Tree.source_data_dir">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       Tree.source_data_dir()
-      </span>
-     </code>
-    </a>
-   </li>
-  </ul>
- </li>
- <li class="toc-h2 nav-item toc-entry">
-  <a class="reference internal nav-link" href="#datumaro.components.project.DiffStatus">
-   <code class="docutils literal notranslate">
-    <span class="pre">
-     DiffStatus
-    </span>
-   </code>
-  </a>
-  <ul class="nav section-nav flex-column">
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.components.project.DiffStatus.added">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       DiffStatus.added
-      </span>
-     </code>
-    </a>
-   </li>
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.components.project.DiffStatus.modified">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       DiffStatus.modified
-      </span>
-     </code>
-    </a>
-   </li>
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.components.project.DiffStatus.removed">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       DiffStatus.removed
-      </span>
-     </code>
-    </a>
-   </li>
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.components.project.DiffStatus.missing">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       DiffStatus.missing
-      </span>
-     </code>
-    </a>
-   </li>
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.components.project.DiffStatus.foreign_modified">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       DiffStatus.foreign_modified
-      </span>
-     </code>
-    </a>
-   </li>
-  </ul>
- </li>
- <li class="toc-h2 nav-item toc-entry">
-  <a class="reference internal nav-link" href="#datumaro.components.project.Project">
-   <code class="docutils literal notranslate">
-    <span class="pre">
-     Project
-    </span>
-   </code>
-  </a>
-  <ul class="nav section-nav flex-column">
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.components.project.Project.find_project_dir">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       Project.find_project_dir()
-      </span>
-     </code>
-    </a>
-   </li>
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.components.project.Project.migrate_from_v1_to_v2">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       Project.migrate_from_v1_to_v2()
-      </span>
-     </code>
-    </a>
-   </li>
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.components.project.Project.init">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       Project.init()
-      </span>
-     </code>
-    </a>
-   </li>
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.components.project.Project.close">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       Project.close()
-      </span>
-     </code>
-    </a>
-   </li>
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.components.project.Project.save">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       Project.save()
-      </span>
-     </code>
-    </a>
-   </li>
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.components.project.Project.readonly">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       Project.readonly
-      </span>
-     </code>
-    </a>
-   </li>
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.components.project.Project.working_tree">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       Project.working_tree
-      </span>
-     </code>
-    </a>
-   </li>
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.components.project.Project.head">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       Project.head
-      </span>
-     </code>
-    </a>
-   </li>
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.components.project.Project.head_rev">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       Project.head_rev
-      </span>
-     </code>
-    </a>
-   </li>
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.components.project.Project.branch">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       Project.branch
-      </span>
-     </code>
-    </a>
-   </li>
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.components.project.Project.config">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       Project.config
-      </span>
-     </code>
-    </a>
-   </li>
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.components.project.Project.env">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       Project.env
-      </span>
-     </code>
-    </a>
-   </li>
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.components.project.Project.models">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       Project.models
-      </span>
-     </code>
-    </a>
-   </li>
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.components.project.Project.get_rev">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       Project.get_rev()
-      </span>
-     </code>
-    </a>
-   </li>
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.components.project.Project.is_rev_cached">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       Project.is_rev_cached()
-      </span>
-     </code>
-    </a>
-   </li>
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.components.project.Project.is_obj_cached">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       Project.is_obj_cached()
-      </span>
-     </code>
-    </a>
-   </li>
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.components.project.Project.cache_path">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       Project.cache_path()
-      </span>
-     </code>
-    </a>
-   </li>
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.components.project.Project.source_data_dir">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       Project.source_data_dir()
-      </span>
-     </code>
-    </a>
-   </li>
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.components.project.Project.remove_cache_obj">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       Project.remove_cache_obj()
-      </span>
-     </code>
-    </a>
-   </li>
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.components.project.Project.validate_source_name">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       Project.validate_source_name()
-      </span>
-     </code>
-    </a>
-   </li>
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.components.project.Project.compute_source_hash">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       Project.compute_source_hash()
-      </span>
-     </code>
-    </a>
-   </li>
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.components.project.Project.refresh_source_hash">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       Project.refresh_source_hash()
-      </span>
-     </code>
-    </a>
-   </li>
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.components.project.Project.import_source">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       Project.import_source()
-      </span>
-     </code>
-    </a>
-   </li>
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.components.project.Project.add_source">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       Project.add_source()
-      </span>
-     </code>
-    </a>
-   </li>
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.components.project.Project.remove_source">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       Project.remove_source()
-      </span>
-     </code>
-    </a>
-   </li>
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.components.project.Project.commit">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       Project.commit()
-      </span>
-     </code>
-    </a>
-   </li>
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.components.project.Project.checkout">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       Project.checkout()
-      </span>
-     </code>
-    </a>
-   </li>
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.components.project.Project.is_ref">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       Project.is_ref()
-      </span>
-     </code>
-    </a>
-   </li>
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.components.project.Project.has_commits">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       Project.has_commits()
-      </span>
-     </code>
-    </a>
-   </li>
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.components.project.Project.status">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       Project.status()
-      </span>
-     </code>
-    </a>
-   </li>
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.components.project.Project.history">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       Project.history()
-      </span>
-     </code>
-    </a>
-   </li>
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.components.project.Project.diff">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       Project.diff()
-      </span>
-     </code>
-    </a>
-   </li>
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.components.project.Project.model_data_dir">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       Project.model_data_dir()
-      </span>
-     </code>
-    </a>
-   </li>
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.components.project.Project.make_model">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       Project.make_model()
-      </span>
-     </code>
-    </a>
-   </li>
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.components.project.Project.add_model">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       Project.add_model()
-      </span>
-     </code>
-    </a>
-   </li>
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.components.project.Project.remove_model">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       Project.remove_model()
-      </span>
-     </code>
-    </a>
-   </li>
-  </ul>
- </li>
-</ul>
-
-</nav>
-</div>
-
-<div class="toc-item">
-  
-<div id="searchbox"></div>
-</div>
-
-<div class="toc-item">
-  
-</div>
-
-<div class="toc-item">
-  
-<div class="tocsection sourcelink">
-    <a href="../../../_sources/docs/reference/_autosummary/datumaro.components.project.rst.txt">
-        <i class="fa-solid fa-file-lines"></i> Show Source
-    </a>
-</div>
-
-</div>
-
             </div>
-          
-          
-        </div>
-        <footer class="bd-footer-content">
-          <div class="bd-footer-content__inner">
+            
+            
+              
+                <div class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+<div
+    id="pst-page-navigation-heading-2"
+    class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> On this page
+  </div>
+  <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.project.ProjectSourceDataset"><code class="docutils literal notranslate"><span class="pre">ProjectSourceDataset</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.project.ProjectSourceDataset.save"><code class="docutils literal notranslate"><span class="pre">ProjectSourceDataset.save()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.project.ProjectSourceDataset.readonly"><code class="docutils literal notranslate"><span class="pre">ProjectSourceDataset.readonly</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.project.ProjectSourceDataset.config"><code class="docutils literal notranslate"><span class="pre">ProjectSourceDataset.config</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.project.ProjectSourceDataset.subsets"><code class="docutils literal notranslate"><span class="pre">ProjectSourceDataset.subsets()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.project.ProjectSourceDataset.get_subset"><code class="docutils literal notranslate"><span class="pre">ProjectSourceDataset.get_subset()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.project.ProjectSourceDataset.infos"><code class="docutils literal notranslate"><span class="pre">ProjectSourceDataset.infos()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.project.ProjectSourceDataset.categories"><code class="docutils literal notranslate"><span class="pre">ProjectSourceDataset.categories()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.project.ProjectSourceDataset.get"><code class="docutils literal notranslate"><span class="pre">ProjectSourceDataset.get()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.project.ProjectSourceDataset.media_type"><code class="docutils literal notranslate"><span class="pre">ProjectSourceDataset.media_type()</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.project.IgnoreMode"><code class="docutils literal notranslate"><span class="pre">IgnoreMode</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.project.IgnoreMode.rewrite"><code class="docutils literal notranslate"><span class="pre">IgnoreMode.rewrite</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.project.IgnoreMode.append"><code class="docutils literal notranslate"><span class="pre">IgnoreMode.append</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.project.IgnoreMode.remove"><code class="docutils literal notranslate"><span class="pre">IgnoreMode.remove</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.project.CrudProxy"><code class="docutils literal notranslate"><span class="pre">CrudProxy</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.project.CrudProxy.get"><code class="docutils literal notranslate"><span class="pre">CrudProxy.get()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.project.CrudProxy.items"><code class="docutils literal notranslate"><span class="pre">CrudProxy.items()</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.project.ProjectSources"><code class="docutils literal notranslate"><span class="pre">ProjectSources</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.project.BuildStageType"><code class="docutils literal notranslate"><span class="pre">BuildStageType</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.project.BuildStageType.source"><code class="docutils literal notranslate"><span class="pre">BuildStageType.source</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.project.BuildStageType.project"><code class="docutils literal notranslate"><span class="pre">BuildStageType.project</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.project.BuildStageType.transform"><code class="docutils literal notranslate"><span class="pre">BuildStageType.transform</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.project.BuildStageType.filter"><code class="docutils literal notranslate"><span class="pre">BuildStageType.filter</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.project.BuildStageType.convert"><code class="docutils literal notranslate"><span class="pre">BuildStageType.convert</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.project.BuildStageType.inference"><code class="docutils literal notranslate"><span class="pre">BuildStageType.inference</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.project.BuildStageType.explore"><code class="docutils literal notranslate"><span class="pre">BuildStageType.explore</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.project.Pipeline"><code class="docutils literal notranslate"><span class="pre">Pipeline</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.project.Pipeline.head"><code class="docutils literal notranslate"><span class="pre">Pipeline.head</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.project.Pipeline.head_node"><code class="docutils literal notranslate"><span class="pre">Pipeline.head_node</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.project.Pipeline.get_slice"><code class="docutils literal notranslate"><span class="pre">Pipeline.get_slice()</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.project.ProjectBuilder"><code class="docutils literal notranslate"><span class="pre">ProjectBuilder</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.project.ProjectBuilder.make_dataset"><code class="docutils literal notranslate"><span class="pre">ProjectBuilder.make_dataset()</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.project.ProjectBuildTargets"><code class="docutils literal notranslate"><span class="pre">ProjectBuildTargets</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.project.ProjectBuildTargets.MAIN_TARGET"><code class="docutils literal notranslate"><span class="pre">ProjectBuildTargets.MAIN_TARGET</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.project.ProjectBuildTargets.BASE_STAGE"><code class="docutils literal notranslate"><span class="pre">ProjectBuildTargets.BASE_STAGE</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.project.ProjectBuildTargets.add_target"><code class="docutils literal notranslate"><span class="pre">ProjectBuildTargets.add_target()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.project.ProjectBuildTargets.add_stage"><code class="docutils literal notranslate"><span class="pre">ProjectBuildTargets.add_stage()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.project.ProjectBuildTargets.remove_target"><code class="docutils literal notranslate"><span class="pre">ProjectBuildTargets.remove_target()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.project.ProjectBuildTargets.remove_stage"><code class="docutils literal notranslate"><span class="pre">ProjectBuildTargets.remove_stage()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.project.ProjectBuildTargets.add_transform_stage"><code class="docutils literal notranslate"><span class="pre">ProjectBuildTargets.add_transform_stage()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.project.ProjectBuildTargets.add_inference_stage"><code class="docutils literal notranslate"><span class="pre">ProjectBuildTargets.add_inference_stage()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.project.ProjectBuildTargets.add_filter_stage"><code class="docutils literal notranslate"><span class="pre">ProjectBuildTargets.add_filter_stage()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.project.ProjectBuildTargets.add_convert_stage"><code class="docutils literal notranslate"><span class="pre">ProjectBuildTargets.add_convert_stage()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.project.ProjectBuildTargets.add_explore_stage"><code class="docutils literal notranslate"><span class="pre">ProjectBuildTargets.add_explore_stage()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.project.ProjectBuildTargets.make_target_name"><code class="docutils literal notranslate"><span class="pre">ProjectBuildTargets.make_target_name()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.project.ProjectBuildTargets.split_target_name"><code class="docutils literal notranslate"><span class="pre">ProjectBuildTargets.split_target_name()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.project.ProjectBuildTargets.strip_target_name"><code class="docutils literal notranslate"><span class="pre">ProjectBuildTargets.strip_target_name()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.project.ProjectBuildTargets.make_pipeline"><code class="docutils literal notranslate"><span class="pre">ProjectBuildTargets.make_pipeline()</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.project.GitWrapper"><code class="docutils literal notranslate"><span class="pre">GitWrapper</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.project.GitWrapper.module"><code class="docutils literal notranslate"><span class="pre">GitWrapper.module()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.project.GitWrapper.initialized"><code class="docutils literal notranslate"><span class="pre">GitWrapper.initialized</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.project.GitWrapper.init"><code class="docutils literal notranslate"><span class="pre">GitWrapper.init()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.project.GitWrapper.close"><code class="docutils literal notranslate"><span class="pre">GitWrapper.close()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.project.GitWrapper.checkout"><code class="docutils literal notranslate"><span class="pre">GitWrapper.checkout()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.project.GitWrapper.add"><code class="docutils literal notranslate"><span class="pre">GitWrapper.add()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.project.GitWrapper.commit"><code class="docutils literal notranslate"><span class="pre">GitWrapper.commit()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.project.GitWrapper.GitTree"><code class="docutils literal notranslate"><span class="pre">GitWrapper.GitTree</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.project.GitWrapper.GitStatus"><code class="docutils literal notranslate"><span class="pre">GitWrapper.GitStatus</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.project.GitWrapper.status"><code class="docutils literal notranslate"><span class="pre">GitWrapper.status()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.project.GitWrapper.is_ref"><code class="docutils literal notranslate"><span class="pre">GitWrapper.is_ref()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.project.GitWrapper.has_commits"><code class="docutils literal notranslate"><span class="pre">GitWrapper.has_commits()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.project.GitWrapper.get_tree"><code class="docutils literal notranslate"><span class="pre">GitWrapper.get_tree()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.project.GitWrapper.write_tree"><code class="docutils literal notranslate"><span class="pre">GitWrapper.write_tree()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.project.GitWrapper.head"><code class="docutils literal notranslate"><span class="pre">GitWrapper.head</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.project.GitWrapper.branch"><code class="docutils literal notranslate"><span class="pre">GitWrapper.branch</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.project.GitWrapper.rev_parse"><code class="docutils literal notranslate"><span class="pre">GitWrapper.rev_parse()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.project.GitWrapper.ignore"><code class="docutils literal notranslate"><span class="pre">GitWrapper.ignore()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.project.GitWrapper.HASH_LEN"><code class="docutils literal notranslate"><span class="pre">GitWrapper.HASH_LEN</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.project.GitWrapper.is_hash"><code class="docutils literal notranslate"><span class="pre">GitWrapper.is_hash()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.project.GitWrapper.log"><code class="docutils literal notranslate"><span class="pre">GitWrapper.log()</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.project.DvcWrapper"><code class="docutils literal notranslate"><span class="pre">DvcWrapper</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.project.DvcWrapper.module"><code class="docutils literal notranslate"><span class="pre">DvcWrapper.module()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.project.DvcWrapper.DvcError"><code class="docutils literal notranslate"><span class="pre">DvcWrapper.DvcError</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.project.DvcWrapper.initialized"><code class="docutils literal notranslate"><span class="pre">DvcWrapper.initialized</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.project.DvcWrapper.init"><code class="docutils literal notranslate"><span class="pre">DvcWrapper.init()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.project.DvcWrapper.close"><code class="docutils literal notranslate"><span class="pre">DvcWrapper.close()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.project.DvcWrapper.checkout"><code class="docutils literal notranslate"><span class="pre">DvcWrapper.checkout()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.project.DvcWrapper.add"><code class="docutils literal notranslate"><span class="pre">DvcWrapper.add()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.project.DvcWrapper.is_cached"><code class="docutils literal notranslate"><span class="pre">DvcWrapper.is_cached()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.project.DvcWrapper.obj_path"><code class="docutils literal notranslate"><span class="pre">DvcWrapper.obj_path()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.project.DvcWrapper.ignore"><code class="docutils literal notranslate"><span class="pre">DvcWrapper.ignore()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.project.DvcWrapper.yaml"><code class="docutils literal notranslate"><span class="pre">DvcWrapper.yaml</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.project.DvcWrapper.yaml_parser"><code class="docutils literal notranslate"><span class="pre">DvcWrapper.yaml_parser</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.project.DvcWrapper.get_hash_from_dvcfile"><code class="docutils literal notranslate"><span class="pre">DvcWrapper.get_hash_from_dvcfile()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.project.DvcWrapper.FILE_HASH_LEN"><code class="docutils literal notranslate"><span class="pre">DvcWrapper.FILE_HASH_LEN</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.project.DvcWrapper.DIR_HASH_SUFFIX"><code class="docutils literal notranslate"><span class="pre">DvcWrapper.DIR_HASH_SUFFIX</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.project.DvcWrapper.DIR_HASH_LEN"><code class="docutils literal notranslate"><span class="pre">DvcWrapper.DIR_HASH_LEN</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.project.DvcWrapper.is_file_hash"><code class="docutils literal notranslate"><span class="pre">DvcWrapper.is_file_hash()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.project.DvcWrapper.is_dir_hash"><code class="docutils literal notranslate"><span class="pre">DvcWrapper.is_dir_hash()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.project.DvcWrapper.is_hash"><code class="docutils literal notranslate"><span class="pre">DvcWrapper.is_hash()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.project.DvcWrapper.write_obj"><code class="docutils literal notranslate"><span class="pre">DvcWrapper.write_obj()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.project.DvcWrapper.remove_cache_obj"><code class="docutils literal notranslate"><span class="pre">DvcWrapper.remove_cache_obj()</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.project.Tree"><code class="docutils literal notranslate"><span class="pre">Tree</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.project.Tree.save"><code class="docutils literal notranslate"><span class="pre">Tree.save()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.project.Tree.dump"><code class="docutils literal notranslate"><span class="pre">Tree.dump()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.project.Tree.clone"><code class="docutils literal notranslate"><span class="pre">Tree.clone()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.project.Tree.sources"><code class="docutils literal notranslate"><span class="pre">Tree.sources</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.project.Tree.build_targets"><code class="docutils literal notranslate"><span class="pre">Tree.build_targets</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.project.Tree.config"><code class="docutils literal notranslate"><span class="pre">Tree.config</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.project.Tree.env"><code class="docutils literal notranslate"><span class="pre">Tree.env</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.project.Tree.rev"><code class="docutils literal notranslate"><span class="pre">Tree.rev</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.project.Tree.make_pipeline"><code class="docutils literal notranslate"><span class="pre">Tree.make_pipeline()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.project.Tree.make_dataset"><code class="docutils literal notranslate"><span class="pre">Tree.make_dataset()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.project.Tree.is_working_tree"><code class="docutils literal notranslate"><span class="pre">Tree.is_working_tree</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.project.Tree.source_data_dir"><code class="docutils literal notranslate"><span class="pre">Tree.source_data_dir()</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.project.DiffStatus"><code class="docutils literal notranslate"><span class="pre">DiffStatus</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.project.DiffStatus.added"><code class="docutils literal notranslate"><span class="pre">DiffStatus.added</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.project.DiffStatus.modified"><code class="docutils literal notranslate"><span class="pre">DiffStatus.modified</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.project.DiffStatus.removed"><code class="docutils literal notranslate"><span class="pre">DiffStatus.removed</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.project.DiffStatus.missing"><code class="docutils literal notranslate"><span class="pre">DiffStatus.missing</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.project.DiffStatus.foreign_modified"><code class="docutils literal notranslate"><span class="pre">DiffStatus.foreign_modified</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.project.Project"><code class="docutils literal notranslate"><span class="pre">Project</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.project.Project.find_project_dir"><code class="docutils literal notranslate"><span class="pre">Project.find_project_dir()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.project.Project.migrate_from_v1_to_v2"><code class="docutils literal notranslate"><span class="pre">Project.migrate_from_v1_to_v2()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.project.Project.init"><code class="docutils literal notranslate"><span class="pre">Project.init()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.project.Project.close"><code class="docutils literal notranslate"><span class="pre">Project.close()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.project.Project.save"><code class="docutils literal notranslate"><span class="pre">Project.save()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.project.Project.readonly"><code class="docutils literal notranslate"><span class="pre">Project.readonly</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.project.Project.working_tree"><code class="docutils literal notranslate"><span class="pre">Project.working_tree</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.project.Project.head"><code class="docutils literal notranslate"><span class="pre">Project.head</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.project.Project.head_rev"><code class="docutils literal notranslate"><span class="pre">Project.head_rev</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.project.Project.branch"><code class="docutils literal notranslate"><span class="pre">Project.branch</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.project.Project.config"><code class="docutils literal notranslate"><span class="pre">Project.config</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.project.Project.env"><code class="docutils literal notranslate"><span class="pre">Project.env</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.project.Project.models"><code class="docutils literal notranslate"><span class="pre">Project.models</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.project.Project.get_rev"><code class="docutils literal notranslate"><span class="pre">Project.get_rev()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.project.Project.is_rev_cached"><code class="docutils literal notranslate"><span class="pre">Project.is_rev_cached()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.project.Project.is_obj_cached"><code class="docutils literal notranslate"><span class="pre">Project.is_obj_cached()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.project.Project.cache_path"><code class="docutils literal notranslate"><span class="pre">Project.cache_path()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.project.Project.source_data_dir"><code class="docutils literal notranslate"><span class="pre">Project.source_data_dir()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.project.Project.remove_cache_obj"><code class="docutils literal notranslate"><span class="pre">Project.remove_cache_obj()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.project.Project.validate_source_name"><code class="docutils literal notranslate"><span class="pre">Project.validate_source_name()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.project.Project.compute_source_hash"><code class="docutils literal notranslate"><span class="pre">Project.compute_source_hash()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.project.Project.refresh_source_hash"><code class="docutils literal notranslate"><span class="pre">Project.refresh_source_hash()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.project.Project.import_source"><code class="docutils literal notranslate"><span class="pre">Project.import_source()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.project.Project.add_source"><code class="docutils literal notranslate"><span class="pre">Project.add_source()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.project.Project.remove_source"><code class="docutils literal notranslate"><span class="pre">Project.remove_source()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.project.Project.commit"><code class="docutils literal notranslate"><span class="pre">Project.commit()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.project.Project.checkout"><code class="docutils literal notranslate"><span class="pre">Project.checkout()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.project.Project.is_ref"><code class="docutils literal notranslate"><span class="pre">Project.is_ref()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.project.Project.has_commits"><code class="docutils literal notranslate"><span class="pre">Project.has_commits()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.project.Project.status"><code class="docutils literal notranslate"><span class="pre">Project.status()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.project.Project.history"><code class="docutils literal notranslate"><span class="pre">Project.history()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.project.Project.diff"><code class="docutils literal notranslate"><span class="pre">Project.diff()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.project.Project.model_data_dir"><code class="docutils literal notranslate"><span class="pre">Project.model_data_dir()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.project.Project.make_model"><code class="docutils literal notranslate"><span class="pre">Project.make_model()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.project.Project.add_model"><code class="docutils literal notranslate"><span class="pre">Project.add_model()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.project.Project.remove_model"><code class="docutils literal notranslate"><span class="pre">Project.remove_model()</span></code></a></li>
+</ul>
+</li>
+</ul>
+  </nav></div>
+
+  <div class="sidebar-secondary-item">
+
+  <div class="tocsection sourcelink">
+    <a href="../../../_sources/docs/reference/_autosummary/datumaro.components.project.rst.txt">
+      <i class="fa-solid fa-file-lines"></i> Show Source
+    </a>
+  </div>
+</div>
+
+</div></div>
+              
             
           </div>
-        </footer>
+          <footer class="bd-footer-content">
+            
+          </footer>
         
       </main>
     </div>
   </div>
-
   
-    
   <!-- Scripts loaded after <body> so the DOM is not blocked -->
-  <script src="../../../_static/scripts/bootstrap.js?digest=796348d33e8b1d947c94"></script>
-<script src="../../../_static/scripts/pydata-sphinx-theme.js?digest=796348d33e8b1d947c94"></script>
+  <script src="../../../_static/scripts/bootstrap.js?digest=8d27b9dea8ad943066ae"></script>
+<script src="../../../_static/scripts/pydata-sphinx-theme.js?digest=8d27b9dea8ad943066ae"></script>
 
-  <footer class="bd-footer"><div class="bd-footer__inner container">
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
   
-  <div class="footer-item">
-    
-  </div>
-  
-  <div class="footer-item">
-    <p class="theme-version">
-    Built with the
-    <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">
-        PyData Sphinx Theme
-    </a>
-    0.12.0.
-</p>
-  </div>
-  
-  <div class="footer-item">
-    
-<p class="sphinx-version">
-Created using <a href="http://sphinx-doc.org/">Sphinx</a> 5.3.0.<br>
-</p>
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
 
-  </div>
+  <p class="sphinx-version">
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 5.3.0.
+    <br/>
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+<p class="theme-version">
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.15.2.
+</p></div>
+      
+    </div>
   
 </div>
+
   </footer>
   </body>
 </html>

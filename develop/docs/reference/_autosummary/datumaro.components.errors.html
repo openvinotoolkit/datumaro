@@ -1,7 +1,10 @@
 
+
 <!DOCTYPE html>
 
-<html lang="en">
+
+<html lang="en" data-content_root="" >
+
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
@@ -16,15 +19,15 @@
   </script>
   
   <!-- Loaded before other Sphinx assets -->
-  <link href="../../../_static/styles/theme.css?digest=796348d33e8b1d947c94" rel="stylesheet">
-<link href="../../../_static/styles/bootstrap.css?digest=796348d33e8b1d947c94" rel="stylesheet">
-<link href="../../../_static/styles/pydata-sphinx-theme.css?digest=796348d33e8b1d947c94" rel="stylesheet">
+  <link href="../../../_static/styles/theme.css?digest=8d27b9dea8ad943066ae" rel="stylesheet" />
+<link href="../../../_static/styles/bootstrap.css?digest=8d27b9dea8ad943066ae" rel="stylesheet" />
+<link href="../../../_static/styles/pydata-sphinx-theme.css?digest=8d27b9dea8ad943066ae" rel="stylesheet" />
 
   
-  <link href="../../../_static/vendor/fontawesome/6.1.2/css/all.min.css?digest=796348d33e8b1d947c94" rel="stylesheet">
-  <link rel="preload" as="font" type="font/woff2" crossorigin href="../../../_static/vendor/fontawesome/6.1.2/webfonts/fa-solid-900.woff2">
-<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../_static/vendor/fontawesome/6.1.2/webfonts/fa-brands-400.woff2">
-<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../_static/vendor/fontawesome/6.1.2/webfonts/fa-regular-400.woff2">
+  <link href="../../../_static/vendor/fontawesome/6.5.1/css/all.min.css?digest=8d27b9dea8ad943066ae" rel="stylesheet" />
+  <link rel="preload" as="font" type="font/woff2" crossorigin href="../../../_static/vendor/fontawesome/6.5.1/webfonts/fa-solid-900.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../_static/vendor/fontawesome/6.5.1/webfonts/fa-brands-400.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../_static/vendor/fontawesome/6.5.1/webfonts/fa-regular-400.woff2" />
 
     <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="../../../_static/copybutton.css" />
@@ -33,8 +36,9 @@
     <link rel="stylesheet" type="text/css" href="../../../_static/css/custom.css" />
   
   <!-- Pre-loaded scripts that we'll load fully later -->
-  <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=796348d33e8b1d947c94">
-<link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=796348d33e8b1d947c94">
+  <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=8d27b9dea8ad943066ae" />
+<link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=8d27b9dea8ad943066ae" />
+  <script src="../../../_static/vendor/fontawesome/6.5.1/js/all.min.js?digest=8d27b9dea8ad943066ae"></script>
 
     <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
     <script src="../../../_static/jquery.js"></script>
@@ -51,111 +55,141 @@
     <link rel="search" title="Search" href="../../../search.html" />
     <link rel="next" title="datumaro.components.exporter" href="datumaro.components.exporter.html" />
     <link rel="prev" title="datumaro.components.environment" href="datumaro.components.environment.html" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <meta name="docsearch:language" content="en">
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
   </head>
   
   
-  <body data-spy="scroll" data-target="#bd-toc-nav" data-offset="180" data-default-mode="">
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
 
   
   
-  <a class="skip-link" href="#main-content">Skip to main content</a>
+  <a id="pst-skip-link" class="skip-link" href="#main-content">Skip to main content</a>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>
+    Back to top
+  </button>
 
   
-  <input type="checkbox" class="sidebar-toggle" name="__primary" id="__primary">
+  <input type="checkbox"
+          class="sidebar-toggle"
+          name="__primary"
+          id="__primary"/>
   <label class="overlay overlay-primary" for="__primary"></label>
-
   
-  <input type="checkbox" class="sidebar-toggle" name="__secondary" id="__secondary">
+  <input type="checkbox"
+          class="sidebar-toggle"
+          name="__secondary"
+          id="__secondary"/>
   <label class="overlay overlay-secondary" for="__secondary"></label>
-
   
   <div class="search-button__wrapper">
     <div class="search-button__overlay"></div>
     <div class="search-button__search-container">
-      
-<form class="bd-search d-flex align-items-center" action="../../../search.html" method="get">
+<form class="bd-search d-flex align-items-center"
+      action="../../../search.html"
+      method="get">
   <i class="fa-solid fa-magnifying-glass"></i>
-  <input type="search" class="form-control" name="q" id="search-input" placeholder="Search the docs ..." aria-label="Search the docs ..." autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">
+  <input type="search"
+         class="form-control"
+         name="q"
+         id="search-input"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
   <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
-</form>
-    </div>
+</form></div>
   </div>
-
   
-  <nav class="bd-header navbar navbar-expand-lg bd-navbar" id="navbar-main"><div class="bd-header__inner bd-page-width">
+    <header class="bd-header navbar navbar-expand-lg bd-navbar">
+<div class="bd-header__inner bd-page-width">
   <label class="sidebar-toggle primary-toggle" for="__primary">
-      <span class="fa-solid fa-bars"></span>
+    <span class="fa-solid fa-bars"></span>
   </label>
-  <div id="navbar-start">
-    
-    
   
+  
+  <div class="col-lg-3 navbar-header-items__start">
+    
+      <div class="navbar-item">
 
+  
 
 <a class="navbar-brand logo" href="../../../index.html">
-
   
   
   
   
   
+    
+    
+      
+    
+    
+    <img src="../../../_static/datumaro-logo.png" class="logo__image only-light" alt="Datumaro 1.6.0rc1 documentation - Home"/>
+    <script>document.write(`<img src="../../../_static/datumaro-logo.png" class="logo__image only-dark" alt="Datumaro 1.6.0rc1 documentation - Home"/>`);</script>
   
   
-
-  
-    <img src="../../../_static/datumaro-logo.png" class="logo__image only-light" alt="Logo image">
-    <img src="../../../_static/datumaro-logo.png" class="logo__image only-dark" alt="Logo image">
-  
-  
-</a>
+</a></div>
     
   </div>
-
   
   <div class="col-lg-9 navbar-header-items">
-    <div id="navbar-center" class="mr-auto">
+    
+    <div class="me-auto navbar-header-items__center">
       
-      <div class="navbar-center-item">
-        <nav class="navbar-nav">
-    <p class="sidebar-header-items__title" role="heading" aria-level="1" aria-label="Site Navigation">
-        Site Navigation
-    </p>
-    <ul id="navbar-main-elements" class="navbar-nav">
-        
+        <div class="navbar-item">
+<nav class="navbar-nav">
+  <ul class="bd-navbar-elements navbar-nav">
+    
                     <li class="nav-item current active">
                       <a class="nav-link nav-internal" href="../../index.html">
                         Docs
                       </a>
                     </li>
                 
-    </ul>
-</nav>
-      </div>
+  </ul>
+</nav></div>
       
     </div>
-
-    <div id="navbar-end">
+    
+    
+    <div class="navbar-header-items__end">
       
-        <div class="navbar-end-item navbar-persistent--container">
+        <div class="navbar-item navbar-persistent--container">
           
-<button class="btn btn-sm navbar-btn search-button search-button__button" title="Search" aria-label="Search" data-toggle="tooltip">
-  <i class="fa-solid fa-magnifying-glass"></i>
-</button>
+
+ <script>
+ document.write(`
+   <button class="btn navbar-btn search-button-field search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass"></i>
+    <span class="search-button__default-text">Search</span>
+    <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+   </button>
+ `);
+ </script>
         </div>
       
       
-      <div class="navbar-end-item">
-        <button class="theme-switch-button btn btn-sm btn-outline-primary navbar-btn rounded-circle" title="light/dark" aria-label="light/dark" data-toggle="tooltip">
-    <span class="theme-switch" data-mode="light"><i class="fa-solid fa-sun"></i></span>
-    <span class="theme-switch" data-mode="dark"><i class="fa-solid fa-moon"></i></span>
-    <span class="theme-switch" data-mode="auto"><i class="fa-solid fa-circle-half-stroke"></i></span>
-</button>
-      </div>
+        <div class="navbar-item">
+
+<script>
+document.write(`
+  <button class="btn btn-sm navbar-btn theme-switch-button" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="theme-switch nav-link" data-mode="light"><i class="fa-solid fa-sun fa-lg"></i></span>
+    <span class="theme-switch nav-link" data-mode="dark"><i class="fa-solid fa-moon fa-lg"></i></span>
+    <span class="theme-switch nav-link" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg"></i></span>
+  </button>
+`);
+</script></div>
       
-      <div class="navbar-end-item">
-        <ul id="navbar-icon-links" class="navbar-nav" aria-label="Icon Links">
+        <div class="navbar-item"><ul class="navbar-icon-links navbar-nav"
+    aria-label="Icon Links">
         <li class="nav-item">
           
           
@@ -164,79 +198,87 @@
           
           
           
-          <a href="https://github.com/openvinotoolkit/datumaro" title="GitHub" class="nav-link" rel="noopener" target="_blank" data-toggle="tooltip"><img src="../../../_static/github_icon.png" class="icon-link-image" alt="GitHub"/></a>
+          
+          <a href="https://github.com/openvinotoolkit/datumaro" title="GitHub" class="nav-link" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><img src="../../../_static/github_icon.png" class="icon-link-image" alt="GitHub"/></a>
         </li>
-      </ul>
-      </div>
+</ul></div>
       
     </div>
+    
   </div>
-
-
   
   
     <div class="navbar-persistent--mobile">
-<button class="btn btn-sm navbar-btn search-button search-button__button" title="Search" aria-label="Search" data-toggle="tooltip">
-  <i class="fa-solid fa-magnifying-glass"></i>
-</button>
+
+ <script>
+ document.write(`
+   <button class="btn navbar-btn search-button-field search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass"></i>
+    <span class="search-button__default-text">Search</span>
+    <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+   </button>
+ `);
+ </script>
     </div>
   
 
   
-  <label class="sidebar-toggle secondary-toggle" for="__secondary">
+    <label class="sidebar-toggle secondary-toggle" for="__secondary" tabindex="0">
       <span class="fa-solid fa-outdent"></span>
-  </label>
+    </label>
   
-
 </div>
-  </nav>
+
+    </header>
   
 
   <div class="bd-container">
     <div class="bd-container__inner bd-page-width">
       
+      
+      
       <div class="bd-sidebar-primary bd-sidebar">
         
+
   
   <div class="sidebar-header-items sidebar-primary__section">
     
     
       <div class="sidebar-header-items__center">
-      
-      <div class="navbar-center-item">
-        <nav class="navbar-nav">
-    <p class="sidebar-header-items__title" role="heading" aria-level="1" aria-label="Site Navigation">
-        Site Navigation
-    </p>
-    <ul id="navbar-main-elements" class="navbar-nav">
         
+          <div class="navbar-item">
+<nav class="navbar-nav">
+  <ul class="bd-navbar-elements navbar-nav">
+    
                     <li class="nav-item current active">
                       <a class="nav-link nav-internal" href="../../index.html">
                         Docs
                       </a>
                     </li>
                 
-    </ul>
-</nav>
-      </div>
-      
+  </ul>
+</nav></div>
+        
       </div>
     
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
 
-    
-    
-    <div class="sidebar-header-items__end">
-      
-      <div class="navbar-end-item">
-        <button class="theme-switch-button btn btn-sm btn-outline-primary navbar-btn rounded-circle" title="light/dark" aria-label="light/dark" data-toggle="tooltip">
-    <span class="theme-switch" data-mode="light"><i class="fa-solid fa-sun"></i></span>
-    <span class="theme-switch" data-mode="dark"><i class="fa-solid fa-moon"></i></span>
-    <span class="theme-switch" data-mode="auto"><i class="fa-solid fa-circle-half-stroke"></i></span>
-</button>
-      </div>
-      
-      <div class="navbar-end-item">
-        <ul id="navbar-icon-links" class="navbar-nav" aria-label="Icon Links">
+<script>
+document.write(`
+  <button class="btn btn-sm navbar-btn theme-switch-button" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="theme-switch nav-link" data-mode="light"><i class="fa-solid fa-sun fa-lg"></i></span>
+    <span class="theme-switch nav-link" data-mode="dark"><i class="fa-solid fa-moon fa-lg"></i></span>
+    <span class="theme-switch nav-link" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg"></i></span>
+  </button>
+`);
+</script></div>
+        
+          <div class="navbar-item"><ul class="navbar-icon-links navbar-nav"
+    aria-label="Icon Links">
         <li class="nav-item">
           
           
@@ -245,23 +287,21 @@
           
           
           
-          <a href="https://github.com/openvinotoolkit/datumaro" title="GitHub" class="nav-link" rel="noopener" target="_blank" data-toggle="tooltip"><img src="../../../_static/github_icon.png" class="icon-link-image" alt="GitHub"/></a>
+          
+          <a href="https://github.com/openvinotoolkit/datumaro" title="GitHub" class="nav-link" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><img src="../../../_static/github_icon.png" class="icon-link-image" alt="GitHub"/></a>
         </li>
-      </ul>
+</ul></div>
+        
       </div>
-      
-    </div>
     
   </div>
-
   
-  <div class="sidebar-start-items sidebar-primary__section">
-    <div class="sidebar-start-items__item"><nav class="bd-links" id="bd-docs-nav" aria-label="Section navigation">
-  <p class="bd-links__title" role="heading" aria-level="1">
-    Section Navigation
-  </p>
-  <div class="bd-toc-item navbar-nav">
-    <p aria-level="2" class="caption" role="heading"><span class="caption-text">Get Started</span></p>
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+<nav class="bd-docs-nav bd-links"
+     aria-label="Section Navigation">
+  <p class="bd-links__title" role="heading" aria-level="1">Section Navigation</p>
+  <div class="bd-toc-item navbar-nav"><p aria-level="2" class="caption" role="heading"><span class="caption-text">Get Started</span></p>
 <ul class="nav bd-sidenav">
 <li class="toctree-l1"><a class="reference internal" href="../../get-started/introduction.html">Introduction</a></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../../get-started/quick-start-guide/index.html">Quick Start Guide</a><input class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-1"><i class="fa-solid fa-chevron-down"></i></label><ul>
@@ -556,36 +596,70 @@
 </ul>
 </li>
 </ul>
-
-  </div>
-</nav>
+</div>
+</nav></div>
     </div>
-  </div>
   
-
   
-  <div class="sidebar-end-items sidebar-primary__section">
-    <div class="sidebar-end-items__item">
-    </div>
+  <div class="sidebar-primary-items__end sidebar-primary__section">
   </div>
-
   
   <div id="rtd-footer-container"></div>
 
+
       </div>
+      
       <main id="main-content" class="bd-main">
         
         
-        <div class="bd-content">
-          <div class="bd-article-container">
-            
-            <div class="bd-header-article">
-                
-            </div>
-            
-            
-            <article class="bd-article" role="main">
+          <div class="bd-content">
+            <div class="bd-article-container">
               
+              <div class="bd-header-article">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+
+
+
+
+<nav aria-label="Breadcrumb">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../../../index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+    
+    <li class="breadcrumb-item"><a href="../../index.html" class="nav-link">Docs</a></li>
+    
+    
+    <li class="breadcrumb-item"><i class="fa-solid fa-ellipsis"></i></li>
+    
+    
+    <li class="breadcrumb-item"><a href="datumaro.components.html" class="nav-link">datumaro.components</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page">datumaro.com...</li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
   <section id="module-datumaro.components.errors">
 <span id="datumaro-components-errors"></span><h1>datumaro.components.errors<a class="headerlink" href="#module-datumaro.components.errors" title="Permalink to this heading">#</a></h1>
 <p class="rubric">Exceptions</p>
@@ -1990,1960 +2064,403 @@ If id or subset cannot be reported, such field is set to None.</p>
 </section>
 
 
-            </article>
-            
-            
-            
-            <footer class="bd-footer-article">
-                <!-- Previous / next buttons -->
-<div class='prev-next-area'>
-  <a class='left-prev' id="prev-link" href="datumaro.components.environment.html" title="previous page">
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="datumaro.components.environment.html"
+       title="previous page">
       <i class="fa-solid fa-angle-left"></i>
       <div class="prev-next-info">
-          <p class="prev-next-subtitle">previous</p>
-          <p class="prev-next-title">datumaro.components.environment</p>
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">datumaro.components.environment</p>
       </div>
-  </a>
-  <a class='right-next' id="next-link" href="datumaro.components.exporter.html" title="next page">
-  <div class="prev-next-info">
-      <p class="prev-next-subtitle">next</p>
-      <p class="prev-next-title">datumaro.components.exporter</p>
-  </div>
-  <i class="fa-solid fa-angle-right"></i>
-  </a>
+    </a>
+    <a class="right-next"
+       href="datumaro.components.exporter.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">datumaro.components.exporter</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
 </div>
-            </footer>
-            
-          </div>
-          
-          
-          
-            <div class="bd-sidebar-secondary bd-toc">
+                </footer>
               
-<div class="toc-item">
-  
-<div class="tocsection onthispage">
-    <i class="fa-solid fa-list"></i> On this page
-</div>
-<nav id="bd-toc-nav" class="page-toc">
-    <ul class="visible nav section-nav flex-column">
- <li class="toc-h2 nav-item toc-entry">
-  <a class="reference internal nav-link" href="#datumaro.components.errors.ImmutableObjectError">
-   <code class="docutils literal notranslate">
-    <span class="pre">
-     ImmutableObjectError
-    </span>
-   </code>
-  </a>
- </li>
- <li class="toc-h2 nav-item toc-entry">
-  <a class="reference internal nav-link" href="#datumaro.components.errors.DatumaroError">
-   <code class="docutils literal notranslate">
-    <span class="pre">
-     DatumaroError
-    </span>
-   </code>
-  </a>
- </li>
- <li class="toc-h2 nav-item toc-entry">
-  <a class="reference internal nav-link" href="#datumaro.components.errors.VcsError">
-   <code class="docutils literal notranslate">
-    <span class="pre">
-     VcsError
-    </span>
-   </code>
-  </a>
- </li>
- <li class="toc-h2 nav-item toc-entry">
-  <a class="reference internal nav-link" href="#datumaro.components.errors.ReadonlyDatasetError">
-   <code class="docutils literal notranslate">
-    <span class="pre">
-     ReadonlyDatasetError
-    </span>
-   </code>
-  </a>
- </li>
- <li class="toc-h2 nav-item toc-entry">
-  <a class="reference internal nav-link" href="#datumaro.components.errors.ReadonlyProjectError">
-   <code class="docutils literal notranslate">
-    <span class="pre">
-     ReadonlyProjectError
-    </span>
-   </code>
-  </a>
- </li>
- <li class="toc-h2 nav-item toc-entry">
-  <a class="reference internal nav-link" href="#datumaro.components.errors.UnknownRefError">
-   <code class="docutils literal notranslate">
-    <span class="pre">
-     UnknownRefError
-    </span>
-   </code>
-  </a>
-  <ul class="nav section-nav flex-column">
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.components.errors.UnknownRefError.ref">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       UnknownRefError.ref
-      </span>
-     </code>
-    </a>
-   </li>
-  </ul>
- </li>
- <li class="toc-h2 nav-item toc-entry">
-  <a class="reference internal nav-link" href="#datumaro.components.errors.MissingObjectError">
-   <code class="docutils literal notranslate">
-    <span class="pre">
-     MissingObjectError
-    </span>
-   </code>
-  </a>
- </li>
- <li class="toc-h2 nav-item toc-entry">
-  <a class="reference internal nav-link" href="#datumaro.components.errors.MismatchingObjectError">
-   <code class="docutils literal notranslate">
-    <span class="pre">
-     MismatchingObjectError
-    </span>
-   </code>
-  </a>
- </li>
- <li class="toc-h2 nav-item toc-entry">
-  <a class="reference internal nav-link" href="#datumaro.components.errors.UnsavedChangesError">
-   <code class="docutils literal notranslate">
-    <span class="pre">
-     UnsavedChangesError
-    </span>
-   </code>
-  </a>
-  <ul class="nav section-nav flex-column">
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.components.errors.UnsavedChangesError.paths">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       UnsavedChangesError.paths
-      </span>
-     </code>
-    </a>
-   </li>
-  </ul>
- </li>
- <li class="toc-h2 nav-item toc-entry">
-  <a class="reference internal nav-link" href="#datumaro.components.errors.ForeignChangesError">
-   <code class="docutils literal notranslate">
-    <span class="pre">
-     ForeignChangesError
-    </span>
-   </code>
-  </a>
- </li>
- <li class="toc-h2 nav-item toc-entry">
-  <a class="reference internal nav-link" href="#datumaro.components.errors.EmptyCommitError">
-   <code class="docutils literal notranslate">
-    <span class="pre">
-     EmptyCommitError
-    </span>
-   </code>
-  </a>
- </li>
- <li class="toc-h2 nav-item toc-entry">
-  <a class="reference internal nav-link" href="#datumaro.components.errors.PathOutsideSourceError">
-   <code class="docutils literal notranslate">
-    <span class="pre">
-     PathOutsideSourceError
-    </span>
-   </code>
-  </a>
- </li>
- <li class="toc-h2 nav-item toc-entry">
-  <a class="reference internal nav-link" href="#datumaro.components.errors.SourceUrlInsideProjectError">
-   <code class="docutils literal notranslate">
-    <span class="pre">
-     SourceUrlInsideProjectError
-    </span>
-   </code>
-  </a>
- </li>
- <li class="toc-h2 nav-item toc-entry">
-  <a class="reference internal nav-link" href="#datumaro.components.errors.UnexpectedUrlError">
-   <code class="docutils literal notranslate">
-    <span class="pre">
-     UnexpectedUrlError
-    </span>
-   </code>
-  </a>
- </li>
- <li class="toc-h2 nav-item toc-entry">
-  <a class="reference internal nav-link" href="#datumaro.components.errors.MissingSourceHashError">
-   <code class="docutils literal notranslate">
-    <span class="pre">
-     MissingSourceHashError
-    </span>
-   </code>
-  </a>
- </li>
- <li class="toc-h2 nav-item toc-entry">
-  <a class="reference internal nav-link" href="#datumaro.components.errors.PipelineError">
-   <code class="docutils literal notranslate">
-    <span class="pre">
-     PipelineError
-    </span>
-   </code>
-  </a>
- </li>
- <li class="toc-h2 nav-item toc-entry">
-  <a class="reference internal nav-link" href="#datumaro.components.errors.InvalidPipelineError">
-   <code class="docutils literal notranslate">
-    <span class="pre">
-     InvalidPipelineError
-    </span>
-   </code>
-  </a>
- </li>
- <li class="toc-h2 nav-item toc-entry">
-  <a class="reference internal nav-link" href="#datumaro.components.errors.EmptyPipelineError">
-   <code class="docutils literal notranslate">
-    <span class="pre">
-     EmptyPipelineError
-    </span>
-   </code>
-  </a>
- </li>
- <li class="toc-h2 nav-item toc-entry">
-  <a class="reference internal nav-link" href="#datumaro.components.errors.MultiplePipelineHeadsError">
-   <code class="docutils literal notranslate">
-    <span class="pre">
-     MultiplePipelineHeadsError
-    </span>
-   </code>
-  </a>
- </li>
- <li class="toc-h2 nav-item toc-entry">
-  <a class="reference internal nav-link" href="#datumaro.components.errors.MissingPipelineHeadError">
-   <code class="docutils literal notranslate">
-    <span class="pre">
-     MissingPipelineHeadError
-    </span>
-   </code>
-  </a>
- </li>
- <li class="toc-h2 nav-item toc-entry">
-  <a class="reference internal nav-link" href="#datumaro.components.errors.InvalidStageError">
-   <code class="docutils literal notranslate">
-    <span class="pre">
-     InvalidStageError
-    </span>
-   </code>
-  </a>
- </li>
- <li class="toc-h2 nav-item toc-entry">
-  <a class="reference internal nav-link" href="#datumaro.components.errors.UnknownStageError">
-   <code class="docutils literal notranslate">
-    <span class="pre">
-     UnknownStageError
-    </span>
-   </code>
-  </a>
- </li>
- <li class="toc-h2 nav-item toc-entry">
-  <a class="reference internal nav-link" href="#datumaro.components.errors.MigrationError">
-   <code class="docutils literal notranslate">
-    <span class="pre">
-     MigrationError
-    </span>
-   </code>
-  </a>
- </li>
- <li class="toc-h2 nav-item toc-entry">
-  <a class="reference internal nav-link" href="#datumaro.components.errors.OldProjectError">
-   <code class="docutils literal notranslate">
-    <span class="pre">
-     OldProjectError
-    </span>
-   </code>
-  </a>
- </li>
- <li class="toc-h2 nav-item toc-entry">
-  <a class="reference internal nav-link" href="#datumaro.components.errors.NotAvailableError">
-   <code class="docutils literal notranslate">
-    <span class="pre">
-     NotAvailableError
-    </span>
-   </code>
-  </a>
- </li>
- <li class="toc-h2 nav-item toc-entry">
-  <a class="reference internal nav-link" href="#datumaro.components.errors.ProjectNotFoundError">
-   <code class="docutils literal notranslate">
-    <span class="pre">
-     ProjectNotFoundError
-    </span>
-   </code>
-  </a>
-  <ul class="nav section-nav flex-column">
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.components.errors.ProjectNotFoundError.path">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       ProjectNotFoundError.path
-      </span>
-     </code>
-    </a>
-   </li>
-  </ul>
- </li>
- <li class="toc-h2 nav-item toc-entry">
-  <a class="reference internal nav-link" href="#datumaro.components.errors.ProjectAlreadyExists">
-   <code class="docutils literal notranslate">
-    <span class="pre">
-     ProjectAlreadyExists
-    </span>
-   </code>
-  </a>
-  <ul class="nav section-nav flex-column">
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.components.errors.ProjectAlreadyExists.path">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       ProjectAlreadyExists.path
-      </span>
-     </code>
-    </a>
-   </li>
-  </ul>
- </li>
- <li class="toc-h2 nav-item toc-entry">
-  <a class="reference internal nav-link" href="#datumaro.components.errors.VcsAlreadyExists">
-   <code class="docutils literal notranslate">
-    <span class="pre">
-     VcsAlreadyExists
-    </span>
-   </code>
-  </a>
-  <ul class="nav section-nav flex-column">
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.components.errors.VcsAlreadyExists.path">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       VcsAlreadyExists.path
-      </span>
-     </code>
-    </a>
-   </li>
-  </ul>
- </li>
- <li class="toc-h2 nav-item toc-entry">
-  <a class="reference internal nav-link" href="#datumaro.components.errors.UnknownSourceError">
-   <code class="docutils literal notranslate">
-    <span class="pre">
-     UnknownSourceError
-    </span>
-   </code>
-  </a>
-  <ul class="nav section-nav flex-column">
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.components.errors.UnknownSourceError.name">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       UnknownSourceError.name
-      </span>
-     </code>
-    </a>
-   </li>
-  </ul>
- </li>
- <li class="toc-h2 nav-item toc-entry">
-  <a class="reference internal nav-link" href="#datumaro.components.errors.UnknownTargetError">
-   <code class="docutils literal notranslate">
-    <span class="pre">
-     UnknownTargetError
-    </span>
-   </code>
-  </a>
-  <ul class="nav section-nav flex-column">
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.components.errors.UnknownTargetError.name">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       UnknownTargetError.name
-      </span>
-     </code>
-    </a>
-   </li>
-  </ul>
- </li>
- <li class="toc-h2 nav-item toc-entry">
-  <a class="reference internal nav-link" href="#datumaro.components.errors.UnknownFormatError">
-   <code class="docutils literal notranslate">
-    <span class="pre">
-     UnknownFormatError
-    </span>
-   </code>
-  </a>
-  <ul class="nav section-nav flex-column">
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.components.errors.UnknownFormatError.format">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       UnknownFormatError.format
-      </span>
-     </code>
-    </a>
-   </li>
-  </ul>
- </li>
- <li class="toc-h2 nav-item toc-entry">
-  <a class="reference internal nav-link" href="#datumaro.components.errors.SourceExistsError">
-   <code class="docutils literal notranslate">
-    <span class="pre">
-     SourceExistsError
-    </span>
-   </code>
-  </a>
-  <ul class="nav section-nav flex-column">
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.components.errors.SourceExistsError.name">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       SourceExistsError.name
-      </span>
-     </code>
-    </a>
-   </li>
-  </ul>
- </li>
- <li class="toc-h2 nav-item toc-entry">
-  <a class="reference internal nav-link" href="#datumaro.components.errors.DatasetExportError">
-   <code class="docutils literal notranslate">
-    <span class="pre">
-     DatasetExportError
-    </span>
-   </code>
-  </a>
- </li>
- <li class="toc-h2 nav-item toc-entry">
-  <a class="reference internal nav-link" href="#datumaro.components.errors.ItemExportError">
-   <code class="docutils literal notranslate">
-    <span class="pre">
-     ItemExportError
-    </span>
-   </code>
-  </a>
-  <ul class="nav section-nav flex-column">
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.components.errors.ItemExportError.item_id">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       ItemExportError.item_id
-      </span>
-     </code>
-    </a>
-   </li>
-  </ul>
- </li>
- <li class="toc-h2 nav-item toc-entry">
-  <a class="reference internal nav-link" href="#datumaro.components.errors.AnnotationExportError">
-   <code class="docutils literal notranslate">
-    <span class="pre">
-     AnnotationExportError
-    </span>
-   </code>
-  </a>
-  <ul class="nav section-nav flex-column">
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.components.errors.AnnotationExportError.item_id">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       AnnotationExportError.item_id
-      </span>
-     </code>
-    </a>
-   </li>
-  </ul>
- </li>
- <li class="toc-h2 nav-item toc-entry">
-  <a class="reference internal nav-link" href="#datumaro.components.errors.DatasetImportError">
-   <code class="docutils literal notranslate">
-    <span class="pre">
-     DatasetImportError
-    </span>
-   </code>
-  </a>
- </li>
- <li class="toc-h2 nav-item toc-entry">
-  <a class="reference internal nav-link" href="#datumaro.components.errors.InvalidAnnotationError">
-   <code class="docutils literal notranslate">
-    <span class="pre">
-     InvalidAnnotationError
-    </span>
-   </code>
-  </a>
- </li>
- <li class="toc-h2 nav-item toc-entry">
-  <a class="reference internal nav-link" href="#datumaro.components.errors.InvalidFieldError">
-   <code class="docutils literal notranslate">
-    <span class="pre">
-     InvalidFieldError
-    </span>
-   </code>
-  </a>
-  <ul class="nav section-nav flex-column">
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.components.errors.InvalidFieldError.name">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       InvalidFieldError.name
-      </span>
-     </code>
-    </a>
-   </li>
-  </ul>
- </li>
- <li class="toc-h2 nav-item toc-entry">
-  <a class="reference internal nav-link" href="#datumaro.components.errors.InvalidFieldTypeError">
-   <code class="docutils literal notranslate">
-    <span class="pre">
-     InvalidFieldTypeError
-    </span>
-   </code>
-  </a>
-  <ul class="nav section-nav flex-column">
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.components.errors.InvalidFieldTypeError.actual">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       InvalidFieldTypeError.actual
-      </span>
-     </code>
-    </a>
-   </li>
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.components.errors.InvalidFieldTypeError.expected">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       InvalidFieldTypeError.expected
-      </span>
-     </code>
-    </a>
-   </li>
-  </ul>
- </li>
- <li class="toc-h2 nav-item toc-entry">
-  <a class="reference internal nav-link" href="#datumaro.components.errors.MissingFieldError">
-   <code class="docutils literal notranslate">
-    <span class="pre">
-     MissingFieldError
-    </span>
-   </code>
-  </a>
- </li>
- <li class="toc-h2 nav-item toc-entry">
-  <a class="reference internal nav-link" href="#datumaro.components.errors.UndeclaredLabelError">
-   <code class="docutils literal notranslate">
-    <span class="pre">
-     UndeclaredLabelError
-    </span>
-   </code>
-  </a>
-  <ul class="nav section-nav flex-column">
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.components.errors.UndeclaredLabelError.id">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       UndeclaredLabelError.id
-      </span>
-     </code>
-    </a>
-   </li>
-  </ul>
- </li>
- <li class="toc-h2 nav-item toc-entry">
-  <a class="reference internal nav-link" href="#datumaro.components.errors.ItemImportError">
-   <code class="docutils literal notranslate">
-    <span class="pre">
-     ItemImportError
-    </span>
-   </code>
-  </a>
-  <ul class="nav section-nav flex-column">
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.components.errors.ItemImportError.item_id">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       ItemImportError.item_id
-      </span>
-     </code>
-    </a>
-   </li>
-  </ul>
- </li>
- <li class="toc-h2 nav-item toc-entry">
-  <a class="reference internal nav-link" href="#datumaro.components.errors.AnnotationImportError">
-   <code class="docutils literal notranslate">
-    <span class="pre">
-     AnnotationImportError
-    </span>
-   </code>
-  </a>
-  <ul class="nav section-nav flex-column">
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.components.errors.AnnotationImportError.item_id">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       AnnotationImportError.item_id
-      </span>
-     </code>
-    </a>
-   </li>
-  </ul>
- </li>
- <li class="toc-h2 nav-item toc-entry">
-  <a class="reference internal nav-link" href="#datumaro.components.errors.DatasetNotFoundError">
-   <code class="docutils literal notranslate">
-    <span class="pre">
-     DatasetNotFoundError
-    </span>
-   </code>
-  </a>
-  <ul class="nav section-nav flex-column">
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.components.errors.DatasetNotFoundError.path">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       DatasetNotFoundError.path
-      </span>
-     </code>
-    </a>
-   </li>
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.components.errors.DatasetNotFoundError.format">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       DatasetNotFoundError.format
-      </span>
-     </code>
-    </a>
-   </li>
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.components.errors.DatasetNotFoundError.template">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       DatasetNotFoundError.template
-      </span>
-     </code>
-    </a>
-   </li>
-  </ul>
- </li>
- <li class="toc-h2 nav-item toc-entry">
-  <a class="reference internal nav-link" href="#datumaro.components.errors.MultipleFormatsMatchError">
-   <code class="docutils literal notranslate">
-    <span class="pre">
-     MultipleFormatsMatchError
-    </span>
-   </code>
-  </a>
-  <ul class="nav section-nav flex-column">
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.components.errors.MultipleFormatsMatchError.formats">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       MultipleFormatsMatchError.formats
-      </span>
-     </code>
-    </a>
-   </li>
-  </ul>
- </li>
- <li class="toc-h2 nav-item toc-entry">
-  <a class="reference internal nav-link" href="#datumaro.components.errors.NoMatchingFormatsError">
-   <code class="docutils literal notranslate">
-    <span class="pre">
-     NoMatchingFormatsError
-    </span>
-   </code>
-  </a>
- </li>
- <li class="toc-h2 nav-item toc-entry">
-  <a class="reference internal nav-link" href="#datumaro.components.errors.DatasetError">
-   <code class="docutils literal notranslate">
-    <span class="pre">
-     DatasetError
-    </span>
-   </code>
-  </a>
- </li>
- <li class="toc-h2 nav-item toc-entry">
-  <a class="reference internal nav-link" href="#datumaro.components.errors.MediaTypeError">
-   <code class="docutils literal notranslate">
-    <span class="pre">
-     MediaTypeError
-    </span>
-   </code>
-  </a>
- </li>
- <li class="toc-h2 nav-item toc-entry">
-  <a class="reference internal nav-link" href="#datumaro.components.errors.MediaShapeError">
-   <code class="docutils literal notranslate">
-    <span class="pre">
-     MediaShapeError
-    </span>
-   </code>
-  </a>
- </li>
- <li class="toc-h2 nav-item toc-entry">
-  <a class="reference internal nav-link" href="#datumaro.components.errors.DatasetInfosRedefinedError">
-   <code class="docutils literal notranslate">
-    <span class="pre">
-     DatasetInfosRedefinedError
-    </span>
-   </code>
-  </a>
- </li>
- <li class="toc-h2 nav-item toc-entry">
-  <a class="reference internal nav-link" href="#datumaro.components.errors.CategoriesRedefinedError">
-   <code class="docutils literal notranslate">
-    <span class="pre">
-     CategoriesRedefinedError
-    </span>
-   </code>
-  </a>
- </li>
- <li class="toc-h2 nav-item toc-entry">
-  <a class="reference internal nav-link" href="#datumaro.components.errors.RepeatedItemError">
-   <code class="docutils literal notranslate">
-    <span class="pre">
-     RepeatedItemError
-    </span>
-   </code>
-  </a>
-  <ul class="nav section-nav flex-column">
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.components.errors.RepeatedItemError.item_id">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       RepeatedItemError.item_id
-      </span>
-     </code>
-    </a>
-   </li>
-  </ul>
- </li>
- <li class="toc-h2 nav-item toc-entry">
-  <a class="reference internal nav-link" href="#datumaro.components.errors.DatasetQualityError">
-   <code class="docutils literal notranslate">
-    <span class="pre">
-     DatasetQualityError
-    </span>
-   </code>
-  </a>
- </li>
- <li class="toc-h2 nav-item toc-entry">
-  <a class="reference internal nav-link" href="#datumaro.components.errors.AnnotationsTooCloseError">
-   <code class="docutils literal notranslate">
-    <span class="pre">
-     AnnotationsTooCloseError
-    </span>
-   </code>
-  </a>
-  <ul class="nav section-nav flex-column">
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.components.errors.AnnotationsTooCloseError.item_id">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       AnnotationsTooCloseError.item_id
-      </span>
-     </code>
-    </a>
-   </li>
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.components.errors.AnnotationsTooCloseError.a">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       AnnotationsTooCloseError.a
-      </span>
-     </code>
-    </a>
-   </li>
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.components.errors.AnnotationsTooCloseError.b">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       AnnotationsTooCloseError.b
-      </span>
-     </code>
-    </a>
-   </li>
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.components.errors.AnnotationsTooCloseError.distance">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       AnnotationsTooCloseError.distance
-      </span>
-     </code>
-    </a>
-   </li>
-  </ul>
- </li>
- <li class="toc-h2 nav-item toc-entry">
-  <a class="reference internal nav-link" href="#datumaro.components.errors.WrongGroupError">
-   <code class="docutils literal notranslate">
-    <span class="pre">
-     WrongGroupError
-    </span>
-   </code>
-  </a>
-  <ul class="nav section-nav flex-column">
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.components.errors.WrongGroupError.item_id">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       WrongGroupError.item_id
-      </span>
-     </code>
-    </a>
-   </li>
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.components.errors.WrongGroupError.found">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       WrongGroupError.found
-      </span>
-     </code>
-    </a>
-   </li>
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.components.errors.WrongGroupError.expected">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       WrongGroupError.expected
-      </span>
-     </code>
-    </a>
-   </li>
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.components.errors.WrongGroupError.group">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       WrongGroupError.group
-      </span>
-     </code>
-    </a>
-   </li>
-  </ul>
- </li>
- <li class="toc-h2 nav-item toc-entry">
-  <a class="reference internal nav-link" href="#datumaro.components.errors.DatasetMergeError">
-   <code class="docutils literal notranslate">
-    <span class="pre">
-     DatasetMergeError
-    </span>
-   </code>
-  </a>
-  <ul class="nav section-nav flex-column">
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.components.errors.DatasetMergeError.sources">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       DatasetMergeError.sources
-      </span>
-     </code>
-    </a>
-   </li>
-  </ul>
- </li>
- <li class="toc-h2 nav-item toc-entry">
-  <a class="reference internal nav-link" href="#datumaro.components.errors.MismatchingImageInfoError">
-   <code class="docutils literal notranslate">
-    <span class="pre">
-     MismatchingImageInfoError
-    </span>
-   </code>
-  </a>
-  <ul class="nav section-nav flex-column">
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.components.errors.MismatchingImageInfoError.item_id">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       MismatchingImageInfoError.item_id
-      </span>
-     </code>
-    </a>
-   </li>
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.components.errors.MismatchingImageInfoError.a">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       MismatchingImageInfoError.a
-      </span>
-     </code>
-    </a>
-   </li>
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.components.errors.MismatchingImageInfoError.b">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       MismatchingImageInfoError.b
-      </span>
-     </code>
-    </a>
-   </li>
-  </ul>
- </li>
- <li class="toc-h2 nav-item toc-entry">
-  <a class="reference internal nav-link" href="#datumaro.components.errors.MismatchingMediaPathError">
-   <code class="docutils literal notranslate">
-    <span class="pre">
-     MismatchingMediaPathError
-    </span>
-   </code>
-  </a>
-  <ul class="nav section-nav flex-column">
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.components.errors.MismatchingMediaPathError.item_id">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       MismatchingMediaPathError.item_id
-      </span>
-     </code>
-    </a>
-   </li>
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.components.errors.MismatchingMediaPathError.a">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       MismatchingMediaPathError.a
-      </span>
-     </code>
-    </a>
-   </li>
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.components.errors.MismatchingMediaPathError.b">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       MismatchingMediaPathError.b
-      </span>
-     </code>
-    </a>
-   </li>
-  </ul>
- </li>
- <li class="toc-h2 nav-item toc-entry">
-  <a class="reference internal nav-link" href="#datumaro.components.errors.MismatchingMediaError">
-   <code class="docutils literal notranslate">
-    <span class="pre">
-     MismatchingMediaError
-    </span>
-   </code>
-  </a>
-  <ul class="nav section-nav flex-column">
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.components.errors.MismatchingMediaError.item_id">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       MismatchingMediaError.item_id
-      </span>
-     </code>
-    </a>
-   </li>
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.components.errors.MismatchingMediaError.a">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       MismatchingMediaError.a
-      </span>
-     </code>
-    </a>
-   </li>
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.components.errors.MismatchingMediaError.b">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       MismatchingMediaError.b
-      </span>
-     </code>
-    </a>
-   </li>
-  </ul>
- </li>
- <li class="toc-h2 nav-item toc-entry">
-  <a class="reference internal nav-link" href="#datumaro.components.errors.MismatchingAttributesError">
-   <code class="docutils literal notranslate">
-    <span class="pre">
-     MismatchingAttributesError
-    </span>
-   </code>
-  </a>
-  <ul class="nav section-nav flex-column">
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.components.errors.MismatchingAttributesError.item_id">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       MismatchingAttributesError.item_id
-      </span>
-     </code>
-    </a>
-   </li>
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.components.errors.MismatchingAttributesError.key">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       MismatchingAttributesError.key
-      </span>
-     </code>
-    </a>
-   </li>
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.components.errors.MismatchingAttributesError.a">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       MismatchingAttributesError.a
-      </span>
-     </code>
-    </a>
-   </li>
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.components.errors.MismatchingAttributesError.b">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       MismatchingAttributesError.b
-      </span>
-     </code>
-    </a>
-   </li>
-  </ul>
- </li>
- <li class="toc-h2 nav-item toc-entry">
-  <a class="reference internal nav-link" href="#datumaro.components.errors.ConflictingCategoriesError">
-   <code class="docutils literal notranslate">
-    <span class="pre">
-     ConflictingCategoriesError
-    </span>
-   </code>
-  </a>
-  <ul class="nav section-nav flex-column">
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.components.errors.ConflictingCategoriesError.sources">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       ConflictingCategoriesError.sources
-      </span>
-     </code>
-    </a>
-   </li>
-  </ul>
- </li>
- <li class="toc-h2 nav-item toc-entry">
-  <a class="reference internal nav-link" href="#datumaro.components.errors.NoMatchingAnnError">
-   <code class="docutils literal notranslate">
-    <span class="pre">
-     NoMatchingAnnError
-    </span>
-   </code>
-  </a>
-  <ul class="nav section-nav flex-column">
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.components.errors.NoMatchingAnnError.item_id">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       NoMatchingAnnError.item_id
-      </span>
-     </code>
-    </a>
-   </li>
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.components.errors.NoMatchingAnnError.ann">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       NoMatchingAnnError.ann
-      </span>
-     </code>
-    </a>
-   </li>
-  </ul>
- </li>
- <li class="toc-h2 nav-item toc-entry">
-  <a class="reference internal nav-link" href="#datumaro.components.errors.NoMatchingItemError">
-   <code class="docutils literal notranslate">
-    <span class="pre">
-     NoMatchingItemError
-    </span>
-   </code>
-  </a>
-  <ul class="nav section-nav flex-column">
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.components.errors.NoMatchingItemError.item_id">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       NoMatchingItemError.item_id
-      </span>
-     </code>
-    </a>
-   </li>
-  </ul>
- </li>
- <li class="toc-h2 nav-item toc-entry">
-  <a class="reference internal nav-link" href="#datumaro.components.errors.FailedLabelVotingError">
-   <code class="docutils literal notranslate">
-    <span class="pre">
-     FailedLabelVotingError
-    </span>
-   </code>
-  </a>
-  <ul class="nav section-nav flex-column">
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.components.errors.FailedLabelVotingError.item_id">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       FailedLabelVotingError.item_id
-      </span>
-     </code>
-    </a>
-   </li>
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.components.errors.FailedLabelVotingError.votes">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       FailedLabelVotingError.votes
-      </span>
-     </code>
-    </a>
-   </li>
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.components.errors.FailedLabelVotingError.ann">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       FailedLabelVotingError.ann
-      </span>
-     </code>
-    </a>
-   </li>
-  </ul>
- </li>
- <li class="toc-h2 nav-item toc-entry">
-  <a class="reference internal nav-link" href="#datumaro.components.errors.FailedAttrVotingError">
-   <code class="docutils literal notranslate">
-    <span class="pre">
-     FailedAttrVotingError
-    </span>
-   </code>
-  </a>
-  <ul class="nav section-nav flex-column">
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.components.errors.FailedAttrVotingError.item_id">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       FailedAttrVotingError.item_id
-      </span>
-     </code>
-    </a>
-   </li>
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.components.errors.FailedAttrVotingError.attr">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       FailedAttrVotingError.attr
-      </span>
-     </code>
-    </a>
-   </li>
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.components.errors.FailedAttrVotingError.votes">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       FailedAttrVotingError.votes
-      </span>
-     </code>
-    </a>
-   </li>
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.components.errors.FailedAttrVotingError.ann">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       FailedAttrVotingError.ann
-      </span>
-     </code>
-    </a>
-   </li>
-  </ul>
- </li>
- <li class="toc-h2 nav-item toc-entry">
-  <a class="reference internal nav-link" href="#datumaro.components.errors.VideoMergeError">
-   <code class="docutils literal notranslate">
-    <span class="pre">
-     VideoMergeError
-    </span>
-   </code>
-  </a>
-  <ul class="nav section-nav flex-column">
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.components.errors.VideoMergeError.item_id">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       VideoMergeError.item_id
-      </span>
-     </code>
-    </a>
-   </li>
-  </ul>
- </li>
- <li class="toc-h2 nav-item toc-entry">
-  <a class="reference internal nav-link" href="#datumaro.components.errors.DatasetValidationError">
-   <code class="docutils literal notranslate">
-    <span class="pre">
-     DatasetValidationError
-    </span>
-   </code>
-  </a>
-  <ul class="nav section-nav flex-column">
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.components.errors.DatasetValidationError.severity">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       DatasetValidationError.severity
-      </span>
-     </code>
-    </a>
-   </li>
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.components.errors.DatasetValidationError.to_dict">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       DatasetValidationError.to_dict()
-      </span>
-     </code>
-    </a>
-   </li>
-  </ul>
- </li>
- <li class="toc-h2 nav-item toc-entry">
-  <a class="reference internal nav-link" href="#datumaro.components.errors.DatasetItemValidationError">
-   <code class="docutils literal notranslate">
-    <span class="pre">
-     DatasetItemValidationError
-    </span>
-   </code>
-  </a>
-  <ul class="nav section-nav flex-column">
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.components.errors.DatasetItemValidationError.item_id">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       DatasetItemValidationError.item_id
-      </span>
-     </code>
-    </a>
-   </li>
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.components.errors.DatasetItemValidationError.subset">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       DatasetItemValidationError.subset
-      </span>
-     </code>
-    </a>
-   </li>
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.components.errors.DatasetItemValidationError.to_dict">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       DatasetItemValidationError.to_dict()
-      </span>
-     </code>
-    </a>
-   </li>
-  </ul>
- </li>
- <li class="toc-h2 nav-item toc-entry">
-  <a class="reference internal nav-link" href="#datumaro.components.errors.MissingLabelCategories">
-   <code class="docutils literal notranslate">
-    <span class="pre">
-     MissingLabelCategories
-    </span>
-   </code>
-  </a>
- </li>
- <li class="toc-h2 nav-item toc-entry">
-  <a class="reference internal nav-link" href="#datumaro.components.errors.MissingAnnotation">
-   <code class="docutils literal notranslate">
-    <span class="pre">
-     MissingAnnotation
-    </span>
-   </code>
-  </a>
-  <ul class="nav section-nav flex-column">
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.components.errors.MissingAnnotation.ann_type">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       MissingAnnotation.ann_type
-      </span>
-     </code>
-    </a>
-   </li>
-  </ul>
- </li>
- <li class="toc-h2 nav-item toc-entry">
-  <a class="reference internal nav-link" href="#datumaro.components.errors.MultiLabelAnnotations">
-   <code class="docutils literal notranslate">
-    <span class="pre">
-     MultiLabelAnnotations
-    </span>
-   </code>
-  </a>
- </li>
- <li class="toc-h2 nav-item toc-entry">
-  <a class="reference internal nav-link" href="#datumaro.components.errors.MissingAttribute">
-   <code class="docutils literal notranslate">
-    <span class="pre">
-     MissingAttribute
-    </span>
-   </code>
-  </a>
-  <ul class="nav section-nav flex-column">
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.components.errors.MissingAttribute.label_name">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       MissingAttribute.label_name
-      </span>
-     </code>
-    </a>
-   </li>
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.components.errors.MissingAttribute.attr_name">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       MissingAttribute.attr_name
-      </span>
-     </code>
-    </a>
-   </li>
-  </ul>
- </li>
- <li class="toc-h2 nav-item toc-entry">
-  <a class="reference internal nav-link" href="#datumaro.components.errors.UndefinedLabel">
-   <code class="docutils literal notranslate">
-    <span class="pre">
-     UndefinedLabel
-    </span>
-   </code>
-  </a>
-  <ul class="nav section-nav flex-column">
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.components.errors.UndefinedLabel.label_name">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       UndefinedLabel.label_name
-      </span>
-     </code>
-    </a>
-   </li>
-  </ul>
- </li>
- <li class="toc-h2 nav-item toc-entry">
-  <a class="reference internal nav-link" href="#datumaro.components.errors.UndefinedAttribute">
-   <code class="docutils literal notranslate">
-    <span class="pre">
-     UndefinedAttribute
-    </span>
-   </code>
-  </a>
-  <ul class="nav section-nav flex-column">
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.components.errors.UndefinedAttribute.label_name">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       UndefinedAttribute.label_name
-      </span>
-     </code>
-    </a>
-   </li>
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.components.errors.UndefinedAttribute.attr_name">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       UndefinedAttribute.attr_name
-      </span>
-     </code>
-    </a>
-   </li>
-  </ul>
- </li>
- <li class="toc-h2 nav-item toc-entry">
-  <a class="reference internal nav-link" href="#datumaro.components.errors.LabelDefinedButNotFound">
-   <code class="docutils literal notranslate">
-    <span class="pre">
-     LabelDefinedButNotFound
-    </span>
-   </code>
-  </a>
-  <ul class="nav section-nav flex-column">
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.components.errors.LabelDefinedButNotFound.label_name">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       LabelDefinedButNotFound.label_name
-      </span>
-     </code>
-    </a>
-   </li>
-  </ul>
- </li>
- <li class="toc-h2 nav-item toc-entry">
-  <a class="reference internal nav-link" href="#datumaro.components.errors.AttributeDefinedButNotFound">
-   <code class="docutils literal notranslate">
-    <span class="pre">
-     AttributeDefinedButNotFound
-    </span>
-   </code>
-  </a>
-  <ul class="nav section-nav flex-column">
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.components.errors.AttributeDefinedButNotFound.label_name">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       AttributeDefinedButNotFound.label_name
-      </span>
-     </code>
-    </a>
-   </li>
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.components.errors.AttributeDefinedButNotFound.attr_name">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       AttributeDefinedButNotFound.attr_name
-      </span>
-     </code>
-    </a>
-   </li>
-  </ul>
- </li>
- <li class="toc-h2 nav-item toc-entry">
-  <a class="reference internal nav-link" href="#datumaro.components.errors.OnlyOneLabel">
-   <code class="docutils literal notranslate">
-    <span class="pre">
-     OnlyOneLabel
-    </span>
-   </code>
-  </a>
-  <ul class="nav section-nav flex-column">
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.components.errors.OnlyOneLabel.label_name">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       OnlyOneLabel.label_name
-      </span>
-     </code>
-    </a>
-   </li>
-  </ul>
- </li>
- <li class="toc-h2 nav-item toc-entry">
-  <a class="reference internal nav-link" href="#datumaro.components.errors.OnlyOneAttributeValue">
-   <code class="docutils literal notranslate">
-    <span class="pre">
-     OnlyOneAttributeValue
-    </span>
-   </code>
-  </a>
-  <ul class="nav section-nav flex-column">
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.components.errors.OnlyOneAttributeValue.label_name">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       OnlyOneAttributeValue.label_name
-      </span>
-     </code>
-    </a>
-   </li>
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.components.errors.OnlyOneAttributeValue.attr_name">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       OnlyOneAttributeValue.attr_name
-      </span>
-     </code>
-    </a>
-   </li>
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.components.errors.OnlyOneAttributeValue.value">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       OnlyOneAttributeValue.value
-      </span>
-     </code>
-    </a>
-   </li>
-  </ul>
- </li>
- <li class="toc-h2 nav-item toc-entry">
-  <a class="reference internal nav-link" href="#datumaro.components.errors.FewSamplesInLabel">
-   <code class="docutils literal notranslate">
-    <span class="pre">
-     FewSamplesInLabel
-    </span>
-   </code>
-  </a>
-  <ul class="nav section-nav flex-column">
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.components.errors.FewSamplesInLabel.label_name">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       FewSamplesInLabel.label_name
-      </span>
-     </code>
-    </a>
-   </li>
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.components.errors.FewSamplesInLabel.count">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       FewSamplesInLabel.count
-      </span>
-     </code>
-    </a>
-   </li>
-  </ul>
- </li>
- <li class="toc-h2 nav-item toc-entry">
-  <a class="reference internal nav-link" href="#datumaro.components.errors.FewSamplesInAttribute">
-   <code class="docutils literal notranslate">
-    <span class="pre">
-     FewSamplesInAttribute
-    </span>
-   </code>
-  </a>
-  <ul class="nav section-nav flex-column">
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.components.errors.FewSamplesInAttribute.label_name">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       FewSamplesInAttribute.label_name
-      </span>
-     </code>
-    </a>
-   </li>
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.components.errors.FewSamplesInAttribute.attr_name">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       FewSamplesInAttribute.attr_name
-      </span>
-     </code>
-    </a>
-   </li>
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.components.errors.FewSamplesInAttribute.attr_value">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       FewSamplesInAttribute.attr_value
-      </span>
-     </code>
-    </a>
-   </li>
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.components.errors.FewSamplesInAttribute.count">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       FewSamplesInAttribute.count
-      </span>
-     </code>
-    </a>
-   </li>
-  </ul>
- </li>
- <li class="toc-h2 nav-item toc-entry">
-  <a class="reference internal nav-link" href="#datumaro.components.errors.ImbalancedLabels">
-   <code class="docutils literal notranslate">
-    <span class="pre">
-     ImbalancedLabels
-    </span>
-   </code>
-  </a>
- </li>
- <li class="toc-h2 nav-item toc-entry">
-  <a class="reference internal nav-link" href="#datumaro.components.errors.ImbalancedAttribute">
-   <code class="docutils literal notranslate">
-    <span class="pre">
-     ImbalancedAttribute
-    </span>
-   </code>
-  </a>
-  <ul class="nav section-nav flex-column">
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.components.errors.ImbalancedAttribute.label_name">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       ImbalancedAttribute.label_name
-      </span>
-     </code>
-    </a>
-   </li>
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.components.errors.ImbalancedAttribute.attr_name">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       ImbalancedAttribute.attr_name
-      </span>
-     </code>
-    </a>
-   </li>
-  </ul>
- </li>
- <li class="toc-h2 nav-item toc-entry">
-  <a class="reference internal nav-link" href="#datumaro.components.errors.ImbalancedDistInLabel">
-   <code class="docutils literal notranslate">
-    <span class="pre">
-     ImbalancedDistInLabel
-    </span>
-   </code>
-  </a>
-  <ul class="nav section-nav flex-column">
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.components.errors.ImbalancedDistInLabel.label_name">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       ImbalancedDistInLabel.label_name
-      </span>
-     </code>
-    </a>
-   </li>
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.components.errors.ImbalancedDistInLabel.prop">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       ImbalancedDistInLabel.prop
-      </span>
-     </code>
-    </a>
-   </li>
-  </ul>
- </li>
- <li class="toc-h2 nav-item toc-entry">
-  <a class="reference internal nav-link" href="#datumaro.components.errors.ImbalancedDistInAttribute">
-   <code class="docutils literal notranslate">
-    <span class="pre">
-     ImbalancedDistInAttribute
-    </span>
-   </code>
-  </a>
-  <ul class="nav section-nav flex-column">
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.components.errors.ImbalancedDistInAttribute.label_name">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       ImbalancedDistInAttribute.label_name
-      </span>
-     </code>
-    </a>
-   </li>
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.components.errors.ImbalancedDistInAttribute.attr_name">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       ImbalancedDistInAttribute.attr_name
-      </span>
-     </code>
-    </a>
-   </li>
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.components.errors.ImbalancedDistInAttribute.attr_value">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       ImbalancedDistInAttribute.attr_value
-      </span>
-     </code>
-    </a>
-   </li>
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.components.errors.ImbalancedDistInAttribute.prop">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       ImbalancedDistInAttribute.prop
-      </span>
-     </code>
-    </a>
-   </li>
-  </ul>
- </li>
- <li class="toc-h2 nav-item toc-entry">
-  <a class="reference internal nav-link" href="#datumaro.components.errors.NegativeLength">
-   <code class="docutils literal notranslate">
-    <span class="pre">
-     NegativeLength
-    </span>
-   </code>
-  </a>
-  <ul class="nav section-nav flex-column">
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.components.errors.NegativeLength.ann_id">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       NegativeLength.ann_id
-      </span>
-     </code>
-    </a>
-   </li>
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.components.errors.NegativeLength.prop">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       NegativeLength.prop
-      </span>
-     </code>
-    </a>
-   </li>
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.components.errors.NegativeLength.val">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       NegativeLength.val
-      </span>
-     </code>
-    </a>
-   </li>
-  </ul>
- </li>
- <li class="toc-h2 nav-item toc-entry">
-  <a class="reference internal nav-link" href="#datumaro.components.errors.InvalidValue">
-   <code class="docutils literal notranslate">
-    <span class="pre">
-     InvalidValue
-    </span>
-   </code>
-  </a>
-  <ul class="nav section-nav flex-column">
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.components.errors.InvalidValue.ann_id">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       InvalidValue.ann_id
-      </span>
-     </code>
-    </a>
-   </li>
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.components.errors.InvalidValue.prop">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       InvalidValue.prop
-      </span>
-     </code>
-    </a>
-   </li>
-  </ul>
- </li>
- <li class="toc-h2 nav-item toc-entry">
-  <a class="reference internal nav-link" href="#datumaro.components.errors.FarFromLabelMean">
-   <code class="docutils literal notranslate">
-    <span class="pre">
-     FarFromLabelMean
-    </span>
-   </code>
-  </a>
-  <ul class="nav section-nav flex-column">
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.components.errors.FarFromLabelMean.label_name">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       FarFromLabelMean.label_name
-      </span>
-     </code>
-    </a>
-   </li>
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.components.errors.FarFromLabelMean.ann_id">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       FarFromLabelMean.ann_id
-      </span>
-     </code>
-    </a>
-   </li>
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.components.errors.FarFromLabelMean.prop">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       FarFromLabelMean.prop
-      </span>
-     </code>
-    </a>
-   </li>
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.components.errors.FarFromLabelMean.mean">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       FarFromLabelMean.mean
-      </span>
-     </code>
-    </a>
-   </li>
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.components.errors.FarFromLabelMean.val">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       FarFromLabelMean.val
-      </span>
-     </code>
-    </a>
-   </li>
-  </ul>
- </li>
- <li class="toc-h2 nav-item toc-entry">
-  <a class="reference internal nav-link" href="#datumaro.components.errors.FarFromAttrMean">
-   <code class="docutils literal notranslate">
-    <span class="pre">
-     FarFromAttrMean
-    </span>
-   </code>
-  </a>
-  <ul class="nav section-nav flex-column">
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.components.errors.FarFromAttrMean.label_name">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       FarFromAttrMean.label_name
-      </span>
-     </code>
-    </a>
-   </li>
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.components.errors.FarFromAttrMean.ann_id">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       FarFromAttrMean.ann_id
-      </span>
-     </code>
-    </a>
-   </li>
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.components.errors.FarFromAttrMean.attr_name">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       FarFromAttrMean.attr_name
-      </span>
-     </code>
-    </a>
-   </li>
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.components.errors.FarFromAttrMean.attr_value">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       FarFromAttrMean.attr_value
-      </span>
-     </code>
-    </a>
-   </li>
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.components.errors.FarFromAttrMean.prop">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       FarFromAttrMean.prop
-      </span>
-     </code>
-    </a>
-   </li>
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.components.errors.FarFromAttrMean.mean">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       FarFromAttrMean.mean
-      </span>
-     </code>
-    </a>
-   </li>
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.components.errors.FarFromAttrMean.val">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       FarFromAttrMean.val
-      </span>
-     </code>
-    </a>
-   </li>
-  </ul>
- </li>
- <li class="toc-h2 nav-item toc-entry">
-  <a class="reference internal nav-link" href="#datumaro.components.errors.StreamedItemError">
-   <code class="docutils literal notranslate">
-    <span class="pre">
-     StreamedItemError
-    </span>
-   </code>
-  </a>
- </li>
-</ul>
-
-</nav>
-</div>
-
-<div class="toc-item">
-  
-<div id="searchbox"></div>
-</div>
-
-<div class="toc-item">
-  
-</div>
-
-<div class="toc-item">
-  
-<div class="tocsection sourcelink">
-    <a href="../../../_sources/docs/reference/_autosummary/datumaro.components.errors.rst.txt">
-        <i class="fa-solid fa-file-lines"></i> Show Source
-    </a>
-</div>
-
-</div>
-
             </div>
-          
-          
-        </div>
-        <footer class="bd-footer-content">
-          <div class="bd-footer-content__inner">
+            
+            
+              
+                <div class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+<div
+    id="pst-page-navigation-heading-2"
+    class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> On this page
+  </div>
+  <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.errors.ImmutableObjectError"><code class="docutils literal notranslate"><span class="pre">ImmutableObjectError</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.errors.DatumaroError"><code class="docutils literal notranslate"><span class="pre">DatumaroError</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.errors.VcsError"><code class="docutils literal notranslate"><span class="pre">VcsError</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.errors.ReadonlyDatasetError"><code class="docutils literal notranslate"><span class="pre">ReadonlyDatasetError</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.errors.ReadonlyProjectError"><code class="docutils literal notranslate"><span class="pre">ReadonlyProjectError</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.errors.UnknownRefError"><code class="docutils literal notranslate"><span class="pre">UnknownRefError</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.errors.UnknownRefError.ref"><code class="docutils literal notranslate"><span class="pre">UnknownRefError.ref</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.errors.MissingObjectError"><code class="docutils literal notranslate"><span class="pre">MissingObjectError</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.errors.MismatchingObjectError"><code class="docutils literal notranslate"><span class="pre">MismatchingObjectError</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.errors.UnsavedChangesError"><code class="docutils literal notranslate"><span class="pre">UnsavedChangesError</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.errors.UnsavedChangesError.paths"><code class="docutils literal notranslate"><span class="pre">UnsavedChangesError.paths</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.errors.ForeignChangesError"><code class="docutils literal notranslate"><span class="pre">ForeignChangesError</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.errors.EmptyCommitError"><code class="docutils literal notranslate"><span class="pre">EmptyCommitError</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.errors.PathOutsideSourceError"><code class="docutils literal notranslate"><span class="pre">PathOutsideSourceError</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.errors.SourceUrlInsideProjectError"><code class="docutils literal notranslate"><span class="pre">SourceUrlInsideProjectError</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.errors.UnexpectedUrlError"><code class="docutils literal notranslate"><span class="pre">UnexpectedUrlError</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.errors.MissingSourceHashError"><code class="docutils literal notranslate"><span class="pre">MissingSourceHashError</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.errors.PipelineError"><code class="docutils literal notranslate"><span class="pre">PipelineError</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.errors.InvalidPipelineError"><code class="docutils literal notranslate"><span class="pre">InvalidPipelineError</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.errors.EmptyPipelineError"><code class="docutils literal notranslate"><span class="pre">EmptyPipelineError</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.errors.MultiplePipelineHeadsError"><code class="docutils literal notranslate"><span class="pre">MultiplePipelineHeadsError</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.errors.MissingPipelineHeadError"><code class="docutils literal notranslate"><span class="pre">MissingPipelineHeadError</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.errors.InvalidStageError"><code class="docutils literal notranslate"><span class="pre">InvalidStageError</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.errors.UnknownStageError"><code class="docutils literal notranslate"><span class="pre">UnknownStageError</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.errors.MigrationError"><code class="docutils literal notranslate"><span class="pre">MigrationError</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.errors.OldProjectError"><code class="docutils literal notranslate"><span class="pre">OldProjectError</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.errors.NotAvailableError"><code class="docutils literal notranslate"><span class="pre">NotAvailableError</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.errors.ProjectNotFoundError"><code class="docutils literal notranslate"><span class="pre">ProjectNotFoundError</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.errors.ProjectNotFoundError.path"><code class="docutils literal notranslate"><span class="pre">ProjectNotFoundError.path</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.errors.ProjectAlreadyExists"><code class="docutils literal notranslate"><span class="pre">ProjectAlreadyExists</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.errors.ProjectAlreadyExists.path"><code class="docutils literal notranslate"><span class="pre">ProjectAlreadyExists.path</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.errors.VcsAlreadyExists"><code class="docutils literal notranslate"><span class="pre">VcsAlreadyExists</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.errors.VcsAlreadyExists.path"><code class="docutils literal notranslate"><span class="pre">VcsAlreadyExists.path</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.errors.UnknownSourceError"><code class="docutils literal notranslate"><span class="pre">UnknownSourceError</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.errors.UnknownSourceError.name"><code class="docutils literal notranslate"><span class="pre">UnknownSourceError.name</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.errors.UnknownTargetError"><code class="docutils literal notranslate"><span class="pre">UnknownTargetError</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.errors.UnknownTargetError.name"><code class="docutils literal notranslate"><span class="pre">UnknownTargetError.name</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.errors.UnknownFormatError"><code class="docutils literal notranslate"><span class="pre">UnknownFormatError</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.errors.UnknownFormatError.format"><code class="docutils literal notranslate"><span class="pre">UnknownFormatError.format</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.errors.SourceExistsError"><code class="docutils literal notranslate"><span class="pre">SourceExistsError</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.errors.SourceExistsError.name"><code class="docutils literal notranslate"><span class="pre">SourceExistsError.name</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.errors.DatasetExportError"><code class="docutils literal notranslate"><span class="pre">DatasetExportError</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.errors.ItemExportError"><code class="docutils literal notranslate"><span class="pre">ItemExportError</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.errors.ItemExportError.item_id"><code class="docutils literal notranslate"><span class="pre">ItemExportError.item_id</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.errors.AnnotationExportError"><code class="docutils literal notranslate"><span class="pre">AnnotationExportError</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.errors.AnnotationExportError.item_id"><code class="docutils literal notranslate"><span class="pre">AnnotationExportError.item_id</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.errors.DatasetImportError"><code class="docutils literal notranslate"><span class="pre">DatasetImportError</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.errors.InvalidAnnotationError"><code class="docutils literal notranslate"><span class="pre">InvalidAnnotationError</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.errors.InvalidFieldError"><code class="docutils literal notranslate"><span class="pre">InvalidFieldError</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.errors.InvalidFieldError.name"><code class="docutils literal notranslate"><span class="pre">InvalidFieldError.name</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.errors.InvalidFieldTypeError"><code class="docutils literal notranslate"><span class="pre">InvalidFieldTypeError</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.errors.InvalidFieldTypeError.actual"><code class="docutils literal notranslate"><span class="pre">InvalidFieldTypeError.actual</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.errors.InvalidFieldTypeError.expected"><code class="docutils literal notranslate"><span class="pre">InvalidFieldTypeError.expected</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.errors.MissingFieldError"><code class="docutils literal notranslate"><span class="pre">MissingFieldError</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.errors.UndeclaredLabelError"><code class="docutils literal notranslate"><span class="pre">UndeclaredLabelError</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.errors.UndeclaredLabelError.id"><code class="docutils literal notranslate"><span class="pre">UndeclaredLabelError.id</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.errors.ItemImportError"><code class="docutils literal notranslate"><span class="pre">ItemImportError</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.errors.ItemImportError.item_id"><code class="docutils literal notranslate"><span class="pre">ItemImportError.item_id</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.errors.AnnotationImportError"><code class="docutils literal notranslate"><span class="pre">AnnotationImportError</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.errors.AnnotationImportError.item_id"><code class="docutils literal notranslate"><span class="pre">AnnotationImportError.item_id</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.errors.DatasetNotFoundError"><code class="docutils literal notranslate"><span class="pre">DatasetNotFoundError</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.errors.DatasetNotFoundError.path"><code class="docutils literal notranslate"><span class="pre">DatasetNotFoundError.path</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.errors.DatasetNotFoundError.format"><code class="docutils literal notranslate"><span class="pre">DatasetNotFoundError.format</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.errors.DatasetNotFoundError.template"><code class="docutils literal notranslate"><span class="pre">DatasetNotFoundError.template</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.errors.MultipleFormatsMatchError"><code class="docutils literal notranslate"><span class="pre">MultipleFormatsMatchError</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.errors.MultipleFormatsMatchError.formats"><code class="docutils literal notranslate"><span class="pre">MultipleFormatsMatchError.formats</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.errors.NoMatchingFormatsError"><code class="docutils literal notranslate"><span class="pre">NoMatchingFormatsError</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.errors.DatasetError"><code class="docutils literal notranslate"><span class="pre">DatasetError</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.errors.MediaTypeError"><code class="docutils literal notranslate"><span class="pre">MediaTypeError</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.errors.MediaShapeError"><code class="docutils literal notranslate"><span class="pre">MediaShapeError</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.errors.DatasetInfosRedefinedError"><code class="docutils literal notranslate"><span class="pre">DatasetInfosRedefinedError</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.errors.CategoriesRedefinedError"><code class="docutils literal notranslate"><span class="pre">CategoriesRedefinedError</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.errors.RepeatedItemError"><code class="docutils literal notranslate"><span class="pre">RepeatedItemError</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.errors.RepeatedItemError.item_id"><code class="docutils literal notranslate"><span class="pre">RepeatedItemError.item_id</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.errors.DatasetQualityError"><code class="docutils literal notranslate"><span class="pre">DatasetQualityError</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.errors.AnnotationsTooCloseError"><code class="docutils literal notranslate"><span class="pre">AnnotationsTooCloseError</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.errors.AnnotationsTooCloseError.item_id"><code class="docutils literal notranslate"><span class="pre">AnnotationsTooCloseError.item_id</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.errors.AnnotationsTooCloseError.a"><code class="docutils literal notranslate"><span class="pre">AnnotationsTooCloseError.a</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.errors.AnnotationsTooCloseError.b"><code class="docutils literal notranslate"><span class="pre">AnnotationsTooCloseError.b</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.errors.AnnotationsTooCloseError.distance"><code class="docutils literal notranslate"><span class="pre">AnnotationsTooCloseError.distance</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.errors.WrongGroupError"><code class="docutils literal notranslate"><span class="pre">WrongGroupError</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.errors.WrongGroupError.item_id"><code class="docutils literal notranslate"><span class="pre">WrongGroupError.item_id</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.errors.WrongGroupError.found"><code class="docutils literal notranslate"><span class="pre">WrongGroupError.found</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.errors.WrongGroupError.expected"><code class="docutils literal notranslate"><span class="pre">WrongGroupError.expected</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.errors.WrongGroupError.group"><code class="docutils literal notranslate"><span class="pre">WrongGroupError.group</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.errors.DatasetMergeError"><code class="docutils literal notranslate"><span class="pre">DatasetMergeError</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.errors.DatasetMergeError.sources"><code class="docutils literal notranslate"><span class="pre">DatasetMergeError.sources</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.errors.MismatchingImageInfoError"><code class="docutils literal notranslate"><span class="pre">MismatchingImageInfoError</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.errors.MismatchingImageInfoError.item_id"><code class="docutils literal notranslate"><span class="pre">MismatchingImageInfoError.item_id</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.errors.MismatchingImageInfoError.a"><code class="docutils literal notranslate"><span class="pre">MismatchingImageInfoError.a</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.errors.MismatchingImageInfoError.b"><code class="docutils literal notranslate"><span class="pre">MismatchingImageInfoError.b</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.errors.MismatchingMediaPathError"><code class="docutils literal notranslate"><span class="pre">MismatchingMediaPathError</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.errors.MismatchingMediaPathError.item_id"><code class="docutils literal notranslate"><span class="pre">MismatchingMediaPathError.item_id</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.errors.MismatchingMediaPathError.a"><code class="docutils literal notranslate"><span class="pre">MismatchingMediaPathError.a</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.errors.MismatchingMediaPathError.b"><code class="docutils literal notranslate"><span class="pre">MismatchingMediaPathError.b</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.errors.MismatchingMediaError"><code class="docutils literal notranslate"><span class="pre">MismatchingMediaError</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.errors.MismatchingMediaError.item_id"><code class="docutils literal notranslate"><span class="pre">MismatchingMediaError.item_id</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.errors.MismatchingMediaError.a"><code class="docutils literal notranslate"><span class="pre">MismatchingMediaError.a</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.errors.MismatchingMediaError.b"><code class="docutils literal notranslate"><span class="pre">MismatchingMediaError.b</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.errors.MismatchingAttributesError"><code class="docutils literal notranslate"><span class="pre">MismatchingAttributesError</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.errors.MismatchingAttributesError.item_id"><code class="docutils literal notranslate"><span class="pre">MismatchingAttributesError.item_id</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.errors.MismatchingAttributesError.key"><code class="docutils literal notranslate"><span class="pre">MismatchingAttributesError.key</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.errors.MismatchingAttributesError.a"><code class="docutils literal notranslate"><span class="pre">MismatchingAttributesError.a</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.errors.MismatchingAttributesError.b"><code class="docutils literal notranslate"><span class="pre">MismatchingAttributesError.b</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.errors.ConflictingCategoriesError"><code class="docutils literal notranslate"><span class="pre">ConflictingCategoriesError</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.errors.ConflictingCategoriesError.sources"><code class="docutils literal notranslate"><span class="pre">ConflictingCategoriesError.sources</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.errors.NoMatchingAnnError"><code class="docutils literal notranslate"><span class="pre">NoMatchingAnnError</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.errors.NoMatchingAnnError.item_id"><code class="docutils literal notranslate"><span class="pre">NoMatchingAnnError.item_id</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.errors.NoMatchingAnnError.ann"><code class="docutils literal notranslate"><span class="pre">NoMatchingAnnError.ann</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.errors.NoMatchingItemError"><code class="docutils literal notranslate"><span class="pre">NoMatchingItemError</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.errors.NoMatchingItemError.item_id"><code class="docutils literal notranslate"><span class="pre">NoMatchingItemError.item_id</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.errors.FailedLabelVotingError"><code class="docutils literal notranslate"><span class="pre">FailedLabelVotingError</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.errors.FailedLabelVotingError.item_id"><code class="docutils literal notranslate"><span class="pre">FailedLabelVotingError.item_id</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.errors.FailedLabelVotingError.votes"><code class="docutils literal notranslate"><span class="pre">FailedLabelVotingError.votes</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.errors.FailedLabelVotingError.ann"><code class="docutils literal notranslate"><span class="pre">FailedLabelVotingError.ann</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.errors.FailedAttrVotingError"><code class="docutils literal notranslate"><span class="pre">FailedAttrVotingError</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.errors.FailedAttrVotingError.item_id"><code class="docutils literal notranslate"><span class="pre">FailedAttrVotingError.item_id</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.errors.FailedAttrVotingError.attr"><code class="docutils literal notranslate"><span class="pre">FailedAttrVotingError.attr</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.errors.FailedAttrVotingError.votes"><code class="docutils literal notranslate"><span class="pre">FailedAttrVotingError.votes</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.errors.FailedAttrVotingError.ann"><code class="docutils literal notranslate"><span class="pre">FailedAttrVotingError.ann</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.errors.VideoMergeError"><code class="docutils literal notranslate"><span class="pre">VideoMergeError</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.errors.VideoMergeError.item_id"><code class="docutils literal notranslate"><span class="pre">VideoMergeError.item_id</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.errors.DatasetValidationError"><code class="docutils literal notranslate"><span class="pre">DatasetValidationError</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.errors.DatasetValidationError.severity"><code class="docutils literal notranslate"><span class="pre">DatasetValidationError.severity</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.errors.DatasetValidationError.to_dict"><code class="docutils literal notranslate"><span class="pre">DatasetValidationError.to_dict()</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.errors.DatasetItemValidationError"><code class="docutils literal notranslate"><span class="pre">DatasetItemValidationError</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.errors.DatasetItemValidationError.item_id"><code class="docutils literal notranslate"><span class="pre">DatasetItemValidationError.item_id</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.errors.DatasetItemValidationError.subset"><code class="docutils literal notranslate"><span class="pre">DatasetItemValidationError.subset</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.errors.DatasetItemValidationError.to_dict"><code class="docutils literal notranslate"><span class="pre">DatasetItemValidationError.to_dict()</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.errors.MissingLabelCategories"><code class="docutils literal notranslate"><span class="pre">MissingLabelCategories</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.errors.MissingAnnotation"><code class="docutils literal notranslate"><span class="pre">MissingAnnotation</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.errors.MissingAnnotation.ann_type"><code class="docutils literal notranslate"><span class="pre">MissingAnnotation.ann_type</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.errors.MultiLabelAnnotations"><code class="docutils literal notranslate"><span class="pre">MultiLabelAnnotations</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.errors.MissingAttribute"><code class="docutils literal notranslate"><span class="pre">MissingAttribute</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.errors.MissingAttribute.label_name"><code class="docutils literal notranslate"><span class="pre">MissingAttribute.label_name</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.errors.MissingAttribute.attr_name"><code class="docutils literal notranslate"><span class="pre">MissingAttribute.attr_name</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.errors.UndefinedLabel"><code class="docutils literal notranslate"><span class="pre">UndefinedLabel</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.errors.UndefinedLabel.label_name"><code class="docutils literal notranslate"><span class="pre">UndefinedLabel.label_name</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.errors.UndefinedAttribute"><code class="docutils literal notranslate"><span class="pre">UndefinedAttribute</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.errors.UndefinedAttribute.label_name"><code class="docutils literal notranslate"><span class="pre">UndefinedAttribute.label_name</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.errors.UndefinedAttribute.attr_name"><code class="docutils literal notranslate"><span class="pre">UndefinedAttribute.attr_name</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.errors.LabelDefinedButNotFound"><code class="docutils literal notranslate"><span class="pre">LabelDefinedButNotFound</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.errors.LabelDefinedButNotFound.label_name"><code class="docutils literal notranslate"><span class="pre">LabelDefinedButNotFound.label_name</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.errors.AttributeDefinedButNotFound"><code class="docutils literal notranslate"><span class="pre">AttributeDefinedButNotFound</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.errors.AttributeDefinedButNotFound.label_name"><code class="docutils literal notranslate"><span class="pre">AttributeDefinedButNotFound.label_name</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.errors.AttributeDefinedButNotFound.attr_name"><code class="docutils literal notranslate"><span class="pre">AttributeDefinedButNotFound.attr_name</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.errors.OnlyOneLabel"><code class="docutils literal notranslate"><span class="pre">OnlyOneLabel</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.errors.OnlyOneLabel.label_name"><code class="docutils literal notranslate"><span class="pre">OnlyOneLabel.label_name</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.errors.OnlyOneAttributeValue"><code class="docutils literal notranslate"><span class="pre">OnlyOneAttributeValue</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.errors.OnlyOneAttributeValue.label_name"><code class="docutils literal notranslate"><span class="pre">OnlyOneAttributeValue.label_name</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.errors.OnlyOneAttributeValue.attr_name"><code class="docutils literal notranslate"><span class="pre">OnlyOneAttributeValue.attr_name</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.errors.OnlyOneAttributeValue.value"><code class="docutils literal notranslate"><span class="pre">OnlyOneAttributeValue.value</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.errors.FewSamplesInLabel"><code class="docutils literal notranslate"><span class="pre">FewSamplesInLabel</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.errors.FewSamplesInLabel.label_name"><code class="docutils literal notranslate"><span class="pre">FewSamplesInLabel.label_name</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.errors.FewSamplesInLabel.count"><code class="docutils literal notranslate"><span class="pre">FewSamplesInLabel.count</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.errors.FewSamplesInAttribute"><code class="docutils literal notranslate"><span class="pre">FewSamplesInAttribute</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.errors.FewSamplesInAttribute.label_name"><code class="docutils literal notranslate"><span class="pre">FewSamplesInAttribute.label_name</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.errors.FewSamplesInAttribute.attr_name"><code class="docutils literal notranslate"><span class="pre">FewSamplesInAttribute.attr_name</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.errors.FewSamplesInAttribute.attr_value"><code class="docutils literal notranslate"><span class="pre">FewSamplesInAttribute.attr_value</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.errors.FewSamplesInAttribute.count"><code class="docutils literal notranslate"><span class="pre">FewSamplesInAttribute.count</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.errors.ImbalancedLabels"><code class="docutils literal notranslate"><span class="pre">ImbalancedLabels</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.errors.ImbalancedAttribute"><code class="docutils literal notranslate"><span class="pre">ImbalancedAttribute</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.errors.ImbalancedAttribute.label_name"><code class="docutils literal notranslate"><span class="pre">ImbalancedAttribute.label_name</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.errors.ImbalancedAttribute.attr_name"><code class="docutils literal notranslate"><span class="pre">ImbalancedAttribute.attr_name</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.errors.ImbalancedDistInLabel"><code class="docutils literal notranslate"><span class="pre">ImbalancedDistInLabel</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.errors.ImbalancedDistInLabel.label_name"><code class="docutils literal notranslate"><span class="pre">ImbalancedDistInLabel.label_name</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.errors.ImbalancedDistInLabel.prop"><code class="docutils literal notranslate"><span class="pre">ImbalancedDistInLabel.prop</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.errors.ImbalancedDistInAttribute"><code class="docutils literal notranslate"><span class="pre">ImbalancedDistInAttribute</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.errors.ImbalancedDistInAttribute.label_name"><code class="docutils literal notranslate"><span class="pre">ImbalancedDistInAttribute.label_name</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.errors.ImbalancedDistInAttribute.attr_name"><code class="docutils literal notranslate"><span class="pre">ImbalancedDistInAttribute.attr_name</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.errors.ImbalancedDistInAttribute.attr_value"><code class="docutils literal notranslate"><span class="pre">ImbalancedDistInAttribute.attr_value</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.errors.ImbalancedDistInAttribute.prop"><code class="docutils literal notranslate"><span class="pre">ImbalancedDistInAttribute.prop</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.errors.NegativeLength"><code class="docutils literal notranslate"><span class="pre">NegativeLength</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.errors.NegativeLength.ann_id"><code class="docutils literal notranslate"><span class="pre">NegativeLength.ann_id</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.errors.NegativeLength.prop"><code class="docutils literal notranslate"><span class="pre">NegativeLength.prop</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.errors.NegativeLength.val"><code class="docutils literal notranslate"><span class="pre">NegativeLength.val</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.errors.InvalidValue"><code class="docutils literal notranslate"><span class="pre">InvalidValue</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.errors.InvalidValue.ann_id"><code class="docutils literal notranslate"><span class="pre">InvalidValue.ann_id</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.errors.InvalidValue.prop"><code class="docutils literal notranslate"><span class="pre">InvalidValue.prop</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.errors.FarFromLabelMean"><code class="docutils literal notranslate"><span class="pre">FarFromLabelMean</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.errors.FarFromLabelMean.label_name"><code class="docutils literal notranslate"><span class="pre">FarFromLabelMean.label_name</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.errors.FarFromLabelMean.ann_id"><code class="docutils literal notranslate"><span class="pre">FarFromLabelMean.ann_id</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.errors.FarFromLabelMean.prop"><code class="docutils literal notranslate"><span class="pre">FarFromLabelMean.prop</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.errors.FarFromLabelMean.mean"><code class="docutils literal notranslate"><span class="pre">FarFromLabelMean.mean</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.errors.FarFromLabelMean.val"><code class="docutils literal notranslate"><span class="pre">FarFromLabelMean.val</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.errors.FarFromAttrMean"><code class="docutils literal notranslate"><span class="pre">FarFromAttrMean</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.errors.FarFromAttrMean.label_name"><code class="docutils literal notranslate"><span class="pre">FarFromAttrMean.label_name</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.errors.FarFromAttrMean.ann_id"><code class="docutils literal notranslate"><span class="pre">FarFromAttrMean.ann_id</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.errors.FarFromAttrMean.attr_name"><code class="docutils literal notranslate"><span class="pre">FarFromAttrMean.attr_name</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.errors.FarFromAttrMean.attr_value"><code class="docutils literal notranslate"><span class="pre">FarFromAttrMean.attr_value</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.errors.FarFromAttrMean.prop"><code class="docutils literal notranslate"><span class="pre">FarFromAttrMean.prop</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.errors.FarFromAttrMean.mean"><code class="docutils literal notranslate"><span class="pre">FarFromAttrMean.mean</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.errors.FarFromAttrMean.val"><code class="docutils literal notranslate"><span class="pre">FarFromAttrMean.val</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.errors.StreamedItemError"><code class="docutils literal notranslate"><span class="pre">StreamedItemError</span></code></a></li>
+</ul>
+  </nav></div>
+
+  <div class="sidebar-secondary-item">
+
+  <div class="tocsection sourcelink">
+    <a href="../../../_sources/docs/reference/_autosummary/datumaro.components.errors.rst.txt">
+      <i class="fa-solid fa-file-lines"></i> Show Source
+    </a>
+  </div>
+</div>
+
+</div></div>
+              
             
           </div>
-        </footer>
+          <footer class="bd-footer-content">
+            
+          </footer>
         
       </main>
     </div>
   </div>
-
   
-    
   <!-- Scripts loaded after <body> so the DOM is not blocked -->
-  <script src="../../../_static/scripts/bootstrap.js?digest=796348d33e8b1d947c94"></script>
-<script src="../../../_static/scripts/pydata-sphinx-theme.js?digest=796348d33e8b1d947c94"></script>
+  <script src="../../../_static/scripts/bootstrap.js?digest=8d27b9dea8ad943066ae"></script>
+<script src="../../../_static/scripts/pydata-sphinx-theme.js?digest=8d27b9dea8ad943066ae"></script>
 
-  <footer class="bd-footer"><div class="bd-footer__inner container">
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
   
-  <div class="footer-item">
-    
-  </div>
-  
-  <div class="footer-item">
-    <p class="theme-version">
-    Built with the
-    <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">
-        PyData Sphinx Theme
-    </a>
-    0.12.0.
-</p>
-  </div>
-  
-  <div class="footer-item">
-    
-<p class="sphinx-version">
-Created using <a href="http://sphinx-doc.org/">Sphinx</a> 5.3.0.<br>
-</p>
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
 
-  </div>
+  <p class="sphinx-version">
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 5.3.0.
+    <br/>
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+<p class="theme-version">
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.15.2.
+</p></div>
+      
+    </div>
   
 </div>
+
   </footer>
   </body>
 </html>

@@ -1,7 +1,10 @@
 
+
 <!DOCTYPE html>
 
-<html lang="en">
+
+<html lang="en" data-content_root="" >
+
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
@@ -16,15 +19,15 @@
   </script>
   
   <!-- Loaded before other Sphinx assets -->
-  <link href="../../../_static/styles/theme.css?digest=796348d33e8b1d947c94" rel="stylesheet">
-<link href="../../../_static/styles/bootstrap.css?digest=796348d33e8b1d947c94" rel="stylesheet">
-<link href="../../../_static/styles/pydata-sphinx-theme.css?digest=796348d33e8b1d947c94" rel="stylesheet">
+  <link href="../../../_static/styles/theme.css?digest=8d27b9dea8ad943066ae" rel="stylesheet" />
+<link href="../../../_static/styles/bootstrap.css?digest=8d27b9dea8ad943066ae" rel="stylesheet" />
+<link href="../../../_static/styles/pydata-sphinx-theme.css?digest=8d27b9dea8ad943066ae" rel="stylesheet" />
 
   
-  <link href="../../../_static/vendor/fontawesome/6.1.2/css/all.min.css?digest=796348d33e8b1d947c94" rel="stylesheet">
-  <link rel="preload" as="font" type="font/woff2" crossorigin href="../../../_static/vendor/fontawesome/6.1.2/webfonts/fa-solid-900.woff2">
-<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../_static/vendor/fontawesome/6.1.2/webfonts/fa-brands-400.woff2">
-<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../_static/vendor/fontawesome/6.1.2/webfonts/fa-regular-400.woff2">
+  <link href="../../../_static/vendor/fontawesome/6.5.1/css/all.min.css?digest=8d27b9dea8ad943066ae" rel="stylesheet" />
+  <link rel="preload" as="font" type="font/woff2" crossorigin href="../../../_static/vendor/fontawesome/6.5.1/webfonts/fa-solid-900.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../_static/vendor/fontawesome/6.5.1/webfonts/fa-brands-400.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../_static/vendor/fontawesome/6.5.1/webfonts/fa-regular-400.woff2" />
 
     <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="../../../_static/copybutton.css" />
@@ -33,8 +36,9 @@
     <link rel="stylesheet" type="text/css" href="../../../_static/css/custom.css" />
   
   <!-- Pre-loaded scripts that we'll load fully later -->
-  <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=796348d33e8b1d947c94">
-<link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=796348d33e8b1d947c94">
+  <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=8d27b9dea8ad943066ae" />
+<link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=8d27b9dea8ad943066ae" />
+  <script src="../../../_static/vendor/fontawesome/6.5.1/js/all.min.js?digest=8d27b9dea8ad943066ae"></script>
 
     <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
     <script src="../../../_static/jquery.js"></script>
@@ -51,111 +55,141 @@
     <link rel="search" title="Search" href="../../../search.html" />
     <link rel="next" title="datumaro.components.dataset_base" href="datumaro.components.dataset_base.html" />
     <link rel="prev" title="datumaro.components.crypter" href="datumaro.components.crypter.html" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <meta name="docsearch:language" content="en">
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
   </head>
   
   
-  <body data-spy="scroll" data-target="#bd-toc-nav" data-offset="180" data-default-mode="">
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
 
   
   
-  <a class="skip-link" href="#main-content">Skip to main content</a>
+  <a id="pst-skip-link" class="skip-link" href="#main-content">Skip to main content</a>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>
+    Back to top
+  </button>
 
   
-  <input type="checkbox" class="sidebar-toggle" name="__primary" id="__primary">
+  <input type="checkbox"
+          class="sidebar-toggle"
+          name="__primary"
+          id="__primary"/>
   <label class="overlay overlay-primary" for="__primary"></label>
-
   
-  <input type="checkbox" class="sidebar-toggle" name="__secondary" id="__secondary">
+  <input type="checkbox"
+          class="sidebar-toggle"
+          name="__secondary"
+          id="__secondary"/>
   <label class="overlay overlay-secondary" for="__secondary"></label>
-
   
   <div class="search-button__wrapper">
     <div class="search-button__overlay"></div>
     <div class="search-button__search-container">
-      
-<form class="bd-search d-flex align-items-center" action="../../../search.html" method="get">
+<form class="bd-search d-flex align-items-center"
+      action="../../../search.html"
+      method="get">
   <i class="fa-solid fa-magnifying-glass"></i>
-  <input type="search" class="form-control" name="q" id="search-input" placeholder="Search the docs ..." aria-label="Search the docs ..." autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">
+  <input type="search"
+         class="form-control"
+         name="q"
+         id="search-input"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
   <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
-</form>
-    </div>
+</form></div>
   </div>
-
   
-  <nav class="bd-header navbar navbar-expand-lg bd-navbar" id="navbar-main"><div class="bd-header__inner bd-page-width">
+    <header class="bd-header navbar navbar-expand-lg bd-navbar">
+<div class="bd-header__inner bd-page-width">
   <label class="sidebar-toggle primary-toggle" for="__primary">
-      <span class="fa-solid fa-bars"></span>
+    <span class="fa-solid fa-bars"></span>
   </label>
-  <div id="navbar-start">
-    
-    
   
+  
+  <div class="col-lg-3 navbar-header-items__start">
+    
+      <div class="navbar-item">
 
+  
 
 <a class="navbar-brand logo" href="../../../index.html">
-
   
   
   
   
   
+    
+    
+      
+    
+    
+    <img src="../../../_static/datumaro-logo.png" class="logo__image only-light" alt="Datumaro 1.6.0rc1 documentation - Home"/>
+    <script>document.write(`<img src="../../../_static/datumaro-logo.png" class="logo__image only-dark" alt="Datumaro 1.6.0rc1 documentation - Home"/>`);</script>
   
   
-
-  
-    <img src="../../../_static/datumaro-logo.png" class="logo__image only-light" alt="Logo image">
-    <img src="../../../_static/datumaro-logo.png" class="logo__image only-dark" alt="Logo image">
-  
-  
-</a>
+</a></div>
     
   </div>
-
   
   <div class="col-lg-9 navbar-header-items">
-    <div id="navbar-center" class="mr-auto">
+    
+    <div class="me-auto navbar-header-items__center">
       
-      <div class="navbar-center-item">
-        <nav class="navbar-nav">
-    <p class="sidebar-header-items__title" role="heading" aria-level="1" aria-label="Site Navigation">
-        Site Navigation
-    </p>
-    <ul id="navbar-main-elements" class="navbar-nav">
-        
+        <div class="navbar-item">
+<nav class="navbar-nav">
+  <ul class="bd-navbar-elements navbar-nav">
+    
                     <li class="nav-item current active">
                       <a class="nav-link nav-internal" href="../../index.html">
                         Docs
                       </a>
                     </li>
                 
-    </ul>
-</nav>
-      </div>
+  </ul>
+</nav></div>
       
     </div>
-
-    <div id="navbar-end">
+    
+    
+    <div class="navbar-header-items__end">
       
-        <div class="navbar-end-item navbar-persistent--container">
+        <div class="navbar-item navbar-persistent--container">
           
-<button class="btn btn-sm navbar-btn search-button search-button__button" title="Search" aria-label="Search" data-toggle="tooltip">
-  <i class="fa-solid fa-magnifying-glass"></i>
-</button>
+
+ <script>
+ document.write(`
+   <button class="btn navbar-btn search-button-field search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass"></i>
+    <span class="search-button__default-text">Search</span>
+    <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+   </button>
+ `);
+ </script>
         </div>
       
       
-      <div class="navbar-end-item">
-        <button class="theme-switch-button btn btn-sm btn-outline-primary navbar-btn rounded-circle" title="light/dark" aria-label="light/dark" data-toggle="tooltip">
-    <span class="theme-switch" data-mode="light"><i class="fa-solid fa-sun"></i></span>
-    <span class="theme-switch" data-mode="dark"><i class="fa-solid fa-moon"></i></span>
-    <span class="theme-switch" data-mode="auto"><i class="fa-solid fa-circle-half-stroke"></i></span>
-</button>
-      </div>
+        <div class="navbar-item">
+
+<script>
+document.write(`
+  <button class="btn btn-sm navbar-btn theme-switch-button" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="theme-switch nav-link" data-mode="light"><i class="fa-solid fa-sun fa-lg"></i></span>
+    <span class="theme-switch nav-link" data-mode="dark"><i class="fa-solid fa-moon fa-lg"></i></span>
+    <span class="theme-switch nav-link" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg"></i></span>
+  </button>
+`);
+</script></div>
       
-      <div class="navbar-end-item">
-        <ul id="navbar-icon-links" class="navbar-nav" aria-label="Icon Links">
+        <div class="navbar-item"><ul class="navbar-icon-links navbar-nav"
+    aria-label="Icon Links">
         <li class="nav-item">
           
           
@@ -164,79 +198,87 @@
           
           
           
-          <a href="https://github.com/openvinotoolkit/datumaro" title="GitHub" class="nav-link" rel="noopener" target="_blank" data-toggle="tooltip"><img src="../../../_static/github_icon.png" class="icon-link-image" alt="GitHub"/></a>
+          
+          <a href="https://github.com/openvinotoolkit/datumaro" title="GitHub" class="nav-link" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><img src="../../../_static/github_icon.png" class="icon-link-image" alt="GitHub"/></a>
         </li>
-      </ul>
-      </div>
+</ul></div>
       
     </div>
+    
   </div>
-
-
   
   
     <div class="navbar-persistent--mobile">
-<button class="btn btn-sm navbar-btn search-button search-button__button" title="Search" aria-label="Search" data-toggle="tooltip">
-  <i class="fa-solid fa-magnifying-glass"></i>
-</button>
+
+ <script>
+ document.write(`
+   <button class="btn navbar-btn search-button-field search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass"></i>
+    <span class="search-button__default-text">Search</span>
+    <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+   </button>
+ `);
+ </script>
     </div>
   
 
   
-  <label class="sidebar-toggle secondary-toggle" for="__secondary">
+    <label class="sidebar-toggle secondary-toggle" for="__secondary" tabindex="0">
       <span class="fa-solid fa-outdent"></span>
-  </label>
+    </label>
   
-
 </div>
-  </nav>
+
+    </header>
   
 
   <div class="bd-container">
     <div class="bd-container__inner bd-page-width">
       
+      
+      
       <div class="bd-sidebar-primary bd-sidebar">
         
+
   
   <div class="sidebar-header-items sidebar-primary__section">
     
     
       <div class="sidebar-header-items__center">
-      
-      <div class="navbar-center-item">
-        <nav class="navbar-nav">
-    <p class="sidebar-header-items__title" role="heading" aria-level="1" aria-label="Site Navigation">
-        Site Navigation
-    </p>
-    <ul id="navbar-main-elements" class="navbar-nav">
         
+          <div class="navbar-item">
+<nav class="navbar-nav">
+  <ul class="bd-navbar-elements navbar-nav">
+    
                     <li class="nav-item current active">
                       <a class="nav-link nav-internal" href="../../index.html">
                         Docs
                       </a>
                     </li>
                 
-    </ul>
-</nav>
-      </div>
-      
+  </ul>
+</nav></div>
+        
       </div>
     
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
 
-    
-    
-    <div class="sidebar-header-items__end">
-      
-      <div class="navbar-end-item">
-        <button class="theme-switch-button btn btn-sm btn-outline-primary navbar-btn rounded-circle" title="light/dark" aria-label="light/dark" data-toggle="tooltip">
-    <span class="theme-switch" data-mode="light"><i class="fa-solid fa-sun"></i></span>
-    <span class="theme-switch" data-mode="dark"><i class="fa-solid fa-moon"></i></span>
-    <span class="theme-switch" data-mode="auto"><i class="fa-solid fa-circle-half-stroke"></i></span>
-</button>
-      </div>
-      
-      <div class="navbar-end-item">
-        <ul id="navbar-icon-links" class="navbar-nav" aria-label="Icon Links">
+<script>
+document.write(`
+  <button class="btn btn-sm navbar-btn theme-switch-button" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="theme-switch nav-link" data-mode="light"><i class="fa-solid fa-sun fa-lg"></i></span>
+    <span class="theme-switch nav-link" data-mode="dark"><i class="fa-solid fa-moon fa-lg"></i></span>
+    <span class="theme-switch nav-link" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg"></i></span>
+  </button>
+`);
+</script></div>
+        
+          <div class="navbar-item"><ul class="navbar-icon-links navbar-nav"
+    aria-label="Icon Links">
         <li class="nav-item">
           
           
@@ -245,23 +287,21 @@
           
           
           
-          <a href="https://github.com/openvinotoolkit/datumaro" title="GitHub" class="nav-link" rel="noopener" target="_blank" data-toggle="tooltip"><img src="../../../_static/github_icon.png" class="icon-link-image" alt="GitHub"/></a>
+          
+          <a href="https://github.com/openvinotoolkit/datumaro" title="GitHub" class="nav-link" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><img src="../../../_static/github_icon.png" class="icon-link-image" alt="GitHub"/></a>
         </li>
-      </ul>
+</ul></div>
+        
       </div>
-      
-    </div>
     
   </div>
-
   
-  <div class="sidebar-start-items sidebar-primary__section">
-    <div class="sidebar-start-items__item"><nav class="bd-links" id="bd-docs-nav" aria-label="Section navigation">
-  <p class="bd-links__title" role="heading" aria-level="1">
-    Section Navigation
-  </p>
-  <div class="bd-toc-item navbar-nav">
-    <p aria-level="2" class="caption" role="heading"><span class="caption-text">Get Started</span></p>
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+<nav class="bd-docs-nav bd-links"
+     aria-label="Section Navigation">
+  <p class="bd-links__title" role="heading" aria-level="1">Section Navigation</p>
+  <div class="bd-toc-item navbar-nav"><p aria-level="2" class="caption" role="heading"><span class="caption-text">Get Started</span></p>
 <ul class="nav bd-sidenav">
 <li class="toctree-l1"><a class="reference internal" href="../../get-started/introduction.html">Introduction</a></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../../get-started/quick-start-guide/index.html">Quick Start Guide</a><input class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-1"><i class="fa-solid fa-chevron-down"></i></label><ul>
@@ -556,36 +596,70 @@
 </ul>
 </li>
 </ul>
-
-  </div>
-</nav>
+</div>
+</nav></div>
     </div>
-  </div>
   
-
   
-  <div class="sidebar-end-items sidebar-primary__section">
-    <div class="sidebar-end-items__item">
-    </div>
+  <div class="sidebar-primary-items__end sidebar-primary__section">
   </div>
-
   
   <div id="rtd-footer-container"></div>
 
+
       </div>
+      
       <main id="main-content" class="bd-main">
         
         
-        <div class="bd-content">
-          <div class="bd-article-container">
-            
-            <div class="bd-header-article">
-                
-            </div>
-            
-            
-            <article class="bd-article" role="main">
+          <div class="bd-content">
+            <div class="bd-article-container">
               
+              <div class="bd-header-article">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+
+
+
+
+<nav aria-label="Breadcrumb">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../../../index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+    
+    <li class="breadcrumb-item"><a href="../../index.html" class="nav-link">Docs</a></li>
+    
+    
+    <li class="breadcrumb-item"><i class="fa-solid fa-ellipsis"></i></li>
+    
+    
+    <li class="breadcrumb-item"><a href="datumaro.components.html" class="nav-link">datumaro.components</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page">datumaro.com...</li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
   <section id="module-datumaro.components.dataset">
 <span id="datumaro-components-dataset"></span><h1>datumaro.components.dataset<a class="headerlink" href="#module-datumaro.components.dataset" title="Permalink to this heading">#</a></h1>
 <p class="rubric">Functions</p>
@@ -2668,2879 +2742,482 @@ such as registering error and exit callbacks and context managers.</p>
 </section>
 
 
-            </article>
-            
-            
-            
-            <footer class="bd-footer-article">
-                <!-- Previous / next buttons -->
-<div class='prev-next-area'>
-  <a class='left-prev' id="prev-link" href="datumaro.components.crypter.html" title="previous page">
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="datumaro.components.crypter.html"
+       title="previous page">
       <i class="fa-solid fa-angle-left"></i>
       <div class="prev-next-info">
-          <p class="prev-next-subtitle">previous</p>
-          <p class="prev-next-title">datumaro.components.crypter</p>
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">datumaro.components.crypter</p>
       </div>
-  </a>
-  <a class='right-next' id="next-link" href="datumaro.components.dataset_base.html" title="next page">
-  <div class="prev-next-info">
-      <p class="prev-next-subtitle">next</p>
-      <p class="prev-next-title">datumaro.components.dataset_base</p>
-  </div>
-  <i class="fa-solid fa-angle-right"></i>
-  </a>
+    </a>
+    <a class="right-next"
+       href="datumaro.components.dataset_base.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">datumaro.components.dataset_base</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
 </div>
-            </footer>
-            
-          </div>
-          
-          
-          
-            <div class="bd-sidebar-secondary bd-toc">
+                </footer>
               
-<div class="toc-item">
-  
-<div class="tocsection onthispage">
-    <i class="fa-solid fa-list"></i> On this page
-</div>
-<nav id="bd-toc-nav" class="page-toc">
-    <ul class="visible nav section-nav flex-column">
- <li class="toc-h2 nav-item toc-entry">
-  <a class="reference internal nav-link" href="#datumaro.components.dataset.Dataset">
-   <code class="docutils literal notranslate">
-    <span class="pre">
-     Dataset
-    </span>
-   </code>
-  </a>
-  <ul class="nav section-nav flex-column">
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.components.dataset.Dataset.from_iterable">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       Dataset.from_iterable()
-      </span>
-     </code>
-    </a>
-   </li>
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.components.dataset.Dataset.from_extractors">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       Dataset.from_extractors()
-      </span>
-     </code>
-    </a>
-   </li>
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.components.dataset.Dataset.define_infos">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       Dataset.define_infos()
-      </span>
-     </code>
-    </a>
-   </li>
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.components.dataset.Dataset.define_categories">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       Dataset.define_categories()
-      </span>
-     </code>
-    </a>
-   </li>
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.components.dataset.Dataset.init_cache">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       Dataset.init_cache()
-      </span>
-     </code>
-    </a>
-   </li>
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.components.dataset.Dataset.get_subset">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       Dataset.get_subset()
-      </span>
-     </code>
-    </a>
-   </li>
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.components.dataset.Dataset.subsets">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       Dataset.subsets()
-      </span>
-     </code>
-    </a>
-   </li>
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.components.dataset.Dataset.infos">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       Dataset.infos()
-      </span>
-     </code>
-    </a>
-   </li>
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.components.dataset.Dataset.categories">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       Dataset.categories()
-      </span>
-     </code>
-    </a>
-   </li>
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.components.dataset.Dataset.media_type">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       Dataset.media_type()
-      </span>
-     </code>
-    </a>
-   </li>
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.components.dataset.Dataset.get">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       Dataset.get()
-      </span>
-     </code>
-    </a>
-   </li>
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.components.dataset.Dataset.get_annotated_items">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       Dataset.get_annotated_items()
-      </span>
-     </code>
-    </a>
-   </li>
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.components.dataset.Dataset.get_annotations">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       Dataset.get_annotations()
-      </span>
-     </code>
-    </a>
-   </li>
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.components.dataset.Dataset.get_datasetitem_by_path">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       Dataset.get_datasetitem_by_path()
-      </span>
-     </code>
-    </a>
-   </li>
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.components.dataset.Dataset.get_label_cat_names">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       Dataset.get_label_cat_names()
-      </span>
-     </code>
-    </a>
-   </li>
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.components.dataset.Dataset.get_subset_info">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       Dataset.get_subset_info()
-      </span>
-     </code>
-    </a>
-   </li>
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.components.dataset.Dataset.get_infos">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       Dataset.get_infos()
-      </span>
-     </code>
-    </a>
-   </li>
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.components.dataset.Dataset.get_categories_info">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       Dataset.get_categories_info()
-      </span>
-     </code>
-    </a>
-   </li>
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.components.dataset.Dataset.put">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       Dataset.put()
-      </span>
-     </code>
-    </a>
-   </li>
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.components.dataset.Dataset.remove">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       Dataset.remove()
-      </span>
-     </code>
-    </a>
-   </li>
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.components.dataset.Dataset.filter">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       Dataset.filter()
-      </span>
-     </code>
-    </a>
-   </li>
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.components.dataset.Dataset.update">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       Dataset.update()
-      </span>
-     </code>
-    </a>
-   </li>
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.components.dataset.Dataset.transform">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       Dataset.transform()
-      </span>
-     </code>
-    </a>
-   </li>
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.components.dataset.Dataset.run_model">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       Dataset.run_model()
-      </span>
-     </code>
-    </a>
-   </li>
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.components.dataset.Dataset.select">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       Dataset.select()
-      </span>
-     </code>
-    </a>
-   </li>
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.components.dataset.Dataset.data_path">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       Dataset.data_path
-      </span>
-     </code>
-    </a>
-   </li>
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.components.dataset.Dataset.format">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       Dataset.format
-      </span>
-     </code>
-    </a>
-   </li>
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.components.dataset.Dataset.options">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       Dataset.options
-      </span>
-     </code>
-    </a>
-   </li>
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.components.dataset.Dataset.is_modified">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       Dataset.is_modified
-      </span>
-     </code>
-    </a>
-   </li>
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.components.dataset.Dataset.get_patch">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       Dataset.get_patch()
-      </span>
-     </code>
-    </a>
-   </li>
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.components.dataset.Dataset.env">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       Dataset.env
-      </span>
-     </code>
-    </a>
-   </li>
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.components.dataset.Dataset.is_cache_initialized">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       Dataset.is_cache_initialized
-      </span>
-     </code>
-    </a>
-   </li>
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.components.dataset.Dataset.is_eager">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       Dataset.is_eager
-      </span>
-     </code>
-    </a>
-   </li>
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.components.dataset.Dataset.is_bound">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       Dataset.is_bound
-      </span>
-     </code>
-    </a>
-   </li>
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.components.dataset.Dataset.bind">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       Dataset.bind()
-      </span>
-     </code>
-    </a>
-   </li>
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.components.dataset.Dataset.flush_changes">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       Dataset.flush_changes()
-      </span>
-     </code>
-    </a>
-   </li>
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.components.dataset.Dataset.export">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       Dataset.export()
-      </span>
-     </code>
-    </a>
-   </li>
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.components.dataset.Dataset.save">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       Dataset.save()
-      </span>
-     </code>
-    </a>
-   </li>
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.components.dataset.Dataset.load">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       Dataset.load()
-      </span>
-     </code>
-    </a>
-   </li>
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.components.dataset.Dataset.import_from">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       Dataset.import_from()
-      </span>
-     </code>
-    </a>
-   </li>
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.components.dataset.Dataset.detect">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       Dataset.detect()
-      </span>
-     </code>
-    </a>
-   </li>
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.components.dataset.Dataset.is_stream">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       Dataset.is_stream
-      </span>
-     </code>
-    </a>
-   </li>
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.components.dataset.Dataset.clone">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       Dataset.clone()
-      </span>
-     </code>
-    </a>
-   </li>
-  </ul>
- </li>
- <li class="toc-h2 nav-item toc-entry">
-  <a class="reference internal nav-link" href="#datumaro.components.dataset.eager_mode">
-   <code class="docutils literal notranslate">
-    <span class="pre">
-     eager_mode()
-    </span>
-   </code>
-  </a>
- </li>
- <li class="toc-h2 nav-item toc-entry">
-  <a class="reference internal nav-link" href="#datumaro.components.dataset.Annotation">
-   <code class="docutils literal notranslate">
-    <span class="pre">
-     Annotation
-    </span>
-   </code>
-  </a>
-  <ul class="nav section-nav flex-column">
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.components.dataset.Annotation.id">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       Annotation.id
-      </span>
-     </code>
-    </a>
-   </li>
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.components.dataset.Annotation.attributes">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       Annotation.attributes
-      </span>
-     </code>
-    </a>
-   </li>
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.components.dataset.Annotation.group">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       Annotation.group
-      </span>
-     </code>
-    </a>
-   </li>
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.components.dataset.Annotation.object_id">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       Annotation.object_id
-      </span>
-     </code>
-    </a>
-   </li>
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.components.dataset.Annotation.type">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       Annotation.type
-      </span>
-     </code>
-    </a>
-   </li>
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.components.dataset.Annotation.as_dict">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       Annotation.as_dict()
-      </span>
-     </code>
-    </a>
-   </li>
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.components.dataset.Annotation.wrap">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       Annotation.wrap()
-      </span>
-     </code>
-    </a>
-   </li>
-  </ul>
- </li>
- <li class="toc-h2 nav-item toc-entry">
-  <a class="reference internal nav-link" href="#datumaro.components.dataset.AnnotationType">
-   <code class="docutils literal notranslate">
-    <span class="pre">
-     AnnotationType
-    </span>
-   </code>
-  </a>
-  <ul class="nav section-nav flex-column">
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.components.dataset.AnnotationType.unknown">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       AnnotationType.unknown
-      </span>
-     </code>
-    </a>
-   </li>
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.components.dataset.AnnotationType.label">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       AnnotationType.label
-      </span>
-     </code>
-    </a>
-   </li>
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.components.dataset.AnnotationType.mask">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       AnnotationType.mask
-      </span>
-     </code>
-    </a>
-   </li>
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.components.dataset.AnnotationType.points">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       AnnotationType.points
-      </span>
-     </code>
-    </a>
-   </li>
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.components.dataset.AnnotationType.polygon">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       AnnotationType.polygon
-      </span>
-     </code>
-    </a>
-   </li>
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.components.dataset.AnnotationType.polyline">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       AnnotationType.polyline
-      </span>
-     </code>
-    </a>
-   </li>
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.components.dataset.AnnotationType.bbox">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       AnnotationType.bbox
-      </span>
-     </code>
-    </a>
-   </li>
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.components.dataset.AnnotationType.caption">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       AnnotationType.caption
-      </span>
-     </code>
-    </a>
-   </li>
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.components.dataset.AnnotationType.cuboid_3d">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       AnnotationType.cuboid_3d
-      </span>
-     </code>
-    </a>
-   </li>
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.components.dataset.AnnotationType.super_resolution_annotation">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       AnnotationType.super_resolution_annotation
-      </span>
-     </code>
-    </a>
-   </li>
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.components.dataset.AnnotationType.depth_annotation">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       AnnotationType.depth_annotation
-      </span>
-     </code>
-    </a>
-   </li>
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.components.dataset.AnnotationType.ellipse">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       AnnotationType.ellipse
-      </span>
-     </code>
-    </a>
-   </li>
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.components.dataset.AnnotationType.hash_key">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       AnnotationType.hash_key
-      </span>
-     </code>
-    </a>
-   </li>
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.components.dataset.AnnotationType.feature_vector">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       AnnotationType.feature_vector
-      </span>
-     </code>
-    </a>
-   </li>
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.components.dataset.AnnotationType.tabular">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       AnnotationType.tabular
-      </span>
-     </code>
-    </a>
-   </li>
-  </ul>
- </li>
- <li class="toc-h2 nav-item toc-entry">
-  <a class="reference internal nav-link" href="#datumaro.components.dataset.DatasetBase">
-   <code class="docutils literal notranslate">
-    <span class="pre">
-     DatasetBase
-    </span>
-   </code>
-  </a>
-  <ul class="nav section-nav flex-column">
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.components.dataset.DatasetBase.media_type">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       DatasetBase.media_type()
-      </span>
-     </code>
-    </a>
-   </li>
-  </ul>
- </li>
- <li class="toc-h2 nav-item toc-entry">
-  <a class="reference internal nav-link" href="#datumaro.components.dataset.DatasetImportError">
-   <code class="docutils literal notranslate">
-    <span class="pre">
-     DatasetImportError
-    </span>
-   </code>
-  </a>
- </li>
- <li class="toc-h2 nav-item toc-entry">
-  <a class="reference internal nav-link" href="#datumaro.components.dataset.DatasetItem">
-   <code class="docutils literal notranslate">
-    <span class="pre">
-     DatasetItem
-    </span>
-   </code>
-  </a>
-  <ul class="nav section-nav flex-column">
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.components.dataset.DatasetItem.id">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       DatasetItem.id
-      </span>
-     </code>
-    </a>
-   </li>
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.components.dataset.DatasetItem.subset">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       DatasetItem.subset
-      </span>
-     </code>
-    </a>
-   </li>
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.components.dataset.DatasetItem.media">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       DatasetItem.media
-      </span>
-     </code>
-    </a>
-   </li>
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.components.dataset.DatasetItem.annotations">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       DatasetItem.annotations
-      </span>
-     </code>
-    </a>
-   </li>
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.components.dataset.DatasetItem.attributes">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       DatasetItem.attributes
-      </span>
-     </code>
-    </a>
-   </li>
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.components.dataset.DatasetItem.wrap">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       DatasetItem.wrap()
-      </span>
-     </code>
-    </a>
-   </li>
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.components.dataset.DatasetItem.media_as">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       DatasetItem.media_as()
-      </span>
-     </code>
-    </a>
-   </li>
-  </ul>
- </li>
- <li class="toc-h2 nav-item toc-entry">
-  <a class="reference internal nav-link" href="#datumaro.components.dataset.DatasetItemStorageDatasetView">
-   <code class="docutils literal notranslate">
-    <span class="pre">
-     DatasetItemStorageDatasetView
-    </span>
-   </code>
-  </a>
-  <ul class="nav section-nav flex-column">
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.components.dataset.DatasetItemStorageDatasetView.Subset">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       DatasetItemStorageDatasetView.Subset
-      </span>
-     </code>
-    </a>
-    <ul class="nav section-nav flex-column">
-     <li class="toc-h4 nav-item toc-entry">
-      <a class="reference internal nav-link" href="#datumaro.components.dataset.DatasetItemStorageDatasetView.Subset.put">
-       <code class="docutils literal notranslate">
-        <span class="pre">
-         DatasetItemStorageDatasetView.Subset.put()
-        </span>
-       </code>
-      </a>
-     </li>
-     <li class="toc-h4 nav-item toc-entry">
-      <a class="reference internal nav-link" href="#datumaro.components.dataset.DatasetItemStorageDatasetView.Subset.get">
-       <code class="docutils literal notranslate">
-        <span class="pre">
-         DatasetItemStorageDatasetView.Subset.get()
-        </span>
-       </code>
-      </a>
-     </li>
-     <li class="toc-h4 nav-item toc-entry">
-      <a class="reference internal nav-link" href="#datumaro.components.dataset.DatasetItemStorageDatasetView.Subset.remove">
-       <code class="docutils literal notranslate">
-        <span class="pre">
-         DatasetItemStorageDatasetView.Subset.remove()
-        </span>
-       </code>
-      </a>
-     </li>
-     <li class="toc-h4 nav-item toc-entry">
-      <a class="reference internal nav-link" href="#datumaro.components.dataset.DatasetItemStorageDatasetView.Subset.get_subset">
-       <code class="docutils literal notranslate">
-        <span class="pre">
-         DatasetItemStorageDatasetView.Subset.get_subset()
-        </span>
-       </code>
-      </a>
-     </li>
-     <li class="toc-h4 nav-item toc-entry">
-      <a class="reference internal nav-link" href="#datumaro.components.dataset.DatasetItemStorageDatasetView.Subset.subsets">
-       <code class="docutils literal notranslate">
-        <span class="pre">
-         DatasetItemStorageDatasetView.Subset.subsets()
-        </span>
-       </code>
-      </a>
-     </li>
-     <li class="toc-h4 nav-item toc-entry">
-      <a class="reference internal nav-link" href="#datumaro.components.dataset.DatasetItemStorageDatasetView.Subset.infos">
-       <code class="docutils literal notranslate">
-        <span class="pre">
-         DatasetItemStorageDatasetView.Subset.infos()
-        </span>
-       </code>
-      </a>
-     </li>
-     <li class="toc-h4 nav-item toc-entry">
-      <a class="reference internal nav-link" href="#datumaro.components.dataset.DatasetItemStorageDatasetView.Subset.categories">
-       <code class="docutils literal notranslate">
-        <span class="pre">
-         DatasetItemStorageDatasetView.Subset.categories()
-        </span>
-       </code>
-      </a>
-     </li>
-     <li class="toc-h4 nav-item toc-entry">
-      <a class="reference internal nav-link" href="#datumaro.components.dataset.DatasetItemStorageDatasetView.Subset.media_type">
-       <code class="docutils literal notranslate">
-        <span class="pre">
-         DatasetItemStorageDatasetView.Subset.media_type()
-        </span>
-       </code>
-      </a>
-     </li>
-    </ul>
-   </li>
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.components.dataset.DatasetItemStorageDatasetView.infos">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       DatasetItemStorageDatasetView.infos()
-      </span>
-     </code>
-    </a>
-   </li>
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.components.dataset.DatasetItemStorageDatasetView.categories">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       DatasetItemStorageDatasetView.categories()
-      </span>
-     </code>
-    </a>
-   </li>
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.components.dataset.DatasetItemStorageDatasetView.get_subset">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       DatasetItemStorageDatasetView.get_subset()
-      </span>
-     </code>
-    </a>
-   </li>
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.components.dataset.DatasetItemStorageDatasetView.subsets">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       DatasetItemStorageDatasetView.subsets()
-      </span>
-     </code>
-    </a>
-   </li>
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.components.dataset.DatasetItemStorageDatasetView.get">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       DatasetItemStorageDatasetView.get()
-      </span>
-     </code>
-    </a>
-   </li>
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.components.dataset.DatasetItemStorageDatasetView.media_type">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       DatasetItemStorageDatasetView.media_type()
-      </span>
-     </code>
-    </a>
-   </li>
-  </ul>
- </li>
- <li class="toc-h2 nav-item toc-entry">
-  <a class="reference internal nav-link" href="#datumaro.components.dataset.DatasetPatch">
-   <code class="docutils literal notranslate">
-    <span class="pre">
-     DatasetPatch
-    </span>
-   </code>
-  </a>
-  <ul class="nav section-nav flex-column">
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.components.dataset.DatasetPatch.DatasetPatchWrapper">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       DatasetPatch.DatasetPatchWrapper
-      </span>
-     </code>
-    </a>
-    <ul class="nav section-nav flex-column">
-     <li class="toc-h4 nav-item toc-entry">
-      <a class="reference internal nav-link" href="#datumaro.components.dataset.DatasetPatch.DatasetPatchWrapper.subsets">
-       <code class="docutils literal notranslate">
-        <span class="pre">
-         DatasetPatch.DatasetPatchWrapper.subsets()
-        </span>
-       </code>
-      </a>
-     </li>
-    </ul>
-   </li>
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.components.dataset.DatasetPatch.updated_subsets">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       DatasetPatch.updated_subsets
-      </span>
-     </code>
-    </a>
-   </li>
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.components.dataset.DatasetPatch.as_dataset">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       DatasetPatch.as_dataset()
-      </span>
-     </code>
-    </a>
-   </li>
-  </ul>
- </li>
- <li class="toc-h2 nav-item toc-entry">
-  <a class="reference internal nav-link" href="#datumaro.components.dataset.DatasetStorage">
-   <code class="docutils literal notranslate">
-    <span class="pre">
-     DatasetStorage
-    </span>
-   </code>
-  </a>
-  <ul class="nav section-nav flex-column">
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.components.dataset.DatasetStorage.is_cache_initialized">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       DatasetStorage.is_cache_initialized()
-      </span>
-     </code>
-    </a>
-   </li>
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.components.dataset.DatasetStorage.init_cache">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       DatasetStorage.init_cache()
-      </span>
-     </code>
-    </a>
-   </li>
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.components.dataset.DatasetStorage.infos">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       DatasetStorage.infos()
-      </span>
-     </code>
-    </a>
-   </li>
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.components.dataset.DatasetStorage.define_infos">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       DatasetStorage.define_infos()
-      </span>
-     </code>
-    </a>
-   </li>
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.components.dataset.DatasetStorage.categories">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       DatasetStorage.categories()
-      </span>
-     </code>
-    </a>
-   </li>
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.components.dataset.DatasetStorage.define_categories">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       DatasetStorage.define_categories()
-      </span>
-     </code>
-    </a>
-   </li>
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.components.dataset.DatasetStorage.media_type">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       DatasetStorage.media_type()
-      </span>
-     </code>
-    </a>
-   </li>
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.components.dataset.DatasetStorage.put">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       DatasetStorage.put()
-      </span>
-     </code>
-    </a>
-   </li>
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.components.dataset.DatasetStorage.get">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       DatasetStorage.get()
-      </span>
-     </code>
-    </a>
-   </li>
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.components.dataset.DatasetStorage.remove">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       DatasetStorage.remove()
-      </span>
-     </code>
-    </a>
-   </li>
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.components.dataset.DatasetStorage.get_subset">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       DatasetStorage.get_subset()
-      </span>
-     </code>
-    </a>
-   </li>
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.components.dataset.DatasetStorage.subsets">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       DatasetStorage.subsets()
-      </span>
-     </code>
-    </a>
-   </li>
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.components.dataset.DatasetStorage.get_annotated_items">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       DatasetStorage.get_annotated_items()
-      </span>
-     </code>
-    </a>
-   </li>
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.components.dataset.DatasetStorage.get_annotations">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       DatasetStorage.get_annotations()
-      </span>
-     </code>
-    </a>
-   </li>
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.components.dataset.DatasetStorage.get_datasetitem_by_path">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       DatasetStorage.get_datasetitem_by_path()
-      </span>
-     </code>
-    </a>
-   </li>
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.components.dataset.DatasetStorage.transform">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       DatasetStorage.transform()
-      </span>
-     </code>
-    </a>
-   </li>
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.components.dataset.DatasetStorage.has_updated_items">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       DatasetStorage.has_updated_items()
-      </span>
-     </code>
-    </a>
-   </li>
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.components.dataset.DatasetStorage.get_patch">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       DatasetStorage.get_patch()
-      </span>
-     </code>
-    </a>
-   </li>
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.components.dataset.DatasetStorage.flush_changes">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       DatasetStorage.flush_changes()
-      </span>
-     </code>
-    </a>
-   </li>
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.components.dataset.DatasetStorage.update">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       DatasetStorage.update()
-      </span>
-     </code>
-    </a>
-   </li>
-  </ul>
- </li>
- <li class="toc-h2 nav-item toc-entry">
-  <a class="reference internal nav-link" href="#datumaro.components.dataset.DatasetSubset">
-   <code class="docutils literal notranslate">
-    <span class="pre">
-     DatasetSubset
-    </span>
-   </code>
-  </a>
-  <ul class="nav section-nav flex-column">
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.components.dataset.DatasetSubset.put">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       DatasetSubset.put()
-      </span>
-     </code>
-    </a>
-   </li>
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.components.dataset.DatasetSubset.get">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       DatasetSubset.get()
-      </span>
-     </code>
-    </a>
-   </li>
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.components.dataset.DatasetSubset.remove">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       DatasetSubset.remove()
-      </span>
-     </code>
-    </a>
-   </li>
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.components.dataset.DatasetSubset.get_subset">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       DatasetSubset.get_subset()
-      </span>
-     </code>
-    </a>
-   </li>
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.components.dataset.DatasetSubset.subsets">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       DatasetSubset.subsets()
-      </span>
-     </code>
-    </a>
-   </li>
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.components.dataset.DatasetSubset.infos">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       DatasetSubset.infos()
-      </span>
-     </code>
-    </a>
-   </li>
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.components.dataset.DatasetSubset.categories">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       DatasetSubset.categories()
-      </span>
-     </code>
-    </a>
-   </li>
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.components.dataset.DatasetSubset.media_type">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       DatasetSubset.media_type()
-      </span>
-     </code>
-    </a>
-   </li>
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.components.dataset.DatasetSubset.get_annotated_items">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       DatasetSubset.get_annotated_items()
-      </span>
-     </code>
-    </a>
-   </li>
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.components.dataset.DatasetSubset.get_annotations">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       DatasetSubset.get_annotations()
-      </span>
-     </code>
-    </a>
-   </li>
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.components.dataset.DatasetSubset.get_annotated_type">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       DatasetSubset.get_annotated_type()
-      </span>
-     </code>
-    </a>
-   </li>
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.components.dataset.DatasetSubset.as_dataset">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       DatasetSubset.as_dataset()
-      </span>
-     </code>
-    </a>
-   </li>
-  </ul>
- </li>
- <li class="toc-h2 nav-item toc-entry">
-  <a class="reference internal nav-link" href="#datumaro.components.dataset.Environment">
-   <code class="docutils literal notranslate">
-    <span class="pre">
-     Environment
-    </span>
-   </code>
-  </a>
-  <ul class="nav section-nav flex-column">
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.components.dataset.Environment.extractors">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       Environment.extractors
-      </span>
-     </code>
-    </a>
-   </li>
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.components.dataset.Environment.importers">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       Environment.importers
-      </span>
-     </code>
-    </a>
-   </li>
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.components.dataset.Environment.launchers">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       Environment.launchers
-      </span>
-     </code>
-    </a>
-   </li>
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.components.dataset.Environment.exporters">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       Environment.exporters
-      </span>
-     </code>
-    </a>
-   </li>
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.components.dataset.Environment.generators">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       Environment.generators
-      </span>
-     </code>
-    </a>
-   </li>
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.components.dataset.Environment.transforms">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       Environment.transforms
-      </span>
-     </code>
-    </a>
-   </li>
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.components.dataset.Environment.validators">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       Environment.validators
-      </span>
-     </code>
-    </a>
-   </li>
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.components.dataset.Environment.load_plugins">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       Environment.load_plugins()
-      </span>
-     </code>
-    </a>
-   </li>
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.components.dataset.Environment.register_plugins">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       Environment.register_plugins()
-      </span>
-     </code>
-    </a>
-   </li>
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.components.dataset.Environment.make_extractor">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       Environment.make_extractor()
-      </span>
-     </code>
-    </a>
-   </li>
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.components.dataset.Environment.make_importer">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       Environment.make_importer()
-      </span>
-     </code>
-    </a>
-   </li>
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.components.dataset.Environment.make_launcher">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       Environment.make_launcher()
-      </span>
-     </code>
-    </a>
-   </li>
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.components.dataset.Environment.make_exporter">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       Environment.make_exporter()
-      </span>
-     </code>
-    </a>
-   </li>
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.components.dataset.Environment.make_transform">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       Environment.make_transform()
-      </span>
-     </code>
-    </a>
-   </li>
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.components.dataset.Environment.is_format_known">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       Environment.is_format_known()
-      </span>
-     </code>
-    </a>
-   </li>
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.components.dataset.Environment.detect_dataset">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       Environment.detect_dataset()
-      </span>
-     </code>
-    </a>
-   </li>
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.components.dataset.Environment.merge">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       Environment.merge()
-      </span>
-     </code>
-    </a>
-   </li>
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.components.dataset.Environment.release_builtin_plugins">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       Environment.release_builtin_plugins()
-      </span>
-     </code>
-    </a>
-   </li>
-  </ul>
- </li>
- <li class="toc-h2 nav-item toc-entry">
-  <a class="reference internal nav-link" href="#datumaro.components.dataset.ExportContext">
-   <code class="docutils literal notranslate">
-    <span class="pre">
-     ExportContext
-    </span>
-   </code>
-  </a>
-  <ul class="nav section-nav flex-column">
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.components.dataset.ExportContext.progress_reporter">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       ExportContext.progress_reporter
-      </span>
-     </code>
-    </a>
-   </li>
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.components.dataset.ExportContext.error_policy">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       ExportContext.error_policy
-      </span>
-     </code>
-    </a>
-   </li>
-  </ul>
- </li>
- <li class="toc-h2 nav-item toc-entry">
-  <a class="reference internal nav-link" href="#datumaro.components.dataset.ExportErrorPolicy">
-   <code class="docutils literal notranslate">
-    <span class="pre">
-     ExportErrorPolicy
-    </span>
-   </code>
-  </a>
-  <ul class="nav section-nav flex-column">
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.components.dataset.ExportErrorPolicy.report_item_error">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       ExportErrorPolicy.report_item_error()
-      </span>
-     </code>
-    </a>
-   </li>
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.components.dataset.ExportErrorPolicy.report_annotation_error">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       ExportErrorPolicy.report_annotation_error()
-      </span>
-     </code>
-    </a>
-   </li>
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.components.dataset.ExportErrorPolicy.fail">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       ExportErrorPolicy.fail()
-      </span>
-     </code>
-    </a>
-   </li>
-  </ul>
- </li>
- <li class="toc-h2 nav-item toc-entry">
-  <a class="reference internal nav-link" href="#datumaro.components.dataset.Exporter">
-   <code class="docutils literal notranslate">
-    <span class="pre">
-     Exporter
-    </span>
-   </code>
-  </a>
-  <ul class="nav section-nav flex-column">
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.components.dataset.Exporter.DEFAULT_IMAGE_EXT">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       Exporter.DEFAULT_IMAGE_EXT
-      </span>
-     </code>
-    </a>
-   </li>
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.components.dataset.Exporter.build_cmdline_parser">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       Exporter.build_cmdline_parser()
-      </span>
-     </code>
-    </a>
-   </li>
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.components.dataset.Exporter.convert">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       Exporter.convert()
-      </span>
-     </code>
-    </a>
-   </li>
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.components.dataset.Exporter.patch">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       Exporter.patch()
-      </span>
-     </code>
-    </a>
-   </li>
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.components.dataset.Exporter.apply">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       Exporter.apply()
-      </span>
-     </code>
-    </a>
-   </li>
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.components.dataset.Exporter.can_stream">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       Exporter.can_stream
-      </span>
-     </code>
-    </a>
-   </li>
-  </ul>
- </li>
- <li class="toc-h2 nav-item toc-entry">
-  <a class="reference internal nav-link" href="#datumaro.components.dataset.IDataset">
-   <code class="docutils literal notranslate">
-    <span class="pre">
-     IDataset
-    </span>
-   </code>
-  </a>
-  <ul class="nav section-nav flex-column">
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.components.dataset.IDataset.subsets">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       IDataset.subsets()
-      </span>
-     </code>
-    </a>
-   </li>
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.components.dataset.IDataset.get_subset">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       IDataset.get_subset()
-      </span>
-     </code>
-    </a>
-   </li>
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.components.dataset.IDataset.infos">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       IDataset.infos()
-      </span>
-     </code>
-    </a>
-   </li>
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.components.dataset.IDataset.categories">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       IDataset.categories()
-      </span>
-     </code>
-    </a>
-   </li>
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.components.dataset.IDataset.get">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       IDataset.get()
-      </span>
-     </code>
-    </a>
-   </li>
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.components.dataset.IDataset.media_type">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       IDataset.media_type()
-      </span>
-     </code>
-    </a>
-   </li>
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.components.dataset.IDataset.is_stream">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       IDataset.is_stream
-      </span>
-     </code>
-    </a>
-   </li>
-  </ul>
- </li>
- <li class="toc-h2 nav-item toc-entry">
-  <a class="reference internal nav-link" href="#datumaro.components.dataset.Image">
-   <code class="docutils literal notranslate">
-    <span class="pre">
-     Image
-    </span>
-   </code>
-  </a>
-  <ul class="nav section-nav flex-column">
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.components.dataset.Image.from_file">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       Image.from_file()
-      </span>
-     </code>
-    </a>
-   </li>
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.components.dataset.Image.from_numpy">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       Image.from_numpy()
-      </span>
-     </code>
-    </a>
-   </li>
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.components.dataset.Image.from_bytes">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       Image.from_bytes()
-      </span>
-     </code>
-    </a>
-   </li>
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.components.dataset.Image.has_size">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       Image.has_size
-      </span>
-     </code>
-    </a>
-   </li>
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.components.dataset.Image.size">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       Image.size
-      </span>
-     </code>
-    </a>
-   </li>
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.components.dataset.Image.ext">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       Image.ext
-      </span>
-     </code>
-    </a>
-   </li>
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.components.dataset.Image.set_crypter">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       Image.set_crypter()
-      </span>
-     </code>
-    </a>
-   </li>
-  </ul>
- </li>
- <li class="toc-h2 nav-item toc-entry">
-  <a class="reference internal nav-link" href="#datumaro.components.dataset.ImportContext">
-   <code class="docutils literal notranslate">
-    <span class="pre">
-     ImportContext
-    </span>
-   </code>
-  </a>
-  <ul class="nav section-nav flex-column">
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.components.dataset.ImportContext.progress_reporter">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       ImportContext.progress_reporter
-      </span>
-     </code>
-    </a>
-   </li>
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.components.dataset.ImportContext.error_policy">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       ImportContext.error_policy
-      </span>
-     </code>
-    </a>
-   </li>
-  </ul>
- </li>
- <li class="toc-h2 nav-item toc-entry">
-  <a class="reference internal nav-link" href="#datumaro.components.dataset.ImportErrorPolicy">
-   <code class="docutils literal notranslate">
-    <span class="pre">
-     ImportErrorPolicy
-    </span>
-   </code>
-  </a>
-  <ul class="nav section-nav flex-column">
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.components.dataset.ImportErrorPolicy.report_item_error">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       ImportErrorPolicy.report_item_error()
-      </span>
-     </code>
-    </a>
-   </li>
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.components.dataset.ImportErrorPolicy.report_annotation_error">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       ImportErrorPolicy.report_annotation_error()
-      </span>
-     </code>
-    </a>
-   </li>
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.components.dataset.ImportErrorPolicy.fail">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       ImportErrorPolicy.fail()
-      </span>
-     </code>
-    </a>
-   </li>
-  </ul>
- </li>
- <li class="toc-h2 nav-item toc-entry">
-  <a class="reference internal nav-link" href="#datumaro.components.dataset.ItemTransform">
-   <code class="docutils literal notranslate">
-    <span class="pre">
-     ItemTransform
-    </span>
-   </code>
-  </a>
-  <ul class="nav section-nav flex-column">
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.components.dataset.ItemTransform.transform_item">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       ItemTransform.transform_item()
-      </span>
-     </code>
-    </a>
-   </li>
-  </ul>
- </li>
- <li class="toc-h2 nav-item toc-entry">
-  <a class="reference internal nav-link" href="#datumaro.components.dataset.LabelCategories">
-   <code class="docutils literal notranslate">
-    <span class="pre">
-     LabelCategories
-    </span>
-   </code>
-  </a>
-  <ul class="nav section-nav flex-column">
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.components.dataset.LabelCategories.Category">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       LabelCategories.Category
-      </span>
-     </code>
-    </a>
-    <ul class="nav section-nav flex-column">
-     <li class="toc-h4 nav-item toc-entry">
-      <a class="reference internal nav-link" href="#datumaro.components.dataset.LabelCategories.Category.name">
-       <code class="docutils literal notranslate">
-        <span class="pre">
-         LabelCategories.Category.name
-        </span>
-       </code>
-      </a>
-     </li>
-     <li class="toc-h4 nav-item toc-entry">
-      <a class="reference internal nav-link" href="#datumaro.components.dataset.LabelCategories.Category.parent">
-       <code class="docutils literal notranslate">
-        <span class="pre">
-         LabelCategories.Category.parent
-        </span>
-       </code>
-      </a>
-     </li>
-     <li class="toc-h4 nav-item toc-entry">
-      <a class="reference internal nav-link" href="#datumaro.components.dataset.LabelCategories.Category.attributes">
-       <code class="docutils literal notranslate">
-        <span class="pre">
-         LabelCategories.Category.attributes
-        </span>
-       </code>
-      </a>
-     </li>
-    </ul>
-   </li>
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.components.dataset.LabelCategories.LabelGroup">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       LabelCategories.LabelGroup
-      </span>
-     </code>
-    </a>
-    <ul class="nav section-nav flex-column">
-     <li class="toc-h4 nav-item toc-entry">
-      <a class="reference internal nav-link" href="#datumaro.components.dataset.LabelCategories.LabelGroup.name">
-       <code class="docutils literal notranslate">
-        <span class="pre">
-         LabelCategories.LabelGroup.name
-        </span>
-       </code>
-      </a>
-     </li>
-     <li class="toc-h4 nav-item toc-entry">
-      <a class="reference internal nav-link" href="#datumaro.components.dataset.LabelCategories.LabelGroup.labels">
-       <code class="docutils literal notranslate">
-        <span class="pre">
-         LabelCategories.LabelGroup.labels
-        </span>
-       </code>
-      </a>
-     </li>
-     <li class="toc-h4 nav-item toc-entry">
-      <a class="reference internal nav-link" href="#datumaro.components.dataset.LabelCategories.LabelGroup.group_type">
-       <code class="docutils literal notranslate">
-        <span class="pre">
-         LabelCategories.LabelGroup.group_type
-        </span>
-       </code>
-      </a>
-     </li>
-    </ul>
-   </li>
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.components.dataset.LabelCategories.items">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       LabelCategories.items
-      </span>
-     </code>
-    </a>
-   </li>
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.components.dataset.LabelCategories.label_groups">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       LabelCategories.label_groups
-      </span>
-     </code>
-    </a>
-   </li>
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.components.dataset.LabelCategories.from_iterable">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       LabelCategories.from_iterable()
-      </span>
-     </code>
-    </a>
-   </li>
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.components.dataset.LabelCategories.add">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       LabelCategories.add()
-      </span>
-     </code>
-    </a>
-   </li>
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.components.dataset.LabelCategories.add_label_group">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       LabelCategories.add_label_group()
-      </span>
-     </code>
-    </a>
-   </li>
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.components.dataset.LabelCategories.find">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       LabelCategories.find()
-      </span>
-     </code>
-    </a>
-   </li>
-  </ul>
- </li>
- <li class="toc-h2 nav-item toc-entry">
-  <a class="reference internal nav-link" href="#datumaro.components.dataset.Launcher">
-   <code class="docutils literal notranslate">
-    <span class="pre">
-     Launcher
-    </span>
-   </code>
-  </a>
-  <ul class="nav section-nav flex-column">
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.components.dataset.Launcher.preprocess">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       Launcher.preprocess()
-      </span>
-     </code>
-    </a>
-   </li>
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.components.dataset.Launcher.infer">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       Launcher.infer()
-      </span>
-     </code>
-    </a>
-   </li>
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.components.dataset.Launcher.postprocess">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       Launcher.postprocess()
-      </span>
-     </code>
-    </a>
-   </li>
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.components.dataset.Launcher.launch">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       Launcher.launch()
-      </span>
-     </code>
-    </a>
-   </li>
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.components.dataset.Launcher.infos">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       Launcher.infos()
-      </span>
-     </code>
-    </a>
-   </li>
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.components.dataset.Launcher.categories">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       Launcher.categories()
-      </span>
-     </code>
-    </a>
-   </li>
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.components.dataset.Launcher.type_check">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       Launcher.type_check()
-      </span>
-     </code>
-    </a>
-   </li>
-  </ul>
- </li>
- <li class="toc-h2 nav-item toc-entry">
-  <a class="reference internal nav-link" href="#datumaro.components.dataset.MediaElement">
-   <code class="docutils literal notranslate">
-    <span class="pre">
-     MediaElement
-    </span>
-   </code>
-  </a>
-  <ul class="nav section-nav flex-column">
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.components.dataset.MediaElement.as_dict">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       MediaElement.as_dict()
-      </span>
-     </code>
-    </a>
-   </li>
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.components.dataset.MediaElement.from_self">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       MediaElement.from_self()
-      </span>
-     </code>
-    </a>
-   </li>
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.components.dataset.MediaElement.is_encrypted">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       MediaElement.is_encrypted
-      </span>
-     </code>
-    </a>
-   </li>
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.components.dataset.MediaElement.set_crypter">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       MediaElement.set_crypter()
-      </span>
-     </code>
-    </a>
-   </li>
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.components.dataset.MediaElement.type">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       MediaElement.type
-      </span>
-     </code>
-    </a>
-   </li>
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.components.dataset.MediaElement.data">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       MediaElement.data
-      </span>
-     </code>
-    </a>
-   </li>
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.components.dataset.MediaElement.has_data">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       MediaElement.has_data
-      </span>
-     </code>
-    </a>
-   </li>
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.components.dataset.MediaElement.bytes">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       MediaElement.bytes
-      </span>
-     </code>
-    </a>
-   </li>
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.components.dataset.MediaElement.save">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       MediaElement.save()
-      </span>
-     </code>
-    </a>
-   </li>
-  </ul>
- </li>
- <li class="toc-h2 nav-item toc-entry">
-  <a class="reference internal nav-link" href="#datumaro.components.dataset.ModelTransform">
-   <code class="docutils literal notranslate">
-    <span class="pre">
-     ModelTransform
-    </span>
-   </code>
-  </a>
-  <ul class="nav section-nav flex-column">
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.components.dataset.ModelTransform.get_subset">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       ModelTransform.get_subset()
-      </span>
-     </code>
-    </a>
-   </li>
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.components.dataset.ModelTransform.infos">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       ModelTransform.infos()
-      </span>
-     </code>
-    </a>
-   </li>
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.components.dataset.ModelTransform.categories">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       ModelTransform.categories()
-      </span>
-     </code>
-    </a>
-   </li>
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.components.dataset.ModelTransform.transform_item">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       ModelTransform.transform_item()
-      </span>
-     </code>
-    </a>
-   </li>
-  </ul>
- </li>
- <li class="toc-h2 nav-item toc-entry">
-  <a class="reference internal nav-link" href="#datumaro.components.dataset.MultipleFormatsMatchError">
-   <code class="docutils literal notranslate">
-    <span class="pre">
-     MultipleFormatsMatchError
-    </span>
-   </code>
-  </a>
-  <ul class="nav section-nav flex-column">
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.components.dataset.MultipleFormatsMatchError.formats">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       MultipleFormatsMatchError.formats
-      </span>
-     </code>
-    </a>
-   </li>
-  </ul>
- </li>
- <li class="toc-h2 nav-item toc-entry">
-  <a class="reference internal nav-link" href="#datumaro.components.dataset.NoMatchingFormatsError">
-   <code class="docutils literal notranslate">
-    <span class="pre">
-     NoMatchingFormatsError
-    </span>
-   </code>
-  </a>
- </li>
- <li class="toc-h2 nav-item toc-entry">
-  <a class="reference internal nav-link" href="#datumaro.components.dataset.NullProgressReporter">
-   <code class="docutils literal notranslate">
-    <span class="pre">
-     NullProgressReporter
-    </span>
-   </code>
-  </a>
-  <ul class="nav section-nav flex-column">
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.components.dataset.NullProgressReporter.period">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       NullProgressReporter.period
-      </span>
-     </code>
-    </a>
-   </li>
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.components.dataset.NullProgressReporter.interval">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       NullProgressReporter.interval
-      </span>
-     </code>
-    </a>
-   </li>
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.components.dataset.NullProgressReporter.start">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       NullProgressReporter.start()
-      </span>
-     </code>
-    </a>
-   </li>
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.components.dataset.NullProgressReporter.report_status">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       NullProgressReporter.report_status()
-      </span>
-     </code>
-    </a>
-   </li>
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.components.dataset.NullProgressReporter.iter">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       NullProgressReporter.iter()
-      </span>
-     </code>
-    </a>
-   </li>
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.components.dataset.NullProgressReporter.split">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       NullProgressReporter.split()
-      </span>
-     </code>
-    </a>
-   </li>
-  </ul>
- </li>
- <li class="toc-h2 nav-item toc-entry">
-  <a class="reference internal nav-link" href="#datumaro.components.dataset.ProgressReporter">
-   <code class="docutils literal notranslate">
-    <span class="pre">
-     ProgressReporter
-    </span>
-   </code>
-  </a>
-  <ul class="nav section-nav flex-column">
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.components.dataset.ProgressReporter.period">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       ProgressReporter.period
-      </span>
-     </code>
-    </a>
-   </li>
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.components.dataset.ProgressReporter.interval">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       ProgressReporter.interval
-      </span>
-     </code>
-    </a>
-   </li>
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.components.dataset.ProgressReporter.start">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       ProgressReporter.start()
-      </span>
-     </code>
-    </a>
-   </li>
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.components.dataset.ProgressReporter.report_status">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       ProgressReporter.report_status()
-      </span>
-     </code>
-    </a>
-   </li>
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.components.dataset.ProgressReporter.finish">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       ProgressReporter.finish()
-      </span>
-     </code>
-    </a>
-   </li>
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.components.dataset.ProgressReporter.iter">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       ProgressReporter.iter()
-      </span>
-     </code>
-    </a>
-   </li>
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.components.dataset.ProgressReporter.split">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       ProgressReporter.split()
-      </span>
-     </code>
-    </a>
-   </li>
-  </ul>
- </li>
- <li class="toc-h2 nav-item toc-entry">
-  <a class="reference internal nav-link" href="#datumaro.components.dataset.Source">
-   <code class="docutils literal notranslate">
-    <span class="pre">
-     Source
-    </span>
-   </code>
-  </a>
-  <ul class="nav section-nav flex-column">
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.components.dataset.Source.is_generated">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       Source.is_generated
-      </span>
-     </code>
-    </a>
-   </li>
-  </ul>
- </li>
- <li class="toc-h2 nav-item toc-entry">
-  <a class="reference internal nav-link" href="#datumaro.components.dataset.StreamDataset">
-   <code class="docutils literal notranslate">
-    <span class="pre">
-     StreamDataset
-    </span>
-   </code>
-  </a>
-  <ul class="nav section-nav flex-column">
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.components.dataset.StreamDataset.is_eager">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       StreamDataset.is_eager
-      </span>
-     </code>
-    </a>
-   </li>
-  </ul>
- </li>
- <li class="toc-h2 nav-item toc-entry">
-  <a class="reference internal nav-link" href="#datumaro.components.dataset.StreamDatasetStorage">
-   <code class="docutils literal notranslate">
-    <span class="pre">
-     StreamDatasetStorage
-    </span>
-   </code>
-  </a>
-  <ul class="nav section-nav flex-column">
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.components.dataset.StreamDatasetStorage.is_cache_initialized">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       StreamDatasetStorage.is_cache_initialized()
-      </span>
-     </code>
-    </a>
-   </li>
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.components.dataset.StreamDatasetStorage.init_cache">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       StreamDatasetStorage.init_cache()
-      </span>
-     </code>
-    </a>
-   </li>
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.components.dataset.StreamDatasetStorage.stacked_transform">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       StreamDatasetStorage.stacked_transform
-      </span>
-     </code>
-    </a>
-   </li>
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.components.dataset.StreamDatasetStorage.put">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       StreamDatasetStorage.put()
-      </span>
-     </code>
-    </a>
-   </li>
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.components.dataset.StreamDatasetStorage.get">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       StreamDatasetStorage.get()
-      </span>
-     </code>
-    </a>
-   </li>
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.components.dataset.StreamDatasetStorage.remove">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       StreamDatasetStorage.remove()
-      </span>
-     </code>
-    </a>
-   </li>
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.components.dataset.StreamDatasetStorage.get_subset">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       StreamDatasetStorage.get_subset()
-      </span>
-     </code>
-    </a>
-   </li>
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.components.dataset.StreamDatasetStorage.subset_names">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       StreamDatasetStorage.subset_names
-      </span>
-     </code>
-    </a>
-   </li>
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.components.dataset.StreamDatasetStorage.subsets">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       StreamDatasetStorage.subsets()
-      </span>
-     </code>
-    </a>
-   </li>
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.components.dataset.StreamDatasetStorage.transform">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       StreamDatasetStorage.transform()
-      </span>
-     </code>
-    </a>
-   </li>
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.components.dataset.StreamDatasetStorage.get_annotated_items">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       StreamDatasetStorage.get_annotated_items()
-      </span>
-     </code>
-    </a>
-   </li>
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.components.dataset.StreamDatasetStorage.get_annotations">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       StreamDatasetStorage.get_annotations()
-      </span>
-     </code>
-    </a>
-   </li>
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.components.dataset.StreamDatasetStorage.get_datasetitem_by_path">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       StreamDatasetStorage.get_datasetitem_by_path()
-      </span>
-     </code>
-    </a>
-   </li>
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.components.dataset.StreamDatasetStorage.get_patch">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       StreamDatasetStorage.get_patch()
-      </span>
-     </code>
-    </a>
-   </li>
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.components.dataset.StreamDatasetStorage.flush_changes">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       StreamDatasetStorage.flush_changes()
-      </span>
-     </code>
-    </a>
-   </li>
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.components.dataset.StreamDatasetStorage.update">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       StreamDatasetStorage.update()
-      </span>
-     </code>
-    </a>
-   </li>
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.components.dataset.StreamDatasetStorage.infos">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       StreamDatasetStorage.infos()
-      </span>
-     </code>
-    </a>
-   </li>
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.components.dataset.StreamDatasetStorage.categories">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       StreamDatasetStorage.categories()
-      </span>
-     </code>
-    </a>
-   </li>
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.components.dataset.StreamDatasetStorage.is_stream">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       StreamDatasetStorage.is_stream
-      </span>
-     </code>
-    </a>
-   </li>
-  </ul>
- </li>
- <li class="toc-h2 nav-item toc-entry">
-  <a class="reference internal nav-link" href="#datumaro.components.dataset.StreamedItemError">
-   <code class="docutils literal notranslate">
-    <span class="pre">
-     StreamedItemError
-    </span>
-   </code>
-  </a>
- </li>
- <li class="toc-h2 nav-item toc-entry">
-  <a class="reference internal nav-link" href="#datumaro.components.dataset.Transform">
-   <code class="docutils literal notranslate">
-    <span class="pre">
-     Transform
-    </span>
-   </code>
-  </a>
-  <ul class="nav section-nav flex-column">
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.components.dataset.Transform.wrap_item">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       Transform.wrap_item()
-      </span>
-     </code>
-    </a>
-   </li>
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.components.dataset.Transform.categories">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       Transform.categories()
-      </span>
-     </code>
-    </a>
-   </li>
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.components.dataset.Transform.subsets">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       Transform.subsets()
-      </span>
-     </code>
-    </a>
-   </li>
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.components.dataset.Transform.media_type">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       Transform.media_type()
-      </span>
-     </code>
-    </a>
-   </li>
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.components.dataset.Transform.infos">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       Transform.infos()
-      </span>
-     </code>
-    </a>
-   </li>
-  </ul>
- </li>
- <li class="toc-h2 nav-item toc-entry">
-  <a class="reference internal nav-link" href="#datumaro.components.dataset.UnknownFormatError">
-   <code class="docutils literal notranslate">
-    <span class="pre">
-     UnknownFormatError
-    </span>
-   </code>
-  </a>
-  <ul class="nav section-nav flex-column">
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.components.dataset.UnknownFormatError.format">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       UnknownFormatError.format
-      </span>
-     </code>
-    </a>
-   </li>
-  </ul>
- </li>
- <li class="toc-h2 nav-item toc-entry">
-  <a class="reference internal nav-link" href="#datumaro.components.dataset.UserFunctionAnnotationsFilter">
-   <code class="docutils literal notranslate">
-    <span class="pre">
-     UserFunctionAnnotationsFilter
-    </span>
-   </code>
-  </a>
-  <ul class="nav section-nav flex-column">
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.components.dataset.UserFunctionAnnotationsFilter.transform_item">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       UserFunctionAnnotationsFilter.transform_item()
-      </span>
-     </code>
-    </a>
-   </li>
-  </ul>
- </li>
- <li class="toc-h2 nav-item toc-entry">
-  <a class="reference internal nav-link" href="#datumaro.components.dataset.UserFunctionDatasetFilter">
-   <code class="docutils literal notranslate">
-    <span class="pre">
-     UserFunctionDatasetFilter
-    </span>
-   </code>
-  </a>
-  <ul class="nav section-nav flex-column">
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.components.dataset.UserFunctionDatasetFilter.transform_item">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       UserFunctionDatasetFilter.transform_item()
-      </span>
-     </code>
-    </a>
-   </li>
-  </ul>
- </li>
- <li class="toc-h2 nav-item toc-entry">
-  <a class="reference internal nav-link" href="#datumaro.components.dataset.XPathAnnotationsFilter">
-   <code class="docutils literal notranslate">
-    <span class="pre">
-     XPathAnnotationsFilter
-    </span>
-   </code>
-  </a>
-  <ul class="nav section-nav flex-column">
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.components.dataset.XPathAnnotationsFilter.transform_item">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       XPathAnnotationsFilter.transform_item()
-      </span>
-     </code>
-    </a>
-   </li>
-  </ul>
- </li>
- <li class="toc-h2 nav-item toc-entry">
-  <a class="reference internal nav-link" href="#datumaro.components.dataset.XPathDatasetFilter">
-   <code class="docutils literal notranslate">
-    <span class="pre">
-     XPathDatasetFilter
-    </span>
-   </code>
-  </a>
-  <ul class="nav section-nav flex-column">
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#datumaro.components.dataset.XPathDatasetFilter.transform_item">
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       XPathDatasetFilter.transform_item()
-      </span>
-     </code>
-    </a>
-   </li>
-  </ul>
- </li>
- <li class="toc-h2 nav-item toc-entry">
-  <a class="reference internal nav-link" href="#datumaro.components.dataset.contextmanager">
-   <code class="docutils literal notranslate">
-    <span class="pre">
-     contextmanager()
-    </span>
-   </code>
-  </a>
- </li>
- <li class="toc-h2 nav-item toc-entry">
-  <a class="reference internal nav-link" href="#datumaro.components.dataset.copy">
-   <code class="docutils literal notranslate">
-    <span class="pre">
-     copy()
-    </span>
-   </code>
-  </a>
- </li>
- <li class="toc-h2 nav-item toc-entry">
-  <a class="reference internal nav-link" href="#datumaro.components.dataset.deepcopy">
-   <code class="docutils literal notranslate">
-    <span class="pre">
-     deepcopy()
-    </span>
-   </code>
-  </a>
- </li>
- <li class="toc-h2 nav-item toc-entry">
-  <a class="reference internal nav-link" href="#datumaro.components.dataset.load_hash_key">
-   <code class="docutils literal notranslate">
-    <span class="pre">
-     load_hash_key()
-    </span>
-   </code>
-  </a>
- </li>
- <li class="toc-h2 nav-item toc-entry">
-  <a class="reference internal nav-link" href="#datumaro.components.dataset.logging_disabled">
-   <code class="docutils literal notranslate">
-    <span class="pre">
-     logging_disabled()
-    </span>
-   </code>
-  </a>
- </li>
- <li class="toc-h2 nav-item toc-entry">
-  <a class="reference internal nav-link" href="#datumaro.components.dataset.on_error_do">
-   <code class="docutils literal notranslate">
-    <span class="pre">
-     on_error_do()
-    </span>
-   </code>
-  </a>
- </li>
- <li class="toc-h2 nav-item toc-entry">
-  <a class="reference internal nav-link" href="#datumaro.components.dataset.overload">
-   <code class="docutils literal notranslate">
-    <span class="pre">
-     overload()
-    </span>
-   </code>
-  </a>
- </li>
- <li class="toc-h2 nav-item toc-entry">
-  <a class="reference internal nav-link" href="#datumaro.components.dataset.rmtree">
-   <code class="docutils literal notranslate">
-    <span class="pre">
-     rmtree()
-    </span>
-   </code>
-  </a>
- </li>
- <li class="toc-h2 nav-item toc-entry">
-  <a class="reference internal nav-link" href="#datumaro.components.dataset.scoped">
-   <code class="docutils literal notranslate">
-    <span class="pre">
-     scoped()
-    </span>
-   </code>
-  </a>
- </li>
-</ul>
-
-</nav>
-</div>
-
-<div class="toc-item">
-  
-<div id="searchbox"></div>
-</div>
-
-<div class="toc-item">
-  
-</div>
-
-<div class="toc-item">
-  
-<div class="tocsection sourcelink">
-    <a href="../../../_sources/docs/reference/_autosummary/datumaro.components.dataset.rst.txt">
-        <i class="fa-solid fa-file-lines"></i> Show Source
-    </a>
-</div>
-
-</div>
-
             </div>
-          
-          
-        </div>
-        <footer class="bd-footer-content">
-          <div class="bd-footer-content__inner">
+            
+            
+              
+                <div class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+<div
+    id="pst-page-navigation-heading-2"
+    class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> On this page
+  </div>
+  <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.dataset.Dataset"><code class="docutils literal notranslate"><span class="pre">Dataset</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.dataset.Dataset.from_iterable"><code class="docutils literal notranslate"><span class="pre">Dataset.from_iterable()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.dataset.Dataset.from_extractors"><code class="docutils literal notranslate"><span class="pre">Dataset.from_extractors()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.dataset.Dataset.define_infos"><code class="docutils literal notranslate"><span class="pre">Dataset.define_infos()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.dataset.Dataset.define_categories"><code class="docutils literal notranslate"><span class="pre">Dataset.define_categories()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.dataset.Dataset.init_cache"><code class="docutils literal notranslate"><span class="pre">Dataset.init_cache()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.dataset.Dataset.get_subset"><code class="docutils literal notranslate"><span class="pre">Dataset.get_subset()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.dataset.Dataset.subsets"><code class="docutils literal notranslate"><span class="pre">Dataset.subsets()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.dataset.Dataset.infos"><code class="docutils literal notranslate"><span class="pre">Dataset.infos()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.dataset.Dataset.categories"><code class="docutils literal notranslate"><span class="pre">Dataset.categories()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.dataset.Dataset.media_type"><code class="docutils literal notranslate"><span class="pre">Dataset.media_type()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.dataset.Dataset.get"><code class="docutils literal notranslate"><span class="pre">Dataset.get()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.dataset.Dataset.get_annotated_items"><code class="docutils literal notranslate"><span class="pre">Dataset.get_annotated_items()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.dataset.Dataset.get_annotations"><code class="docutils literal notranslate"><span class="pre">Dataset.get_annotations()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.dataset.Dataset.get_datasetitem_by_path"><code class="docutils literal notranslate"><span class="pre">Dataset.get_datasetitem_by_path()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.dataset.Dataset.get_label_cat_names"><code class="docutils literal notranslate"><span class="pre">Dataset.get_label_cat_names()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.dataset.Dataset.get_subset_info"><code class="docutils literal notranslate"><span class="pre">Dataset.get_subset_info()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.dataset.Dataset.get_infos"><code class="docutils literal notranslate"><span class="pre">Dataset.get_infos()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.dataset.Dataset.get_categories_info"><code class="docutils literal notranslate"><span class="pre">Dataset.get_categories_info()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.dataset.Dataset.put"><code class="docutils literal notranslate"><span class="pre">Dataset.put()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.dataset.Dataset.remove"><code class="docutils literal notranslate"><span class="pre">Dataset.remove()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.dataset.Dataset.filter"><code class="docutils literal notranslate"><span class="pre">Dataset.filter()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.dataset.Dataset.update"><code class="docutils literal notranslate"><span class="pre">Dataset.update()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.dataset.Dataset.transform"><code class="docutils literal notranslate"><span class="pre">Dataset.transform()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.dataset.Dataset.run_model"><code class="docutils literal notranslate"><span class="pre">Dataset.run_model()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.dataset.Dataset.select"><code class="docutils literal notranslate"><span class="pre">Dataset.select()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.dataset.Dataset.data_path"><code class="docutils literal notranslate"><span class="pre">Dataset.data_path</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.dataset.Dataset.format"><code class="docutils literal notranslate"><span class="pre">Dataset.format</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.dataset.Dataset.options"><code class="docutils literal notranslate"><span class="pre">Dataset.options</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.dataset.Dataset.is_modified"><code class="docutils literal notranslate"><span class="pre">Dataset.is_modified</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.dataset.Dataset.get_patch"><code class="docutils literal notranslate"><span class="pre">Dataset.get_patch()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.dataset.Dataset.env"><code class="docutils literal notranslate"><span class="pre">Dataset.env</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.dataset.Dataset.is_cache_initialized"><code class="docutils literal notranslate"><span class="pre">Dataset.is_cache_initialized</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.dataset.Dataset.is_eager"><code class="docutils literal notranslate"><span class="pre">Dataset.is_eager</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.dataset.Dataset.is_bound"><code class="docutils literal notranslate"><span class="pre">Dataset.is_bound</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.dataset.Dataset.bind"><code class="docutils literal notranslate"><span class="pre">Dataset.bind()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.dataset.Dataset.flush_changes"><code class="docutils literal notranslate"><span class="pre">Dataset.flush_changes()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.dataset.Dataset.export"><code class="docutils literal notranslate"><span class="pre">Dataset.export()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.dataset.Dataset.save"><code class="docutils literal notranslate"><span class="pre">Dataset.save()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.dataset.Dataset.load"><code class="docutils literal notranslate"><span class="pre">Dataset.load()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.dataset.Dataset.import_from"><code class="docutils literal notranslate"><span class="pre">Dataset.import_from()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.dataset.Dataset.detect"><code class="docutils literal notranslate"><span class="pre">Dataset.detect()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.dataset.Dataset.is_stream"><code class="docutils literal notranslate"><span class="pre">Dataset.is_stream</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.dataset.Dataset.clone"><code class="docutils literal notranslate"><span class="pre">Dataset.clone()</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.dataset.eager_mode"><code class="docutils literal notranslate"><span class="pre">eager_mode()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.dataset.Annotation"><code class="docutils literal notranslate"><span class="pre">Annotation</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.dataset.Annotation.id"><code class="docutils literal notranslate"><span class="pre">Annotation.id</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.dataset.Annotation.attributes"><code class="docutils literal notranslate"><span class="pre">Annotation.attributes</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.dataset.Annotation.group"><code class="docutils literal notranslate"><span class="pre">Annotation.group</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.dataset.Annotation.object_id"><code class="docutils literal notranslate"><span class="pre">Annotation.object_id</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.dataset.Annotation.type"><code class="docutils literal notranslate"><span class="pre">Annotation.type</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.dataset.Annotation.as_dict"><code class="docutils literal notranslate"><span class="pre">Annotation.as_dict()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.dataset.Annotation.wrap"><code class="docutils literal notranslate"><span class="pre">Annotation.wrap()</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.dataset.AnnotationType"><code class="docutils literal notranslate"><span class="pre">AnnotationType</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.dataset.AnnotationType.unknown"><code class="docutils literal notranslate"><span class="pre">AnnotationType.unknown</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.dataset.AnnotationType.label"><code class="docutils literal notranslate"><span class="pre">AnnotationType.label</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.dataset.AnnotationType.mask"><code class="docutils literal notranslate"><span class="pre">AnnotationType.mask</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.dataset.AnnotationType.points"><code class="docutils literal notranslate"><span class="pre">AnnotationType.points</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.dataset.AnnotationType.polygon"><code class="docutils literal notranslate"><span class="pre">AnnotationType.polygon</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.dataset.AnnotationType.polyline"><code class="docutils literal notranslate"><span class="pre">AnnotationType.polyline</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.dataset.AnnotationType.bbox"><code class="docutils literal notranslate"><span class="pre">AnnotationType.bbox</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.dataset.AnnotationType.caption"><code class="docutils literal notranslate"><span class="pre">AnnotationType.caption</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.dataset.AnnotationType.cuboid_3d"><code class="docutils literal notranslate"><span class="pre">AnnotationType.cuboid_3d</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.dataset.AnnotationType.super_resolution_annotation"><code class="docutils literal notranslate"><span class="pre">AnnotationType.super_resolution_annotation</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.dataset.AnnotationType.depth_annotation"><code class="docutils literal notranslate"><span class="pre">AnnotationType.depth_annotation</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.dataset.AnnotationType.ellipse"><code class="docutils literal notranslate"><span class="pre">AnnotationType.ellipse</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.dataset.AnnotationType.hash_key"><code class="docutils literal notranslate"><span class="pre">AnnotationType.hash_key</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.dataset.AnnotationType.feature_vector"><code class="docutils literal notranslate"><span class="pre">AnnotationType.feature_vector</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.dataset.AnnotationType.tabular"><code class="docutils literal notranslate"><span class="pre">AnnotationType.tabular</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.dataset.DatasetBase"><code class="docutils literal notranslate"><span class="pre">DatasetBase</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.dataset.DatasetBase.media_type"><code class="docutils literal notranslate"><span class="pre">DatasetBase.media_type()</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.dataset.DatasetImportError"><code class="docutils literal notranslate"><span class="pre">DatasetImportError</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.dataset.DatasetItem"><code class="docutils literal notranslate"><span class="pre">DatasetItem</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.dataset.DatasetItem.id"><code class="docutils literal notranslate"><span class="pre">DatasetItem.id</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.dataset.DatasetItem.subset"><code class="docutils literal notranslate"><span class="pre">DatasetItem.subset</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.dataset.DatasetItem.media"><code class="docutils literal notranslate"><span class="pre">DatasetItem.media</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.dataset.DatasetItem.annotations"><code class="docutils literal notranslate"><span class="pre">DatasetItem.annotations</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.dataset.DatasetItem.attributes"><code class="docutils literal notranslate"><span class="pre">DatasetItem.attributes</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.dataset.DatasetItem.wrap"><code class="docutils literal notranslate"><span class="pre">DatasetItem.wrap()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.dataset.DatasetItem.media_as"><code class="docutils literal notranslate"><span class="pre">DatasetItem.media_as()</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.dataset.DatasetItemStorageDatasetView"><code class="docutils literal notranslate"><span class="pre">DatasetItemStorageDatasetView</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.dataset.DatasetItemStorageDatasetView.Subset"><code class="docutils literal notranslate"><span class="pre">DatasetItemStorageDatasetView.Subset</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.dataset.DatasetItemStorageDatasetView.Subset.put"><code class="docutils literal notranslate"><span class="pre">DatasetItemStorageDatasetView.Subset.put()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.dataset.DatasetItemStorageDatasetView.Subset.get"><code class="docutils literal notranslate"><span class="pre">DatasetItemStorageDatasetView.Subset.get()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.dataset.DatasetItemStorageDatasetView.Subset.remove"><code class="docutils literal notranslate"><span class="pre">DatasetItemStorageDatasetView.Subset.remove()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.dataset.DatasetItemStorageDatasetView.Subset.get_subset"><code class="docutils literal notranslate"><span class="pre">DatasetItemStorageDatasetView.Subset.get_subset()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.dataset.DatasetItemStorageDatasetView.Subset.subsets"><code class="docutils literal notranslate"><span class="pre">DatasetItemStorageDatasetView.Subset.subsets()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.dataset.DatasetItemStorageDatasetView.Subset.infos"><code class="docutils literal notranslate"><span class="pre">DatasetItemStorageDatasetView.Subset.infos()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.dataset.DatasetItemStorageDatasetView.Subset.categories"><code class="docutils literal notranslate"><span class="pre">DatasetItemStorageDatasetView.Subset.categories()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.dataset.DatasetItemStorageDatasetView.Subset.media_type"><code class="docutils literal notranslate"><span class="pre">DatasetItemStorageDatasetView.Subset.media_type()</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.dataset.DatasetItemStorageDatasetView.infos"><code class="docutils literal notranslate"><span class="pre">DatasetItemStorageDatasetView.infos()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.dataset.DatasetItemStorageDatasetView.categories"><code class="docutils literal notranslate"><span class="pre">DatasetItemStorageDatasetView.categories()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.dataset.DatasetItemStorageDatasetView.get_subset"><code class="docutils literal notranslate"><span class="pre">DatasetItemStorageDatasetView.get_subset()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.dataset.DatasetItemStorageDatasetView.subsets"><code class="docutils literal notranslate"><span class="pre">DatasetItemStorageDatasetView.subsets()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.dataset.DatasetItemStorageDatasetView.get"><code class="docutils literal notranslate"><span class="pre">DatasetItemStorageDatasetView.get()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.dataset.DatasetItemStorageDatasetView.media_type"><code class="docutils literal notranslate"><span class="pre">DatasetItemStorageDatasetView.media_type()</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.dataset.DatasetPatch"><code class="docutils literal notranslate"><span class="pre">DatasetPatch</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.dataset.DatasetPatch.DatasetPatchWrapper"><code class="docutils literal notranslate"><span class="pre">DatasetPatch.DatasetPatchWrapper</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.dataset.DatasetPatch.DatasetPatchWrapper.subsets"><code class="docutils literal notranslate"><span class="pre">DatasetPatch.DatasetPatchWrapper.subsets()</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.dataset.DatasetPatch.updated_subsets"><code class="docutils literal notranslate"><span class="pre">DatasetPatch.updated_subsets</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.dataset.DatasetPatch.as_dataset"><code class="docutils literal notranslate"><span class="pre">DatasetPatch.as_dataset()</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.dataset.DatasetStorage"><code class="docutils literal notranslate"><span class="pre">DatasetStorage</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.dataset.DatasetStorage.is_cache_initialized"><code class="docutils literal notranslate"><span class="pre">DatasetStorage.is_cache_initialized()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.dataset.DatasetStorage.init_cache"><code class="docutils literal notranslate"><span class="pre">DatasetStorage.init_cache()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.dataset.DatasetStorage.infos"><code class="docutils literal notranslate"><span class="pre">DatasetStorage.infos()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.dataset.DatasetStorage.define_infos"><code class="docutils literal notranslate"><span class="pre">DatasetStorage.define_infos()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.dataset.DatasetStorage.categories"><code class="docutils literal notranslate"><span class="pre">DatasetStorage.categories()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.dataset.DatasetStorage.define_categories"><code class="docutils literal notranslate"><span class="pre">DatasetStorage.define_categories()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.dataset.DatasetStorage.media_type"><code class="docutils literal notranslate"><span class="pre">DatasetStorage.media_type()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.dataset.DatasetStorage.put"><code class="docutils literal notranslate"><span class="pre">DatasetStorage.put()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.dataset.DatasetStorage.get"><code class="docutils literal notranslate"><span class="pre">DatasetStorage.get()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.dataset.DatasetStorage.remove"><code class="docutils literal notranslate"><span class="pre">DatasetStorage.remove()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.dataset.DatasetStorage.get_subset"><code class="docutils literal notranslate"><span class="pre">DatasetStorage.get_subset()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.dataset.DatasetStorage.subsets"><code class="docutils literal notranslate"><span class="pre">DatasetStorage.subsets()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.dataset.DatasetStorage.get_annotated_items"><code class="docutils literal notranslate"><span class="pre">DatasetStorage.get_annotated_items()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.dataset.DatasetStorage.get_annotations"><code class="docutils literal notranslate"><span class="pre">DatasetStorage.get_annotations()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.dataset.DatasetStorage.get_datasetitem_by_path"><code class="docutils literal notranslate"><span class="pre">DatasetStorage.get_datasetitem_by_path()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.dataset.DatasetStorage.transform"><code class="docutils literal notranslate"><span class="pre">DatasetStorage.transform()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.dataset.DatasetStorage.has_updated_items"><code class="docutils literal notranslate"><span class="pre">DatasetStorage.has_updated_items()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.dataset.DatasetStorage.get_patch"><code class="docutils literal notranslate"><span class="pre">DatasetStorage.get_patch()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.dataset.DatasetStorage.flush_changes"><code class="docutils literal notranslate"><span class="pre">DatasetStorage.flush_changes()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.dataset.DatasetStorage.update"><code class="docutils literal notranslate"><span class="pre">DatasetStorage.update()</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.dataset.DatasetSubset"><code class="docutils literal notranslate"><span class="pre">DatasetSubset</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.dataset.DatasetSubset.put"><code class="docutils literal notranslate"><span class="pre">DatasetSubset.put()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.dataset.DatasetSubset.get"><code class="docutils literal notranslate"><span class="pre">DatasetSubset.get()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.dataset.DatasetSubset.remove"><code class="docutils literal notranslate"><span class="pre">DatasetSubset.remove()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.dataset.DatasetSubset.get_subset"><code class="docutils literal notranslate"><span class="pre">DatasetSubset.get_subset()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.dataset.DatasetSubset.subsets"><code class="docutils literal notranslate"><span class="pre">DatasetSubset.subsets()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.dataset.DatasetSubset.infos"><code class="docutils literal notranslate"><span class="pre">DatasetSubset.infos()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.dataset.DatasetSubset.categories"><code class="docutils literal notranslate"><span class="pre">DatasetSubset.categories()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.dataset.DatasetSubset.media_type"><code class="docutils literal notranslate"><span class="pre">DatasetSubset.media_type()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.dataset.DatasetSubset.get_annotated_items"><code class="docutils literal notranslate"><span class="pre">DatasetSubset.get_annotated_items()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.dataset.DatasetSubset.get_annotations"><code class="docutils literal notranslate"><span class="pre">DatasetSubset.get_annotations()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.dataset.DatasetSubset.get_annotated_type"><code class="docutils literal notranslate"><span class="pre">DatasetSubset.get_annotated_type()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.dataset.DatasetSubset.as_dataset"><code class="docutils literal notranslate"><span class="pre">DatasetSubset.as_dataset()</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.dataset.Environment"><code class="docutils literal notranslate"><span class="pre">Environment</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.dataset.Environment.extractors"><code class="docutils literal notranslate"><span class="pre">Environment.extractors</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.dataset.Environment.importers"><code class="docutils literal notranslate"><span class="pre">Environment.importers</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.dataset.Environment.launchers"><code class="docutils literal notranslate"><span class="pre">Environment.launchers</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.dataset.Environment.exporters"><code class="docutils literal notranslate"><span class="pre">Environment.exporters</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.dataset.Environment.generators"><code class="docutils literal notranslate"><span class="pre">Environment.generators</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.dataset.Environment.transforms"><code class="docutils literal notranslate"><span class="pre">Environment.transforms</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.dataset.Environment.validators"><code class="docutils literal notranslate"><span class="pre">Environment.validators</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.dataset.Environment.load_plugins"><code class="docutils literal notranslate"><span class="pre">Environment.load_plugins()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.dataset.Environment.register_plugins"><code class="docutils literal notranslate"><span class="pre">Environment.register_plugins()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.dataset.Environment.make_extractor"><code class="docutils literal notranslate"><span class="pre">Environment.make_extractor()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.dataset.Environment.make_importer"><code class="docutils literal notranslate"><span class="pre">Environment.make_importer()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.dataset.Environment.make_launcher"><code class="docutils literal notranslate"><span class="pre">Environment.make_launcher()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.dataset.Environment.make_exporter"><code class="docutils literal notranslate"><span class="pre">Environment.make_exporter()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.dataset.Environment.make_transform"><code class="docutils literal notranslate"><span class="pre">Environment.make_transform()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.dataset.Environment.is_format_known"><code class="docutils literal notranslate"><span class="pre">Environment.is_format_known()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.dataset.Environment.detect_dataset"><code class="docutils literal notranslate"><span class="pre">Environment.detect_dataset()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.dataset.Environment.merge"><code class="docutils literal notranslate"><span class="pre">Environment.merge()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.dataset.Environment.release_builtin_plugins"><code class="docutils literal notranslate"><span class="pre">Environment.release_builtin_plugins()</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.dataset.ExportContext"><code class="docutils literal notranslate"><span class="pre">ExportContext</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.dataset.ExportContext.progress_reporter"><code class="docutils literal notranslate"><span class="pre">ExportContext.progress_reporter</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.dataset.ExportContext.error_policy"><code class="docutils literal notranslate"><span class="pre">ExportContext.error_policy</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.dataset.ExportErrorPolicy"><code class="docutils literal notranslate"><span class="pre">ExportErrorPolicy</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.dataset.ExportErrorPolicy.report_item_error"><code class="docutils literal notranslate"><span class="pre">ExportErrorPolicy.report_item_error()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.dataset.ExportErrorPolicy.report_annotation_error"><code class="docutils literal notranslate"><span class="pre">ExportErrorPolicy.report_annotation_error()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.dataset.ExportErrorPolicy.fail"><code class="docutils literal notranslate"><span class="pre">ExportErrorPolicy.fail()</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.dataset.Exporter"><code class="docutils literal notranslate"><span class="pre">Exporter</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.dataset.Exporter.DEFAULT_IMAGE_EXT"><code class="docutils literal notranslate"><span class="pre">Exporter.DEFAULT_IMAGE_EXT</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.dataset.Exporter.build_cmdline_parser"><code class="docutils literal notranslate"><span class="pre">Exporter.build_cmdline_parser()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.dataset.Exporter.convert"><code class="docutils literal notranslate"><span class="pre">Exporter.convert()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.dataset.Exporter.patch"><code class="docutils literal notranslate"><span class="pre">Exporter.patch()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.dataset.Exporter.apply"><code class="docutils literal notranslate"><span class="pre">Exporter.apply()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.dataset.Exporter.can_stream"><code class="docutils literal notranslate"><span class="pre">Exporter.can_stream</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.dataset.IDataset"><code class="docutils literal notranslate"><span class="pre">IDataset</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.dataset.IDataset.subsets"><code class="docutils literal notranslate"><span class="pre">IDataset.subsets()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.dataset.IDataset.get_subset"><code class="docutils literal notranslate"><span class="pre">IDataset.get_subset()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.dataset.IDataset.infos"><code class="docutils literal notranslate"><span class="pre">IDataset.infos()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.dataset.IDataset.categories"><code class="docutils literal notranslate"><span class="pre">IDataset.categories()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.dataset.IDataset.get"><code class="docutils literal notranslate"><span class="pre">IDataset.get()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.dataset.IDataset.media_type"><code class="docutils literal notranslate"><span class="pre">IDataset.media_type()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.dataset.IDataset.is_stream"><code class="docutils literal notranslate"><span class="pre">IDataset.is_stream</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.dataset.Image"><code class="docutils literal notranslate"><span class="pre">Image</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.dataset.Image.from_file"><code class="docutils literal notranslate"><span class="pre">Image.from_file()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.dataset.Image.from_numpy"><code class="docutils literal notranslate"><span class="pre">Image.from_numpy()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.dataset.Image.from_bytes"><code class="docutils literal notranslate"><span class="pre">Image.from_bytes()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.dataset.Image.has_size"><code class="docutils literal notranslate"><span class="pre">Image.has_size</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.dataset.Image.size"><code class="docutils literal notranslate"><span class="pre">Image.size</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.dataset.Image.ext"><code class="docutils literal notranslate"><span class="pre">Image.ext</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.dataset.Image.set_crypter"><code class="docutils literal notranslate"><span class="pre">Image.set_crypter()</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.dataset.ImportContext"><code class="docutils literal notranslate"><span class="pre">ImportContext</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.dataset.ImportContext.progress_reporter"><code class="docutils literal notranslate"><span class="pre">ImportContext.progress_reporter</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.dataset.ImportContext.error_policy"><code class="docutils literal notranslate"><span class="pre">ImportContext.error_policy</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.dataset.ImportErrorPolicy"><code class="docutils literal notranslate"><span class="pre">ImportErrorPolicy</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.dataset.ImportErrorPolicy.report_item_error"><code class="docutils literal notranslate"><span class="pre">ImportErrorPolicy.report_item_error()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.dataset.ImportErrorPolicy.report_annotation_error"><code class="docutils literal notranslate"><span class="pre">ImportErrorPolicy.report_annotation_error()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.dataset.ImportErrorPolicy.fail"><code class="docutils literal notranslate"><span class="pre">ImportErrorPolicy.fail()</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.dataset.ItemTransform"><code class="docutils literal notranslate"><span class="pre">ItemTransform</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.dataset.ItemTransform.transform_item"><code class="docutils literal notranslate"><span class="pre">ItemTransform.transform_item()</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.dataset.LabelCategories"><code class="docutils literal notranslate"><span class="pre">LabelCategories</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.dataset.LabelCategories.Category"><code class="docutils literal notranslate"><span class="pre">LabelCategories.Category</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.dataset.LabelCategories.Category.name"><code class="docutils literal notranslate"><span class="pre">LabelCategories.Category.name</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.dataset.LabelCategories.Category.parent"><code class="docutils literal notranslate"><span class="pre">LabelCategories.Category.parent</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.dataset.LabelCategories.Category.attributes"><code class="docutils literal notranslate"><span class="pre">LabelCategories.Category.attributes</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.dataset.LabelCategories.LabelGroup"><code class="docutils literal notranslate"><span class="pre">LabelCategories.LabelGroup</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.dataset.LabelCategories.LabelGroup.name"><code class="docutils literal notranslate"><span class="pre">LabelCategories.LabelGroup.name</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.dataset.LabelCategories.LabelGroup.labels"><code class="docutils literal notranslate"><span class="pre">LabelCategories.LabelGroup.labels</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.dataset.LabelCategories.LabelGroup.group_type"><code class="docutils literal notranslate"><span class="pre">LabelCategories.LabelGroup.group_type</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.dataset.LabelCategories.items"><code class="docutils literal notranslate"><span class="pre">LabelCategories.items</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.dataset.LabelCategories.label_groups"><code class="docutils literal notranslate"><span class="pre">LabelCategories.label_groups</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.dataset.LabelCategories.from_iterable"><code class="docutils literal notranslate"><span class="pre">LabelCategories.from_iterable()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.dataset.LabelCategories.add"><code class="docutils literal notranslate"><span class="pre">LabelCategories.add()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.dataset.LabelCategories.add_label_group"><code class="docutils literal notranslate"><span class="pre">LabelCategories.add_label_group()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.dataset.LabelCategories.find"><code class="docutils literal notranslate"><span class="pre">LabelCategories.find()</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.dataset.Launcher"><code class="docutils literal notranslate"><span class="pre">Launcher</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.dataset.Launcher.preprocess"><code class="docutils literal notranslate"><span class="pre">Launcher.preprocess()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.dataset.Launcher.infer"><code class="docutils literal notranslate"><span class="pre">Launcher.infer()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.dataset.Launcher.postprocess"><code class="docutils literal notranslate"><span class="pre">Launcher.postprocess()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.dataset.Launcher.launch"><code class="docutils literal notranslate"><span class="pre">Launcher.launch()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.dataset.Launcher.infos"><code class="docutils literal notranslate"><span class="pre">Launcher.infos()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.dataset.Launcher.categories"><code class="docutils literal notranslate"><span class="pre">Launcher.categories()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.dataset.Launcher.type_check"><code class="docutils literal notranslate"><span class="pre">Launcher.type_check()</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.dataset.MediaElement"><code class="docutils literal notranslate"><span class="pre">MediaElement</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.dataset.MediaElement.as_dict"><code class="docutils literal notranslate"><span class="pre">MediaElement.as_dict()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.dataset.MediaElement.from_self"><code class="docutils literal notranslate"><span class="pre">MediaElement.from_self()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.dataset.MediaElement.is_encrypted"><code class="docutils literal notranslate"><span class="pre">MediaElement.is_encrypted</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.dataset.MediaElement.set_crypter"><code class="docutils literal notranslate"><span class="pre">MediaElement.set_crypter()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.dataset.MediaElement.type"><code class="docutils literal notranslate"><span class="pre">MediaElement.type</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.dataset.MediaElement.data"><code class="docutils literal notranslate"><span class="pre">MediaElement.data</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.dataset.MediaElement.has_data"><code class="docutils literal notranslate"><span class="pre">MediaElement.has_data</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.dataset.MediaElement.bytes"><code class="docutils literal notranslate"><span class="pre">MediaElement.bytes</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.dataset.MediaElement.save"><code class="docutils literal notranslate"><span class="pre">MediaElement.save()</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.dataset.ModelTransform"><code class="docutils literal notranslate"><span class="pre">ModelTransform</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.dataset.ModelTransform.get_subset"><code class="docutils literal notranslate"><span class="pre">ModelTransform.get_subset()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.dataset.ModelTransform.infos"><code class="docutils literal notranslate"><span class="pre">ModelTransform.infos()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.dataset.ModelTransform.categories"><code class="docutils literal notranslate"><span class="pre">ModelTransform.categories()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.dataset.ModelTransform.transform_item"><code class="docutils literal notranslate"><span class="pre">ModelTransform.transform_item()</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.dataset.MultipleFormatsMatchError"><code class="docutils literal notranslate"><span class="pre">MultipleFormatsMatchError</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.dataset.MultipleFormatsMatchError.formats"><code class="docutils literal notranslate"><span class="pre">MultipleFormatsMatchError.formats</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.dataset.NoMatchingFormatsError"><code class="docutils literal notranslate"><span class="pre">NoMatchingFormatsError</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.dataset.NullProgressReporter"><code class="docutils literal notranslate"><span class="pre">NullProgressReporter</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.dataset.NullProgressReporter.period"><code class="docutils literal notranslate"><span class="pre">NullProgressReporter.period</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.dataset.NullProgressReporter.interval"><code class="docutils literal notranslate"><span class="pre">NullProgressReporter.interval</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.dataset.NullProgressReporter.start"><code class="docutils literal notranslate"><span class="pre">NullProgressReporter.start()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.dataset.NullProgressReporter.report_status"><code class="docutils literal notranslate"><span class="pre">NullProgressReporter.report_status()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.dataset.NullProgressReporter.iter"><code class="docutils literal notranslate"><span class="pre">NullProgressReporter.iter()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.dataset.NullProgressReporter.split"><code class="docutils literal notranslate"><span class="pre">NullProgressReporter.split()</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.dataset.ProgressReporter"><code class="docutils literal notranslate"><span class="pre">ProgressReporter</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.dataset.ProgressReporter.period"><code class="docutils literal notranslate"><span class="pre">ProgressReporter.period</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.dataset.ProgressReporter.interval"><code class="docutils literal notranslate"><span class="pre">ProgressReporter.interval</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.dataset.ProgressReporter.start"><code class="docutils literal notranslate"><span class="pre">ProgressReporter.start()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.dataset.ProgressReporter.report_status"><code class="docutils literal notranslate"><span class="pre">ProgressReporter.report_status()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.dataset.ProgressReporter.finish"><code class="docutils literal notranslate"><span class="pre">ProgressReporter.finish()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.dataset.ProgressReporter.iter"><code class="docutils literal notranslate"><span class="pre">ProgressReporter.iter()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.dataset.ProgressReporter.split"><code class="docutils literal notranslate"><span class="pre">ProgressReporter.split()</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.dataset.Source"><code class="docutils literal notranslate"><span class="pre">Source</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.dataset.Source.is_generated"><code class="docutils literal notranslate"><span class="pre">Source.is_generated</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.dataset.StreamDataset"><code class="docutils literal notranslate"><span class="pre">StreamDataset</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.dataset.StreamDataset.is_eager"><code class="docutils literal notranslate"><span class="pre">StreamDataset.is_eager</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.dataset.StreamDatasetStorage"><code class="docutils literal notranslate"><span class="pre">StreamDatasetStorage</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.dataset.StreamDatasetStorage.is_cache_initialized"><code class="docutils literal notranslate"><span class="pre">StreamDatasetStorage.is_cache_initialized()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.dataset.StreamDatasetStorage.init_cache"><code class="docutils literal notranslate"><span class="pre">StreamDatasetStorage.init_cache()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.dataset.StreamDatasetStorage.stacked_transform"><code class="docutils literal notranslate"><span class="pre">StreamDatasetStorage.stacked_transform</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.dataset.StreamDatasetStorage.put"><code class="docutils literal notranslate"><span class="pre">StreamDatasetStorage.put()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.dataset.StreamDatasetStorage.get"><code class="docutils literal notranslate"><span class="pre">StreamDatasetStorage.get()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.dataset.StreamDatasetStorage.remove"><code class="docutils literal notranslate"><span class="pre">StreamDatasetStorage.remove()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.dataset.StreamDatasetStorage.get_subset"><code class="docutils literal notranslate"><span class="pre">StreamDatasetStorage.get_subset()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.dataset.StreamDatasetStorage.subset_names"><code class="docutils literal notranslate"><span class="pre">StreamDatasetStorage.subset_names</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.dataset.StreamDatasetStorage.subsets"><code class="docutils literal notranslate"><span class="pre">StreamDatasetStorage.subsets()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.dataset.StreamDatasetStorage.transform"><code class="docutils literal notranslate"><span class="pre">StreamDatasetStorage.transform()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.dataset.StreamDatasetStorage.get_annotated_items"><code class="docutils literal notranslate"><span class="pre">StreamDatasetStorage.get_annotated_items()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.dataset.StreamDatasetStorage.get_annotations"><code class="docutils literal notranslate"><span class="pre">StreamDatasetStorage.get_annotations()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.dataset.StreamDatasetStorage.get_datasetitem_by_path"><code class="docutils literal notranslate"><span class="pre">StreamDatasetStorage.get_datasetitem_by_path()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.dataset.StreamDatasetStorage.get_patch"><code class="docutils literal notranslate"><span class="pre">StreamDatasetStorage.get_patch()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.dataset.StreamDatasetStorage.flush_changes"><code class="docutils literal notranslate"><span class="pre">StreamDatasetStorage.flush_changes()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.dataset.StreamDatasetStorage.update"><code class="docutils literal notranslate"><span class="pre">StreamDatasetStorage.update()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.dataset.StreamDatasetStorage.infos"><code class="docutils literal notranslate"><span class="pre">StreamDatasetStorage.infos()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.dataset.StreamDatasetStorage.categories"><code class="docutils literal notranslate"><span class="pre">StreamDatasetStorage.categories()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.dataset.StreamDatasetStorage.is_stream"><code class="docutils literal notranslate"><span class="pre">StreamDatasetStorage.is_stream</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.dataset.StreamedItemError"><code class="docutils literal notranslate"><span class="pre">StreamedItemError</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.dataset.Transform"><code class="docutils literal notranslate"><span class="pre">Transform</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.dataset.Transform.wrap_item"><code class="docutils literal notranslate"><span class="pre">Transform.wrap_item()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.dataset.Transform.categories"><code class="docutils literal notranslate"><span class="pre">Transform.categories()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.dataset.Transform.subsets"><code class="docutils literal notranslate"><span class="pre">Transform.subsets()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.dataset.Transform.media_type"><code class="docutils literal notranslate"><span class="pre">Transform.media_type()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.dataset.Transform.infos"><code class="docutils literal notranslate"><span class="pre">Transform.infos()</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.dataset.UnknownFormatError"><code class="docutils literal notranslate"><span class="pre">UnknownFormatError</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.dataset.UnknownFormatError.format"><code class="docutils literal notranslate"><span class="pre">UnknownFormatError.format</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.dataset.UserFunctionAnnotationsFilter"><code class="docutils literal notranslate"><span class="pre">UserFunctionAnnotationsFilter</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.dataset.UserFunctionAnnotationsFilter.transform_item"><code class="docutils literal notranslate"><span class="pre">UserFunctionAnnotationsFilter.transform_item()</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.dataset.UserFunctionDatasetFilter"><code class="docutils literal notranslate"><span class="pre">UserFunctionDatasetFilter</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.dataset.UserFunctionDatasetFilter.transform_item"><code class="docutils literal notranslate"><span class="pre">UserFunctionDatasetFilter.transform_item()</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.dataset.XPathAnnotationsFilter"><code class="docutils literal notranslate"><span class="pre">XPathAnnotationsFilter</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.dataset.XPathAnnotationsFilter.transform_item"><code class="docutils literal notranslate"><span class="pre">XPathAnnotationsFilter.transform_item()</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.dataset.XPathDatasetFilter"><code class="docutils literal notranslate"><span class="pre">XPathDatasetFilter</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.dataset.XPathDatasetFilter.transform_item"><code class="docutils literal notranslate"><span class="pre">XPathDatasetFilter.transform_item()</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.dataset.contextmanager"><code class="docutils literal notranslate"><span class="pre">contextmanager()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.dataset.copy"><code class="docutils literal notranslate"><span class="pre">copy()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.dataset.deepcopy"><code class="docutils literal notranslate"><span class="pre">deepcopy()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.dataset.load_hash_key"><code class="docutils literal notranslate"><span class="pre">load_hash_key()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.dataset.logging_disabled"><code class="docutils literal notranslate"><span class="pre">logging_disabled()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.dataset.on_error_do"><code class="docutils literal notranslate"><span class="pre">on_error_do()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.dataset.overload"><code class="docutils literal notranslate"><span class="pre">overload()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.dataset.rmtree"><code class="docutils literal notranslate"><span class="pre">rmtree()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.dataset.scoped"><code class="docutils literal notranslate"><span class="pre">scoped()</span></code></a></li>
+</ul>
+  </nav></div>
+
+  <div class="sidebar-secondary-item">
+
+  <div class="tocsection sourcelink">
+    <a href="../../../_sources/docs/reference/_autosummary/datumaro.components.dataset.rst.txt">
+      <i class="fa-solid fa-file-lines"></i> Show Source
+    </a>
+  </div>
+</div>
+
+</div></div>
+              
             
           </div>
-        </footer>
+          <footer class="bd-footer-content">
+            
+          </footer>
         
       </main>
     </div>
   </div>
-
   
-    
   <!-- Scripts loaded after <body> so the DOM is not blocked -->
-  <script src="../../../_static/scripts/bootstrap.js?digest=796348d33e8b1d947c94"></script>
-<script src="../../../_static/scripts/pydata-sphinx-theme.js?digest=796348d33e8b1d947c94"></script>
+  <script src="../../../_static/scripts/bootstrap.js?digest=8d27b9dea8ad943066ae"></script>
+<script src="../../../_static/scripts/pydata-sphinx-theme.js?digest=8d27b9dea8ad943066ae"></script>
 
-  <footer class="bd-footer"><div class="bd-footer__inner container">
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
   
-  <div class="footer-item">
-    
-  </div>
-  
-  <div class="footer-item">
-    <p class="theme-version">
-    Built with the
-    <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">
-        PyData Sphinx Theme
-    </a>
-    0.12.0.
-</p>
-  </div>
-  
-  <div class="footer-item">
-    
-<p class="sphinx-version">
-Created using <a href="http://sphinx-doc.org/">Sphinx</a> 5.3.0.<br>
-</p>
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
 
-  </div>
+  <p class="sphinx-version">
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 5.3.0.
+    <br/>
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+<p class="theme-version">
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.15.2.
+</p></div>
+      
+    </div>
   
 </div>
+
   </footer>
   </body>
 </html>
