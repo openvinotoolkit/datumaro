@@ -46,7 +46,6 @@ class SingleDataTest(TestCase):
         # Check selectbox value
         assert at.selectbox.values[0] == None
 
-    @pytest.mark.xfail(reason="Cannot copy contextvar to thread")
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_get_test_asset(self):
         """Test if the session state is initialized correctly."""

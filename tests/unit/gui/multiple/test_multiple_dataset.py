@@ -25,7 +25,7 @@ multiple_dataset_key = "datumaro_gui.utils.page_p_:telescope: Multiple datasets"
 
 
 class MutipleDataTest(TestCase):
-    @pytest.mark.xfail(reason="Cannot copy contextvar to thread")
+    # @pytest.mark.xfail(reason="Cannot copy contextvar to thread")
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_multiple_page_open(self):
         """Test if the session state is initialized correctly."""

@@ -7,7 +7,6 @@ from typing import NamedTuple
 from unittest import TestCase
 
 import pandas as pd
-import pytest
 from streamlit.testing.v1 import AppTest
 
 from tests.requirements import Requirements, mark_requirement
@@ -38,9 +37,11 @@ def run_transform():
     from gui.datumaro_gui.components.multiple import tabs
     from gui.datumaro_gui.utils.dataset.data_loader import MultipleDatasetHelper
     from gui.datumaro_gui.utils.dataset.state import multiple_state_keys, reset_state
+    from gui.datumaro_gui.utils.page import init_func
 
     from tests.utils.assets import get_test_asset_path
 
+    init_func(state.get("IMAGE_BACKEND", None))
     reset_state(multiple_state_keys, state)
 
     dataset_1_dir = get_test_asset_path("datumaro_dataset")
@@ -73,9 +74,11 @@ def run_transform_imagenet():
     from gui.datumaro_gui.components.multiple import tabs
     from gui.datumaro_gui.utils.dataset.data_loader import MultipleDatasetHelper
     from gui.datumaro_gui.utils.dataset.state import multiple_state_keys, reset_state
+    from gui.datumaro_gui.utils.page import init_func
 
     from tests.utils.assets import get_test_asset_path
 
+    init_func(state.get("IMAGE_BACKEND", None))
     reset_state(multiple_state_keys, state)
 
     dataset_1_dir = get_test_asset_path("imagenet_dataset")
@@ -111,9 +114,11 @@ def run_transform_remapped():
     from gui.datumaro_gui.utils.dataset.data_loader import MultipleDatasetHelper
     from gui.datumaro_gui.utils.dataset.info import return_matches
     from gui.datumaro_gui.utils.dataset.state import multiple_state_keys, reset_state
+    from gui.datumaro_gui.utils.page import init_func
 
     from tests.utils.assets import get_test_asset_path
 
+    init_func(state.get("IMAGE_BACKEND", None))
     reset_state(multiple_state_keys, state)
 
     dataset_1_dir = get_test_asset_path("datumaro_dataset")
@@ -156,7 +161,6 @@ class Split(NamedTuple):
 
 
 class TransformTest(TestCase):
-    @pytest.mark.xfail(reason="Cannot copy contextvar to thread")
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_transform_page_open(self):
         """Test if the page of transform tab is opened correctly."""
@@ -989,7 +993,6 @@ class TransformReindexTest(TestCase):
         # After
         assert at.session_state.data_helper_1.dataset().__getitem__(0).id == "0"
 
-    @pytest.mark.xfail(reason="Cannot copy contextvar to thread")
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_reindex_with_media_name(self):
         """Test if _reindex_with_image function of TransformReindexing in multiple dataset is worked out correctly."""
@@ -1004,7 +1007,6 @@ class TransformReindexTest(TestCase):
         # Assert that the IDs have been updated
         assert at.session_state.data_helper_1.dataset().__getitem__(0).id == "label_0_1"
 
-    @pytest.mark.xfail(reason="Cannot copy contextvar to thread")
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_reindex_check_reindex_media_name_button(self):
         """Test if button api for reindexing method based on media name of TransformReindexing in single dataset is worked out correctly."""
@@ -1381,7 +1383,6 @@ class TransformAutoCorrectionTest(TestCase):
             == f"{transform._datumaro_doc}/jupyter_notebook_examples/notebooks/12_correct_dataset.html"
         )
 
-    @pytest.mark.xfail(reason="Cannot copy contextvar to thread")
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_transform_auto_correction_page_open(self):
         """Test if auto-correction method of transform in multiple dataset page is opened correctly."""
@@ -1491,7 +1492,6 @@ class TransformAutoCorrectionTest(TestCase):
         # Assert expected DataFrame contents
         assert expected.equals(result)
 
-    @pytest.mark.xfail(reason="Cannot copy contextvar to thread")
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_auto_correct_check_seleckbox(self):
         """Test if selectbox api of TransformAutoCorrection in multiple dataset is worked out correctly."""
@@ -1524,7 +1524,6 @@ class TransformAutoCorrectionTest(TestCase):
         ]
         assert list(at.dataframe.values[1]["count"]) == [4, 4, 1]
 
-    @pytest.mark.xfail(reason="Cannot copy contextvar to thread")
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_auto_correct_check_button(self):
         """Test if button api of TransformAutoCorrection in multiple dataset is worked out correctly."""

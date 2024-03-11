@@ -5,7 +5,6 @@
 import os
 from unittest import TestCase
 
-import pytest
 from streamlit.testing.v1 import AppTest
 
 from tests.requirements import Requirements, mark_requirement
@@ -29,9 +28,11 @@ def run_merge():
     from gui.datumaro_gui.components.multiple import tabs
     from gui.datumaro_gui.utils.dataset.data_loader import MultipleDatasetHelper
     from gui.datumaro_gui.utils.dataset.state import multiple_state_keys, reset_state
+    from gui.datumaro_gui.utils.page import init_func
 
     from tests.utils.assets import get_test_asset_path
 
+    init_func(state.get("IMAGE_BACKEND", None))
     reset_state(multiple_state_keys, state)
 
     dataset_1_dir = get_test_asset_path("coco_dataset", "coco_instances")
@@ -67,7 +68,6 @@ class MergeTest(TestCase):
         # button
         assert not at.button("merge_btn_mult").value
 
-    @pytest.mark.xfail(reason="Cannot copy contextvar to thread")
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_merge(self):
         """"""
