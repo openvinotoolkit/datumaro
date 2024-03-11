@@ -1,0 +1,42 @@
+datumaro.components.annotations.merger
+======================================
+
+.. automodule:: datumaro.components.annotations.merger
+
+   
+   
+   
+
+   
+   
+   
+
+   
+   
+   .. rubric:: Classes
+
+   .. autosummary::
+   
+      AnnotationMerger
+      BboxMerger
+      CaptionsMerger
+      Cuboid3dMerger
+      EllipseMerger
+      FeatureVectorMerger
+      HashKeyMerger
+      ImageAnnotationMerger
+      LabelMerger
+      LineMerger
+      MaskMerger
+      PointsMerger
+      PolygonMerger
+      TabularMerger
+   
+   
+
+   
+   
+   
+
+
+
