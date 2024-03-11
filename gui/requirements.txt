@@ -1,5 +1,5 @@
 # Core
-streamlit~=1.29.0
+streamlit~=1.32.0
 pydantic~=1.10.12
 
 # Streamlit components
