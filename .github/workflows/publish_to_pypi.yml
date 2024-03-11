@@ -27,6 +27,7 @@ jobs:
         run: python -m cibuildwheel --output-dir wheelhouse
       - uses: actions/upload-artifact@v3
         with:
+          name: artifact-wheels_${{ matrix.os }}
           path: ./wheelhouse/*.whl
 
   build_sdist:
@@ -45,6 +46,7 @@ jobs:
         run: python -m build --sdist
       - uses: actions/upload-artifact@v3
         with:
+          name: artifact-sdist_${{ matrix.os }}
           path: dist/*.tar.gz
 
   publish_package:
@@ -55,12 +57,11 @@ jobs:
     permissions: write-all
     steps:
     - name: Download artifacts
-      uses: actions/download-artifact@v3
+      uses: actions/download-artifact@v4
       with:
-        # unpacks default artifact into dist/
-        # if `name: artifact` is omitted, the action will create extra parent dir
-        name: artifact
         path: dist
+        pattern: artifact-*
+        merge-multiple: true
     # to determine where to publish the source distribution to PyPI or TestPyPI
     - name: Check tag
       id: check-tag
