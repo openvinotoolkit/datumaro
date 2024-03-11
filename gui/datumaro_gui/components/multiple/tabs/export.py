@@ -8,10 +8,13 @@ import os.path as osp
 import streamlit as st
 from datumaro_gui.utils.dataset.data_loader import DataRepo, MultipleDatasetHelper
 from datumaro_gui.utils.dataset.state import get_download_folder_path
+from datumaro_gui.utils.page import check_image_backend
 from streamlit import session_state as state
 
 
 def main():
+    check_image_backend(state.get("IMAGE_BACKEND"))
+
     tasks = ["classification", "detection", "instance_segmentation", "segmentation", "landmark"]
     formats = {
         "classification": ["datumaro", "imagenet", "cifar", "mnist", "mnist_csv", "lfw"],

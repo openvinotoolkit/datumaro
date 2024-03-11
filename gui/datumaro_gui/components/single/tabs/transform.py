@@ -14,6 +14,7 @@ import streamlit_antd_components as sac
 from datumaro_gui.utils.dataset.data_loader import SingleDatasetHelper
 from datumaro_gui.utils.dataset.info import get_category_info, get_subset_info
 from datumaro_gui.utils.drawing import Dashboard, Gallery, Pie, Radar
+from datumaro_gui.utils.page import check_image_backend
 from st_aggrid import AgGrid, GridOptionsBuilder, GridUpdateMode
 from streamlit import session_state as state
 from streamlit_elements import elements
@@ -865,6 +866,8 @@ def on_click(transform: TransformBase):
 
 
 def main():
+    check_image_backend(state.get("IMAGE_BACKEND"))
+
     log.info(f"{__file__} called")
     data_helper: SingleDatasetHelper = state["data_helper"]
     transform_categories = (

@@ -2,7 +2,7 @@
 #
 # SPDX-License-Identifier: MIT
 
-from typing import Callable
+from typing import Callable, Optional
 
 import streamlit as st
 
@@ -14,6 +14,32 @@ def page_group(param):
         st.session_state[key] = PageGroup(param)
 
     return st.session_state[key]
+
+
+from contextvars import ContextVar
+
+from datumaro.util.image import IMAGE_BACKEND, ImageBackend
+
+
+def check_image_backend(Image_Backend: ContextVar) -> ContextVar:
+    """Checks for available image backends and sets the ContextVar accordingly."""
+    _image_loading_errors = (FileNotFoundError,)
+    try:
+        Image_Backend.set(ImageBackend.cv2)
+    except ModuleNotFoundError:
+        import PIL
+
+        Image_Backend.set(ImageBackend.PIL)
+        _image_loading_errors = (*_image_loading_errors, PIL.UnidentifiedImageError)
+    return Image_Backend
+
+
+def init_func(Image_Backend: Optional[ContextVar] = None) -> ContextVar:
+    """Initializes the image backend context variable."""
+    if Image_Backend is None:
+        Image_Backend = IMAGE_BACKEND
+        Image_Backend = check_image_backend(Image_Backend)
+        st.session_state["IMAGE_BACKEND"] = Image_Backend
 
 
 class PageGroup:

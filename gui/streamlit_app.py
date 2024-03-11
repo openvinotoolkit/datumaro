@@ -1,6 +1,6 @@
 import streamlit as st
 from datumaro_gui import apps, components
-from datumaro_gui.utils.page import page_group
+from datumaro_gui.utils.page import init_func, page_group
 from streamlit_elements import elements
 
 PROJECTS = []
@@ -28,5 +28,6 @@ def main():
 
 
 if __name__ == "__main__":
+    init_func(st.session_state.get("IMAGE_BACKEND", None))
     st.set_page_config(page_title="Welcome To Datumaro", page_icon="⭐", layout="wide")
     main()

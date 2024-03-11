@@ -7,6 +7,7 @@ import io
 import numpy as np
 import streamlit as st
 from datumaro_gui.utils.dataset.data_loader import MultipleDatasetHelper
+from datumaro_gui.utils.page import check_image_backend
 from matplotlib import pyplot as plt
 from PIL import Image
 from streamlit import session_state as state
@@ -16,6 +17,8 @@ from datumaro.components.visualizer import Visualizer
 
 
 def main():
+    check_image_backend(state.get("IMAGE_BACKEND"))
+
     data_helper_1: MultipleDatasetHelper = state["data_helper_1"]
     data_helper_2: MultipleDatasetHelper = state["data_helper_2"]
     uploaded_file_1 = state["uploaded_file_1"]

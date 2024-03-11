@@ -8,6 +8,7 @@ from types import SimpleNamespace
 import streamlit as st
 from datumaro_gui.utils.dataset.data_loader import SingleDatasetHelper
 from datumaro_gui.utils.drawing import Chart, ChartWithTab, Dashboard, DataGrid, DatasetInfoBox
+from datumaro_gui.utils.page import check_image_backend
 from streamlit import session_state as state
 from streamlit_elements import elements
 
@@ -568,6 +569,7 @@ def get_tab_data_point_dist_in_label(val_report):
 
 
 def main():
+    check_image_backend(state.get("IMAGE_BACKEND"))
     data_helper: SingleDatasetHelper = state["data_helper"]
     n_labels = data_helper.num_labels
 
