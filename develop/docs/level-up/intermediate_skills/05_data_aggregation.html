@@ -1,13 +1,12 @@
 
-
 <!DOCTYPE html>
 
 
-<html lang="en" data-content_root="" >
+<html lang="en" data-content_root="../../../" >
 
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
     <title>Level 5: Data Subset Aggregation &#8212; Datumaro 1.6.0rc1 documentation</title>
   
@@ -29,26 +28,23 @@
 <link rel="preload" as="font" type="font/woff2" crossorigin href="../../../_static/vendor/fontawesome/6.5.1/webfonts/fa-brands-400.woff2" />
 <link rel="preload" as="font" type="font/woff2" crossorigin href="../../../_static/vendor/fontawesome/6.5.1/webfonts/fa-regular-400.woff2" />
 
-    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css" />
-    <link rel="stylesheet" type="text/css" href="../../../_static/copybutton.css" />
-    <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css" />
-    <link rel="stylesheet" type="text/css" href="../../../_static/design-style.1e8bd061cd6da7fc9cf755528e8ffc24.min.css" />
-    <link rel="stylesheet" type="text/css" href="../../../_static/css/custom.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=a746c00c" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css?v=eafc0fe6" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/design-style.1e8bd061cd6da7fc9cf755528e8ffc24.min.css?v=0a3b3ea7" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/css/custom.css?v=8b7c274f" />
   
   <!-- Pre-loaded scripts that we'll load fully later -->
   <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=8d27b9dea8ad943066ae" />
 <link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=8d27b9dea8ad943066ae" />
   <script src="../../../_static/vendor/fontawesome/6.5.1/js/all.min.js?digest=8d27b9dea8ad943066ae"></script>
 
-    <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
-    <script src="../../../_static/jquery.js"></script>
-    <script src="../../../_static/underscore.js"></script>
-    <script src="../../../_static/_sphinx_javascript_frameworks_compat.js"></script>
-    <script src="../../../_static/doctools.js"></script>
-    <script src="../../../_static/sphinx_highlight.js"></script>
-    <script src="../../../_static/clipboard.min.js"></script>
-    <script src="../../../_static/copybutton.js"></script>
-    <script src="../../../_static/design-tabs.js"></script>
+    <script src="../../../_static/documentation_options.js?v=82acb2b2"></script>
+    <script src="../../../_static/doctools.js?v=888ff710"></script>
+    <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../../../_static/copybutton.js?v=f281be69"></script>
+    <script src="../../../_static/design-tabs.js?v=36754332"></script>
     <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <script>DOCUMENTATION_OPTIONS.pagename = 'docs/level-up/intermediate_skills/05_data_aggregation';</script>
     <link rel="index" title="Index" href="../../../genindex.html" />
@@ -656,13 +652,13 @@ document.write(`
                 <article class="bd-article">
                   
   <section id="level-5-data-subset-aggregation">
-<h1>Level 5: Data Subset Aggregation<a class="headerlink" href="#level-5-data-subset-aggregation" title="Permalink to this heading">#</a></h1>
+<h1>Level 5: Data Subset Aggregation<a class="headerlink" href="#level-5-data-subset-aggregation" title="Link to this heading">#</a></h1>
 <p>When working with public data, the dataset is sometimes provided with pre-divided training,
 validation, and test subsets. However, in some cases, these subsets may not follow an identical
 distribution, making it difficult to perform proper model comparison or selection. In this tutorial,
 we will show an example of dataset aggregation and reorganization to address this issue.</p>
 <section id="prepare-datasets">
-<h2>Prepare datasets<a class="headerlink" href="#prepare-datasets" title="Permalink to this heading">#</a></h2>
+<h2>Prepare datasets<a class="headerlink" href="#prepare-datasets" title="Link to this heading">#</a></h2>
 <p>As we did in <a class="reference internal" href="../basic_skills/03_dataset_import_export.html#level-3-data-import-and-export"><span class="std std-ref">level 3</span></a>, we use the Cityscapes dataset.
 The Cityscapes dataset is divided into train, validation, and test subsets with the number of 2975,
 500, and 1525 samples, respectively.</p>
@@ -780,7 +776,7 @@ Python</label><div class="sd-tab-content docutils">
         <div class="footer-item">
 
   <p class="sphinx-version">
-    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 5.3.0.
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 7.2.6.
     <br/>
   </p>
 </div>

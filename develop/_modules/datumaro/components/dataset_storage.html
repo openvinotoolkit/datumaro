@@ -1,9 +1,8 @@
 
-
 <!DOCTYPE html>
 
 
-<html lang="en" data-content_root="" >
+<html lang="en" data-content_root="../../../" >
 
   <head>
     <meta charset="utf-8" />
@@ -28,26 +27,23 @@
 <link rel="preload" as="font" type="font/woff2" crossorigin href="../../../_static/vendor/fontawesome/6.5.1/webfonts/fa-brands-400.woff2" />
 <link rel="preload" as="font" type="font/woff2" crossorigin href="../../../_static/vendor/fontawesome/6.5.1/webfonts/fa-regular-400.woff2" />
 
-    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css" />
-    <link rel="stylesheet" type="text/css" href="../../../_static/copybutton.css" />
-    <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css" />
-    <link rel="stylesheet" type="text/css" href="../../../_static/design-style.1e8bd061cd6da7fc9cf755528e8ffc24.min.css" />
-    <link rel="stylesheet" type="text/css" href="../../../_static/css/custom.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=a746c00c" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css?v=eafc0fe6" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/design-style.1e8bd061cd6da7fc9cf755528e8ffc24.min.css?v=0a3b3ea7" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/css/custom.css?v=8b7c274f" />
   
   <!-- Pre-loaded scripts that we'll load fully later -->
   <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=8d27b9dea8ad943066ae" />
 <link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=8d27b9dea8ad943066ae" />
   <script src="../../../_static/vendor/fontawesome/6.5.1/js/all.min.js?digest=8d27b9dea8ad943066ae"></script>
 
-    <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
-    <script src="../../../_static/jquery.js"></script>
-    <script src="../../../_static/underscore.js"></script>
-    <script src="../../../_static/_sphinx_javascript_frameworks_compat.js"></script>
-    <script src="../../../_static/doctools.js"></script>
-    <script src="../../../_static/sphinx_highlight.js"></script>
-    <script src="../../../_static/clipboard.min.js"></script>
-    <script src="../../../_static/copybutton.js"></script>
-    <script src="../../../_static/design-tabs.js"></script>
+    <script src="../../../_static/documentation_options.js?v=82acb2b2"></script>
+    <script src="../../../_static/doctools.js?v=888ff710"></script>
+    <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../../../_static/copybutton.js?v=f281be69"></script>
+    <script src="../../../_static/design-tabs.js?v=36754332"></script>
     <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <script>DOCUMENTATION_OPTIONS.pagename = '_modules/datumaro/components/dataset_storage';</script>
     <link rel="index" title="Index" href="../../../genindex.html" />
@@ -381,8 +377,12 @@ document.write(`
 <span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;DatasetPatch&quot;</span><span class="p">,</span> <span class="s2">&quot;DatasetStorage&quot;</span><span class="p">]</span>
 
 
-<div class="viewcode-block" id="DatasetPatch"><a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.components.dataset_storage.html#datumaro.components.dataset.DatasetPatch">[docs]</a><span class="k">class</span> <span class="nc">DatasetPatch</span><span class="p">:</span>
-<div class="viewcode-block" id="DatasetPatch.DatasetPatchWrapper"><a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.components.dataset_storage.html#datumaro.components.dataset.DatasetPatch.DatasetPatchWrapper">[docs]</a>    <span class="k">class</span> <span class="nc">DatasetPatchWrapper</span><span class="p">(</span><span class="n">DatasetItemStorageDatasetView</span><span class="p">):</span>
+<div class="viewcode-block" id="DatasetPatch">
+<a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.components.dataset_storage.html#datumaro.components.dataset.DatasetPatch">[docs]</a>
+<span class="k">class</span> <span class="nc">DatasetPatch</span><span class="p">:</span>
+<div class="viewcode-block" id="DatasetPatch.DatasetPatchWrapper">
+<a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.components.dataset_storage.html#datumaro.components.dataset.DatasetPatch.DatasetPatchWrapper">[docs]</a>
+    <span class="k">class</span> <span class="nc">DatasetPatchWrapper</span><span class="p">(</span><span class="n">DatasetItemStorageDatasetView</span><span class="p">):</span>
         <span class="c1"># The purpose of this class is to indicate that the input dataset is</span>
         <span class="c1"># a patch and autofill patch info in Exporter</span>
         <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">patch</span><span class="p">:</span> <span class="s2">&quot;DatasetPatch&quot;</span><span class="p">,</span> <span class="n">parent</span><span class="p">:</span> <span class="n">IDataset</span><span class="p">):</span>
@@ -394,8 +394,12 @@ document.write(`
             <span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">patch</span> <span class="o">=</span> <span class="n">patch</span>
 
-<div class="viewcode-block" id="DatasetPatch.DatasetPatchWrapper.subsets"><a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.components.dataset_storage.html#datumaro.components.dataset.DatasetPatch.DatasetPatchWrapper.subsets">[docs]</a>        <span class="k">def</span> <span class="nf">subsets</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-            <span class="k">return</span> <span class="p">{</span><span class="n">s</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_subset</span><span class="p">(</span><span class="n">s</span><span class="p">)</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">patch</span><span class="o">.</span><span class="n">updated_subsets</span><span class="p">}</span></div></div>
+<div class="viewcode-block" id="DatasetPatch.DatasetPatchWrapper.subsets">
+<a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.components.dataset_storage.html#datumaro.components.dataset.DatasetPatch.DatasetPatchWrapper.subsets">[docs]</a>
+        <span class="k">def</span> <span class="nf">subsets</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+            <span class="k">return</span> <span class="p">{</span><span class="n">s</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_subset</span><span class="p">(</span><span class="n">s</span><span class="p">)</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">patch</span><span class="o">.</span><span class="n">updated_subsets</span><span class="p">}</span></div>
+</div>
+
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
@@ -420,8 +424,12 @@ document.write(`
     <span class="k">def</span> <span class="fm">__contains__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">DatasetItem</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]])</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
         <span class="k">return</span> <span class="n">x</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span>
 
-<div class="viewcode-block" id="DatasetPatch.as_dataset"><a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.components.dataset_storage.html#datumaro.components.dataset.DatasetPatch.as_dataset">[docs]</a>    <span class="k">def</span> <span class="nf">as_dataset</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">parent</span><span class="p">:</span> <span class="n">IDataset</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">IDataset</span><span class="p">:</span>
-        <span class="k">return</span> <span class="vm">__class__</span><span class="o">.</span><span class="n">DatasetPatchWrapper</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">parent</span><span class="p">)</span></div></div>
+<div class="viewcode-block" id="DatasetPatch.as_dataset">
+<a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.components.dataset_storage.html#datumaro.components.dataset.DatasetPatch.as_dataset">[docs]</a>
+    <span class="k">def</span> <span class="nf">as_dataset</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">parent</span><span class="p">:</span> <span class="n">IDataset</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">IDataset</span><span class="p">:</span>
+        <span class="k">return</span> <span class="vm">__class__</span><span class="o">.</span><span class="n">DatasetPatchWrapper</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">parent</span><span class="p">)</span></div>
+</div>
+
 
 
 <span class="k">class</span> <span class="nc">_StackedTransform</span><span class="p">(</span><span class="n">Transform</span><span class="p">):</span>
@@ -462,7 +470,9 @@ document.write(`
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">transforms</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">media_type</span><span class="p">()</span>
 
 
-<div class="viewcode-block" id="DatasetStorage"><a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.components.dataset_storage.html#datumaro.components.dataset.DatasetStorage">[docs]</a><span class="k">class</span> <span class="nc">DatasetStorage</span><span class="p">(</span><span class="n">IDataset</span><span class="p">):</span>
+<div class="viewcode-block" id="DatasetStorage">
+<a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.components.dataset_storage.html#datumaro.components.dataset.DatasetStorage">[docs]</a>
+<span class="k">class</span> <span class="nc">DatasetStorage</span><span class="p">(</span><span class="n">IDataset</span><span class="p">):</span>
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">source</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">IDataset</span><span class="p">,</span> <span class="n">DatasetItemStorage</span><span class="p">],</span>
@@ -512,17 +522,23 @@ document.write(`
 
         <span class="bp">self</span><span class="o">.</span><span class="n">_length</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_storage</span><span class="p">)</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_source</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="kc">None</span>
 
-<div class="viewcode-block" id="DatasetStorage.is_cache_initialized"><a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.components.dataset_storage.html#datumaro.components.dataset.DatasetStorage.is_cache_initialized">[docs]</a>    <span class="k">def</span> <span class="nf">is_cache_initialized</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<div class="viewcode-block" id="DatasetStorage.is_cache_initialized">
+<a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.components.dataset_storage.html#datumaro.components.dataset.DatasetStorage.is_cache_initialized">[docs]</a>
+    <span class="k">def</span> <span class="nf">is_cache_initialized</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_source</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_transforms</span></div>
+
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">_is_unchanged_wrapper</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_source</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">_storage</span><span class="o">.</span><span class="n">is_empty</span><span class="p">()</span> <span class="ow">and</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_transforms</span>
 
-<div class="viewcode-block" id="DatasetStorage.init_cache"><a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.components.dataset_storage.html#datumaro.components.dataset.DatasetStorage.init_cache">[docs]</a>    <span class="k">def</span> <span class="nf">init_cache</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<div class="viewcode-block" id="DatasetStorage.init_cache">
+<a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.components.dataset_storage.html#datumaro.components.dataset.DatasetStorage.init_cache">[docs]</a>
+    <span class="k">def</span> <span class="nf">init_cache</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_cache_initialized</span><span class="p">():</span>
             <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_iter_init_cache</span><span class="p">():</span>
                 <span class="k">pass</span></div>
+
 
     <span class="k">def</span> <span class="nf">_iter_init_cache</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Iterable</span><span class="p">[</span><span class="n">DatasetItem</span><span class="p">]:</span>
         <span class="k">try</span><span class="p">:</span>
@@ -715,7 +731,9 @@ document.write(`
             <span class="bp">self</span><span class="o">.</span><span class="n">init_cache</span><span class="p">()</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_length</span>
 
-<div class="viewcode-block" id="DatasetStorage.infos"><a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.components.dataset_storage.html#datumaro.components.dataset.DatasetStorage.infos">[docs]</a>    <span class="k">def</span> <span class="nf">infos</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">DatasetInfo</span><span class="p">:</span>
+<div class="viewcode-block" id="DatasetStorage.infos">
+<a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.components.dataset_storage.html#datumaro.components.dataset.DatasetStorage.infos">[docs]</a>
+    <span class="k">def</span> <span class="nf">infos</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">DatasetInfo</span><span class="p">:</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_cache_initialized</span><span class="p">():</span>
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_infos</span>
         <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">_infos</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
@@ -726,12 +744,18 @@ document.write(`
         <span class="k">else</span><span class="p">:</span>
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_source</span><span class="o">.</span><span class="n">infos</span><span class="p">()</span></div>
 
-<div class="viewcode-block" id="DatasetStorage.define_infos"><a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.components.dataset_storage.html#datumaro.components.dataset.DatasetStorage.define_infos">[docs]</a>    <span class="k">def</span> <span class="nf">define_infos</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">infos</span><span class="p">:</span> <span class="n">DatasetInfo</span><span class="p">):</span>
+
+<div class="viewcode-block" id="DatasetStorage.define_infos">
+<a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.components.dataset_storage.html#datumaro.components.dataset.DatasetStorage.define_infos">[docs]</a>
+    <span class="k">def</span> <span class="nf">define_infos</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">infos</span><span class="p">:</span> <span class="n">DatasetInfo</span><span class="p">):</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_infos</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">_source</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">raise</span> <span class="n">DatasetInfosRedefinedError</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_infos</span> <span class="o">=</span> <span class="n">infos</span></div>
 
-<div class="viewcode-block" id="DatasetStorage.categories"><a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.components.dataset_storage.html#datumaro.components.dataset.DatasetStorage.categories">[docs]</a>    <span class="k">def</span> <span class="nf">categories</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">CategoriesInfo</span><span class="p">:</span>
+
+<div class="viewcode-block" id="DatasetStorage.categories">
+<a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.components.dataset_storage.html#datumaro.components.dataset.DatasetStorage.categories">[docs]</a>
+    <span class="k">def</span> <span class="nf">categories</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">CategoriesInfo</span><span class="p">:</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_cache_initialized</span><span class="p">():</span>
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_categories</span>
         <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">_categories</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
@@ -742,15 +766,24 @@ document.write(`
         <span class="k">else</span><span class="p">:</span>
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_source</span><span class="o">.</span><span class="n">categories</span><span class="p">()</span></div>
 
-<div class="viewcode-block" id="DatasetStorage.define_categories"><a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.components.dataset_storage.html#datumaro.components.dataset.DatasetStorage.define_categories">[docs]</a>    <span class="k">def</span> <span class="nf">define_categories</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">categories</span><span class="p">:</span> <span class="n">CategoriesInfo</span><span class="p">):</span>
+
+<div class="viewcode-block" id="DatasetStorage.define_categories">
+<a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.components.dataset_storage.html#datumaro.components.dataset.DatasetStorage.define_categories">[docs]</a>
+    <span class="k">def</span> <span class="nf">define_categories</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">categories</span><span class="p">:</span> <span class="n">CategoriesInfo</span><span class="p">):</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_categories</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">_source</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">raise</span> <span class="n">CategoriesRedefinedError</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_categories</span> <span class="o">=</span> <span class="n">categories</span></div>
 
-<div class="viewcode-block" id="DatasetStorage.media_type"><a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.components.dataset_storage.html#datumaro.components.dataset.DatasetStorage.media_type">[docs]</a>    <span class="k">def</span> <span class="nf">media_type</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Type</span><span class="p">[</span><span class="n">MediaElement</span><span class="p">]:</span>
+
+<div class="viewcode-block" id="DatasetStorage.media_type">
+<a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.components.dataset_storage.html#datumaro.components.dataset.DatasetStorage.media_type">[docs]</a>
+    <span class="k">def</span> <span class="nf">media_type</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Type</span><span class="p">[</span><span class="n">MediaElement</span><span class="p">]:</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_media_type</span></div>
 
-<div class="viewcode-block" id="DatasetStorage.put"><a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.components.dataset_storage.html#datumaro.components.dataset.DatasetStorage.put">[docs]</a>    <span class="k">def</span> <span class="nf">put</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">item</span><span class="p">:</span> <span class="n">DatasetItem</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+
+<div class="viewcode-block" id="DatasetStorage.put">
+<a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.components.dataset_storage.html#datumaro.components.dataset.DatasetStorage.put">[docs]</a>
+    <span class="k">def</span> <span class="nf">put</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">item</span><span class="p">:</span> <span class="n">DatasetItem</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="k">if</span> <span class="n">item</span><span class="o">.</span><span class="n">media</span> <span class="ow">and</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">item</span><span class="o">.</span><span class="n">media</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_media_type</span><span class="p">):</span>
             <span class="k">raise</span> <span class="n">MediaTypeError</span><span class="p">(</span>
                 <span class="s2">&quot;Mismatching item media type &#39;</span><span class="si">%s</span><span class="s2">&#39;, &quot;</span>
@@ -769,7 +802,10 @@ document.write(`
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_length</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_length</span> <span class="o">+=</span> <span class="n">is_new</span></div>
 
-<div class="viewcode-block" id="DatasetStorage.get"><a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.components.dataset_storage.html#datumaro.components.dataset.DatasetStorage.get">[docs]</a>    <span class="k">def</span> <span class="nf">get</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">id</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">subset</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">DatasetItem</span><span class="p">]:</span>
+
+<div class="viewcode-block" id="DatasetStorage.get">
+<a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.components.dataset_storage.html#datumaro.components.dataset.DatasetStorage.get">[docs]</a>
+    <span class="k">def</span> <span class="nf">get</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">id</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">subset</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">DatasetItem</span><span class="p">]:</span>
         <span class="nb">id</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="nb">id</span><span class="p">)</span>
         <span class="n">subset</span> <span class="o">=</span> <span class="n">subset</span> <span class="ow">or</span> <span class="n">DEFAULT_SUBSET_NAME</span>
 
@@ -785,7 +821,10 @@ document.write(`
                     <span class="bp">self</span><span class="o">.</span><span class="n">_storage</span><span class="o">.</span><span class="n">put</span><span class="p">(</span><span class="n">item</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">item</span></div>
 
-<div class="viewcode-block" id="DatasetStorage.remove"><a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.components.dataset_storage.html#datumaro.components.dataset.DatasetStorage.remove">[docs]</a>    <span class="k">def</span> <span class="nf">remove</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">id</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">subset</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+
+<div class="viewcode-block" id="DatasetStorage.remove">
+<a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.components.dataset_storage.html#datumaro.components.dataset.DatasetStorage.remove">[docs]</a>
+    <span class="k">def</span> <span class="nf">remove</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">id</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">subset</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="nb">id</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="nb">id</span><span class="p">)</span>
         <span class="n">subset</span> <span class="o">=</span> <span class="n">subset</span> <span class="ow">or</span> <span class="n">DEFAULT_SUBSET_NAME</span>
 
@@ -798,24 +837,42 @@ document.write(`
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_length</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_length</span> <span class="o">-=</span> <span class="n">is_removed</span></div>
 
-<div class="viewcode-block" id="DatasetStorage.get_subset"><a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.components.dataset_storage.html#datumaro.components.dataset.DatasetStorage.get_subset">[docs]</a>    <span class="k">def</span> <span class="nf">get_subset</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">IDataset</span><span class="p">:</span>
+
+<div class="viewcode-block" id="DatasetStorage.get_subset">
+<a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.components.dataset_storage.html#datumaro.components.dataset.DatasetStorage.get_subset">[docs]</a>
+    <span class="k">def</span> <span class="nf">get_subset</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">IDataset</span><span class="p">:</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_merged</span><span class="p">()</span><span class="o">.</span><span class="n">get_subset</span><span class="p">(</span><span class="n">name</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="DatasetStorage.subsets"><a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.components.dataset_storage.html#datumaro.components.dataset.DatasetStorage.subsets">[docs]</a>    <span class="k">def</span> <span class="nf">subsets</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">IDataset</span><span class="p">]:</span>
+
+<div class="viewcode-block" id="DatasetStorage.subsets">
+<a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.components.dataset_storage.html#datumaro.components.dataset.DatasetStorage.subsets">[docs]</a>
+    <span class="k">def</span> <span class="nf">subsets</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">IDataset</span><span class="p">]:</span>
         <span class="c1"># TODO: check if this can be optimized in case of transforms</span>
         <span class="c1"># and other cases</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_merged</span><span class="p">()</span><span class="o">.</span><span class="n">subsets</span><span class="p">()</span></div>
 
-<div class="viewcode-block" id="DatasetStorage.get_annotated_items"><a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.components.dataset_storage.html#datumaro.components.dataset.DatasetStorage.get_annotated_items">[docs]</a>    <span class="k">def</span> <span class="nf">get_annotated_items</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+
+<div class="viewcode-block" id="DatasetStorage.get_annotated_items">
+<a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.components.dataset_storage.html#datumaro.components.dataset.DatasetStorage.get_annotated_items">[docs]</a>
+    <span class="k">def</span> <span class="nf">get_annotated_items</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_storage</span><span class="o">.</span><span class="n">get_annotated_items</span><span class="p">()</span></div>
 
-<div class="viewcode-block" id="DatasetStorage.get_annotations"><a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.components.dataset_storage.html#datumaro.components.dataset.DatasetStorage.get_annotations">[docs]</a>    <span class="k">def</span> <span class="nf">get_annotations</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+
+<div class="viewcode-block" id="DatasetStorage.get_annotations">
+<a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.components.dataset_storage.html#datumaro.components.dataset.DatasetStorage.get_annotations">[docs]</a>
+    <span class="k">def</span> <span class="nf">get_annotations</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_storage</span><span class="o">.</span><span class="n">get_annotations</span><span class="p">()</span></div>
 
-<div class="viewcode-block" id="DatasetStorage.get_datasetitem_by_path"><a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.components.dataset_storage.html#datumaro.components.dataset.DatasetStorage.get_datasetitem_by_path">[docs]</a>    <span class="k">def</span> <span class="nf">get_datasetitem_by_path</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">DatasetItem</span><span class="p">]:</span>
+
+<div class="viewcode-block" id="DatasetStorage.get_datasetitem_by_path">
+<a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.components.dataset_storage.html#datumaro.components.dataset.DatasetStorage.get_datasetitem_by_path">[docs]</a>
+    <span class="k">def</span> <span class="nf">get_datasetitem_by_path</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">DatasetItem</span><span class="p">]:</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_storage</span><span class="o">.</span><span class="n">get_datasetitem_by_path</span><span class="p">(</span><span class="n">path</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="DatasetStorage.transform"><a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.components.dataset_storage.html#datumaro.components.dataset.DatasetStorage.transform">[docs]</a>    <span class="k">def</span> <span class="nf">transform</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">method</span><span class="p">:</span> <span class="n">Type</span><span class="p">[</span><span class="n">Transform</span><span class="p">],</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+
+<div class="viewcode-block" id="DatasetStorage.transform">
+<a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.components.dataset_storage.html#datumaro.components.dataset.DatasetStorage.transform">[docs]</a>
+    <span class="k">def</span> <span class="nf">transform</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">method</span><span class="p">:</span> <span class="n">Type</span><span class="p">[</span><span class="n">Transform</span><span class="p">],</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="c1"># Flush accumulated changes</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_storage</span><span class="o">.</span><span class="n">is_empty</span><span class="p">():</span>
             <span class="n">source</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_merged</span><span class="p">()</span>
@@ -835,10 +892,16 @@ document.write(`
             <span class="bp">self</span><span class="o">.</span><span class="n">_categories</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_length</span> <span class="o">=</span> <span class="kc">None</span></div>
 
-<div class="viewcode-block" id="DatasetStorage.has_updated_items"><a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.components.dataset_storage.html#datumaro.components.dataset.DatasetStorage.has_updated_items">[docs]</a>    <span class="k">def</span> <span class="nf">has_updated_items</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+<div class="viewcode-block" id="DatasetStorage.has_updated_items">
+<a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.components.dataset_storage.html#datumaro.components.dataset.DatasetStorage.has_updated_items">[docs]</a>
+    <span class="k">def</span> <span class="nf">has_updated_items</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="nb">bool</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_transforms</span><span class="p">)</span> <span class="ow">or</span> <span class="nb">bool</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_updated_items</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="DatasetStorage.get_patch"><a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.components.dataset_storage.html#datumaro.components.dataset.DatasetStorage.get_patch">[docs]</a>    <span class="k">def</span> <span class="nf">get_patch</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">DatasetPatch</span><span class="p">:</span>
+
+<div class="viewcode-block" id="DatasetStorage.get_patch">
+<a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.components.dataset_storage.html#datumaro.components.dataset.DatasetStorage.get_patch">[docs]</a>
+    <span class="k">def</span> <span class="nf">get_patch</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">DatasetPatch</span><span class="p">:</span>
         <span class="c1"># Patch includes only added or modified items.</span>
         <span class="c1"># To find removed items, one needs to consult updated_items list.</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_transforms</span><span class="p">:</span>
@@ -860,12 +923,18 @@ document.write(`
             <span class="n">patch</span><span class="p">,</span> <span class="n">infos</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_infos</span><span class="p">,</span> <span class="n">categories</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_categories</span><span class="p">,</span> <span class="n">updated_items</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_updated_items</span>
         <span class="p">)</span></div>
 
-<div class="viewcode-block" id="DatasetStorage.flush_changes"><a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.components.dataset_storage.html#datumaro.components.dataset.DatasetStorage.flush_changes">[docs]</a>    <span class="k">def</span> <span class="nf">flush_changes</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+<div class="viewcode-block" id="DatasetStorage.flush_changes">
+<a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.components.dataset_storage.html#datumaro.components.dataset.DatasetStorage.flush_changes">[docs]</a>
+    <span class="k">def</span> <span class="nf">flush_changes</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_updated_items</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">is_cache_initialized</span><span class="p">()</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">_is_unchanged_wrapper</span><span class="p">):</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_flush_changes</span> <span class="o">=</span> <span class="kc">True</span></div>
 
-<div class="viewcode-block" id="DatasetStorage.update"><a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.components.dataset_storage.html#datumaro.components.dataset.DatasetStorage.update">[docs]</a>    <span class="k">def</span> <span class="nf">update</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">source</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">DatasetPatch</span><span class="p">,</span> <span class="n">IDataset</span><span class="p">,</span> <span class="n">Iterable</span><span class="p">[</span><span class="n">DatasetItem</span><span class="p">]]):</span>
+
+<div class="viewcode-block" id="DatasetStorage.update">
+<a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.components.dataset_storage.html#datumaro.components.dataset.DatasetStorage.update">[docs]</a>
+    <span class="k">def</span> <span class="nf">update</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">source</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">DatasetPatch</span><span class="p">,</span> <span class="n">IDataset</span><span class="p">,</span> <span class="n">Iterable</span><span class="p">[</span><span class="n">DatasetItem</span><span class="p">]]):</span>
         <span class="c1"># TODO: provide a more efficient implementation with patch reuse</span>
 
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">source</span><span class="p">,</span> <span class="n">DatasetPatch</span><span class="p">):</span>
@@ -887,6 +956,7 @@ document.write(`
         <span class="k">else</span><span class="p">:</span>
             <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">source</span><span class="p">:</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">put</span><span class="p">(</span><span class="n">item</span><span class="p">)</span></div>
+
 
     <span class="k">def</span> <span class="nf">_drop_malformed_transforms</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">malformed_transform_indices</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="ne">Exception</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">safe_transforms</span> <span class="o">=</span> <span class="p">[]</span>
@@ -911,7 +981,10 @@ document.write(`
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_storage</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span></div>
 
 
-<div class="viewcode-block" id="StreamSubset"><a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.components.dataset_storage.html#datumaro.components.dataset.StreamSubset">[docs]</a><span class="k">class</span> <span class="nc">StreamSubset</span><span class="p">(</span><span class="n">IDataset</span><span class="p">):</span>
+
+<div class="viewcode-block" id="StreamSubset">
+<a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.components.dataset_storage.html#datumaro.components.dataset.StreamSubset">[docs]</a>
+<span class="k">class</span> <span class="nc">StreamSubset</span><span class="p">(</span><span class="n">IDataset</span><span class="p">):</span>
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">source</span><span class="p">:</span> <span class="n">IDataset</span><span class="p">,</span> <span class="n">subset</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">source</span><span class="o">.</span><span class="n">is_stream</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;source should be a stream.&quot;</span><span class="p">)</span>
@@ -929,33 +1002,54 @@ document.write(`
             <span class="bp">self</span><span class="o">.</span><span class="n">_length</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">(</span><span class="mi">1</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="bp">self</span><span class="p">)</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_length</span>
 
-<div class="viewcode-block" id="StreamSubset.subsets"><a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.components.dataset_storage.html#datumaro.components.dataset.StreamSubset.subsets">[docs]</a>    <span class="k">def</span> <span class="nf">subsets</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">IDataset</span><span class="p">]:</span>
+<div class="viewcode-block" id="StreamSubset.subsets">
+<a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.components.dataset_storage.html#datumaro.components.dataset.StreamSubset.subsets">[docs]</a>
+    <span class="k">def</span> <span class="nf">subsets</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">IDataset</span><span class="p">]:</span>
         <span class="k">raise</span> <span class="n">NotAvailableError</span><span class="p">(</span><span class="s2">&quot;Cannot get subsets of the subset.&quot;</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="StreamSubset.get_subset"><a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.components.dataset_storage.html#datumaro.components.dataset.StreamSubset.get_subset">[docs]</a>    <span class="k">def</span> <span class="nf">get_subset</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">IDataset</span><span class="p">:</span>
+
+<div class="viewcode-block" id="StreamSubset.get_subset">
+<a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.components.dataset_storage.html#datumaro.components.dataset.StreamSubset.get_subset">[docs]</a>
+    <span class="k">def</span> <span class="nf">get_subset</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">IDataset</span><span class="p">:</span>
         <span class="k">raise</span> <span class="n">NotAvailableError</span><span class="p">(</span><span class="s2">&quot;Cannot get a subset of the subset.&quot;</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="StreamSubset.infos"><a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.components.dataset_storage.html#datumaro.components.dataset.StreamSubset.infos">[docs]</a>    <span class="k">def</span> <span class="nf">infos</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">DatasetInfo</span><span class="p">:</span>
+
+<div class="viewcode-block" id="StreamSubset.infos">
+<a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.components.dataset_storage.html#datumaro.components.dataset.StreamSubset.infos">[docs]</a>
+    <span class="k">def</span> <span class="nf">infos</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">DatasetInfo</span><span class="p">:</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_source</span><span class="o">.</span><span class="n">infos</span><span class="p">()</span></div>
 
-<div class="viewcode-block" id="StreamSubset.categories"><a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.components.dataset_storage.html#datumaro.components.dataset.StreamSubset.categories">[docs]</a>    <span class="k">def</span> <span class="nf">categories</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">CategoriesInfo</span><span class="p">:</span>
+
+<div class="viewcode-block" id="StreamSubset.categories">
+<a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.components.dataset_storage.html#datumaro.components.dataset.StreamSubset.categories">[docs]</a>
+    <span class="k">def</span> <span class="nf">categories</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">CategoriesInfo</span><span class="p">:</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_source</span><span class="o">.</span><span class="n">categories</span><span class="p">()</span></div>
 
-<div class="viewcode-block" id="StreamSubset.get"><a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.components.dataset_storage.html#datumaro.components.dataset.StreamSubset.get">[docs]</a>    <span class="k">def</span> <span class="nf">get</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">id</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">subset</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">DatasetItem</span><span class="p">]:</span>
+
+<div class="viewcode-block" id="StreamSubset.get">
+<a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.components.dataset_storage.html#datumaro.components.dataset.StreamSubset.get">[docs]</a>
+    <span class="k">def</span> <span class="nf">get</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">id</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">subset</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">DatasetItem</span><span class="p">]:</span>
         <span class="k">raise</span> <span class="n">NotAvailableError</span><span class="p">(</span>
             <span class="s2">&quot;Random access to the dataset item is not allowed in streaming. &quot;</span>
             <span class="s2">&quot;You can access to the dataset item only by using its iterator.&quot;</span>
         <span class="p">)</span></div>
 
-<div class="viewcode-block" id="StreamSubset.media_type"><a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.components.dataset_storage.html#datumaro.components.dataset.StreamSubset.media_type">[docs]</a>    <span class="k">def</span> <span class="nf">media_type</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Type</span><span class="p">[</span><span class="n">MediaElement</span><span class="p">]:</span>
+
+<div class="viewcode-block" id="StreamSubset.media_type">
+<a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.components.dataset_storage.html#datumaro.components.dataset.StreamSubset.media_type">[docs]</a>
+    <span class="k">def</span> <span class="nf">media_type</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Type</span><span class="p">[</span><span class="n">MediaElement</span><span class="p">]:</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_source</span><span class="o">.</span><span class="n">media_type</span><span class="p">()</span></div>
+
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">is_stream</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
         <span class="k">return</span> <span class="kc">True</span></div>
 
 
-<div class="viewcode-block" id="StreamDatasetStorage"><a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.components.dataset_storage.html#datumaro.components.dataset.StreamDatasetStorage">[docs]</a><span class="k">class</span> <span class="nc">StreamDatasetStorage</span><span class="p">(</span><span class="n">DatasetStorage</span><span class="p">):</span>
+
+<div class="viewcode-block" id="StreamDatasetStorage">
+<a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.components.dataset_storage.html#datumaro.components.dataset.StreamDatasetStorage">[docs]</a>
+<span class="k">class</span> <span class="nc">StreamDatasetStorage</span><span class="p">(</span><span class="n">DatasetStorage</span><span class="p">):</span>
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">source</span><span class="p">:</span> <span class="n">IDataset</span><span class="p">,</span>
@@ -969,13 +1063,19 @@ document.write(`
         <span class="bp">self</span><span class="o">.</span><span class="n">_transform_ids_for_latest_subset_names</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">source</span><span class="p">,</span> <span class="n">infos</span><span class="p">,</span> <span class="n">categories</span><span class="p">,</span> <span class="n">media_type</span><span class="p">)</span>
 
-<div class="viewcode-block" id="StreamDatasetStorage.is_cache_initialized"><a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.components.dataset_storage.html#datumaro.components.dataset.StreamDatasetStorage.is_cache_initialized">[docs]</a>    <span class="k">def</span> <span class="nf">is_cache_initialized</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<div class="viewcode-block" id="StreamDatasetStorage.is_cache_initialized">
+<a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.components.dataset_storage.html#datumaro.components.dataset.StreamDatasetStorage.is_cache_initialized">[docs]</a>
+    <span class="k">def</span> <span class="nf">is_cache_initialized</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
         <span class="n">log</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;This function has no effect on streaming.&quot;</span><span class="p">)</span>
         <span class="k">return</span> <span class="kc">True</span></div>
 
-<div class="viewcode-block" id="StreamDatasetStorage.init_cache"><a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.components.dataset_storage.html#datumaro.components.dataset.StreamDatasetStorage.init_cache">[docs]</a>    <span class="k">def</span> <span class="nf">init_cache</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+
+<div class="viewcode-block" id="StreamDatasetStorage.init_cache">
+<a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.components.dataset_storage.html#datumaro.components.dataset.StreamDatasetStorage.init_cache">[docs]</a>
+    <span class="k">def</span> <span class="nf">init_cache</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">log</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;This function has no effect on streaming.&quot;</span><span class="p">)</span>
         <span class="k">pass</span></div>
+
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">stacked_transform</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">IDataset</span><span class="p">:</span>
@@ -996,20 +1096,32 @@ document.write(`
             <span class="bp">self</span><span class="o">.</span><span class="n">_length</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_source</span><span class="p">)</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_length</span>
 
-<div class="viewcode-block" id="StreamDatasetStorage.put"><a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.components.dataset_storage.html#datumaro.components.dataset.StreamDatasetStorage.put">[docs]</a>    <span class="k">def</span> <span class="nf">put</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">item</span><span class="p">:</span> <span class="n">DatasetItem</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<div class="viewcode-block" id="StreamDatasetStorage.put">
+<a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.components.dataset_storage.html#datumaro.components.dataset.StreamDatasetStorage.put">[docs]</a>
+    <span class="k">def</span> <span class="nf">put</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">item</span><span class="p">:</span> <span class="n">DatasetItem</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="k">raise</span> <span class="n">NotAvailableError</span><span class="p">(</span><span class="s2">&quot;Drop-in replacement is not allowed in streaming.&quot;</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="StreamDatasetStorage.get"><a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.components.dataset_storage.html#datumaro.components.dataset.StreamDatasetStorage.get">[docs]</a>    <span class="k">def</span> <span class="nf">get</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">id</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">subset</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">DatasetItem</span><span class="p">]:</span>
+
+<div class="viewcode-block" id="StreamDatasetStorage.get">
+<a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.components.dataset_storage.html#datumaro.components.dataset.StreamDatasetStorage.get">[docs]</a>
+    <span class="k">def</span> <span class="nf">get</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">id</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">subset</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">DatasetItem</span><span class="p">]:</span>
         <span class="k">raise</span> <span class="n">NotAvailableError</span><span class="p">(</span>
             <span class="s2">&quot;Random access to the dataset item is not allowed in streaming. &quot;</span>
             <span class="s2">&quot;You can access to the dataset item only by using its iterator.&quot;</span>
         <span class="p">)</span></div>
 
-<div class="viewcode-block" id="StreamDatasetStorage.remove"><a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.components.dataset_storage.html#datumaro.components.dataset.StreamDatasetStorage.remove">[docs]</a>    <span class="k">def</span> <span class="nf">remove</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">id</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">subset</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+
+<div class="viewcode-block" id="StreamDatasetStorage.remove">
+<a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.components.dataset_storage.html#datumaro.components.dataset.StreamDatasetStorage.remove">[docs]</a>
+    <span class="k">def</span> <span class="nf">remove</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">id</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">subset</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="k">raise</span> <span class="n">NotAvailableError</span><span class="p">(</span><span class="s2">&quot;Drop-in removal is not allowed in streaming.&quot;</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="StreamDatasetStorage.get_subset"><a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.components.dataset_storage.html#datumaro.components.dataset.StreamDatasetStorage.get_subset">[docs]</a>    <span class="k">def</span> <span class="nf">get_subset</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">IDataset</span><span class="p">:</span>
+
+<div class="viewcode-block" id="StreamDatasetStorage.get_subset">
+<a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.components.dataset_storage.html#datumaro.components.dataset.StreamDatasetStorage.get_subset">[docs]</a>
+    <span class="k">def</span> <span class="nf">get_subset</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">IDataset</span><span class="p">:</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">subsets</span><span class="p">()[</span><span class="n">name</span><span class="p">]</span></div>
+
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">subset_names</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -1019,39 +1131,70 @@ document.write(`
 
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_subset_names</span>
 
-<div class="viewcode-block" id="StreamDatasetStorage.subsets"><a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.components.dataset_storage.html#datumaro.components.dataset.StreamDatasetStorage.subsets">[docs]</a>    <span class="k">def</span> <span class="nf">subsets</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">IDataset</span><span class="p">]:</span>
+<div class="viewcode-block" id="StreamDatasetStorage.subsets">
+<a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.components.dataset_storage.html#datumaro.components.dataset.StreamDatasetStorage.subsets">[docs]</a>
+    <span class="k">def</span> <span class="nf">subsets</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">IDataset</span><span class="p">]:</span>
         <span class="k">return</span> <span class="p">{</span><span class="n">subset</span><span class="p">:</span> <span class="n">StreamSubset</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">subset</span><span class="p">)</span> <span class="k">for</span> <span class="n">subset</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">subset_names</span><span class="p">}</span></div>
 
-<div class="viewcode-block" id="StreamDatasetStorage.transform"><a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.components.dataset_storage.html#datumaro.components.dataset.StreamDatasetStorage.transform">[docs]</a>    <span class="k">def</span> <span class="nf">transform</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">method</span><span class="p">:</span> <span class="n">Type</span><span class="p">[</span><span class="n">Transform</span><span class="p">],</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+
+<div class="viewcode-block" id="StreamDatasetStorage.transform">
+<a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.components.dataset_storage.html#datumaro.components.dataset.StreamDatasetStorage.transform">[docs]</a>
+    <span class="k">def</span> <span class="nf">transform</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">method</span><span class="p">:</span> <span class="n">Type</span><span class="p">[</span><span class="n">Transform</span><span class="p">],</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="n">method</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="StreamDatasetStorage.get_annotated_items"><a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.components.dataset_storage.html#datumaro.components.dataset.StreamDatasetStorage.get_annotated_items">[docs]</a>    <span class="k">def</span> <span class="nf">get_annotated_items</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+
+<div class="viewcode-block" id="StreamDatasetStorage.get_annotated_items">
+<a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.components.dataset_storage.html#datumaro.components.dataset.StreamDatasetStorage.get_annotated_items">[docs]</a>
+    <span class="k">def</span> <span class="nf">get_annotated_items</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
         <span class="k">return</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">get_annotated_items</span><span class="p">()</span></div>
 
-<div class="viewcode-block" id="StreamDatasetStorage.get_annotations"><a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.components.dataset_storage.html#datumaro.components.dataset.StreamDatasetStorage.get_annotations">[docs]</a>    <span class="k">def</span> <span class="nf">get_annotations</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+
+<div class="viewcode-block" id="StreamDatasetStorage.get_annotations">
+<a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.components.dataset_storage.html#datumaro.components.dataset.StreamDatasetStorage.get_annotations">[docs]</a>
+    <span class="k">def</span> <span class="nf">get_annotations</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
         <span class="k">return</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">get_annotations</span><span class="p">()</span></div>
 
-<div class="viewcode-block" id="StreamDatasetStorage.get_datasetitem_by_path"><a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.components.dataset_storage.html#datumaro.components.dataset.StreamDatasetStorage.get_datasetitem_by_path">[docs]</a>    <span class="k">def</span> <span class="nf">get_datasetitem_by_path</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">DatasetItem</span><span class="p">]:</span>
+
+<div class="viewcode-block" id="StreamDatasetStorage.get_datasetitem_by_path">
+<a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.components.dataset_storage.html#datumaro.components.dataset.StreamDatasetStorage.get_datasetitem_by_path">[docs]</a>
+    <span class="k">def</span> <span class="nf">get_datasetitem_by_path</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">DatasetItem</span><span class="p">]:</span>
         <span class="k">raise</span> <span class="n">NotAvailableError</span><span class="p">(</span><span class="s2">&quot;Get dataset item by path is not allowed in streaming.&quot;</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="StreamDatasetStorage.get_patch"><a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.components.dataset_storage.html#datumaro.components.dataset.StreamDatasetStorage.get_patch">[docs]</a>    <span class="k">def</span> <span class="nf">get_patch</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+<div class="viewcode-block" id="StreamDatasetStorage.get_patch">
+<a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.components.dataset_storage.html#datumaro.components.dataset.StreamDatasetStorage.get_patch">[docs]</a>
+    <span class="k">def</span> <span class="nf">get_patch</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">raise</span> <span class="n">NotAvailableError</span><span class="p">(</span><span class="s2">&quot;Get patch is not allowed in streaming.&quot;</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="StreamDatasetStorage.flush_changes"><a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.components.dataset_storage.html#datumaro.components.dataset.StreamDatasetStorage.flush_changes">[docs]</a>    <span class="k">def</span> <span class="nf">flush_changes</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+<div class="viewcode-block" id="StreamDatasetStorage.flush_changes">
+<a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.components.dataset_storage.html#datumaro.components.dataset.StreamDatasetStorage.flush_changes">[docs]</a>
+    <span class="k">def</span> <span class="nf">flush_changes</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">raise</span> <span class="n">NotAvailableError</span><span class="p">(</span><span class="s2">&quot;Flush changes is not allowed in streaming.&quot;</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="StreamDatasetStorage.update"><a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.components.dataset_storage.html#datumaro.components.dataset.StreamDatasetStorage.update">[docs]</a>    <span class="k">def</span> <span class="nf">update</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">source</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">DatasetPatch</span><span class="p">,</span> <span class="n">IDataset</span><span class="p">,</span> <span class="n">Iterable</span><span class="p">[</span><span class="n">DatasetItem</span><span class="p">]]):</span>
+
+<div class="viewcode-block" id="StreamDatasetStorage.update">
+<a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.components.dataset_storage.html#datumaro.components.dataset.StreamDatasetStorage.update">[docs]</a>
+    <span class="k">def</span> <span class="nf">update</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">source</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">DatasetPatch</span><span class="p">,</span> <span class="n">IDataset</span><span class="p">,</span> <span class="n">Iterable</span><span class="p">[</span><span class="n">DatasetItem</span><span class="p">]]):</span>
         <span class="k">raise</span> <span class="n">NotAvailableError</span><span class="p">(</span><span class="s2">&quot;Update is not allowed in streaming.&quot;</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="StreamDatasetStorage.infos"><a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.components.dataset_storage.html#datumaro.components.dataset.StreamDatasetStorage.infos">[docs]</a>    <span class="k">def</span> <span class="nf">infos</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">DatasetInfo</span><span class="p">:</span>
+
+<div class="viewcode-block" id="StreamDatasetStorage.infos">
+<a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.components.dataset_storage.html#datumaro.components.dataset.StreamDatasetStorage.infos">[docs]</a>
+    <span class="k">def</span> <span class="nf">infos</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">DatasetInfo</span><span class="p">:</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">stacked_transform</span><span class="o">.</span><span class="n">infos</span><span class="p">()</span></div>
 
-<div class="viewcode-block" id="StreamDatasetStorage.categories"><a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.components.dataset_storage.html#datumaro.components.dataset.StreamDatasetStorage.categories">[docs]</a>    <span class="k">def</span> <span class="nf">categories</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">CategoriesInfo</span><span class="p">:</span>
+
+<div class="viewcode-block" id="StreamDatasetStorage.categories">
+<a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.components.dataset_storage.html#datumaro.components.dataset.StreamDatasetStorage.categories">[docs]</a>
+    <span class="k">def</span> <span class="nf">categories</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">CategoriesInfo</span><span class="p">:</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">stacked_transform</span><span class="o">.</span><span class="n">categories</span><span class="p">()</span></div>
+
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">is_stream</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
         <span class="k">return</span> <span class="kc">True</span></div>
+
 </pre></div>
 
                 </article>
@@ -1094,7 +1237,7 @@ document.write(`
         <div class="footer-item">
 
   <p class="sphinx-version">
-    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 5.3.0.
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 7.2.6.
     <br/>
   </p>
 </div>

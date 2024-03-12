@@ -1,13 +1,12 @@
 
-
 <!DOCTYPE html>
 
 
-<html lang="en" data-content_root="" >
+<html lang="en" data-content_root="../../../" >
 
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
     <title>Noisy label detection for classification tasks from training loss dynamics statistics &#8212; Datumaro 1.6.0rc1 documentation</title>
   
@@ -29,27 +28,24 @@
 <link rel="preload" as="font" type="font/woff2" crossorigin href="../../../_static/vendor/fontawesome/6.5.1/webfonts/fa-brands-400.woff2" />
 <link rel="preload" as="font" type="font/woff2" crossorigin href="../../../_static/vendor/fontawesome/6.5.1/webfonts/fa-regular-400.woff2" />
 
-    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css" />
-    <link rel="stylesheet" type="text/css" href="../../../_static/copybutton.css" />
-    <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css" />
-    <link rel="stylesheet" type="text/css" href="../../../_static/design-style.1e8bd061cd6da7fc9cf755528e8ffc24.min.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=a746c00c" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css?v=eafc0fe6" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/design-style.1e8bd061cd6da7fc9cf755528e8ffc24.min.css?v=0a3b3ea7" />
     <link rel="stylesheet" type="text/css" href="../../../_static/nbsphinx-code-cells.css" />
-    <link rel="stylesheet" type="text/css" href="../../../_static/css/custom.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/css/custom.css?v=8b7c274f" />
   
   <!-- Pre-loaded scripts that we'll load fully later -->
   <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=8d27b9dea8ad943066ae" />
 <link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=8d27b9dea8ad943066ae" />
   <script src="../../../_static/vendor/fontawesome/6.5.1/js/all.min.js?digest=8d27b9dea8ad943066ae"></script>
 
-    <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
-    <script src="../../../_static/jquery.js"></script>
-    <script src="../../../_static/underscore.js"></script>
-    <script src="../../../_static/_sphinx_javascript_frameworks_compat.js"></script>
-    <script src="../../../_static/doctools.js"></script>
-    <script src="../../../_static/sphinx_highlight.js"></script>
-    <script src="../../../_static/clipboard.min.js"></script>
-    <script src="../../../_static/copybutton.js"></script>
-    <script src="../../../_static/design-tabs.js"></script>
+    <script src="../../../_static/documentation_options.js?v=82acb2b2"></script>
+    <script src="../../../_static/doctools.js?v=888ff710"></script>
+    <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../../../_static/copybutton.js?v=f281be69"></script>
+    <script src="../../../_static/design-tabs.js?v=36754332"></script>
     <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
     <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
@@ -659,13 +655,13 @@ document.write(`
                 <article class="bd-article">
                   
   <section id="Noisy-label-detection-for-classification-tasks-from-training-loss-dynamics-statistics">
-<h1>Noisy label detection for classification tasks from training loss dynamics statistics<a class="headerlink" href="#Noisy-label-detection-for-classification-tasks-from-training-loss-dynamics-statistics" title="Permalink to this heading">#</a></h1>
+<h1>Noisy label detection for classification tasks from training loss dynamics statistics<a class="headerlink" href="#Noisy-label-detection-for-classification-tasks-from-training-loss-dynamics-statistics" title="Link to this heading">#</a></h1>
 <p><a class="reference external" href="https://github.com/openvinotoolkit/datumaro/blob/develop/notebooks/10_noisy_label_detection_cls.ipynb"><img alt="Jupyter Notebook" src="https://img.shields.io/badge/jupyter-%23FA0F00.svg?style=for-the-badge&amp;logo=jupyter&amp;logoColor=white" /></a></p>
 <p>This tutorial covers how to find noisy labeled samples in the training dataset while training the model on your dataset. This feature utilizes both <a class="reference external" href="https://github.com/openvinotoolkit/datumaro">Datumaro</a> and <a class="reference external" href="https://github.com/openvinotoolkit/training_extensions">OpenVINO™ Training Extensions</a> simultaneously.</p>
 <section id="Prerequisite">
-<h2>Prerequisite<a class="headerlink" href="#Prerequisite" title="Permalink to this heading">#</a></h2>
+<h2>Prerequisite<a class="headerlink" href="#Prerequisite" title="Link to this heading">#</a></h2>
 <section id="Prepare-Imagenette2-dataset">
-<h3>Prepare Imagenette2 dataset<a class="headerlink" href="#Prepare-Imagenette2-dataset" title="Permalink to this heading">#</a></h3>
+<h3>Prepare Imagenette2 dataset<a class="headerlink" href="#Prepare-Imagenette2-dataset" title="Link to this heading">#</a></h3>
 <p>Imagenette is a subset of 10 easily classified classes from Imagenet (tench, English springer, cassette player, chain saw, church, French horn, garbage truck, gas pump, golf ball, parachute). For more detail, please see <a class="reference external" href="https://github.com/fastai/imagenette#imagenette-1">fastai/imagenette Github repository</a>.</p>
 <div class="nbinput nblast docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
@@ -678,7 +674,7 @@ document.write(`
 </div>
 </section>
 <section id="Install-OpenVINO™-Training-Extensions">
-<h3>Install OpenVINO™ Training Extensions<a class="headerlink" href="#Install-OpenVINO™-Training-Extensions" title="Permalink to this heading">#</a></h3>
+<h3>Install OpenVINO™ Training Extensions<a class="headerlink" href="#Install-OpenVINO™-Training-Extensions" title="Link to this heading">#</a></h3>
 <p>For more details, please see this <a class="reference external" href="https://openvinotoolkit.github.io/training_extensions/latest/guide/get_started/quick_start_guide/installation.html">OpenVINO™ Training Extensions installation guide</a>.</p>
 <div class="nbinput nblast docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
@@ -691,7 +687,7 @@ document.write(`
 </section>
 </section>
 <section id="Synthesize-noisy-label-using-Datumaro-Python-API">
-<h2>Synthesize noisy label using Datumaro Python API<a class="headerlink" href="#Synthesize-noisy-label-using-Datumaro-Python-API" title="Permalink to this heading">#</a></h2>
+<h2>Synthesize noisy label using Datumaro Python API<a class="headerlink" href="#Synthesize-noisy-label-using-Datumaro-Python-API" title="Link to this heading">#</a></h2>
 <p>In this section, we use the Datumaro Python API to synthesize noisy label samples. First import the <code class="docutils literal notranslate"><span class="pre">imagenette2</span></code> dataset. It then uses Datumaro’s transform function to remap the label names to be more human-friendly and reindex the IDs from zero.</p>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
@@ -786,24 +782,24 @@ infos
 </div>
 </section>
 <section id="Train-a-model-and-export-training-loss-dynamics-statistics-using-OpenVINO™-Training-Extensions">
-<h2>Train a model and export training loss dynamics statistics using OpenVINO™ Training Extensions<a class="headerlink" href="#Train-a-model-and-export-training-loss-dynamics-statistics-using-OpenVINO™-Training-Extensions" title="Permalink to this heading">#</a></h2>
+<h2>Train a model and export training loss dynamics statistics using OpenVINO™ Training Extensions<a class="headerlink" href="#Train-a-model-and-export-training-loss-dynamics-statistics-using-OpenVINO™-Training-Extensions" title="Link to this heading">#</a></h2>
 <p>In this step, we train a classification model using OpenVINO™ Training Extensions. To see the detail guides for OpenVINO™ Training Extensions usage, please see <a class="reference external" href="https://openvinotoolkit.github.io/training_extensions/latest/guide/tutorials/base/how_to_train/classification.html">How-To-Train</a>. In this example, we use the CLI command to train the model. Adding the argument ‘params –algo_backend.enable_noisy_label_detection True’ at the end allows you to export training loss dynamics statistics
 at the end of training.</p>
 <div class="nbinput nblast docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>!otx train Custom_Image_Classification_EfficinetNet-B0 \
-    --train-data-roots noisy-imagenette2-320/train \
-    --val-data-roots noisy-imagenette2-320/val \
-    -o outputs \
-    params --algo_backend.enable_noisy_label_detection True
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="o">!</span>otx<span class="w"> </span>train<span class="w"> </span>Custom_Image_Classification_EfficinetNet-B0<span class="w"> </span><span class="err">\</span>
+    <span class="o">--</span><span class="n">train</span><span class="o">-</span><span class="n">data</span><span class="o">-</span><span class="n">roots</span> <span class="n">noisy</span><span class="o">-</span><span class="n">imagenette2</span><span class="o">-</span><span class="mi">320</span><span class="o">/</span><span class="n">train</span> \
+    <span class="o">--</span><span class="n">val</span><span class="o">-</span><span class="n">data</span><span class="o">-</span><span class="n">roots</span> <span class="n">noisy</span><span class="o">-</span><span class="n">imagenette2</span><span class="o">-</span><span class="mi">320</span><span class="o">/</span><span class="n">val</span> \
+    <span class="o">-</span><span class="n">o</span> <span class="n">outputs</span> \
+    <span class="n">params</span> <span class="o">--</span><span class="n">algo_backend</span><span class="o">.</span><span class="n">enable_noisy_label_detection</span> <span class="kc">True</span>
 </pre></div>
 </div>
 </div>
 </section>
 <section id="Import-statistics-and-analyze-them-to-find-the-noisy-label-samples">
-<h2>Import statistics and analyze them to find the noisy label samples<a class="headerlink" href="#Import-statistics-and-analyze-them-to-find-the-noisy-label-samples" title="Permalink to this heading">#</a></h2>
+<h2>Import statistics and analyze them to find the noisy label samples<a class="headerlink" href="#Import-statistics-and-analyze-them-to-find-the-noisy-label-samples" title="Link to this heading">#</a></h2>
 <p>In this step, we import the statistics obtained during the model training to find the noisy label samples. Because we set the output directory as <code class="docutils literal notranslate"><span class="pre">outputs</span></code> in the previous step, we you can find the dataset including statistics which is exported to <a class="reference external" href="https://openvinotoolkit.github.io/datumaro/latest/docs/explanation/formats/datumaro">Datumaro format</a> at <code class="docutils literal notranslate"><span class="pre">outputs/logs/noisy_label_detection</span></code>. To make training loss dynamics analysis easier, we provide an interface called
 <code class="docutils literal notranslate"><span class="pre">dm.LossDynamicsAnalyzer</span></code>. You can get the top-k candidates for noisy label samples using it. Additionally, we can also plot the exponential moving average (EMA) training loss curves of top-k candidates and compare them with the average of samples in the dataset. The EMA training loss is a very strong criterion for noisy label samples. For more detail, please see [1].</p>
 <p>[1]: Zhou, Tianyi, Shengjie Wang, and Jeff Bilmes. “Robust curriculum learning: from clean label detection to noisy label self-correction.” International Conference on Learning Representations. 2021.</p>
@@ -965,7 +961,7 @@ Accuracy = 83.3% and Recall = 83.3%
         <div class="footer-item">
 
   <p class="sphinx-version">
-    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 5.3.0.
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 7.2.6.
     <br/>
   </p>
 </div>

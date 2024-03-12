@@ -1,13 +1,12 @@
 
-
 <!DOCTYPE html>
 
 
-<html lang="en" data-content_root="" >
+<html lang="en" data-content_root="../../../" >
 
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
     <title>Validate Dataset To Detect Anomalies &#8212; Datumaro 1.6.0rc1 documentation</title>
   
@@ -29,27 +28,24 @@
 <link rel="preload" as="font" type="font/woff2" crossorigin href="../../../_static/vendor/fontawesome/6.5.1/webfonts/fa-brands-400.woff2" />
 <link rel="preload" as="font" type="font/woff2" crossorigin href="../../../_static/vendor/fontawesome/6.5.1/webfonts/fa-regular-400.woff2" />
 
-    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css" />
-    <link rel="stylesheet" type="text/css" href="../../../_static/copybutton.css" />
-    <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css" />
-    <link rel="stylesheet" type="text/css" href="../../../_static/design-style.1e8bd061cd6da7fc9cf755528e8ffc24.min.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=a746c00c" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css?v=eafc0fe6" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/design-style.1e8bd061cd6da7fc9cf755528e8ffc24.min.css?v=0a3b3ea7" />
     <link rel="stylesheet" type="text/css" href="../../../_static/nbsphinx-code-cells.css" />
-    <link rel="stylesheet" type="text/css" href="../../../_static/css/custom.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/css/custom.css?v=8b7c274f" />
   
   <!-- Pre-loaded scripts that we'll load fully later -->
   <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=8d27b9dea8ad943066ae" />
 <link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=8d27b9dea8ad943066ae" />
   <script src="../../../_static/vendor/fontawesome/6.5.1/js/all.min.js?digest=8d27b9dea8ad943066ae"></script>
 
-    <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
-    <script src="../../../_static/jquery.js"></script>
-    <script src="../../../_static/underscore.js"></script>
-    <script src="../../../_static/_sphinx_javascript_frameworks_compat.js"></script>
-    <script src="../../../_static/doctools.js"></script>
-    <script src="../../../_static/sphinx_highlight.js"></script>
-    <script src="../../../_static/clipboard.min.js"></script>
-    <script src="../../../_static/copybutton.js"></script>
-    <script src="../../../_static/design-tabs.js"></script>
+    <script src="../../../_static/documentation_options.js?v=82acb2b2"></script>
+    <script src="../../../_static/doctools.js?v=888ff710"></script>
+    <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../../../_static/copybutton.js?v=f281be69"></script>
+    <script src="../../../_static/design-tabs.js?v=36754332"></script>
     <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
     <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
@@ -659,13 +655,13 @@ document.write(`
                 <article class="bd-article">
                   
   <section id="Validate-Dataset-To-Detect-Anomalies">
-<h1>Validate Dataset To Detect Anomalies<a class="headerlink" href="#Validate-Dataset-To-Detect-Anomalies" title="Permalink to this heading">#</a></h1>
+<h1>Validate Dataset To Detect Anomalies<a class="headerlink" href="#Validate-Dataset-To-Detect-Anomalies" title="Link to this heading">#</a></h1>
 <p><a class="reference external" href="https://github.com/openvinotoolkit/datumaro/blob/develop/notebooks/11_validate.ipynb"><img alt="Jupyter Notebook" src="https://img.shields.io/badge/jupyter-%23FA0F00.svg?style=for-the-badge&amp;logo=jupyter&amp;logoColor=white" /></a></p>
 <p>In this notebook example, we are going to generate the validation report, which contains types of anomaly data regarding to <a class="reference external" href="https://openvinotoolkit.github.io/datumaro/latest/docs/command-reference/context_free/validate">validate</a>. Through this, we can identify which data was inapplicable for DL workflow because it is broken or undefined. Moreover, we detect imbalanced, out-of-distributed, or rare samples together.</p>
 <section id="Prerequisite">
-<h2>Prerequisite<a class="headerlink" href="#Prerequisite" title="Permalink to this heading">#</a></h2>
+<h2>Prerequisite<a class="headerlink" href="#Prerequisite" title="Link to this heading">#</a></h2>
 <section id="Download-COCO-2017-validation-dataset">
-<h3>Download COCO 2017 validation dataset<a class="headerlink" href="#Download-COCO-2017-validation-dataset" title="Permalink to this heading">#</a></h3>
+<h3>Download COCO 2017 validation dataset<a class="headerlink" href="#Download-COCO-2017-validation-dataset" title="Link to this heading">#</a></h3>
 <p>Please refer <a class="reference external" href="https://openvinotoolkit.github.io/datumaro/latest/docs/jupyter_notebook_examples/notebooks/03_visualize.html">this notebook</a> for preparing COCO 2017 validation dataset.</p>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
@@ -721,7 +717,7 @@ infos
 </section>
 </section>
 <section id="Generate-the-validation-report">
-<h2>Generate the validation report<a class="headerlink" href="#Generate-the-validation-report" title="Permalink to this heading">#</a></h2>
+<h2>Generate the validation report<a class="headerlink" href="#Generate-the-validation-report" title="Link to this heading">#</a></h2>
 <p>We first generate the validation report with given conditions. The <code class="docutils literal notranslate"><span class="pre">few_sample_thr</span></code> warns users when the number of samples per class is less than a given threshold. The <code class="docutils literal notranslate"><span class="pre">imbalance_ratio_thr</span></code> warns users when the imbalance ratio, which is calculated by dividing the number of samples corresponding to the majority class by the number of samples corresponding to the minority class, is larger than a given threshold. The <code class="docutils literal notranslate"><span class="pre">far_from_mean_thr</span></code> defines the threshold <span class="math notranslate nohighlight">\(x\)</span> for warning annotations
 if it exceeds mean <span class="math notranslate nohighlight">\(\pm\)</span> x * stddev</p>
 <div class="nbinput docutils container">
@@ -828,7 +824,7 @@ The number of warnings per warning type:  {&#39;MissingAnnotation&#39;: 48, &#39
 </div>
 </section>
 <section id="Manual-correction-of-validation-errors">
-<h2>Manual correction of validation errors<a class="headerlink" href="#Manual-correction-of-validation-errors" title="Permalink to this heading">#</a></h2>
+<h2>Manual correction of validation errors<a class="headerlink" href="#Manual-correction-of-validation-errors" title="Link to this heading">#</a></h2>
 <p>From now on, we are going to fix the dataset from reported errors. For the <code class="docutils literal notranslate"><span class="pre">UnderfinedAttribute</span></code>, we will update the label information of the dataset with the attributes as below. Meanwhile, we will remove the <code class="docutils literal notranslate"><span class="pre">NegativeLength</span></code> by rejecting the specific label from annotations in the sample.</p>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
@@ -873,7 +869,7 @@ The number of warnings per warning type:  {&#39;MissingAnnotation&#39;: 48, &#39
 </div>
 </section>
 <section id="Inspection-of-warnings">
-<h2>Inspection of warnings<a class="headerlink" href="#Inspection-of-warnings" title="Permalink to this heading">#</a></h2>
+<h2>Inspection of warnings<a class="headerlink" href="#Inspection-of-warnings" title="Link to this heading">#</a></h2>
 <p>Although the severe errors have been fixed above, it is still important to address the warnings because they may contain potential annotation errors. Datumaro provides a report to users by checking if the labels in the dataset are imbalanced through <code class="docutils literal notranslate"><span class="pre">ImbalancedLabels</span></code> or if certain annotations deviate significantly from the distribution <code class="docutils literal notranslate"><span class="pre">FarFromLabelMean</span></code>. It is crucial to review and address these warnings to ensure the quality and accuracy of the dataset. We are going to start from the
 label distribution of MS-COCO validation dataset.</p>
 <div class="nbinput docutils container">
@@ -1138,7 +1134,7 @@ Annotation &#39;900300121242&#39; in the item has a value of &#39;bounding box r
         <div class="footer-item">
 
   <p class="sphinx-version">
-    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 5.3.0.
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 7.2.6.
     <br/>
   </p>
 </div>

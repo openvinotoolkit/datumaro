@@ -1,13 +1,12 @@
 
-
 <!DOCTYPE html>
 
 
-<html lang="en" data-content_root="" >
+<html lang="en" data-content_root="../../../" >
 
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
     <title>Transform &#8212; Datumaro 1.6.0rc1 documentation</title>
   
@@ -29,26 +28,23 @@
 <link rel="preload" as="font" type="font/woff2" crossorigin href="../../../_static/vendor/fontawesome/6.5.1/webfonts/fa-brands-400.woff2" />
 <link rel="preload" as="font" type="font/woff2" crossorigin href="../../../_static/vendor/fontawesome/6.5.1/webfonts/fa-regular-400.woff2" />
 
-    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css" />
-    <link rel="stylesheet" type="text/css" href="../../../_static/copybutton.css" />
-    <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css" />
-    <link rel="stylesheet" type="text/css" href="../../../_static/design-style.1e8bd061cd6da7fc9cf755528e8ffc24.min.css" />
-    <link rel="stylesheet" type="text/css" href="../../../_static/css/custom.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=a746c00c" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css?v=eafc0fe6" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/design-style.1e8bd061cd6da7fc9cf755528e8ffc24.min.css?v=0a3b3ea7" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/css/custom.css?v=8b7c274f" />
   
   <!-- Pre-loaded scripts that we'll load fully later -->
   <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=8d27b9dea8ad943066ae" />
 <link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=8d27b9dea8ad943066ae" />
   <script src="../../../_static/vendor/fontawesome/6.5.1/js/all.min.js?digest=8d27b9dea8ad943066ae"></script>
 
-    <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
-    <script src="../../../_static/jquery.js"></script>
-    <script src="../../../_static/underscore.js"></script>
-    <script src="../../../_static/_sphinx_javascript_frameworks_compat.js"></script>
-    <script src="../../../_static/doctools.js"></script>
-    <script src="../../../_static/sphinx_highlight.js"></script>
-    <script src="../../../_static/clipboard.min.js"></script>
-    <script src="../../../_static/copybutton.js"></script>
-    <script src="../../../_static/design-tabs.js"></script>
+    <script src="../../../_static/documentation_options.js?v=82acb2b2"></script>
+    <script src="../../../_static/doctools.js?v=888ff710"></script>
+    <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../../../_static/copybutton.js?v=f281be69"></script>
+    <script src="../../../_static/design-tabs.js?v=36754332"></script>
     <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <script>DOCUMENTATION_OPTIONS.pagename = 'docs/command-reference/context_free/transform';</script>
     <link rel="index" title="Index" href="../../../genindex.html" />
@@ -656,9 +652,9 @@ document.write(`
                 <article class="bd-article">
                   
   <section id="transform">
-<h1>Transform<a class="headerlink" href="#transform" title="Permalink to this heading">#</a></h1>
+<h1>Transform<a class="headerlink" href="#transform" title="Link to this heading">#</a></h1>
 <section id="transform-dataset">
-<h2>Transform Dataset<a class="headerlink" href="#transform-dataset" title="Permalink to this heading">#</a></h2>
+<h2>Transform Dataset<a class="headerlink" href="#transform-dataset" title="Link to this heading">#</a></h2>
 <p>Often datasets need to be modified during preparation for model training and
 experimenting. In trivial cases it can be done manually - e.g. image renaming
 or label renaming. However, in more complex cases even simple modifications
@@ -733,7 +729,7 @@ option to print parameter info.</p></li>
 </li>
 </ul>
 <section id="built-in-transforms">
-<h3>Built-in transforms<a class="headerlink" href="#built-in-transforms" title="Permalink to this heading">#</a></h3>
+<h3>Built-in transforms<a class="headerlink" href="#built-in-transforms" title="Link to this heading">#</a></h3>
 <p>Basic dataset item manipulations:</p>
 <ul class="simple">
 <li><p><a class="reference internal" href="#rename"><span class="std std-ref">rename</span></a> - Renames dataset items by regular expression</p></li>
@@ -786,7 +782,7 @@ occluded segments of covered masks</p></li>
 1 from bbox coordinates</p></li>
 </ul>
 <section id="rename">
-<h4><code class="docutils literal notranslate"><span class="pre">rename</span></code><a class="headerlink" href="#rename" title="Permalink to this heading">#</a></h4>
+<h4><code class="docutils literal notranslate"><span class="pre">rename</span></code><a class="headerlink" href="#rename" title="Link to this heading">#</a></h4>
 <p>Renames items in the dataset. Supports regular expressions.
 The first character in the expression is a delimiter for
 the pattern and replacement parts. Replacement part can also
@@ -827,7 +823,7 @@ contain <code class="docutils literal notranslate"><span class="pre">str.format<
 </ul>
 </section>
 <section id="id-from-image-name">
-<h4><code class="docutils literal notranslate"><span class="pre">id_from_image_name</span></code><a class="headerlink" href="#id-from-image-name" title="Permalink to this heading">#</a></h4>
+<h4><code class="docutils literal notranslate"><span class="pre">id_from_image_name</span></code><a class="headerlink" href="#id-from-image-name" title="Link to this heading">#</a></h4>
 <p>Renames items in the dataset using image file name (without extension).</p>
 <p>Usage:</p>
 <div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">id_from_image_name [-h]</span>
@@ -839,7 +835,7 @@ contain <code class="docutils literal notranslate"><span class="pre">str.format<
 </ul>
 </section>
 <section id="reindex">
-<h4><code class="docutils literal notranslate"><span class="pre">reindex</span></code><a class="headerlink" href="#reindex" title="Permalink to this heading">#</a></h4>
+<h4><code class="docutils literal notranslate"><span class="pre">reindex</span></code><a class="headerlink" href="#reindex" title="Link to this heading">#</a></h4>
 <p>Replaces dataset item IDs with sequential indices.</p>
 <p>Usage:</p>
 <div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">reindex [-h] [-s START]</span>
@@ -852,7 +848,7 @@ contain <code class="docutils literal notranslate"><span class="pre">str.format<
 </ul>
 </section>
 <section id="sort">
-<h4><code class="docutils literal notranslate"><span class="pre">sort</span></code><a class="headerlink" href="#sort" title="Permalink to this heading">#</a></h4>
+<h4><code class="docutils literal notranslate"><span class="pre">sort</span></code><a class="headerlink" href="#sort" title="Link to this heading">#</a></h4>
 <p>Sorts dataset items.</p>
 <p>Usage:</p>
 <div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">reindex [-h] [-s START]</span>
@@ -873,7 +869,7 @@ contain <code class="docutils literal notranslate"><span class="pre">str.format<
 </ul>
 </section>
 <section id="ndr">
-<h4><code class="docutils literal notranslate"><span class="pre">ndr</span></code><a class="headerlink" href="#ndr" title="Permalink to this heading">#</a></h4>
+<h4><code class="docutils literal notranslate"><span class="pre">ndr</span></code><a class="headerlink" href="#ndr" title="Link to this heading">#</a></h4>
 <p>Removes near-duplicated images in subset.</p>
 <p>Remove duplicated images from a dataset. Keep at most <code class="docutils literal notranslate"><span class="pre">-k/--num_cut</span></code>
 resulting images.</p>
@@ -924,7 +920,7 @@ when <code class="docutils literal notranslate"><span class="pre">num_cut</span>
 </ul>
 </section>
 <section id="relevancy-sampler">
-<h4><code class="docutils literal notranslate"><span class="pre">relevancy_sampler</span></code><a class="headerlink" href="#relevancy-sampler" title="Permalink to this heading">#</a></h4>
+<h4><code class="docutils literal notranslate"><span class="pre">relevancy_sampler</span></code><a class="headerlink" href="#relevancy-sampler" title="Link to this heading">#</a></h4>
 <p>Sampler that analyzes model inference results on the dataset
 and picks the most relevant samples for training.</p>
 <p>Creates a dataset from the <code class="docutils literal notranslate"><span class="pre">-k/--count</span></code> hardest items for a model.
@@ -988,7 +984,7 @@ attributes of annotations.</p>
 </ul>
 </section>
 <section id="random-sampler">
-<h4><code class="docutils literal notranslate"><span class="pre">random_sampler</span></code><a class="headerlink" href="#random-sampler" title="Permalink to this heading">#</a></h4>
+<h4><code class="docutils literal notranslate"><span class="pre">random_sampler</span></code><a class="headerlink" href="#random-sampler" title="Link to this heading">#</a></h4>
 <p>Sampler that keeps no more than required number of items in the dataset.</p>
 <p>Notes:</p>
 <ul class="simple">
@@ -1024,7 +1020,7 @@ all images</p></li>
 </ul>
 </section>
 <section id="random-label-sampler">
-<h4><code class="docutils literal notranslate"><span class="pre">random_label_sampler</span></code><a class="headerlink" href="#random-label-sampler" title="Permalink to this heading">#</a></h4>
+<h4><code class="docutils literal notranslate"><span class="pre">random_label_sampler</span></code><a class="headerlink" href="#random-label-sampler" title="Link to this heading">#</a></h4>
 <p>Sampler that keeps at least the required number of annotations of
 each class in the dataset for each subset separately.</p>
 <p>Consider using the “stats” command to get class distribution in the dataset.</p>
@@ -1074,7 +1070,7 @@ unmentioned class</p>
 </ul>
 </section>
 <section id="resize">
-<h4><code class="docutils literal notranslate"><span class="pre">resize</span></code><a class="headerlink" href="#resize" title="Permalink to this heading">#</a></h4>
+<h4><code class="docutils literal notranslate"><span class="pre">resize</span></code><a class="headerlink" href="#resize" title="Link to this heading">#</a></h4>
 <p>Resizes images and annotations in the dataset to the specified size.
 Supports upscaling, downscaling and mixed variants.</p>
 <p>Usage:</p>
@@ -1097,7 +1093,7 @@ Supports upscaling, downscaling and mixed variants.</p>
 </ul>
 </section>
 <section id="remove-images">
-<h4><code class="docutils literal notranslate"><span class="pre">remove_images</span></code><a class="headerlink" href="#remove-images" title="Permalink to this heading">#</a></h4>
+<h4><code class="docutils literal notranslate"><span class="pre">remove_images</span></code><a class="headerlink" href="#remove-images" title="Link to this heading">#</a></h4>
 <p>Removes specific dataset items by their ids.</p>
 <p>Usage:</p>
 <div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">remove_images [-h] [--id IDs]</span>
@@ -1118,7 +1114,7 @@ Supports upscaling, downscaling and mixed variants.</p>
 </ul>
 </section>
 <section id="remove-annotations">
-<h4><code class="docutils literal notranslate"><span class="pre">remove_annotations</span></code><a class="headerlink" href="#remove-annotations" title="Permalink to this heading">#</a></h4>
+<h4><code class="docutils literal notranslate"><span class="pre">remove_annotations</span></code><a class="headerlink" href="#remove-annotations" title="Link to this heading">#</a></h4>
 <p>Allows to remove annotations on specific dataset items.</p>
 <p>Can be useful to clean the dataset from broken or unnecessary annotations.</p>
 <p>Usage:</p>
@@ -1141,7 +1137,7 @@ If not specified, removes all annotations (repeatable)</p></li>
 </ul>
 </section>
 <section id="remove-attributes">
-<h4><code class="docutils literal notranslate"><span class="pre">remove_attributes</span></code><a class="headerlink" href="#remove-attributes" title="Permalink to this heading">#</a></h4>
+<h4><code class="docutils literal notranslate"><span class="pre">remove_attributes</span></code><a class="headerlink" href="#remove-attributes" title="Link to this heading">#</a></h4>
 <p>Allows to remove item and annotation attributes in a dataset.</p>
 <p>Can be useful to clean the dataset from broken or unnecessary attributes.</p>
 <p>Usage:</p>
@@ -1174,7 +1170,7 @@ the <code class="docutils literal notranslate"><span class="pre">2010_001705</sp
 </ul>
 </section>
 <section id="random-split">
-<h4><code class="docutils literal notranslate"><span class="pre">random_split</span></code><a class="headerlink" href="#random-split" title="Permalink to this heading">#</a></h4>
+<h4><code class="docutils literal notranslate"><span class="pre">random_split</span></code><a class="headerlink" href="#random-split" title="Link to this heading">#</a></h4>
 <p>Joins all subsets into one and splits the result into few parts.
 It is expected that item ids are unique and subset ratios sum up to 1.</p>
 <p>Usage:</p>
@@ -1198,7 +1194,7 @@ It is expected that item ids are unique and subset ratios sum up to 1.</p>
 </ul>
 </section>
 <section id="split">
-<h4><code class="docutils literal notranslate"><span class="pre">split</span></code><a class="headerlink" href="#split" title="Permalink to this heading">#</a></h4>
+<h4><code class="docutils literal notranslate"><span class="pre">split</span></code><a class="headerlink" href="#split" title="Link to this heading">#</a></h4>
 <p>Splits a dataset for model training, using task information:</p>
 <ul class="simple">
 <li><p>classification splits
@@ -1281,7 +1277,7 @@ Gallery ratio would be <code class="docutils literal notranslate"><span class="p
 </ul>
 </section>
 <section id="map-subsets">
-<h4><code class="docutils literal notranslate"><span class="pre">map_subsets</span></code><a class="headerlink" href="#map-subsets" title="Permalink to this heading">#</a></h4>
+<h4><code class="docutils literal notranslate"><span class="pre">map_subsets</span></code><a class="headerlink" href="#map-subsets" title="Link to this heading">#</a></h4>
 <p>Renames subsets in the dataset.</p>
 <p>Usage:</p>
 <div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">map_subsets [-h] [-s MAPPING]</span>
@@ -1294,7 +1290,7 @@ Gallery ratio would be <code class="docutils literal notranslate"><span class="p
 </ul>
 </section>
 <section id="remap-labels">
-<h4><code class="docutils literal notranslate"><span class="pre">remap_labels</span></code><a class="headerlink" href="#remap-labels" title="Permalink to this heading">#</a></h4>
+<h4><code class="docutils literal notranslate"><span class="pre">remap_labels</span></code><a class="headerlink" href="#remap-labels" title="Link to this heading">#</a></h4>
 <p>Changes labels in the dataset.</p>
 <p>A label can be:</p>
 <ul class="simple">
@@ -1342,7 +1338,7 @@ don’t touch other classes</p>
 </ul>
 </section>
 <section id="project-labels">
-<h4><code class="docutils literal notranslate"><span class="pre">project_labels</span></code><a class="headerlink" href="#project-labels" title="Permalink to this heading">#</a></h4>
+<h4><code class="docutils literal notranslate"><span class="pre">project_labels</span></code><a class="headerlink" href="#project-labels" title="Link to this heading">#</a></h4>
 <p>Changes the order of labels in the dataset from the existing
 to the desired one, removes unknown labels and adds new labels.
 Updates or removes the corresponding annotations.</p>
@@ -1372,7 +1368,7 @@ New labels: <code class="docutils literal notranslate"><span class="pre">person<
 </ul>
 </section>
 <section id="shapes-to-boxes">
-<h4><code class="docutils literal notranslate"><span class="pre">shapes_to_boxes</span></code><a class="headerlink" href="#shapes-to-boxes" title="Permalink to this heading">#</a></h4>
+<h4><code class="docutils literal notranslate"><span class="pre">shapes_to_boxes</span></code><a class="headerlink" href="#shapes-to-boxes" title="Link to this heading">#</a></h4>
 <p>Converts spatial annotations (masks, polygons, polylines, points)
 to enclosing bounding boxes.</p>
 <p>Usage:</p>
@@ -1396,7 +1392,7 @@ to enclosing bounding boxes.</p>
 </ul>
 </section>
 <section id="boxes-to-masks">
-<h4><code class="docutils literal notranslate"><span class="pre">boxes_to_masks</span></code><a class="headerlink" href="#boxes-to-masks" title="Permalink to this heading">#</a></h4>
+<h4><code class="docutils literal notranslate"><span class="pre">boxes_to_masks</span></code><a class="headerlink" href="#boxes-to-masks" title="Link to this heading">#</a></h4>
 <p>Converts bounding boxes to masks.</p>
 <p>Usage:</p>
 <div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">boxes_to_masks [-h]</span>
@@ -1408,7 +1404,7 @@ to enclosing bounding boxes.</p>
 </ul>
 </section>
 <section id="polygons-to-masks">
-<h4><code class="docutils literal notranslate"><span class="pre">polygons_to_masks</span></code><a class="headerlink" href="#polygons-to-masks" title="Permalink to this heading">#</a></h4>
+<h4><code class="docutils literal notranslate"><span class="pre">polygons_to_masks</span></code><a class="headerlink" href="#polygons-to-masks" title="Link to this heading">#</a></h4>
 <p>Converts polygons to masks.</p>
 <p>Usage:</p>
 <div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">polygons_to_masks [-h]</span>
@@ -1420,7 +1416,7 @@ to enclosing bounding boxes.</p>
 </ul>
 </section>
 <section id="masks-to-polygons">
-<h4><code class="docutils literal notranslate"><span class="pre">masks_to_polygons</span></code><a class="headerlink" href="#masks-to-polygons" title="Permalink to this heading">#</a></h4>
+<h4><code class="docutils literal notranslate"><span class="pre">masks_to_polygons</span></code><a class="headerlink" href="#masks-to-polygons" title="Link to this heading">#</a></h4>
 <p>Converts masks to polygons.</p>
 <p>Usage:</p>
 <div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">masks_to_polygons [-h]</span>
@@ -1432,7 +1428,7 @@ to enclosing bounding boxes.</p>
 </ul>
 </section>
 <section id="anns-to-labels">
-<h4><code class="docutils literal notranslate"><span class="pre">anns_to_labels</span></code><a class="headerlink" href="#anns-to-labels" title="Permalink to this heading">#</a></h4>
+<h4><code class="docutils literal notranslate"><span class="pre">anns_to_labels</span></code><a class="headerlink" href="#anns-to-labels" title="Link to this heading">#</a></h4>
 <p>Collects all labels from annotations (of all types) and transforms
 them into a set of annotations of type <code class="docutils literal notranslate"><span class="pre">Label</span></code></p>
 <p>Usage:</p>
@@ -1445,7 +1441,7 @@ them into a set of annotations of type <code class="docutils literal notranslate
 </ul>
 </section>
 <section id="merge-instance-segments">
-<h4><code class="docutils literal notranslate"><span class="pre">merge_instance_segments</span></code><a class="headerlink" href="#merge-instance-segments" title="Permalink to this heading">#</a></h4>
+<h4><code class="docutils literal notranslate"><span class="pre">merge_instance_segments</span></code><a class="headerlink" href="#merge-instance-segments" title="Link to this heading">#</a></h4>
 <p>Replaces instance masks and, optionally, polygons with a single mask.
 A group of annotations with the same group id is considered an “instance”.
 The largest annotation in the group is considered the group “head”, so the
@@ -1461,7 +1457,7 @@ resulting mask takes properties from that annotation.</p>
 </ul>
 </section>
 <section id="crop-covered-segments">
-<h4><code class="docutils literal notranslate"><span class="pre">crop_covered_segments</span></code><a class="headerlink" href="#crop-covered-segments" title="Permalink to this heading">#</a></h4>
+<h4><code class="docutils literal notranslate"><span class="pre">crop_covered_segments</span></code><a class="headerlink" href="#crop-covered-segments" title="Link to this heading">#</a></h4>
 <p>Sorts polygons and masks (“segments”) according to <code class="docutils literal notranslate"><span class="pre">z_order</span></code>,
 crops covered areas of underlying segments. If a segment is split
 into several independent parts by the segments above, produces
@@ -1476,7 +1472,7 @@ the corresponding number of separate annotations joined into a group.</p>
 </ul>
 </section>
 <section id="bbox-value-decrement">
-<h4><code class="docutils literal notranslate"><span class="pre">bbox_value_decrement</span></code><a class="headerlink" href="#bbox-value-decrement" title="Permalink to this heading">#</a></h4>
+<h4><code class="docutils literal notranslate"><span class="pre">bbox_value_decrement</span></code><a class="headerlink" href="#bbox-value-decrement" title="Link to this heading">#</a></h4>
 <p>Subtracts one from the coordinates of bounding boxes</p>
 <p>Usage:</p>
 <div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">bbox_values_decrement [-h]</span>
@@ -1604,7 +1600,7 @@ the corresponding number of separate annotations joined into a group.</p>
         <div class="footer-item">
 
   <p class="sphinx-version">
-    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 5.3.0.
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 7.2.6.
     <br/>
   </p>
 </div>

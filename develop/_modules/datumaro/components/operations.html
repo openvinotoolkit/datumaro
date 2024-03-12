@@ -1,9 +1,8 @@
 
-
 <!DOCTYPE html>
 
 
-<html lang="en" data-content_root="" >
+<html lang="en" data-content_root="../../../" >
 
   <head>
     <meta charset="utf-8" />
@@ -28,26 +27,23 @@
 <link rel="preload" as="font" type="font/woff2" crossorigin href="../../../_static/vendor/fontawesome/6.5.1/webfonts/fa-brands-400.woff2" />
 <link rel="preload" as="font" type="font/woff2" crossorigin href="../../../_static/vendor/fontawesome/6.5.1/webfonts/fa-regular-400.woff2" />
 
-    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css" />
-    <link rel="stylesheet" type="text/css" href="../../../_static/copybutton.css" />
-    <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css" />
-    <link rel="stylesheet" type="text/css" href="../../../_static/design-style.1e8bd061cd6da7fc9cf755528e8ffc24.min.css" />
-    <link rel="stylesheet" type="text/css" href="../../../_static/css/custom.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=a746c00c" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css?v=eafc0fe6" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/design-style.1e8bd061cd6da7fc9cf755528e8ffc24.min.css?v=0a3b3ea7" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/css/custom.css?v=8b7c274f" />
   
   <!-- Pre-loaded scripts that we'll load fully later -->
   <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=8d27b9dea8ad943066ae" />
 <link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=8d27b9dea8ad943066ae" />
   <script src="../../../_static/vendor/fontawesome/6.5.1/js/all.min.js?digest=8d27b9dea8ad943066ae"></script>
 
-    <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
-    <script src="../../../_static/jquery.js"></script>
-    <script src="../../../_static/underscore.js"></script>
-    <script src="../../../_static/_sphinx_javascript_frameworks_compat.js"></script>
-    <script src="../../../_static/doctools.js"></script>
-    <script src="../../../_static/sphinx_highlight.js"></script>
-    <script src="../../../_static/clipboard.min.js"></script>
-    <script src="../../../_static/copybutton.js"></script>
-    <script src="../../../_static/design-tabs.js"></script>
+    <script src="../../../_static/documentation_options.js?v=82acb2b2"></script>
+    <script src="../../../_static/doctools.js?v=888ff710"></script>
+    <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../../../_static/copybutton.js?v=f281be69"></script>
+    <script src="../../../_static/design-tabs.js?v=36754332"></script>
     <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <script>DOCUMENTATION_OPTIONS.pagename = '_modules/datumaro/components/operations';</script>
     <link rel="index" title="Index" href="../../../genindex.html" />
@@ -364,13 +360,16 @@ document.write(`
 <span class="kn">from</span> <span class="nn">datumaro.components.media</span> <span class="kn">import</span> <span class="n">Image</span>
 
 
-<div class="viewcode-block" id="mean_std"><a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.components.operations.html#datumaro.cli.commands.stats.mean_std">[docs]</a><span class="k">def</span> <span class="nf">mean_std</span><span class="p">(</span><span class="n">dataset</span><span class="p">:</span> <span class="n">IDataset</span><span class="p">):</span>
+<div class="viewcode-block" id="mean_std">
+<a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.components.operations.html#datumaro.cli.commands.stats.mean_std">[docs]</a>
+<span class="k">def</span> <span class="nf">mean_std</span><span class="p">(</span><span class="n">dataset</span><span class="p">:</span> <span class="n">IDataset</span><span class="p">):</span>
     <span class="n">counter</span> <span class="o">=</span> <span class="n">_MeanStdCounter</span><span class="p">()</span>
 
     <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">dataset</span><span class="p">:</span>
         <span class="n">counter</span><span class="o">.</span><span class="n">accumulate</span><span class="p">(</span><span class="n">item</span><span class="p">)</span>
 
     <span class="k">return</span> <span class="n">counter</span><span class="o">.</span><span class="n">get_result</span><span class="p">()</span></div>
+
 
 
 <span class="k">class</span> <span class="nc">_MeanStdCounter</span><span class="p">:</span>
@@ -498,7 +497,9 @@ document.write(`
 <span class="p">}</span>
 
 
-<div class="viewcode-block" id="compute_image_statistics"><a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.components.operations.html#datumaro.cli.commands.stats.compute_image_statistics">[docs]</a><span class="k">def</span> <span class="nf">compute_image_statistics</span><span class="p">(</span><span class="n">dataset</span><span class="p">:</span> <span class="n">IDataset</span><span class="p">):</span>
+<div class="viewcode-block" id="compute_image_statistics">
+<a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.components.operations.html#datumaro.cli.commands.stats.compute_image_statistics">[docs]</a>
+<span class="k">def</span> <span class="nf">compute_image_statistics</span><span class="p">(</span><span class="n">dataset</span><span class="p">:</span> <span class="n">IDataset</span><span class="p">):</span>
     <span class="k">if</span> <span class="n">dataset</span><span class="o">.</span><span class="n">media_type</span><span class="p">()</span> <span class="o">!=</span> <span class="n">Image</span><span class="p">:</span>
         <span class="k">raise</span> <span class="n">DatumaroError</span><span class="p">(</span>
             <span class="sa">f</span><span class="s2">&quot;Your dataset&#39;s media_type is </span><span class="si">{</span><span class="n">dataset</span><span class="o">.</span><span class="n">media_type</span><span class="p">()</span><span class="si">}</span><span class="s2">, &quot;</span>
@@ -571,7 +572,10 @@ document.write(`
     <span class="k">return</span> <span class="n">stats</span></div>
 
 
-<div class="viewcode-block" id="compute_ann_statistics"><a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.components.operations.html#datumaro.cli.commands.stats.compute_ann_statistics">[docs]</a><span class="k">def</span> <span class="nf">compute_ann_statistics</span><span class="p">(</span><span class="n">dataset</span><span class="p">:</span> <span class="n">IDataset</span><span class="p">):</span>
+
+<div class="viewcode-block" id="compute_ann_statistics">
+<a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.components.operations.html#datumaro.cli.commands.stats.compute_ann_statistics">[docs]</a>
+<span class="k">def</span> <span class="nf">compute_ann_statistics</span><span class="p">(</span><span class="n">dataset</span><span class="p">:</span> <span class="n">IDataset</span><span class="p">):</span>
     <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
         <span class="s2">&quot;We are planning to change the type of stats[&#39;annotations&#39;][&#39;labels&#39;][&#39;distribution&#39;] &quot;</span>
         <span class="s2">&quot;and stats[&#39;annotations&#39;][&#39;segments&#39;][&#39;pixel distribution&#39;] from `list` to `(named) tuple`. &quot;</span>
@@ -695,6 +699,7 @@ document.write(`
     <span class="k">return</span> <span class="n">stats</span></div>
 
 
+
 <span class="k">class</span> <span class="nc">_ItemMatcher</span><span class="p">:</span>
     <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">_default_item_hash</span><span class="p">(</span><span class="n">item</span><span class="p">:</span> <span class="n">DatasetItem</span><span class="p">):</span>
@@ -727,14 +732,19 @@ document.write(`
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_unique</span>
 
 
-<div class="viewcode-block" id="find_unique_images"><a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.components.operations.html#datumaro.cli.commands.stats.find_unique_images">[docs]</a><span class="k">def</span> <span class="nf">find_unique_images</span><span class="p">(</span><span class="n">dataset</span><span class="p">:</span> <span class="n">IDataset</span><span class="p">,</span> <span class="n">item_hash</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Callable</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+<div class="viewcode-block" id="find_unique_images">
+<a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.components.operations.html#datumaro.cli.commands.stats.find_unique_images">[docs]</a>
+<span class="k">def</span> <span class="nf">find_unique_images</span><span class="p">(</span><span class="n">dataset</span><span class="p">:</span> <span class="n">IDataset</span><span class="p">,</span> <span class="n">item_hash</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Callable</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
     <span class="n">matcher</span> <span class="o">=</span> <span class="n">_ItemMatcher</span><span class="p">(</span><span class="n">item_hash</span><span class="o">=</span><span class="n">item_hash</span><span class="p">)</span>
     <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">dataset</span><span class="p">:</span>
         <span class="n">matcher</span><span class="o">.</span><span class="n">process_item</span><span class="p">(</span><span class="n">item</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">matcher</span><span class="o">.</span><span class="n">get_result</span><span class="p">()</span></div>
 
 
-<div class="viewcode-block" id="match_classes"><a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.components.operations.html#datumaro.cli.commands.stats.match_classes">[docs]</a><span class="k">def</span> <span class="nf">match_classes</span><span class="p">(</span><span class="n">a</span><span class="p">:</span> <span class="n">CategoriesInfo</span><span class="p">,</span> <span class="n">b</span><span class="p">:</span> <span class="n">CategoriesInfo</span><span class="p">):</span>
+
+<div class="viewcode-block" id="match_classes">
+<a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.components.operations.html#datumaro.cli.commands.stats.match_classes">[docs]</a>
+<span class="k">def</span> <span class="nf">match_classes</span><span class="p">(</span><span class="n">a</span><span class="p">:</span> <span class="n">CategoriesInfo</span><span class="p">,</span> <span class="n">b</span><span class="p">:</span> <span class="n">CategoriesInfo</span><span class="p">):</span>
     <span class="n">a_label_cat</span> <span class="o">=</span> <span class="n">a</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">AnnotationType</span><span class="o">.</span><span class="n">label</span><span class="p">,</span> <span class="n">LabelCategories</span><span class="p">())</span>
     <span class="n">b_label_cat</span> <span class="o">=</span> <span class="n">b</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">AnnotationType</span><span class="o">.</span><span class="n">label</span><span class="p">,</span> <span class="n">LabelCategories</span><span class="p">())</span>
 
@@ -747,7 +757,10 @@ document.write(`
     <span class="k">return</span> <span class="n">matches</span><span class="p">,</span> <span class="n">a_unmatched</span><span class="p">,</span> <span class="n">b_unmatched</span></div>
 
 
-<div class="viewcode-block" id="match_items_by_id"><a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.components.operations.html#datumaro.cli.commands.stats.match_items_by_id">[docs]</a><span class="k">def</span> <span class="nf">match_items_by_id</span><span class="p">(</span><span class="n">a</span><span class="p">:</span> <span class="n">IDataset</span><span class="p">,</span> <span class="n">b</span><span class="p">:</span> <span class="n">IDataset</span><span class="p">):</span>
+
+<div class="viewcode-block" id="match_items_by_id">
+<a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.components.operations.html#datumaro.cli.commands.stats.match_items_by_id">[docs]</a>
+<span class="k">def</span> <span class="nf">match_items_by_id</span><span class="p">(</span><span class="n">a</span><span class="p">:</span> <span class="n">IDataset</span><span class="p">,</span> <span class="n">b</span><span class="p">:</span> <span class="n">IDataset</span><span class="p">):</span>
     <span class="n">a_items</span> <span class="o">=</span> <span class="nb">set</span><span class="p">((</span><span class="n">item</span><span class="o">.</span><span class="n">id</span><span class="p">,</span> <span class="n">item</span><span class="o">.</span><span class="n">subset</span><span class="p">)</span> <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">a</span><span class="p">)</span>
     <span class="n">b_items</span> <span class="o">=</span> <span class="nb">set</span><span class="p">((</span><span class="n">item</span><span class="o">.</span><span class="n">id</span><span class="p">,</span> <span class="n">item</span><span class="o">.</span><span class="n">subset</span><span class="p">)</span> <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">b</span><span class="p">)</span>
 
@@ -758,7 +771,10 @@ document.write(`
     <span class="k">return</span> <span class="n">matches</span><span class="p">,</span> <span class="n">a_unmatched</span><span class="p">,</span> <span class="n">b_unmatched</span></div>
 
 
-<div class="viewcode-block" id="match_items_by_image_hash"><a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.components.operations.html#datumaro.cli.commands.stats.match_items_by_image_hash">[docs]</a><span class="k">def</span> <span class="nf">match_items_by_image_hash</span><span class="p">(</span><span class="n">a</span><span class="p">:</span> <span class="n">IDataset</span><span class="p">,</span> <span class="n">b</span><span class="p">:</span> <span class="n">IDataset</span><span class="p">):</span>
+
+<div class="viewcode-block" id="match_items_by_image_hash">
+<a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.components.operations.html#datumaro.cli.commands.stats.match_items_by_image_hash">[docs]</a>
+<span class="k">def</span> <span class="nf">match_items_by_image_hash</span><span class="p">(</span><span class="n">a</span><span class="p">:</span> <span class="n">IDataset</span><span class="p">,</span> <span class="n">b</span><span class="p">:</span> <span class="n">IDataset</span><span class="p">):</span>
     <span class="n">a_hash</span> <span class="o">=</span> <span class="n">find_unique_images</span><span class="p">(</span><span class="n">a</span><span class="p">)</span>
     <span class="n">b_hash</span> <span class="o">=</span> <span class="n">find_unique_images</span><span class="p">(</span><span class="n">b</span><span class="p">)</span>
 
@@ -774,6 +790,7 @@ document.write(`
     <span class="n">b_unmatched</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">i</span> <span class="k">for</span> <span class="n">h</span> <span class="ow">in</span> <span class="n">b_unmatched</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">b_hash</span><span class="p">[</span><span class="n">h</span><span class="p">])</span>
 
     <span class="k">return</span> <span class="n">matches</span><span class="p">,</span> <span class="n">a_unmatched</span><span class="p">,</span> <span class="n">b_unmatched</span></div>
+
 </pre></div>
 
                 </article>
@@ -816,7 +833,7 @@ document.write(`
         <div class="footer-item">
 
   <p class="sphinx-version">
-    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 5.3.0.
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 7.2.6.
     <br/>
   </p>
 </div>

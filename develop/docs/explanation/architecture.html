@@ -1,13 +1,12 @@
 
-
 <!DOCTYPE html>
 
 
-<html lang="en" data-content_root="" >
+<html lang="en" data-content_root="../../" >
 
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
     <title>Architecture &#8212; Datumaro 1.6.0rc1 documentation</title>
   
@@ -29,26 +28,23 @@
 <link rel="preload" as="font" type="font/woff2" crossorigin href="../../_static/vendor/fontawesome/6.5.1/webfonts/fa-brands-400.woff2" />
 <link rel="preload" as="font" type="font/woff2" crossorigin href="../../_static/vendor/fontawesome/6.5.1/webfonts/fa-regular-400.woff2" />
 
-    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css" />
-    <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css" />
-    <link rel="stylesheet" type="text/css" href="../../_static/graphviz.css" />
-    <link rel="stylesheet" type="text/css" href="../../_static/design-style.1e8bd061cd6da7fc9cf755528e8ffc24.min.css" />
-    <link rel="stylesheet" type="text/css" href="../../_static/css/custom.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=a746c00c" />
+    <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../../_static/graphviz.css?v=eafc0fe6" />
+    <link rel="stylesheet" type="text/css" href="../../_static/design-style.1e8bd061cd6da7fc9cf755528e8ffc24.min.css?v=0a3b3ea7" />
+    <link rel="stylesheet" type="text/css" href="../../_static/css/custom.css?v=8b7c274f" />
   
   <!-- Pre-loaded scripts that we'll load fully later -->
   <link rel="preload" as="script" href="../../_static/scripts/bootstrap.js?digest=8d27b9dea8ad943066ae" />
 <link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js?digest=8d27b9dea8ad943066ae" />
   <script src="../../_static/vendor/fontawesome/6.5.1/js/all.min.js?digest=8d27b9dea8ad943066ae"></script>
 
-    <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
-    <script src="../../_static/jquery.js"></script>
-    <script src="../../_static/underscore.js"></script>
-    <script src="../../_static/_sphinx_javascript_frameworks_compat.js"></script>
-    <script src="../../_static/doctools.js"></script>
-    <script src="../../_static/sphinx_highlight.js"></script>
-    <script src="../../_static/clipboard.min.js"></script>
-    <script src="../../_static/copybutton.js"></script>
-    <script src="../../_static/design-tabs.js"></script>
+    <script src="../../_static/documentation_options.js?v=82acb2b2"></script>
+    <script src="../../_static/doctools.js?v=888ff710"></script>
+    <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../../_static/copybutton.js?v=f281be69"></script>
+    <script src="../../_static/design-tabs.js?v=36754332"></script>
     <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <script>DOCUMENTATION_OPTIONS.pagename = 'docs/explanation/architecture';</script>
     <link rel="index" title="Index" href="../../genindex.html" />
@@ -653,9 +649,9 @@ document.write(`
                 <article class="bd-article">
                   
   <section id="architecture">
-<h1>Architecture<a class="headerlink" href="#architecture" title="Permalink to this heading">#</a></h1>
+<h1>Architecture<a class="headerlink" href="#architecture" title="Link to this heading">#</a></h1>
 <section id="basics">
-<span id="developer-manual"></span><h2>Basics<a class="headerlink" href="#basics" title="Permalink to this heading">#</a></h2>
+<span id="developer-manual"></span><h2>Basics<a class="headerlink" href="#basics" title="Link to this heading">#</a></h2>
 <p>The central part of the library is the <a class="reference internal" href="../reference/_autosummary/datumaro.components.dataset.html#datumaro.components.dataset.Dataset" title="datumaro.components.dataset.Dataset"><code class="xref py py-mod docutils literal notranslate"><span class="pre">Dataset</span></code></a> class, which represents
 a dataset and allows to iterate over its elements.
 <code class="xref py py-mod docutils literal notranslate"><span class="pre">DatasetItem</span></code> , an element of a dataset, represents a single
@@ -708,7 +704,7 @@ merged into a <a class="reference internal" href="../reference/_autosummary/datu
 </pre></div>
 </div>
 <section id="the-dataset-class">
-<h3>The Dataset class<a class="headerlink" href="#the-dataset-class" title="Permalink to this heading">#</a></h3>
+<h3>The Dataset class<a class="headerlink" href="#the-dataset-class" title="Link to this heading">#</a></h3>
 <p>The <a class="reference internal" href="../reference/_autosummary/datumaro.components.dataset.html#datumaro.components.dataset.Dataset" title="datumaro.components.dataset.Dataset"><code class="xref py py-mod docutils literal notranslate"><span class="pre">Dataset</span></code></a> class from the <a class="reference internal" href="../reference/_autosummary/datumaro.components.dataset.html#module-datumaro.components.dataset" title="datumaro.components.dataset"><code class="xref py py-mod docutils literal notranslate"><span class="pre">datumaro.components.dataset</span></code></a> module represents
 a dataset, consisting of multiple <code class="xref py py-mod docutils literal notranslate"><span class="pre">DatasetItem</span></code> s. Annotations are
 represented by members of the <code class="xref py py-mod docutils literal notranslate"><span class="pre">datumaro.components.extractor</span></code> module,
@@ -807,7 +803,7 @@ reduce the amount of disk writes. Changes can be flushed with
 </pre></div>
 </div>
 <section id="dataset-merging">
-<span id="id1"></span><h4>Dataset merging<a class="headerlink" href="#dataset-merging" title="Permalink to this heading">#</a></h4>
+<span id="id1"></span><h4>Dataset merging<a class="headerlink" href="#dataset-merging" title="Link to this heading">#</a></h4>
 <p>There are 2 methods of merging datasets in Datumaro:</p>
 <ul class="simple">
 <li><p>simple merging (“joining”)</p></li>
@@ -815,7 +811,7 @@ reduce the amount of disk writes. Changes can be flushed with
 </ul>
 </section>
 <section id="the-simple-merging-joining">
-<h4>The simple merging (“joining”)<a class="headerlink" href="#the-simple-merging-joining" title="Permalink to this heading">#</a></h4>
+<h4>The simple merging (“joining”)<a class="headerlink" href="#the-simple-merging-joining" title="Link to this heading">#</a></h4>
 <p>This approach finds the corresponding <code class="xref py py-mod docutils literal notranslate"><span class="pre">DatasetItem</span></code> s in inputs,
 finds equal annotations and leaves only the unique set of annotations.
 This approach requires all the inputs to have categories with the same
@@ -824,7 +820,7 @@ labels (or no labels) in the same order.</p>
 and when the build targets are merged in the <a class="reference internal" href="../reference/_autosummary/datumaro.components.project.html#datumaro.components.project.Tree.make_dataset" title="datumaro.components.project.Tree.make_dataset"><code class="xref py py-mod docutils literal notranslate"><span class="pre">Project.Tree.make_dataset()</span></code></a>.</p>
 </section>
 <section id="the-complex-merging">
-<h4>The complex merging<a class="headerlink" href="#the-complex-merging" title="Permalink to this heading">#</a></h4>
+<h4>The complex merging<a class="headerlink" href="#the-complex-merging" title="Link to this heading">#</a></h4>
 <p>If datasets have mismatching categories, they can’t be
 merged by the simple approach, because it can lead to errors in the
 resulting annotations. For complex cases Datumaro provides a more
@@ -843,7 +839,7 @@ for errors and problems.</p>
 </section>
 </section>
 <section id="projects">
-<h3>Projects<a class="headerlink" href="#projects" title="Permalink to this heading">#</a></h3>
+<h3>Projects<a class="headerlink" href="#projects" title="Link to this heading">#</a></h3>
 <p>Projects are intended for complex use of Datumaro. They provide means of
 persistence, versioning, high-level operations for datasets and also
 allow to extend Datumaro via <a class="reference internal" href="../get-started/quick-start-guide/installation.html#plugins"><span class="std std-ref">Plugins</span></a>. A project provides
@@ -862,9 +858,9 @@ for more info about Project behavior and high-level details.</p>
 </section>
 </section>
 <section id="library-contents">
-<h2>Library contents<a class="headerlink" href="#library-contents" title="Permalink to this heading">#</a></h2>
+<h2>Library contents<a class="headerlink" href="#library-contents" title="Link to this heading">#</a></h2>
 <section id="dataset-formats">
-<h3>Dataset Formats<a class="headerlink" href="#dataset-formats" title="Permalink to this heading">#</a></h3>
+<h3>Dataset Formats<a class="headerlink" href="#dataset-formats" title="Link to this heading">#</a></h3>
 <p>The framework provides functions to read and write datasets in specific formats.
 It is supported by <code class="xref py py-mod docutils literal notranslate"><span class="pre">Extractor</span></code> s, <code class="xref py py-mod docutils literal notranslate"><span class="pre">Importer</span></code> s, and <code class="xref py py-mod docutils literal notranslate"><span class="pre">Converter</span></code> s.</p>
 <p>Dataset reading is supported by <code class="xref py py-mod docutils literal notranslate"><span class="pre">Extractor</span></code> s and <code class="xref py py-mod docutils literal notranslate"><span class="pre">Importer</span></code> s:</p>
@@ -888,20 +884,20 @@ It is possible to add custom <code class="xref py py-mod docutils literal notran
 <code class="xref py py-mod docutils literal notranslate"><span class="pre">Converter</span></code> implementation script to a plugin directory.</p>
 </section>
 <section id="dataset-conversions-transforms">
-<h3>Dataset Conversions (“Transforms”)<a class="headerlink" href="#dataset-conversions-transforms" title="Permalink to this heading">#</a></h3>
+<h3>Dataset Conversions (“Transforms”)<a class="headerlink" href="#dataset-conversions-transforms" title="Link to this heading">#</a></h3>
 <p>A <code class="xref py py-mod docutils literal notranslate"><span class="pre">Transform</span></code> is a function for altering a dataset and producing a new one.
 It can update dataset items, annotations, classes, and other properties.
 A list of available transforms for dataset conversions can be extended by
 adding a <code class="xref py py-mod docutils literal notranslate"><span class="pre">Transform</span></code> implementation script into a plugin directory.</p>
 </section>
 <section id="model-launchers">
-<h3>Model launchers<a class="headerlink" href="#model-launchers" title="Permalink to this heading">#</a></h3>
+<h3>Model launchers<a class="headerlink" href="#model-launchers" title="Link to this heading">#</a></h3>
 <p>A list of available launchers for model execution can be extended by
 adding a <a class="reference internal" href="../reference/_autosummary/datumaro.components.launcher.html#datumaro.components.launcher.Launcher" title="datumaro.components.launcher.Launcher"><code class="xref py py-mod docutils literal notranslate"><span class="pre">Launcher</span></code></a> implementation script into a plugin directory.</p>
 </section>
 </section>
 <section id="plugins">
-<h2>Plugins<a class="headerlink" href="#plugins" title="Permalink to this heading">#</a></h2>
+<h2>Plugins<a class="headerlink" href="#plugins" title="Link to this heading">#</a></h2>
 <p>Datumaro comes with a number of built-in formats and other tools,
 but it also can be extended by plugins. Plugins are optional components,
 which dependencies are not installed by default.
@@ -937,7 +933,7 @@ or by regular module importing:</p>
 </div>
 <p><a class="reference internal" href="../reference/_autosummary/datumaro.html#module-datumaro"><span class="std std-ref">Using datumaro as a python module</span></a></p>
 <section id="writing-a-plugin">
-<h3>Writing a plugin<a class="headerlink" href="#writing-a-plugin" title="Permalink to this heading">#</a></h3>
+<h3>Writing a plugin<a class="headerlink" href="#writing-a-plugin" title="Link to this heading">#</a></h3>
 <p>A plugin is a Python module with any name, which exports some symbols. Symbols,
 starting with <code class="docutils literal notranslate"><span class="pre">_</span></code> are not exported by default. To export a symbol,
 inherit it from one of the special classes:</p>
@@ -968,7 +964,7 @@ inherit it from one of the special classes:</p>
 </pre></div>
 </div>
 <section id="plugin-example">
-<h4>Plugin example<a class="headerlink" href="#plugin-example" title="Permalink to this heading">#</a></h4>
+<h4>Plugin example<a class="headerlink" href="#plugin-example" title="Link to this heading">#</a></h4>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">datumaro</span><span class="o">/</span><span class="n">plugins</span><span class="o">/</span>
 <span class="o">-</span> <span class="n">my_plugin1</span><span class="o">/</span><span class="n">file1</span><span class="o">.</span><span class="n">py</span>
 <span class="o">-</span> <span class="n">my_plugin1</span><span class="o">/</span><span class="n">file2</span><span class="o">.</span><span class="n">py</span>
@@ -1015,7 +1011,7 @@ inherit it from one of the special classes:</p>
 </section>
 </section>
 <section id="command-line">
-<h2>Command-line<a class="headerlink" href="#command-line" title="Permalink to this heading">#</a></h2>
+<h2>Command-line<a class="headerlink" href="#command-line" title="Link to this heading">#</a></h2>
 <p>Basically, the interface is divided on contexts and single commands.
 Contexts are semantically grouped commands, related to a single topic or target.
 Single commands are handy shorter alternatives for the most used commands
@@ -1214,7 +1210,7 @@ and also special commands, which are hard to be put into any specific context.
         <div class="footer-item">
 
   <p class="sphinx-version">
-    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 5.3.0.
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 7.2.6.
     <br/>
   </p>
 </div>

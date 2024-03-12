@@ -1,9 +1,8 @@
 
-
 <!DOCTYPE html>
 
 
-<html lang="en" data-content_root="" >
+<html lang="en" data-content_root="../../../" >
 
   <head>
     <meta charset="utf-8" />
@@ -28,26 +27,23 @@
 <link rel="preload" as="font" type="font/woff2" crossorigin href="../../../_static/vendor/fontawesome/6.5.1/webfonts/fa-brands-400.woff2" />
 <link rel="preload" as="font" type="font/woff2" crossorigin href="../../../_static/vendor/fontawesome/6.5.1/webfonts/fa-regular-400.woff2" />
 
-    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css" />
-    <link rel="stylesheet" type="text/css" href="../../../_static/copybutton.css" />
-    <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css" />
-    <link rel="stylesheet" type="text/css" href="../../../_static/design-style.1e8bd061cd6da7fc9cf755528e8ffc24.min.css" />
-    <link rel="stylesheet" type="text/css" href="../../../_static/css/custom.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=a746c00c" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css?v=eafc0fe6" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/design-style.1e8bd061cd6da7fc9cf755528e8ffc24.min.css?v=0a3b3ea7" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/css/custom.css?v=8b7c274f" />
   
   <!-- Pre-loaded scripts that we'll load fully later -->
   <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=8d27b9dea8ad943066ae" />
 <link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=8d27b9dea8ad943066ae" />
   <script src="../../../_static/vendor/fontawesome/6.5.1/js/all.min.js?digest=8d27b9dea8ad943066ae"></script>
 
-    <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
-    <script src="../../../_static/jquery.js"></script>
-    <script src="../../../_static/underscore.js"></script>
-    <script src="../../../_static/_sphinx_javascript_frameworks_compat.js"></script>
-    <script src="../../../_static/doctools.js"></script>
-    <script src="../../../_static/sphinx_highlight.js"></script>
-    <script src="../../../_static/clipboard.min.js"></script>
-    <script src="../../../_static/copybutton.js"></script>
-    <script src="../../../_static/design-tabs.js"></script>
+    <script src="../../../_static/documentation_options.js?v=82acb2b2"></script>
+    <script src="../../../_static/doctools.js?v=888ff710"></script>
+    <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../../../_static/copybutton.js?v=f281be69"></script>
+    <script src="../../../_static/design-tabs.js?v=36754332"></script>
     <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <script>DOCUMENTATION_OPTIONS.pagename = '_modules/datumaro/components/exporter';</script>
     <link rel="index" title="Index" href="../../../genindex.html" />
@@ -381,8 +377,12 @@ document.write(`
     <span class="k">pass</span>
 
 
-<div class="viewcode-block" id="ExportErrorPolicy"><a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.components.exporter.html#datumaro.components.dataset.ExportErrorPolicy">[docs]</a><span class="k">class</span> <span class="nc">ExportErrorPolicy</span><span class="p">:</span>
-<div class="viewcode-block" id="ExportErrorPolicy.report_item_error"><a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.components.exporter.html#datumaro.components.dataset.ExportErrorPolicy.report_item_error">[docs]</a>    <span class="k">def</span> <span class="nf">report_item_error</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">error</span><span class="p">:</span> <span class="ne">Exception</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">item_id</span><span class="p">:</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<div class="viewcode-block" id="ExportErrorPolicy">
+<a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.components.exporter.html#datumaro.components.dataset.ExportErrorPolicy">[docs]</a>
+<span class="k">class</span> <span class="nc">ExportErrorPolicy</span><span class="p">:</span>
+<div class="viewcode-block" id="ExportErrorPolicy.report_item_error">
+<a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.components.exporter.html#datumaro.components.dataset.ExportErrorPolicy.report_item_error">[docs]</a>
+    <span class="k">def</span> <span class="nf">report_item_error</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">error</span><span class="p">:</span> <span class="ne">Exception</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">item_id</span><span class="p">:</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Allows to report a problem with a dataset item.</span>
 <span class="sd">        If this function returns, the converter must skip the item.</span>
@@ -395,7 +395,10 @@ document.write(`
         <span class="k">else</span><span class="p">:</span>
             <span class="k">raise</span> <span class="n">error</span></div>
 
-<div class="viewcode-block" id="ExportErrorPolicy.report_annotation_error"><a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.components.exporter.html#datumaro.components.dataset.ExportErrorPolicy.report_annotation_error">[docs]</a>    <span class="k">def</span> <span class="nf">report_annotation_error</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">error</span><span class="p">:</span> <span class="ne">Exception</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">item_id</span><span class="p">:</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+
+<div class="viewcode-block" id="ExportErrorPolicy.report_annotation_error">
+<a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.components.exporter.html#datumaro.components.dataset.ExportErrorPolicy.report_annotation_error">[docs]</a>
+    <span class="k">def</span> <span class="nf">report_annotation_error</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">error</span><span class="p">:</span> <span class="ne">Exception</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">item_id</span><span class="p">:</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Allows to report a problem with a dataset item annotation.</span>
 <span class="sd">        If this function returns, the converter must skip the annotation.</span>
@@ -408,6 +411,7 @@ document.write(`
         <span class="k">else</span><span class="p">:</span>
             <span class="k">raise</span> <span class="n">error</span></div>
 
+
     <span class="k">def</span> <span class="nf">_handle_item_error</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">error</span><span class="p">:</span> <span class="n">ItemExportError</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;This function must either call fail() or return.&quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">fail</span><span class="p">(</span><span class="n">error</span><span class="p">)</span>
@@ -416,15 +420,24 @@ document.write(`
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;This function must either call fail() or return.&quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">fail</span><span class="p">(</span><span class="n">error</span><span class="p">)</span>
 
-<div class="viewcode-block" id="ExportErrorPolicy.fail"><a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.components.exporter.html#datumaro.components.dataset.ExportErrorPolicy.fail">[docs]</a>    <span class="k">def</span> <span class="nf">fail</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">error</span><span class="p">:</span> <span class="ne">Exception</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">NoReturn</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="n">_ExportFail</span> <span class="kn">from</span> <span class="nn">error</span></div></div>
+<div class="viewcode-block" id="ExportErrorPolicy.fail">
+<a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.components.exporter.html#datumaro.components.dataset.ExportErrorPolicy.fail">[docs]</a>
+    <span class="k">def</span> <span class="nf">fail</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">error</span><span class="p">:</span> <span class="ne">Exception</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">NoReturn</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="n">_ExportFail</span> <span class="kn">from</span> <span class="nn">error</span></div>
+</div>
 
 
-<div class="viewcode-block" id="FailingExportErrorPolicy"><a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.components.exporter.html#datumaro.components.dataset.FailingExportErrorPolicy">[docs]</a><span class="k">class</span> <span class="nc">FailingExportErrorPolicy</span><span class="p">(</span><span class="n">ExportErrorPolicy</span><span class="p">):</span>
+
+<div class="viewcode-block" id="FailingExportErrorPolicy">
+<a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.components.exporter.html#datumaro.components.dataset.FailingExportErrorPolicy">[docs]</a>
+<span class="k">class</span> <span class="nc">FailingExportErrorPolicy</span><span class="p">(</span><span class="n">ExportErrorPolicy</span><span class="p">):</span>
     <span class="k">pass</span></div>
 
 
-<div class="viewcode-block" id="ExportContext"><a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.components.exporter.html#datumaro.components.dataset.ExportContext">[docs]</a><span class="nd">@define</span><span class="p">(</span><span class="n">eq</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+
+<div class="viewcode-block" id="ExportContext">
+<a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.components.exporter.html#datumaro.components.dataset.ExportContext">[docs]</a>
+<span class="nd">@define</span><span class="p">(</span><span class="n">eq</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
 <span class="k">class</span> <span class="nc">ExportContext</span><span class="p">:</span>
     <span class="n">progress_reporter</span><span class="p">:</span> <span class="n">ProgressReporter</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span>
         <span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">converter</span><span class="o">=</span><span class="n">attr</span><span class="o">.</span><span class="n">converters</span><span class="o">.</span><span class="n">default_if_none</span><span class="p">(</span><span class="n">factory</span><span class="o">=</span><span class="n">NullProgressReporter</span><span class="p">)</span>
@@ -434,14 +447,22 @@ document.write(`
     <span class="p">)</span></div>
 
 
-<div class="viewcode-block" id="NullExportContext"><a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.components.exporter.html#datumaro.components.dataset.NullExportContext">[docs]</a><span class="k">class</span> <span class="nc">NullExportContext</span><span class="p">(</span><span class="n">ExportContext</span><span class="p">):</span>
+
+<div class="viewcode-block" id="NullExportContext">
+<a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.components.exporter.html#datumaro.components.dataset.NullExportContext">[docs]</a>
+<span class="k">class</span> <span class="nc">NullExportContext</span><span class="p">(</span><span class="n">ExportContext</span><span class="p">):</span>
     <span class="k">pass</span></div>
 
 
-<div class="viewcode-block" id="Exporter"><a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.components.hl_ops.html#datumaro.components.dataset.Exporter">[docs]</a><span class="k">class</span> <span class="nc">Exporter</span><span class="p">(</span><span class="n">CliPlugin</span><span class="p">):</span>
+
+<div class="viewcode-block" id="Exporter">
+<a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.components.hl_ops.html#datumaro.components.dataset.Exporter">[docs]</a>
+<span class="k">class</span> <span class="nc">Exporter</span><span class="p">(</span><span class="n">CliPlugin</span><span class="p">):</span>
     <span class="n">DEFAULT_IMAGE_EXT</span> <span class="o">=</span> <span class="kc">None</span>
 
-<div class="viewcode-block" id="Exporter.build_cmdline_parser"><a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.components.hl_ops.html#datumaro.components.dataset.Exporter.build_cmdline_parser">[docs]</a>    <span class="nd">@classmethod</span>
+<div class="viewcode-block" id="Exporter.build_cmdline_parser">
+<a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.components.hl_ops.html#datumaro.components.dataset.Exporter.build_cmdline_parser">[docs]</a>
+    <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">build_cmdline_parser</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="n">parser</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">build_cmdline_parser</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
 
@@ -464,12 +485,18 @@ document.write(`
 
         <span class="k">return</span> <span class="n">parser</span></div>
 
-<div class="viewcode-block" id="Exporter.convert"><a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.components.hl_ops.html#datumaro.components.dataset.Exporter.convert">[docs]</a>    <span class="nd">@classmethod</span>
+
+<div class="viewcode-block" id="Exporter.convert">
+<a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.components.hl_ops.html#datumaro.components.dataset.Exporter.convert">[docs]</a>
+    <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">convert</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">extractor</span><span class="p">,</span> <span class="n">save_dir</span><span class="p">,</span> <span class="o">**</span><span class="n">options</span><span class="p">):</span>
         <span class="n">converter</span> <span class="o">=</span> <span class="bp">cls</span><span class="p">(</span><span class="n">extractor</span><span class="p">,</span> <span class="n">save_dir</span><span class="p">,</span> <span class="o">**</span><span class="n">options</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">converter</span><span class="o">.</span><span class="n">apply</span><span class="p">()</span></div>
 
-<div class="viewcode-block" id="Exporter.patch"><a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.components.hl_ops.html#datumaro.components.dataset.Exporter.patch">[docs]</a>    <span class="nd">@classmethod</span>
+
+<div class="viewcode-block" id="Exporter.patch">
+<a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.components.hl_ops.html#datumaro.components.dataset.Exporter.patch">[docs]</a>
+    <span class="nd">@classmethod</span>
     <span class="nd">@scoped</span>
     <span class="k">def</span> <span class="nf">patch</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">dataset</span><span class="p">,</span> <span class="n">patch</span><span class="p">,</span> <span class="n">save_dir</span><span class="p">,</span> <span class="o">**</span><span class="n">options</span><span class="p">):</span>
         <span class="c1"># This solution is not any better in performance than just</span>
@@ -498,11 +525,15 @@ document.write(`
 
         <span class="k">return</span> <span class="n">retval</span></div>
 
-<div class="viewcode-block" id="Exporter.apply"><a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.components.hl_ops.html#datumaro.components.dataset.Exporter.apply">[docs]</a>    <span class="k">def</span> <span class="nf">apply</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+<div class="viewcode-block" id="Exporter.apply">
+<a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.components.hl_ops.html#datumaro.components.dataset.Exporter.apply">[docs]</a>
+    <span class="k">def</span> <span class="nf">apply</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Execute the data-format conversion&quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_save_hashkey_meta</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_save_hashkey_file</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_save_dir</span><span class="p">)</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_apply_impl</span><span class="p">()</span></div>
+
 
     <span class="k">def</span> <span class="nf">_apply_impl</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s2">&quot;Should be implemented in a subclass&quot;</span><span class="p">)</span>
@@ -631,11 +662,14 @@ document.write(`
         <span class="k">return</span> <span class="kc">False</span></div>
 
 
+
 <span class="c1"># TODO: Currently, ExportContextComponent is introduced only for Datumaro and DatumaroBinary format</span>
 <span class="c1"># for multi-processing. We need to propagate this to everywhere in Datumaro 1.2.0</span>
 
 
-<div class="viewcode-block" id="ExportContextComponent"><a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.components.exporter.html#datumaro.components.dataset.ExportContextComponent">[docs]</a><span class="k">class</span> <span class="nc">ExportContextComponent</span><span class="p">:</span>
+<div class="viewcode-block" id="ExportContextComponent">
+<a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.components.exporter.html#datumaro.components.dataset.ExportContextComponent">[docs]</a>
+<span class="k">class</span> <span class="nc">ExportContextComponent</span><span class="p">:</span>
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">save_dir</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
@@ -658,7 +692,9 @@ document.write(`
         <span class="bp">self</span><span class="o">.</span><span class="n">_default_image_ext</span> <span class="o">=</span> <span class="n">default_image_ext</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_source_path</span> <span class="o">=</span> <span class="n">source_path</span>
 
-<div class="viewcode-block" id="ExportContextComponent.find_image_ext"><a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.components.exporter.html#datumaro.components.dataset.ExportContextComponent.find_image_ext">[docs]</a>    <span class="k">def</span> <span class="nf">find_image_ext</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">item</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">DatasetItem</span><span class="p">,</span> <span class="n">Image</span><span class="p">]):</span>
+<div class="viewcode-block" id="ExportContextComponent.find_image_ext">
+<a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.components.exporter.html#datumaro.components.dataset.ExportContextComponent.find_image_ext">[docs]</a>
+    <span class="k">def</span> <span class="nf">find_image_ext</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">item</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">DatasetItem</span><span class="p">,</span> <span class="n">Image</span><span class="p">]):</span>
         <span class="n">src_ext</span> <span class="o">=</span> <span class="kc">None</span>
 
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">item</span><span class="p">,</span> <span class="n">DatasetItem</span><span class="p">)</span> <span class="ow">and</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">item</span><span class="o">.</span><span class="n">media</span><span class="p">,</span> <span class="n">Image</span><span class="p">):</span>
@@ -668,23 +704,35 @@ document.write(`
 
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_image_ext</span> <span class="ow">or</span> <span class="n">src_ext</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">_default_image_ext</span></div>
 
+
     <span class="k">def</span> <span class="nf">_make_item_filename</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">item</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">subdir</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="n">name</span> <span class="o">=</span> <span class="n">name</span> <span class="ow">or</span> <span class="n">item</span><span class="o">.</span><span class="n">id</span>
         <span class="n">subdir</span> <span class="o">=</span> <span class="n">subdir</span> <span class="ow">or</span> <span class="s2">&quot;&quot;</span>
         <span class="k">return</span> <span class="n">osp</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">subdir</span><span class="p">,</span> <span class="n">name</span><span class="p">)</span>
 
-<div class="viewcode-block" id="ExportContextComponent.make_image_filename"><a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.components.exporter.html#datumaro.components.dataset.ExportContextComponent.make_image_filename">[docs]</a>    <span class="k">def</span> <span class="nf">make_image_filename</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">item</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">subdir</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<div class="viewcode-block" id="ExportContextComponent.make_image_filename">
+<a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.components.exporter.html#datumaro.components.dataset.ExportContextComponent.make_image_filename">[docs]</a>
+    <span class="k">def</span> <span class="nf">make_image_filename</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">item</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">subdir</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_make_item_filename</span><span class="p">(</span><span class="n">item</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span> <span class="n">subdir</span><span class="o">=</span><span class="n">subdir</span><span class="p">)</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">find_image_ext</span><span class="p">(</span><span class="n">item</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="ExportContextComponent.make_pcd_filename"><a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.components.exporter.html#datumaro.components.dataset.ExportContextComponent.make_pcd_filename">[docs]</a>    <span class="k">def</span> <span class="nf">make_pcd_filename</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">item</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">subdir</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+
+<div class="viewcode-block" id="ExportContextComponent.make_pcd_filename">
+<a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.components.exporter.html#datumaro.components.dataset.ExportContextComponent.make_pcd_filename">[docs]</a>
+    <span class="k">def</span> <span class="nf">make_pcd_filename</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">item</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">subdir</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_make_item_filename</span><span class="p">(</span><span class="n">item</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span> <span class="n">subdir</span><span class="o">=</span><span class="n">subdir</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot;.pcd&quot;</span></div>
 
-<div class="viewcode-block" id="ExportContextComponent.make_pcd_extra_image_filename"><a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.components.exporter.html#datumaro.components.dataset.ExportContextComponent.make_pcd_extra_image_filename">[docs]</a>    <span class="k">def</span> <span class="nf">make_pcd_extra_image_filename</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">item</span><span class="p">,</span> <span class="n">idx</span><span class="p">,</span> <span class="n">image</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">subdir</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+
+<div class="viewcode-block" id="ExportContextComponent.make_pcd_extra_image_filename">
+<a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.components.exporter.html#datumaro.components.dataset.ExportContextComponent.make_pcd_extra_image_filename">[docs]</a>
+    <span class="k">def</span> <span class="nf">make_pcd_extra_image_filename</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">item</span><span class="p">,</span> <span class="n">idx</span><span class="p">,</span> <span class="n">image</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">subdir</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_make_item_filename</span><span class="p">(</span>
             <span class="n">item</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span> <span class="k">if</span> <span class="n">name</span> <span class="k">else</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">item</span><span class="o">.</span><span class="n">id</span><span class="si">}</span><span class="s2">/extra_image_</span><span class="si">{</span><span class="n">idx</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">subdir</span><span class="o">=</span><span class="n">subdir</span>
         <span class="p">)</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">find_image_ext</span><span class="p">(</span><span class="n">image</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="ExportContextComponent.make_video_filename"><a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.components.exporter.html#datumaro.components.dataset.ExportContextComponent.make_video_filename">[docs]</a>    <span class="k">def</span> <span class="nf">make_video_filename</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">item</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+
+<div class="viewcode-block" id="ExportContextComponent.make_video_filename">
+<a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.components.exporter.html#datumaro.components.dataset.ExportContextComponent.make_video_filename">[docs]</a>
+    <span class="k">def</span> <span class="nf">make_video_filename</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">item</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">item</span><span class="p">,</span> <span class="n">DatasetItem</span><span class="p">)</span> <span class="ow">and</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">item</span><span class="o">.</span><span class="n">media</span><span class="p">,</span> <span class="n">VideoFrame</span><span class="p">):</span>
             <span class="n">video_file_name</span> <span class="o">=</span> <span class="n">osp</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">item</span><span class="o">.</span><span class="n">media</span><span class="o">.</span><span class="n">video</span><span class="o">.</span><span class="n">path</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
@@ -692,7 +740,10 @@ document.write(`
 
         <span class="k">return</span> <span class="n">video_file_name</span></div>
 
-<div class="viewcode-block" id="ExportContextComponent.save_image"><a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.components.exporter.html#datumaro.components.dataset.ExportContextComponent.save_image">[docs]</a>    <span class="k">def</span> <span class="nf">save_image</span><span class="p">(</span>
+
+<div class="viewcode-block" id="ExportContextComponent.save_image">
+<a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.components.exporter.html#datumaro.components.dataset.ExportContextComponent.save_image">[docs]</a>
+    <span class="k">def</span> <span class="nf">save_image</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">item</span><span class="p">:</span> <span class="n">DatasetItem</span><span class="p">,</span>
         <span class="o">*</span><span class="p">,</span>
@@ -714,7 +765,10 @@ document.write(`
         <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">osp</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">path</span><span class="p">),</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
         <span class="n">item</span><span class="o">.</span><span class="n">media</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">crypter</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_crypter</span> <span class="k">if</span> <span class="n">encryption</span> <span class="k">else</span> <span class="n">NULL_CRYPTER</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="ExportContextComponent.save_point_cloud"><a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.components.exporter.html#datumaro.components.dataset.ExportContextComponent.save_point_cloud">[docs]</a>    <span class="k">def</span> <span class="nf">save_point_cloud</span><span class="p">(</span>
+
+<div class="viewcode-block" id="ExportContextComponent.save_point_cloud">
+<a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.components.exporter.html#datumaro.components.dataset.ExportContextComponent.save_point_cloud">[docs]</a>
+    <span class="k">def</span> <span class="nf">save_point_cloud</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">item</span><span class="p">:</span> <span class="n">DatasetItem</span><span class="p">,</span>
         <span class="o">*</span><span class="p">,</span>
@@ -741,7 +795,10 @@ document.write(`
 
         <span class="n">item</span><span class="o">.</span><span class="n">media</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">helper</span><span class="p">,</span> <span class="n">crypter</span><span class="o">=</span><span class="n">NULL_CRYPTER</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="ExportContextComponent.save_video"><a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.components.exporter.html#datumaro.components.dataset.ExportContextComponent.save_video">[docs]</a>    <span class="k">def</span> <span class="nf">save_video</span><span class="p">(</span>
+
+<div class="viewcode-block" id="ExportContextComponent.save_video">
+<a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.components.exporter.html#datumaro.components.dataset.ExportContextComponent.save_video">[docs]</a>
+    <span class="k">def</span> <span class="nf">save_video</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">item</span><span class="p">:</span> <span class="n">DatasetItem</span><span class="p">,</span>
         <span class="o">*</span><span class="p">,</span>
@@ -760,6 +817,7 @@ document.write(`
         <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">osp</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">path</span><span class="p">),</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
         <span class="n">item</span><span class="o">.</span><span class="n">media</span><span class="o">.</span><span class="n">video</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">crypter</span><span class="o">=</span><span class="n">NULL_CRYPTER</span><span class="p">)</span></div>
+
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">images_dir</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
@@ -784,6 +842,7 @@ document.write(`
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">source_path</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_source_path</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_source_path</span> <span class="k">else</span> <span class="s2">&quot;&quot;</span></div>
+
 </pre></div>
 
                 </article>
@@ -826,7 +885,7 @@ document.write(`
         <div class="footer-item">
 
   <p class="sphinx-version">
-    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 5.3.0.
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 7.2.6.
     <br/>
   </p>
 </div>

@@ -1,9 +1,8 @@
 
-
 <!DOCTYPE html>
 
 
-<html lang="en" data-content_root="" >
+<html lang="en" data-content_root="../../../../" >
 
   <head>
     <meta charset="utf-8" />
@@ -28,26 +27,23 @@
 <link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../_static/vendor/fontawesome/6.5.1/webfonts/fa-brands-400.woff2" />
 <link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../_static/vendor/fontawesome/6.5.1/webfonts/fa-regular-400.woff2" />
 
-    <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css" />
-    <link rel="stylesheet" type="text/css" href="../../../../_static/copybutton.css" />
-    <link rel="stylesheet" type="text/css" href="../../../../_static/graphviz.css" />
-    <link rel="stylesheet" type="text/css" href="../../../../_static/design-style.1e8bd061cd6da7fc9cf755528e8ffc24.min.css" />
-    <link rel="stylesheet" type="text/css" href="../../../../_static/css/custom.css" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=a746c00c" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/graphviz.css?v=eafc0fe6" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/design-style.1e8bd061cd6da7fc9cf755528e8ffc24.min.css?v=0a3b3ea7" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/css/custom.css?v=8b7c274f" />
   
   <!-- Pre-loaded scripts that we'll load fully later -->
   <link rel="preload" as="script" href="../../../../_static/scripts/bootstrap.js?digest=8d27b9dea8ad943066ae" />
 <link rel="preload" as="script" href="../../../../_static/scripts/pydata-sphinx-theme.js?digest=8d27b9dea8ad943066ae" />
   <script src="../../../../_static/vendor/fontawesome/6.5.1/js/all.min.js?digest=8d27b9dea8ad943066ae"></script>
 
-    <script data-url_root="../../../../" id="documentation_options" src="../../../../_static/documentation_options.js"></script>
-    <script src="../../../../_static/jquery.js"></script>
-    <script src="../../../../_static/underscore.js"></script>
-    <script src="../../../../_static/_sphinx_javascript_frameworks_compat.js"></script>
-    <script src="../../../../_static/doctools.js"></script>
-    <script src="../../../../_static/sphinx_highlight.js"></script>
-    <script src="../../../../_static/clipboard.min.js"></script>
-    <script src="../../../../_static/copybutton.js"></script>
-    <script src="../../../../_static/design-tabs.js"></script>
+    <script src="../../../../_static/documentation_options.js?v=82acb2b2"></script>
+    <script src="../../../../_static/doctools.js?v=888ff710"></script>
+    <script src="../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../../../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../../../../_static/copybutton.js?v=f281be69"></script>
+    <script src="../../../../_static/design-tabs.js?v=36754332"></script>
     <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <script>DOCUMENTATION_OPTIONS.pagename = '_modules/datumaro/plugins/data_formats/lfw';</script>
     <link rel="index" title="Index" href="../../../../genindex.html" />
@@ -365,7 +361,9 @@ document.write(`
 <span class="kn">from</span> <span class="nn">datumaro.util.meta_file_util</span> <span class="kn">import</span> <span class="n">has_meta_file</span><span class="p">,</span> <span class="n">parse_meta_file</span>
 
 
-<div class="viewcode-block" id="LfwPath"><a class="viewcode-back" href="../../../../docs/reference/_autosummary/datumaro.plugins.data_formats.lfw.html#datumaro.plugins.data_formats.lfw.LfwPath">[docs]</a><span class="k">class</span> <span class="nc">LfwPath</span><span class="p">:</span>
+<div class="viewcode-block" id="LfwPath">
+<a class="viewcode-back" href="../../../../docs/reference/_autosummary/datumaro.plugins.data_formats.lfw.html#datumaro.plugins.data_formats.lfw.LfwPath">[docs]</a>
+<span class="k">class</span> <span class="nc">LfwPath</span><span class="p">:</span>
     <span class="n">IMAGES_DIR</span> <span class="o">=</span> <span class="s2">&quot;images&quot;</span>
     <span class="n">ANNOTATION_DIR</span> <span class="o">=</span> <span class="s2">&quot;annotations&quot;</span>
     <span class="n">LANDMARKS_FILE</span> <span class="o">=</span> <span class="s2">&quot;landmarks.txt&quot;</span>
@@ -375,7 +373,10 @@ document.write(`
     <span class="n">PATTERN</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;([\w-]+)_([-\d]+)&quot;</span><span class="p">)</span></div>
 
 
-<div class="viewcode-block" id="LfwBase"><a class="viewcode-back" href="../../../../docs/reference/_autosummary/datumaro.plugins.data_formats.lfw.html#datumaro.plugins.data_formats.lfw.LfwBase">[docs]</a><span class="k">class</span> <span class="nc">LfwBase</span><span class="p">(</span><span class="n">SubsetBase</span><span class="p">):</span>
+
+<div class="viewcode-block" id="LfwBase">
+<a class="viewcode-back" href="../../../../docs/reference/_autosummary/datumaro.plugins.data_formats.lfw.html#datumaro.plugins.data_formats.lfw.LfwBase">[docs]</a>
+<span class="k">class</span> <span class="nc">LfwBase</span><span class="p">(</span><span class="n">SubsetBase</span><span class="p">):</span>
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">path</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
@@ -556,7 +557,9 @@ document.write(`
 
         <span class="k">return</span> <span class="n">items</span>
 
-<div class="viewcode-block" id="LfwBase.get_image_name"><a class="viewcode-back" href="../../../../docs/reference/_autosummary/datumaro.plugins.data_formats.lfw.html#datumaro.plugins.data_formats.lfw.LfwBase.get_image_name">[docs]</a>    <span class="nd">@staticmethod</span>
+<div class="viewcode-block" id="LfwBase.get_image_name">
+<a class="viewcode-back" href="../../../../docs/reference/_autosummary/datumaro.plugins.data_formats.lfw.html#datumaro.plugins.data_formats.lfw.LfwBase.get_image_name">[docs]</a>
+    <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">get_image_name</span><span class="p">(</span><span class="n">person</span><span class="p">,</span> <span class="n">image_id</span><span class="p">):</span>
         <span class="n">image</span><span class="p">,</span> <span class="n">item_id</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span>
         <span class="k">try</span><span class="p">:</span>
@@ -566,27 +569,43 @@ document.write(`
         <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
             <span class="n">image</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="si">{}</span><span class="s2">/</span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">person</span><span class="p">,</span> <span class="n">image_id</span><span class="p">)</span>
             <span class="n">item_id</span> <span class="o">=</span> <span class="n">image_id</span>
-        <span class="k">return</span> <span class="n">image</span><span class="p">,</span> <span class="n">item_id</span></div></div>
+        <span class="k">return</span> <span class="n">image</span><span class="p">,</span> <span class="n">item_id</span></div>
+</div>
 
 
-<div class="viewcode-block" id="LfwImporter"><a class="viewcode-back" href="../../../../docs/reference/_autosummary/datumaro.plugins.data_formats.lfw.html#datumaro.plugins.data_formats.lfw.LfwImporter">[docs]</a><span class="k">class</span> <span class="nc">LfwImporter</span><span class="p">(</span><span class="n">Importer</span><span class="p">):</span>
-<div class="viewcode-block" id="LfwImporter.detect"><a class="viewcode-back" href="../../../../docs/reference/_autosummary/datumaro.plugins.data_formats.lfw.html#datumaro.plugins.data_formats.lfw.LfwImporter.detect">[docs]</a>    <span class="nd">@classmethod</span>
+
+<div class="viewcode-block" id="LfwImporter">
+<a class="viewcode-back" href="../../../../docs/reference/_autosummary/datumaro.plugins.data_formats.lfw.html#datumaro.plugins.data_formats.lfw.LfwImporter">[docs]</a>
+<span class="k">class</span> <span class="nc">LfwImporter</span><span class="p">(</span><span class="n">Importer</span><span class="p">):</span>
+<div class="viewcode-block" id="LfwImporter.detect">
+<a class="viewcode-back" href="../../../../docs/reference/_autosummary/datumaro.plugins.data_formats.lfw.html#datumaro.plugins.data_formats.lfw.LfwImporter.detect">[docs]</a>
+    <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">detect</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">context</span><span class="p">:</span> <span class="n">FormatDetectionContext</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">context</span><span class="o">.</span><span class="n">require_file</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">LfwPath</span><span class="o">.</span><span class="n">ANNOTATION_DIR</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="n">LfwPath</span><span class="o">.</span><span class="n">PAIRS_FILE</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="LfwImporter.find_sources"><a class="viewcode-back" href="../../../../docs/reference/_autosummary/datumaro.plugins.data_formats.lfw.html#datumaro.plugins.data_formats.lfw.LfwImporter.find_sources">[docs]</a>    <span class="nd">@classmethod</span>
+
+<div class="viewcode-block" id="LfwImporter.find_sources">
+<a class="viewcode-back" href="../../../../docs/reference/_autosummary/datumaro.plugins.data_formats.lfw.html#datumaro.plugins.data_formats.lfw.LfwImporter.find_sources">[docs]</a>
+    <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">find_sources</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">path</span><span class="p">):</span>
         <span class="n">base</span><span class="p">,</span> <span class="n">ext</span> <span class="o">=</span> <span class="n">osp</span><span class="o">.</span><span class="n">splitext</span><span class="p">(</span><span class="n">LfwPath</span><span class="o">.</span><span class="n">PAIRS_FILE</span><span class="p">)</span>
         <span class="k">return</span> <span class="bp">cls</span><span class="o">.</span><span class="n">_find_sources_recursive</span><span class="p">(</span>
             <span class="n">path</span><span class="p">,</span> <span class="n">ext</span><span class="p">,</span> <span class="s2">&quot;lfw&quot;</span><span class="p">,</span> <span class="n">filename</span><span class="o">=</span><span class="n">base</span><span class="p">,</span> <span class="n">dirname</span><span class="o">=</span><span class="n">LfwPath</span><span class="o">.</span><span class="n">ANNOTATION_DIR</span>
         <span class="p">)</span></div>
 
-<div class="viewcode-block" id="LfwImporter.get_file_extensions"><a class="viewcode-back" href="../../../../docs/reference/_autosummary/datumaro.plugins.data_formats.lfw.html#datumaro.plugins.data_formats.lfw.LfwImporter.get_file_extensions">[docs]</a>    <span class="nd">@classmethod</span>
+
+<div class="viewcode-block" id="LfwImporter.get_file_extensions">
+<a class="viewcode-back" href="../../../../docs/reference/_autosummary/datumaro.plugins.data_formats.lfw.html#datumaro.plugins.data_formats.lfw.LfwImporter.get_file_extensions">[docs]</a>
+    <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">get_file_extensions</span><span class="p">(</span><span class="bp">cls</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
-        <span class="k">return</span> <span class="p">[</span><span class="n">osp</span><span class="o">.</span><span class="n">splitext</span><span class="p">(</span><span class="n">LfwPath</span><span class="o">.</span><span class="n">PAIRS_FILE</span><span class="p">)[</span><span class="mi">1</span><span class="p">]]</span></div></div>
+        <span class="k">return</span> <span class="p">[</span><span class="n">osp</span><span class="o">.</span><span class="n">splitext</span><span class="p">(</span><span class="n">LfwPath</span><span class="o">.</span><span class="n">PAIRS_FILE</span><span class="p">)[</span><span class="mi">1</span><span class="p">]]</span></div>
+</div>
 
 
-<div class="viewcode-block" id="LfwExporter"><a class="viewcode-back" href="../../../../docs/reference/_autosummary/datumaro.plugins.data_formats.lfw.html#datumaro.plugins.data_formats.lfw.LfwExporter">[docs]</a><span class="k">class</span> <span class="nc">LfwExporter</span><span class="p">(</span><span class="n">Exporter</span><span class="p">):</span>
+
+<div class="viewcode-block" id="LfwExporter">
+<a class="viewcode-back" href="../../../../docs/reference/_autosummary/datumaro.plugins.data_formats.lfw.html#datumaro.plugins.data_formats.lfw.LfwExporter">[docs]</a>
+<span class="k">class</span> <span class="nc">LfwExporter</span><span class="p">(</span><span class="n">Exporter</span><span class="p">):</span>
     <span class="n">DEFAULT_IMAGE_EXT</span> <span class="o">=</span> <span class="n">LfwPath</span><span class="o">.</span><span class="n">IMAGE_EXT</span>
 
     <span class="k">def</span> <span class="nf">_apply_impl</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -704,6 +723,7 @@ document.write(`
                 <span class="n">people_file</span> <span class="o">=</span> <span class="n">osp</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">annotations_dir</span><span class="p">,</span> <span class="n">LfwPath</span><span class="o">.</span><span class="n">PEOPLE_FILE</span><span class="p">)</span>
                 <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">people_file</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
                     <span class="n">f</span><span class="o">.</span><span class="n">writelines</span><span class="p">([</span><span class="s2">&quot;</span><span class="si">%s</span><span class="se">\t</span><span class="si">%d</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">label</span><span class="p">,</span> <span class="n">labels</span><span class="p">[</span><span class="n">label</span><span class="p">])</span> <span class="k">for</span> <span class="n">label</span> <span class="ow">in</span> <span class="n">labels</span><span class="p">])</span></div>
+
 </pre></div>
 
                 </article>
@@ -746,7 +766,7 @@ document.write(`
         <div class="footer-item">
 
   <p class="sphinx-version">
-    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 5.3.0.
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 7.2.6.
     <br/>
   </p>
 </div>

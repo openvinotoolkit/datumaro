@@ -1,13 +1,12 @@
 
-
 <!DOCTYPE html>
 
 
-<html lang="en" data-content_root="" >
+<html lang="en" data-content_root="../../../" >
 
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
     <title>datumaro.util.multi_procs_util &#8212; Datumaro 1.6.0rc1 documentation</title>
   
@@ -29,26 +28,23 @@
 <link rel="preload" as="font" type="font/woff2" crossorigin href="../../../_static/vendor/fontawesome/6.5.1/webfonts/fa-brands-400.woff2" />
 <link rel="preload" as="font" type="font/woff2" crossorigin href="../../../_static/vendor/fontawesome/6.5.1/webfonts/fa-regular-400.woff2" />
 
-    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css" />
-    <link rel="stylesheet" type="text/css" href="../../../_static/copybutton.css" />
-    <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css" />
-    <link rel="stylesheet" type="text/css" href="../../../_static/design-style.1e8bd061cd6da7fc9cf755528e8ffc24.min.css" />
-    <link rel="stylesheet" type="text/css" href="../../../_static/css/custom.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=a746c00c" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css?v=eafc0fe6" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/design-style.1e8bd061cd6da7fc9cf755528e8ffc24.min.css?v=0a3b3ea7" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/css/custom.css?v=8b7c274f" />
   
   <!-- Pre-loaded scripts that we'll load fully later -->
   <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=8d27b9dea8ad943066ae" />
 <link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=8d27b9dea8ad943066ae" />
   <script src="../../../_static/vendor/fontawesome/6.5.1/js/all.min.js?digest=8d27b9dea8ad943066ae"></script>
 
-    <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
-    <script src="../../../_static/jquery.js"></script>
-    <script src="../../../_static/underscore.js"></script>
-    <script src="../../../_static/_sphinx_javascript_frameworks_compat.js"></script>
-    <script src="../../../_static/doctools.js"></script>
-    <script src="../../../_static/sphinx_highlight.js"></script>
-    <script src="../../../_static/clipboard.min.js"></script>
-    <script src="../../../_static/copybutton.js"></script>
-    <script src="../../../_static/design-tabs.js"></script>
+    <script src="../../../_static/documentation_options.js?v=82acb2b2"></script>
+    <script src="../../../_static/doctools.js?v=888ff710"></script>
+    <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../../../_static/copybutton.js?v=f281be69"></script>
+    <script src="../../../_static/design-tabs.js?v=36754332"></script>
     <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <script>DOCUMENTATION_OPTIONS.pagename = 'docs/reference/_autosummary/datumaro.util.multi_procs_util';</script>
     <link rel="index" title="Index" href="../../../genindex.html" />
@@ -661,7 +657,7 @@ document.write(`
                 <article class="bd-article">
                   
   <section id="module-datumaro.util.multi_procs_util">
-<span id="datumaro-util-multi-procs-util"></span><h1>datumaro.util.multi_procs_util<a class="headerlink" href="#module-datumaro.util.multi_procs_util" title="Permalink to this heading">#</a></h1>
+<span id="datumaro-util-multi-procs-util"></span><h1>datumaro.util.multi_procs_util<a class="headerlink" href="#module-datumaro.util.multi_procs_util" title="Link to this heading">#</a></h1>
 <p class="rubric">Functions</p>
 <table class="autosummary longtable table autosummary">
 <tbody>
@@ -680,7 +676,7 @@ document.write(`
 </table>
 <dl class="py function">
 <dt class="sig sig-object py" id="datumaro.util.multi_procs_util.consumer_generator">
-<span class="sig-prename descclassname"><span class="pre">datumaro.util.multi_procs_util.</span></span><span class="sig-name descname"><span class="pre">consumer_generator</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">producer_generator</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Iterator" title="(in Python v3.12)"><span class="pre">Iterator</span></a><span class="p"><span class="pre">[</span></span><span class="pre">Item</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">queue_size</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.12)"><span class="pre">int</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">100</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">enqueue_timeout</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.12)"><span class="pre">float</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">5.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">join_timeout</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Optional" title="(in Python v3.12)"><span class="pre">Optional</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.12)"><span class="pre">float</span></a><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">10.0</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Generator" title="(in Python v3.12)"><span class="pre">Generator</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Iterator" title="(in Python v3.12)"><span class="pre">Iterator</span></a><span class="p"><span class="pre">[</span></span><span class="pre">Item</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.12)"><span class="pre">None</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.12)"><span class="pre">None</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../../_modules/datumaro/util/multi_procs_util.html#consumer_generator"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.util.multi_procs_util.consumer_generator" title="Permalink to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">datumaro.util.multi_procs_util.</span></span><span class="sig-name descname"><span class="pre">consumer_generator</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">producer_generator</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Iterator" title="(in Python v3.12)"><span class="pre">Iterator</span></a><span class="p"><span class="pre">[</span></span><span class="pre">Item</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">queue_size</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.12)"><span class="pre">int</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">100</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">enqueue_timeout</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.12)"><span class="pre">float</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">5.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">join_timeout</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.12)"><span class="pre">float</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.12)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">10.0</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Generator" title="(in Python v3.12)"><span class="pre">Generator</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Iterator" title="(in Python v3.12)"><span class="pre">Iterator</span></a><span class="p"><span class="pre">[</span></span><span class="pre">Item</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.12)"><span class="pre">None</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.12)"><span class="pre">None</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../../_modules/datumaro/util/multi_procs_util.html#consumer_generator"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.util.multi_procs_util.consumer_generator" title="Link to this definition">#</a></dt>
 <dd><p>Context manager that creates a generator to consume items produced by another generator.</p>
 <p>This context manager sets up a producer thread that generates items from the <cite>producer_generator</cite>
 and enqueues them to be consumed by the consumer generator, which is also created by this function.</p>
@@ -705,7 +701,7 @@ If None, wait until the producer thread terminates.</p></li>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="datumaro.util.multi_procs_util.Condition">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">datumaro.util.multi_procs_util.</span></span><span class="sig-name descname"><span class="pre">Condition</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">lock</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/threading.html#Condition"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.util.multi_procs_util.Condition" title="Permalink to this definition">#</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">datumaro.util.multi_procs_util.</span></span><span class="sig-name descname"><span class="pre">Condition</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">lock</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/threading.html#Condition"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.util.multi_procs_util.Condition" title="Link to this definition">#</a></dt>
 <dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
 <p>Class that implements a condition variable.</p>
 <p>A condition variable allows one or more threads to wait until they are
@@ -715,7 +711,7 @@ object, and it is used as the underlying lock. Otherwise, a new RLock object
 is created and used as the underlying lock.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="datumaro.util.multi_procs_util.Condition.wait">
-<span class="sig-name descname"><span class="pre">wait</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">timeout</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/threading.html#Condition.wait"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.util.multi_procs_util.Condition.wait" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">wait</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">timeout</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/threading.html#Condition.wait"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.util.multi_procs_util.Condition.wait" title="Link to this definition">#</a></dt>
 <dd><p>Wait until notified or until a timeout occurs.</p>
 <p>If the calling thread has not acquired the lock when this method is
 called, a RuntimeError is raised.</p>
@@ -736,7 +732,7 @@ then used to restore the recursion level when the lock is reacquired.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="datumaro.util.multi_procs_util.Condition.wait_for">
-<span class="sig-name descname"><span class="pre">wait_for</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">predicate</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">timeout</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/threading.html#Condition.wait_for"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.util.multi_procs_util.Condition.wait_for" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">wait_for</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">predicate</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">timeout</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/threading.html#Condition.wait_for"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.util.multi_procs_util.Condition.wait_for" title="Link to this definition">#</a></dt>
 <dd><p>Wait until a condition evaluates to True.</p>
 <p>predicate should be a callable which result will be interpreted as a
 boolean value.  A timeout may be provided giving the maximum time to
@@ -745,7 +741,7 @@ wait.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="datumaro.util.multi_procs_util.Condition.notify">
-<span class="sig-name descname"><span class="pre">notify</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">n</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/threading.html#Condition.notify"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.util.multi_procs_util.Condition.notify" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">notify</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">n</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/threading.html#Condition.notify"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.util.multi_procs_util.Condition.notify" title="Link to this definition">#</a></dt>
 <dd><p>Wake up one or more threads waiting on this condition, if any.</p>
 <p>If the calling thread has not acquired the lock when this method is
 called, a RuntimeError is raised.</p>
@@ -755,7 +751,7 @@ variable; it is a no-op if no threads are waiting.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="datumaro.util.multi_procs_util.Condition.notify_all">
-<span class="sig-name descname"><span class="pre">notify_all</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/threading.html#Condition.notify_all"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.util.multi_procs_util.Condition.notify_all" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">notify_all</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/threading.html#Condition.notify_all"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.util.multi_procs_util.Condition.notify_all" title="Link to this definition">#</a></dt>
 <dd><p>Wake up all threads waiting on this condition.</p>
 <p>If the calling thread has not acquired the lock when this method
 is called, a RuntimeError is raised.</p>
@@ -763,7 +759,7 @@ is called, a RuntimeError is raised.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="datumaro.util.multi_procs_util.Condition.notifyAll">
-<span class="sig-name descname"><span class="pre">notifyAll</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/threading.html#Condition.notifyAll"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.util.multi_procs_util.Condition.notifyAll" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">notifyAll</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/threading.html#Condition.notifyAll"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.util.multi_procs_util.Condition.notifyAll" title="Link to this definition">#</a></dt>
 <dd><p>Wake up all threads waiting on this condition.</p>
 <p>This method is deprecated, use notify_all() instead.</p>
 </dd></dl>
@@ -772,44 +768,44 @@ is called, a RuntimeError is raised.</p>
 
 <dl class="py exception">
 <dt class="sig sig-object py" id="datumaro.util.multi_procs_util.Full">
-<em class="property"><span class="pre">exception</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">datumaro.util.multi_procs_util.</span></span><span class="sig-name descname"><span class="pre">Full</span></span><a class="reference internal" href="../../../_modules/queue.html#Full"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.util.multi_procs_util.Full" title="Permalink to this definition">#</a></dt>
+<em class="property"><span class="pre">exception</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">datumaro.util.multi_procs_util.</span></span><span class="sig-name descname"><span class="pre">Full</span></span><a class="reference internal" href="../../../_modules/queue.html#Full"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.util.multi_procs_util.Full" title="Link to this definition">#</a></dt>
 <dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/exceptions.html#Exception" title="(in Python v3.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Exception</span></code></a></p>
 <p>Exception raised by Queue.put(block=0)/put_nowait().</p>
 </dd></dl>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="datumaro.util.multi_procs_util.IntEnum">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">datumaro.util.multi_procs_util.</span></span><span class="sig-name descname"><span class="pre">IntEnum</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/enum.html#IntEnum"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.util.multi_procs_util.IntEnum" title="Permalink to this definition">#</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">datumaro.util.multi_procs_util.</span></span><span class="sig-name descname"><span class="pre">IntEnum</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/enum.html#IntEnum"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.util.multi_procs_util.IntEnum" title="Link to this definition">#</a></dt>
 <dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>, <a class="reference internal" href="datumaro.components.dataset_item_storage.html#datumaro.components.dataset_item_storage.Enum" title="enum.Enum"><code class="xref py py-class docutils literal notranslate"><span class="pre">Enum</span></code></a></p>
 <p>Enum where members are also (and must be) ints</p>
 </dd></dl>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="datumaro.util.multi_procs_util.ProducerMessage">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">datumaro.util.multi_procs_util.</span></span><span class="sig-name descname"><span class="pre">ProducerMessage</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/datumaro/util/multi_procs_util.html#ProducerMessage"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.util.multi_procs_util.ProducerMessage" title="Permalink to this definition">#</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">datumaro.util.multi_procs_util.</span></span><span class="sig-name descname"><span class="pre">ProducerMessage</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/datumaro/util/multi_procs_util.html#ProducerMessage"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.util.multi_procs_util.ProducerMessage" title="Link to this definition">#</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#datumaro.util.multi_procs_util.IntEnum" title="enum.IntEnum"><code class="xref py py-class docutils literal notranslate"><span class="pre">IntEnum</span></code></a></p>
 <p>An enumeration.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="datumaro.util.multi_procs_util.ProducerMessage.START">
-<span class="sig-name descname"><span class="pre">START</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">0</span></em><a class="headerlink" href="#datumaro.util.multi_procs_util.ProducerMessage.START" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">START</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">0</span></em><a class="headerlink" href="#datumaro.util.multi_procs_util.ProducerMessage.START" title="Link to this definition">#</a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="datumaro.util.multi_procs_util.ProducerMessage.END">
-<span class="sig-name descname"><span class="pre">END</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">1</span></em><a class="headerlink" href="#datumaro.util.multi_procs_util.ProducerMessage.END" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">END</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">1</span></em><a class="headerlink" href="#datumaro.util.multi_procs_util.ProducerMessage.END" title="Link to this definition">#</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="datumaro.util.multi_procs_util.Queue">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">datumaro.util.multi_procs_util.</span></span><span class="sig-name descname"><span class="pre">Queue</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">maxsize</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/queue.html#Queue"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.util.multi_procs_util.Queue" title="Permalink to this definition">#</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">datumaro.util.multi_procs_util.</span></span><span class="sig-name descname"><span class="pre">Queue</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">maxsize</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/queue.html#Queue"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.util.multi_procs_util.Queue" title="Link to this definition">#</a></dt>
 <dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
 <p>Create a queue object with a given maximum size.</p>
 <p>If maxsize is &lt;= 0, the queue size is infinite.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="datumaro.util.multi_procs_util.Queue.task_done">
-<span class="sig-name descname"><span class="pre">task_done</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/queue.html#Queue.task_done"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.util.multi_procs_util.Queue.task_done" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">task_done</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/queue.html#Queue.task_done"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.util.multi_procs_util.Queue.task_done" title="Link to this definition">#</a></dt>
 <dd><p>Indicate that a formerly enqueued task is complete.</p>
 <p>Used by Queue consumer threads.  For each get() used to fetch a task,
 a subsequent call to task_done() tells the queue that the processing
@@ -823,7 +819,7 @@ placed in the queue.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="datumaro.util.multi_procs_util.Queue.join">
-<span class="sig-name descname"><span class="pre">join</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/queue.html#Queue.join"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.util.multi_procs_util.Queue.join" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">join</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/queue.html#Queue.join"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.util.multi_procs_util.Queue.join" title="Link to this definition">#</a></dt>
 <dd><p>Blocks until all items in the Queue have been gotten and processed.</p>
 <p>The count of unfinished tasks goes up whenever an item is added to the
 queue. The count goes down whenever a consumer thread calls task_done()
@@ -833,13 +829,13 @@ to indicate the item was retrieved and all work on it is complete.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="datumaro.util.multi_procs_util.Queue.qsize">
-<span class="sig-name descname"><span class="pre">qsize</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/queue.html#Queue.qsize"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.util.multi_procs_util.Queue.qsize" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">qsize</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/queue.html#Queue.qsize"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.util.multi_procs_util.Queue.qsize" title="Link to this definition">#</a></dt>
 <dd><p>Return the approximate size of the queue (not reliable!).</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="datumaro.util.multi_procs_util.Queue.empty">
-<span class="sig-name descname"><span class="pre">empty</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/queue.html#Queue.empty"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.util.multi_procs_util.Queue.empty" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">empty</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/queue.html#Queue.empty"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.util.multi_procs_util.Queue.empty" title="Link to this definition">#</a></dt>
 <dd><p>Return True if the queue is empty, False otherwise (not reliable!).</p>
 <p>This method is likely to be removed at some point.  Use qsize() == 0
 as a direct substitute, but be aware that either approach risks a race
@@ -851,7 +847,7 @@ completed, the preferred technique is to use the join() method.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="datumaro.util.multi_procs_util.Queue.full">
-<span class="sig-name descname"><span class="pre">full</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/queue.html#Queue.full"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.util.multi_procs_util.Queue.full" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">full</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/queue.html#Queue.full"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.util.multi_procs_util.Queue.full" title="Link to this definition">#</a></dt>
 <dd><p>Return True if the queue is full, False otherwise (not reliable!).</p>
 <p>This method is likely to be removed at some point.  Use qsize() &gt;= n
 as a direct substitute, but be aware that either approach risks a race
@@ -861,7 +857,7 @@ qsize() can be used.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="datumaro.util.multi_procs_util.Queue.put">
-<span class="sig-name descname"><span class="pre">put</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">item</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">block</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">timeout</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/queue.html#Queue.put"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.util.multi_procs_util.Queue.put" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">put</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">item</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">block</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">timeout</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/queue.html#Queue.put"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.util.multi_procs_util.Queue.put" title="Link to this definition">#</a></dt>
 <dd><p>Put an item into the queue.</p>
 <p>If optional args ‘block’ is true and ‘timeout’ is None (the default),
 block if necessary until a free slot is available. If ‘timeout’ is
@@ -874,7 +870,7 @@ is ignored in that case).</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="datumaro.util.multi_procs_util.Queue.get">
-<span class="sig-name descname"><span class="pre">get</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">block</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">timeout</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/queue.html#Queue.get"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.util.multi_procs_util.Queue.get" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">get</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">block</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">timeout</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/queue.html#Queue.get"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.util.multi_procs_util.Queue.get" title="Link to this definition">#</a></dt>
 <dd><p>Remove and return an item from the queue.</p>
 <p>If optional args ‘block’ is true and ‘timeout’ is None (the default),
 block if necessary until an item is available. If ‘timeout’ is
@@ -887,7 +883,7 @@ in that case).</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="datumaro.util.multi_procs_util.Queue.put_nowait">
-<span class="sig-name descname"><span class="pre">put_nowait</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">item</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/queue.html#Queue.put_nowait"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.util.multi_procs_util.Queue.put_nowait" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">put_nowait</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">item</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/queue.html#Queue.put_nowait"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.util.multi_procs_util.Queue.put_nowait" title="Link to this definition">#</a></dt>
 <dd><p>Put an item into the queue without blocking.</p>
 <p>Only enqueue the item if a free slot is immediately available.
 Otherwise raise the Full exception.</p>
@@ -895,7 +891,7 @@ Otherwise raise the Full exception.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="datumaro.util.multi_procs_util.Queue.get_nowait">
-<span class="sig-name descname"><span class="pre">get_nowait</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/queue.html#Queue.get_nowait"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.util.multi_procs_util.Queue.get_nowait" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">get_nowait</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/queue.html#Queue.get_nowait"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.util.multi_procs_util.Queue.get_nowait" title="Link to this definition">#</a></dt>
 <dd><p>Remove and return an item from the queue without blocking.</p>
 <p>Only get an item if one is immediately available. Otherwise
 raise the Empty exception.</p>
@@ -905,7 +901,7 @@ raise the Empty exception.</p>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="datumaro.util.multi_procs_util.Thread">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">datumaro.util.multi_procs_util.</span></span><span class="sig-name descname"><span class="pre">Thread</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">group</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">target</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">args</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">()</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">kwargs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">daemon</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/threading.html#Thread"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.util.multi_procs_util.Thread" title="Permalink to this definition">#</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">datumaro.util.multi_procs_util.</span></span><span class="sig-name descname"><span class="pre">Thread</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">group</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">target</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">args</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">()</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">kwargs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">daemon</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/threading.html#Thread"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.util.multi_procs_util.Thread" title="Link to this definition">#</a></dt>
 <dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
 <p>A class that represents a thread of control.</p>
 <p>This class can be safely subclassed in a limited fashion. There are two ways
@@ -926,7 +922,7 @@ the base class constructor (Thread.__init__()) before doing anything
 else to the thread.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="datumaro.util.multi_procs_util.Thread.start">
-<span class="sig-name descname"><span class="pre">start</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/threading.html#Thread.start"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.util.multi_procs_util.Thread.start" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">start</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/threading.html#Thread.start"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.util.multi_procs_util.Thread.start" title="Link to this definition">#</a></dt>
 <dd><p>Start the thread’s activity.</p>
 <p>It must be called at most once per thread object. It arranges for the
 object’s run() method to be invoked in a separate thread of control.</p>
@@ -936,7 +932,7 @@ same thread object.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="datumaro.util.multi_procs_util.Thread.run">
-<span class="sig-name descname"><span class="pre">run</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/threading.html#Thread.run"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.util.multi_procs_util.Thread.run" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">run</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/threading.html#Thread.run"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.util.multi_procs_util.Thread.run" title="Link to this definition">#</a></dt>
 <dd><p>Method representing the thread’s activity.</p>
 <p>You may override this method in a subclass. The standard run() method
 invokes the callable object passed to the object’s constructor as the
@@ -946,7 +942,7 @@ from the args and kwargs arguments, respectively.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="datumaro.util.multi_procs_util.Thread.join">
-<span class="sig-name descname"><span class="pre">join</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">timeout</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/threading.html#Thread.join"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.util.multi_procs_util.Thread.join" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">join</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">timeout</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/threading.html#Thread.join"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.util.multi_procs_util.Thread.join" title="Link to this definition">#</a></dt>
 <dd><p>Wait until the thread terminates.</p>
 <p>This blocks the calling thread until the thread whose join() method is
 called terminates – either normally or through an unhandled exception
@@ -967,7 +963,7 @@ exception.</p>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="datumaro.util.multi_procs_util.Thread.name">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">name</span></span><a class="headerlink" href="#datumaro.util.multi_procs_util.Thread.name" title="Permalink to this definition">#</a></dt>
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">name</span></span><a class="headerlink" href="#datumaro.util.multi_procs_util.Thread.name" title="Link to this definition">#</a></dt>
 <dd><p>A string used for identification purposes only.</p>
 <p>It has no semantics. Multiple threads may be given the same name. The
 initial name is set by the constructor.</p>
@@ -975,7 +971,7 @@ initial name is set by the constructor.</p>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="datumaro.util.multi_procs_util.Thread.ident">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">ident</span></span><a class="headerlink" href="#datumaro.util.multi_procs_util.Thread.ident" title="Permalink to this definition">#</a></dt>
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">ident</span></span><a class="headerlink" href="#datumaro.util.multi_procs_util.Thread.ident" title="Link to this definition">#</a></dt>
 <dd><p>Thread identifier of this thread or None if it has not been started.</p>
 <p>This is a nonzero integer. See the get_ident() function. Thread
 identifiers may be recycled when a thread exits and another thread is
@@ -984,7 +980,7 @@ created. The identifier is available even after the thread has exited.</p>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="datumaro.util.multi_procs_util.Thread.native_id">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">native_id</span></span><a class="headerlink" href="#datumaro.util.multi_procs_util.Thread.native_id" title="Permalink to this definition">#</a></dt>
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">native_id</span></span><a class="headerlink" href="#datumaro.util.multi_procs_util.Thread.native_id" title="Link to this definition">#</a></dt>
 <dd><p>Native integral thread ID of this thread, or None if it has not been started.</p>
 <p>This is a non-negative integer. See the get_native_id() function.
 This represents the Thread ID as reported by the kernel.</p>
@@ -992,7 +988,7 @@ This represents the Thread ID as reported by the kernel.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="datumaro.util.multi_procs_util.Thread.is_alive">
-<span class="sig-name descname"><span class="pre">is_alive</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/threading.html#Thread.is_alive"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.util.multi_procs_util.Thread.is_alive" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">is_alive</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/threading.html#Thread.is_alive"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.util.multi_procs_util.Thread.is_alive" title="Link to this definition">#</a></dt>
 <dd><p>Return whether the thread is alive.</p>
 <p>This method returns True just before the run() method starts until just
 after the run() method terminates. See also the module function
@@ -1001,7 +997,7 @@ enumerate().</p>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="datumaro.util.multi_procs_util.Thread.daemon">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">daemon</span></span><a class="headerlink" href="#datumaro.util.multi_procs_util.Thread.daemon" title="Permalink to this definition">#</a></dt>
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">daemon</span></span><a class="headerlink" href="#datumaro.util.multi_procs_util.Thread.daemon" title="Link to this definition">#</a></dt>
 <dd><p>A boolean value indicating whether this thread is a daemon thread.</p>
 <p>This must be set before start() is called, otherwise RuntimeError is
 raised. Its initial value is inherited from the creating thread; the
@@ -1012,28 +1008,28 @@ the main thread default to daemon = False.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="datumaro.util.multi_procs_util.Thread.isDaemon">
-<span class="sig-name descname"><span class="pre">isDaemon</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/threading.html#Thread.isDaemon"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.util.multi_procs_util.Thread.isDaemon" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">isDaemon</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/threading.html#Thread.isDaemon"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.util.multi_procs_util.Thread.isDaemon" title="Link to this definition">#</a></dt>
 <dd><p>Return whether this thread is a daemon.</p>
 <p>This method is deprecated, use the daemon attribute instead.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="datumaro.util.multi_procs_util.Thread.setDaemon">
-<span class="sig-name descname"><span class="pre">setDaemon</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">daemonic</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/threading.html#Thread.setDaemon"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.util.multi_procs_util.Thread.setDaemon" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">setDaemon</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">daemonic</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/threading.html#Thread.setDaemon"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.util.multi_procs_util.Thread.setDaemon" title="Link to this definition">#</a></dt>
 <dd><p>Set whether this thread is a daemon.</p>
 <p>This method is deprecated, use the .daemon property instead.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="datumaro.util.multi_procs_util.Thread.getName">
-<span class="sig-name descname"><span class="pre">getName</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/threading.html#Thread.getName"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.util.multi_procs_util.Thread.getName" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">getName</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/threading.html#Thread.getName"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.util.multi_procs_util.Thread.getName" title="Link to this definition">#</a></dt>
 <dd><p>Return a string used for identification purposes only.</p>
 <p>This method is deprecated, use the name attribute instead.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="datumaro.util.multi_procs_util.Thread.setName">
-<span class="sig-name descname"><span class="pre">setName</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/threading.html#Thread.setName"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.util.multi_procs_util.Thread.setName" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">setName</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/threading.html#Thread.setName"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.util.multi_procs_util.Thread.setName" title="Link to this definition">#</a></dt>
 <dd><p>Set the name string for this thread.</p>
 <p>This method is deprecated, use the name attribute instead.</p>
 </dd></dl>
@@ -1042,7 +1038,7 @@ the main thread default to daemon = False.</p>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="datumaro.util.multi_procs_util.TypeVar">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">datumaro.util.multi_procs_util.</span></span><span class="sig-name descname"><span class="pre">TypeVar</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">constraints</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bound</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">covariant</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">contravariant</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/typing.html#TypeVar"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.util.multi_procs_util.TypeVar" title="Permalink to this definition">#</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">datumaro.util.multi_procs_util.</span></span><span class="sig-name descname"><span class="pre">TypeVar</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">constraints</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bound</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">covariant</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">contravariant</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/typing.html#TypeVar"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.util.multi_procs_util.TypeVar" title="Link to this definition">#</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">_Final</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">_Immutable</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">_TypeVarLike</span></code></p>
 <p>Type variable.</p>
 <p>Usage:</p>
@@ -1086,7 +1082,7 @@ A.__constraints__ == (str, bytes)</p>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="datumaro.util.multi_procs_util.contextmanager">
-<span class="sig-prename descclassname"><span class="pre">datumaro.util.multi_procs_util.</span></span><span class="sig-name descname"><span class="pre">contextmanager</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">func</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/contextlib.html#contextmanager"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.util.multi_procs_util.contextmanager" title="Permalink to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">datumaro.util.multi_procs_util.</span></span><span class="sig-name descname"><span class="pre">contextmanager</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">func</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/contextlib.html#contextmanager"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.util.multi_procs_util.contextmanager" title="Link to this definition">#</a></dt>
 <dd><p>&#64;contextmanager decorator.</p>
 <p>Typical usage:</p>
 <blockquote>
@@ -1255,7 +1251,7 @@ try:</p>
         <div class="footer-item">
 
   <p class="sphinx-version">
-    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 5.3.0.
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 7.2.6.
     <br/>
   </p>
 </div>

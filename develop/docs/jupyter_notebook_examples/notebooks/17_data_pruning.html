@@ -1,13 +1,12 @@
 
-
 <!DOCTYPE html>
 
 
-<html lang="en" data-content_root="" >
+<html lang="en" data-content_root="../../../" >
 
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
     <title>Prune Dataset to extract representative subset &#8212; Datumaro 1.6.0rc1 documentation</title>
   
@@ -29,27 +28,24 @@
 <link rel="preload" as="font" type="font/woff2" crossorigin href="../../../_static/vendor/fontawesome/6.5.1/webfonts/fa-brands-400.woff2" />
 <link rel="preload" as="font" type="font/woff2" crossorigin href="../../../_static/vendor/fontawesome/6.5.1/webfonts/fa-regular-400.woff2" />
 
-    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css" />
-    <link rel="stylesheet" type="text/css" href="../../../_static/copybutton.css" />
-    <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css" />
-    <link rel="stylesheet" type="text/css" href="../../../_static/design-style.1e8bd061cd6da7fc9cf755528e8ffc24.min.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=a746c00c" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css?v=eafc0fe6" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/design-style.1e8bd061cd6da7fc9cf755528e8ffc24.min.css?v=0a3b3ea7" />
     <link rel="stylesheet" type="text/css" href="../../../_static/nbsphinx-code-cells.css" />
-    <link rel="stylesheet" type="text/css" href="../../../_static/css/custom.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/css/custom.css?v=8b7c274f" />
   
   <!-- Pre-loaded scripts that we'll load fully later -->
   <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=8d27b9dea8ad943066ae" />
 <link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=8d27b9dea8ad943066ae" />
   <script src="../../../_static/vendor/fontawesome/6.5.1/js/all.min.js?digest=8d27b9dea8ad943066ae"></script>
 
-    <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
-    <script src="../../../_static/jquery.js"></script>
-    <script src="../../../_static/underscore.js"></script>
-    <script src="../../../_static/_sphinx_javascript_frameworks_compat.js"></script>
-    <script src="../../../_static/doctools.js"></script>
-    <script src="../../../_static/sphinx_highlight.js"></script>
-    <script src="../../../_static/clipboard.min.js"></script>
-    <script src="../../../_static/copybutton.js"></script>
-    <script src="../../../_static/design-tabs.js"></script>
+    <script src="../../../_static/documentation_options.js?v=82acb2b2"></script>
+    <script src="../../../_static/doctools.js?v=888ff710"></script>
+    <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../../../_static/copybutton.js?v=f281be69"></script>
+    <script src="../../../_static/design-tabs.js?v=36754332"></script>
     <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
     <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
@@ -659,14 +655,14 @@ document.write(`
                 <article class="bd-article">
                   
   <section id="Prune-Dataset-to-extract-representative-subset">
-<h1>Prune Dataset to extract representative subset<a class="headerlink" href="#Prune-Dataset-to-extract-representative-subset" title="Permalink to this heading">#</a></h1>
+<h1>Prune Dataset to extract representative subset<a class="headerlink" href="#Prune-Dataset-to-extract-representative-subset" title="Link to this heading">#</a></h1>
 <p>In this notebook example, we will demonstrate the process of creating a pruned dataset, which is a representative subset of the original dataset. By working with a smaller, yet representative, subset of the training data, we can observe how the model’s performance is affected in terms of accuracy and convergence speed. Through this, we can check accuracy drop and convergence time with subset of training data through <a class="reference external" href="https://github.com/openvinotoolkit/training_extensions">OpenVINO™ Training
 Extensions</a>. This analysis provides valuable insights into the relationship between dataset size and model performance. It helps us understand the scalability and generalization capabilities of the model, shedding light on the efficiency of training algorithms and the potential benefits of working with a pruned dataset. It also allows us to assess the impact of dataset size on model performance, providing guidance for resource allocation
 and model development in practical scenarios.</p>
 <section id="Prerequisite">
-<h2>Prerequisite<a class="headerlink" href="#Prerequisite" title="Permalink to this heading">#</a></h2>
+<h2>Prerequisite<a class="headerlink" href="#Prerequisite" title="Link to this heading">#</a></h2>
 <section id="Download-Caltech-101-dataset">
-<h3>Download Caltech-101 dataset<a class="headerlink" href="#Download-Caltech-101-dataset" title="Permalink to this heading">#</a></h3>
+<h3>Download Caltech-101 dataset<a class="headerlink" href="#Download-Caltech-101-dataset" title="Link to this heading">#</a></h3>
 <p>This is <a class="reference external" href="https://www.kaggle.com/datasets/imbikramsaha/caltech-101?resource=download">a download link for caltech101 dataset in Kaggle</a>. Please download using this link and extract to your workspace directory. Then, you will have a <code class="docutils literal notranslate"><span class="pre">caltech-101</span></code> directory with images in imagenet format as follows.</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>caltech-101
 ├──<span class="w"> </span>accordion
@@ -686,7 +682,7 @@ and model development in practical scenarios.</p>
 </div>
 </section>
 <section id="Install-OpenVINO™-Training-Extensions">
-<h3>Install OpenVINO™ Training Extensions<a class="headerlink" href="#Install-OpenVINO™-Training-Extensions" title="Permalink to this heading">#</a></h3>
+<h3>Install OpenVINO™ Training Extensions<a class="headerlink" href="#Install-OpenVINO™-Training-Extensions" title="Link to this heading">#</a></h3>
 <p>For more details, please see this <a class="reference external" href="https://openvinotoolkit.github.io/training_extensions/latest/guide/get_started/quick_start_guide/installation.html">OpenVINO™ Training Extensions installation guide</a>.</p>
 <div class="nbinput nblast docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
@@ -699,7 +695,7 @@ and model development in practical scenarios.</p>
 </section>
 </section>
 <section id="Prune-dataset-using-Datumaro-Python-API">
-<h2>Prune dataset using Datumaro Python API<a class="headerlink" href="#Prune-dataset-using-Datumaro-Python-API" title="Permalink to this heading">#</a></h2>
+<h2>Prune dataset using Datumaro Python API<a class="headerlink" href="#Prune-dataset-using-Datumaro-Python-API" title="Link to this heading">#</a></h2>
 <p>In this section, we utilize the Dataumaro Python API to prune entire dataset. We import the caltech-101 dataset and apply dataset prune.</p>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
@@ -743,7 +739,7 @@ infos
 </pre></div></div>
 </div>
 <section id="Generate-the-validation-report">
-<h3>Generate the validation report<a class="headerlink" href="#Generate-the-validation-report" title="Permalink to this heading">#</a></h3>
+<h3>Generate the validation report<a class="headerlink" href="#Generate-the-validation-report" title="Link to this heading">#</a></h3>
 <p>Before pruning entire dataset, we first generate the validation report of dataset to confirm the statistics of dataset labels.</p>
 <div class="nbinput nblast docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
@@ -783,7 +779,7 @@ infos
 </div>
 </section>
 <section id="Prune-dataset">
-<h3>Prune dataset<a class="headerlink" href="#Prune-dataset" title="Permalink to this heading">#</a></h3>
+<h3>Prune dataset<a class="headerlink" href="#Prune-dataset" title="Link to this heading">#</a></h3>
 <p>We support various prune methods in <a class="reference external" href="https://github.com/openvinotoolkit/datumaro">Datumaro</a>. We will try each method and compare the results by examining the train and validation reports. We will start by checking using the <code class="docutils literal notranslate"><span class="pre">random</span></code> method. For all methods, we will use a ratio of <code class="docutils literal notranslate"><span class="pre">0.5</span></code>.</p>
 <p>The random method involves randomly selecting dataset items from the entire dataset to create a subset.</p>
 <div class="nbinput nblast docutils container">
@@ -1018,16 +1014,16 @@ infos
 </section>
 </section>
 <section id="Train-Model-and-Export-the-Trained-Classification-Model-Using-OpenVINO™-Training-Extensions">
-<h2>Train Model and Export the Trained Classification Model Using OpenVINO™ Training Extensions<a class="headerlink" href="#Train-Model-and-Export-the-Trained-Classification-Model-Using-OpenVINO™-Training-Extensions" title="Permalink to this heading">#</a></h2>
+<h2>Train Model and Export the Trained Classification Model Using OpenVINO™ Training Extensions<a class="headerlink" href="#Train-Model-and-Export-the-Trained-Classification-Model-Using-OpenVINO™-Training-Extensions" title="Link to this heading">#</a></h2>
 <p>In this step, we train a classification model using OTX. To see the detail guides for OpenVINO™ Training Extensions usage, please see <a class="reference external" href="https://openvinotoolkit.github.io/training_extensions/latest/guide/tutorials/base/how_to_train/classification.html">How-To-Train</a>. In this example, we use the CLI command to train the model and choose <code class="docutils literal notranslate"><span class="pre">EfficientNet-B0</span></code> model supported by OpenVINO™ Training Extensions.</p>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>!otx train EfficientNet-B0 \
-    --train-data-roots caltech-101 \
-    --val-data-roots caltech-101 \
-    -o outputs
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="o">!</span>otx<span class="w"> </span>train<span class="w"> </span>EfficientNet-B0<span class="w"> </span><span class="err">\</span>
+    <span class="o">--</span><span class="n">train</span><span class="o">-</span><span class="n">data</span><span class="o">-</span><span class="n">roots</span> <span class="n">caltech</span><span class="o">-</span><span class="mi">101</span> \
+    <span class="o">--</span><span class="n">val</span><span class="o">-</span><span class="n">data</span><span class="o">-</span><span class="n">roots</span> <span class="n">caltech</span><span class="o">-</span><span class="mi">101</span> \
+    <span class="o">-</span><span class="n">o</span> <span class="n">outputs</span>
 </pre></div>
 </div>
 </div>
@@ -2242,10 +2238,10 @@ otx train CLI report has been generated: outputs/cli_report.log
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[29]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>!otx train EfficientNet-B0 \
-    --train-data-roots random_result \
-    --val-data-roots random_result \
-    -o outputs_random
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="o">!</span>otx<span class="w"> </span>train<span class="w"> </span>EfficientNet-B0<span class="w"> </span><span class="err">\</span>
+    <span class="o">--</span><span class="n">train</span><span class="o">-</span><span class="n">data</span><span class="o">-</span><span class="n">roots</span> <span class="n">random_result</span> \
+    <span class="o">--</span><span class="n">val</span><span class="o">-</span><span class="n">data</span><span class="o">-</span><span class="n">roots</span> <span class="n">random_result</span> \
+    <span class="o">-</span><span class="n">o</span> <span class="n">outputs_random</span>
 </pre></div>
 </div>
 </div>
@@ -3448,10 +3444,10 @@ otx train CLI report has been generated: outputs_random/cli_report.log
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[30]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>!otx train EfficientNet-B0 \
-    --train-data-roots centroid_result \
-    --val-data-roots centroid_result \
-    -o output_centroid
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="o">!</span>otx<span class="w"> </span>train<span class="w"> </span>EfficientNet-B0<span class="w"> </span><span class="err">\</span>
+    <span class="o">--</span><span class="n">train</span><span class="o">-</span><span class="n">data</span><span class="o">-</span><span class="n">roots</span> <span class="n">centroid_result</span> \
+    <span class="o">--</span><span class="n">val</span><span class="o">-</span><span class="n">data</span><span class="o">-</span><span class="n">roots</span> <span class="n">centroid_result</span> \
+    <span class="o">-</span><span class="n">o</span> <span class="n">output_centroid</span>
 </pre></div>
 </div>
 </div>
@@ -4716,7 +4712,7 @@ otx train CLI report has been generated: output_centroid/cli_report.log
         <div class="footer-item">
 
   <p class="sphinx-version">
-    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 5.3.0.
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 7.2.6.
     <br/>
   </p>
 </div>

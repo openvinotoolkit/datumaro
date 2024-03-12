@@ -1,13 +1,12 @@
 
-
 <!DOCTYPE html>
 
 
-<html lang="en" data-content_root="" >
+<html lang="en" data-content_root="../../../" >
 
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
     <title>Level 12: Project Versioning &#8212; Datumaro 1.6.0rc1 documentation</title>
   
@@ -29,26 +28,23 @@
 <link rel="preload" as="font" type="font/woff2" crossorigin href="../../../_static/vendor/fontawesome/6.5.1/webfonts/fa-brands-400.woff2" />
 <link rel="preload" as="font" type="font/woff2" crossorigin href="../../../_static/vendor/fontawesome/6.5.1/webfonts/fa-regular-400.woff2" />
 
-    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css" />
-    <link rel="stylesheet" type="text/css" href="../../../_static/copybutton.css" />
-    <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css" />
-    <link rel="stylesheet" type="text/css" href="../../../_static/design-style.1e8bd061cd6da7fc9cf755528e8ffc24.min.css" />
-    <link rel="stylesheet" type="text/css" href="../../../_static/css/custom.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=a746c00c" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css?v=eafc0fe6" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/design-style.1e8bd061cd6da7fc9cf755528e8ffc24.min.css?v=0a3b3ea7" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/css/custom.css?v=8b7c274f" />
   
   <!-- Pre-loaded scripts that we'll load fully later -->
   <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=8d27b9dea8ad943066ae" />
 <link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=8d27b9dea8ad943066ae" />
   <script src="../../../_static/vendor/fontawesome/6.5.1/js/all.min.js?digest=8d27b9dea8ad943066ae"></script>
 
-    <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
-    <script src="../../../_static/jquery.js"></script>
-    <script src="../../../_static/underscore.js"></script>
-    <script src="../../../_static/_sphinx_javascript_frameworks_compat.js"></script>
-    <script src="../../../_static/doctools.js"></script>
-    <script src="../../../_static/sphinx_highlight.js"></script>
-    <script src="../../../_static/clipboard.min.js"></script>
-    <script src="../../../_static/copybutton.js"></script>
-    <script src="../../../_static/design-tabs.js"></script>
+    <script src="../../../_static/documentation_options.js?v=82acb2b2"></script>
+    <script src="../../../_static/doctools.js?v=888ff710"></script>
+    <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../../../_static/copybutton.js?v=f281be69"></script>
+    <script src="../../../_static/design-tabs.js?v=36754332"></script>
     <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <script>DOCUMENTATION_OPTIONS.pagename = 'docs/level-up/advanced_skills/12_project_versioning';</script>
     <link rel="index" title="Index" href="../../../genindex.html" />
@@ -656,7 +652,7 @@ document.write(`
                 <article class="bd-article">
                   
   <section id="level-12-project-versioning">
-<h1>Level 12: Project Versioning<a class="headerlink" href="#level-12-project-versioning" title="Permalink to this heading">#</a></h1>
+<h1>Level 12: Project Versioning<a class="headerlink" href="#level-12-project-versioning" title="Link to this heading">#</a></h1>
 <p>Project versioning is a concept unique to Datumaro. Datumaro project includes a data source and revision tree,
 where each revision represents the state of the data sources at a particular point in time.
 With Datumaro’s revision tree, you can control the versioning of datasets.
@@ -664,7 +660,7 @@ This means that the Datumaro project records the state of a dataset after it has
 allowing you to go back to a previous state or create a new branch to have multiple versions of a dataset for different purposes from one source.
 For more details, please refer to <a class="reference internal" href="../../explanation/concept.html#project-versioning-concepts"><span class="std std-ref">Project versioning concepts</span></a> and <a class="reference internal" href="../../explanation/project.html#project-data-model"><span class="std std-ref">Project data model</span></a>.</p>
 <section id="prerequisite">
-<h2>Prerequisite<a class="headerlink" href="#prerequisite" title="Permalink to this heading">#</a></h2>
+<h2>Prerequisite<a class="headerlink" href="#prerequisite" title="Link to this heading">#</a></h2>
 <p>In this step, we create a project and import <a class="reference external" href="http://weegee.vision.ucmerced.edu/datasets/landuse.html">UCMerced</a> dataset to the project.</p>
 <div class="sd-tab-set docutils">
 <input checked="checked" id="sd-tab-item-0" name="sd-tab-set-0" type="radio">
@@ -714,7 +710,7 @@ datum<span class="w"> </span>dinfo
 </div>
 </section>
 <section id="commit-project-revisions-and-checkout-to-the-revision">
-<h2>Commit project revisions and checkout to the revision<a class="headerlink" href="#commit-project-revisions-and-checkout-to-the-revision" title="Permalink to this heading">#</a></h2>
+<h2>Commit project revisions and checkout to the revision<a class="headerlink" href="#commit-project-revisions-and-checkout-to-the-revision" title="Link to this heading">#</a></h2>
 <p>In this step, we will apply <a class="reference internal" href="../../jupyter_notebook_examples/transform.html#transform"><span class="std std-ref">Transform</span></a> to the project, resulting in the creation of a new revision by the operation.
 We can then commit this revision to the revision tree, allowing us to checkout to the revision anytime we need.
 Additionally, if you require a new operation on the dataset for a new target, you can go back and create a new branch from the old revision.</p>
@@ -892,7 +888,7 @@ datum<span class="w"> </span>project<span class="w"> </span>log
         <div class="footer-item">
 
   <p class="sphinx-version">
-    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 5.3.0.
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 7.2.6.
     <br/>
   </p>
 </div>

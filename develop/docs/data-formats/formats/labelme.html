@@ -1,13 +1,12 @@
 
-
 <!DOCTYPE html>
 
 
-<html lang="en" data-content_root="" >
+<html lang="en" data-content_root="../../../" >
 
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
     <title>LabelMe &#8212; Datumaro 1.6.0rc1 documentation</title>
   
@@ -29,26 +28,23 @@
 <link rel="preload" as="font" type="font/woff2" crossorigin href="../../../_static/vendor/fontawesome/6.5.1/webfonts/fa-brands-400.woff2" />
 <link rel="preload" as="font" type="font/woff2" crossorigin href="../../../_static/vendor/fontawesome/6.5.1/webfonts/fa-regular-400.woff2" />
 
-    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css" />
-    <link rel="stylesheet" type="text/css" href="../../../_static/copybutton.css" />
-    <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css" />
-    <link rel="stylesheet" type="text/css" href="../../../_static/design-style.1e8bd061cd6da7fc9cf755528e8ffc24.min.css" />
-    <link rel="stylesheet" type="text/css" href="../../../_static/css/custom.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=a746c00c" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css?v=eafc0fe6" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/design-style.1e8bd061cd6da7fc9cf755528e8ffc24.min.css?v=0a3b3ea7" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/css/custom.css?v=8b7c274f" />
   
   <!-- Pre-loaded scripts that we'll load fully later -->
   <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=8d27b9dea8ad943066ae" />
 <link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=8d27b9dea8ad943066ae" />
   <script src="../../../_static/vendor/fontawesome/6.5.1/js/all.min.js?digest=8d27b9dea8ad943066ae"></script>
 
-    <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
-    <script src="../../../_static/jquery.js"></script>
-    <script src="../../../_static/underscore.js"></script>
-    <script src="../../../_static/_sphinx_javascript_frameworks_compat.js"></script>
-    <script src="../../../_static/doctools.js"></script>
-    <script src="../../../_static/sphinx_highlight.js"></script>
-    <script src="../../../_static/clipboard.min.js"></script>
-    <script src="../../../_static/copybutton.js"></script>
-    <script src="../../../_static/design-tabs.js"></script>
+    <script src="../../../_static/documentation_options.js?v=82acb2b2"></script>
+    <script src="../../../_static/doctools.js?v=888ff710"></script>
+    <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../../../_static/copybutton.js?v=f281be69"></script>
+    <script src="../../../_static/design-tabs.js?v=36754332"></script>
     <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <script>DOCUMENTATION_OPTIONS.pagename = 'docs/data-formats/formats/labelme';</script>
     <link rel="index" title="Index" href="../../../genindex.html" />
@@ -656,9 +652,9 @@ document.write(`
                 <article class="bd-article">
                   
   <section id="labelme">
-<h1>LabelMe<a class="headerlink" href="#labelme" title="Permalink to this heading">#</a></h1>
+<h1>LabelMe<a class="headerlink" href="#labelme" title="Link to this heading">#</a></h1>
 <section id="format-specification">
-<h2>Format specification<a class="headerlink" href="#format-specification" title="Permalink to this heading">#</a></h2>
+<h2>Format specification<a class="headerlink" href="#format-specification" title="Link to this heading">#</a></h2>
 <p><a class="reference external" href="http://labelme.csail.mit.edu/Release3.0/">LabelMe</a> is an open-source annotation tool provided by MIT, which is commonly used for annotating images and creating ground truth for various computer vision tasks such as object detection and segmentation.
 It allows users to draw bounding boxes, polygons, and scribbles on images to label objects and regions of interest.
 You can install LabelMe on your local as following <a class="reference external" href="https://github.com/wkentaro/labelme">Github instructions</a>.</p>
@@ -670,7 +666,7 @@ You can install LabelMe on your local as following <a class="reference external"
 </ul>
 </section>
 <section id="import-a-labelme-dataset">
-<h2>Import a LabelMe dataset<a class="headerlink" href="#import-a-labelme-dataset" title="Permalink to this heading">#</a></h2>
+<h2>Import a LabelMe dataset<a class="headerlink" href="#import-a-labelme-dataset" title="Link to this heading">#</a></h2>
 <p>A Datumaro project with a LabelMe source can be created in the following way:</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>datum<span class="w"> </span>project<span class="w"> </span>create
 datum<span class="w"> </span>project<span class="w"> </span>import<span class="w"> </span>--format<span class="w"> </span>label_me<span class="w"> </span>&lt;path/to/dataset&gt;
@@ -678,7 +674,7 @@ datum<span class="w"> </span>project<span class="w"> </span>import<span class="w
 </div>
 </section>
 <section id="export-a-dataset-with-labelme-format">
-<h2>Export a dataset with LabelMe format<a class="headerlink" href="#export-a-dataset-with-labelme-format" title="Permalink to this heading">#</a></h2>
+<h2>Export a dataset with LabelMe format<a class="headerlink" href="#export-a-dataset-with-labelme-format" title="Link to this heading">#</a></h2>
 <p>Datumaro helps to export a dataset with LabelMe format through below:</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>datum<span class="w"> </span>project<span class="w"> </span>create
 datum<span class="w"> </span>project<span class="w"> </span>add<span class="w"> </span>-f<span class="w"> </span>&lt;any-other-dataset-format&gt;<span class="w"> </span>&lt;path/to/dataset/&gt;
@@ -702,7 +698,7 @@ datum<span class="w"> </span>project<span class="w"> </span><span class="nb">exp
 </div></blockquote>
 </section>
 <section id="directory-structure">
-<h2>Directory structure<a class="headerlink" href="#directory-structure" title="Permalink to this heading">#</a></h2>
+<h2>Directory structure<a class="headerlink" href="#directory-structure" title="Link to this heading">#</a></h2>
 <!--lint disable fenced-code-flag-->
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span>└─ labelme/
    ├── Images                           # Image directory
@@ -747,7 +743,7 @@ datum<span class="w"> </span>project<span class="w"> </span><span class="nb">exp
 </div>
 </section>
 <section id="annotation-xml-example">
-<h2>Annotation XML example<a class="headerlink" href="#annotation-xml-example" title="Permalink to this heading">#</a></h2>
+<h2>Annotation XML example<a class="headerlink" href="#annotation-xml-example" title="Link to this heading">#</a></h2>
 <!--lint disable fenced-code-flag-->
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span>&lt;annotation&gt;
     &lt;filename&gt;example_image.jpg&lt;/filename&gt;
@@ -859,7 +855,7 @@ datum<span class="w"> </span>project<span class="w"> </span><span class="nb">exp
         <div class="footer-item">
 
   <p class="sphinx-version">
-    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 5.3.0.
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 7.2.6.
     <br/>
   </p>
 </div>

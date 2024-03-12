@@ -1,9 +1,8 @@
 
-
 <!DOCTYPE html>
 
 
-<html lang="en" data-content_root="" >
+<html lang="en" data-content_root="../../../../" >
 
   <head>
     <meta charset="utf-8" />
@@ -28,26 +27,23 @@
 <link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../_static/vendor/fontawesome/6.5.1/webfonts/fa-brands-400.woff2" />
 <link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../_static/vendor/fontawesome/6.5.1/webfonts/fa-regular-400.woff2" />
 
-    <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css" />
-    <link rel="stylesheet" type="text/css" href="../../../../_static/copybutton.css" />
-    <link rel="stylesheet" type="text/css" href="../../../../_static/graphviz.css" />
-    <link rel="stylesheet" type="text/css" href="../../../../_static/design-style.1e8bd061cd6da7fc9cf755528e8ffc24.min.css" />
-    <link rel="stylesheet" type="text/css" href="../../../../_static/css/custom.css" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=a746c00c" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/graphviz.css?v=eafc0fe6" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/design-style.1e8bd061cd6da7fc9cf755528e8ffc24.min.css?v=0a3b3ea7" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/css/custom.css?v=8b7c274f" />
   
   <!-- Pre-loaded scripts that we'll load fully later -->
   <link rel="preload" as="script" href="../../../../_static/scripts/bootstrap.js?digest=8d27b9dea8ad943066ae" />
 <link rel="preload" as="script" href="../../../../_static/scripts/pydata-sphinx-theme.js?digest=8d27b9dea8ad943066ae" />
   <script src="../../../../_static/vendor/fontawesome/6.5.1/js/all.min.js?digest=8d27b9dea8ad943066ae"></script>
 
-    <script data-url_root="../../../../" id="documentation_options" src="../../../../_static/documentation_options.js"></script>
-    <script src="../../../../_static/jquery.js"></script>
-    <script src="../../../../_static/underscore.js"></script>
-    <script src="../../../../_static/_sphinx_javascript_frameworks_compat.js"></script>
-    <script src="../../../../_static/doctools.js"></script>
-    <script src="../../../../_static/sphinx_highlight.js"></script>
-    <script src="../../../../_static/clipboard.min.js"></script>
-    <script src="../../../../_static/copybutton.js"></script>
-    <script src="../../../../_static/design-tabs.js"></script>
+    <script src="../../../../_static/documentation_options.js?v=82acb2b2"></script>
+    <script src="../../../../_static/doctools.js?v=888ff710"></script>
+    <script src="../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../../../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../../../../_static/copybutton.js?v=f281be69"></script>
+    <script src="../../../../_static/design-tabs.js?v=36754332"></script>
     <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <script>DOCUMENTATION_OPTIONS.pagename = '_modules/datumaro/components/annotations/matcher';</script>
     <link rel="index" title="Index" href="../../../../genindex.html" />
@@ -384,7 +380,9 @@ document.write(`
 <span class="p">]</span>
 
 
-<div class="viewcode-block" id="match_segments_pair"><a class="viewcode-back" href="../../../../docs/reference/_autosummary/datumaro.components.annotations.matcher.html#datumaro.components.annotations.matcher.match_segments_pair">[docs]</a><span class="k">def</span> <span class="nf">match_segments_pair</span><span class="p">(</span>
+<div class="viewcode-block" id="match_segments_pair">
+<a class="viewcode-back" href="../../../../docs/reference/_autosummary/datumaro.components.annotations.matcher.html#datumaro.components.annotations.matcher.match_segments_pair">[docs]</a>
+<span class="k">def</span> <span class="nf">match_segments_pair</span><span class="p">(</span>
     <span class="n">a_segms</span><span class="p">,</span>
     <span class="n">b_segms</span><span class="p">,</span>
     <span class="n">distance</span><span class="o">=</span><span class="n">segment_iou</span><span class="p">,</span>
@@ -447,7 +445,10 @@ document.write(`
     <span class="k">return</span> <span class="n">matches</span><span class="p">,</span> <span class="n">mispred</span><span class="p">,</span> <span class="n">a_unmatched</span><span class="p">,</span> <span class="n">b_unmatched</span></div>
 
 
-<div class="viewcode-block" id="match_segments_more_than_pair"><a class="viewcode-back" href="../../../../docs/reference/_autosummary/datumaro.components.annotations.matcher.html#datumaro.components.annotations.matcher.match_segments_more_than_pair">[docs]</a><span class="k">def</span> <span class="nf">match_segments_more_than_pair</span><span class="p">(</span>
+
+<div class="viewcode-block" id="match_segments_more_than_pair">
+<a class="viewcode-back" href="../../../../docs/reference/_autosummary/datumaro.components.annotations.matcher.html#datumaro.components.annotations.matcher.match_segments_more_than_pair">[docs]</a>
+<span class="k">def</span> <span class="nf">match_segments_more_than_pair</span><span class="p">(</span>
     <span class="n">a_segms</span><span class="p">,</span>
     <span class="n">b_segms</span><span class="p">,</span>
     <span class="n">distance</span><span class="o">=</span><span class="n">segment_iou</span><span class="p">,</span>
@@ -499,32 +500,52 @@ document.write(`
     <span class="k">return</span> <span class="n">matches</span><span class="p">,</span> <span class="n">mispred</span><span class="p">,</span> <span class="n">a_unmatched</span><span class="p">,</span> <span class="n">b_unmatched</span></div>
 
 
-<div class="viewcode-block" id="AnnotationMatcher"><a class="viewcode-back" href="../../../../docs/reference/_autosummary/datumaro.components.annotations.merger.html#datumaro.components.annotations.matcher.AnnotationMatcher">[docs]</a><span class="nd">@attrs</span><span class="p">(</span><span class="n">kw_only</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+<div class="viewcode-block" id="AnnotationMatcher">
+<a class="viewcode-back" href="../../../../docs/reference/_autosummary/datumaro.components.annotations.merger.html#datumaro.components.annotations.matcher.AnnotationMatcher">[docs]</a>
+<span class="nd">@attrs</span><span class="p">(</span><span class="n">kw_only</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 <span class="k">class</span> <span class="nc">AnnotationMatcher</span><span class="p">:</span>
     <span class="n">_context</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Union</span><span class="p">[</span><span class="n">IMatcherContext</span><span class="p">,</span> <span class="n">IMergerContext</span><span class="p">]]</span> <span class="o">=</span> <span class="n">attrib</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
 
-<div class="viewcode-block" id="AnnotationMatcher.match_annotations"><a class="viewcode-back" href="../../../../docs/reference/_autosummary/datumaro.components.annotations.merger.html#datumaro.components.annotations.matcher.AnnotationMatcher.match_annotations">[docs]</a>    <span class="k">def</span> <span class="nf">match_annotations</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sources</span><span class="p">):</span>
-        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">()</span></div></div>
+<div class="viewcode-block" id="AnnotationMatcher.match_annotations">
+<a class="viewcode-back" href="../../../../docs/reference/_autosummary/datumaro.components.annotations.merger.html#datumaro.components.annotations.matcher.AnnotationMatcher.match_annotations">[docs]</a>
+    <span class="k">def</span> <span class="nf">match_annotations</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sources</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">()</span></div>
+</div>
 
 
-<div class="viewcode-block" id="LabelMatcher"><a class="viewcode-back" href="../../../../docs/reference/_autosummary/datumaro.components.annotations.merger.html#datumaro.components.annotations.matcher.LabelMatcher">[docs]</a><span class="nd">@attrs</span>
+
+<div class="viewcode-block" id="LabelMatcher">
+<a class="viewcode-back" href="../../../../docs/reference/_autosummary/datumaro.components.annotations.merger.html#datumaro.components.annotations.matcher.LabelMatcher">[docs]</a>
+<span class="nd">@attrs</span>
 <span class="k">class</span> <span class="nc">LabelMatcher</span><span class="p">(</span><span class="n">AnnotationMatcher</span><span class="p">):</span>
-<div class="viewcode-block" id="LabelMatcher.distance"><a class="viewcode-back" href="../../../../docs/reference/_autosummary/datumaro.components.annotations.merger.html#datumaro.components.annotations.matcher.LabelMatcher.distance">[docs]</a>    <span class="k">def</span> <span class="nf">distance</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">):</span>
+<div class="viewcode-block" id="LabelMatcher.distance">
+<a class="viewcode-back" href="../../../../docs/reference/_autosummary/datumaro.components.annotations.merger.html#datumaro.components.annotations.matcher.LabelMatcher.distance">[docs]</a>
+    <span class="k">def</span> <span class="nf">distance</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">):</span>
         <span class="n">a_label</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_context</span><span class="o">.</span><span class="n">get_any_label_name</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">a</span><span class="o">.</span><span class="n">label</span><span class="p">)</span>
         <span class="n">b_label</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_context</span><span class="o">.</span><span class="n">get_any_label_name</span><span class="p">(</span><span class="n">b</span><span class="p">,</span> <span class="n">b</span><span class="o">.</span><span class="n">label</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">a_label</span> <span class="o">==</span> <span class="n">b_label</span></div>
 
-<div class="viewcode-block" id="LabelMatcher.match_annotations"><a class="viewcode-back" href="../../../../docs/reference/_autosummary/datumaro.components.annotations.merger.html#datumaro.components.annotations.matcher.LabelMatcher.match_annotations">[docs]</a>    <span class="k">def</span> <span class="nf">match_annotations</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sources</span><span class="p">):</span>
-        <span class="k">return</span> <span class="p">[</span><span class="nb">sum</span><span class="p">(</span><span class="n">sources</span><span class="p">,</span> <span class="p">[])]</span></div></div>
+
+<div class="viewcode-block" id="LabelMatcher.match_annotations">
+<a class="viewcode-back" href="../../../../docs/reference/_autosummary/datumaro.components.annotations.merger.html#datumaro.components.annotations.matcher.LabelMatcher.match_annotations">[docs]</a>
+    <span class="k">def</span> <span class="nf">match_annotations</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sources</span><span class="p">):</span>
+        <span class="k">return</span> <span class="p">[</span><span class="nb">sum</span><span class="p">(</span><span class="n">sources</span><span class="p">,</span> <span class="p">[])]</span></div>
+</div>
 
 
-<div class="viewcode-block" id="ShapeMatcher"><a class="viewcode-back" href="../../../../docs/reference/_autosummary/datumaro.components.annotations.merger.html#datumaro.components.annotations.matcher.ShapeMatcher">[docs]</a><span class="nd">@attrs</span><span class="p">(</span><span class="n">kw_only</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+<div class="viewcode-block" id="ShapeMatcher">
+<a class="viewcode-back" href="../../../../docs/reference/_autosummary/datumaro.components.annotations.merger.html#datumaro.components.annotations.matcher.ShapeMatcher">[docs]</a>
+<span class="nd">@attrs</span><span class="p">(</span><span class="n">kw_only</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 <span class="k">class</span> <span class="nc">ShapeMatcher</span><span class="p">(</span><span class="n">AnnotationMatcher</span><span class="p">):</span>
     <span class="n">pairwise_dist</span> <span class="o">=</span> <span class="n">attrib</span><span class="p">(</span><span class="n">converter</span><span class="o">=</span><span class="nb">float</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="mf">0.9</span><span class="p">)</span>
     <span class="n">cluster_dist</span> <span class="o">=</span> <span class="n">attrib</span><span class="p">(</span><span class="n">converter</span><span class="o">=</span><span class="nb">float</span><span class="p">,</span> <span class="n">default</span><span class="o">=-</span><span class="mf">1.0</span><span class="p">)</span>
     <span class="n">_match_segments</span> <span class="o">=</span> <span class="n">attrib</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="n">match_segments_pair</span><span class="p">)</span>
 
-<div class="viewcode-block" id="ShapeMatcher.match_annotations"><a class="viewcode-back" href="../../../../docs/reference/_autosummary/datumaro.components.annotations.merger.html#datumaro.components.annotations.matcher.ShapeMatcher.match_annotations">[docs]</a>    <span class="k">def</span> <span class="nf">match_annotations</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sources</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="n">Annotation</span><span class="p">]])</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="n">Annotation</span><span class="p">]]:</span>
+<div class="viewcode-block" id="ShapeMatcher.match_annotations">
+<a class="viewcode-back" href="../../../../docs/reference/_autosummary/datumaro.components.annotations.merger.html#datumaro.components.annotations.matcher.ShapeMatcher.match_annotations">[docs]</a>
+    <span class="k">def</span> <span class="nf">match_annotations</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sources</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="n">Annotation</span><span class="p">]])</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="n">Annotation</span><span class="p">]]:</span>
         <span class="n">distance</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">distance</span>
         <span class="n">label_matcher</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">label_matcher</span>
         <span class="n">pairwise_dist</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">pairwise_dist</span>
@@ -595,47 +616,74 @@ document.write(`
 
         <span class="k">return</span> <span class="n">clusters</span></div>
 
-<div class="viewcode-block" id="ShapeMatcher.distance"><a class="viewcode-back" href="../../../../docs/reference/_autosummary/datumaro.components.annotations.merger.html#datumaro.components.annotations.matcher.ShapeMatcher.distance">[docs]</a>    <span class="k">def</span> <span class="nf">distance</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">):</span>
+
+<div class="viewcode-block" id="ShapeMatcher.distance">
+<a class="viewcode-back" href="../../../../docs/reference/_autosummary/datumaro.components.annotations.merger.html#datumaro.components.annotations.matcher.ShapeMatcher.distance">[docs]</a>
+    <span class="k">def</span> <span class="nf">distance</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">):</span>
         <span class="k">return</span> <span class="n">segment_iou</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="ShapeMatcher.label_matcher"><a class="viewcode-back" href="../../../../docs/reference/_autosummary/datumaro.components.annotations.merger.html#datumaro.components.annotations.matcher.ShapeMatcher.label_matcher">[docs]</a>    <span class="k">def</span> <span class="nf">label_matcher</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">):</span>
+
+<div class="viewcode-block" id="ShapeMatcher.label_matcher">
+<a class="viewcode-back" href="../../../../docs/reference/_autosummary/datumaro.components.annotations.merger.html#datumaro.components.annotations.matcher.ShapeMatcher.label_matcher">[docs]</a>
+    <span class="k">def</span> <span class="nf">label_matcher</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">):</span>
         <span class="n">a_label</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_context</span><span class="o">.</span><span class="n">get_any_label_name</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">a</span><span class="o">.</span><span class="n">label</span><span class="p">)</span>
         <span class="n">b_label</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_context</span><span class="o">.</span><span class="n">get_any_label_name</span><span class="p">(</span><span class="n">b</span><span class="p">,</span> <span class="n">b</span><span class="o">.</span><span class="n">label</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">a_label</span> <span class="o">==</span> <span class="n">b_label</span></div></div>
+        <span class="k">return</span> <span class="n">a_label</span> <span class="o">==</span> <span class="n">b_label</span></div>
+</div>
 
 
-<div class="viewcode-block" id="BboxMatcher"><a class="viewcode-back" href="../../../../docs/reference/_autosummary/datumaro.components.annotations.merger.html#datumaro.components.annotations.matcher.BboxMatcher">[docs]</a><span class="nd">@attrs</span>
+
+<div class="viewcode-block" id="BboxMatcher">
+<a class="viewcode-back" href="../../../../docs/reference/_autosummary/datumaro.components.annotations.merger.html#datumaro.components.annotations.matcher.BboxMatcher">[docs]</a>
+<span class="nd">@attrs</span>
 <span class="k">class</span> <span class="nc">BboxMatcher</span><span class="p">(</span><span class="n">ShapeMatcher</span><span class="p">):</span>
     <span class="k">pass</span></div>
 
 
-<div class="viewcode-block" id="PolygonMatcher"><a class="viewcode-back" href="../../../../docs/reference/_autosummary/datumaro.components.annotations.merger.html#datumaro.components.annotations.matcher.PolygonMatcher">[docs]</a><span class="nd">@attrs</span>
+
+<div class="viewcode-block" id="PolygonMatcher">
+<a class="viewcode-back" href="../../../../docs/reference/_autosummary/datumaro.components.annotations.merger.html#datumaro.components.annotations.matcher.PolygonMatcher">[docs]</a>
+<span class="nd">@attrs</span>
 <span class="k">class</span> <span class="nc">PolygonMatcher</span><span class="p">(</span><span class="n">ShapeMatcher</span><span class="p">):</span>
     <span class="k">pass</span></div>
 
 
-<div class="viewcode-block" id="MaskMatcher"><a class="viewcode-back" href="../../../../docs/reference/_autosummary/datumaro.components.annotations.merger.html#datumaro.components.annotations.matcher.MaskMatcher">[docs]</a><span class="nd">@attrs</span>
+
+<div class="viewcode-block" id="MaskMatcher">
+<a class="viewcode-back" href="../../../../docs/reference/_autosummary/datumaro.components.annotations.merger.html#datumaro.components.annotations.matcher.MaskMatcher">[docs]</a>
+<span class="nd">@attrs</span>
 <span class="k">class</span> <span class="nc">MaskMatcher</span><span class="p">(</span><span class="n">ShapeMatcher</span><span class="p">):</span>
     <span class="k">pass</span></div>
 
 
-<div class="viewcode-block" id="PointsMatcher"><a class="viewcode-back" href="../../../../docs/reference/_autosummary/datumaro.components.annotations.merger.html#datumaro.components.annotations.matcher.PointsMatcher">[docs]</a><span class="nd">@attrs</span><span class="p">(</span><span class="n">kw_only</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+<div class="viewcode-block" id="PointsMatcher">
+<a class="viewcode-back" href="../../../../docs/reference/_autosummary/datumaro.components.annotations.merger.html#datumaro.components.annotations.matcher.PointsMatcher">[docs]</a>
+<span class="nd">@attrs</span><span class="p">(</span><span class="n">kw_only</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 <span class="k">class</span> <span class="nc">PointsMatcher</span><span class="p">(</span><span class="n">ShapeMatcher</span><span class="p">):</span>
     <span class="n">sigma</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">list</span><span class="p">]</span> <span class="o">=</span> <span class="n">attrib</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
     <span class="n">instance_map</span> <span class="o">=</span> <span class="n">attrib</span><span class="p">(</span><span class="n">converter</span><span class="o">=</span><span class="nb">dict</span><span class="p">)</span>
 
-<div class="viewcode-block" id="PointsMatcher.distance"><a class="viewcode-back" href="../../../../docs/reference/_autosummary/datumaro.components.annotations.merger.html#datumaro.components.annotations.matcher.PointsMatcher.distance">[docs]</a>    <span class="k">def</span> <span class="nf">distance</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">):</span>
+<div class="viewcode-block" id="PointsMatcher.distance">
+<a class="viewcode-back" href="../../../../docs/reference/_autosummary/datumaro.components.annotations.merger.html#datumaro.components.annotations.matcher.PointsMatcher.distance">[docs]</a>
+    <span class="k">def</span> <span class="nf">distance</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">):</span>
         <span class="n">a_bbox</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">instance_map</span><span class="p">[</span><span class="nb">id</span><span class="p">(</span><span class="n">a</span><span class="p">)][</span><span class="mi">1</span><span class="p">]</span>
         <span class="n">b_bbox</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">instance_map</span><span class="p">[</span><span class="nb">id</span><span class="p">(</span><span class="n">b</span><span class="p">)][</span><span class="mi">1</span><span class="p">]</span>
         <span class="k">if</span> <span class="n">bbox_iou</span><span class="p">(</span><span class="n">a_bbox</span><span class="p">,</span> <span class="n">b_bbox</span><span class="p">)</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">:</span>
             <span class="k">return</span> <span class="mi">0</span>
         <span class="n">bbox</span> <span class="o">=</span> <span class="n">mean_bbox</span><span class="p">([</span><span class="n">a_bbox</span><span class="p">,</span> <span class="n">b_bbox</span><span class="p">])</span>
-        <span class="k">return</span> <span class="n">OKS</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">,</span> <span class="n">sigma</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">sigma</span><span class="p">,</span> <span class="n">bbox</span><span class="o">=</span><span class="n">bbox</span><span class="p">)</span></div></div>
+        <span class="k">return</span> <span class="n">OKS</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">,</span> <span class="n">sigma</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">sigma</span><span class="p">,</span> <span class="n">bbox</span><span class="o">=</span><span class="n">bbox</span><span class="p">)</span></div>
+</div>
 
 
-<div class="viewcode-block" id="LineMatcher"><a class="viewcode-back" href="../../../../docs/reference/_autosummary/datumaro.components.annotations.merger.html#datumaro.components.annotations.matcher.LineMatcher">[docs]</a><span class="nd">@attrs</span>
+
+<div class="viewcode-block" id="LineMatcher">
+<a class="viewcode-back" href="../../../../docs/reference/_autosummary/datumaro.components.annotations.merger.html#datumaro.components.annotations.matcher.LineMatcher">[docs]</a>
+<span class="nd">@attrs</span>
 <span class="k">class</span> <span class="nc">LineMatcher</span><span class="p">(</span><span class="n">ShapeMatcher</span><span class="p">):</span>
-<div class="viewcode-block" id="LineMatcher.distance"><a class="viewcode-back" href="../../../../docs/reference/_autosummary/datumaro.components.annotations.merger.html#datumaro.components.annotations.matcher.LineMatcher.distance">[docs]</a>    <span class="k">def</span> <span class="nf">distance</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">):</span>
+<div class="viewcode-block" id="LineMatcher.distance">
+<a class="viewcode-back" href="../../../../docs/reference/_autosummary/datumaro.components.annotations.merger.html#datumaro.components.annotations.matcher.LineMatcher.distance">[docs]</a>
+    <span class="k">def</span> <span class="nf">distance</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">):</span>
         <span class="c1"># Compute inter-line area by using the Trapezoid formulae</span>
         <span class="c1"># https://en.wikipedia.org/wiki/Trapezoidal_rule</span>
         <span class="c1"># Normalize by common bbox and get the bbox fill ratio</span>
@@ -676,43 +724,81 @@ document.write(`
 
         <span class="n">area</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">dists</span><span class="p">,</span> <span class="n">a_steps</span> <span class="o">+</span> <span class="n">b_steps</span><span class="p">)</span> <span class="o">*</span> <span class="mf">0.5</span> <span class="o">*</span> <span class="mf">0.5</span> <span class="o">/</span> <span class="nb">max</span><span class="p">(</span><span class="n">max_area</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">)</span>
 
-        <span class="k">return</span> <span class="nb">abs</span><span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="n">area</span><span class="p">)</span></div></div>
+        <span class="k">return</span> <span class="nb">abs</span><span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="n">area</span><span class="p">)</span></div>
+</div>
 
 
-<div class="viewcode-block" id="CaptionsMatcher"><a class="viewcode-back" href="../../../../docs/reference/_autosummary/datumaro.components.annotations.merger.html#datumaro.components.annotations.matcher.CaptionsMatcher">[docs]</a><span class="nd">@attrs</span>
+
+<div class="viewcode-block" id="CaptionsMatcher">
+<a class="viewcode-back" href="../../../../docs/reference/_autosummary/datumaro.components.annotations.merger.html#datumaro.components.annotations.matcher.CaptionsMatcher">[docs]</a>
+<span class="nd">@attrs</span>
 <span class="k">class</span> <span class="nc">CaptionsMatcher</span><span class="p">(</span><span class="n">AnnotationMatcher</span><span class="p">):</span>
-<div class="viewcode-block" id="CaptionsMatcher.match_annotations"><a class="viewcode-back" href="../../../../docs/reference/_autosummary/datumaro.components.annotations.merger.html#datumaro.components.annotations.matcher.CaptionsMatcher.match_annotations">[docs]</a>    <span class="k">def</span> <span class="nf">match_annotations</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sources</span><span class="p">):</span>
-        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">()</span></div></div>
+<div class="viewcode-block" id="CaptionsMatcher.match_annotations">
+<a class="viewcode-back" href="../../../../docs/reference/_autosummary/datumaro.components.annotations.merger.html#datumaro.components.annotations.matcher.CaptionsMatcher.match_annotations">[docs]</a>
+    <span class="k">def</span> <span class="nf">match_annotations</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sources</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">()</span></div>
+</div>
 
 
-<div class="viewcode-block" id="Cuboid3dMatcher"><a class="viewcode-back" href="../../../../docs/reference/_autosummary/datumaro.components.annotations.merger.html#datumaro.components.annotations.matcher.Cuboid3dMatcher">[docs]</a><span class="nd">@attrs</span>
+
+<div class="viewcode-block" id="Cuboid3dMatcher">
+<a class="viewcode-back" href="../../../../docs/reference/_autosummary/datumaro.components.annotations.merger.html#datumaro.components.annotations.matcher.Cuboid3dMatcher">[docs]</a>
+<span class="nd">@attrs</span>
 <span class="k">class</span> <span class="nc">Cuboid3dMatcher</span><span class="p">(</span><span class="n">ShapeMatcher</span><span class="p">):</span>
-<div class="viewcode-block" id="Cuboid3dMatcher.distance"><a class="viewcode-back" href="../../../../docs/reference/_autosummary/datumaro.components.annotations.merger.html#datumaro.components.annotations.matcher.Cuboid3dMatcher.distance">[docs]</a>    <span class="k">def</span> <span class="nf">distance</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">):</span>
-        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">()</span></div></div>
+<div class="viewcode-block" id="Cuboid3dMatcher.distance">
+<a class="viewcode-back" href="../../../../docs/reference/_autosummary/datumaro.components.annotations.merger.html#datumaro.components.annotations.matcher.Cuboid3dMatcher.distance">[docs]</a>
+    <span class="k">def</span> <span class="nf">distance</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">()</span></div>
+</div>
 
 
-<div class="viewcode-block" id="ImageAnnotationMatcher"><a class="viewcode-back" href="../../../../docs/reference/_autosummary/datumaro.components.annotations.merger.html#datumaro.components.annotations.matcher.ImageAnnotationMatcher">[docs]</a><span class="nd">@attrs</span>
+
+<div class="viewcode-block" id="ImageAnnotationMatcher">
+<a class="viewcode-back" href="../../../../docs/reference/_autosummary/datumaro.components.annotations.merger.html#datumaro.components.annotations.matcher.ImageAnnotationMatcher">[docs]</a>
+<span class="nd">@attrs</span>
 <span class="k">class</span> <span class="nc">ImageAnnotationMatcher</span><span class="p">(</span><span class="n">AnnotationMatcher</span><span class="p">):</span>
-<div class="viewcode-block" id="ImageAnnotationMatcher.match_annotations"><a class="viewcode-back" href="../../../../docs/reference/_autosummary/datumaro.components.annotations.merger.html#datumaro.components.annotations.matcher.ImageAnnotationMatcher.match_annotations">[docs]</a>    <span class="k">def</span> <span class="nf">match_annotations</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sources</span><span class="p">):</span>
-        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">()</span></div></div>
+<div class="viewcode-block" id="ImageAnnotationMatcher.match_annotations">
+<a class="viewcode-back" href="../../../../docs/reference/_autosummary/datumaro.components.annotations.merger.html#datumaro.components.annotations.matcher.ImageAnnotationMatcher.match_annotations">[docs]</a>
+    <span class="k">def</span> <span class="nf">match_annotations</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sources</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">()</span></div>
+</div>
 
 
-<div class="viewcode-block" id="HashKeyMatcher"><a class="viewcode-back" href="../../../../docs/reference/_autosummary/datumaro.components.annotations.merger.html#datumaro.components.annotations.matcher.HashKeyMatcher">[docs]</a><span class="nd">@attrs</span>
+
+<div class="viewcode-block" id="HashKeyMatcher">
+<a class="viewcode-back" href="../../../../docs/reference/_autosummary/datumaro.components.annotations.merger.html#datumaro.components.annotations.matcher.HashKeyMatcher">[docs]</a>
+<span class="nd">@attrs</span>
 <span class="k">class</span> <span class="nc">HashKeyMatcher</span><span class="p">(</span><span class="n">AnnotationMatcher</span><span class="p">):</span>
-<div class="viewcode-block" id="HashKeyMatcher.match_annotations"><a class="viewcode-back" href="../../../../docs/reference/_autosummary/datumaro.components.annotations.merger.html#datumaro.components.annotations.matcher.HashKeyMatcher.match_annotations">[docs]</a>    <span class="k">def</span> <span class="nf">match_annotations</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sources</span><span class="p">):</span>
-        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">()</span></div></div>
+<div class="viewcode-block" id="HashKeyMatcher.match_annotations">
+<a class="viewcode-back" href="../../../../docs/reference/_autosummary/datumaro.components.annotations.merger.html#datumaro.components.annotations.matcher.HashKeyMatcher.match_annotations">[docs]</a>
+    <span class="k">def</span> <span class="nf">match_annotations</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sources</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">()</span></div>
+</div>
 
 
-<div class="viewcode-block" id="FeatureVectorMatcher"><a class="viewcode-back" href="../../../../docs/reference/_autosummary/datumaro.components.annotations.merger.html#datumaro.components.annotations.matcher.FeatureVectorMatcher">[docs]</a><span class="nd">@attrs</span>
+
+<div class="viewcode-block" id="FeatureVectorMatcher">
+<a class="viewcode-back" href="../../../../docs/reference/_autosummary/datumaro.components.annotations.merger.html#datumaro.components.annotations.matcher.FeatureVectorMatcher">[docs]</a>
+<span class="nd">@attrs</span>
 <span class="k">class</span> <span class="nc">FeatureVectorMatcher</span><span class="p">(</span><span class="n">AnnotationMatcher</span><span class="p">):</span>
-<div class="viewcode-block" id="FeatureVectorMatcher.match_annotations"><a class="viewcode-back" href="../../../../docs/reference/_autosummary/datumaro.components.annotations.merger.html#datumaro.components.annotations.matcher.FeatureVectorMatcher.match_annotations">[docs]</a>    <span class="k">def</span> <span class="nf">match_annotations</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sources</span><span class="p">):</span>
-        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">()</span></div></div>
+<div class="viewcode-block" id="FeatureVectorMatcher.match_annotations">
+<a class="viewcode-back" href="../../../../docs/reference/_autosummary/datumaro.components.annotations.merger.html#datumaro.components.annotations.matcher.FeatureVectorMatcher.match_annotations">[docs]</a>
+    <span class="k">def</span> <span class="nf">match_annotations</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sources</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">()</span></div>
+</div>
 
 
-<div class="viewcode-block" id="TabularMatcher"><a class="viewcode-back" href="../../../../docs/reference/_autosummary/datumaro.components.annotations.merger.html#datumaro.components.annotations.matcher.TabularMatcher">[docs]</a><span class="nd">@attrs</span>
+
+<div class="viewcode-block" id="TabularMatcher">
+<a class="viewcode-back" href="../../../../docs/reference/_autosummary/datumaro.components.annotations.merger.html#datumaro.components.annotations.matcher.TabularMatcher">[docs]</a>
+<span class="nd">@attrs</span>
 <span class="k">class</span> <span class="nc">TabularMatcher</span><span class="p">(</span><span class="n">AnnotationMatcher</span><span class="p">):</span>
-<div class="viewcode-block" id="TabularMatcher.match_annotations"><a class="viewcode-back" href="../../../../docs/reference/_autosummary/datumaro.components.annotations.merger.html#datumaro.components.annotations.matcher.TabularMatcher.match_annotations">[docs]</a>    <span class="k">def</span> <span class="nf">match_annotations</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sources</span><span class="p">):</span>
-        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">()</span></div></div>
+<div class="viewcode-block" id="TabularMatcher.match_annotations">
+<a class="viewcode-back" href="../../../../docs/reference/_autosummary/datumaro.components.annotations.merger.html#datumaro.components.annotations.matcher.TabularMatcher.match_annotations">[docs]</a>
+    <span class="k">def</span> <span class="nf">match_annotations</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sources</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">()</span></div>
+</div>
+
 </pre></div>
 
                 </article>
@@ -755,7 +841,7 @@ document.write(`
         <div class="footer-item">
 
   <p class="sphinx-version">
-    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 5.3.0.
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 7.2.6.
     <br/>
   </p>
 </div>

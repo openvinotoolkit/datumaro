@@ -1,13 +1,12 @@
 
-
 <!DOCTYPE html>
 
 
-<html lang="en" data-content_root="" >
+<html lang="en" data-content_root="../../../" >
 
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
     <title>Missing Annotation Detection &#8212; Datumaro 1.6.0rc1 documentation</title>
   
@@ -29,27 +28,24 @@
 <link rel="preload" as="font" type="font/woff2" crossorigin href="../../../_static/vendor/fontawesome/6.5.1/webfonts/fa-brands-400.woff2" />
 <link rel="preload" as="font" type="font/woff2" crossorigin href="../../../_static/vendor/fontawesome/6.5.1/webfonts/fa-regular-400.woff2" />
 
-    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css" />
-    <link rel="stylesheet" type="text/css" href="../../../_static/copybutton.css" />
-    <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css" />
-    <link rel="stylesheet" type="text/css" href="../../../_static/design-style.1e8bd061cd6da7fc9cf755528e8ffc24.min.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=a746c00c" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css?v=eafc0fe6" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/design-style.1e8bd061cd6da7fc9cf755528e8ffc24.min.css?v=0a3b3ea7" />
     <link rel="stylesheet" type="text/css" href="../../../_static/nbsphinx-code-cells.css" />
-    <link rel="stylesheet" type="text/css" href="../../../_static/css/custom.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/css/custom.css?v=8b7c274f" />
   
   <!-- Pre-loaded scripts that we'll load fully later -->
   <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=8d27b9dea8ad943066ae" />
 <link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=8d27b9dea8ad943066ae" />
   <script src="../../../_static/vendor/fontawesome/6.5.1/js/all.min.js?digest=8d27b9dea8ad943066ae"></script>
 
-    <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
-    <script src="../../../_static/jquery.js"></script>
-    <script src="../../../_static/underscore.js"></script>
-    <script src="../../../_static/_sphinx_javascript_frameworks_compat.js"></script>
-    <script src="../../../_static/doctools.js"></script>
-    <script src="../../../_static/sphinx_highlight.js"></script>
-    <script src="../../../_static/clipboard.min.js"></script>
-    <script src="../../../_static/copybutton.js"></script>
-    <script src="../../../_static/design-tabs.js"></script>
+    <script src="../../../_static/documentation_options.js?v=82acb2b2"></script>
+    <script src="../../../_static/doctools.js?v=888ff710"></script>
+    <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../../../_static/copybutton.js?v=f281be69"></script>
+    <script src="../../../_static/design-tabs.js?v=36754332"></script>
     <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
     <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
@@ -659,14 +655,14 @@ document.write(`
                 <article class="bd-article">
                   
   <section id="Missing-Annotation-Detection">
-<h1>Missing Annotation Detection<a class="headerlink" href="#Missing-Annotation-Detection" title="Permalink to this heading">#</a></h1>
+<h1>Missing Annotation Detection<a class="headerlink" href="#Missing-Annotation-Detection" title="Link to this heading">#</a></h1>
 <p><a class="reference external" href="https://github.com/openvinotoolkit/datumaro/blob/develop/notebooks/16_missing_annotation_detection.ipynb"><img alt="Jupyter Notebook" src="https://img.shields.io/badge/jupyter-%23FA0F00.svg?style=for-the-badge&amp;logo=jupyter&amp;logoColor=white" /></a></p>
 <p>This tutorial covers how to identify missing annotations in datasets. Currently, it only supports the bounding box annotation type, so that the dataset for object detection tasks can benefit from this feature. it utilizes both <a class="reference external" href="https://github.com/openvinotoolkit/datumaro">Datumaro</a> and <a class="reference external" href="https://github.com/openvinotoolkit/training_extensions">OpenVINO™ Training Extensions</a> simultaneously. The reason for this is that it requires a trained model for the dataset in order to identify missing
 annotations.</p>
 <section id="Prerequisite">
-<h2>Prerequisite<a class="headerlink" href="#Prerequisite" title="Permalink to this heading">#</a></h2>
+<h2>Prerequisite<a class="headerlink" href="#Prerequisite" title="Link to this heading">#</a></h2>
 <section id="Download-Six-sided-Dice-dataset">
-<h3>Download Six-sided Dice dataset<a class="headerlink" href="#Download-Six-sided-Dice-dataset" title="Permalink to this heading">#</a></h3>
+<h3>Download Six-sided Dice dataset<a class="headerlink" href="#Download-Six-sided-Dice-dataset" title="Link to this heading">#</a></h3>
 <p>This is <a class="reference external" href="https://www.kaggle.com/datasets/nellbyler/d6-dice?resource=download">a download link for Six-sided Dice dataset in Kaggle</a>. Please download using this link and extract to your workspace directory. Then, you will have a <code class="docutils literal notranslate"><span class="pre">d6-dice</span></code> directory with annotations and images in YOLO format as follows.</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>d6-dice
 ├──<span class="w"> </span>Annotations
@@ -710,7 +706,7 @@ annotations.</p>
 </div>
 </section>
 <section id="Install-OpenVINO™-Training-Extensions">
-<h3>Install OpenVINO™ Training Extensions<a class="headerlink" href="#Install-OpenVINO™-Training-Extensions" title="Permalink to this heading">#</a></h3>
+<h3>Install OpenVINO™ Training Extensions<a class="headerlink" href="#Install-OpenVINO™-Training-Extensions" title="Link to this heading">#</a></h3>
 <p>For more details, please see this <a class="reference external" href="https://openvinotoolkit.github.io/training_extensions/latest/guide/get_started/quick_start_guide/installation.html">OpenVINO™ Training Extensions installation guide</a>.</p>
 <div class="nbinput nblast docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
@@ -723,7 +719,7 @@ annotations.</p>
 </section>
 </section>
 <section id="Synthesize-missing-annotation-using-Datumaro-Python-API">
-<h2>Synthesize missing annotation using Datumaro Python API<a class="headerlink" href="#Synthesize-missing-annotation-using-Datumaro-Python-API" title="Permalink to this heading">#</a></h2>
+<h2>Synthesize missing annotation using Datumaro Python API<a class="headerlink" href="#Synthesize-missing-annotation-using-Datumaro-Python-API" title="Link to this heading">#</a></h2>
 <p>In this section, we utilize the Datumaro Python API to synthesize missing annotations from the dataset. We import the d6-dice dataset and apply dataset transforms for subsequent stages. Initially, we divide the dataset into three subsets: train, val, and test for model training.</p>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[54]:
@@ -759,7 +755,7 @@ infos
 </pre></div></div>
 </div>
 <section id="Synthesize-Missing-Annotations">
-<h3>Synthesize Missing Annotations<a class="headerlink" href="#Synthesize-Missing-Annotations" title="Permalink to this heading">#</a></h3>
+<h3>Synthesize Missing Annotations<a class="headerlink" href="#Synthesize-Missing-Annotations" title="Link to this heading">#</a></h3>
 <p>We synthesize 4 training samples to have missing annotations. We randomly pick 4 samples from the training subset. If each item has <code class="docutils literal notranslate"><span class="pre">k</span></code> bounding boxes, we sample <code class="docutils literal notranslate"><span class="pre">k</span> <span class="pre">-</span> <span class="pre">1</span></code> bounding boxes and drop one bounding box as missing annotation. You can see that one bounding box for each item is missed in the following visualization.</p>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[55]:
@@ -806,26 +802,26 @@ infos
 </div>
 </section>
 <section id="Train-a-Model-and-Export-the-Trained-Detection-Model-Using-OpenVINO™-Training-Extensions">
-<h3>Train a Model and Export the Trained Detection Model Using OpenVINO™ Training Extensions<a class="headerlink" href="#Train-a-Model-and-Export-the-Trained-Detection-Model-Using-OpenVINO™-Training-Extensions" title="Permalink to this heading">#</a></h3>
+<h3>Train a Model and Export the Trained Detection Model Using OpenVINO™ Training Extensions<a class="headerlink" href="#Train-a-Model-and-Export-the-Trained-Detection-Model-Using-OpenVINO™-Training-Extensions" title="Link to this heading">#</a></h3>
 <p>In this step, we train a detection model using OpenVINO™ Training Extensions. To see the detail guides for OpenVINO™ Training Extensions usage, please see <a class="reference external" href="https://openvinotoolkit.github.io/training_extensions/latest/guide/tutorials/base/how_to_train/classification.html">How-To-Train</a>. In this example, we use the CLI command to train the model and export it to OpenVINO™ Intermediate Representation (IR). To use the model inference launcher in Datumaro, you should convert your model to
 OpenVINO™ IR. In this example, we choose <code class="docutils literal notranslate"><span class="pre">Custom_Object_Detection_Gen3_ATSS</span></code> model supported by OpenVINO™ Training Extensions.</p>
 <div class="nbinput nblast docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>!otx train Custom_Object_Detection_Gen3_ATSS \
-    --train-data-roots d6-dice-noisy \
-    --val-data-roots d6-dice-noisy \
-    -o outputs
-!otx export Custom_Object_Detection_Gen3_ATSS \
-    --load-weights outputs/models/weights.pth \
-    -o outputs
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="o">!</span>otx<span class="w"> </span>train<span class="w"> </span>Custom_Object_Detection_Gen3_ATSS<span class="w"> </span><span class="err">\</span>
+    <span class="o">--</span><span class="n">train</span><span class="o">-</span><span class="n">data</span><span class="o">-</span><span class="n">roots</span> <span class="n">d6</span><span class="o">-</span><span class="n">dice</span><span class="o">-</span><span class="n">noisy</span> \
+    <span class="o">--</span><span class="n">val</span><span class="o">-</span><span class="n">data</span><span class="o">-</span><span class="n">roots</span> <span class="n">d6</span><span class="o">-</span><span class="n">dice</span><span class="o">-</span><span class="n">noisy</span> \
+    <span class="o">-</span><span class="n">o</span> <span class="n">outputs</span>
+<span class="o">!</span>otx<span class="w"> </span><span class="nb">export</span><span class="w"> </span>Custom_Object_Detection_Gen3_ATSS<span class="w"> </span><span class="err">\</span>
+    <span class="o">--</span><span class="n">load</span><span class="o">-</span><span class="n">weights</span> <span class="n">outputs</span><span class="o">/</span><span class="n">models</span><span class="o">/</span><span class="n">weights</span><span class="o">.</span><span class="n">pth</span> \
+    <span class="o">-</span><span class="n">o</span> <span class="n">outputs</span>
 </pre></div>
 </div>
 </div>
 </section>
 <section id="Importing-the-Trained-Detection-Model">
-<h3>Importing the Trained Detection Model<a class="headerlink" href="#Importing-the-Trained-Detection-Model" title="Permalink to this heading">#</a></h3>
+<h3>Importing the Trained Detection Model<a class="headerlink" href="#Importing-the-Trained-Detection-Model" title="Link to this heading">#</a></h3>
 <p>In this step, we import the trained detection model and initiate model inference to obtain the predicted bounding boxes. The <code class="docutils literal notranslate"><span class="pre">OpenvinoLauncher</span></code> class is used, which requires the paths to the exported OpenVINO™ IR files and the path for the model interpreter, or the model name. Generally, <code class="docutils literal notranslate"><span class="pre">OpenvinoLauncher</span></code> requires the following arguments:</p>
 <ol class="arabic simple">
 <li><p>The <code class="docutils literal notranslate"><span class="pre">description</span></code> argument requires the XML file path that represents the model description.</p></li>
@@ -850,7 +846,7 @@ samples</a>, you do not need to implement you own model interpreter and omit <co
 </div>
 </section>
 <section id="Execute-MissingAnnotationDetection-Transform">
-<h3>Execute MissingAnnotationDetection Transform<a class="headerlink" href="#Execute-MissingAnnotationDetection-Transform" title="Permalink to this heading">#</a></h3>
+<h3>Execute MissingAnnotationDetection Transform<a class="headerlink" href="#Execute-MissingAnnotationDetection-Transform" title="Link to this heading">#</a></h3>
 <p>To identify missing annotations, you need to execute <code class="docutils literal notranslate"><span class="pre">MissingAnnotationDetection</span></code> transform on your dataset. It requires the <code class="docutils literal notranslate"><span class="pre">launcher</span></code> that we previously loaded from the OpenVINO™ IR. Additionally, there are two configuration parameters to control the behavior of the algorithm:</p>
 <ol class="arabic simple">
 <li><p>The <code class="docutils literal notranslate"><span class="pre">pairwise_dist</span></code> parameter specifies the distance metric used to measure the distance between two annotations (ground-truth annotation and model prediction). Typically, the distance metric used is Intersection over Union (IoU), which is bounded between 0 and 1. In this example, we used a value of 0.7, so that all predicted bounding boxes with an IoU greater than 0.7 with the ground-truth bounding boxes will be excluded from the outputs of the transform.</p></li>
@@ -895,7 +891,7 @@ transform.</p></li>
 </div>
 </section>
 <section id="Merge-the-Missing-Annotations-with-the-Source-Dataset">
-<h3>Merge the Missing Annotations with the Source Dataset<a class="headerlink" href="#Merge-the-Missing-Annotations-with-the-Source-Dataset" title="Permalink to this heading">#</a></h3>
+<h3>Merge the Missing Annotations with the Source Dataset<a class="headerlink" href="#Merge-the-Missing-Annotations-with-the-Source-Dataset" title="Link to this heading">#</a></h3>
 <p>Having successfully identified the missing annotations in the dataset, the next step is to merge these annotations with the source dataset. This can be achieved using the <code class="docutils literal notranslate"><span class="pre">intersect</span></code> merge strategy provided by Datumaro. The <code class="docutils literal notranslate"><span class="pre">intersect</span></code> strategy combines two sets of annotations belonging to images that exist in both datasets. The merging process involves selecting annotations that do not have spatial overlaps between the two sets. By applying the <code class="docutils literal notranslate"><span class="pre">intersect</span></code> merge strategy, we obtain a
 unified dataset that includes the images with the merged annotations.</p>
 <div class="nbinput docutils container">
@@ -1026,7 +1022,7 @@ unified dataset that includes the images with the merged annotations.</p>
         <div class="footer-item">
 
   <p class="sphinx-version">
-    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 5.3.0.
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 7.2.6.
     <br/>
   </p>
 </div>

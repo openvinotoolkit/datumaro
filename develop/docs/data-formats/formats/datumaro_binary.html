@@ -1,13 +1,12 @@
 
-
 <!DOCTYPE html>
 
 
-<html lang="en" data-content_root="" >
+<html lang="en" data-content_root="../../../" >
 
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
     <title>DatumaroBinary &#8212; Datumaro 1.6.0rc1 documentation</title>
   
@@ -29,26 +28,23 @@
 <link rel="preload" as="font" type="font/woff2" crossorigin href="../../../_static/vendor/fontawesome/6.5.1/webfonts/fa-brands-400.woff2" />
 <link rel="preload" as="font" type="font/woff2" crossorigin href="../../../_static/vendor/fontawesome/6.5.1/webfonts/fa-regular-400.woff2" />
 
-    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css" />
-    <link rel="stylesheet" type="text/css" href="../../../_static/copybutton.css" />
-    <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css" />
-    <link rel="stylesheet" type="text/css" href="../../../_static/design-style.1e8bd061cd6da7fc9cf755528e8ffc24.min.css" />
-    <link rel="stylesheet" type="text/css" href="../../../_static/css/custom.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=a746c00c" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css?v=eafc0fe6" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/design-style.1e8bd061cd6da7fc9cf755528e8ffc24.min.css?v=0a3b3ea7" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/css/custom.css?v=8b7c274f" />
   
   <!-- Pre-loaded scripts that we'll load fully later -->
   <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=8d27b9dea8ad943066ae" />
 <link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=8d27b9dea8ad943066ae" />
   <script src="../../../_static/vendor/fontawesome/6.5.1/js/all.min.js?digest=8d27b9dea8ad943066ae"></script>
 
-    <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
-    <script src="../../../_static/jquery.js"></script>
-    <script src="../../../_static/underscore.js"></script>
-    <script src="../../../_static/_sphinx_javascript_frameworks_compat.js"></script>
-    <script src="../../../_static/doctools.js"></script>
-    <script src="../../../_static/sphinx_highlight.js"></script>
-    <script src="../../../_static/clipboard.min.js"></script>
-    <script src="../../../_static/copybutton.js"></script>
-    <script src="../../../_static/design-tabs.js"></script>
+    <script src="../../../_static/documentation_options.js?v=82acb2b2"></script>
+    <script src="../../../_static/doctools.js?v=888ff710"></script>
+    <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../../../_static/copybutton.js?v=f281be69"></script>
+    <script src="../../../_static/design-tabs.js?v=36754332"></script>
     <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <script>DOCUMENTATION_OPTIONS.pagename = 'docs/data-formats/formats/datumaro_binary';</script>
     <link rel="index" title="Index" href="../../../genindex.html" />
@@ -656,9 +652,9 @@ document.write(`
                 <article class="bd-article">
                   
   <section id="datumarobinary">
-<h1>DatumaroBinary<a class="headerlink" href="#datumarobinary" title="Permalink to this heading">#</a></h1>
+<h1>DatumaroBinary<a class="headerlink" href="#datumarobinary" title="Link to this heading">#</a></h1>
 <section id="format-specification">
-<h2>Format specification<a class="headerlink" href="#format-specification" title="Permalink to this heading">#</a></h2>
+<h2>Format specification<a class="headerlink" href="#format-specification" title="Link to this heading">#</a></h2>
 <p>DatumaroBinary format is <a class="reference external" href="https://github.com/openvinotoolkit/datumaro">Datumaro</a>’s own data format as same as <a class="reference internal" href="datumaro.html"><span class="std std-doc">Datumaro format</span></a>.
 Basically, it provides the same function as <a class="reference internal" href="datumaro.html"><span class="std std-doc">Datumaro format</span></a>,
 but the difference is that the annotation file is not JSON but binary format.
@@ -669,7 +665,7 @@ Including changes in the file format, DatumaroBinary provides three key features
 <li><p><a class="reference internal" href="#multi-processing-import-and-export"><span class="std std-ref">Multi-processing import and export</span></a></p></li>
 </ol>
 <section id="efficient-storage-cost">
-<h3>Efficient storage cost<a class="headerlink" href="#efficient-storage-cost" title="Permalink to this heading">#</a></h3>
+<h3>Efficient storage cost<a class="headerlink" href="#efficient-storage-cost" title="Link to this heading">#</a></h3>
 <p>While JSON annotation file in the <a class="reference internal" href="datumaro.html"><span class="std std-doc">Datumaro format</span></a> has the advantage of being easily viewable using any text viewer,
 the DatumaroBinary format takes up significantly less storage space since it is schemaless and stores data in binary form.
 To demonstrate the storage cost-effectiveness of DatumaroBinary,
@@ -710,15 +706,15 @@ The table below shows the sizes of each format:</p>
 </div>
 </section>
 <section id="dataset-encryption">
-<h3>Dataset encryption<a class="headerlink" href="#dataset-encryption" title="Permalink to this heading">#</a></h3>
+<h3>Dataset encryption<a class="headerlink" href="#dataset-encryption" title="Link to this heading">#</a></h3>
 <p>Another advantage of the DatumaroBinary format is that it supports dataset encryption. If your dataset is hijacked by a potential attacker and you are concerned that your intellectual properties may be damaged, you can use this feature to protect your dataset from attackers. Enabling the dataset encryption feature allows you to encrypt both annotations and media or only the annotations. If you export the dataset to DatumaroBinary format with encryption, the secret key is automatically generated at the same time. You must keep this secret key separate from the exported dataset. This is because the secret key should be needed to read the exported dataset. Therefore, you have to be careful not to lose the secret key. If you would like to see an example of dataset encryption using Datumaro’s Python API, please see <a class="reference external" href="https://github.com/openvinotoolkit/datumaro/blob/develop/notebooks/09_encrypt_dataset.ipynb">here</a>. For CLI usage of encryption, please see <a class="reference internal" href="#import-encrypted-datasets"><span class="std std-ref">Import encrypted datasets</span></a> and <a class="reference internal" href="#export-datasets-with-encryption"><span class="std std-ref">Export datasets with encryption</span></a> sections.</p>
 </section>
 <section id="multi-processing-import-and-export">
-<h3>Multi-processing import and export<a class="headerlink" href="#multi-processing-import-and-export" title="Permalink to this heading">#</a></h3>
+<h3>Multi-processing import and export<a class="headerlink" href="#multi-processing-import-and-export" title="Link to this heading">#</a></h3>
 <p>The DatumaroBinary format stores annotation file data as several blobs by sharding, making it easy to export and import using multi-processing. Therefore, this format is suitable to accelerate export and import performance by utilizing multiple cores. You can enable this feature from the CLI or Python API. In the CLI, add <code class="docutils literal notranslate"><span class="pre">--num-workers</span> <span class="pre">#</span></code> extra argument, while in the Python API, use extra parameters such as <code class="docutils literal notranslate"><span class="pre">num_workers=#</span></code>. You can check examples of both methods: <a class="reference internal" href="#import-datasets-with-multi-processing"><span class="std std-ref">Import datasets with multi-processing</span></a> and <a class="reference internal" href="#export-datasets-with-multi-processing"><span class="std std-ref">Export datasets with multi-processing</span></a>.</p>
 </section>
 <section id="usage-for-model-training">
-<h3>Usage for model training<a class="headerlink" href="#usage-for-model-training" title="Permalink to this heading">#</a></h3>
+<h3>Usage for model training<a class="headerlink" href="#usage-for-model-training" title="Link to this heading">#</a></h3>
 <p>You can directly use the DatumaroBinary format for the model training using <a class="reference external" href="https://github.com/openvinotoolkit/training_extensions">OpenVINO™ Training Extensions</a>.</p>
 <p>Supported media types:</p>
 <ul class="simple">
@@ -745,7 +741,7 @@ The table below shows the sizes of each format:</p>
 </section>
 </section>
 <section id="import-datumarobinary-dataset">
-<h2>Import DatumaroBinary dataset<a class="headerlink" href="#import-datumarobinary-dataset" title="Permalink to this heading">#</a></h2>
+<h2>Import DatumaroBinary dataset<a class="headerlink" href="#import-datumarobinary-dataset" title="Link to this heading">#</a></h2>
 <p>A Datumaro project with a DatumaroBinary source can be created in the following way:</p>
 <div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">datum project create</span>
 <span class="go">datum project import --format datumaro_binary &lt;path/to/dataset&gt;</span>
@@ -779,7 +775,7 @@ it cannot detect and import your dataset as the DatumaroBinary format properly.<
 <p>To make sure that the selected dataset has been added to the project, you can
 run <code class="docutils literal notranslate"><span class="pre">datum</span> <span class="pre">project</span> <span class="pre">info</span></code>, which will display the project information.</p>
 <section id="import-encrypted-datasets">
-<h3>Import encrypted datasets<a class="headerlink" href="#import-encrypted-datasets" title="Permalink to this heading">#</a></h3>
+<h3>Import encrypted datasets<a class="headerlink" href="#import-encrypted-datasets" title="Link to this heading">#</a></h3>
 <p>If you want to import the dataset with encryption, please give <code class="docutils literal notranslate"><span class="pre">--encryption-key</span> <span class="pre">&lt;secret-key&gt;</span></code> to the optional arguments:</p>
 <div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">datum project create</span>
 <span class="go">datum project import --format datumaro_binary &lt;path/to/dataset&gt; -- --encryption-key &lt;secret-key&gt;</span>
@@ -788,7 +784,7 @@ run <code class="docutils literal notranslate"><span class="pre">datum</span> <s
 <p><code class="docutils literal notranslate"><span class="pre">&lt;secret-key&gt;</span></code> is a 50-bytes long base64 encoded string prefixed with <code class="docutils literal notranslate"><span class="pre">datum-</span></code>. It is auto-generated in <code class="docutils literal notranslate"><span class="pre">&lt;output/dir&gt;/secret_key.txt</span></code> when the dataset is exported to DatumaroBinary format with <code class="docutils literal notranslate"><span class="pre">--encryption</span></code> option. You must have a correct <code class="docutils literal notranslate"><span class="pre">&lt;secret-key&gt;</span></code> to import the dataset encrypted by Datumaro.</p>
 </section>
 <section id="import-datasets-with-multi-processing">
-<h3>Import datasets with multi-processing<a class="headerlink" href="#import-datasets-with-multi-processing" title="Permalink to this heading">#</a></h3>
+<h3>Import datasets with multi-processing<a class="headerlink" href="#import-datasets-with-multi-processing" title="Link to this heading">#</a></h3>
 <p>Using CLI</p>
 <div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp"># </span>Import<span class="w"> </span>DatumaroBinary<span class="w"> </span>format<span class="w"> </span>dataset<span class="w"> </span>with<span class="w"> </span><span class="m">4</span><span class="w"> </span>multi-processing<span class="w"> </span>workers
 <span class="go">datum project create</span>
@@ -810,7 +806,7 @@ run <code class="docutils literal notranslate"><span class="pre">datum</span> <s
 </section>
 </section>
 <section id="export-to-other-formats">
-<h2>Export to other formats<a class="headerlink" href="#export-to-other-formats" title="Permalink to this heading">#</a></h2>
+<h2>Export to other formats<a class="headerlink" href="#export-to-other-formats" title="Link to this heading">#</a></h2>
 <p>It can convert DatumaroBinary dataset into any other format <a class="reference internal" href="index.html"><span class="std std-doc">Datumaro supports</span></a>.
 To get the expected result, convert the dataset to formats
 that support the specified task (e.g. for panoptic segmentation - VOC, CamVID)</p>
@@ -837,7 +833,7 @@ using CLI:</p>
 </div>
 </section>
 <section id="export-to-datumarobinary">
-<h2>Export to DatumaroBinary<a class="headerlink" href="#export-to-datumarobinary" title="Permalink to this heading">#</a></h2>
+<h2>Export to DatumaroBinary<a class="headerlink" href="#export-to-datumarobinary" title="Link to this heading">#</a></h2>
 <p>There are several ways to convert a dataset to DatumaroBinary format:</p>
 <ul class="simple">
 <li><p>Export a dataset from an existing project to DatumaroBinary:</p></li>
@@ -857,7 +853,7 @@ using CLI:</p>
 </div>
 </section>
 <section id="export-datasets-with-encryption">
-<h2>Export datasets with encryption<a class="headerlink" href="#export-datasets-with-encryption" title="Permalink to this heading">#</a></h2>
+<h2>Export datasets with encryption<a class="headerlink" href="#export-datasets-with-encryption" title="Link to this heading">#</a></h2>
 <p>If you want to encrypt your dataset, please add ``–encryption` directive to your command:</p>
 <div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp"># </span><span class="nb">export</span><span class="w"> </span>dataset<span class="w"> </span>into<span class="w"> </span>DatumaroBinary<span class="w"> </span>format<span class="w"> </span>from<span class="w"> </span>existing<span class="w"> </span>project
 <span class="go">datum project export -p &lt;path/to/project&gt; -f datumaro_binary -o &lt;output/dir&gt; \</span>
@@ -876,7 +872,7 @@ Please keep your secret key file seperate from the exported dataset. The secret 
 </div>
 </section>
 <section id="export-datasets-with-multi-processing">
-<h2>Export datasets with multi-processing<a class="headerlink" href="#export-datasets-with-multi-processing" title="Permalink to this heading">#</a></h2>
+<h2>Export datasets with multi-processing<a class="headerlink" href="#export-datasets-with-multi-processing" title="Link to this heading">#</a></h2>
 <p>Using CLI</p>
 <div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp"># </span>Export<span class="w"> </span>dataset<span class="w"> </span>into<span class="w"> </span>DatumaroBinary<span class="w"> </span>with<span class="w"> </span><span class="m">4</span><span class="w"> </span>multi-processing<span class="w"> </span>workers
 <span class="go">datum project export -p &lt;path/to/project&gt; -f datumaro_binary -o &lt;output/dir&gt; \</span>
@@ -900,7 +896,7 @@ Please keep your secret key file seperate from the exported dataset. The secret 
 </ul>
 </section>
 <section id="examples">
-<h2>Examples<a class="headerlink" href="#examples" title="Permalink to this heading">#</a></h2>
+<h2>Examples<a class="headerlink" href="#examples" title="Link to this heading">#</a></h2>
 <p>Examples of using this format from the code can be found in
 <a class="reference external" href="https://github.com/openvinotoolkit/datumaro/tree/develop/tests/unit/data_formats/datumaro/test_datumaro_format.py">the format tests</a></p>
 </section>
@@ -1005,7 +1001,7 @@ Please keep your secret key file seperate from the exported dataset. The secret 
         <div class="footer-item">
 
   <p class="sphinx-version">
-    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 5.3.0.
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 7.2.6.
     <br/>
   </p>
 </div>

@@ -1,13 +1,12 @@
 
-
 <!DOCTYPE html>
 
 
-<html lang="en" data-content_root="" >
+<html lang="en" data-content_root="../../" >
 
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
     <title>Extending &#8212; Datumaro 1.6.0rc1 documentation</title>
   
@@ -29,26 +28,23 @@
 <link rel="preload" as="font" type="font/woff2" crossorigin href="../../_static/vendor/fontawesome/6.5.1/webfonts/fa-brands-400.woff2" />
 <link rel="preload" as="font" type="font/woff2" crossorigin href="../../_static/vendor/fontawesome/6.5.1/webfonts/fa-regular-400.woff2" />
 
-    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css" />
-    <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css" />
-    <link rel="stylesheet" type="text/css" href="../../_static/graphviz.css" />
-    <link rel="stylesheet" type="text/css" href="../../_static/design-style.1e8bd061cd6da7fc9cf755528e8ffc24.min.css" />
-    <link rel="stylesheet" type="text/css" href="../../_static/css/custom.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=a746c00c" />
+    <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../../_static/graphviz.css?v=eafc0fe6" />
+    <link rel="stylesheet" type="text/css" href="../../_static/design-style.1e8bd061cd6da7fc9cf755528e8ffc24.min.css?v=0a3b3ea7" />
+    <link rel="stylesheet" type="text/css" href="../../_static/css/custom.css?v=8b7c274f" />
   
   <!-- Pre-loaded scripts that we'll load fully later -->
   <link rel="preload" as="script" href="../../_static/scripts/bootstrap.js?digest=8d27b9dea8ad943066ae" />
 <link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js?digest=8d27b9dea8ad943066ae" />
   <script src="../../_static/vendor/fontawesome/6.5.1/js/all.min.js?digest=8d27b9dea8ad943066ae"></script>
 
-    <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
-    <script src="../../_static/jquery.js"></script>
-    <script src="../../_static/underscore.js"></script>
-    <script src="../../_static/_sphinx_javascript_frameworks_compat.js"></script>
-    <script src="../../_static/doctools.js"></script>
-    <script src="../../_static/sphinx_highlight.js"></script>
-    <script src="../../_static/clipboard.min.js"></script>
-    <script src="../../_static/copybutton.js"></script>
-    <script src="../../_static/design-tabs.js"></script>
+    <script src="../../_static/documentation_options.js?v=82acb2b2"></script>
+    <script src="../../_static/doctools.js?v=888ff710"></script>
+    <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../../_static/copybutton.js?v=f281be69"></script>
+    <script src="../../_static/design-tabs.js?v=36754332"></script>
     <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <script>DOCUMENTATION_OPTIONS.pagename = 'docs/user-manual/extending';</script>
     <link rel="index" title="Index" href="../../genindex.html" />
@@ -653,7 +649,7 @@ document.write(`
                 <article class="bd-article">
                   
   <section id="extending">
-<h1>Extending<a class="headerlink" href="#extending" title="Permalink to this heading">#</a></h1>
+<h1>Extending<a class="headerlink" href="#extending" title="Link to this heading">#</a></h1>
 <p>There are few ways to extend and customize Datumaro behavior, which is
 supported by plugins. Check <a class="reference external" href="https://github.com/openvinotoolkit/datumaro/blob/develop/contributing.md">our contribution guide</a>
 for details on plugin implementation. In general, a plugin is a Python module.
@@ -663,11 +659,11 @@ It must be put into a plugin directory:</p>
 <li><p><code class="docutils literal notranslate"><span class="pre">&lt;datumaro_dir&gt;/plugins</span></code> for global plugins</p></li>
 </ul>
 <section id="built-in-plugins">
-<h2>Built-in plugins<a class="headerlink" href="#built-in-plugins" title="Permalink to this heading">#</a></h2>
+<h2>Built-in plugins<a class="headerlink" href="#built-in-plugins" title="Link to this heading">#</a></h2>
 <p>Datumaro provides several builtin plugins. Plugins can have dependencies,
 which need to be installed separately.</p>
 <section id="tensorflow">
-<h3>TensorFlow<a class="headerlink" href="#tensorflow" title="Permalink to this heading">#</a></h3>
+<h3>TensorFlow<a class="headerlink" href="#tensorflow" title="Link to this heading">#</a></h3>
 <p>The plugin provides support of TensorFlow Detection API format, which includes
 boxes and masks.</p>
 <p><strong>Dependencies</strong></p>
@@ -689,7 +685,7 @@ boxes and masks.</p>
 </div>
 </section>
 <section id="accuracy-checker">
-<h3>Accuracy Checker<a class="headerlink" href="#accuracy-checker" title="Permalink to this heading">#</a></h3>
+<h3>Accuracy Checker<a class="headerlink" href="#accuracy-checker" title="Link to this heading">#</a></h3>
 <p>This plugin allows to use <a class="reference external" href="https://github.com/openvinotoolkit/open_model_zoo/tree/master/tools/accuracy_checker">Accuracy Checker</a>
 to launch deep learning models from various frameworks
 (Caffe, MxNet, PyTorch, OpenVINO, …) through Accuracy Checker’s API.</p>
@@ -701,7 +697,7 @@ to launch deep learning models from various frameworks
 <p>To execute models with deep learning frameworks, they need to be installed too.</p>
 </section>
 <section id="openvino">
-<h3>OpenVINO™<a class="headerlink" href="#openvino" title="Permalink to this heading">#</a></h3>
+<h3>OpenVINO™<a class="headerlink" href="#openvino" title="Link to this heading">#</a></h3>
 <p>This plugin provides support for model inference with <a class="reference external" href="https://01.org/openvinotoolkit">OpenVINO™</a>.</p>
 <p><strong>Dependencies</strong></p>
 <p>The plugin depends on the OpenVINO™ Toolkit, which can be installed by
@@ -709,7 +705,7 @@ following <a class="reference external" href="https://docs.openvino.ai/latest/op
 </section>
 </section>
 <section id="dataset-formats">
-<h2>Dataset Formats<a class="headerlink" href="#dataset-formats" title="Permalink to this heading">#</a></h2>
+<h2>Dataset Formats<a class="headerlink" href="#dataset-formats" title="Link to this heading">#</a></h2>
 <p>Dataset reading is supported by Extractors and Importers.
 An Extractor produces a list of dataset items corresponding
 to the dataset. An Importer creates a project from the data source location.
@@ -721,14 +717,14 @@ It is possible to add custom Converters. To do this, you need to put a Converter
 implementation script to a plugin directory.</p>
 </section>
 <section id="dataset-conversions-transforms">
-<h2>Dataset Conversions (“Transforms”)<a class="headerlink" href="#dataset-conversions-transforms" title="Permalink to this heading">#</a></h2>
+<h2>Dataset Conversions (“Transforms”)<a class="headerlink" href="#dataset-conversions-transforms" title="Link to this heading">#</a></h2>
 <p>A Transform is a function for altering a dataset and producing a new one.
 It can update dataset items, annotations, classes, and other properties.
 A list of available transforms for dataset conversions can be extended by
 adding a Transform implementation script into a plugin directory.</p>
 </section>
 <section id="model-launchers">
-<h2>Model launchers<a class="headerlink" href="#model-launchers" title="Permalink to this heading">#</a></h2>
+<h2>Model launchers<a class="headerlink" href="#model-launchers" title="Link to this heading">#</a></h2>
 <p>A list of available launchers for model execution can be extended by adding
 a Launcher implementation script into a plugin directory.</p>
 </section>
@@ -825,7 +821,7 @@ a Launcher implementation script into a plugin directory.</p>
         <div class="footer-item">
 
   <p class="sphinx-version">
-    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 5.3.0.
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 7.2.6.
     <br/>
   </p>
 </div>

@@ -1,9 +1,8 @@
 
-
 <!DOCTYPE html>
 
 
-<html lang="en" data-content_root="" >
+<html lang="en" data-content_root="../../../" >
 
   <head>
     <meta charset="utf-8" />
@@ -28,26 +27,23 @@
 <link rel="preload" as="font" type="font/woff2" crossorigin href="../../../_static/vendor/fontawesome/6.5.1/webfonts/fa-brands-400.woff2" />
 <link rel="preload" as="font" type="font/woff2" crossorigin href="../../../_static/vendor/fontawesome/6.5.1/webfonts/fa-regular-400.woff2" />
 
-    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css" />
-    <link rel="stylesheet" type="text/css" href="../../../_static/copybutton.css" />
-    <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css" />
-    <link rel="stylesheet" type="text/css" href="../../../_static/design-style.1e8bd061cd6da7fc9cf755528e8ffc24.min.css" />
-    <link rel="stylesheet" type="text/css" href="../../../_static/css/custom.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=a746c00c" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css?v=eafc0fe6" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/design-style.1e8bd061cd6da7fc9cf755528e8ffc24.min.css?v=0a3b3ea7" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/css/custom.css?v=8b7c274f" />
   
   <!-- Pre-loaded scripts that we'll load fully later -->
   <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=8d27b9dea8ad943066ae" />
 <link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=8d27b9dea8ad943066ae" />
   <script src="../../../_static/vendor/fontawesome/6.5.1/js/all.min.js?digest=8d27b9dea8ad943066ae"></script>
 
-    <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
-    <script src="../../../_static/jquery.js"></script>
-    <script src="../../../_static/underscore.js"></script>
-    <script src="../../../_static/_sphinx_javascript_frameworks_compat.js"></script>
-    <script src="../../../_static/doctools.js"></script>
-    <script src="../../../_static/sphinx_highlight.js"></script>
-    <script src="../../../_static/clipboard.min.js"></script>
-    <script src="../../../_static/copybutton.js"></script>
-    <script src="../../../_static/design-tabs.js"></script>
+    <script src="../../../_static/documentation_options.js?v=82acb2b2"></script>
+    <script src="../../../_static/doctools.js?v=888ff710"></script>
+    <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../../../_static/copybutton.js?v=f281be69"></script>
+    <script src="../../../_static/design-tabs.js?v=36754332"></script>
     <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <script>DOCUMENTATION_OPTIONS.pagename = '_modules/datumaro/components/environment';</script>
     <link rel="index" title="Index" href="../../../genindex.html" />
@@ -376,7 +372,9 @@ document.write(`
 <span class="kn">from</span> <span class="nn">datumaro.util.os_util</span> <span class="kn">import</span> <span class="n">get_all_file_extensions</span><span class="p">,</span> <span class="n">import_foreign_module</span><span class="p">,</span> <span class="n">split_path</span>
 
 
-<div class="viewcode-block" id="Environment"><a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.components.hl_ops.html#datumaro.components.dataset.Environment">[docs]</a><span class="k">class</span> <span class="nc">Environment</span><span class="p">:</span>
+<div class="viewcode-block" id="Environment">
+<a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.components.hl_ops.html#datumaro.components.dataset.Environment">[docs]</a>
+<span class="k">class</span> <span class="nc">Environment</span><span class="p">:</span>
     <span class="n">_builtin_plugins</span> <span class="o">=</span> <span class="kc">None</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">use_lazy_import</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">):</span>
@@ -524,13 +522,16 @@ document.write(`
             <span class="bp">cls</span><span class="o">.</span><span class="n">_builtin_plugins</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="n">_load_plugins</span><span class="p">(</span><span class="n">module_names</span><span class="p">,</span> <span class="n">importer</span><span class="o">=</span><span class="n">importlib</span><span class="o">.</span><span class="n">import_module</span><span class="p">)</span>
         <span class="k">return</span> <span class="bp">cls</span><span class="o">.</span><span class="n">_builtin_plugins</span>
 
-<div class="viewcode-block" id="Environment.load_plugins"><a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.components.hl_ops.html#datumaro.components.dataset.Environment.load_plugins">[docs]</a>    <span class="k">def</span> <span class="nf">load_plugins</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">plugins_dir</span><span class="p">):</span>
+<div class="viewcode-block" id="Environment.load_plugins">
+<a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.components.hl_ops.html#datumaro.components.dataset.Environment.load_plugins">[docs]</a>
+    <span class="k">def</span> <span class="nf">load_plugins</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">plugins_dir</span><span class="p">):</span>
         <span class="n">module_names</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_find_plugins</span><span class="p">(</span><span class="n">plugins_dir</span><span class="p">)</span>
         <span class="n">plugins</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_load_plugins</span><span class="p">(</span>
             <span class="n">module_names</span><span class="p">,</span> <span class="n">importer</span><span class="o">=</span><span class="n">partial</span><span class="p">(</span><span class="n">import_foreign_module</span><span class="p">,</span> <span class="n">path</span><span class="o">=</span><span class="n">plugins_dir</span><span class="p">)</span>
         <span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">register_plugins</span><span class="p">(</span><span class="n">plugins</span><span class="p">)</span></div>
+
 
     <span class="k">def</span> <span class="nf">_register_builtin_plugins</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">register_plugins</span><span class="p">(</span>
@@ -539,7 +540,9 @@ document.write(`
             <span class="k">else</span> <span class="bp">self</span><span class="o">.</span><span class="n">_load_builtin_plugins_from_importlib</span><span class="p">()</span>
         <span class="p">)</span>
 
-<div class="viewcode-block" id="Environment.register_plugins"><a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.components.hl_ops.html#datumaro.components.dataset.Environment.register_plugins">[docs]</a>    <span class="k">def</span> <span class="nf">register_plugins</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">plugins</span><span class="p">):</span>
+<div class="viewcode-block" id="Environment.register_plugins">
+<a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.components.hl_ops.html#datumaro.components.dataset.Environment.register_plugins">[docs]</a>
+    <span class="k">def</span> <span class="nf">register_plugins</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">plugins</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">extractors</span><span class="o">.</span><span class="n">batch_register</span><span class="p">(</span><span class="n">plugins</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">importers</span><span class="o">.</span><span class="n">batch_register</span><span class="p">(</span><span class="n">plugins</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">launchers</span><span class="o">.</span><span class="n">batch_register</span><span class="p">(</span><span class="n">plugins</span><span class="p">)</span>
@@ -548,28 +551,49 @@ document.write(`
         <span class="bp">self</span><span class="o">.</span><span class="n">transforms</span><span class="o">.</span><span class="n">batch_register</span><span class="p">(</span><span class="n">plugins</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">validators</span><span class="o">.</span><span class="n">batch_register</span><span class="p">(</span><span class="n">plugins</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="Environment.make_extractor"><a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.components.hl_ops.html#datumaro.components.dataset.Environment.make_extractor">[docs]</a>    <span class="k">def</span> <span class="nf">make_extractor</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+
+<div class="viewcode-block" id="Environment.make_extractor">
+<a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.components.hl_ops.html#datumaro.components.dataset.Environment.make_extractor">[docs]</a>
+    <span class="k">def</span> <span class="nf">make_extractor</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">extractors</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">name</span><span class="p">)(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="Environment.make_importer"><a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.components.hl_ops.html#datumaro.components.dataset.Environment.make_importer">[docs]</a>    <span class="k">def</span> <span class="nf">make_importer</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+
+<div class="viewcode-block" id="Environment.make_importer">
+<a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.components.hl_ops.html#datumaro.components.dataset.Environment.make_importer">[docs]</a>
+    <span class="k">def</span> <span class="nf">make_importer</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">importers</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">name</span><span class="p">)(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="Environment.make_launcher"><a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.components.hl_ops.html#datumaro.components.dataset.Environment.make_launcher">[docs]</a>    <span class="k">def</span> <span class="nf">make_launcher</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+
+<div class="viewcode-block" id="Environment.make_launcher">
+<a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.components.hl_ops.html#datumaro.components.dataset.Environment.make_launcher">[docs]</a>
+    <span class="k">def</span> <span class="nf">make_launcher</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">launchers</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">name</span><span class="p">)(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="Environment.make_exporter"><a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.components.hl_ops.html#datumaro.components.dataset.Environment.make_exporter">[docs]</a>    <span class="k">def</span> <span class="nf">make_exporter</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+
+<div class="viewcode-block" id="Environment.make_exporter">
+<a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.components.hl_ops.html#datumaro.components.dataset.Environment.make_exporter">[docs]</a>
+    <span class="k">def</span> <span class="nf">make_exporter</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="n">result</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">exporters</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">isclass</span><span class="p">(</span><span class="n">result</span><span class="p">):</span>
             <span class="n">result</span> <span class="o">=</span> <span class="n">result</span><span class="o">.</span><span class="n">convert</span>
         <span class="k">return</span> <span class="n">partial</span><span class="p">(</span><span class="n">result</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="Environment.make_transform"><a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.components.hl_ops.html#datumaro.components.dataset.Environment.make_transform">[docs]</a>    <span class="k">def</span> <span class="nf">make_transform</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+
+<div class="viewcode-block" id="Environment.make_transform">
+<a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.components.hl_ops.html#datumaro.components.dataset.Environment.make_transform">[docs]</a>
+    <span class="k">def</span> <span class="nf">make_transform</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="k">return</span> <span class="n">partial</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">transforms</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">name</span><span class="p">),</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="Environment.is_format_known"><a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.components.hl_ops.html#datumaro.components.dataset.Environment.is_format_known">[docs]</a>    <span class="k">def</span> <span class="nf">is_format_known</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
+
+<div class="viewcode-block" id="Environment.is_format_known">
+<a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.components.hl_ops.html#datumaro.components.dataset.Environment.is_format_known">[docs]</a>
+    <span class="k">def</span> <span class="nf">is_format_known</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
         <span class="k">return</span> <span class="n">name</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">importers</span> <span class="ow">or</span> <span class="n">name</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">extractors</span></div>
 
-<div class="viewcode-block" id="Environment.detect_dataset"><a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.components.hl_ops.html#datumaro.components.dataset.Environment.detect_dataset">[docs]</a>    <span class="k">def</span> <span class="nf">detect_dataset</span><span class="p">(</span>
+
+<div class="viewcode-block" id="Environment.detect_dataset">
+<a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.components.hl_ops.html#datumaro.components.dataset.Environment.detect_dataset">[docs]</a>
+    <span class="k">def</span> <span class="nf">detect_dataset</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">path</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
         <span class="n">depth</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span>
@@ -610,10 +634,13 @@ document.write(`
             <span class="p">[</span><span class="nb">str</span><span class="p">(</span><span class="nb">format</span><span class="p">)</span> <span class="k">for</span> <span class="nb">format</span> <span class="ow">in</span> <span class="n">all_matched_formats</span> <span class="k">if</span> <span class="nb">format</span><span class="o">.</span><span class="n">confidence</span> <span class="o">==</span> <span class="n">max_conf</span><span class="p">]</span>
         <span class="p">)</span></div>
 
+
     <span class="k">def</span> <span class="nf">__reduce__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="p">,</span> <span class="p">())</span>
 
-<div class="viewcode-block" id="Environment.merge"><a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.components.hl_ops.html#datumaro.components.dataset.Environment.merge">[docs]</a>    <span class="nd">@classmethod</span>
+<div class="viewcode-block" id="Environment.merge">
+<a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.components.hl_ops.html#datumaro.components.dataset.Environment.merge">[docs]</a>
+    <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">merge</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">envs</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="s2">&quot;Environment&quot;</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="s2">&quot;Environment&quot;</span><span class="p">:</span>
         <span class="k">if</span> <span class="nb">all</span><span class="p">([</span><span class="n">env</span> <span class="o">==</span> <span class="n">DEFAULT_ENVIRONMENT</span> <span class="k">for</span> <span class="n">env</span> <span class="ow">in</span> <span class="n">envs</span><span class="p">]):</span>
             <span class="k">return</span> <span class="n">DEFAULT_ENVIRONMENT</span>
@@ -634,9 +661,14 @@ document.write(`
 
         <span class="k">return</span> <span class="n">merged</span></div>
 
-<div class="viewcode-block" id="Environment.release_builtin_plugins"><a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.components.hl_ops.html#datumaro.components.dataset.Environment.release_builtin_plugins">[docs]</a>    <span class="nd">@classmethod</span>
+
+<div class="viewcode-block" id="Environment.release_builtin_plugins">
+<a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.components.hl_ops.html#datumaro.components.dataset.Environment.release_builtin_plugins">[docs]</a>
+    <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">release_builtin_plugins</span><span class="p">(</span><span class="bp">cls</span><span class="p">):</span>
-        <span class="bp">cls</span><span class="o">.</span><span class="n">_builtin_plugins</span> <span class="o">=</span> <span class="kc">None</span></div></div>
+        <span class="bp">cls</span><span class="o">.</span><span class="n">_builtin_plugins</span> <span class="o">=</span> <span class="kc">None</span></div>
+</div>
+
 
 
 <span class="n">DEFAULT_ENVIRONMENT</span> <span class="o">=</span> <span class="n">Environment</span><span class="p">()</span>
@@ -682,7 +714,7 @@ document.write(`
         <div class="footer-item">
 
   <p class="sphinx-version">
-    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 5.3.0.
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 7.2.6.
     <br/>
   </p>
 </div>

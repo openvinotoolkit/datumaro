@@ -1,9 +1,8 @@
 
-
 <!DOCTYPE html>
 
 
-<html lang="en" data-content_root="" >
+<html lang="en" data-content_root="../../../" >
 
   <head>
     <meta charset="utf-8" />
@@ -28,26 +27,23 @@
 <link rel="preload" as="font" type="font/woff2" crossorigin href="../../../_static/vendor/fontawesome/6.5.1/webfonts/fa-brands-400.woff2" />
 <link rel="preload" as="font" type="font/woff2" crossorigin href="../../../_static/vendor/fontawesome/6.5.1/webfonts/fa-regular-400.woff2" />
 
-    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css" />
-    <link rel="stylesheet" type="text/css" href="../../../_static/copybutton.css" />
-    <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css" />
-    <link rel="stylesheet" type="text/css" href="../../../_static/design-style.1e8bd061cd6da7fc9cf755528e8ffc24.min.css" />
-    <link rel="stylesheet" type="text/css" href="../../../_static/css/custom.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=a746c00c" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css?v=eafc0fe6" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/design-style.1e8bd061cd6da7fc9cf755528e8ffc24.min.css?v=0a3b3ea7" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/css/custom.css?v=8b7c274f" />
   
   <!-- Pre-loaded scripts that we'll load fully later -->
   <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=8d27b9dea8ad943066ae" />
 <link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=8d27b9dea8ad943066ae" />
   <script src="../../../_static/vendor/fontawesome/6.5.1/js/all.min.js?digest=8d27b9dea8ad943066ae"></script>
 
-    <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
-    <script src="../../../_static/jquery.js"></script>
-    <script src="../../../_static/underscore.js"></script>
-    <script src="../../../_static/_sphinx_javascript_frameworks_compat.js"></script>
-    <script src="../../../_static/doctools.js"></script>
-    <script src="../../../_static/sphinx_highlight.js"></script>
-    <script src="../../../_static/clipboard.min.js"></script>
-    <script src="../../../_static/copybutton.js"></script>
-    <script src="../../../_static/design-tabs.js"></script>
+    <script src="../../../_static/documentation_options.js?v=82acb2b2"></script>
+    <script src="../../../_static/doctools.js?v=888ff710"></script>
+    <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../../../_static/copybutton.js?v=f281be69"></script>
+    <script src="../../../_static/design-tabs.js?v=36754332"></script>
     <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <script>DOCUMENTATION_OPTIONS.pagename = '_modules/datumaro/components/extractor_tfds';</script>
     <link rel="index" title="Index" href="../../../genindex.html" />
@@ -395,7 +391,9 @@ document.write(`
     <span class="n">tfds</span> <span class="o">=</span> <span class="n">lazy_import</span><span class="p">(</span><span class="s2">&quot;tensorflow_datasets&quot;</span><span class="p">)</span>
 
 
-<div class="viewcode-block" id="TfdsDatasetMetadata"><a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.components.extractor_tfds.html#datumaro.components.extractor_tfds.TfdsDatasetMetadata">[docs]</a><span class="nd">@frozen</span><span class="p">(</span><span class="n">kw_only</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<div class="viewcode-block" id="TfdsDatasetMetadata">
+<a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.components.extractor_tfds.html#datumaro.components.extractor_tfds.TfdsDatasetMetadata">[docs]</a>
+<span class="nd">@frozen</span><span class="p">(</span><span class="n">kw_only</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 <span class="k">class</span> <span class="nc">TfdsDatasetMetadata</span><span class="p">:</span>
     <span class="c1"># If you add attributes to this class, make sure to update the reporting logic</span>
     <span class="c1"># in the `describe-downloads` command to include them.</span>
@@ -412,6 +410,7 @@ document.write(`
     <span class="c1"># * It&#39;s convenient to initially leave this field blank and mass-update it later,</span>
     <span class="c1">#   and in order for us to not break typing, it should be optional.</span>
     <span class="n">home_url</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span></div>
+
 
 
 <span class="nd">@frozen</span>
@@ -905,12 +904,17 @@ document.write(`
 <span class="c1"># the reporting logic in the `describe-downloads` command to include them.</span>
 
 
-<div class="viewcode-block" id="TfdsSubsetRemoteMetadata"><a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.components.extractor_tfds.html#datumaro.components.extractor_tfds.TfdsSubsetRemoteMetadata">[docs]</a><span class="nd">@frozen</span><span class="p">(</span><span class="n">kw_only</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<div class="viewcode-block" id="TfdsSubsetRemoteMetadata">
+<a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.components.extractor_tfds.html#datumaro.components.extractor_tfds.TfdsSubsetRemoteMetadata">[docs]</a>
+<span class="nd">@frozen</span><span class="p">(</span><span class="n">kw_only</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 <span class="k">class</span> <span class="nc">TfdsSubsetRemoteMetadata</span><span class="p">:</span>
     <span class="n">num_items</span><span class="p">:</span> <span class="nb">int</span></div>
 
 
-<div class="viewcode-block" id="TfdsDatasetRemoteMetadata"><a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.components.extractor_tfds.html#datumaro.components.extractor_tfds.TfdsDatasetRemoteMetadata">[docs]</a><span class="nd">@frozen</span><span class="p">(</span><span class="n">kw_only</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+<div class="viewcode-block" id="TfdsDatasetRemoteMetadata">
+<a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.components.extractor_tfds.html#datumaro.components.extractor_tfds.TfdsDatasetRemoteMetadata">[docs]</a>
+<span class="nd">@frozen</span><span class="p">(</span><span class="n">kw_only</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 <span class="k">class</span> <span class="nc">TfdsDatasetRemoteMetadata</span><span class="p">(</span><span class="n">TfdsDatasetMetadata</span><span class="p">):</span>
     <span class="c1"># For convenience, the remote metadata also includes the local metadata.</span>
     <span class="n">description</span><span class="p">:</span> <span class="nb">str</span>
@@ -923,7 +927,10 @@ document.write(`
     <span class="n">version</span><span class="p">:</span> <span class="nb">str</span></div>
 
 
-<div class="viewcode-block" id="TfdsDataset"><a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.components.extractor_tfds.html#datumaro.components.extractor_tfds.TfdsDataset">[docs]</a><span class="k">class</span> <span class="nc">TfdsDataset</span><span class="p">:</span>
+
+<div class="viewcode-block" id="TfdsDataset">
+<a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.components.extractor_tfds.html#datumaro.components.extractor_tfds.TfdsDataset">[docs]</a>
+<span class="k">class</span> <span class="nc">TfdsDataset</span><span class="p">:</span>
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tfds_ds_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_tfds_ds_name</span> <span class="o">=</span> <span class="n">tfds_ds_name</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_adapter</span> <span class="o">=</span> <span class="n">_TFDS_ADAPTERS</span><span class="p">[</span><span class="n">tfds_ds_name</span><span class="p">]</span>
@@ -932,10 +939,15 @@ document.write(`
     <span class="k">def</span> <span class="nf">metadata</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">TfdsDatasetMetadata</span><span class="p">:</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_adapter</span><span class="o">.</span><span class="n">metadata</span>
 
-<div class="viewcode-block" id="TfdsDataset.make_extractor"><a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.components.extractor_tfds.html#datumaro.components.extractor_tfds.TfdsDataset.make_extractor">[docs]</a>    <span class="k">def</span> <span class="nf">make_extractor</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">IDataset</span><span class="p">:</span>
+<div class="viewcode-block" id="TfdsDataset.make_extractor">
+<a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.components.extractor_tfds.html#datumaro.components.extractor_tfds.TfdsDataset.make_extractor">[docs]</a>
+    <span class="k">def</span> <span class="nf">make_extractor</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">IDataset</span><span class="p">:</span>
         <span class="k">return</span> <span class="n">_TfdsExtractor</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_tfds_ds_name</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="TfdsDataset.query_remote_metadata"><a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.components.extractor_tfds.html#datumaro.components.extractor_tfds.TfdsDataset.query_remote_metadata">[docs]</a>    <span class="k">def</span> <span class="nf">query_remote_metadata</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">TfdsDatasetRemoteMetadata</span><span class="p">:</span>
+
+<div class="viewcode-block" id="TfdsDataset.query_remote_metadata">
+<a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.components.extractor_tfds.html#datumaro.components.extractor_tfds.TfdsDataset.query_remote_metadata">[docs]</a>
+    <span class="k">def</span> <span class="nf">query_remote_metadata</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">TfdsDatasetRemoteMetadata</span><span class="p">:</span>
         <span class="n">tfds_builder</span> <span class="o">=</span> <span class="n">tfds</span><span class="o">.</span><span class="n">builder</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_tfds_ds_name</span><span class="p">)</span>
 
         <span class="n">categories</span> <span class="o">=</span> <span class="p">{}</span>
@@ -956,7 +968,9 @@ document.write(`
                 <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">split_info</span> <span class="ow">in</span> <span class="n">tfds_builder</span><span class="o">.</span><span class="n">info</span><span class="o">.</span><span class="n">splits</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
             <span class="p">},</span>
             <span class="n">version</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="n">tfds_builder</span><span class="o">.</span><span class="n">info</span><span class="o">.</span><span class="n">version</span><span class="p">),</span>
-        <span class="p">)</span></div></div>
+        <span class="p">)</span></div>
+</div>
+
 
 
 <span class="n">AVAILABLE_TFDS_DATASETS</span><span class="p">:</span> <span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">TfdsDataset</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
@@ -1004,7 +1018,7 @@ document.write(`
         <div class="footer-item">
 
   <p class="sphinx-version">
-    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 5.3.0.
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 7.2.6.
     <br/>
   </p>
 </div>

@@ -1,13 +1,12 @@
 
-
 <!DOCTYPE html>
 
 
-<html lang="en" data-content_root="" >
+<html lang="en" data-content_root="../../../" >
 
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
     <title>Find Most Similar Data from Image or Text Queries &#8212; Datumaro 1.6.0rc1 documentation</title>
   
@@ -29,27 +28,24 @@
 <link rel="preload" as="font" type="font/woff2" crossorigin href="../../../_static/vendor/fontawesome/6.5.1/webfonts/fa-brands-400.woff2" />
 <link rel="preload" as="font" type="font/woff2" crossorigin href="../../../_static/vendor/fontawesome/6.5.1/webfonts/fa-regular-400.woff2" />
 
-    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css" />
-    <link rel="stylesheet" type="text/css" href="../../../_static/copybutton.css" />
-    <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css" />
-    <link rel="stylesheet" type="text/css" href="../../../_static/design-style.1e8bd061cd6da7fc9cf755528e8ffc24.min.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=a746c00c" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css?v=eafc0fe6" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/design-style.1e8bd061cd6da7fc9cf755528e8ffc24.min.css?v=0a3b3ea7" />
     <link rel="stylesheet" type="text/css" href="../../../_static/nbsphinx-code-cells.css" />
-    <link rel="stylesheet" type="text/css" href="../../../_static/css/custom.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/css/custom.css?v=8b7c274f" />
   
   <!-- Pre-loaded scripts that we'll load fully later -->
   <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=8d27b9dea8ad943066ae" />
 <link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=8d27b9dea8ad943066ae" />
   <script src="../../../_static/vendor/fontawesome/6.5.1/js/all.min.js?digest=8d27b9dea8ad943066ae"></script>
 
-    <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
-    <script src="../../../_static/jquery.js"></script>
-    <script src="../../../_static/underscore.js"></script>
-    <script src="../../../_static/_sphinx_javascript_frameworks_compat.js"></script>
-    <script src="../../../_static/doctools.js"></script>
-    <script src="../../../_static/sphinx_highlight.js"></script>
-    <script src="../../../_static/clipboard.min.js"></script>
-    <script src="../../../_static/copybutton.js"></script>
-    <script src="../../../_static/design-tabs.js"></script>
+    <script src="../../../_static/documentation_options.js?v=82acb2b2"></script>
+    <script src="../../../_static/doctools.js?v=888ff710"></script>
+    <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../../../_static/copybutton.js?v=f281be69"></script>
+    <script src="../../../_static/design-tabs.js?v=36754332"></script>
     <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
     <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
@@ -659,7 +655,7 @@ document.write(`
                 <article class="bd-article">
                   
   <section id="Find-Most-Similar-Data-from-Image-or-Text-Queries">
-<h1>Find Most Similar Data from Image or Text Queries<a class="headerlink" href="#Find-Most-Similar-Data-from-Image-or-Text-Queries" title="Permalink to this heading">#</a></h1>
+<h1>Find Most Similar Data from Image or Text Queries<a class="headerlink" href="#Find-Most-Similar-Data-from-Image-or-Text-Queries" title="Link to this heading">#</a></h1>
 <p><a class="reference external" href="https://github.com/openvinotoolkit/datumaro/blob/develop/notebooks/07_data_explorer.ipynb"><img alt="Jupyter Notebook" src="https://img.shields.io/badge/jupyter-%23FA0F00.svg?style=for-the-badge&amp;logo=jupyter&amp;logoColor=white" /></a></p>
 <p>In this notebook example, we’ll take a look at Datumaro data exploration Python API. Specifically, we are going to provide the example codes for data exploration for image query and text query with MS-COCO 2017 dataset. Please prepare COCO 2017 validation dataset or download it referring <a class="reference external" href="https://github.com/openvinotoolkit/datumaro/blob/develop/notebooks/03_visualize.ipynb">this link</a>.</p>
 <div class="nbinput nblast docutils container">
@@ -677,9 +673,9 @@ document.write(`
 </div>
 </div>
 <section id="Data-exploration">
-<h2>Data exploration<a class="headerlink" href="#Data-exploration" title="Permalink to this heading">#</a></h2>
+<h2>Data exploration<a class="headerlink" href="#Data-exploration" title="Link to this heading">#</a></h2>
 <section id="Explore-with-COCO-instance-segmentation-dataset">
-<h3>Explore with COCO instance segmentation dataset<a class="headerlink" href="#Explore-with-COCO-instance-segmentation-dataset" title="Permalink to this heading">#</a></h3>
+<h3>Explore with COCO instance segmentation dataset<a class="headerlink" href="#Explore-with-COCO-instance-segmentation-dataset" title="Link to this heading">#</a></h3>
 <p>To use data exploration, we need to define hash for each dataset. <code class="docutils literal notranslate"><span class="pre">Explorer</span></code> calculates the hash key automatically. If you want to re-use the calculated hash key, please set <code class="docutils literal notranslate"><span class="pre">save_hashkey_meta</span></code> as <code class="docutils literal notranslate"><span class="pre">True</span></code> when exporting the dataset. The default value is <code class="docutils literal notranslate"><span class="pre">False</span></code>.</p>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[14]:
@@ -730,7 +726,7 @@ infos
 </div>
 </section>
 <section id="Explore-with-image-query">
-<h3>Explore with <code class="docutils literal notranslate"><span class="pre">image</span></code> query<a class="headerlink" href="#Explore-with-image-query" title="Permalink to this heading">#</a></h3>
+<h3>Explore with <code class="docutils literal notranslate"><span class="pre">image</span></code> query<a class="headerlink" href="#Explore-with-image-query" title="Link to this heading">#</a></h3>
 <p>Set one of dataset as query which you want to find similar dataset.</p>
 <div class="nbinput nblast docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[16]:
@@ -798,7 +794,7 @@ infos
 </div>
 </section>
 <section id="Explore-with-text-query">
-<h3>Explore with <code class="docutils literal notranslate"><span class="pre">text</span></code> query<a class="headerlink" href="#Explore-with-text-query" title="Permalink to this heading">#</a></h3>
+<h3>Explore with <code class="docutils literal notranslate"><span class="pre">text</span></code> query<a class="headerlink" href="#Explore-with-text-query" title="Link to this heading">#</a></h3>
 <p>Set text as query which you want to find similar dataset. You can set it as a sentence or a word.</p>
 <div class="nbinput nblast docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[21]:
@@ -928,7 +924,7 @@ infos
         <div class="footer-item">
 
   <p class="sphinx-version">
-    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 5.3.0.
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 7.2.6.
     <br/>
   </p>
 </div>

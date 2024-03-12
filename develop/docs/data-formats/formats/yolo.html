@@ -1,13 +1,12 @@
 
-
 <!DOCTYPE html>
 
 
-<html lang="en" data-content_root="" >
+<html lang="en" data-content_root="../../../" >
 
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
     <title>YOLO &#8212; Datumaro 1.6.0rc1 documentation</title>
   
@@ -29,26 +28,23 @@
 <link rel="preload" as="font" type="font/woff2" crossorigin href="../../../_static/vendor/fontawesome/6.5.1/webfonts/fa-brands-400.woff2" />
 <link rel="preload" as="font" type="font/woff2" crossorigin href="../../../_static/vendor/fontawesome/6.5.1/webfonts/fa-regular-400.woff2" />
 
-    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css" />
-    <link rel="stylesheet" type="text/css" href="../../../_static/copybutton.css" />
-    <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css" />
-    <link rel="stylesheet" type="text/css" href="../../../_static/design-style.1e8bd061cd6da7fc9cf755528e8ffc24.min.css" />
-    <link rel="stylesheet" type="text/css" href="../../../_static/css/custom.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=a746c00c" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css?v=eafc0fe6" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/design-style.1e8bd061cd6da7fc9cf755528e8ffc24.min.css?v=0a3b3ea7" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/css/custom.css?v=8b7c274f" />
   
   <!-- Pre-loaded scripts that we'll load fully later -->
   <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=8d27b9dea8ad943066ae" />
 <link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=8d27b9dea8ad943066ae" />
   <script src="../../../_static/vendor/fontawesome/6.5.1/js/all.min.js?digest=8d27b9dea8ad943066ae"></script>
 
-    <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
-    <script src="../../../_static/jquery.js"></script>
-    <script src="../../../_static/underscore.js"></script>
-    <script src="../../../_static/_sphinx_javascript_frameworks_compat.js"></script>
-    <script src="../../../_static/doctools.js"></script>
-    <script src="../../../_static/sphinx_highlight.js"></script>
-    <script src="../../../_static/clipboard.min.js"></script>
-    <script src="../../../_static/copybutton.js"></script>
-    <script src="../../../_static/design-tabs.js"></script>
+    <script src="../../../_static/documentation_options.js?v=82acb2b2"></script>
+    <script src="../../../_static/doctools.js?v=888ff710"></script>
+    <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../../../_static/copybutton.js?v=f281be69"></script>
+    <script src="../../../_static/design-tabs.js?v=36754332"></script>
     <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <script>DOCUMENTATION_OPTIONS.pagename = 'docs/data-formats/formats/yolo';</script>
     <link rel="index" title="Index" href="../../../genindex.html" />
@@ -656,9 +652,9 @@ document.write(`
                 <article class="bd-article">
                   
   <section id="yolo">
-<h1>YOLO<a class="headerlink" href="#yolo" title="Permalink to this heading">#</a></h1>
+<h1>YOLO<a class="headerlink" href="#yolo" title="Link to this heading">#</a></h1>
 <section id="format-specification">
-<h2>Format specification<a class="headerlink" href="#format-specification" title="Permalink to this heading">#</a></h2>
+<h2>Format specification<a class="headerlink" href="#format-specification" title="Link to this heading">#</a></h2>
 <p>The YOLO dataset format is for training and validating object detection
 models. Specification for this format is available
 <a class="reference external" href="https://github.com/AlexeyAB/darknet#how-to-train-to-detect-your-custom-objects">here</a>.</p>
@@ -677,14 +673,14 @@ will be saved in the <code class="docutils literal notranslate"><span class="pre
 </div></blockquote>
 </section>
 <section id="import-yolo-dataset">
-<h2>Import YOLO dataset<a class="headerlink" href="#import-yolo-dataset" title="Permalink to this heading">#</a></h2>
+<h2>Import YOLO dataset<a class="headerlink" href="#import-yolo-dataset" title="Link to this heading">#</a></h2>
 <p>A Datumaro project with a YOLO source can be created in the following way:</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>datum<span class="w"> </span>project<span class="w"> </span>create
 datum<span class="w"> </span>project<span class="w"> </span>import<span class="w"> </span>--format<span class="w"> </span>yolo<span class="w"> </span>&lt;path/to/dataset&gt;
 </pre></div>
 </div>
 <section id="directory-structure">
-<h3>Directory structure<a class="headerlink" href="#directory-structure" title="Permalink to this heading">#</a></h3>
+<h3>Directory structure<a class="headerlink" href="#directory-structure" title="Link to this heading">#</a></h3>
 <p>YOLO dataset directory should have the following structure:</p>
 <!--lint disable fenced-code-flag-->
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span>└─ yolo_dataset/
@@ -711,7 +707,7 @@ datum<span class="w"> </span>project<span class="w"> </span>import<span class="w
 </pre></div>
 </div>
 <section id="meta-file">
-<h4>Meta file<a class="headerlink" href="#meta-file" title="Permalink to this heading">#</a></h4>
+<h4>Meta file<a class="headerlink" href="#meta-file" title="Link to this heading">#</a></h4>
 <ul class="simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">obj.data</span></code> should have the following content, it is not necessary to have both
 subsets, but necessary to have one of them:</p></li>
@@ -725,7 +721,7 @@ subsets, but necessary to have one of them:</p></li>
 </div>
 </section>
 <section id="class-names-file">
-<h4>Class names file<a class="headerlink" href="#class-names-file" title="Permalink to this heading">#</a></h4>
+<h4>Class names file<a class="headerlink" href="#class-names-file" title="Link to this heading">#</a></h4>
 <ul class="simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">obj.names</span></code> contains a list of classes.
 The line number for the class is the same as its index:</p></li>
@@ -738,7 +734,7 @@ The line number for the class is the same as its index:</p></li>
 </div>
 </section>
 <section id="subset-files">
-<h4>Subset files<a class="headerlink" href="#subset-files" title="Permalink to this heading">#</a></h4>
+<h4>Subset files<a class="headerlink" href="#subset-files" title="Link to this heading">#</a></h4>
 <ul class="simple">
 <li><p>Files <code class="docutils literal notranslate"><span class="pre">train.txt</span></code> and <code class="docutils literal notranslate"><span class="pre">valid.txt</span></code> should have the following structure:</p></li>
 </ul>
@@ -749,7 +745,7 @@ The line number for the class is the same as its index:</p></li>
 </div>
 </section>
 <section id="bounding-box-annotation-text-file">
-<h4>Bounding box annotation text file<a class="headerlink" href="#bounding-box-annotation-text-file" title="Permalink to this heading">#</a></h4>
+<h4>Bounding box annotation text file<a class="headerlink" href="#bounding-box-annotation-text-file" title="Link to this heading">#</a></h4>
 <ul class="simple">
 <li><p>Files in directories <code class="docutils literal notranslate"><span class="pre">obj_train_data/</span></code> and <code class="docutils literal notranslate"><span class="pre">obj_valid_data/</span></code>
 should contain information about labeled bounding boxes
@@ -769,16 +765,16 @@ width and height. The <code class="docutils literal notranslate"><span class="pr
 </section>
 </section>
 <section id="import-yolo-dataset-with-more-loose-format">
-<h2>Import YOLO dataset with more loose format<a class="headerlink" href="#import-yolo-dataset-with-more-loose-format" title="Permalink to this heading">#</a></h2>
+<h2>Import YOLO dataset with more loose format<a class="headerlink" href="#import-yolo-dataset-with-more-loose-format" title="Link to this heading">#</a></h2>
 <p>Because the original YOLO format is too strict and require many meta files,
 Datumaro supports to import more loose format for YOLO dataset.
 Therefore, you can freely import a dataset with <a class="reference internal" href="#bounding-box-annotation-text-file"><span class="std std-ref">a bounding box text file</span></a>,
 which is the standing-out identity of the yolo format.
 For examples, please see the following directory structures.</p>
 <section id="id1">
-<h3>Directory structure<a class="headerlink" href="#id1" title="Permalink to this heading">#</a></h3>
+<h3>Directory structure<a class="headerlink" href="#id1" title="Link to this heading">#</a></h3>
 <section id="without-subset-directories">
-<h4>Without subset directories<a class="headerlink" href="#without-subset-directories" title="Permalink to this heading">#</a></h4>
+<h4>Without subset directories<a class="headerlink" href="#without-subset-directories" title="Link to this heading">#</a></h4>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>└─<span class="w"> </span>yolo_dataset/
 <span class="w">   </span>├──<span class="w"> </span>dataset_meta.json<span class="w"> </span><span class="c1"># a list of non-format labels (optional)</span>
 <span class="w">   </span>├──<span class="w"> </span>obj.names<span class="w">  </span><span class="c1"># file with list of classes</span>
@@ -794,7 +790,7 @@ For examples, please see the following directory structures.</p>
 </div>
 </section>
 <section id="with-subset-directories">
-<h4>With subset directories<a class="headerlink" href="#with-subset-directories" title="Permalink to this heading">#</a></h4>
+<h4>With subset directories<a class="headerlink" href="#with-subset-directories" title="Link to this heading">#</a></h4>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>└─<span class="w"> </span>yolo_dataset/
 <span class="w">    </span>├──<span class="w"> </span>dataset_meta.json<span class="w"> </span><span class="c1"># a list of non-format labels (optional)</span>
 <span class="w">    </span>├──<span class="w"> </span>obj.names<span class="w">  </span><span class="c1"># file with list of classes</span>
@@ -821,17 +817,17 @@ For examples, please see the following directory structures.</p>
 </div>
 </section>
 <section id="id2">
-<h4>Class names file<a class="headerlink" href="#id2" title="Permalink to this heading">#</a></h4>
+<h4>Class names file<a class="headerlink" href="#id2" title="Link to this heading">#</a></h4>
 <p>Same as <a class="reference internal" href="#class-names-file"><span class="std std-ref">Import YOLO dataset - Class names file section</span></a>. If it is not existed in the dataset, you can make this file easily. Please see the example <a class="reference internal" href="../../jupyter_notebook_examples/notebooks/06_tiling.html#Download-Six-sided-Dice-dataset"><span class="std std-ref">here</span></a>.</p>
 </section>
 <section id="id3">
-<h4>Bounding box annotation text file<a class="headerlink" href="#id3" title="Permalink to this heading">#</a></h4>
+<h4>Bounding box annotation text file<a class="headerlink" href="#id3" title="Link to this heading">#</a></h4>
 <p>Same as <a class="reference internal" href="#bounding-box-annotation-text-file"><span class="std std-ref">Import YOLO dataset - Bounding box annotation text file section</span></a>.</p>
 </section>
 </section>
 </section>
 <section id="export-to-other-formats">
-<h2>Export to other formats<a class="headerlink" href="#export-to-other-formats" title="Permalink to this heading">#</a></h2>
+<h2>Export to other formats<a class="headerlink" href="#export-to-other-formats" title="Link to this heading">#</a></h2>
 <p>Datumaro can convert YOLO dataset into any other format
 <a class="reference internal" href="index.html"><span class="std std-doc">Datumaro supports</span></a>.
 For successful conversion the output format should support
@@ -856,7 +852,7 @@ datum<span class="w"> </span>project<span class="w"> </span><span class="nb">exp
 </div>
 </section>
 <section id="export-to-yolo-format">
-<h2>Export to YOLO format<a class="headerlink" href="#export-to-yolo-format" title="Permalink to this heading">#</a></h2>
+<h2>Export to YOLO format<a class="headerlink" href="#export-to-yolo-format" title="Link to this heading">#</a></h2>
 <p>Datumaro can convert an existing dataset to YOLO format,
 if the dataset supports object detection task.</p>
 <p>Example:</p>
@@ -876,9 +872,9 @@ for exporting dataset (default: use original or <code class="docutils literal no
 </ul>
 </section>
 <section id="examples">
-<h2>Examples<a class="headerlink" href="#examples" title="Permalink to this heading">#</a></h2>
+<h2>Examples<a class="headerlink" href="#examples" title="Link to this heading">#</a></h2>
 <section id="example-1-prepare-pascal-voc-dataset-for-exporting-to-yolo-format-dataset">
-<h3>Example 1. Prepare PASCAL VOC dataset for exporting to YOLO format dataset<a class="headerlink" href="#example-1-prepare-pascal-voc-dataset-for-exporting-to-yolo-format-dataset" title="Permalink to this heading">#</a></h3>
+<h3>Example 1. Prepare PASCAL VOC dataset for exporting to YOLO format dataset<a class="headerlink" href="#example-1-prepare-pascal-voc-dataset-for-exporting-to-yolo-format-dataset" title="Link to this heading">#</a></h3>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>datum<span class="w"> </span>project<span class="w"> </span>create<span class="w"> </span>-o<span class="w"> </span>project
 datum<span class="w"> </span>project<span class="w"> </span>import<span class="w"> </span>-p<span class="w"> </span>project<span class="w"> </span>-f<span class="w"> </span>voc<span class="w"> </span>./VOC2012
 datum<span class="w"> </span>filter<span class="w"> </span>-p<span class="w"> </span>project<span class="w"> </span>-e<span class="w"> </span><span class="s1">&#39;/item[subset=&quot;train&quot; or subset=&quot;val&quot;]&#39;</span>
@@ -888,7 +884,7 @@ datum<span class="w"> </span>project<span class="w"> </span><span class="nb">exp
 </div>
 </section>
 <section id="example-2-remove-a-class-from-yolo-dataset">
-<h3>Example 2. Remove a class from YOLO dataset<a class="headerlink" href="#example-2-remove-a-class-from-yolo-dataset" title="Permalink to this heading">#</a></h3>
+<h3>Example 2. Remove a class from YOLO dataset<a class="headerlink" href="#example-2-remove-a-class-from-yolo-dataset" title="Link to this heading">#</a></h3>
 <p>Delete all items, which contain <code class="docutils literal notranslate"><span class="pre">cat</span></code> objects and remove
 <code class="docutils literal notranslate"><span class="pre">cat</span></code> from list of classes:</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>datum<span class="w"> </span>project<span class="w"> </span>create<span class="w"> </span>-o<span class="w"> </span>project
@@ -900,7 +896,7 @@ datum<span class="w"> </span>project<span class="w"> </span><span class="nb">exp
 </div>
 </section>
 <section id="example-3-create-a-custom-dataset-in-yolo-format">
-<h3>Example 3. Create a custom dataset in YOLO format<a class="headerlink" href="#example-3-create-a-custom-dataset-in-yolo-format" title="Permalink to this heading">#</a></h3>
+<h3>Example 3. Create a custom dataset in YOLO format<a class="headerlink" href="#example-3-create-a-custom-dataset-in-yolo-format" title="Link to this heading">#</a></h3>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 <span class="kn">import</span> <span class="nn">datumaro</span> <span class="k">as</span> <span class="nn">dm</span>
 
@@ -925,7 +921,7 @@ datum<span class="w"> </span>project<span class="w"> </span><span class="nb">exp
 </div>
 </section>
 <section id="example-4-get-information-about-objects-on-each-image">
-<h3>Example 4. Get information about objects on each image<a class="headerlink" href="#example-4-get-information-about-objects-on-each-image" title="Permalink to this heading">#</a></h3>
+<h3>Example 4. Get information about objects on each image<a class="headerlink" href="#example-4-get-information-about-objects-on-each-image" title="Link to this heading">#</a></h3>
 <p>If you only want information about label names for each
 image, then you can get it from code:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">datumaro</span> <span class="k">as</span> <span class="nn">dm</span>
@@ -1060,7 +1056,7 @@ datum<span class="w"> </span>filter<span class="w"> </span>-p<span class="w"> </
         <div class="footer-item">
 
   <p class="sphinx-version">
-    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 5.3.0.
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 7.2.6.
     <br/>
   </p>
 </div>

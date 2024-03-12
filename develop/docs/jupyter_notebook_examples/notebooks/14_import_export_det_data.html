@@ -1,13 +1,12 @@
 
-
 <!DOCTYPE html>
 
 
-<html lang="en" data-content_root="" >
+<html lang="en" data-content_root="../../../" >
 
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
     <title>Import and Export Public Data &#8212; Datumaro 1.6.0rc1 documentation</title>
   
@@ -29,27 +28,24 @@
 <link rel="preload" as="font" type="font/woff2" crossorigin href="../../../_static/vendor/fontawesome/6.5.1/webfonts/fa-brands-400.woff2" />
 <link rel="preload" as="font" type="font/woff2" crossorigin href="../../../_static/vendor/fontawesome/6.5.1/webfonts/fa-regular-400.woff2" />
 
-    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css" />
-    <link rel="stylesheet" type="text/css" href="../../../_static/copybutton.css" />
-    <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css" />
-    <link rel="stylesheet" type="text/css" href="../../../_static/design-style.1e8bd061cd6da7fc9cf755528e8ffc24.min.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=a746c00c" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css?v=eafc0fe6" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/design-style.1e8bd061cd6da7fc9cf755528e8ffc24.min.css?v=0a3b3ea7" />
     <link rel="stylesheet" type="text/css" href="../../../_static/nbsphinx-code-cells.css" />
-    <link rel="stylesheet" type="text/css" href="../../../_static/css/custom.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/css/custom.css?v=8b7c274f" />
   
   <!-- Pre-loaded scripts that we'll load fully later -->
   <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=8d27b9dea8ad943066ae" />
 <link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=8d27b9dea8ad943066ae" />
   <script src="../../../_static/vendor/fontawesome/6.5.1/js/all.min.js?digest=8d27b9dea8ad943066ae"></script>
 
-    <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
-    <script src="../../../_static/jquery.js"></script>
-    <script src="../../../_static/underscore.js"></script>
-    <script src="../../../_static/_sphinx_javascript_frameworks_compat.js"></script>
-    <script src="../../../_static/doctools.js"></script>
-    <script src="../../../_static/sphinx_highlight.js"></script>
-    <script src="../../../_static/clipboard.min.js"></script>
-    <script src="../../../_static/copybutton.js"></script>
-    <script src="../../../_static/design-tabs.js"></script>
+    <script src="../../../_static/documentation_options.js?v=82acb2b2"></script>
+    <script src="../../../_static/doctools.js?v=888ff710"></script>
+    <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../../../_static/copybutton.js?v=f281be69"></script>
+    <script src="../../../_static/design-tabs.js?v=36754332"></script>
     <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
     <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
@@ -659,11 +655,11 @@ document.write(`
                 <article class="bd-article">
                   
   <section id="Import-and-Export-Public-Data">
-<h1>Import and Export Public Data<a class="headerlink" href="#Import-and-Export-Public-Data" title="Permalink to this heading">#</a></h1>
+<h1>Import and Export Public Data<a class="headerlink" href="#Import-and-Export-Public-Data" title="Link to this heading">#</a></h1>
 <p><a class="reference external" href="https://github.com/openvinotoolkit/datumaro/blob/develop/notebooks/14_import_export_det_data.ipynb"><img alt="Jupyter Notebook" src="https://img.shields.io/badge/jupyter-%23FA0F00.svg?style=for-the-badge&amp;logo=jupyter&amp;logoColor=white" /></a></p>
 <p>In this notebook, we are going to show you how to import public data through Datumaro.</p>
 <section id="Import-MS-COCO-data">
-<h2>Import MS-COCO data<a class="headerlink" href="#Import-MS-COCO-data" title="Permalink to this heading">#</a></h2>
+<h2>Import MS-COCO data<a class="headerlink" href="#Import-MS-COCO-data" title="Link to this heading">#</a></h2>
 <p>MS-COCO is one of the most popular data, which contains the number 120K of data and they are annotated into bounding boxes, polygons, and masks. We import MS-COCO data for instance segmentation tasks among other tasks such as panoptic segmentation or person keypoint detection.</p>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[5]:
@@ -713,7 +709,7 @@ infos
 </pre></div></div>
 </div>
 <section id="Export-MS-COCO-data-into-Pascal-VOC-data-format">
-<h3>Export MS-COCO data into Pascal-VOC data format<a class="headerlink" href="#Export-MS-COCO-data-into-Pascal-VOC-data-format" title="Permalink to this heading">#</a></h3>
+<h3>Export MS-COCO data into Pascal-VOC data format<a class="headerlink" href="#Export-MS-COCO-data-into-Pascal-VOC-data-format" title="Link to this heading">#</a></h3>
 <p>We now export the imported COCO dataset into another popular data format Pascal-VOC. This helps us to reuse the same data feeding code blocks in training or deployment frameworks. Below shows the reformatted COCO dataset with Pascal-VOC format.</p>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[21]:
@@ -756,7 +752,7 @@ Reformulated MS-COCO data with Pascal-VOC format
 </section>
 </section>
 <section id="Import-Pascal-VOC-data">
-<h2>Import Pascal-VOC data<a class="headerlink" href="#Import-Pascal-VOC-data" title="Permalink to this heading">#</a></h2>
+<h2>Import Pascal-VOC data<a class="headerlink" href="#Import-Pascal-VOC-data" title="Link to this heading">#</a></h2>
 <p>We now move on to import Pascal-VOC data. Similar to MS-COCO data, Pascal-VOC supports multiple tasks including object detection, segmentation, person layout, and action classification. We are going to import Pascal-VOC data with the task-specific purpose.</p>
 <p>First, we import the data for object detection tasks, where Pascal VOC contains 21 classes including <code class="docutils literal notranslate"><span class="pre">background</span></code> class. We here check that items have only a bounding box annotation type.</p>
 <div class="nbinput docutils container">
@@ -792,7 +788,7 @@ infos
 </pre></div></div>
 </div>
 <section id="Import-Pascal-VOC-data-for-another-task">
-<h3>Import Pascal-VOC data for another task<a class="headerlink" href="#Import-Pascal-VOC-data-for-another-task" title="Permalink to this heading">#</a></h3>
+<h3>Import Pascal-VOC data for another task<a class="headerlink" href="#Import-Pascal-VOC-data-for-another-task" title="Link to this heading">#</a></h3>
 <p>We now import Pascal-VOC data for a person layout task, where this is composed of bounding boxes according to person bodies, e.g., <code class="docutils literal notranslate"><span class="pre">head</span></code>, <code class="docutils literal notranslate"><span class="pre">hand</span></code>, and <code class="docutils literal notranslate"><span class="pre">foot</span></code> within <code class="docutils literal notranslate"><span class="pre">person</span></code>.</p>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[22]:
@@ -919,7 +915,7 @@ infos
         <div class="footer-item">
 
   <p class="sphinx-version">
-    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 5.3.0.
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 7.2.6.
     <br/>
   </p>
 </div>
