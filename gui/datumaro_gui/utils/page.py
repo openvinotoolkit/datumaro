@@ -24,8 +24,8 @@ class PageGroup:
 
     @property
     def selected(self) -> str:
-        params = st.experimental_get_query_params()
-        return params.get(self._param, [self._default])[0]
+        params = st.query_params.to_dict()
+        return params.get(self._param, self._default)
 
     def item(self, label: str, callback: Callable, default=False) -> None:
         key = f"{__name__}_{self._param}_{label}"
@@ -49,9 +49,10 @@ class PageGroup:
             st.title("🤷 404 Not Found")
 
     def _on_change(self, page: str) -> None:
-        params = st.experimental_get_query_params()
+        params = st.query_params.to_dict()
         params[self._param] = [page]
-        st.experimental_set_query_params(**params)
+        for k, v in params.items():
+            st.query_params[k] = v
 
     def _normalize_label(self, label: str) -> str:
         return "".join(char.lower() for char in label if char.isascii()).strip().replace(" ", "-")
