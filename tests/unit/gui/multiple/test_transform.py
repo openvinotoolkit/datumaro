@@ -999,13 +999,15 @@ class TransformReindexTest(TestCase):
         at = AppTest.from_function(run_transform_imagenet, default_timeout=600).run()
 
         # Before
-        assert at.session_state.data_helper_1.dataset().__getitem__(0).id == "label_0:label_0_1"
+        item_ids = sorted([item.id for item in at.session_state.data_helper.dataset()])
+        assert item_ids[0] == "label_0:label_0_1"
 
         # Call the _reindex_with_image() method
         TransformReindexing._reindex_with_image(at.session_state.data_helper_1)
 
         # Assert that the IDs have been updated
-        assert at.session_state.data_helper_1.dataset().__getitem__(0).id == "label_0_1"
+        item_ids = sorted([item.id for item in at.session_state.data_helper.dataset()])
+        assert item_ids[0] == "label_0_1"
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_reindex_check_reindex_media_name_button(self):
@@ -1015,13 +1017,15 @@ class TransformReindexTest(TestCase):
         button_key = "btn_start_media_name_reindex_mul_c1"
 
         # Before
-        assert at.session_state.data_helper_1.dataset().__getitem__(0).id == "label_0:label_0_1"
+        item_ids = sorted([item.id for item in at.session_state.data_helper.dataset()])
+        assert item_ids[0] == "label_0:label_0_1"
 
         # Click button
         at.button(button_key).click().run()
 
         # After
-        assert at.session_state.data_helper_1.dataset().__getitem__(0).id == "label_0_1"
+        item_ids = sorted([item.id for item in at.session_state.data_helper.dataset()])
+        assert item_ids[0] == "label_0_1"
 
 
 class TransformFiltrationTest(TestCase):
