@@ -31,7 +31,7 @@ scipy
 requests
 
 # Sampler
-pandas~=1.4.0
+pandas~=2.2.1
 
 # OpenVINO
 openvino>=2023.2.0,<2024.0.0 # Accuracy checker is deprecated >=2024.0.0
