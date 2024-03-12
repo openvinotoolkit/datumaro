@@ -2,5 +2,5 @@
 bandit>=1.7.0
 isort==5.13.2
 black==24.2.0
-nbqa[toolchain]==1.6.3;python_version>"3.7"
+nbqa[toolchain]==1.8.4
 ruff==0.3.2
