@@ -34,7 +34,7 @@ requests
 pandas~=1.4.0
 
 # OpenVINO
-openvino>=2023.2.0,<2024.0.0 # Accuracy checker is deprecated >=2024.0.0
+openvino>=2023.2.0,<2025.0.0 # Accuracy checker is deprecated >=2024.0.0
 tokenizers
 
 # Encryption
