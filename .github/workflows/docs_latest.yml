@@ -27,7 +27,11 @@ jobs:
           tox -e build-docs
       - name: Create gh-pages branch
         run: |
-          echo RELEASE_VERSION=${GITHUB_REF#refs/*/} >> $GITHUB_ENV
+          if [[ ${{github.event_name}} == 'workflow_dispatch' ]]; then
+            echo RELEASE_VERSION="test_build" >> $GITHUB_ENV
+          else
+            echo RELEASE_VERSION=${GITHUB_REF#refs/*/} >> $GITHUB_ENV
+          fi
           echo SOURCE_NAME=${GITHUB_REF#refs/*/} >> $GITHUB_OUTPUT
           echo SOURCE_BRANCH=${GITHUB_REF#refs/heads/} >> $GITHUB_OUTPUT
           echo SOURCE_TAG=${GITHUB_REF#refs/tags/} >> $GITHUB_OUTPUT
@@ -58,10 +62,12 @@ jobs:
           echo '<html><head><meta http-equiv="refresh" content="0; url=stable/" /></head></html>' > index.html
           mkdir -p ${{ env.RELEASE_VERSION }}
           cp -r /tmp/docs_build/* ./${{ env.RELEASE_VERSION }}
-          ln -sfn ${{ env.RELEASE_VERSION }} latest
           rm -rf /tmp/docs_build
           git config --local user.email "action@github.com"
           git config --local user.name "GitHub Action"
+          if [[ ${{ env.RELEASE_VERSION }} != 'test_build' ]]; then
+            ln -sfn ${{ env.RELEASE_VERSION }} latest
+          fi
           git add ./index.html ./latest ${{ env.RELEASE_VERSION }}
           git commit -m "Update documentation" -a || true
       - name: Push changes
