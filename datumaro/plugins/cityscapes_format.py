@@ -442,9 +442,11 @@ class CityscapesConverter(Converter):
                 compiled_mask = CompiledMask.from_instance_masks(
                     masks,
                     instance_ids=[
-                        self._label_id_mapping(m.label)
-                        if m.attributes.get("is_crowd", False)
-                        else self._label_id_mapping(m.label) * 1000 + (m.id or (i + 1))
+                        (
+                            self._label_id_mapping(m.label)
+                            if m.attributes.get("is_crowd", False)
+                            else self._label_id_mapping(m.label) * 1000 + (m.id or (i + 1))
+                        )
                         for i, m in enumerate(masks)
                     ],
                     instance_labels=[self._label_id_mapping(m.label) for m in masks],

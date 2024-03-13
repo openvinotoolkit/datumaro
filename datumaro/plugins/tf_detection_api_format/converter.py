@@ -73,8 +73,8 @@ class TfDetectionApiConverter(Converter):
         os.makedirs(self._save_dir, exist_ok=True)
 
         label_categories = self._extractor.categories().get(AnnotationType.label, LabelCategories())
-        get_label = (
-            lambda label_id: label_categories.items[label_id].name if label_id is not None else ""
+        get_label = lambda label_id: (
+            label_categories.items[label_id].name if label_id is not None else ""
         )
         label_ids = OrderedDict(
             (label.name, 1 + idx) for idx, label in enumerate(label_categories.items)

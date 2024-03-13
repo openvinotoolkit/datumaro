@@ -292,12 +292,10 @@ class _CocoExtractor(SourceExtractor):
         return label_id
 
     @overload
-    def _parse_field(self, ann: Dict[str, Any], key: str, cls: Type[T]) -> T:
-        ...
+    def _parse_field(self, ann: Dict[str, Any], key: str, cls: Type[T]) -> T: ...
 
     @overload
-    def _parse_field(self, ann: Dict[str, Any], key: str, cls: Tuple[Type, ...]) -> Any:
-        ...
+    def _parse_field(self, ann: Dict[str, Any], key: str, cls: Tuple[Type, ...]) -> Any: ...
 
     def _parse_field(
         self, ann: Dict[str, Any], key: str, cls: Union[Type[T], Tuple[Type, ...]]

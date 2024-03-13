@@ -67,7 +67,7 @@ class RandomSampler(Transform, CliPlugin):
 
     def __iter__(self):
         if self._indices is None:
-            rng = Random(self._seed)
+            rng = Random(self._seed)  # nosec - disable B311
 
             if self._subset:
                 n = len(self._extractor.get_subset(self._subset))
@@ -213,7 +213,7 @@ class LabelRandomSampler(Transform, CliPlugin):
 
         buckets = defaultdict(_make_bucket)  # subset -> subset_buckets
 
-        rng = Random(self._seed)
+        rng = Random(self._seed)  # nosec - disable B311
 
         for i, item in enumerate(self._extractor):
             labels = set(getattr(ann, "label", None) for ann in item.annotations)
