@@ -60,20 +60,11 @@ def reset_subset(state):
             state[subset] = []
 
 
-def reset_explore_state_keys(state):
-    if state.get("explore_queries", None) is not None:
-        state["explore_queries"] = []
-        state["explore_topk"] = 2
-        state["explore_results"] = None
-        state["explore_user_uploaded_images"] = {}
-
-
 def reset_state(keys, state):
     for k in keys:
         if k not in state:
             state[k] = None
     reset_subset(state)
-    reset_explore_state_keys(state)
 
 
 def file_selector(folder_path: str = None):
