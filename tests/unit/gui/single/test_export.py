@@ -49,7 +49,7 @@ def run_export():
 class ExportTest(TestCase):
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_export_page_open(self):
-        """Test if the session state is initialized correctly."""
+        """Test if the page of export tab is opened correctly."""
         at = AppTest.from_function(run_export, default_timeout=600).run()
 
         selectbox_key = "sb_task_export_sin"

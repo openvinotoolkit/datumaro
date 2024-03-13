@@ -28,7 +28,7 @@ class MutipleDataTest(TestCase):
     # @pytest.mark.xfail(reason="Cannot copy contextvar to thread")
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_multiple_page_open(self):
-        """Test if the session state is initialized correctly."""
+        """Test if the page of multiple dataset is opened correctly."""
         at = AppTest.from_file(app_path, default_timeout=600).run()
 
         at.sidebar.checkbox(multiple_dataset_key).check()
@@ -49,7 +49,7 @@ class MutipleDataTest(TestCase):
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_get_test_asset(self):
-        """Test if the session state is initialized correctly."""
+        """Test if the dataset of multiple is imported correctly."""
         at = AppTest.from_file(app_path)
         at.run(timeout=60)
 

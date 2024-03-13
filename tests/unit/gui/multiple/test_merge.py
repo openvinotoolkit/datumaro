@@ -59,7 +59,7 @@ def run_merge():
 class MergeTest(TestCase):
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_merge_page_open(self):
-        """Test if the session state is initialized correctly."""
+        """Test if the page of merge tab is opened correctly."""
         at = AppTest.from_function(run_merge, default_timeout=600).run()
 
         # selectbox
@@ -70,7 +70,7 @@ class MergeTest(TestCase):
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_merge(self):
-        """"""
+        """Test if the dataset is merged correctly."""
         at = AppTest.from_function(run_merge, default_timeout=600).run()
 
         assert "data_helper_merged" not in at.session_state

@@ -59,7 +59,7 @@ def run_compare():
 class CompareTest(TestCase):
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_compare_page_open(self):
-        """Test if the session state is initialized correctly."""
+        """Test if the page of compare tab is opened correctly."""
         at = AppTest.from_function(run_compare, default_timeout=600).run()
 
         # header
@@ -102,6 +102,7 @@ class CompareTest(TestCase):
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_compare_low_level_table(self):
+        """Test if the dataset is compared with low level table method correctly."""
         at = AppTest.from_function(run_compare, default_timeout=600).run()
 
         at.toggle("tg_low_lvl_on_comp_mul").set_value(True).run()
