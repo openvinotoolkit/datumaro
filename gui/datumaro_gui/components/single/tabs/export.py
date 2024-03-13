@@ -66,8 +66,7 @@ def main():
         data_helper: SingleDatasetHelper = state["data_helper"]
         data_helper.export(selected_path, format=selected_format, save_media=True)
 
-        uploaded_file = state["uploaded_file"]
-        zip_path = DataRepo().zip_dataset(selected_path, output_fn=uploaded_file)
+        zip_path = DataRepo().zip_dataset(selected_path)
 
         with open(zip_path, "rb") as fp:
             st.download_button(
