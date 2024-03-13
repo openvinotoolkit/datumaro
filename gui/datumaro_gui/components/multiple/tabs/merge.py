@@ -9,6 +9,7 @@ from datumaro_gui.utils.dataset.data_loader import MultipleDatasetHelper
 from datumaro_gui.utils.dataset.info import get_category_info, get_subset_info
 from datumaro_gui.utils.drawing import Dashboard, Pie, Radar
 from datumaro_gui.utils.drawing.css import box_style
+from datumaro_gui.utils.page import check_image_backend
 from streamlit import session_state as state
 from streamlit_elements import elements
 
@@ -16,6 +17,8 @@ from datumaro.components.annotation import AnnotationType
 
 
 def main():
+    check_image_backend(state.get("IMAGE_BACKEND"))
+
     data_helper_1: MultipleDatasetHelper = state["data_helper_1"]
     data_helper_2: MultipleDatasetHelper = state["data_helper_2"]
     first_dataset = data_helper_1.dataset()

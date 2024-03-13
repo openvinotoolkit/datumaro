@@ -17,6 +17,7 @@ from datumaro_gui.utils.dataset.state import (
     single_state_keys,
 )
 from datumaro_gui.utils.drawing.css import box_style, custom_css
+from datumaro_gui.utils.page import check_image_backend
 from datumaro_gui.utils.readme import github_pypi_desc
 from streamlit import session_state as state
 
@@ -24,6 +25,7 @@ from . import tabs
 
 
 def main():
+    check_image_backend(st.session_state.get("IMAGE_BACKEND"))
     log.info("__single__.main is called")
     st.write(github_pypi_desc)
     st.markdown(custom_css, unsafe_allow_html=True)
