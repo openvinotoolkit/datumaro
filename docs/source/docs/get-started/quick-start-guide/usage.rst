@@ -64,19 +64,17 @@ Datumaro provides solutions not only for individual datasets but also for multip
 You can utilize these functionalities through the GUI. Simply select the desired dataset format
 from the sidebar.
 
+.. image:: ../../../../images/gui/sidebar.png
+
 Please click on "Single Dataset" on sidebar to proceed.
 
-.. image:: ../../../../images/gui/select_path_to_import_data.png
-
+.. image:: ../../../../images/gui/select_file.png
 Enter the location where the desired dataset is located in the 'Path' field below, and then select
 the dataset from among the options available.
-
-.. image:: ../../../../images/gui/select_file.png
-
 Select the desired dataset from among those available in the folder. Whether your dataset is in a zip
 file or a regular folder, both are importable.
 
-# 사진
+.. image:: ../../../../images/gui/single_info.png
 
 You can review information about the selected dataset below. You can view Dataset Information, Subset Info,
 Category Info, and a sample of the dataset. For other functionalities, you can proceed through different tabs.
