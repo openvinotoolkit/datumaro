@@ -1,6 +1,6 @@
 # Compare
 
-If you wish to compare the characteristics of two datasets, simply click on the **Compare** tab. Upon clicking the Compare tab, you'll be presented with the following screen:
+If you wish to compare the characteristics of two datasets, simply click on the compare tab. Upon clicking the Compare tab, you'll be presented with the following screen:
 
 ![Compare Tab](../../../../images/gui/multiple/compare_tab.png)
 
@@ -28,9 +28,13 @@ The Low-level overview utilizes the Shift Analyzer to explain covariate shift an
 The **Compare Categories** section displays label matching information for label remapping between the datasets. The **Matched Labels** list showcases labels that have been matched, while **Unmatched Labels** displays labels that have not been matched.
 
 ### Suggest label mapping
+Additionally, it provides suggestions for label remapping based on label names and similarity. Users can adjust the similarity using a slider.
 ![Suggest Label Mapping](../../../../images/gui/multiple/compare_suggest_label_mapping.png)
+
+If the suggested mappings are incorrect, they can be modified manually.
 ![Modify Label Mapping Table](../../../../images/gui/multiple/compare_modify_table.png)
+
+After making all necessary modifications, users can check the desired mappings, click the **_"Finalize"_** button, and the mapped labels will be displayed. This information is then passed to the **_"Transform"_** tab for use in remapping.
 ![Finalize Mapping](../../../../images/gui/multiple/compare_finalize_mapping.png)
-Additionally, it provides suggestions for label remapping based on label names and similarity. Users can adjust the similarity using a slider. If the suggested mappings are incorrect, they can be modified manually. After making all necessary modifications, users can check the desired mappings, click the 'finalize' button, and the mapped labels will be displayed. This information is then passed to the 'Transform' tab for use in remapping.
 
 For further advanced features in comparison, you can follow the instructions provided [here](../../command-reference/context_free/compare.md) to utilize the CLI.

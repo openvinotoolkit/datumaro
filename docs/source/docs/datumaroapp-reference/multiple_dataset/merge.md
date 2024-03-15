@@ -1,6 +1,6 @@
 # Merge
 
-If you wish to merge two datasets, simply click on the `Merge` tab. Upon clicking, the following screen will appear.
+If you wish to merge two datasets, simply click on the merge tab. Upon clicking, the following screen will appear.
 
 ![Merge Tab](../../../../images/gui/multiple/merge_tab.png)
 
@@ -10,7 +10,7 @@ If you have a specific format in mind for the merged dataset, we recommend adjus
 
 For example, if the subsets of the two datasets are *train2017* and *val2017* for the first dataset, and *train* and *val* for the second dataset, but you want the merged dataset's subsets to be *train* and *val*, I suggest renaming the subsets of the first dataset accordingly. You can achieve this by transforming the datasets before merging.
 
-Once you've completed all checks for each dataset, click the `Merge dataset` button.
+Once you've completed all checks for each dataset, click the **"Merge dataset"** button.
 
 ![Merged Dataset Information](../../../../images/gui/multiple/merge_dataset.png)
 
