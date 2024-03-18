@@ -624,7 +624,7 @@ def main():
         )
         state["defined_label"] = defined_label
         state["undefined_label"] = undefined_label
-    if defined_attr is None and undefined_label is None:
+    if defined_attr is None and undefined_attr is None:
         defined_attr, undefined_attr = get_tab_data_for_attr_dist_by_type(val_cls, val_det, val_seg)
         state["defined_attr"] = defined_attr
         state["undefined_attr"] = undefined_attr
