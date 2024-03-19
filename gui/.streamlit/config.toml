@@ -6,3 +6,9 @@ secondaryBackgroundColor="#252526"
 [server]
 maxUploadSize=1028
 maxMessageSize=1028
+enableXsrfProtection=true
+enableCORS=true
+
+[browser]
+serverAddress="localhost"
+gatherUsageStats=false
