@@ -4,6 +4,7 @@ backgroundColor="#1e1e1e"
 secondaryBackgroundColor="#252526"
 
 [server]
+address="localhost"
 maxUploadSize=1028
 maxMessageSize=1028
 enableXsrfProtection=true
