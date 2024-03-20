@@ -109,4 +109,4 @@ The more advanced Python example is given :doc:`this notebook <../../jupyter_not
             dataset_path = '/path/to/data'
             dataset = Dataset.import_from(dataset_path, format='datumaro')
 
-            filtered_result = Dataset.filter(dataset, filter_func)
+            filtered_result = Dataset.filter(dataset, filter_func, filter_annotations=True)

@@ -190,7 +190,7 @@ class HLOps:
             during iteration
 
         Example:
-            - (`filter_annotations=True`) This is an example of filtering
+            - (`filter_annotations=False`) This is an example of filtering
                 dataset items with images larger than 1024 pixels::
 
                 from datumaro.components.media import Image
@@ -199,8 +199,11 @@ class HLOps:
                     h, w = item.media_as(Image).size
                     return h > 1024 or w > 1024
 
-                filtered = UserFunctionDatasetFilter(
-                    extractor=dataset, filter_func=filter_func)
+                filtered = HLOps.filter(
+                    dataset=dataset,
+                    filter_func=filter_func,
+                    filter_annotations=False,
+                )
                 # No items with an image height or width greater than 1024
                 filtered_items = [item for item in filtered]
 
@@ -222,8 +225,11 @@ class HLOps:
                     # Accept Bboxes smaller than 50% of the image size
                     return bbox_size < 0.5 * image_size
 
-                filtered = UserFunctionAnnotationsFilter(
-                    extractor=dataset, filter_func=filter_func)
+                filtered = HLOps.filter(
+                    dataset=dataset,
+                    filter_func=filter_func,
+                    filter_annotations=True,
+                )
                 # No bounding boxes with a size greater than 50% of their image
                 filtered_items = [item for item in filtered]
         """
