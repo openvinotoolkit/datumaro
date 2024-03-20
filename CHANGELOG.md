@@ -83,6 +83,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   (<https://github.com/openvinotoolkit/datumaro/pull/1271>)
 - Fix enable COCO to import only bboxes
   (<https://github.com/openvinotoolkit/datumaro/pull/1360>)
+- Fix resize transform for RleMask annotation
+- (<https://github.com/openvinotoolkit/datumaro/pull/1361>)
 
 ## Jan. 2024 Release 1.5.2
 ### Enhancements

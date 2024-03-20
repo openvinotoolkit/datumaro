@@ -1069,6 +1069,16 @@ class ResizeTransform(ItemTransform):
 
         return _resize_image
 
+    @staticmethod
+    def _lazy_resize_rlemask(mask, new_size):
+        def _resize_image():
+            # Can use only NEAREST for masks,
+            # because we can't have interpolated values
+            rescaled_mask = cv2.resize(mask.image, new_size[::-1], interpolation=cv2.INTER_NEAREST)
+            return mask_utils.encode(np.asfortranarray(rescaled_mask.astype(np.uint8)))
+
+        return _resize_image
+
     def transform_item(self, item):
         if not isinstance(item.media, Image):
             raise DatumaroError(
@@ -1106,6 +1116,9 @@ class ResizeTransform(ItemTransform):
                         ]
                     )
                 )
+            elif isinstance(ann, RleMask):
+                rescaled_mask = self._lazy_resize_rlemask(ann, new_size)
+                resized_annotations.append(ann.wrap(rle=rescaled_mask))
             elif isinstance(ann, Mask):
                 rescaled_mask = self._lazy_resize_mask(ann, new_size)
                 resized_annotations.append(ann.wrap(image=rescaled_mask))
