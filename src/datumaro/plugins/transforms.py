@@ -1074,9 +1074,7 @@ class ResizeTransform(ItemTransform):
         def _resize_image():
             # Can use only NEAREST for masks,
             # because we can't have interpolated values
-            rescaled_mask = cv2.resize(
-                mask.image.astype(np.float32), new_size[::-1], interpolation=cv2.INTER_NEAREST
-            )
+            rescaled_mask = cv2.resize(mask.image, new_size[::-1], interpolation=cv2.INTER_NEAREST)
             return mask_utils.encode(np.asfortranarray(rescaled_mask.astype(np.uint8)))
 
         return _resize_image
