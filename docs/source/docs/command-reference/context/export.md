@@ -4,10 +4,10 @@
 
 This command exports a project or a source as a dataset in some format.
 
-Check [supported formats](/docs/data-formats/formats/index.rst) for more info
+Check [supported formats](../../data-formats/formats/index.rst)  for more info
 about format specifications, supported options and other details.
 The list of formats can be extended by custom plugins, check
-[extending tips](/docs/user-manual/extending) for information on this topic.
+[extending tips](../../user-manual/extending) for information on this topic.
 
 Available formats are listed in the command help output.
 

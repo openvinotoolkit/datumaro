@@ -7,6 +7,7 @@ from types import SimpleNamespace
 from datumaro_gui.utils.dataset.data_loader import SingleDatasetHelper
 from datumaro_gui.utils.dataset.info import get_category_info, get_subset_info
 from datumaro_gui.utils.drawing import Dashboard, DatasetInfoBox, Gallery, Pie, Radar
+from datumaro_gui.utils.page import check_image_backend
 from streamlit import session_state as state
 from streamlit_elements import elements
 
@@ -16,6 +17,7 @@ from .analyze import get_dataset_info
 
 
 def main():
+    check_image_backend(state.get("IMAGE_BACKEND"))
     data_helper: SingleDatasetHelper = state["data_helper"]
     dataset = data_helper.dataset()
     n_labels = data_helper.num_labels

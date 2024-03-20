@@ -7,7 +7,6 @@ from collections import defaultdict
 from unittest import TestCase
 
 import numpy as np
-import pytest
 from streamlit.testing.v1 import AppTest
 
 from tests.requirements import Requirements, mark_requirement
@@ -52,9 +51,11 @@ def run_analyze():
     from gui.datumaro_gui.components.single import tabs
     from gui.datumaro_gui.utils.dataset.data_loader import SingleDatasetHelper
     from gui.datumaro_gui.utils.dataset.state import reset_state, single_state_keys
+    from gui.datumaro_gui.utils.page import init_func
 
     from tests.utils.assets import get_test_asset_path
 
+    init_func(state.get("IMAGE_BACKEND", None))
     reset_state(single_state_keys, state)
 
     dataset_dir = get_test_asset_path("datumaro_dataset")
@@ -139,7 +140,6 @@ class AnalyzeTest(TestCase):
             "image_size": {"mean": np.array([6.0, 8.0]), "std": np.array([0.0, 0.0])},
         }
 
-    @pytest.mark.xfail(reason="Cannot copy contextvar to thread")
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_analyze_page_open(self):
         """Test if the page of analyze tab is opened correctly."""
@@ -149,7 +149,6 @@ class AnalyzeTest(TestCase):
         assert at.session_state.cls_summary
         assert at.session_state.defined_label
 
-    @pytest.mark.xfail(reason="Cannot copy contextvar to thread")
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_get_dataset_info(self):
         """Test if get_dataset_info function of analyze component is worked out correctly."""

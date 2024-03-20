@@ -26,9 +26,11 @@ def run_export():
     from gui.datumaro_gui.components.single import tabs
     from gui.datumaro_gui.utils.dataset.data_loader import SingleDatasetHelper
     from gui.datumaro_gui.utils.dataset.state import reset_state, single_state_keys
+    from gui.datumaro_gui.utils.page import init_func
 
     from tests.utils.assets import get_test_asset_path
 
+    init_func(state.get("IMAGE_BACKEND", None))
     reset_state(single_state_keys, state)
 
     dataset_dir = get_test_asset_path("datumaro_dataset")
@@ -47,7 +49,7 @@ def run_export():
 class ExportTest(TestCase):
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_export_page_open(self):
-        """Test if the session state is initialized correctly."""
+        """Test if the page of export tab is opened correctly."""
         at = AppTest.from_function(run_export, default_timeout=600).run()
 
         selectbox_key = "sb_task_export_sin"

@@ -8,10 +8,13 @@ import os.path as osp
 import streamlit as st
 from datumaro_gui.utils.dataset.data_loader import DataRepo, SingleDatasetHelper
 from datumaro_gui.utils.dataset.state import get_download_folder_path
+from datumaro_gui.utils.page import check_image_backend
 from streamlit import session_state as state
 
 
 def main():
+    check_image_backend(state.get("IMAGE_BACKEND"))
+
     tasks = ["classification", "detection", "instance_segmentation", "segmentation", "landmark"]
     formats = {
         "classification": ["datumaro", "imagenet", "cifar", "mnist", "mnist_csv", "lfw"],
@@ -63,8 +66,7 @@ def main():
         data_helper: SingleDatasetHelper = state["data_helper"]
         data_helper.export(selected_path, format=selected_format, save_media=True)
 
-        uploaded_file = state["uploaded_file"]
-        zip_path = DataRepo().zip_dataset(selected_path, output_fn=uploaded_file)
+        zip_path = DataRepo().zip_dataset(selected_path)
 
         with open(zip_path, "rb") as fp:
             st.download_button(

@@ -6,7 +6,6 @@ import os
 from unittest import TestCase
 
 import pandas as pd
-import pytest
 from streamlit.testing.v1 import AppTest
 
 from tests.requirements import Requirements, mark_requirement
@@ -38,9 +37,11 @@ def run_transform():
     from gui.datumaro_gui.components.single import tabs
     from gui.datumaro_gui.utils.dataset.data_loader import SingleDatasetHelper
     from gui.datumaro_gui.utils.dataset.state import reset_state, single_state_keys
+    from gui.datumaro_gui.utils.page import init_func
 
     from tests.utils.assets import get_test_asset_path
 
+    init_func(state.get("IMAGE_BACKEND", None))
     reset_state(single_state_keys, state)
 
     dataset_dir = get_test_asset_path("datumaro_dataset")
@@ -65,9 +66,11 @@ def run_transform_coco():
     from gui.datumaro_gui.components.single import tabs
     from gui.datumaro_gui.utils.dataset.data_loader import SingleDatasetHelper
     from gui.datumaro_gui.utils.dataset.state import reset_state, single_state_keys
+    from gui.datumaro_gui.utils.page import init_func
 
     from tests.utils.assets import get_test_asset_path
 
+    init_func(state.get("IMAGE_BACKEND", None))
     reset_state(single_state_keys, state)
 
     dataset_dir = get_test_asset_path("coco_dataset", "coco_instances")
@@ -92,9 +95,11 @@ def run_transform_imagenet():
     from gui.datumaro_gui.components.single import tabs
     from gui.datumaro_gui.utils.dataset.data_loader import SingleDatasetHelper
     from gui.datumaro_gui.utils.dataset.state import reset_state, single_state_keys
+    from gui.datumaro_gui.utils.page import init_func
 
     from tests.utils.assets import get_test_asset_path
 
+    init_func(state.get("IMAGE_BACKEND", None))
     reset_state(single_state_keys, state)
 
     dataset_dir = get_test_asset_path("imagenet_dataset")
@@ -119,9 +124,11 @@ def run_transform_voc2():
     from gui.datumaro_gui.components.single import tabs
     from gui.datumaro_gui.utils.dataset.data_loader import SingleDatasetHelper
     from gui.datumaro_gui.utils.dataset.state import reset_state, single_state_keys
+    from gui.datumaro_gui.utils.page import init_func
 
     from tests.utils.assets import get_test_asset_path
 
+    init_func(state.get("IMAGE_BACKEND", None))
     reset_state(single_state_keys, state)
 
     dataset_dir = get_test_asset_path("voc_dataset", "voc_dataset2")
@@ -792,7 +799,6 @@ class TransformReindexTest(TestCase):
         # After
         assert at.session_state.data_helper.dataset().__getitem__(0).id == "0"
 
-    @pytest.mark.xfail(reason="Cannot copy contextvar to thread")
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_reindex_with_media_name(self):
         """Test if _reindex_with_image function of TransformReindexing in single dataset is worked out correctly."""
@@ -802,15 +808,16 @@ class TransformReindexTest(TestCase):
         at.button("btn_reindexing").click().run()
 
         # Before
-        assert at.session_state.data_helper.dataset().__getitem__(0).id == "label_0:label_0_1"
+        item_ids = sorted([item.id for item in at.session_state.data_helper.dataset()])
+        assert item_ids[0] == "label_0:label_0_1"
 
         # Call the _reindex_with_image() method
         TransformReindexing._reindex_with_image(at.session_state.data_helper)
 
         # Assert that the IDs have been updated
-        assert at.session_state.data_helper.dataset().__getitem__(0).id == "label_0_1"
+        item_ids = sorted([item.id for item in at.session_state.data_helper.dataset()])
+        assert item_ids[0] == "label_0_1"
 
-    @pytest.mark.xfail(reason="Cannot copy contextvar to thread")
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_reindex_check_reindex_media_name_button(self):
         """Test if button api for reindexing method based on media name of TransformReindexing in single dataset is worked out correctly."""
@@ -822,13 +829,15 @@ class TransformReindexTest(TestCase):
         button_key = "btn_start_media_name_reindex_sin"
 
         # Before
-        assert at.session_state.data_helper.dataset().__getitem__(0).id == "label_0:label_0_1"
+        item_ids = sorted([item.id for item in at.session_state.data_helper.dataset()])
+        assert item_ids[0] == "label_0:label_0_1"
 
         # Click button
         at.button(button_key).click().run()
 
         # After
-        assert at.session_state.data_helper.dataset().__getitem__(0).id == "label_0_1"
+        item_ids = sorted([item.id for item in at.session_state.data_helper.dataset()])
+        assert item_ids[0] == "label_0_1"
 
 
 class TransformFiltrationTest(TestCase):
@@ -1591,7 +1600,6 @@ class TransformNDRTest:
         assert at.radio(radio_key).label == "Undersample Policy"
         assert at.radio(radio_key).options == ["uniform", "inverse"]
 
-    @pytest.mark.xfail(reason="Cannot copy contextvar to thread")
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_ndr_check_button(self):
         """Test if button api for ndr method of TransformNDR in single dataset is worked out correctly."""

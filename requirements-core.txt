@@ -8,7 +8,7 @@ networkx>=2.6
 nibabel>=3.2.1
 numpy>=1.17.3
 orjson>=3.6.6
-Pillow>=6.1.0
+Pillow==10.2.0
 ruamel.yaml>=0.17.0
 shapely>=1.7
 typing_extensions>=3.7.4.3
@@ -17,7 +17,7 @@ tqdm
 pycocotools>=2.0.4; platform_system != "Windows" or python_version >= '3.9'
 
 pycocotools-windows; platform_system == "Windows" and python_version < '3.9'
-PyYAML>=5.3.1
+PyYAML==6.0.1
 
 # 2.3 has an unlisted dependency on PyTorch, which we don't need
 tensorboardX>=1.8,!=2.3

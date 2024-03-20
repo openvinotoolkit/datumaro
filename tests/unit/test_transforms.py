@@ -5,6 +5,7 @@ import random
 from unittest import TestCase
 
 import numpy as np
+import pycocotools.mask as mask_utils
 import pytest
 
 import datumaro.plugins.transforms as transforms
@@ -21,6 +22,7 @@ from datumaro.components.annotation import (
     PointsCategories,
     Polygon,
     PolyLine,
+    RleMask,
 )
 from datumaro.components.dataset import Dataset
 from datumaro.components.dataset_base import DatasetItem
@@ -922,6 +924,20 @@ class TransformsTest(TestCase):
                                 ]
                             )
                         ),
+                        RleMask(
+                            mask_utils.encode(
+                                np.asfortranarray(
+                                    np.array(
+                                        [
+                                            [0, 0, 1, 1],
+                                            [1, 0, 0, 1],
+                                            [0, 1, 1, 0],
+                                            [1, 1, 0, 0],
+                                        ]
+                                    ).astype(np.uint8)
+                                )
+                            )
+                        ),
                     ],
                 )
                 for i in range(3)
@@ -952,6 +968,24 @@ class TransformsTest(TestCase):
                                     [1, 1, 1, 1, 0, 0, 0, 0],
                                     [1, 1, 1, 1, 0, 0, 0, 0],
                                 ]
+                            )
+                        ),
+                        RleMask(
+                            mask_utils.encode(
+                                np.asfortranarray(
+                                    np.array(
+                                        [
+                                            [0, 0, 0, 0, 1, 1, 1, 1],
+                                            [0, 0, 0, 0, 1, 1, 1, 1],
+                                            [1, 1, 0, 0, 0, 0, 1, 1],
+                                            [1, 1, 0, 0, 0, 0, 1, 1],
+                                            [0, 0, 1, 1, 1, 1, 0, 0],
+                                            [0, 0, 1, 1, 1, 1, 0, 0],
+                                            [1, 1, 1, 1, 0, 0, 0, 0],
+                                            [1, 1, 1, 1, 0, 0, 0, 0],
+                                        ]
+                                    ).astype(np.uint8)
+                                )
                             )
                         ),
                     ],

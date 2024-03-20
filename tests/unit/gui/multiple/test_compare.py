@@ -5,7 +5,6 @@
 import os
 from unittest import TestCase
 
-import pytest
 from streamlit.testing.v1 import AppTest
 
 from tests.requirements import Requirements, mark_requirement
@@ -29,9 +28,11 @@ def run_compare():
     from gui.datumaro_gui.components.multiple import tabs
     from gui.datumaro_gui.utils.dataset.data_loader import MultipleDatasetHelper
     from gui.datumaro_gui.utils.dataset.state import multiple_state_keys, reset_state
+    from gui.datumaro_gui.utils.page import init_func
 
     from tests.utils.assets import get_test_asset_path
 
+    init_func(state.get("IMAGE_BACKEND", None))
     reset_state(multiple_state_keys, state)
 
     dataset_1_dir = get_test_asset_path("datumaro_dataset")
@@ -55,11 +56,10 @@ def run_compare():
     tabs.call_compare()
 
 
-@pytest.mark.xfail(reason="See ticket no. 134782")
 class CompareTest(TestCase):
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_compare_page_open(self):
-        """Test if the session state is initialized correctly."""
+        """Test if the page of compare tab is opened correctly."""
         at = AppTest.from_function(run_compare, default_timeout=600).run()
 
         # header
@@ -102,6 +102,7 @@ class CompareTest(TestCase):
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_compare_low_level_table(self):
+        """Test if the dataset is compared with low level table method correctly."""
         at = AppTest.from_function(run_compare, default_timeout=600).run()
 
         at.toggle("tg_low_lvl_on_comp_mul").set_value(True).run()

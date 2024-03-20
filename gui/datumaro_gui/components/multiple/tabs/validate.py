@@ -7,11 +7,14 @@ from types import SimpleNamespace
 import streamlit as st
 from datumaro_gui.utils.dataset.data_loader import MultipleDatasetHelper
 from datumaro_gui.utils.drawing import Bar, Dashboard, DataGrid
+from datumaro_gui.utils.page import check_image_backend
 from streamlit import session_state as state
 from streamlit_elements import elements
 
 
 def main():
+    check_image_backend(state.get("IMAGE_BACKEND"))
+
     data_helper_1: MultipleDatasetHelper = state["data_helper_1"]
     data_helper_2: MultipleDatasetHelper = state["data_helper_2"]
 

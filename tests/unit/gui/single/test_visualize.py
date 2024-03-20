@@ -29,9 +29,11 @@ def run_visualize():
     from gui.datumaro_gui.components.single import tabs
     from gui.datumaro_gui.utils.dataset.data_loader import SingleDatasetHelper
     from gui.datumaro_gui.utils.dataset.state import reset_state, single_state_keys
+    from gui.datumaro_gui.utils.page import init_func
 
     from tests.utils.assets import get_test_asset_path
 
+    init_func(state.get("IMAGE_BACKEND", None))
     reset_state(single_state_keys, state)
 
     dataset_dir = get_test_asset_path("datumaro_dataset")
