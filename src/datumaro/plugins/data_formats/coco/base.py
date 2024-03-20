@@ -29,6 +29,7 @@ from datumaro.components.errors import (
     DatasetImportError,
     InvalidAnnotationError,
     InvalidFieldTypeError,
+    MissingFieldError,
     UndeclaredLabelError,
 )
 from datumaro.components.importer import ImportContext
@@ -449,8 +450,7 @@ class _CocoBase(SubsetBase):
     ) -> Any:
         value = ann.get(key, NOTSET)
         if value is NOTSET:
-            log.warning(f"field '{key}' is not existed in the annotation file.")
-            return None
+            raise MissingFieldError(key)
         elif not isinstance(value, cls):
             cls = (cls,) if isclass(cls) else cls
             raise InvalidFieldTypeError(
@@ -505,7 +505,12 @@ class _CocoBase(SubsetBase):
                     )
                 )
 
-            segmentation = self._parse_field(ann, "segmentation", (list, dict))
+            try:
+                segmentation = self._parse_field(ann, "segmentation", (list, dict))
+            except MissingFieldError as e:
+                log.warn(str(e))
+                segmentation = None
+
             if segmentation and segmentation != [[]]:
                 rle = None
 
