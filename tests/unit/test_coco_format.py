@@ -1255,7 +1255,8 @@ class CocoExtractorTests(TestCase):
 
     @mark_requirement(Requirements.DATUM_ERROR_REPORTING)
     def test_can_report_missing_ann_field(self):
-        for field in ["id", "image_id", "segmentation", "iscrowd", "category_id", "bbox"]:
+        # https://github.com/openvinotoolkit/datumaro/issues/1344 requires to make "segmentation" optional
+        for field in ["id", "image_id", "iscrowd", "category_id", "bbox"]:
             with self.subTest(field=field):
                 with TestDir() as test_dir:
                     ann_path = self._get_dummy_annotation_path(test_dir)
