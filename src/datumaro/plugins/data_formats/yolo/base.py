@@ -317,7 +317,12 @@ class YoloLooseBase(SubsetBase):
             raise DatasetImportError(f"{config_path} should be a directory.")
 
         if not urls:
-            raise DatasetImportError(f"urls should be specified for {self.__class__.__name__}.")
+            raise DatasetImportError(
+                f"`urls` should be specified for {self.__class__.__name__}, "
+                f"if you want to import a dataset with using this {self.__class__.__name__} directly. "
+                "In most case, it happens by giving an incorrect format name to the import interface. "
+                'Please consider to import your dataset with this format name, "yolo", such as `Dataset.import_from(..., format="yolo")`'
+            )
 
         rootpath = self._get_rootpath(config_path)
 
