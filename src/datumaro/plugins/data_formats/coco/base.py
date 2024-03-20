@@ -1,4 +1,4 @@
-# Copyright (C) 2019-2022 Intel Corporation
+# Copyright (C) 2019-2024 Intel Corporation
 #
 # SPDX-License-Identifier: MIT
 
@@ -449,7 +449,7 @@ class _CocoBase(SubsetBase):
     ) -> Any:
         value = ann.get(key, NOTSET)
         if value is NOTSET:
-            log.warning(f"field '{key}' is no existed in the annotation file")
+            log.warning(f"field '{key}' is not existed in the annotation file.")
             return None
         elif not isinstance(value, cls):
             cls = (cls,) if isclass(cls) else cls
