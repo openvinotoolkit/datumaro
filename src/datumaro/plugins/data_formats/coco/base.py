@@ -29,7 +29,6 @@ from datumaro.components.errors import (
     DatasetImportError,
     InvalidAnnotationError,
     InvalidFieldTypeError,
-    MissingFieldError,
     UndeclaredLabelError,
 )
 from datumaro.components.importer import ImportContext
@@ -450,7 +449,8 @@ class _CocoBase(SubsetBase):
     ) -> Any:
         value = ann.get(key, NOTSET)
         if value is NOTSET:
-            raise MissingFieldError(key)
+            log.warning(f"field '{key}' is no existed in the annotation file")
+            return None
         elif not isinstance(value, cls):
             cls = (cls,) if isclass(cls) else cls
             raise InvalidFieldTypeError(
