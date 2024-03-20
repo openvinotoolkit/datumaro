@@ -7,7 +7,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>datumaro.plugins.data_formats.yolo.base &#8212; Datumaro 1.6.0rc1 documentation</title>
+    <title>datumaro.plugins.data_formats.yolo.base &#8212; Datumaro 2.0.0 documentation</title>
   
   
   
@@ -38,7 +38,7 @@
 <link rel="preload" as="script" href="../../../../../_static/scripts/pydata-sphinx-theme.js?digest=8d27b9dea8ad943066ae" />
   <script src="../../../../../_static/vendor/fontawesome/6.5.1/js/all.min.js?digest=8d27b9dea8ad943066ae"></script>
 
-    <script src="../../../../../_static/documentation_options.js?v=82acb2b2"></script>
+    <script src="../../../../../_static/documentation_options.js?v=51b770b3"></script>
     <script src="../../../../../_static/doctools.js?v=888ff710"></script>
     <script src="../../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../../../../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -124,8 +124,8 @@
       
     
     
-    <img src="../../../../../_static/datumaro-logo.png" class="logo__image only-light" alt="Datumaro 1.6.0rc1 documentation - Home"/>
-    <script>document.write(`<img src="../../../../../_static/datumaro-logo.png" class="logo__image only-dark" alt="Datumaro 1.6.0rc1 documentation - Home"/>`);</script>
+    <img src="../../../../../_static/datumaro-logo.png" class="logo__image only-light" alt="Datumaro 2.0.0 documentation - Home"/>
+    <script>document.write(`<img src="../../../../../_static/datumaro-logo.png" class="logo__image only-dark" alt="Datumaro 2.0.0 documentation - Home"/>`);</script>
   
   
 </a></div>
@@ -674,6 +674,15 @@ document.write(`
 
         <span class="k">if</span> <span class="ow">not</span> <span class="n">osp</span><span class="o">.</span><span class="n">isdir</span><span class="p">(</span><span class="n">config_path</span><span class="p">):</span>
             <span class="k">raise</span> <span class="n">DatasetImportError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">config_path</span><span class="si">}</span><span class="s2"> should be a directory.&quot;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">urls</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">DatasetImportError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;`urls` should be specified for </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2">, &quot;</span>
+                <span class="sa">f</span><span class="s2">&quot;if you want to import a dataset with using this </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2"> directly. &quot;</span>
+                <span class="s2">&quot;In most case, it happens by giving an incorrect format name to the import interface. &quot;</span>
+                <span class="s2">&quot;Please consider to import your dataset with this format name, &#39;yolo&#39;, &quot;</span>
+                <span class="s2">&quot;such as `Dataset.import_from(..., format=&#39;yolo&#39;)`.&quot;</span>
+            <span class="p">)</span>
 
         <span class="n">rootpath</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_rootpath</span><span class="p">(</span><span class="n">config_path</span><span class="p">)</span>
 
