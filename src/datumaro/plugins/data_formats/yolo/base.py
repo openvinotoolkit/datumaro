@@ -316,6 +316,9 @@ class YoloLooseBase(SubsetBase):
         if not osp.isdir(config_path):
             raise DatasetImportError(f"{config_path} should be a directory.")
 
+        if not urls:
+            raise DatasetImportError(f"urls should be specified for {self.__class__.__name__}.")
+
         rootpath = self._get_rootpath(config_path)
 
         self._image_info = YoloStrictBase.parse_image_info(rootpath, image_info)
