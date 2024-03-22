@@ -1,3 +1,7 @@
+# Copyright (C) 2024 Intel Corporation
+#
+# SPDX-License-Identifier: MIT
+
 from .bar import Bar
 from .card import Card
 from .chart import Chart

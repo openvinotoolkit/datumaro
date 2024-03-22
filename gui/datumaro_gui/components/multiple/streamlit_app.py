@@ -2,7 +2,6 @@
 #
 # SPDX-License-Identifier: MIT
 
-
 import logging as log
 import os
 
