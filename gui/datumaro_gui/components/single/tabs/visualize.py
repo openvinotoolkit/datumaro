@@ -5,6 +5,7 @@
 import numpy as np
 import streamlit as st
 from datumaro_gui.utils.dataset.data_loader import SingleDatasetHelper
+from datumaro_gui.utils.page import check_image_backend
 from streamlit import session_state as state
 from streamlit_elements import elements
 
@@ -12,6 +13,7 @@ from datumaro.components.visualizer import Visualizer
 
 
 def main():
+    check_image_backend(state.get("IMAGE_BACKEND"))
     data_helper: SingleDatasetHelper = state["data_helper"]
     dataset = data_helper.dataset()
     with elements("visualize"):

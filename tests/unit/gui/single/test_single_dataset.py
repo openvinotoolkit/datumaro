@@ -27,7 +27,7 @@ single_dataset_key = "datumaro_gui.utils.page_p_:microscope: Single dataset"
 class SingleDataTest(TestCase):
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_single_page_open(self):
-        """Test if the session state is initialized correctly."""
+        """Test if the page of single dataset is opened correctly."""
         at = AppTest.from_file(app_path, default_timeout=600).run()
 
         at.sidebar.checkbox(single_dataset_key).check()
@@ -46,10 +46,9 @@ class SingleDataTest(TestCase):
         # Check selectbox value
         assert at.selectbox.values[0] == None
 
-    @pytest.mark.xfail(reason="Cannot copy contextvar to thread")
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_get_test_asset(self):
-        """Test if the session state is initialized correctly."""
+        """Test if the dataset of single is imported correctly."""
         at = AppTest.from_file(app_path, default_timeout=600).run()
 
         at.sidebar.checkbox(single_dataset_key).check()

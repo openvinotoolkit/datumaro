@@ -5,7 +5,6 @@
 import os
 from unittest import TestCase
 
-import pytest
 from streamlit.testing.v1 import AppTest
 
 from tests.requirements import Requirements, mark_requirement
@@ -29,9 +28,11 @@ def run_export():
     from gui.datumaro_gui.components.multiple import tabs
     from gui.datumaro_gui.utils.dataset.data_loader import MultipleDatasetHelper
     from gui.datumaro_gui.utils.dataset.state import multiple_state_keys, reset_state
+    from gui.datumaro_gui.utils.page import init_func
 
     from tests.utils.assets import get_test_asset_path
 
+    init_func(state.get("IMAGE_BACKEND", None))
     reset_state(multiple_state_keys, state)
 
     dataset_1_dir = get_test_asset_path("coco_dataset", "coco_instances")
@@ -64,9 +65,11 @@ def run_export_merged():
     from gui.datumaro_gui.components.multiple import tabs
     from gui.datumaro_gui.utils.dataset.data_loader import MultipleDatasetHelper
     from gui.datumaro_gui.utils.dataset.state import multiple_state_keys, reset_state
+    from gui.datumaro_gui.utils.page import check_image_backend, init_func
 
     from tests.utils.assets import get_test_asset_path
 
+    init_func(state.get("IMAGE_BACKEND", None))
     reset_state(multiple_state_keys, state)
 
     dataset_1_dir = get_test_asset_path("coco_dataset", "coco_instances")
@@ -90,6 +93,7 @@ def run_export_merged():
     data_helper = MultipleDatasetHelper()
     state["data_helper_merged"] = data_helper
 
+    check_image_backend(state.get("IMAGE_BACKEND"))
     merged_dataset = data_helper.merge([data_helper_1.dataset(), data_helper_2.dataset()], "union")
     data_helper.update_dataset(merged_dataset)
     tabs.call_export()
@@ -98,7 +102,7 @@ def run_export_merged():
 class ExportTest(TestCase):
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_export_page_open(self):
-        """Test if the session state is initialized correctly."""
+        """Test if the page of export tab is opened correctly."""
         at = AppTest.from_function(run_export, default_timeout=600).run()
 
         # selectbox
@@ -112,10 +116,9 @@ class ExportTest(TestCase):
         # error
         assert len(at.error) == 1
 
-    @pytest.mark.xfail(reason="Cannot copy contextvar to thread")
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_export_merged_page_open(self):
-        """Test if the session state is initialized correctly."""
+        """Test if the page of export tab with merged dataset is opened correctly."""
         at = AppTest.from_function(run_export_merged, default_timeout=600).run()
 
         # selectbox
@@ -151,10 +154,9 @@ class ExportTest(TestCase):
         assert at.text_input("ti_path_export_mult").value
         assert not at.button("btn_export_mult").value
 
-    @pytest.mark.xfail(reason="Cannot copy contextvar to thread")
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_export(self):
-        """"""
+        """Test if the dataset is exported correctly."""
         at = AppTest.from_function(run_export_merged, default_timeout=600).run()
 
         # Click export button

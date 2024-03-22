@@ -47,7 +47,7 @@ jobs:
           # python -m pytest -v --html=nightly_regression_test_report.html
           tox -e tests-py${{ matrix.tox-env-py }}-${{ matrix.tox-env-os }}
       - name: Upload test results
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: nightly-results-py${{ matrix.tox-env-py }}-${{ matrix.tox-env-os }}
           path: .tox/results-tests-py${{ matrix.tox-env-py }}-${{ matrix.tox-env-os }}.csv

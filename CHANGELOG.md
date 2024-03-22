@@ -5,10 +5,10 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## \[Unreleased\]
+## Apr. 2024 Release 2.0.0
 ### New features
 - Changed supported Python version range (>=3.9, <=3.11)
-  (<>)
+  (<https://github.com/openvinotoolkit/datumaro/pull/1269>)
 - Support MMDetection COCO format
   (<https://github.com/openvinotoolkit/datumaro/pull/1213>)
 - Develop JsonSectionPageMapper in Rust API
@@ -81,6 +81,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   (<https://github.com/openvinotoolkit/datumaro/pull/1262>)
 - Fix explore command without project
   (<https://github.com/openvinotoolkit/datumaro/pull/1271>)
+- Fix enable COCO to import only bboxes
+  (<https://github.com/openvinotoolkit/datumaro/pull/1360>)
+- Fix resize transform for RleMask annotation
+- (<https://github.com/openvinotoolkit/datumaro/pull/1361>)
+- Fix import YOLO variants from extractor when `urls` is not specified
+  (<https://github.com/openvinotoolkit/datumaro/pull/1362>)
 
 ## Jan. 2024 Release 1.5.2
 ### Enhancements

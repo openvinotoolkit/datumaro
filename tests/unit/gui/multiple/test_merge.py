@@ -5,7 +5,6 @@
 import os
 from unittest import TestCase
 
-import pytest
 from streamlit.testing.v1 import AppTest
 
 from tests.requirements import Requirements, mark_requirement
@@ -29,9 +28,11 @@ def run_merge():
     from gui.datumaro_gui.components.multiple import tabs
     from gui.datumaro_gui.utils.dataset.data_loader import MultipleDatasetHelper
     from gui.datumaro_gui.utils.dataset.state import multiple_state_keys, reset_state
+    from gui.datumaro_gui.utils.page import init_func
 
     from tests.utils.assets import get_test_asset_path
 
+    init_func(state.get("IMAGE_BACKEND", None))
     reset_state(multiple_state_keys, state)
 
     dataset_1_dir = get_test_asset_path("coco_dataset", "coco_instances")
@@ -58,7 +59,7 @@ def run_merge():
 class MergeTest(TestCase):
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_merge_page_open(self):
-        """Test if the session state is initialized correctly."""
+        """Test if the page of merge tab is opened correctly."""
         at = AppTest.from_function(run_merge, default_timeout=600).run()
 
         # selectbox
@@ -67,10 +68,9 @@ class MergeTest(TestCase):
         # button
         assert not at.button("merge_btn_mult").value
 
-    @pytest.mark.xfail(reason="Cannot copy contextvar to thread")
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_merge(self):
-        """"""
+        """Test if the dataset is merged correctly."""
         at = AppTest.from_function(run_merge, default_timeout=600).run()
 
         assert "data_helper_merged" not in at.session_state

@@ -25,7 +25,7 @@ jobs:
         run: python -m pip install cibuildwheel==2.15.0
       - name: Build wheels
         run: python -m cibuildwheel --output-dir wheelhouse
-      - uses: actions/upload-artifact@v3
+      - uses: actions/upload-artifact@v4
         with:
           name: artifact-wheels_${{ matrix.os }}
           path: ./wheelhouse/*.whl
@@ -44,7 +44,7 @@ jobs:
         run: python -m pip install build
       - name: Build sdist
         run: python -m build --sdist
-      - uses: actions/upload-artifact@v3
+      - uses: actions/upload-artifact@v4
         with:
           name: artifact-sdist_${{ matrix.os }}
           path: dist/*.tar.gz

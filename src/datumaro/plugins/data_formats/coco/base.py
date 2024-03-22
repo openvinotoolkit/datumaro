@@ -1,4 +1,4 @@
-# Copyright (C) 2019-2022 Intel Corporation
+# Copyright (C) 2019-2024 Intel Corporation
 #
 # SPDX-License-Identifier: MIT
 
@@ -505,7 +505,12 @@ class _CocoBase(SubsetBase):
                     )
                 )
 
-            segmentation = self._parse_field(ann, "segmentation", (list, dict))
+            try:
+                segmentation = self._parse_field(ann, "segmentation", (list, dict))
+            except MissingFieldError as e:
+                log.warn(str(e))
+                segmentation = None
+
             if segmentation and segmentation != [[]]:
                 rle = None
 
