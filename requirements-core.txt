@@ -2,12 +2,12 @@ attrs>=21.3.0
 defusedxml>=0.7.0
 h5py>=2.10.0
 imagesize>=1.4.1
-lxml>=4.4.1
+lxml==4.9.4
 matplotlib>=3.3.1
 networkx>=2.6
 nibabel>=3.2.1
-numpy>=1.17.3
-orjson>=3.6.6
+numpy==1.26.4
+orjson==3.9.15
 Pillow>=6.1.0
 ruamel.yaml>=0.17.0
 shapely>=1.7

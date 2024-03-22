@@ -7,7 +7,7 @@ opencv-python-headless>=4.1.0.25
 # docs
 markupsafe==2.1.5
 nbconvert>=7.2.3
-ipython>=8.4.0
+ipython==8.22.2
 sphinx==7.2.6
 pydata-sphinx-theme==0.15.2
 sphinx-copybutton
