@@ -758,7 +758,7 @@ class TransformNDR(TransformBase):
             st.toast(f"Error: {repr(e)}", icon="🚨")
 
     def gui(self, data_helper: SingleDatasetHelper):
-        subsets = list(data_helper.dataset().subsets().keys())
+        subsets = sorted(list(data_helper.dataset().subsets().keys()))
 
         c1, c2 = st.columns([0.3, 0.7])
         with c1:

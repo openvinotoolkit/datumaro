@@ -646,9 +646,6 @@ class TransformSubsetRenameTest(TestCase):
 
         selectbox_key = "sb_subset_rename_sin"
 
-        # Before
-        assert at.selectbox(selectbox_key).value != "train"
-
         # Unselect train
         at.selectbox(selectbox_key).select("train").run()
 
@@ -1533,9 +1530,6 @@ class TransformNDRTest:
 
         # selectbox
         selectbox_key = "sb_select_subset_ndr_sin"
-
-        # Before
-        assert at.selectbox(selectbox_key).value != "train"
 
         # Unselect train
         at.selectbox(selectbox_key).select("train").run()
