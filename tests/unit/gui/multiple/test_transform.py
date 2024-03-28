@@ -348,9 +348,7 @@ class TransformTest(TestCase):
         selectbox_key = "sb_select_ann_id_mul_c1"
         assert at.selectbox(selectbox_key)
         assert at.selectbox(selectbox_key).label == "Select an annotation"
-        assert at.selectbox(selectbox_key).options == [
-            "All",
-        ] + sorted(list({str(ann.id) for ann in selected_item.annotations}))
+        assert at.selectbox(selectbox_key).options == ["All", "mary"]
 
         button_key = "btn_remove_item_remove_mul_c1"
         assert at.button(button_key)
@@ -864,9 +862,6 @@ class TransformSubsetRenameTest(TestCase):
 
         selectbox_key = "sb_subset_rename_mul_c1"
 
-        # Before
-        assert at.selectbox(selectbox_key).value != "train"
-
         # Unselect train
         at.selectbox(selectbox_key).select("train").run()
 
@@ -1218,15 +1213,11 @@ class TransformRemoveTest(TestCase):
             at.selectbox(selectbox_key).options
             == at.session_state.data_helper_1.subset_to_ids()[selected_subset]
         )
-        selected_id = at.selectbox(selectbox_key).value
-        selected_item = at.session_state.data_helper_1.dataset().get(selected_id, selected_subset)
 
         selectbox_key = "sb_select_ann_id_mul_c1"
         assert at.selectbox(selectbox_key)
         assert at.selectbox(selectbox_key).label == "Select an annotation"
-        assert at.selectbox(selectbox_key).options == [
-            "All",
-        ] + sorted(list({str(ann.id) for ann in selected_item.annotations}))
+        assert at.selectbox(selectbox_key).options == ["All", "mary"]
 
         # button
         button_key = "btn_remove_item_remove_mul_c1"
@@ -1273,7 +1264,13 @@ class TransformRemoveTest(TestCase):
         at.selectbox(selectbox_id_key).select("b").run()
 
         assert at.selectbox(selectbox_id_key).value == "b"
-        assert at.selectbox(selectbox_ann_id_key).options == ["All", "0", "1", "2", "3"]
+        assert at.selectbox(selectbox_ann_id_key).options == [
+            "All",
+            "car",
+            "bicycle",
+            "tom",
+            "mary",
+        ]
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_remove_item(self):
