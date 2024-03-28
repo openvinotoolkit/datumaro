@@ -1,8 +1,11 @@
 # Copyright (C) 2019-2022 Intel Corporation
+# Copyright (C) 2022-2024 CVAT.ai Corporation
 #
 # SPDX-License-Identifier: MIT
 
 # pylint: disable=no-self-use
+
+from __future__ import annotations
 
 import os
 import os.path as osp
@@ -37,8 +40,8 @@ from .format import DatumaroPath
 
 
 class _SubsetWriter:
-    def __init__(self, context):
-        self._context = context
+    def __init__(self, context: DatumaroConverter):
+        self._context: DatumaroConverter = context
 
         self._data = {
             "info": {},
@@ -76,9 +79,8 @@ class _SubsetWriter:
                     item, osp.join(self._context._images_dir, item.subset, path)
                 )
 
-            item_desc["image"] = {
-                "path": path,
-            }
+            item_desc["image"] = {"path": path}
+
             if item.media.has_size:  # avoid occasional loading
                 item_desc["image"]["size"] = item.media.size
         elif isinstance(item.media, PointCloud):
@@ -119,8 +121,7 @@ class _SubsetWriter:
 
             if related_images:
                 item_desc["related_images"] = related_images
-
-        if isinstance(item.media, MediaElement):
+        elif isinstance(item.media, MediaElement):
             item_desc["media"] = {"path": item.media.path}
 
         self.items.append(item_desc)

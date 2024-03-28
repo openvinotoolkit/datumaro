@@ -501,6 +501,13 @@ class PointCloud(MediaElement):
 
         self.extra_images: List[Image] = extra_images or []
 
+    def __eq__(self, other: object) -> bool:
+        return (
+            isinstance(other, __class__)
+            and self.path == other.path
+            and set(self.extra_images) == set(other.extra_images)
+        )
+
 
 class MultiframeImage(MediaElement):
     def __init__(

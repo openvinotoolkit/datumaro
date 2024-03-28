@@ -60,6 +60,10 @@ class Requirements:
     DATUM_BUG_606 = "transform with resize also changed the image extension from .jpg to .png"
     DATUM_BUG_618 = "ResizeTransform returns broken image pixels"
 
+    # GitHub issues (bugs)
+    # https://github.com/cvat-ai/datumaro/issues
+    DATUM_CVAT_AI_BUG_20 = "Incorrect export without images from CVAT"
+
 
 class SkipMessages:
     NOT_IMPLEMENTED = "NOT IMPLEMENTED"

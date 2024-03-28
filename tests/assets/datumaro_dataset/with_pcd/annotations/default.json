@@ -1,0 +1,41 @@
+{
+  "info": {},
+  "categories": {
+    "label": {
+      "labels": [{ "name": "cat", "parent": "", "attributes": [] }],
+      "attributes": ["occluded"]
+    },
+    "points": { "items": [] }
+  },
+  "items": [
+    {
+      "id": "0000000000",
+      "annotations": [
+        {
+          "id": 0,
+          "type": "cuboid_3d",
+          "attributes": { "occluded": false },
+          "group": 0,
+          "label_id": 0,
+          "position": [0.84, -0.22, 0.64],
+          "rotation": [0.0, 0.0, 0.0],
+          "scale": [1.0, 1.0, 1.0]
+        }
+      ],
+      "attr": { "frame": 0 },
+      "point_cloud": { "path": "0000000000.pcd" }
+    },
+    {
+      "id": "0000000001",
+      "annotations": [],
+      "attr": { "frame": 1 },
+      "point_cloud": { "path": "0000000001.pcd" }
+    },
+    {
+      "id": "0000000002",
+      "annotations": [],
+      "attr": { "frame": 2 },
+      "point_cloud": { "path": "0000000002.pcd" }
+    }
+  ]
+}

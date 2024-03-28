@@ -1,0 +1,127 @@
+{
+  "info": {},
+  "categories": {
+    "label": {
+      "labels": [
+        { "name": "cat0", "parent": "", "attributes": ["x", "y"] },
+        { "name": "cat1", "parent": "", "attributes": ["x", "y"] },
+        { "name": "cat2", "parent": "", "attributes": ["x", "y"] },
+        { "name": "cat3", "parent": "", "attributes": ["x", "y"] },
+        { "name": "cat4", "parent": "", "attributes": ["x", "y"] }
+      ],
+      "attributes": ["a", "b", "score"]
+    },
+    "mask": {
+      "colormap": [
+        { "label_id": 0, "r": 0, "g": 0, "b": 0 },
+        { "label_id": 1, "r": 128, "g": 0, "b": 0 },
+        { "label_id": 2, "r": 0, "g": 128, "b": 0 },
+        { "label_id": 3, "r": 128, "g": 128, "b": 0 },
+        { "label_id": 4, "r": 0, "g": 0, "b": 128 }
+      ]
+    },
+    "points": {
+      "items": [
+        { "label_id": 0, "labels": ["cat1", "cat2"], "joints": [[0, 1]] },
+        { "label_id": 1, "labels": ["cat1", "cat2"], "joints": [[0, 1]] },
+        { "label_id": 2, "labels": ["cat1", "cat2"], "joints": [[0, 1]] },
+        { "label_id": 3, "labels": ["cat1", "cat2"], "joints": [[0, 1]] },
+        { "label_id": 4, "labels": ["cat1", "cat2"], "joints": [[0, 1]] }
+      ]
+    }
+  },
+  "items": [
+    {
+      "id": "100",
+      "annotations": [
+        {
+          "id": 1,
+          "type": "caption",
+          "attributes": {},
+          "group": 0,
+          "caption": "hello"
+        },
+        {
+          "id": 2,
+          "type": "caption",
+          "attributes": {},
+          "group": 5,
+          "caption": "world"
+        },
+        {
+          "id": 3,
+          "type": "label",
+          "attributes": { "x": 1, "y": "2" },
+          "group": 0,
+          "label_id": 2
+        },
+        {
+          "id": 4,
+          "type": "bbox",
+          "attributes": { "score": 1.0 },
+          "group": 0,
+          "label_id": 4,
+          "z_order": 1,
+          "bbox": [1.0, 2.0, 3.0, 4.0]
+        },
+        {
+          "id": 5,
+          "type": "bbox",
+          "attributes": { "a": 1.5, "b": "text" },
+          "group": 5,
+          "label_id": null,
+          "z_order": 0,
+          "bbox": [5.0, 6.0, 7.0, 8.0]
+        },
+        {
+          "id": 5,
+          "type": "points",
+          "attributes": { "x": 1, "y": "2" },
+          "group": 0,
+          "label_id": 0,
+          "points": [1.0, 2.0, 2.0, 0.0, 1.0, 1.0],
+          "z_order": 4,
+          "visibility": [2, 2, 2]
+        },
+        {
+          "id": 5,
+          "type": "mask",
+          "attributes": { "x": 1, "y": "2" },
+          "group": 0,
+          "label_id": 3,
+          "rle": { "counts": "06", "size": [2, 3] },
+          "z_order": 2
+        }
+      ],
+      "image": { "path": "100.jpg", "size": [10, 6] }
+    },
+    {
+      "id": "21",
+      "annotations": [
+        {
+          "id": 0,
+          "type": "caption",
+          "attributes": {},
+          "group": 0,
+          "caption": "test"
+        },
+        {
+          "id": 0,
+          "type": "label",
+          "attributes": {},
+          "group": 0,
+          "label_id": 2
+        },
+        {
+          "id": 42,
+          "type": "bbox",
+          "attributes": {},
+          "group": 42,
+          "label_id": 5,
+          "z_order": 0,
+          "bbox": [1.0, 2.0, 3.0, 4.0]
+        }
+      ]
+    }
+  ]
+}

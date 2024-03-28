@@ -80,6 +80,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   (<https://github.com/cvat-ai/datumaro/pull/28>)
 - Image stats when no image info available for some images in the dataset
   (<https://github.com/cvat-ai/datumaro/pull/29>)
+- Incorrect writing of `media` field in the Datumaro format, when there are specific media fields
+  (<https://github.com/cvat-ai/datumaro/pull/34>)
 
 ### Security
 - TBD

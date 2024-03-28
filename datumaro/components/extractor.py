@@ -1,4 +1,5 @@
 # Copyright (C) 2019-2022 Intel Corporation
+# Copyright (C) 2022-2024 CVAT.ai Corporation
 #
 # SPDX-License-Identifier: MIT
 
@@ -44,7 +45,7 @@ from datumaro.util.attrs_util import default_if_none, not_empty
 
 DEFAULT_SUBSET_NAME = "default"
 
-T = TypeVar("T", bound=MediaElement)
+MediaType = TypeVar("MediaType", bound=MediaElement)
 
 
 @attrs(order=False, init=False, slots=True)
@@ -64,7 +65,7 @@ class DatasetItem:
     def wrap(item, **kwargs):
         return attr.evolve(item, **kwargs)
 
-    def media_as(self, t: Type[T]) -> T:
+    def media_as(self, t: Type[MediaType]) -> MediaType:
         assert issubclass(t, MediaElement)
         return cast(t, self.media)
 
@@ -292,9 +293,6 @@ class _ExtractorBase(IExtractor):
             if item.id == id and item.subset == subset:
                 return item
         return None
-
-
-T = TypeVar("T")
 
 
 class _ImportFail(DatumaroError):

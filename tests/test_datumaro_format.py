@@ -1,6 +1,7 @@
 import os
 import os.path as osp
 from functools import partial
+from pathlib import Path
 from unittest import TestCase
 
 import numpy as np
@@ -25,6 +26,7 @@ from datumaro.components.media import Image, PointCloud
 from datumaro.components.project import Dataset
 from datumaro.plugins.datumaro_format.converter import DatumaroConverter
 from datumaro.plugins.datumaro_format.extractor import DatumaroImporter
+from datumaro.util import parse_json_file
 from datumaro.util.mask_tools import generate_colormap
 from datumaro.util.test_utils import (
     Dimensions,
@@ -198,6 +200,57 @@ class DatumaroConverterTest(TestCase):
             )
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
+    def test_can_import_pcd_dataset(self):
+        dataset_path = str(Path(__file__).parent / "assets" / "datumaro_dataset" / "with_pcd")
+
+        label_categories = LabelCategories(attributes={"occluded"})
+        label_categories.add("cat")
+
+        points_categories = PointsCategories()
+
+        expected = Dataset.from_iterable(
+            [
+                DatasetItem(
+                    id="0000000000",
+                    annotations=[
+                        Cuboid3d(
+                            [0.84, -0.22, 0.64],
+                            [0.0, 0.0, 0.0],
+                            [1.0, 1.0, 1.0],
+                            label=0,
+                            attributes={"occluded": False},
+                        )
+                    ],
+                    media=PointCloud(
+                        os.path.join(dataset_path, "point_clouds", "default", "0000000000.pcd")
+                    ),
+                    attributes={"frame": 0},
+                ),
+                DatasetItem(
+                    id="0000000001",
+                    media=PointCloud(
+                        os.path.join(dataset_path, "point_clouds", "default", "0000000001.pcd")
+                    ),
+                    attributes={"frame": 1},
+                ),
+                DatasetItem(
+                    id="0000000002",
+                    media=PointCloud(
+                        os.path.join(dataset_path, "point_clouds", "default", "0000000002.pcd")
+                    ),
+                    attributes={"frame": 2},
+                ),
+            ],
+            categories={
+                AnnotationType.label: label_categories,
+                AnnotationType.points: points_categories,
+            },
+            media_type=PointCloud,
+        )
+
+        compare_datasets_strict(self, expected, Dataset.load(dataset_path))
+
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_detect(self):
         with TestDir() as test_dir:
             DatumaroConverter.convert(self.test_dataset, save_dir=test_dir)
@@ -292,6 +345,24 @@ class DatumaroConverterTest(TestCase):
             self._test_save_and_load(
                 expected, partial(DatumaroConverter.convert, save_media=True), test_dir
             )
+
+    @mark_requirement(Requirements.DATUM_CVAT_AI_BUG_20)
+    def test_save_and_load_with_only_specific_media_field(self):
+        # item 'media' field should not be present, when any other media field is present
+        with TestDir() as test_dir:
+            self._test_save_and_load(
+                self.test_dataset, partial(DatumaroConverter.convert, save_media=True), test_dir
+            )
+
+            for exported_json_path in Path(test_dir).glob("*/**/*.json"):
+                exported_json_data = parse_json_file(os.fspath(exported_json_path))
+
+                for item_data in exported_json_data["items"]:
+                    self.assertTrue(
+                        len([k for k in item_data if k in ["media", "image", "point_cloud"]]) == 0
+                        or ("media" in item_data)
+                        ^ ("image" in item_data or "point_cloud" in item_data)
+                    )
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_inplace_save_writes_only_updated_data_with_direct_changes(self):

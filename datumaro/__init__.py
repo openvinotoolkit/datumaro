@@ -1,5 +1,5 @@
 # Copyright (C) 2019-2022 Intel Corporation
-# Copyright (C) 2022 CVAT.ai Corporation
+# Copyright (C) 2022-2024 CVAT.ai Corporation
 #
 # SPDX-License-Identifier: MIT
 
@@ -64,7 +64,7 @@ from .components.hl_ops import (  # pylint: disable=redefined-builtin
     validate,
 )
 from .components.launcher import Launcher, ModelTransform
-from .components.media import ByteImage, Image, MediaElement, Video, VideoFrame
+from .components.media import ByteImage, Image, MediaElement, PointCloud, Video, VideoFrame
 from .components.media_manager import MediaManager
 from .components.progress_reporting import NullProgressReporter, ProgressReporter
 from .components.validator import Validator
