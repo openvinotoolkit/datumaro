@@ -2,9 +2,11 @@
 #
 # SPDX-License-Identifier: MIT
 
+from pathlib import Path
 from typing import List, Tuple
 from unittest.mock import patch
 
+import cv2
 import numpy as np
 import pytest
 
@@ -24,6 +26,7 @@ from tests.requirements import Requirements, mark_requirement
 
 @pytest.fixture
 def fxt_image_dataset_expected_mean_std():
+    """Expected image mean and std (RGB)"""
     np.random.seed(3003)
     expected_mean = [100, 50, 150]
     expected_std = [2, 1, 3]
@@ -32,20 +35,26 @@ def fxt_image_dataset_expected_mean_std():
 
 
 @pytest.fixture
-def fxt_image_dataset(fxt_image_dataset_expected_mean_std: Tuple[List[int], List[int]]):
+def fxt_image_dataset(fxt_image_dataset_expected_mean_std: Tuple[List[int], List[int]], tmpdir):
     np.random.seed(3003)
 
     expected_mean, expected_std = fxt_image_dataset_expected_mean_std
 
+    fpaths = []
+    for i, (w, h) in enumerate([(300, 10), (80, 60), (40, 20), (70, 30)]):
+        fpath = str(Path(tmpdir) / f"img_{i}.png")
+        # NOTE: cv2 use BGR so that we flip expected_mean and expected_std which are RGB
+        img_data = np.random.normal(expected_mean[::-1], expected_std[::-1], size=(h, w, 3))
+        cv2.imwrite(fpath, img_data)
+        fpaths.append(fpath)
+
     dataset = Dataset.from_iterable(
         [
             DatasetItem(
-                id=i,
-                media=Image.from_numpy(
-                    data=np.random.normal(expected_mean, expected_std, size=(h, w, 3))
-                ),
+                id=str(i),
+                media=Image.from_file(path=str(fpath)),
             )
-            for i, (w, h) in enumerate([(3000, 100), (800, 600), (400, 200), (700, 300)])
+            for i, fpath in enumerate(fpaths)
         ]
     )
     dataset.put(dataset.get("1"), id="5", subset="train")
@@ -55,7 +64,7 @@ def fxt_image_dataset(fxt_image_dataset_expected_mean_std: Tuple[List[int], List
             media=Image.from_file(path="invalid.path"),
         )
     )
-    return dataset
+    yield dataset
 
 
 @pytest.fixture
@@ -92,8 +101,8 @@ class ImageStatisticsTest:
         assert actual["subsets"]["default"]["images count"] == 4
         assert actual["subsets"]["train"]["images count"] == 1
 
-        actual_mean = actual["subsets"]["default"]["image mean"][::-1]
-        actual_std = actual["subsets"]["default"]["image std"][::-1]
+        actual_mean = actual["subsets"]["default"]["image mean (RGB)"]
+        actual_std = actual["subsets"]["default"]["image std (RGB)"]
 
         for em, am in zip(expected_mean, actual_mean):
             assert am == pytest.approx(em, 5e-1)
