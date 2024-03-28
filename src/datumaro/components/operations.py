@@ -207,8 +207,8 @@ def compute_image_statistics(dataset: IDataset):
         else:
             stats.update(
                 {
-                    "image mean": "n/a",
-                    "image std": "n/a",
+                    "image mean (RGB)": "n/a",
+                    "image std (RGB)": "n/a",
                 }
             )
         return stats
