@@ -72,7 +72,7 @@ def main():
         if selected_task and selected_format:
             selected_path = st.text_input(
                 "Select a path to export:",
-                value=osp.join(get_download_folder_path(), "dataset.zip"),
+                value=osp.join(get_download_folder_path(), "exported_dataset"),
                 key="ti_path_export_mult",
             )
 
