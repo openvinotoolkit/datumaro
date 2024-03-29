@@ -74,6 +74,7 @@ class DatasetHelper:
         self._init_dependent_variables()
 
     def __del__(self):
+        print(self._dataset_dir)
         file_id = os.path.basename(os.path.dirname(self._dataset_dir))
         DataRepo().delete_by_id(file_id)
 
