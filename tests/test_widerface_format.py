@@ -430,8 +430,8 @@ class WiderFaceImporterTest(TestCase):
                                 "pose": "0",
                                 "invalid": "0",
                             },
+                            label=0,
                         ),
-                        Label(0),
                     ],
                 ),
                 DatasetItem(
@@ -452,6 +452,7 @@ class WiderFaceImporterTest(TestCase):
                                 "pose": "0",
                                 "invalid": "0",
                             },
+                            label=0,
                         ),
                         Bbox(
                             5,
@@ -466,8 +467,8 @@ class WiderFaceImporterTest(TestCase):
                                 "pose": "0",
                                 "invalid": "0",
                             },
+                            label=0,
                         ),
-                        Label(1),
                     ],
                 ),
                 DatasetItem(
@@ -488,6 +489,7 @@ class WiderFaceImporterTest(TestCase):
                                 "pose": "2",
                                 "invalid": "0",
                             },
+                            label=0,
                         ),
                         Bbox(
                             3,
@@ -502,6 +504,7 @@ class WiderFaceImporterTest(TestCase):
                                 "pose": "0",
                                 "invalid": "0",
                             },
+                            label=0,
                         ),
                         Bbox(
                             5,
@@ -516,12 +519,12 @@ class WiderFaceImporterTest(TestCase):
                                 "pose": "2",
                                 "invalid": "0",
                             },
+                            label=0,
                         ),
-                        Label(0),
                     ],
                 ),
             ],
-            categories=["Parade", "Handshaking"],
+            categories=["face"],
         )
 
         dataset = Dataset.import_from(DUMMY_DATASET_DIR, "wider_face")
