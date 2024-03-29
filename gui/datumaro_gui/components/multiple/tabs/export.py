@@ -2,11 +2,10 @@
 #
 # SPDX-License-Identifier: MIT
 
-import os
 import os.path as osp
 
 import streamlit as st
-from datumaro_gui.utils.dataset.data_loader import DataRepo, MultipleDatasetHelper
+from datumaro_gui.utils.dataset.data_loader import MultipleDatasetHelper
 from datumaro_gui.utils.dataset.state import get_download_folder_path
 from datumaro_gui.utils.page import check_image_backend
 from streamlit import session_state as state
@@ -81,13 +80,3 @@ def main():
         if export_btn:
             data_helper = dataset_dict.get(selected_dataset, None)
             data_helper.export(selected_path, format=selected_format, save_media=True)
-
-            zip_path = DataRepo().zip_dataset(selected_path)
-
-            with open(zip_path, "rb") as fp:
-                st.download_button(
-                    label="Download ZIP",
-                    data=fp,
-                    file_name=os.path.basename(zip_path),
-                    mime="application/zip",
-                )
