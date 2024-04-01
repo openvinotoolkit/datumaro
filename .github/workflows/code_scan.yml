@@ -32,14 +32,14 @@ jobs:
           pip-compile -o .ci/base/docs/requirements.txt docs/requirements.txt
           mkdir -p .ci/base/gui
           pip-compile -o .ci/base/gui/requirements.txt gui/requirements.txt
-      - name: Run Trivy Scan (full-csv)
+      - name: Run Trivy Scan (full, csv)
         uses: aquasecurity/trivy-action@062f2592684a31eb3aa050cc61e7ca1451cecd3d # 0.18.0
         with:
           trivy-config: ".ci/trivy-csv.yaml"
           scan-type: 'fs'
           scan-ref: ".ci/"
           scanners: vuln,secret
-      - name: Run Trivy Scan (prod-spdx.json)
+      - name: Run Trivy Scan (prod, spdx.json)
         uses: aquasecurity/trivy-action@062f2592684a31eb3aa050cc61e7ca1451cecd3d # 0.18.0
         with:
           trivy-config: ".ci/trivy-json.yaml"
