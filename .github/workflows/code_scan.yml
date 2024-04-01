@@ -32,29 +32,24 @@ jobs:
           pip-compile -o .ci/base/docs/requirements.txt docs/requirements.txt
           mkdir -p .ci/base/gui
           pip-compile -o .ci/base/gui/requirements.txt gui/requirements.txt
-      - name: Run Trivy for all
+      - name: Run Trivy Scan (full, csv)
         uses: aquasecurity/trivy-action@062f2592684a31eb3aa050cc61e7ca1451cecd3d # 0.18.0
         with:
           trivy-config: ".ci/trivy-csv.yaml"
           scan-type: 'fs'
           scan-ref: ".ci/"
           scanners: vuln,secret
-      - name: Upload Trivy results artifact (csv)
-        uses: actions/upload-artifact@v4
-        with:
-          name: trivy-results-full-csv
-          path: '${{ github.workspace }}/trivy-results-full.csv'
-      - name: Run Trivy for package
+      - name: Run Trivy Scan (prod, spdx.json)
         uses: aquasecurity/trivy-action@062f2592684a31eb3aa050cc61e7ca1451cecd3d # 0.18.0
         with:
           trivy-config: ".ci/trivy-json.yaml"
           scan-type: 'fs'
           scan-ref: ".ci/base"
-      - name: Upload Trivy results artifact (json)
+      - name: Upload Trivy results
         uses: actions/upload-artifact@v4
         with:
           name: trivy-results-prod-json
-          path: '${{ github.workspace }}/trivy-results-prod.json'
+          path: '${{ github.workspace }}/trivy-results-*'
   Bandit:
     runs-on: ubuntu-latest
     steps:
