@@ -49,6 +49,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   (<https://github.com/openvinotoolkit/datumaro/pull/1266>)
 - Fix each method of the comparator to be used separately
   (<https://github.com/openvinotoolkit/datumaro/pull/1290>)
+- Bump ONNX version to 1.16.0
+  (<https://github.com/openvinotoolkit/datumaro/pull/1376>)
 - Print the color channel format (RGB) for datum stats command
   (<https://github.com/openvinotoolkit/datumaro/pull/1389>)
 
