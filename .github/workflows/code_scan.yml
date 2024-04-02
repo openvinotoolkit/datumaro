@@ -22,27 +22,34 @@ jobs:
         run: python -m pip install pip-tools
       - name: Freeze dependencies
         run: |
-          pip-compile -o .ci/requirements.txt requirements.txt
-          mkdir -p .ci/tests
-          pip-compile -o .ci/tests/requirements.txt tests/requirements.txt
-          mkdir -p .ci/docker/segment-anything/
-          pip-compile -o .ci/docker/segment-anything/requirements.txt docker/segment-anything/requirements.txt
-          mkdir -p .ci/docs
-          pip-compile -o .ci/docs/requirements.txt docs/requirements.txt
-          mkdir -p .ci/gui
-          pip-compile -o .ci/gui/requirements.txt gui/requirements.txt
-      - name: Run Trivy vulnerability scanner
+          mkdir -p .ci/base
+          pip-compile -o .ci/base/requirements.txt requirements.txt
+          mkdir -p .ci/dev/tests
+          pip-compile -o .ci/dev/tests/requirements.txt tests/requirements.txt
+          mkdir -p .ci/dev/docker/segment-anything/
+          pip-compile -o .ci/dev/docker/segment-anything/requirements.txt docker/segment-anything/requirements.txt
+          mkdir -p .ci/base/docs
+          pip-compile -o .ci/base/docs/requirements.txt docs/requirements.txt
+          mkdir -p .ci/base/gui
+          pip-compile -o .ci/base/gui/requirements.txt gui/requirements.txt
+      - name: Run Trivy Scan (full, csv)
         uses: aquasecurity/trivy-action@062f2592684a31eb3aa050cc61e7ca1451cecd3d # 0.18.0
         with:
-          trivy-config: ".ci/trivy.yaml"
+          trivy-config: ".ci/trivy-csv.yaml"
           scan-type: 'fs'
           scan-ref: ".ci/"
           scanners: vuln,secret
-      - name: Upload Trivy results artifact
+      - name: Run Trivy Scan (prod, spdx.json)
+        uses: aquasecurity/trivy-action@062f2592684a31eb3aa050cc61e7ca1451cecd3d # 0.18.0
+        with:
+          trivy-config: ".ci/trivy-json.yaml"
+          scan-type: 'fs'
+          scan-ref: ".ci/base"
+      - name: Upload Trivy results
         uses: actions/upload-artifact@v4
         with:
-          name: trivy-results
-          path: '${{ github.workspace }}/trivy-results.csv'
+          name: trivy-results-prod-json
+          path: '${{ github.workspace }}/trivy-results-*'
   Bandit:
     runs-on: ubuntu-latest
     steps:

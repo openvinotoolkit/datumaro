@@ -71,7 +71,7 @@ class ExportTest(TestCase):
         assert at.selectbox(selectbox_key).value == "datumaro"
 
         textinput_key = "ti_path_export_sin"
-        download_folder = os.path.join(os.path.expanduser("~"), "Downloads", "dataset.zip")
+        download_folder = os.path.join(os.path.expanduser("~"), "Downloads", "exported_dataset")
         assert at.text_input(textinput_key).value == download_folder
         assert not at.button("btn_export_sin").value
 
@@ -85,4 +85,4 @@ class ExportTest(TestCase):
 
         download_folder = os.path.join(os.path.expanduser("~"), "Downloads")
         filenames = os.listdir(download_folder)
-        assert "dataset.zip" in filenames
+        assert "exported_dataset" in filenames

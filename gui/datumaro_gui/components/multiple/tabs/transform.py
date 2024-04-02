@@ -459,9 +459,28 @@ class TransformRemove(MultipleTransformBase):
         )
         dataset = data_helper.dataset()
         selected_item = dataset.get(selected_id, selected_subset)
-        ann_ids = ["All"] + sorted({ann.id for ann in selected_item.annotations})
-        selected_ann_id = c3.selectbox(
-            "Select an annotation", ann_ids, key=f"sb_select_ann_id_mul_{col}"
+        labels = data_helper.dataset().get_label_cat_names()
+        item_annotations = [ann for ann in selected_item.annotations]
+
+        ann_dicts = {ann.id: ann.label for ann in item_annotations}
+        ann_labels = [labels[idx] for idx in ann_dicts.values()]
+        label_counts = {}
+        for label in ann_labels:
+            label_counts[label] = label_counts.get(label, 0) + 1
+
+        for i, label in enumerate(ann_labels):
+            if label_counts[label] > 1:
+                ann_labels[i] = f"{label}_{label_counts[label]}"
+                label_counts[label] -= 1
+
+        annotations = ["All"] + ann_labels
+        selected_ann_label = c3.selectbox(
+            "Select an annotation", annotations, key=f"sb_select_ann_id_mul_{col}"
+        )
+        selected_ann_id = (
+            "All"
+            if selected_ann_label == "All"
+            else list(ann_dicts.keys())[ann_labels.index(selected_ann_label)]
         )
 
         bc1, bc2 = st.columns(2)
