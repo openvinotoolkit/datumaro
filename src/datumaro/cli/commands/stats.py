@@ -24,7 +24,7 @@ def build_parser(parser_ctor=argparse.ArgumentParser):
     parser = parser_ctor(
         help="Get project statistics",
         description="""
-        Outputs various project statistics like image mean and std,
+        Outputs various project statistics like image mean and std (RGB),
         annotations count etc.|n
         |n
         Target dataset is specified by a revpath. The full syntax is:|n
@@ -54,7 +54,7 @@ def build_parser(parser_ctor=argparse.ArgumentParser):
         "--image-stats",
         type=str_to_bool,
         default=True,
-        help="Compute image mean and std (default: %(default)s)",
+        help="Compute image mean and std (RGB) (default: %(default)s)",
     )
     parser.add_argument(
         "--ann-stats",

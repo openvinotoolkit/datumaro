@@ -521,27 +521,27 @@ class TableComparator:
             first_subset_data = first_image_stats["subsets"].get(subset_name, {})
             second_subset_data = second_image_stats["subsets"].get(subset_name, {})
             mean_str_first = (
-                ", ".join(f"{val:6.2f}" for val in first_subset_data.get("image mean", []))
-                if "image mean" in first_subset_data
+                ", ".join(f"{val:6.2f}" for val in first_subset_data.get("image mean (RGB)", []))
+                if "image mean (RGB)" in first_subset_data
                 else ""
             )
             std_str_first = (
-                ", ".join(f"{val:6.2f}" for val in first_subset_data.get("image std", []))
+                ", ".join(f"{val:6.2f}" for val in first_subset_data.get("image std (RGB)", []))
                 if "image std" in first_subset_data
                 else ""
             )
             mean_str_second = (
-                ", ".join(f"{val:6.2f}" for val in second_subset_data.get("image mean", []))
-                if "image mean" in second_subset_data
+                ", ".join(f"{val:6.2f}" for val in second_subset_data.get("image mean (RGB)", []))
+                if "image mean (RGB)" in second_subset_data
                 else ""
             )
             std_str_second = (
                 ", ".join(f"{val:6.2f}" for val in second_subset_data.get("image std", []))
-                if "image std" in second_subset_data
+                if "image std (RGB)" in second_subset_data
                 else ""
             )
-            rows.append([f"{subset_name} - Image Mean", mean_str_first, mean_str_second])
-            rows.append([f"{subset_name} - Image Std", std_str_first, std_str_second])
+            rows.append([f"{subset_name} - Image Mean (RGB)", mean_str_first, mean_str_second])
+            rows.append([f"{subset_name} - Image Std (RGB)", std_str_first, std_str_second])
 
         first_labels = sorted(list(first_ann_stats["annotations"]["labels"]["distribution"].keys()))
         second_labels = sorted(
