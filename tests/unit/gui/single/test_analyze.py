@@ -84,8 +84,8 @@ class AnalyzeTest(TestCase):
             "subsets": {
                 "train": {
                     "images count": 1,
-                    "image mean": [0.0, 0.0, 0.0],
-                    "image std": [0.0, 0.0, 0.0],
+                    "image mean (RGB)": [0.0, 0.0, 0.0],
+                    "image std (RGB)": [0.0, 0.0, 0.0],
                 }
             },
         }

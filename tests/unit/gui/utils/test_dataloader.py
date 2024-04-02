@@ -42,38 +42,6 @@ class DataRepoTest:
         assert directory.endswith(file_id + os.sep + self.data_repo._dataset_dir)
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
-    def test_unzip_dataset(self):
-        temp_dir = tempfile.mkdtemp()
-        zip_file_path = os.path.join(temp_dir, "test_dataset.zip")
-        with zipfile.ZipFile(zip_file_path, "w") as z:
-            z.writestr("test_dataset/file1.txt", "content1")
-            z.writestr("test_dataset/file2.txt", "content2")
-
-        # uploaded_zip = UploadedFile(zip_file_path)
-        directory = self.data_repo.unzip_dataset(zip_file_path)
-
-        assert os.path.exists(directory)
-        assert os.path.exists(os.path.join(directory, "file1.txt"))
-        assert os.path.exists(os.path.join(directory, "file2.txt"))
-
-    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
-    def test_zip_dataset(self):
-        temp_dir = tempfile.mkdtemp()
-        dataset_dir = os.path.join(temp_dir, "test_dataset")
-        os.makedirs(dataset_dir)
-        with open(os.path.join(dataset_dir, "file1.txt"), "w") as f:
-            f.write("content1")
-        with open(os.path.join(dataset_dir, "file2.txt"), "w") as f:
-            f.write("content2")
-
-        output_zip = self.data_repo.zip_dataset(dataset_dir, output_fn="test_dataset.zip")
-        assert os.path.exists(output_zip)
-
-        with zipfile.ZipFile(output_zip, "r") as z:
-            assert "file1.txt" in z.namelist()
-            assert "file2.txt" in z.namelist()
-
-    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_save_file(self):
         file_content = b"test content"
         uploaded_file = UploadedFile(
@@ -191,41 +159,6 @@ class DataRepoTest:
         expected_path = os.path.join(".data_repo", file_id, "dataset")
         assert result == expected_path
         assert os.path.exists(result)
-
-    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
-    def test_unzip_dataset_uploaded_file(self, data_repo, tmp_path):
-        with zipfile.ZipFile(tmp_path / "test.zip", "w") as z:
-            z.writestr("dataset/file1.txt", "content1")
-            z.writestr("dataset/file2.txt", "content2")
-
-        directory = data_repo.unzip_dataset(tmp_path / "test.zip")
-        assert os.path.exists(directory)
-        assert os.path.exists(os.path.join(directory, "file1.txt"))
-        assert os.path.exists(os.path.join(directory, "file2.txt"))
-
-    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
-    def test_unzip_dataset_string_path(self, data_repo, tmp_path):
-        zip_path = tmp_path / "test.zip"
-        with zipfile.ZipFile(zip_path, "w") as z:
-            z.writestr("dataset/file1.txt", "content1")
-            z.writestr("dataset/file2.txt", "content2")
-
-        directory = data_repo.unzip_dataset(str(zip_path))
-        assert os.path.exists(directory)
-        assert os.path.exists(os.path.join(directory, "file1.txt"))
-        assert os.path.exists(os.path.join(directory, "file2.txt"))
-
-    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
-    def test_zip_dataset(self, data_repo, tmp_path):
-        directory = tmp_path / "test_dataset"
-        os.makedirs(directory)
-        with open(directory / "file1.txt", "w") as f:
-            f.write("content1")
-        with open(directory / "file2.txt", "w") as f:
-            f.write("content2")
-
-        result_zip = data_repo.zip_dataset(directory)
-        assert os.path.exists(result_zip)
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_save_file(self, data_repo):

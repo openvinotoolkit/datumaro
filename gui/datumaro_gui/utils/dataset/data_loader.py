@@ -4,7 +4,6 @@
 
 import os
 import shutil
-import zipfile
 from collections import defaultdict
 from typing import Dict, List, Union
 
@@ -42,69 +41,6 @@ class DataRepo:
         os.makedirs(directory, exist_ok=True)
         return directory
 
-    def unzip_dataset(_self, uploaded_zip: Union[UploadedFile, str]) -> str:
-        """
-        Unzip uploaded zip file to a dataset directory
-
-        :param uploaded_zip: uploaded zip file from streamlit ui
-        :return: path to dataset directory
-        """
-
-        def find_dataset_root(filelist: List[str]):
-            common_path = os.path.commonpath(filelist)
-            while common_path + os.sep in filelist:
-                filelist.remove(common_path + os.sep)
-                common_path = os.path.commonpath(filelist)
-            return common_path
-
-        assert zipfile.is_zipfile(
-            uploaded_zip
-        )  # .type in ["application/zip", "application/x-zip-compressed"]
-        with zipfile.ZipFile(uploaded_zip, "r") as z:
-            if isinstance(uploaded_zip, UploadedFile):
-                directory = _self.get_dataset_dir(uploaded_zip.file_id)
-            else:  # str
-                directory = os.path.splitext(uploaded_zip)[
-                    0
-                ]  # (os.sep).join(uploaded_zip.split(os.sep)[:-1])
-                os.makedirs(directory, exist_ok=True)
-
-            dataset_root = find_dataset_root(z.namelist())
-            if dataset_root == "":
-                z.extractall(directory)
-            else:
-                dataset_root = dataset_root + os.sep
-                start = len(dataset_root)
-                zipinfos = z.infolist()
-                for zipinfo in zipinfos:
-                    if len(zipinfo.filename) > start:
-                        zipinfo.filename = zipinfo.filename[start:]
-                        z.extract(zipinfo, directory)
-        return directory
-
-    def zip_dataset(_self, directory: str, output_fn: str = "dataset.zip") -> str:
-        """
-        Zip dataset
-
-        :param uploaded_zip: uploaded zip file from streamlit ui
-        :return: path to dataset directory
-        """
-
-        if not os.path.isdir(directory):
-            raise ValueError
-
-        output_zip = os.path.join(_self._root_path, output_fn)
-        if os.path.exists(output_zip):
-            os.remove(output_zip)
-        dirpath = os.path.dirname(output_zip)
-        if not os.path.exists(dirpath):
-            os.makedirs(dirpath)
-        shutil.make_archive(
-            base_name=os.path.splitext(output_zip)[0], format="zip", root_dir=directory
-        )
-
-        return output_zip
-
     def save_file(_self, uploaded_file: UploadedFile) -> str:
         directory = os.path.join(_self._root_path, uploaded_file.file_id)
         path = os.path.join(directory, uploaded_file.name)
@@ -138,6 +74,7 @@ class DatasetHelper:
         self._init_dependent_variables()
 
     def __del__(self):
+        print(self._dataset_dir)
         file_id = os.path.basename(os.path.dirname(self._dataset_dir))
         DataRepo().delete_by_id(file_id)
 

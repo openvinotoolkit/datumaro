@@ -2,13 +2,12 @@
 #
 # SPDX-License-Identifier: MIT
 
-
 import logging as log
 import os
 
 import streamlit as st
 import streamlit_antd_components as sac
-from datumaro_gui.utils.dataset.data_loader import DataRepo, MultipleDatasetHelper
+from datumaro_gui.utils.dataset.data_loader import MultipleDatasetHelper
 from datumaro_gui.utils.dataset.state import (
     format_selector,
     get_download_folder_path,
@@ -56,10 +55,6 @@ def main():
 
         filename_1, filename_2 = filename
         if filename_1 is not None:
-            if filename_1.endswith(".zip"):
-                data_repo = DataRepo()
-                filename_1 = data_repo.unzip_dataset(filename_1)
-
             data_helper = MultipleDatasetHelper(filename_1)
             state["data_helper_1"] = data_helper
             uploaded_file = os.path.basename(filename_1)
@@ -68,10 +63,6 @@ def main():
             state["data_helper_1"] = None
 
         if filename_2 is not None:
-            if filename_2.endswith(".zip"):
-                data_repo = DataRepo()
-                filename_2 = data_repo.unzip_dataset(filename_2)
-
             data_helper = MultipleDatasetHelper(filename_2)
             state["data_helper_2"] = data_helper
             uploaded_file = os.path.basename(filename_2)
