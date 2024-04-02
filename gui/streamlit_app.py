@@ -1,3 +1,7 @@
+# Copyright (C) 2024 Intel Corporation
+#
+# SPDX-License-Identifier: MIT
+
 import streamlit as st
 from datumaro_gui import apps, components
 from datumaro_gui.utils.page import init_func, page_group
