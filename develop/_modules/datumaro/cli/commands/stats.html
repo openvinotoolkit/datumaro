@@ -371,7 +371,7 @@ document.write(`
     <span class="n">parser</span> <span class="o">=</span> <span class="n">parser_ctor</span><span class="p">(</span>
         <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Get project statistics&quot;</span><span class="p">,</span>
         <span class="n">description</span><span class="o">=</span><span class="s2">&quot;&quot;&quot;</span>
-<span class="s2">        Outputs various project statistics like image mean and std,</span>
+<span class="s2">        Outputs various project statistics like image mean and std (RGB),</span>
 <span class="s2">        annotations count etc.|n</span>
 <span class="s2">        |n</span>
 <span class="s2">        Target dataset is specified by a revpath. The full syntax is:|n</span>
@@ -401,7 +401,7 @@ document.write(`
         <span class="s2">&quot;--image-stats&quot;</span><span class="p">,</span>
         <span class="nb">type</span><span class="o">=</span><span class="n">str_to_bool</span><span class="p">,</span>
         <span class="n">default</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Compute image mean and std (default: </span><span class="si">%(default)s</span><span class="s2">)&quot;</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Compute image mean and std (RGB) (default: </span><span class="si">%(default)s</span><span class="s2">)&quot;</span><span class="p">,</span>
     <span class="p">)</span>
     <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
         <span class="s2">&quot;--ann-stats&quot;</span><span class="p">,</span>

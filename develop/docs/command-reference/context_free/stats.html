@@ -678,7 +678,7 @@ document.write(`
 <h2>Get Project Statistics<a class="headerlink" href="#get-project-statistics" title="Link to this heading">#</a></h2>
 <p>This command computes various project statistics, such as:</p>
 <ul class="simple">
-<li><p>image mean and std. dev.</p></li>
+<li><p>image mean and std. dev. (RGB)</p></li>
 <li><p>class and attribute balance</p></li>
 <li><p>mask pixel balance</p></li>
 <li><p>segment area distribution</p></li>
@@ -693,7 +693,7 @@ document.write(`
 <a class="reference internal" href="../../user-manual/how_to_use_datumaro.html#dataset-path-concepts"><span class="std std-ref">source revpath</span></a>.
 By default, computes statistics of the merged dataset.</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">-s,</span> <span class="pre">--subset</span></code> (string) - Compute stats only for a specific subset</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">--image-stats</span></code> (bool) - Compute image mean and std (default: <code class="docutils literal notranslate"><span class="pre">True</span></code>)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">--image-stats</span></code> (bool) - Compute image mean and std (RGB) (default: <code class="docutils literal notranslate"><span class="pre">True</span></code>)</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">--ann-stats</span></code> (bool) - Compute annotation statistics (default: <code class="docutils literal notranslate"><span class="pre">True</span></code>)</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">-p,</span> <span class="pre">--project</span></code> (string) - Directory of the project to operate on
 (default: current directory).</p></li>
@@ -955,12 +955,12 @@ By default, computes statistics of the merged dataset.</p></li>
 <span class="w">    </span><span class="nt">&quot;subsets&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
 <span class="w">        </span><span class="nt">&quot;default&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
 <span class="w">            </span><span class="nt">&quot;images count&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">100</span><span class="p">,</span>
-<span class="w">            </span><span class="nt">&quot;image mean&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">            </span><span class="nt">&quot;image mean (RGB)&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
 <span class="w">                </span><span class="mf">107.06903686941979</span><span class="p">,</span>
 <span class="w">                </span><span class="mf">79.12831698580979</span><span class="p">,</span>
 <span class="w">                </span><span class="mf">52.95829558185416</span>
 <span class="w">            </span><span class="p">],</span>
-<span class="w">            </span><span class="nt">&quot;image std&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">            </span><span class="nt">&quot;image std (RGB)&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
 <span class="w">                </span><span class="mf">49.40237673503467</span><span class="p">,</span>
 <span class="w">                </span><span class="mf">43.29600731496902</span><span class="p">,</span>
 <span class="w">                </span><span class="mf">35.47373007603151</span>

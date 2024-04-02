@@ -358,6 +358,7 @@ document.write(`
 <span class="kn">from</span> <span class="nn">datumaro.components.dataset_base</span> <span class="kn">import</span> <span class="n">CategoriesInfo</span><span class="p">,</span> <span class="n">DatasetItem</span><span class="p">,</span> <span class="n">IDataset</span>
 <span class="kn">from</span> <span class="nn">datumaro.components.errors</span> <span class="kn">import</span> <span class="n">DatumaroError</span>
 <span class="kn">from</span> <span class="nn">datumaro.components.media</span> <span class="kn">import</span> <span class="n">Image</span>
+<span class="kn">from</span> <span class="nn">datumaro.util.image</span> <span class="kn">import</span> <span class="n">IMAGE_BACKEND</span><span class="p">,</span> <span class="n">ImageColorChannel</span><span class="p">,</span> <span class="n">decode_image_context</span>
 
 
 <div class="viewcode-block" id="mean_std">
@@ -511,16 +512,21 @@ document.write(`
     <span class="n">stats_counter</span> <span class="o">=</span> <span class="n">_MeanStdCounter</span><span class="p">()</span>
     <span class="n">unique_counter</span> <span class="o">=</span> <span class="n">_ItemMatcher</span><span class="p">()</span>
 
-    <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">dataset</span><span class="p">:</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">item</span><span class="o">.</span><span class="n">media</span><span class="p">,</span> <span class="n">Image</span><span class="p">):</span>
-            <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
-                <span class="sa">f</span><span class="s2">&quot;item (id: </span><span class="si">{</span><span class="n">item</span><span class="o">.</span><span class="n">id</span><span class="si">}</span><span class="s2">, subset: </span><span class="si">{</span><span class="n">item</span><span class="o">.</span><span class="n">subset</span><span class="si">}</span><span class="s2">)&quot;</span>
-                <span class="sa">f</span><span class="s2">&quot; has media_type, </span><span class="si">{</span><span class="n">item</span><span class="o">.</span><span class="n">media</span><span class="si">}</span><span class="s2"> but only Image media_type is allowed.&quot;</span>
-            <span class="p">)</span>
-            <span class="k">continue</span>
+    <span class="c1"># NOTE: Force image color channel to RGB</span>
+    <span class="k">with</span> <span class="n">decode_image_context</span><span class="p">(</span>
+        <span class="n">image_backend</span><span class="o">=</span><span class="n">IMAGE_BACKEND</span><span class="o">.</span><span class="n">get</span><span class="p">(),</span>
+        <span class="n">image_color_channel</span><span class="o">=</span><span class="n">ImageColorChannel</span><span class="o">.</span><span class="n">COLOR_RGB</span><span class="p">,</span>
+    <span class="p">):</span>
+        <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">dataset</span><span class="p">:</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">item</span><span class="o">.</span><span class="n">media</span><span class="p">,</span> <span class="n">Image</span><span class="p">):</span>
+                <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
+                    <span class="sa">f</span><span class="s2">&quot;item (id: </span><span class="si">{</span><span class="n">item</span><span class="o">.</span><span class="n">id</span><span class="si">}</span><span class="s2">, subset: </span><span class="si">{</span><span class="n">item</span><span class="o">.</span><span class="n">subset</span><span class="si">}</span><span class="s2">)&quot;</span>
+                    <span class="sa">f</span><span class="s2">&quot; has media_type, </span><span class="si">{</span><span class="n">item</span><span class="o">.</span><span class="n">media</span><span class="si">}</span><span class="s2"> but only Image media_type is allowed.&quot;</span>
+                <span class="p">)</span>
+                <span class="k">continue</span>
 
-        <span class="n">stats_counter</span><span class="o">.</span><span class="n">accumulate</span><span class="p">(</span><span class="n">item</span><span class="p">)</span>
-        <span class="n">unique_counter</span><span class="o">.</span><span class="n">process_item</span><span class="p">(</span><span class="n">item</span><span class="p">)</span>
+            <span class="n">stats_counter</span><span class="o">.</span><span class="n">accumulate</span><span class="p">(</span><span class="n">item</span><span class="p">)</span>
+            <span class="n">unique_counter</span><span class="o">.</span><span class="n">process_item</span><span class="p">(</span><span class="n">item</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">_extractor_stats</span><span class="p">(</span><span class="n">subset_name</span><span class="p">):</span>
         <span class="n">sub_counter</span> <span class="o">=</span> <span class="n">_MeanStdCounter</span><span class="p">()</span>
@@ -541,15 +547,15 @@ document.write(`
 
             <span class="n">stats</span><span class="o">.</span><span class="n">update</span><span class="p">(</span>
                 <span class="p">{</span>
-                    <span class="s2">&quot;image mean&quot;</span><span class="p">:</span> <span class="p">[</span><span class="nb">float</span><span class="p">(</span><span class="n">v</span><span class="p">)</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">mean</span><span class="p">[::</span><span class="o">-</span><span class="mi">1</span><span class="p">]],</span>
-                    <span class="s2">&quot;image std&quot;</span><span class="p">:</span> <span class="p">[</span><span class="nb">float</span><span class="p">(</span><span class="n">v</span><span class="p">)</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">std</span><span class="p">[::</span><span class="o">-</span><span class="mi">1</span><span class="p">]],</span>
+                    <span class="s2">&quot;image mean (RGB)&quot;</span><span class="p">:</span> <span class="p">[</span><span class="nb">float</span><span class="p">(</span><span class="n">v</span><span class="p">)</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">mean</span><span class="p">],</span>
+                    <span class="s2">&quot;image std (RGB)&quot;</span><span class="p">:</span> <span class="p">[</span><span class="nb">float</span><span class="p">(</span><span class="n">v</span><span class="p">)</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">std</span><span class="p">],</span>
                 <span class="p">}</span>
             <span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">stats</span><span class="o">.</span><span class="n">update</span><span class="p">(</span>
                 <span class="p">{</span>
-                    <span class="s2">&quot;image mean&quot;</span><span class="p">:</span> <span class="s2">&quot;n/a&quot;</span><span class="p">,</span>
-                    <span class="s2">&quot;image std&quot;</span><span class="p">:</span> <span class="s2">&quot;n/a&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;image mean (RGB)&quot;</span><span class="p">:</span> <span class="s2">&quot;n/a&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;image std (RGB)&quot;</span><span class="p">:</span> <span class="s2">&quot;n/a&quot;</span><span class="p">,</span>
                 <span class="p">}</span>
             <span class="p">)</span>
         <span class="k">return</span> <span class="n">stats</span>

@@ -3,7 +3,7 @@
 ## Get Project Statistics
 
 This command computes various project statistics, such as:
-- image mean and std. dev.
+- image mean and std. dev. (RGB)
 - class and attribute balance
 - mask pixel balance
 - segment area distribution
@@ -19,7 +19,7 @@ Parameters:
   [source revpath](../../user-manual/how_to_use_datumaro.md#dataset-path-concepts).
   By default, computes statistics of the merged dataset.
 - `-s, --subset` (string) - Compute stats only for a specific subset
-- `--image-stats` (bool) - Compute image mean and std (default: `True`)
+- `--image-stats` (bool) - Compute image mean and std (RGB) (default: `True`)
 - `--ann-stats` (bool) - Compute annotation statistics (default: `True`)
 - `-p, --project` (string) - Directory of the project to operate on
   (default: current directory).
@@ -282,12 +282,12 @@ Sample output:
     "subsets": {
         "default": {
             "images count": 100,
-            "image mean": [
+            "image mean (RGB)": [
                 107.06903686941979,
                 79.12831698580979,
                 52.95829558185416
             ],
-            "image std": [
+            "image std (RGB)": [
                 49.40237673503467,
                 43.29600731496902,
                 35.47373007603151
