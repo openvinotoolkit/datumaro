@@ -164,4 +164,4 @@ class ExportTest(TestCase):
 
         download_folder = os.path.join(os.path.expanduser("~"), "Downloads")
         filenames = os.listdir(download_folder)
-        assert "dataset.zip" in filenames
+        assert "exported_dataset" in filenames
