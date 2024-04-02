@@ -7,7 +7,7 @@ import os
 
 import streamlit as st
 import streamlit_antd_components as sac
-from datumaro_gui.utils.dataset.data_loader import DataRepo, SingleDatasetHelper
+from datumaro_gui.utils.dataset.data_loader import SingleDatasetHelper
 from datumaro_gui.utils.dataset.state import (
     file_selector,
     format_selector,
@@ -51,10 +51,6 @@ def main():
         reset_state(single_state_keys, state)
 
         if filename is not None:
-            if filename.endswith(".zip"):
-                data_repo = DataRepo()
-                filename = data_repo.unzip_dataset(filename)
-
             data_helper = SingleDatasetHelper(filename)
             state["data_helper"] = data_helper
             uploaded_file = os.path.basename(filename)

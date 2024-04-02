@@ -16,6 +16,7 @@ from datumaro.components.annotation import AnnotationType, LabelCategories
 from datumaro.components.dataset_base import CategoriesInfo, DatasetItem, IDataset
 from datumaro.components.errors import DatumaroError
 from datumaro.components.media import Image
+from datumaro.util.image import IMAGE_BACKEND, ImageColorChannel, decode_image_context
 
 
 def mean_std(dataset: IDataset):
@@ -164,16 +165,21 @@ def compute_image_statistics(dataset: IDataset):
     stats_counter = _MeanStdCounter()
     unique_counter = _ItemMatcher()
 
-    for item in dataset:
-        if not isinstance(item.media, Image):
-            warnings.warn(
-                f"item (id: {item.id}, subset: {item.subset})"
-                f" has media_type, {item.media} but only Image media_type is allowed."
-            )
-            continue
+    # NOTE: Force image color channel to RGB
+    with decode_image_context(
+        image_backend=IMAGE_BACKEND.get(),
+        image_color_channel=ImageColorChannel.COLOR_RGB,
+    ):
+        for item in dataset:
+            if not isinstance(item.media, Image):
+                warnings.warn(
+                    f"item (id: {item.id}, subset: {item.subset})"
+                    f" has media_type, {item.media} but only Image media_type is allowed."
+                )
+                continue
 
-        stats_counter.accumulate(item)
-        unique_counter.process_item(item)
+            stats_counter.accumulate(item)
+            unique_counter.process_item(item)
 
     def _extractor_stats(subset_name):
         sub_counter = _MeanStdCounter()
@@ -194,15 +200,15 @@ def compute_image_statistics(dataset: IDataset):
 
             stats.update(
                 {
-                    "image mean": [float(v) for v in mean[::-1]],
-                    "image std": [float(v) for v in std[::-1]],
+                    "image mean (RGB)": [float(v) for v in mean],
+                    "image std (RGB)": [float(v) for v in std],
                 }
             )
         else:
             stats.update(
                 {
-                    "image mean": "n/a",
-                    "image std": "n/a",
+                    "image mean (RGB)": "n/a",
+                    "image std (RGB)": "n/a",
                 }
             )
         return stats
