@@ -39,6 +39,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   <https://github.com/cvat-ai/datumaro/pull/15>)
 - Storing labels with the same name but with a different parent
   (<https://github.com/cvat-ai/datumaro/pull/8>)
+- Functions to work with plain polygons (COCO-style) - `close_polygon`, `simplify_polygon`
+  (<https://github.com/cvat-ai/datumaro/pull/39>)
 
 ### Changed
 - `env.detect_dataset()` now returns a list of detected formats at all recursion levels
@@ -81,6 +83,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Image stats when no image info available for some images in the dataset
   (<https://github.com/cvat-ai/datumaro/pull/29>)
 - Incorrect writing of `media` field in the Datumaro format, when there are specific media fields
+  (<https://github.com/cvat-ai/datumaro/pull/34>)
+- Added missing `PointCloud` media type in the datumaro module namespace
   (<https://github.com/cvat-ai/datumaro/pull/34>)
 
 ### Security

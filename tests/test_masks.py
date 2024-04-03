@@ -8,8 +8,49 @@ from datumaro.components.annotation import CompiledMask
 from .requirements import Requirements, mark_requirement
 
 
-def _compare_polygons(a, b) -> bool:
-    return len(a) == len(b) and frozenset(map(frozenset, a)) == frozenset(map(frozenset, b))
+def _compare_polygons(a: mask_tools.Polygon, b: mask_tools.Polygon) -> bool:
+    a = mask_tools.close_polygon(mask_tools.simplify_polygon(a))[:-2]
+    b = mask_tools.close_polygon(mask_tools.simplify_polygon(b))[:-2]
+    if len(a) != len(b):
+        return False
+
+    a_points = np.reshape(a, (-1, 2))
+    b_points = np.reshape(b, (-1, 2))
+    for b_direction in [1, -1]:
+        # Polygons can be reversed, need to check both directions
+        b_ordered = b_points[::b_direction]
+
+        for b_pos in range(len(b_ordered)):
+            b_current = b_ordered
+            if b_pos > 0:
+                b_current = np.roll(b_current, b_pos, axis=0)
+
+            if np.array_equal(a_points, b_current):
+                return True
+
+    return False
+
+
+def _compare_polygon_groups(a: mask_tools.PolygonGroup, b: mask_tools.PolygonGroup) -> bool:
+    def _deduplicate(group: mask_tools.PolygonGroup) -> mask_tools.PolygonGroup:
+        unique = list()
+
+        for polygon in group:
+            found = False
+            for existing_polygon in unique:
+                if _compare_polygons(polygon, existing_polygon):
+                    found = True
+                    break
+
+            if not found:
+                unique.append(polygon)
+
+        return unique
+
+    a = _deduplicate(a)
+    b = _deduplicate(b)
+
+    return len(a) == len(b) and len(a) == len(_deduplicate(a + b))
 
 
 class PolygonConversionsTest(TestCase):
@@ -31,7 +72,7 @@ class PolygonConversionsTest(TestCase):
 
         computed = mask_tools.mask_to_polygons(mask)
 
-        self.assertTrue(_compare_polygons(expected, computed))
+        self.assertTrue(_compare_polygon_groups(expected, computed))
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_crop_covered_segments(self):
@@ -195,6 +236,64 @@ class PolygonConversionsTest(TestCase):
 
         for case in cases:
             self._test_mask_to_rle(case)
+
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
+    def test_can_close_open_polygon(self):
+        source = [1, 1, 2, 3, 4, 5]
+        expected = [1, 1, 2, 3, 4, 5, 1, 1]
+
+        actual = mask_tools.close_polygon(source)
+
+        self.assertListEqual(expected, actual)
+
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
+    def test_can_close_closed_polygon(self):
+        source = [1, 1, 2, 3, 4, 5, 1, 1]
+        expected = [1, 1, 2, 3, 4, 5, 1, 1]
+
+        actual = mask_tools.close_polygon(source)
+
+        self.assertListEqual(expected, actual)
+
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
+    def test_can_close_polygon_with_no_points(self):
+        source = []
+        expected = []
+
+        actual = mask_tools.close_polygon(source)
+
+        self.assertListEqual(expected, actual)
+
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
+    def test_can_simplify_polygon(self):
+        source = [1, 1, 1, 1, 2, 3, 4, 5, 4, 5]
+        expected = [1, 1, 2, 3, 4, 5]
+
+        actual = mask_tools.simplify_polygon(source)
+
+        self.assertListEqual(expected, actual)
+
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
+    def test_can_simplify_polygon_with_less_3_points(self):
+        source = [1, 1]
+        expected = [1, 1, 1, 1, 1, 1]
+
+        actual = mask_tools.simplify_polygon(source)
+
+        self.assertListEqual(expected, actual)
+
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
+    def test_can_compare_polygons(self):
+        a = [1, 1, 2, 3, 4, 4, 5, 6, 1, 1]
+        b_variants = [
+            [2, 3, 4, 4, 5, 6, 1, 1],
+            [4, 4, 5, 6, 1, 1, 2, 3],
+            [5, 6, 1, 1, 2, 3, 4, 4],
+            [1, 1, 2, 3, 4, 4, 5, 6],
+        ]
+
+        for b in b_variants:
+            self.assertTrue(_compare_polygons(a, b), b)
 
 
 class ColormapOperationsTest(TestCase):

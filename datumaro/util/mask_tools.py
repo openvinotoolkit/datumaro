@@ -3,7 +3,7 @@
 # SPDX-License-Identifier: MIT
 
 from functools import partial
-from itertools import chain
+from itertools import chain, repeat
 from typing import List, NamedTuple, NewType, Optional, Sequence, Tuple, TypedDict, Union
 
 import numpy as np
@@ -22,9 +22,15 @@ class CompressedRle(TypedDict):
 
 
 Rle = Union[CompressedRle, UncompressedRle]
+
 Polygon = List[int]
+"2d polygon with points [x1, y1, x2, y2, ...]"
+
 PolygonGroup = List[Polygon]
+"A group of polygons, describing a single object"
+
 BboxCoords = NamedTuple("BboxCoords", [("x", int), ("y", int), ("w", int), ("h", int)])
+
 Segment = Union[PolygonGroup, Rle]
 
 BinaryMask = NewType("BinaryMask", np.ndarray)
@@ -272,8 +278,11 @@ def crop_covered_segments(
         iou_threshold: IoU threshold for objects to be counted as intersected
             By default is set to 0 to process any intersected objects
         ratio_tolerance: an IoU "handicap" value for a situation
-            when an object is (almost) fully covered by another one and we
-            don't want make a "hole" in the background object
+            when a foreground object is (almost) fully inside of another one,
+            and we don't want make a "hole" in the background object.
+            If the foreground object is fully or almost fully (iou - this ratio)
+            inside the background object, it will be kept.
+            The default is to keep tiny (0.1% of IoU) foreground objects.
         area_threshold: minimal area of included segments
 
     Returns:
@@ -394,3 +403,37 @@ def merge_masks(
             merged_mask = np.where(m, m, merged_mask)
 
     return merged_mask
+
+
+def close_polygon(p: Polygon) -> Polygon:
+    """
+    Returns the closed version of the polygon (with the same first and last points),
+    or the polygon itself.
+    """
+    points = np.asarray(p).reshape((-1, 2))
+
+    if len(points) > 0 and not np.all(points[-1] == points[0]):
+        points = np.append(points, points[0])
+
+    return points.flatten().tolist()
+
+
+def simplify_polygon(p: Polygon) -> Polygon:
+    "Simplifies the polygon by removing repeated points"
+
+    points = np.asarray(p).reshape((-1, 2))
+    updated_points = []
+
+    if len(points) > 0:
+        updated_points.append(points[0])
+
+        for point_idx in range(1, len(points)):
+            prev_point = points[point_idx - 1]
+            point = points[point_idx]
+            if not np.all(point == prev_point):
+                updated_points.append(point)
+
+        if len(updated_points) < 3:
+            updated_points.extend(repeat(updated_points[-1], 3 - len(updated_points)))
+
+    return np.asarray(updated_points).flatten().tolist()
