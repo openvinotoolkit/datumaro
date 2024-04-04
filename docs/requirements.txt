@@ -2,7 +2,7 @@
 -r ../requirements-default.txt
 -r ../requirements-dev.txt
 
-opencv-python-headless>=4.1.0.25
+opencv-python-headless==4.9.0.80
 
 # docs
 markupsafe==2.1.5
