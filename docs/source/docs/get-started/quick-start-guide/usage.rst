@@ -75,8 +75,7 @@ from the sidebar. Please click on **Single Dataset** on sidebar to proceed.
 
 Enter the location where the desired dataset is located in the *Select a path to import data* field below, and then select
 the dataset from among the options available.
-Select the desired dataset from among those available in the *Select a file*. Whether your dataset is in a zip
-file or a regular folder, both are importable.
+Select the desired dataset from among those available in the *Select a file*. Only a regular folder is importable.
 
 .. image:: ../../../../images/gui/single_info.png
 
