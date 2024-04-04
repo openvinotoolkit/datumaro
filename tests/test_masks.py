@@ -189,6 +189,80 @@ class PolygonConversionsTest(TestCase):
         for i, (e_mask, c_mask) in enumerate(zip(expected, computed)):
             self.assertTrue(np.array_equal(e_mask, c_mask), "#%s: %s\n%s\n" % (i, e_mask, c_mask))
 
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
+    def test_can_crop_covered_segments_and_crop_fully_covered_background_segments(self):
+        image_size = [7, 7]
+        initial = [
+            mask_tools.mask_to_rle(
+                np.array(
+                    [
+                        [0, 0, 0, 0, 0, 0, 0],
+                        [0, 0, 0, 0, 0, 0, 0],
+                        [0, 0, 1, 1, 1, 0, 0],
+                        [0, 0, 0, 0, 0, 0, 0],
+                        [0, 0, 0, 0, 0, 0, 0],
+                        [0, 0, 0, 0, 0, 0, 0],
+                        [0, 0, 0, 0, 0, 0, 0],
+                    ]
+                )
+            ),
+            [1, 1, 6, 1, 6, 6, 1, 6],
+        ]
+        expected = [
+            # The fully-covered background mask must be cropped
+            None,
+            mask_tools.rles_to_mask([initial[1]], *image_size),
+        ]
+
+        computed = mask_tools.crop_covered_segments(
+            initial, *image_size, ratio_tolerance=0.1, return_masks=True
+        )
+
+        self.assertEqual(len(initial), len(computed))
+        for i, (e_mask, c_mask) in enumerate(zip(expected, computed)):
+            self.assertTrue(np.array_equal(e_mask, c_mask), "#%s: %s\n%s\n" % (i, e_mask, c_mask))
+
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
+    def test_can_crop_covered_segments_and_keep_input_shape_type(self):
+        image_size = [7, 7]
+        initial = [
+            [1, 1, 6, 1, 6, 6, 1, 6],
+            mask_tools.mask_to_rle(
+                np.array(
+                    [
+                        [0, 0, 0, 0, 0, 0, 0],
+                        [0, 0, 0, 0, 0, 0, 0],
+                        [0, 0, 1, 1, 1, 0, 0],
+                        [0, 0, 0, 0, 0, 0, 0],
+                        [0, 0, 0, 0, 0, 0, 0],
+                        [0, 0, 0, 0, 0, 0, 0],
+                        [0, 0, 0, 0, 0, 0, 0],
+                    ]
+                )
+            ),
+        ]
+        expected = [
+            # no changes expected
+            [initial[0]],
+            initial[1],
+        ]
+
+        computed = mask_tools.crop_covered_segments(
+            initial, *image_size, ratio_tolerance=0.1, return_masks=False
+        )
+
+        self.assertEqual(len(initial), len(computed))
+        for i, (e_segm, c_segm) in enumerate(zip(expected, computed)):
+            if mask_tools.is_polygon_group(e_segm):
+                self.assertTrue(
+                    _compare_polygon_groups(e_segm, c_segm), "#%s: %s\n%s\n" % (i, e_segm, c_segm)
+                )
+            else:
+                e_segm = mask_tools.rles_to_mask([e_segm], *image_size)
+                self.assertTrue(
+                    np.array_equal(e_segm, c_segm), "#%s: %s\n%s\n" % (i, e_segm, c_segm)
+                )
+
     def _test_mask_to_rle(self, source_mask):
         rle_uncompressed = mask_tools.mask_to_rle(source_mask)
 
