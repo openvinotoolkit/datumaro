@@ -5,6 +5,15 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## Apr. 2024 Release 2.1.0
+### New features
+
+### Enhancements
+- Add ignore_index argument to Mask.as_class_mask() and Mask.as_instance_mask()
+  (<https://github.com/openvinotoolkit/datumaro/pull/1409>)
+
+### Bug fixes
+
 ## Apr. 2024 Release 2.0.0
 ### New features
 - Changed supported Python version range (>=3.9, <=3.11)
