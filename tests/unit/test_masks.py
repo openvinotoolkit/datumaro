@@ -1,3 +1,7 @@
+# Copyright (C) 2019-2024 Intel Corporation
+#
+# SPDX-License-Identifier: MIT
+
 from unittest import TestCase
 
 import numpy as np
