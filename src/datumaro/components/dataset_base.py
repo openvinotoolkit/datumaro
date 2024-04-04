@@ -13,6 +13,7 @@ from datumaro.components.annotation import Annotation, AnnotationType, Categorie
 from datumaro.components.cli_plugin import CliPlugin
 from datumaro.components.contexts.importer import ImportContext, NullImportContext
 from datumaro.components.media import Image, MediaElement
+from datumaro.components.task import TaskType
 from datumaro.util.attrs_util import default_if_none, not_empty
 from datumaro.util.definitions import DEFAULT_SUBSET_NAME
 
@@ -105,6 +106,12 @@ class IDataset:
         All the items are supposed to have the same media type.
         Supposed to be constant and known immediately after the
         object construction (i.e. doesn't require dataset iteration).
+        """
+        raise NotImplementedError()
+
+    def tasks(self) -> TaskType:
+        """
+        Returns available task type from dataset annotation types.
         """
         raise NotImplementedError()
 
