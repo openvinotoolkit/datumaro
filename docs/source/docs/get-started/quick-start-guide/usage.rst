@@ -61,7 +61,7 @@ performing necessary tasks immediately.
 .. code-block::
 
     cd gui
-    streamlit run streamlit_app.py
+    python run.py
 
 Following the above steps, the DatumaroApp page will appear.
 
