@@ -4,7 +4,7 @@
 
 from functools import partial
 from itertools import chain
-from typing import Dict, Tuple
+from typing import Dict, Optional, Tuple
 
 import numpy as np
 from pycocotools import mask as pycocotools_mask
@@ -124,8 +124,54 @@ def remap_mask(mask, map_fn):
     return np.array([map_fn(c) for c in range(256)], dtype=np.uint8)[mask]
 
 
-def make_index_mask(binary_mask, index, dtype=None):
-    return binary_mask * np.array([index], dtype=dtype or np.min_scalar_type(index))
+def make_index_mask(
+    binary_mask: np.ndarray,
+    index: int,
+    ignore_index: int = 0,
+    dtype: Optional[np.dtype] = None,
+):
+    """Create an index mask from a binary mask by filling a given index value.
+
+    Args:
+        binary_mask: Binary mask to create an index mask.
+        index: Scalar value to fill the ones in the binary mask.
+        ignore_index: Scalar value to fill in the zeros in the binary mask.
+            Defaults to 0.
+        dtype: Data type for the resulting mask. If not specified,
+            it will be inferred from the provided index. Defaults to None.
+
+    Returns:
+        np.ndarray: Index mask created from the binary mask.
+
+    Raises:
+        ValueError: If dtype is not specified and incompatible scalar types are used for index
+            and ignore_index.
+
+    Examples:
+        >>> binary_mask = np.eye(2, dtype=np.bool_)
+        >>> index_mask = make_index_mask(binary_mask, index=10, ignore_index=255, dtype=np.uint8)
+        >>> print(index_mask)
+        array([[ 10, 255],
+               [255,  10]], dtype=uint8)
+    """
+    if dtype is None:
+        dtype = np.min_scalar_type(index)
+        if dtype != np.min_scalar_type(ignore_index):
+            raise ValueError()
+
+    flipped_zero_np_scalar = ~np.full(tuple(), fill_value=0, dtype=dtype)
+
+    # NOTE: This dispatching rule is required for a performance boost
+    if ignore_index == flipped_zero_np_scalar:
+        flipped_index = ~np.full(tuple(), fill_value=index, dtype=dtype)
+        return ~(binary_mask * flipped_index)
+
+    mask = binary_mask * np.full(tuple(), fill_value=index, dtype=dtype)
+
+    if ignore_index == 0:
+        return mask
+
+    return np.where(binary_mask, mask, ignore_index)
 
 
 def make_binary_mask(mask):

@@ -370,23 +370,54 @@ class Mask(Annotation):
             image = image()
         return image
 
-    def as_class_mask(self, label_id: Optional[int] = None) -> IndexMaskImage:
-        """
-        Produces a class index mask. Mask label id can be changed.
+    def as_class_mask(
+        self,
+        label_id: Optional[int] = None,
+        ignore_index: int = 0,
+        dtype: Optional[np.dtype] = None,
+    ) -> IndexMaskImage:
+        """Produces a class index mask based on the binary mask.
+
+        Args:
+            label_id: Scalar value to represent the class index of the mask.
+                If not specified, `self.label` will be used. Defaults to None.
+            ignore_index: Scalar value to fill in the zeros in the binary mask.
+                Defaults to 0.
+            dtype: Data type for the resulting mask. If not specified,
+                it will be inferred from the provided `label_id`. Defaults to None.
+
+        Returns:
+            IndexMaskImage: Class index mask generated from the binary mask.
         """
         if label_id is None:
             label_id = self.label
         from datumaro.util.mask_tools import make_index_mask
 
-        return make_index_mask(self.image, label_id)
+        return make_index_mask(self.image, index=label_id, ignore_index=ignore_index, dtype=dtype)
 
-    def as_instance_mask(self, instance_id: int) -> IndexMaskImage:
-        """
-        Produces a instance index mask.
+    def as_instance_mask(
+        self,
+        instance_id: int,
+        ignore_index: int = 0,
+        dtype: Optional[np.dtype] = None,
+    ) -> IndexMaskImage:
+        """Produces an instance index mask based on the binary mask.
+
+        Args:
+            instance_id: Scalar value to represent the instance id.
+            ignore_index: Scalar value to fill in the zeros in the binary mask.
+                Defaults to 0.
+            dtype: Data type for the resulting mask. If not specified,
+                it will be inferred from the provided `label_id`. Defaults to None.
+
+        Returns:
+            IndexMaskImage: Instance index mask generated from the binary mask.
         """
         from datumaro.util.mask_tools import make_index_mask
 
-        return make_index_mask(self.image, instance_id)
+        return make_index_mask(
+            self.image, index=instance_id, ignore_index=ignore_index, dtype=dtype
+        )
 
     def get_area(self) -> int:
         return np.count_nonzero(self.image)
