@@ -1,5 +1,5 @@
 # Core
-streamlit==1.32.2
+streamlit==1.33.0
 
 # Streamlit components
 streamlit-elements
