@@ -2,7 +2,7 @@
 
 If you wish to export the Merged dataset, simply click on the export tab. Upon clicking, the following screen will appear.
 
-![Export Tab](../../../../images/gui/multiple/export_download_zip.png)
+![Export Tab](../../../../images/gui/multiple/export_merged.png)
 
 If there is no merged dataset available, please proceed with the merge first.
 
