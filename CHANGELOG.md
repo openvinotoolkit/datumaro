@@ -62,6 +62,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   (<https://github.com/cvat-ai/datumaro/pull/17>)
 - Annotation matching algorithm in `datumaro.components.operations.match_segments()`
   (<https://github.com/cvat-ai/datumaro/pull/30>)
+- Automatic detection of `is_crowd` parameter is disabled in
+  `segment_iou()`, added a separate function argument
+  (turned off by default)
+  (<https://github.com/cvat-ai/datumaro/pull/41>)
 
 ### Deprecated
 - `--save-images` is replaced with `--save-media` in CLI and converter API
@@ -69,6 +73,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - \[API\] `image`, `point_cloud` and `related_images` of `DatasetItem` are
   replaced with `media` and `media_as(type)` members and c-tor parameters
   (<https://github.com/openvinotoolkit/datumaro/pull/539>)
+- \[API\] `datumaro.util.annotation_util._get_bbox()` is renamed into `get_bbox()`
+  (<https://github.com/cvat-ai/datumaro/pull/41>)
 
 ### Removed
 - TBD
@@ -86,6 +92,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   (<https://github.com/cvat-ai/datumaro/pull/34>)
 - Added missing `PointCloud` media type in the datumaro module namespace
   (<https://github.com/cvat-ai/datumaro/pull/34>)
+- Incorrect computation of binary mask bbox (missed 1 pixel of the size)
+  (<https://github.com/cvat-ai/datumaro/pull/41>)
 
 ### Security
 - TBD

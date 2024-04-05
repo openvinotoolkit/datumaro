@@ -1,9 +1,11 @@
 from unittest import TestCase
 
 import numpy as np
+import pytest
 
 import datumaro.util.mask_tools as mask_tools
 from datumaro.components.annotation import CompiledMask
+from datumaro.util.annotation_util import BboxCoords
 
 from .requirements import Requirements, mark_requirement
 
@@ -461,3 +463,16 @@ class ColormapOperationsTest(TestCase):
         labels = compiled_mask.get_instance_labels()
 
         self.assertEqual({instance_idx: class_idx}, labels)
+
+
+class MaskTest:
+    @pytest.mark.parametrize(
+        "mask, expected_bbox",
+        [
+            (np.array([[0, 1, 1], [0, 1, 1]]), [1, 0, 2, 2]),
+            (np.array([[0, 0, 0], [0, 0, 0]]), [0, 0, 0, 0]),
+        ],
+    )
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
+    def test_find_mask_bbox(self, mask: mask_tools.BinaryMask, expected_bbox: BboxCoords):
+        assert tuple(expected_bbox) == mask_tools.find_mask_bbox(mask)
