@@ -277,11 +277,11 @@ class DatasetStorage(IDataset):
                     "Transforms are not allowed to change media " "type of dataset items"
                 )
 
-            if not issubclass(transform.task_type(), self._task_type):
-                # TODO: make it statically available
-                raise MediaTypeError(
-                    "Transforms are not allowed to change task " "type of dataset items"
-                )
+            # if not issubclass(transform.task_type(), self._task_type):
+            #     # TODO: make it statically available
+            #     raise MediaTypeError(
+            #         "Transforms are not allowed to change task " "type of dataset items"
+            #     )
 
             self._drop_malformed_transforms(transform.malformed_transform_indices)
 
