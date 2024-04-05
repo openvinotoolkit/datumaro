@@ -2,7 +2,7 @@
 
 If you wish to export the Merged dataset, simply click on the export tab. Upon clicking, the following screen will appear.
 
-![Export Tab](../../../../images/gui/multiple/export_download_zip.png)
+![Export Tab](../../../../images/gui/multiple/export_merged.png)
 
 If there is no merged dataset available, please proceed with the merge first.
 
@@ -31,6 +31,6 @@ To export the dataset, follow these steps:
 3. **Specify Export Path:** Input the path where you want to save the exported data.
 4. **Export:** Click the **_"Export"_** button to initiate the export process.
 
-The exported data will be saved in ZIP file format at the specified path. If you need to download it again, click the **_"Download ZIP"_** button.
+The exported data will be saved at the specified path.
 
 For more detailed export functionalities, I recommend following the instructions provided [here](../../command-reference/context/export.md) in the CLI.
