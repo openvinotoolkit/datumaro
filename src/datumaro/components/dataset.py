@@ -112,6 +112,9 @@ class DatasetSubset(IDataset):  # non-owning view
     def media_type(self):
         return self.parent.media_type()
 
+    def task_type(self):
+        return self.parent.task_type()
+
     def get_annotated_items(self):
         return sum(bool(s.annotations) for s in self.parent._data.get_subset(self.name))
 
@@ -201,6 +204,7 @@ class Dataset(IDataset):
                 super().__init__(
                     length=len(iterable) if hasattr(iterable, "__len__") else None,
                     media_type=media_type,
+                    task_type=task_type,
                 )
 
             def __iter__(self):
@@ -266,7 +270,11 @@ class Dataset(IDataset):
 
         self.eager = None
         self._data = DatasetStorage(
-            source, infos=infos, categories=categories, media_type=media_type
+            source,
+            infos=infos,
+            categories=categories,
+            media_type=media_type,
+            task_type=task_type,
         )
         if self.is_eager:
             self.init_cache()
@@ -282,6 +290,7 @@ class Dataset(IDataset):
             f"\tsize={len(self._data)}\n"
             f"\tsource_path={self._source_path}\n"
             f"\tmedia_type={self.media_type()}\n"
+            f"\ttask_type={self.task_type()}\n"
             f"\tannotated_items_count={self.get_annotated_items()}\n"
             f"\tannotations_count={self.get_annotations()}\n"
             f"subsets\n"
@@ -321,6 +330,9 @@ class Dataset(IDataset):
 
     def media_type(self) -> Type[MediaElement]:
         return self._data.media_type()
+
+    def task_type(self) -> TaskType:
+        return self._data.task_type()
 
     def get(self, id: str, subset: Optional[str] = None) -> Optional[DatasetItem]:
         return self._data.get(id, subset)
@@ -950,13 +962,18 @@ class StreamDataset(Dataset):
         infos: Optional[DatasetInfo] = None,
         categories: Optional[CategoriesInfo] = None,
         media_type: Optional[Type[MediaElement]] = None,
+        task_type: Optional[TaskType] = None,
         env: Optional[Environment] = None,
     ) -> None:
         assert env is None or isinstance(env, Environment), env
         self._env = env
 
         self._data = StreamDatasetStorage(
-            source, infos=infos, categories=categories, media_type=media_type
+            source,
+            infos=infos,
+            categories=categories,
+            media_type=media_type,
+            task_type=task_type,
         )
 
         self._format = DEFAULT_FORMAT

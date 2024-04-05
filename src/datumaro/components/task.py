@@ -26,31 +26,71 @@ class TaskType(IntEnum):
     depth_estimation = 12
 
 
-class TaskAnnotationMapping:
-    Mapping[TaskType, Set[AnnotationType]] = {
-        TaskType.classification: {AnnotationType.label},
-        TaskType.classification_multilabel: {AnnotationType.label},
-        TaskType.classification_hierarchical: {AnnotationType.label},
-        TaskType.detection: {AnnotationType.label, AnnotationType.bbox},
-        TaskType.detection_rotated: {
-            AnnotationType.label,
-            AnnotationType.polygon,
-            AnnotationType.points,
-        },
-        TaskType.detection_3d: {AnnotationType.label, AnnotationType.cuboid_3d},
-        TaskType.segmentation_semantic: {
-            AnnotationType.label,
-            AnnotationType.polygon,
-            AnnotationType.mask,
-        },
-        TaskType.segmentation_instance: {
-            AnnotationType.label,
-            AnnotationType.polygon,
-            AnnotationType.mask,
-        },
-        TaskType.segmentation_panoptic: {
-            AnnotationType.label,
-            AnnotationType.polygon,
-            AnnotationType.mask,
-        },
-    }
+# class TaskAnnotationMapping:
+#     Mapping[TaskType, Set[AnnotationType]] = {
+#         TaskType.classification: {AnnotationType.label},
+#         TaskType.classification_multilabel: {AnnotationType.label},
+#         TaskType.classification_hierarchical: {AnnotationType.label},
+#         TaskType.detection: {AnnotationType.label, AnnotationType.bbox},
+#         TaskType.detection_rotated: {
+#             AnnotationType.label,
+#             AnnotationType.polygon,
+#             AnnotationType.points,
+#         },
+#         TaskType.detection_3d: {AnnotationType.label, AnnotationType.cuboid_3d},
+#         TaskType.segmentation_semantic: {
+#             AnnotationType.label,
+#             AnnotationType.polygon,
+#             AnnotationType.mask,
+#         },
+#         TaskType.segmentation_instance: {
+#             AnnotationType.label,
+#             AnnotationType.polygon,
+#             AnnotationType.mask,
+#         },
+#         TaskType.segmentation_panoptic: {
+#             AnnotationType.label,
+#             AnnotationType.polygon,
+#             AnnotationType.mask,
+#         },
+#     }
+
+
+class TaskAnnotationMapping(Mapping[TaskType, Set[AnnotationType]]):
+    def __init__(self):
+        self._mapping = {
+            TaskType.classification: {AnnotationType.label},
+            TaskType.classification_multilabel: {AnnotationType.label},
+            TaskType.classification_hierarchical: {AnnotationType.label},
+            TaskType.detection: {AnnotationType.label, AnnotationType.bbox},
+            TaskType.detection_rotated: {
+                AnnotationType.label,
+                AnnotationType.polygon,
+                AnnotationType.points,
+            },
+            TaskType.detection_3d: {AnnotationType.label, AnnotationType.cuboid_3d},
+            TaskType.segmentation_semantic: {
+                AnnotationType.label,
+                AnnotationType.polygon,
+                AnnotationType.mask,
+            },
+            TaskType.segmentation_instance: {
+                AnnotationType.label,
+                AnnotationType.polygon,
+                AnnotationType.mask,
+            },
+            TaskType.segmentation_panoptic: {
+                AnnotationType.label,
+                AnnotationType.polygon,
+                AnnotationType.mask,
+            },
+        }
+
+    def __getitem__(self, key):
+        return self._mapping[key]
+
+    def __iter__(self):
+        return iter(self._mapping)
+
+    def __len__(self):
+        return len(self._mapping)

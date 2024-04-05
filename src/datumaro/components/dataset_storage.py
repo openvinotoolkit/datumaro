@@ -46,6 +46,7 @@ class DatasetPatch:
                 infos=parent.infos(),
                 categories=parent.categories(),
                 media_type=parent.media_type(),
+                task_type=parent.task_type(),
             )
             self.patch = patch
 
@@ -116,6 +117,12 @@ class _StackedTransform(Transform):
     def media_type(self) -> Type[MediaElement]:
         return self.transforms[-1].media_type()
 
+    def task_type(self) -> TaskType:
+        return self.transforms[-1].task_type()
+
+
+task_annotation_mapping = TaskAnnotationMapping()
+
 
 class DatasetStorage(IDataset):
     def __init__(
@@ -148,13 +155,13 @@ class DatasetStorage(IDataset):
 
         self._media_type = media_type
 
-        if task_type:
-            pass
-        elif isinstance(source, IDataset) and source.task_type():
-            task_type = source.task_type()
-        else:
-            raise ValueError("Media type must be provided for a dataset")
-        assert isinstance(task_type, TaskType)
+        # if task_type:
+        #     pass
+        # elif isinstance(source, IDataset) and source.task_type():
+        #     task_type = source.task_type()
+        # else:
+        #     raise ValueError("Media type must be provided for a dataset")
+        # assert isinstance(task_type, TaskType)
 
         self._task_type = task_type
 
@@ -439,7 +446,7 @@ class DatasetStorage(IDataset):
             )
 
         ann_types = set([ann.type for ann in item.annotations])
-        if ann_types.issubset(TaskAnnotationMapping[self._task_type]):
+        if ann_types.issubset(task_annotation_mapping[self._task_type]):
             raise MediaTypeError(
                 "Mismatching item annotation type '%s', "
                 "while the dataset is for '%s'." % (ann_types, self._task_type)

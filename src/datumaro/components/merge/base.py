@@ -17,6 +17,7 @@ from datumaro.components.errors import (
     MediaTypeError,
 )
 from datumaro.components.media import MediaElement
+from datumaro.components.task import TaskType
 from datumaro.util import dump_json_file
 
 
@@ -78,7 +79,11 @@ class Merger(IMergerContext, CliPlugin):
         categories = self.merge_categories(d.categories() for d in datasets)
         media_type = self.merge_media_types(datasets)
         return DatasetItemStorageDatasetView(
-            parent=self.merge(datasets), infos=infos, categories=categories, media_type=media_type
+            parent=self.merge(datasets),
+            infos=infos,
+            categories=categories,
+            media_type=media_type,
+            task_type=TaskType.classification,  # [TODO]: wonjuleee
         )
 
     def save_merge_report(self, path: str) -> None:
