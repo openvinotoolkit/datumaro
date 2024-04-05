@@ -109,7 +109,7 @@ class IDataset:
         """
         raise NotImplementedError()
 
-    def tasks(self) -> TaskType:
+    def task_type(self) -> TaskType:
         """
         Returns available task type from dataset annotation types.
         """
@@ -183,6 +183,9 @@ class _DatasetBase(IDataset):
             def media_type(_):
                 return self.media_type()
 
+            def task_type(_):
+                return self.task_type()
+
         return _DatasetFilter()
 
     def infos(self) -> DatasetInfo:
@@ -212,15 +215,20 @@ class DatasetBase(_DatasetBase, CliPlugin):
         length: Optional[int] = None,
         subsets: Optional[Sequence[str]] = None,
         media_type: Type[MediaElement] = Image,
+        task_type: Optional[TaskType] = None,
         ctx: Optional[ImportContext] = None,
     ):
         super().__init__(length=length, subsets=subsets)
 
         self._ctx: ImportContext = ctx or NullImportContext()
         self._media_type = media_type
+        self._task_type = task_type
 
     def media_type(self):
         return self._media_type
+
+    def task_type(self):
+        return self._task_type
 
 
 class SubsetBase(DatasetBase):
@@ -242,6 +250,7 @@ class SubsetBase(DatasetBase):
 
         self._infos = {}
         self._categories = {}
+        self._task_type = None
         self._items = []
 
     def infos(self):

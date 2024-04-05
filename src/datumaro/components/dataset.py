@@ -57,6 +57,7 @@ from datumaro.components.launcher import Launcher
 from datumaro.components.media import Image, MediaElement
 from datumaro.components.merge import DEFAULT_MERGE_POLICY
 from datumaro.components.progress_reporting import NullProgressReporter, ProgressReporter
+from datumaro.components.task import TaskType
 from datumaro.components.transformer import ItemTransform, ModelTransform, Transform
 from datumaro.util.log_utils import logging_disabled
 from datumaro.util.meta_file_util import load_hash_key
@@ -160,6 +161,7 @@ class Dataset(IDataset):
         *,
         env: Optional[Environment] = None,
         media_type: Type[MediaElement] = Image,
+        task_type: Optional[TaskType] = None,
     ) -> Dataset:
         """
         Creates a new dataset from an iterable object producing dataset items -
@@ -254,6 +256,7 @@ class Dataset(IDataset):
         infos: Optional[DatasetInfo] = None,
         categories: Optional[CategoriesInfo] = None,
         media_type: Optional[Type[MediaElement]] = None,
+        task_type: Optional[TaskType] = None,
         env: Optional[Environment] = None,
     ) -> None:
         super().__init__()

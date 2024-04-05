@@ -9,6 +9,7 @@ from typing import Any, Iterator, Optional, Tuple, Type, Union
 from datumaro.components.annotation import AnnotationType
 from datumaro.components.dataset_base import CategoriesInfo, DatasetInfo, DatasetItem, IDataset
 from datumaro.components.media import MediaElement
+from datumaro.components.task import TaskType
 from datumaro.util.definitions import DEFAULT_SUBSET_NAME
 
 __all__ = ["ItemStatus", "DatasetItemStorage", "DatasetItemStorageDatasetView"]
@@ -169,17 +170,22 @@ class DatasetItemStorageDatasetView(IDataset):
         def media_type(self):
             return self.parent.media_type()
 
+        def task_type(self):
+            return self.parent.task_type()
+
     def __init__(
         self,
         parent: DatasetItemStorage,
         infos: DatasetInfo,
         categories: CategoriesInfo,
         media_type: Optional[Type[MediaElement]],
+        task_type: Optional[TaskType],
     ):
         self._parent = parent
         self._infos = infos
         self._categories = categories
         self._media_type = media_type
+        self._task_type = task_type
 
     def __iter__(self):
         yield from self._parent
@@ -207,3 +213,6 @@ class DatasetItemStorageDatasetView(IDataset):
 
     def media_type(self):
         return self._media_type
+
+    def task_type(self):
+        return self._task_type
