@@ -1,10 +1,10 @@
-# Copyright (C) 2019-2021 Intel Corporation
+# Copyright (C) 2019-2024 Intel Corporation
 #
 # SPDX-License-Identifier: MIT
-
+import logging as log
 from functools import partial
 from itertools import chain
-from typing import Dict, Tuple
+from typing import Dict, Optional, Tuple
 
 import numpy as np
 from pycocotools import mask as pycocotools_mask
@@ -124,8 +124,72 @@ def remap_mask(mask, map_fn):
     return np.array([map_fn(c) for c in range(256)], dtype=np.uint8)[mask]
 
 
-def make_index_mask(binary_mask, index, dtype=None):
-    return binary_mask * np.array([index], dtype=dtype or np.min_scalar_type(index))
+def make_index_mask(
+    binary_mask: np.ndarray,
+    index: int,
+    ignore_index: int = 0,
+    dtype: Optional[np.dtype] = None,
+):
+    """Create an index mask from a binary mask by filling a given index value.
+
+    Args:
+        binary_mask: Binary mask to create an index mask.
+        index: Scalar value to fill the ones in the binary mask.
+        ignore_index: Scalar value to fill in the zeros in the binary mask.
+            Defaults to 0.
+        dtype: Data type for the resulting mask. If not specified,
+                it will be inferred from the provided `index` to hold its value.
+                For example, if `index=255`, the inferred dtype will be `np.uint8`.
+                Defaults to None.
+
+    Returns:
+        np.ndarray: Index mask created from the binary mask.
+
+    Raises:
+        ValueError: If dtype is not specified and incompatible scalar types are used for index
+            and ignore_index.
+
+    Examples:
+        >>> binary_mask = np.eye(2, dtype=np.bool_)
+        >>> index_mask = make_index_mask(binary_mask, index=10, ignore_index=255, dtype=np.uint8)
+        >>> print(index_mask)
+        array([[ 10, 255],
+               [255,  10]], dtype=uint8)
+    """
+    if dtype is None:
+        dtype = np.min_scalar_type(index)
+        if dtype != np.min_scalar_type(ignore_index):
+            msg = (
+                "Given dtype is None, "
+                "but inferred dtypes from the given index and ignore_index are different each other. "
+                "Please mannually set dtype"
+            )
+            raise ValueError(msg, index, ignore_index)
+
+    flipped_zero_np_scalar = ~np.full(tuple(), fill_value=0, dtype=dtype)
+
+    # NOTE: This dispatching rule is required for a performance boost
+    if ignore_index == flipped_zero_np_scalar:
+        flipped_index = ~np.full(tuple(), fill_value=index, dtype=dtype)
+        return ~(binary_mask * flipped_index)
+    elif index < ignore_index:
+        diff = ignore_index - index
+        mask = ~binary_mask * np.full(tuple(), fill_value=diff, dtype=dtype)
+        mask += index
+        return mask
+    elif index > ignore_index:
+        diff = index - ignore_index
+        mask = binary_mask * np.full(tuple(), fill_value=diff, dtype=dtype)
+        mask += ignore_index
+        return mask
+
+    # index == ignore_index
+    msg = (
+        "index == ignore_index. "
+        f"It will create an index mask filling with a single value, index={index}"
+    )
+    log.warning(msg)
+    return np.full_like(binary_mask, fill_value=index, dtype=dtype)
 
 
 def make_binary_mask(mask):
