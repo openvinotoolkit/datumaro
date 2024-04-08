@@ -60,15 +60,6 @@ Docs
 .. toctree::
   :maxdepth: 1
   :hidden:
-  :caption: DaturmaroApp Reference
-
-  datumaroapp-reference/overview
-  datumaroapp-reference/single_dataset/index
-  datumaroapp-reference/multiple_dataset/index
-
-.. toctree::
-  :maxdepth: 1
-  :hidden:
   :caption: Explanation
 
   explanation/concept
