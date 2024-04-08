@@ -3,7 +3,7 @@ Release Notes
 
 .. toctree::
    :maxdepth: 1
-v2.0.0 (2024.04)
+v1.6.0 (2024.04)
 ----------------
 
 New features
@@ -17,7 +17,6 @@ New features
 - Add `__getitem__()` for random accessing with O(1) time complexity
 - Add Data-aware Anchor Generator
 - Support bounding box import within Kaggle extractors and add `KaggleCocoBase`
-- Implement Datumaroapp GUI for datumaro
 
 Enhancements
 ^^^^^^^^^^^^
