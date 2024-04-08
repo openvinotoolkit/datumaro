@@ -17,7 +17,7 @@ from datumaro.components.errors import (
     MediaTypeError,
 )
 from datumaro.components.media import MediaElement
-from datumaro.components.task import TaskType
+from datumaro.components.task import TaskAnnotationMapping, TaskType
 from datumaro.util import dump_json_file
 
 
@@ -76,14 +76,14 @@ class Merger(IMergerContext, CliPlugin):
 
     @staticmethod
     def merge_task_types(sources: Sequence[IDataset]) -> Optional[TaskType]:
-        if sources:
-            task_type = sources[0].task_type()
-            for s in sources:
-                if s.task_type() != task_type:
-                    # Symmetric comparision is needed in the case of subclasses:
-                    # eg. Image and RoIImage
-                    raise MediaTypeError("Datasets have different task types")
-            return task_type
+        task_annotation_mapping = TaskAnnotationMapping()
+        ann_types = set()
+        for source in sources:
+            for ann_type in task_annotation_mapping[source.task_type()]:
+                ann_types.add(ann_type)
+
+        if ann_types:
+            return task_annotation_mapping.get_task(ann_types)
 
         return None
 
