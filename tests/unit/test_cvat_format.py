@@ -19,6 +19,7 @@ from datumaro.components.dataset import Dataset
 from datumaro.components.dataset_base import DatasetItem
 from datumaro.components.environment import Environment
 from datumaro.components.media import Image
+from datumaro.components.task import TaskType
 from datumaro.plugins.data_formats.cvat.base import CvatImporter
 from datumaro.plugins.data_formats.cvat.exporter import CvatExporter
 from datumaro.plugins.transforms import ProjectLabels
@@ -88,6 +89,7 @@ EXPECTED_IMAGE_DATASETS = [
                 ]
             )
         },
+        task_type=TaskType.segmentation_instance,
     ),
     # export_task
     Dataset.from_iterable(
@@ -135,6 +137,7 @@ EXPECTED_IMAGE_DATASETS = [
                 ]
             )
         },
+        task_type=TaskType.segmentation_instance,
     ),
 ]
 
@@ -280,6 +283,7 @@ class CvatImporterTest(TestCase):
                     [["klhg", "", {"hgl"}], ["z U k"], ["II"]]
                 ),
             },
+            task_type=TaskType.segmentation_instance,
         )
 
         parsed_dataset = Dataset.import_from(DUMMY_VIDEO_DATASET_DIR, "cvat")
@@ -364,6 +368,7 @@ class CvatExporterTest(TestCase):
                 ),
             ],
             categories={AnnotationType.label: src_label_cat},
+            task_type=TaskType.segmentation_instance,
         )
 
         target_label_cat = LabelCategories(
@@ -439,6 +444,7 @@ class CvatExporterTest(TestCase):
                 ),
             ],
             categories={AnnotationType.label: target_label_cat},
+            task_type=TaskType.segmentation_instance,
         )
 
         with TestDir() as test_dir:
@@ -464,6 +470,7 @@ class CvatExporterTest(TestCase):
                 ),
             ],
             categories=[("a", "", {"x"})],
+            task_type=TaskType.detection,
         )
 
         target_label_cat = LabelCategories(attributes={"occluded"})
@@ -483,6 +490,7 @@ class CvatExporterTest(TestCase):
                 ),
             ],
             categories={AnnotationType.label: target_label_cat},
+            task_type=TaskType.detection,
         )
 
         with TestDir() as test_dir:
@@ -501,7 +509,8 @@ class CvatExporterTest(TestCase):
                 DatasetItem(id="1", media=Image.from_numpy(data=np.ones((4, 2, 3)))),
                 DatasetItem(id="subdir1/1", media=Image.from_numpy(data=np.ones((2, 6, 3)))),
                 DatasetItem(id="subdir2/1", media=Image.from_numpy(data=np.ones((5, 4, 3)))),
-            ]
+            ],
+            task_type=TaskType.classification,
         )
 
         target_dataset = Dataset.from_iterable(
@@ -521,6 +530,7 @@ class CvatExporterTest(TestCase):
                 ),
             ],
             categories=[],
+            task_type=TaskType.classification,
         )
 
         with TestDir() as test_dir:
@@ -553,6 +563,7 @@ class CvatExporterTest(TestCase):
             categories={
                 AnnotationType.label: label_categories,
             },
+            task_type=TaskType.classification,
         )
 
         target_dataset = Dataset.from_iterable(
@@ -570,6 +581,7 @@ class CvatExporterTest(TestCase):
             categories={
                 AnnotationType.label: label_categories,
             },
+            task_type=TaskType.classification,
         )
 
         with TestDir() as test_dir:
@@ -597,6 +609,7 @@ class CvatExporterTest(TestCase):
                 ),
             ],
             categories=[],
+            task_type=TaskType.classification,
         )
 
         with TestDir() as test_dir:
@@ -620,6 +633,7 @@ class CvatExporterTest(TestCase):
                 ),
             ],
             categories=[],
+            task_type=TaskType.classification,
         )
 
         with TestDir() as test_dir:
@@ -639,7 +653,8 @@ class CvatExporterTest(TestCase):
                     media=Image.from_numpy(data=np.ones((4, 2, 3))),
                     attributes={"frame": 40},
                 ),
-            ]
+            ],
+            task_type=TaskType.classification,
         )
 
         expected_dataset = Dataset.from_iterable(
@@ -651,6 +666,7 @@ class CvatExporterTest(TestCase):
                 ),
             ],
             categories=[],
+            task_type=TaskType.classification,
         )
 
         with TestDir() as test_dir:
@@ -671,6 +687,7 @@ class CvatExporterTest(TestCase):
                 DatasetItem(2, subset="b", media=Image.from_numpy(data=np.ones((3, 2, 3)))),
             ],
             categories=[],
+            task_type=TaskType.unknown,
         )
 
         with TestDir() as path:
@@ -680,7 +697,8 @@ class CvatExporterTest(TestCase):
                     DatasetItem(1, subset="a", media=Image.from_numpy(data=np.ones((3, 2, 3)))),
                     DatasetItem(2, subset="b", media=Image.from_numpy(data=np.ones((3, 2, 3)))),
                     DatasetItem(3, subset="c", media=Image.from_numpy(data=np.ones((3, 2, 3)))),
-                ]
+                ],
+                task_type=TaskType.unknown,
             )
             dataset.export(path, "cvat", save_media=True)
 
