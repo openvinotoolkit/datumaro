@@ -26,6 +26,7 @@ from datumaro.components.exporter import Exporter
 from datumaro.components.format_detection import FormatDetectionContext
 from datumaro.components.importer import ImportContext, Importer
 from datumaro.components.media import Image
+from datumaro.components.task import TaskType
 from datumaro.util import find, str_to_bool
 from datumaro.util.annotation_util import make_label_id_mapping
 from datumaro.util.image import save_image
@@ -231,12 +232,18 @@ class CamvidBase(SubsetBase):
                             image = self._lazy_extract_mask(mask, label_id)
                             item_annotations.append(Mask(image=image, label=label_id))
 
+                            if not self._task_type:
+                                self._task_type = TaskType.segmentation_semantic
+
                 items[item_id] = DatasetItem(
                     id=item_id,
                     subset=self._subset,
                     media=Image.from_file(path=image_path),
                     annotations=item_annotations,
                 )
+
+        if not self._task_type:
+            self._task_type = TaskType.unlabeled
 
         return items
 

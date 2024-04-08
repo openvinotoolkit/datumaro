@@ -16,15 +16,16 @@ class TaskType(IntEnum):
     classification_multilabel = 2
     classification_hierarchical = 3
     detection = 4
-    detection_rotated = 5
-    detection_3d = 6
-    segmentation_semantic = 7
-    segmentation_instance = 8
-    segmentation_panoptic = 9
-    caption = 10
-    super_resolution = 11
-    depth_estimation = 12
-    unlabeled = 13
+    detection_landmark = 5
+    detection_rotated = 6
+    detection_3d = 7
+    segmentation_semantic = 8
+    segmentation_instance = 9
+    segmentation_panoptic = 10
+    caption = 11
+    super_resolution = 12
+    depth_estimation = 13
+    unlabeled = 14
 
 
 class TaskAnnotationMapping(Mapping[TaskType, Set[AnnotationType]]):
@@ -34,6 +35,11 @@ class TaskAnnotationMapping(Mapping[TaskType, Set[AnnotationType]]):
             TaskType.classification_multilabel: {AnnotationType.label},
             TaskType.classification_hierarchical: {AnnotationType.label},
             TaskType.detection: {AnnotationType.label, AnnotationType.bbox},
+            TaskType.detection_landmark: {
+                AnnotationType.label,
+                AnnotationType.bbox,
+                AnnotationType.points,
+            },
             TaskType.detection_rotated: {
                 AnnotationType.label,
                 AnnotationType.polygon,

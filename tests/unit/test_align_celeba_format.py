@@ -13,6 +13,7 @@ from datumaro.components.dataset import Dataset
 from datumaro.components.dataset_base import DatasetItem
 from datumaro.components.environment import Environment
 from datumaro.components.media import Image
+from datumaro.components.task import TaskType
 from datumaro.plugins.data_formats.celeba import AlignCelebaImporter
 
 from ..requirements import Requirements, mark_requirement
@@ -116,6 +117,7 @@ class AlignCelebaImporterTest(TestCase):
                     ]
                 ),
             },
+            task_type=TaskType.detection_landmark,
         )
 
         dataset = Dataset.import_from(DUMMY_ALIGN_DATASET_DIR, "align_celeba")
@@ -158,6 +160,7 @@ class AlignCelebaImporterTest(TestCase):
                 ),
             ],
             categories=[f"class-{i}" for i in range(7)],
+            task_type=TaskType.classification,
         )
 
         dataset = Dataset.import_from(DUMMY_ALIGN_DATASET_DIR_WITH_META_FILE, "align_celeba")

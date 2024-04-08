@@ -12,6 +12,7 @@ from datumaro.components.dataset import Dataset
 from datumaro.components.dataset_base import DatasetBase, DatasetItem
 from datumaro.components.environment import Environment
 from datumaro.components.media import Image
+from datumaro.components.task import TaskType
 from datumaro.plugins.data_formats.camvid import CamvidExporter, CamvidImporter
 from datumaro.util.meta_file_util import parse_meta_file
 
@@ -39,7 +40,9 @@ class CamvidFormatTest(TestCase):
 
         with TestDir() as test_dir:
             source_dataset = Dataset.from_iterable(
-                [], categories=Camvid.make_camvid_categories(src_label_map)
+                [],
+                categories=Camvid.make_camvid_categories(src_label_map),
+                task_type=TaskType.unlabeled,
             )
 
             CamvidExporter.convert(source_dataset, test_dir, save_dataset_meta=True)
@@ -104,6 +107,7 @@ class CamvidImportTest(TestCase):
                 ),
             ],
             categories=Camvid.make_camvid_categories(),
+            task_type=TaskType.segmentation_semantic,
         )
 
         parsed_dataset = Dataset.import_from(DUMMY_DATASET_DIR, "camvid")
@@ -449,6 +453,7 @@ class CamvidExporterTest(TestCase):
                     ]
                 )
             ),
+            task_type=TaskType.segmentation_semantic,
         )
 
         with TestDir() as path:
@@ -473,6 +478,7 @@ class CamvidExporterTest(TestCase):
                     AnnotationType.mask: src_mask_cat,
                 },
                 media_type=Image,
+                task_type=TaskType.segmentation_semantic,
             )
             dataset.export(path, "camvid", save_media=True)
 

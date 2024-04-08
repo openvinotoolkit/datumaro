@@ -20,6 +20,7 @@ from datumaro.components.errors import DatasetImportError, InvalidAnnotationErro
 from datumaro.components.format_detection import FormatDetectionConfidence, FormatDetectionContext
 from datumaro.components.importer import ImportContext, Importer
 from datumaro.components.media import Image
+from datumaro.components.task import TaskAnnotationMapping
 from datumaro.util.image import find_images
 from datumaro.util.meta_file_util import has_meta_file, parse_meta_file
 
@@ -75,6 +76,7 @@ class CelebaBase(SubsetBase):
         if not osp.isfile(labels_path):
             raise FileNotFoundError(errno.ENOENT, os.strerror(errno.ENOENT), labels_path)
 
+        ann_types = set()
         with open(labels_path, encoding="utf-8") as f:
             for line in f:
                 item_id, item_ann = self.split_annotation(line)
@@ -84,6 +86,7 @@ class CelebaBase(SubsetBase):
                     while len(label_categories) <= label:
                         label_categories.add("class-%d" % len(label_categories))
                     anno.append(Label(label))
+                    ann_types.add(AnnotationType.label)
 
                 image = images.get(item_id)
                 if image:
@@ -122,6 +125,7 @@ class CelebaBase(SubsetBase):
                     anno = items[item_id].annotations
                     label = anno[0].label
                     anno.append(Points(landmarks, label=label))
+                    ann_types.add(AnnotationType.points)
 
                 if landmarks_number - 1 != counter:
                     raise InvalidAnnotationError(
@@ -157,6 +161,7 @@ class CelebaBase(SubsetBase):
                     anno = items[item_id].annotations
                     label = anno[0].label
                     anno.append(Bbox(bbox[0], bbox[1], bbox[2], bbox[3], label=label))
+                    ann_types.add(AnnotationType.bbox)
 
                 if bboxes_number - 1 != counter:
                     raise InvalidAnnotationError(
@@ -220,6 +225,8 @@ class CelebaBase(SubsetBase):
                     if "default" in self._subsets:
                         self._subsets.pop()
                     self._subsets.append(subset)
+
+        self._task_type = TaskAnnotationMapping().get_task(ann_types)
 
         return items
 
