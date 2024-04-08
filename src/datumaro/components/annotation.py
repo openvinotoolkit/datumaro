@@ -384,7 +384,9 @@ class Mask(Annotation):
             ignore_index: Scalar value to fill in the zeros in the binary mask.
                 Defaults to 0.
             dtype: Data type for the resulting mask. If not specified,
-                it will be inferred from the provided `label_id`. Defaults to None.
+                it will be inferred from the provided `label_id` to hold its value.
+                For example, if `label_id=255`, the inferred dtype will be `np.uint8`.
+                Defaults to None.
 
         Returns:
             IndexMaskImage: Class index mask generated from the binary mask.
@@ -408,7 +410,9 @@ class Mask(Annotation):
             ignore_index: Scalar value to fill in the zeros in the binary mask.
                 Defaults to 0.
             dtype: Data type for the resulting mask. If not specified,
-                it will be inferred from the provided `label_id`. Defaults to None.
+                it will be inferred from the provided `label_id` to hold its value.
+                For example, if `label_id=255`, the inferred dtype will be `np.uint8`.
+                Defaults to None.
 
         Returns:
             IndexMaskImage: Instance index mask generated from the binary mask.

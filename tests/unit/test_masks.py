@@ -257,6 +257,11 @@ class MaskToolsTest:
         )
 
         _test(
+            np.array([[200, 100], [100, 200]], dtype=np.uint8),
+            mask_tools.make_index_mask(binary_mask=binary_mask, index=200, ignore_index=100),
+        )
+
+        _test(
             np.array([[10, 65535], [65535, 10]], dtype=np.uint16),
             mask_tools.make_index_mask(
                 binary_mask=binary_mask, index=10, ignore_index=65535, dtype=np.uint16
