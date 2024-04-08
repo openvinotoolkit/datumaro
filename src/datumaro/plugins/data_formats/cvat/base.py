@@ -79,7 +79,6 @@ class CvatBase(SubsetBase):
         categories, frame_size, attribute_types = self._parse_meta(meta_root)
 
         items = OrderedDict()
-        ann_types = set()
 
         track = None
         shape = None
@@ -175,9 +174,9 @@ class CvatBase(SubsetBase):
 
                     if subset is None or subset == self._subset:
                         frame_desc = items.get(shape["frame"], {"annotations": []})
-                        ann = self._parse_shape_ann(shape, categories, image)
-                        ann_types.add(ann.type)
-                        frame_desc["annotations"].append(ann)
+                        frame_desc["annotations"].append(
+                            self._parse_shape_ann(shape, categories, image)
+                        )
                         items[shape["frame"]] = frame_desc
 
                     shape = None
@@ -203,11 +202,6 @@ class CvatBase(SubsetBase):
                         items[image["frame"]] = frame_desc
                     image = None
                 el.clear()
-
-        task_ann_mapping = TaskAnnotationMapping()
-        for task in task_ann_mapping:
-            if ann_types.issubset(task_ann_mapping[task]):
-                self._task_type = task
 
         return items, categories
 
@@ -365,6 +359,7 @@ class CvatBase(SubsetBase):
         return Label(label_id, attributes=attributes, group=group)
 
     def _load_items(self, parsed):
+        ann_types = set()
         for frame_id, item_desc in parsed.items():
             name = item_desc.get("name", "frame_%06d.png" % int(frame_id))
 
@@ -396,6 +391,12 @@ class CvatBase(SubsetBase):
                 annotations=item_desc.get("annotations"),
                 attributes={"frame": int(frame_id)},
             )
+            for ann in item_desc.get("annotations"):
+                ann_types.add(ann.type)
+
+        print("############", ann_types)
+        self._task_type = TaskAnnotationMapping().get_task(ann_types)
+
         return parsed
 
 

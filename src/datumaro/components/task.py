@@ -30,7 +30,6 @@ class TaskType(IntEnum):
 class TaskAnnotationMapping(Mapping[TaskType, Set[AnnotationType]]):
     def __init__(self):
         self._mapping = {
-            TaskType.unknown: {},
             TaskType.classification: {AnnotationType.label},
             TaskType.classification_multilabel: {AnnotationType.label},
             TaskType.classification_hierarchical: {AnnotationType.label},
