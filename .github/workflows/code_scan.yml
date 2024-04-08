@@ -30,8 +30,6 @@ jobs:
           pip-compile -o .ci/dev/docker/segment-anything/requirements.txt docker/segment-anything/requirements.txt
           mkdir -p .ci/base/docs
           pip-compile -o .ci/base/docs/requirements.txt docs/requirements.txt
-          mkdir -p .ci/base/gui
-          pip-compile -o .ci/base/gui/requirements.txt gui/requirements.txt
       - name: Run Trivy Scan (full, csv)
         uses: aquasecurity/trivy-action@d710430a6722f083d3b36b8339ff66b32f22ee55 # 0.19.0
         with:
