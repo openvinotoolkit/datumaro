@@ -687,7 +687,7 @@ class CvatExporterTest(TestCase):
                 DatasetItem(2, subset="b", media=Image.from_numpy(data=np.ones((3, 2, 3)))),
             ],
             categories=[],
-            task_type=TaskType.unknown,
+            task_type=TaskType.unlabeled,
         )
 
         with TestDir() as path:
@@ -698,7 +698,7 @@ class CvatExporterTest(TestCase):
                     DatasetItem(2, subset="b", media=Image.from_numpy(data=np.ones((3, 2, 3)))),
                     DatasetItem(3, subset="c", media=Image.from_numpy(data=np.ones((3, 2, 3)))),
                 ],
-                task_type=TaskType.unknown,
+                task_type=TaskType.unlabeled,
             )
             dataset.export(path, "cvat", save_media=True)
 

@@ -446,7 +446,7 @@ class DatasetStorage(IDataset):
             )
 
         ann_types = set([ann.type for ann in item.annotations])
-        if ann_types.issubset(task_annotation_mapping[self._task_type]):
+        if not ann_types.issubset(task_annotation_mapping[self._task_type]):
             raise MediaTypeError(
                 "Mismatching item annotation type '%s', "
                 "while the dataset is for '%s'." % (ann_types, self._task_type)

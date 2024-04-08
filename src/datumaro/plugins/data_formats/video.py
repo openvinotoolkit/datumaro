@@ -12,6 +12,7 @@ from datumaro.components.dataset_base import DEFAULT_SUBSET_NAME, DatasetBase, D
 from datumaro.components.format_detection import FormatDetectionConfidence, FormatDetectionContext
 from datumaro.components.importer import ImportContext, Importer
 from datumaro.components.media import Video, VideoFrame
+from datumaro.components.task import TaskType
 from datumaro.util.os_util import find_files
 
 # Taken from https://en.wikipedia.org/wiki/Comparison_of_video_container_formats
@@ -122,6 +123,7 @@ class VideoFramesBase(DatasetBase):
         self._name_pattern = name_pattern
         self._reader = Video(url, step=step, start_frame=start_frame, end_frame=end_frame)
         self._length = self._reader.length  # NOTE: the value is often incorrect
+        self._task_type = TaskType.unlabeled
 
     def __iter__(self):
         for frame in self._reader:
