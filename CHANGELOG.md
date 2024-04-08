@@ -5,16 +5,14 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## Apr. 2024 Release 2.1.0
+## May 2024 Release 1.7.0
 ### New features
 
 ### Enhancements
-- Add ignore_index argument to Mask.as_class_mask() and Mask.as_instance_mask()
-  (<https://github.com/openvinotoolkit/datumaro/pull/1409>)
 
 ### Bug fixes
 
-## Apr. 2024 Release 2.0.0
+## Apr. 2024 Release 1.6.0
 ### New features
 - Changed supported Python version range (>=3.9, <=3.11)
   (<https://github.com/openvinotoolkit/datumaro/pull/1269>)
@@ -34,8 +32,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   (<https://github.com/openvinotoolkit/datumaro/pull/1251>)
 - Support bounding box import within Kaggle extractors and add `KaggleCocoBase`
   (<https://github.com/openvinotoolkit/datumaro/pull/1273>)
-- Implement Datumaroapp GUI for datumaro
-  (<https://github.com/openvinotoolkit/datumaro/pull/1279>)
 
 ### Enhancements
 - Optimize Python import to make CLI entrypoint faster
@@ -62,6 +58,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   (<https://github.com/openvinotoolkit/datumaro/pull/1376>)
 - Print the color channel format (RGB) for datum stats command
   (<https://github.com/openvinotoolkit/datumaro/pull/1389>)
+- Add ignore_index argument to Mask.as_class_mask() and Mask.as_instance_mask()
+  (<https://github.com/openvinotoolkit/datumaro/pull/1409>)
 
 ### Bug fixes
 - Fix wrong example of Datumaro dataset creation in document
