@@ -270,7 +270,7 @@ class Dataset(IDataset):
 
         self.eager = None
         self._data = DatasetStorage(
-            source,
+            source=source,
             infos=infos,
             categories=categories,
             media_type=media_type,

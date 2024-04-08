@@ -155,13 +155,13 @@ class DatasetStorage(IDataset):
 
         self._media_type = media_type
 
-        # if task_type:
-        #     pass
-        # elif isinstance(source, IDataset) and source.task_type():
-        #     task_type = source.task_type()
-        # else:
-        #     raise ValueError("Media type must be provided for a dataset")
-        # assert isinstance(task_type, TaskType)
+        if task_type:
+            pass
+        elif isinstance(source, IDataset) and source.task_type():
+            task_type = source.task_type()
+        else:
+            raise ValueError("Task type must be provided for a dataset")
+        assert isinstance(task_type, TaskType)
 
         self._task_type = task_type
 

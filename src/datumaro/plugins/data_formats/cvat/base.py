@@ -25,6 +25,7 @@ from datumaro.components.errors import DatasetImportError
 from datumaro.components.format_detection import FormatDetectionContext
 from datumaro.components.importer import ImportContext, Importer
 from datumaro.components.media import Image
+from datumaro.components.task import TaskAnnotationMapping
 from datumaro.util import mask_tools
 
 from .format import CvatPath
@@ -78,6 +79,7 @@ class CvatBase(SubsetBase):
         categories, frame_size, attribute_types = self._parse_meta(meta_root)
 
         items = OrderedDict()
+        ann_types = set()
 
         track = None
         shape = None
@@ -173,10 +175,11 @@ class CvatBase(SubsetBase):
 
                     if subset is None or subset == self._subset:
                         frame_desc = items.get(shape["frame"], {"annotations": []})
-                        frame_desc["annotations"].append(
-                            self._parse_shape_ann(shape, categories, image)
-                        )
+                        ann = self._parse_shape_ann(shape, categories, image)
+                        ann_types.add(ann.type)
+                        frame_desc["annotations"].append(ann)
                         items[shape["frame"]] = frame_desc
+
                     shape = None
 
                 elif el.tag == "tag":
@@ -200,6 +203,11 @@ class CvatBase(SubsetBase):
                         items[image["frame"]] = frame_desc
                     image = None
                 el.clear()
+
+        task_ann_mapping = TaskAnnotationMapping()
+        for task in task_ann_mapping:
+            if ann_types.issubset(task_ann_mapping[task]):
+                self._task_type = task
 
         return items, categories
 

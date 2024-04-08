@@ -74,16 +74,30 @@ class Merger(IMergerContext, CliPlugin):
 
         return None
 
+    @staticmethod
+    def merge_task_types(sources: Sequence[IDataset]) -> Optional[TaskType]:
+        if sources:
+            task_type = sources[0].task_type()
+            for s in sources:
+                if s.task_type() != task_type:
+                    # Symmetric comparision is needed in the case of subclasses:
+                    # eg. Image and RoIImage
+                    raise MediaTypeError("Datasets have different task types")
+            return task_type
+
+        return None
+
     def __call__(self, *datasets: IDataset) -> DatasetItemStorageDatasetView:
         infos = self.merge_infos(d.infos() for d in datasets)
         categories = self.merge_categories(d.categories() for d in datasets)
         media_type = self.merge_media_types(datasets)
+        task_type = self.merge_task_types(datasets)
         return DatasetItemStorageDatasetView(
             parent=self.merge(datasets),
             infos=infos,
             categories=categories,
             media_type=media_type,
-            task_type=TaskType.classification,  # [TODO]: wonjuleee
+            task_type=task_type,
         )
 
     def save_merge_report(self, path: str) -> None:

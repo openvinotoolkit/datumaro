@@ -24,41 +24,13 @@ class TaskType(IntEnum):
     caption = 10
     super_resolution = 11
     depth_estimation = 12
-
-
-# class TaskAnnotationMapping:
-#     Mapping[TaskType, Set[AnnotationType]] = {
-#         TaskType.classification: {AnnotationType.label},
-#         TaskType.classification_multilabel: {AnnotationType.label},
-#         TaskType.classification_hierarchical: {AnnotationType.label},
-#         TaskType.detection: {AnnotationType.label, AnnotationType.bbox},
-#         TaskType.detection_rotated: {
-#             AnnotationType.label,
-#             AnnotationType.polygon,
-#             AnnotationType.points,
-#         },
-#         TaskType.detection_3d: {AnnotationType.label, AnnotationType.cuboid_3d},
-#         TaskType.segmentation_semantic: {
-#             AnnotationType.label,
-#             AnnotationType.polygon,
-#             AnnotationType.mask,
-#         },
-#         TaskType.segmentation_instance: {
-#             AnnotationType.label,
-#             AnnotationType.polygon,
-#             AnnotationType.mask,
-#         },
-#         TaskType.segmentation_panoptic: {
-#             AnnotationType.label,
-#             AnnotationType.polygon,
-#             AnnotationType.mask,
-#         },
-#     }
+    unlabeled = 13
 
 
 class TaskAnnotationMapping(Mapping[TaskType, Set[AnnotationType]]):
     def __init__(self):
         self._mapping = {
+            TaskType.unknown: {},
             TaskType.classification: {AnnotationType.label},
             TaskType.classification_multilabel: {AnnotationType.label},
             TaskType.classification_hierarchical: {AnnotationType.label},
@@ -71,19 +43,17 @@ class TaskAnnotationMapping(Mapping[TaskType, Set[AnnotationType]]):
             TaskType.detection_3d: {AnnotationType.label, AnnotationType.cuboid_3d},
             TaskType.segmentation_semantic: {
                 AnnotationType.label,
-                AnnotationType.polygon,
                 AnnotationType.mask,
             },
             TaskType.segmentation_instance: {
                 AnnotationType.label,
+                AnnotationType.bbox,
                 AnnotationType.polygon,
+                AnnotationType.points,
+                AnnotationType.polyline,
                 AnnotationType.mask,
             },
-            TaskType.segmentation_panoptic: {
-                AnnotationType.label,
-                AnnotationType.polygon,
-                AnnotationType.mask,
-            },
+            TaskType.unlabeled: {},
         }
 
     def __getitem__(self, key):
