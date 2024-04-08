@@ -343,13 +343,13 @@ document.write(`
                 <article class="bd-article">
                   
   <h1>Source code for datumaro.util.mask_tools</h1><div class="highlight"><pre>
-<span></span><span class="c1"># Copyright (C) 2019-2021 Intel Corporation</span>
+<span></span><span class="c1"># Copyright (C) 2019-2024 Intel Corporation</span>
 <span class="c1">#</span>
 <span class="c1"># SPDX-License-Identifier: MIT</span>
-
+<span class="kn">import</span> <span class="nn">logging</span> <span class="k">as</span> <span class="nn">log</span>
 <span class="kn">from</span> <span class="nn">functools</span> <span class="kn">import</span> <span class="n">partial</span>
 <span class="kn">from</span> <span class="nn">itertools</span> <span class="kn">import</span> <span class="n">chain</span>
-<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">Tuple</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Tuple</span>
 
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 <span class="kn">from</span> <span class="nn">pycocotools</span> <span class="kn">import</span> <span class="n">mask</span> <span class="k">as</span> <span class="n">pycocotools_mask</span>
@@ -489,8 +489,72 @@ document.write(`
 
 <div class="viewcode-block" id="make_index_mask">
 <a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.util.mask_tools.html#datumaro.plugins.sam_transforms.bbox_to_inst_mask.make_index_mask">[docs]</a>
-<span class="k">def</span> <span class="nf">make_index_mask</span><span class="p">(</span><span class="n">binary_mask</span><span class="p">,</span> <span class="n">index</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-    <span class="k">return</span> <span class="n">binary_mask</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">index</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="n">dtype</span> <span class="ow">or</span> <span class="n">np</span><span class="o">.</span><span class="n">min_scalar_type</span><span class="p">(</span><span class="n">index</span><span class="p">))</span></div>
+<span class="k">def</span> <span class="nf">make_index_mask</span><span class="p">(</span>
+    <span class="n">binary_mask</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+    <span class="n">index</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+    <span class="n">ignore_index</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
+    <span class="n">dtype</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">dtype</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Create an index mask from a binary mask by filling a given index value.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        binary_mask: Binary mask to create an index mask.</span>
+<span class="sd">        index: Scalar value to fill the ones in the binary mask.</span>
+<span class="sd">        ignore_index: Scalar value to fill in the zeros in the binary mask.</span>
+<span class="sd">            Defaults to 0.</span>
+<span class="sd">        dtype: Data type for the resulting mask. If not specified,</span>
+<span class="sd">                it will be inferred from the provided `index` to hold its value.</span>
+<span class="sd">                For example, if `index=255`, the inferred dtype will be `np.uint8`.</span>
+<span class="sd">                Defaults to None.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        np.ndarray: Index mask created from the binary mask.</span>
+
+<span class="sd">    Raises:</span>
+<span class="sd">        ValueError: If dtype is not specified and incompatible scalar types are used for index</span>
+<span class="sd">            and ignore_index.</span>
+
+<span class="sd">    Examples:</span>
+<span class="sd">        &gt;&gt;&gt; binary_mask = np.eye(2, dtype=np.bool_)</span>
+<span class="sd">        &gt;&gt;&gt; index_mask = make_index_mask(binary_mask, index=10, ignore_index=255, dtype=np.uint8)</span>
+<span class="sd">        &gt;&gt;&gt; print(index_mask)</span>
+<span class="sd">        array([[ 10, 255],</span>
+<span class="sd">               [255,  10]], dtype=uint8)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">dtype</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">dtype</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">min_scalar_type</span><span class="p">(</span><span class="n">index</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">dtype</span> <span class="o">!=</span> <span class="n">np</span><span class="o">.</span><span class="n">min_scalar_type</span><span class="p">(</span><span class="n">ignore_index</span><span class="p">):</span>
+            <span class="n">msg</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="s2">&quot;Given dtype is None, &quot;</span>
+                <span class="s2">&quot;but inferred dtypes from the given index and ignore_index are different each other. &quot;</span>
+                <span class="s2">&quot;Please mannually set dtype&quot;</span>
+            <span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">msg</span><span class="p">,</span> <span class="n">index</span><span class="p">,</span> <span class="n">ignore_index</span><span class="p">)</span>
+
+    <span class="n">flipped_zero_np_scalar</span> <span class="o">=</span> <span class="o">~</span><span class="n">np</span><span class="o">.</span><span class="n">full</span><span class="p">(</span><span class="nb">tuple</span><span class="p">(),</span> <span class="n">fill_value</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">dtype</span><span class="p">)</span>
+
+    <span class="c1"># NOTE: This dispatching rule is required for a performance boost</span>
+    <span class="k">if</span> <span class="n">ignore_index</span> <span class="o">==</span> <span class="n">flipped_zero_np_scalar</span><span class="p">:</span>
+        <span class="n">flipped_index</span> <span class="o">=</span> <span class="o">~</span><span class="n">np</span><span class="o">.</span><span class="n">full</span><span class="p">(</span><span class="nb">tuple</span><span class="p">(),</span> <span class="n">fill_value</span><span class="o">=</span><span class="n">index</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">dtype</span><span class="p">)</span>
+        <span class="k">return</span> <span class="o">~</span><span class="p">(</span><span class="n">binary_mask</span> <span class="o">*</span> <span class="n">flipped_index</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="n">index</span> <span class="o">&lt;</span> <span class="n">ignore_index</span><span class="p">:</span>
+        <span class="n">diff</span> <span class="o">=</span> <span class="n">ignore_index</span> <span class="o">-</span> <span class="n">index</span>
+        <span class="n">mask</span> <span class="o">=</span> <span class="o">~</span><span class="n">binary_mask</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">full</span><span class="p">(</span><span class="nb">tuple</span><span class="p">(),</span> <span class="n">fill_value</span><span class="o">=</span><span class="n">diff</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">dtype</span><span class="p">)</span>
+        <span class="n">mask</span> <span class="o">+=</span> <span class="n">index</span>
+        <span class="k">return</span> <span class="n">mask</span>
+    <span class="k">elif</span> <span class="n">index</span> <span class="o">&gt;</span> <span class="n">ignore_index</span><span class="p">:</span>
+        <span class="n">diff</span> <span class="o">=</span> <span class="n">index</span> <span class="o">-</span> <span class="n">ignore_index</span>
+        <span class="n">mask</span> <span class="o">=</span> <span class="n">binary_mask</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">full</span><span class="p">(</span><span class="nb">tuple</span><span class="p">(),</span> <span class="n">fill_value</span><span class="o">=</span><span class="n">diff</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">dtype</span><span class="p">)</span>
+        <span class="n">mask</span> <span class="o">+=</span> <span class="n">ignore_index</span>
+        <span class="k">return</span> <span class="n">mask</span>
+
+    <span class="c1"># index == ignore_index</span>
+    <span class="n">msg</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="s2">&quot;index == ignore_index. &quot;</span>
+        <span class="sa">f</span><span class="s2">&quot;It will create an index mask filling with a single value, index=</span><span class="si">{</span><span class="n">index</span><span class="si">}</span><span class="s2">&quot;</span>
+    <span class="p">)</span>
+    <span class="n">log</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">full_like</span><span class="p">(</span><span class="n">binary_mask</span><span class="p">,</span> <span class="n">fill_value</span><span class="o">=</span><span class="n">index</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">dtype</span><span class="p">)</span></div>
 
 
 

@@ -340,7 +340,7 @@ document.write(`
                 <article class="bd-article">
                   
   <h1>Source code for datumaro.components.annotation</h1><div class="highlight"><pre>
-<span></span><span class="c1"># Copyright (C) 2021-2022 Intel Corporation</span>
+<span></span><span class="c1"># Copyright (C) 2021-2024 Intel Corporation</span>
 <span class="c1">#</span>
 <span class="c1"># SPDX-License-Identifier: MIT</span>
 
@@ -776,26 +776,61 @@ document.write(`
 
 <div class="viewcode-block" id="Mask.as_class_mask">
 <a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.plugins.sam_transforms.bbox_to_inst_mask.html#datumaro.components.abstracts.merger.Mask.as_class_mask">[docs]</a>
-    <span class="k">def</span> <span class="nf">as_class_mask</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">label_id</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">IndexMaskImage</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Produces a class index mask. Mask label id can be changed.</span>
+    <span class="k">def</span> <span class="nf">as_class_mask</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">label_id</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">ignore_index</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
+        <span class="n">dtype</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">dtype</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">IndexMaskImage</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Produces a class index mask based on the binary mask.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            label_id: Scalar value to represent the class index of the mask.</span>
+<span class="sd">                If not specified, `self.label` will be used. Defaults to None.</span>
+<span class="sd">            ignore_index: Scalar value to fill in the zeros in the binary mask.</span>
+<span class="sd">                Defaults to 0.</span>
+<span class="sd">            dtype: Data type for the resulting mask. If not specified,</span>
+<span class="sd">                it will be inferred from the provided `label_id` to hold its value.</span>
+<span class="sd">                For example, if `label_id=255`, the inferred dtype will be `np.uint8`.</span>
+<span class="sd">                Defaults to None.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            IndexMaskImage: Class index mask generated from the binary mask.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="n">label_id</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">label_id</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">label</span>
         <span class="kn">from</span> <span class="nn">datumaro.util.mask_tools</span> <span class="kn">import</span> <span class="n">make_index_mask</span>
 
-        <span class="k">return</span> <span class="n">make_index_mask</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">image</span><span class="p">,</span> <span class="n">label_id</span><span class="p">)</span></div>
+        <span class="k">return</span> <span class="n">make_index_mask</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">image</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="n">label_id</span><span class="p">,</span> <span class="n">ignore_index</span><span class="o">=</span><span class="n">ignore_index</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">dtype</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="Mask.as_instance_mask">
 <a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.plugins.sam_transforms.bbox_to_inst_mask.html#datumaro.components.abstracts.merger.Mask.as_instance_mask">[docs]</a>
-    <span class="k">def</span> <span class="nf">as_instance_mask</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">instance_id</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">IndexMaskImage</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Produces a instance index mask.</span>
+    <span class="k">def</span> <span class="nf">as_instance_mask</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">instance_id</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+        <span class="n">ignore_index</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
+        <span class="n">dtype</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">dtype</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">IndexMaskImage</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Produces an instance index mask based on the binary mask.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            instance_id: Scalar value to represent the instance id.</span>
+<span class="sd">            ignore_index: Scalar value to fill in the zeros in the binary mask.</span>
+<span class="sd">                Defaults to 0.</span>
+<span class="sd">            dtype: Data type for the resulting mask. If not specified,</span>
+<span class="sd">                it will be inferred from the provided `label_id` to hold its value.</span>
+<span class="sd">                For example, if `label_id=255`, the inferred dtype will be `np.uint8`.</span>
+<span class="sd">                Defaults to None.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            IndexMaskImage: Instance index mask generated from the binary mask.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="kn">from</span> <span class="nn">datumaro.util.mask_tools</span> <span class="kn">import</span> <span class="n">make_index_mask</span>
 
-        <span class="k">return</span> <span class="n">make_index_mask</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">image</span><span class="p">,</span> <span class="n">instance_id</span><span class="p">)</span></div>
+        <span class="k">return</span> <span class="n">make_index_mask</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">image</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="n">instance_id</span><span class="p">,</span> <span class="n">ignore_index</span><span class="o">=</span><span class="n">ignore_index</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">dtype</span>
+        <span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="Mask.get_area">

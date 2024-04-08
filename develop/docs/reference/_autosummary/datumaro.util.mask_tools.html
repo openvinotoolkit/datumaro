@@ -715,8 +715,8 @@ document.write(`
 <tr class="row-odd"><td><p><a class="reference internal" href="#datumaro.util.mask_tools.make_binary_mask" title="datumaro.util.mask_tools.make_binary_mask"><code class="xref py py-obj docutils literal notranslate"><span class="pre">make_binary_mask</span></code></a>(mask)</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#datumaro.util.mask_tools.make_index_mask" title="datumaro.util.mask_tools.make_index_mask"><code class="xref py py-obj docutils literal notranslate"><span class="pre">make_index_mask</span></code></a>(binary_mask, index[, dtype])</p></td>
-<td><p></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#datumaro.util.mask_tools.make_index_mask" title="datumaro.util.mask_tools.make_index_mask"><code class="xref py py-obj docutils literal notranslate"><span class="pre">make_index_mask</span></code></a>(binary_mask, index[, ...])</p></td>
+<td><p>Create an index mask from a binary mask by filling a given index value.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#datumaro.util.mask_tools.mask_to_bboxes" title="datumaro.util.mask_tools.mask_to_bboxes"><code class="xref py py-obj docutils literal notranslate"><span class="pre">mask_to_bboxes</span></code></a>(mask)</p></td>
 <td><p>Convert an instance mask to bboxes</p></td>
@@ -795,8 +795,41 @@ Otherwise, indices will start from 0, but (0, 0, 0) is not included.</p>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="datumaro.util.mask_tools.make_index_mask">
-<span class="sig-prename descclassname"><span class="pre">datumaro.util.mask_tools.</span></span><span class="sig-name descname"><span class="pre">make_index_mask</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">binary_mask</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">index</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dtype</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/datumaro/util/mask_tools.html#make_index_mask"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.util.mask_tools.make_index_mask" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+<span class="sig-prename descclassname"><span class="pre">datumaro.util.mask_tools.</span></span><span class="sig-name descname"><span class="pre">make_index_mask</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">binary_mask</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v1.26)"><span class="pre">ndarray</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">index</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.12)"><span class="pre">int</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">ignore_index</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.12)"><span class="pre">int</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dtype</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.dtype.html#numpy.dtype" title="(in NumPy v1.26)"><span class="pre">dtype</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.12)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/datumaro/util/mask_tools.html#make_index_mask"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.util.mask_tools.make_index_mask" title="Link to this definition">#</a></dt>
+<dd><p>Create an index mask from a binary mask by filling a given index value.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>binary_mask</strong> – Binary mask to create an index mask.</p></li>
+<li><p><strong>index</strong> – Scalar value to fill the ones in the binary mask.</p></li>
+<li><p><strong>ignore_index</strong> – Scalar value to fill in the zeros in the binary mask.
+Defaults to 0.</p></li>
+<li><p><strong>dtype</strong> – Data type for the resulting mask. If not specified,
+it will be inferred from the provided <cite>index</cite> to hold its value.
+For example, if <cite>index=255</cite>, the inferred dtype will be <cite>np.uint8</cite>.
+Defaults to None.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Index mask created from the binary mask.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>np.ndarray</p>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#ValueError" title="(in Python v3.12)"><strong>ValueError</strong></a> – If dtype is not specified and incompatible scalar types are used for index
+    and ignore_index.</p>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">binary_mask</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">eye</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">bool_</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">index_mask</span> <span class="o">=</span> <span class="n">make_index_mask</span><span class="p">(</span><span class="n">binary_mask</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">ignore_index</span><span class="o">=</span><span class="mi">255</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">uint8</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">index_mask</span><span class="p">)</span>
+<span class="go">array([[ 10, 255],</span>
+<span class="go">       [255,  10]], dtype=uint8)</span>
+</pre></div>
+</div>
+</dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="datumaro.util.mask_tools.make_binary_mask">
