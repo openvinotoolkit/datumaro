@@ -23,6 +23,7 @@ from datumaro.components.dataset_base import DatasetBase, DatasetItem
 from datumaro.components.format_detection import FormatDetectionContext
 from datumaro.components.importer import ImportContext, Importer
 from datumaro.components.media import Image
+from datumaro.components.task import TaskAnnotationMapping
 from datumaro.rust_api import JsonSectionPageMapper
 from datumaro.util import parse_json
 from datumaro.util.image import IMAGE_EXTENSIONS, find_images, lazy_image, load_image
@@ -76,7 +77,7 @@ class Ade20k2020Base(DatasetBase):
         path = osp.join(self._path, subset)
 
         images = [i for i in find_images(path, recursive=True)]
-
+        ann_types = set()
         for image_path in sorted(images):
             item_id = osp.splitext(osp.relpath(image_path, path))[0]
 
@@ -165,6 +166,10 @@ class Ade20k2020Base(DatasetBase):
                     annotations=item_annotations,
                 )
             )
+            for ann in item_annotations:
+                ann_types.add(ann.type)
+
+        self._task_type = TaskAnnotationMapping().get_task(ann_types)
 
     def _load_item_info(self, path):
         json_path = osp.splitext(path)[0] + ".json"
