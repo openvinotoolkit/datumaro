@@ -12,6 +12,7 @@ from datumaro.components.annotation import AnnotationType, Bbox, Label, LabelCat
 from datumaro.components.dataset_base import DatasetItem, SubsetBase
 from datumaro.components.importer import ImportContext
 from datumaro.components.media import Image
+from datumaro.components.task import TaskAnnotationMapping
 from datumaro.util.image import find_images, load_image
 
 from .format import MvtecPath, MvtecTask
@@ -46,6 +47,7 @@ class _MvtecBase(SubsetBase):
 
     def _load_items(self):
         items = {}
+        ann_types = set()
         for image_path in find_images(self._path, recursive=True, max_depth=2):
             label = osp.basename(osp.dirname(image_path))
             label_id = self._categories[AnnotationType.label].find(label)[0]
@@ -98,6 +100,10 @@ class _MvtecBase(SubsetBase):
                         )
                 else:
                     anns.append(Label(label=label_id))
+            for ann in anns:
+                ann_types.add(ann.type)
+        self._task_type = TaskAnnotationMapping().get_task(ann_types)
+
         return items
 
 

@@ -19,6 +19,7 @@ from datumaro.components.dataset_base import DatasetItem, SubsetBase
 from datumaro.components.format_detection import FormatDetectionContext
 from datumaro.components.importer import ImportContext, Importer
 from datumaro.components.media import Image
+from datumaro.components.task import TaskAnnotationMapping
 
 from .format import MPII_POINTS_JOINTS, MPII_POINTS_LABELS
 
@@ -53,6 +54,7 @@ class MpiiBase(SubsetBase):
         data = spio.loadmat(path, struct_as_record=False, squeeze_me=True).get("RELEASE", {})
         data = getattr(data, "annolist", [])
 
+        ann_types = set()
         for item in data:
             image = ""
             annotations = []
@@ -137,6 +139,11 @@ class MpiiBase(SubsetBase):
                 media=Image.from_file(path=osp.join(root_dir, image)),
                 annotations=annotations,
             )
+
+            for ann in annotations:
+                ann_types.add(ann.type)
+
+        self._task_type = TaskAnnotationMapping().get_task(ann_types)
 
         return items
 

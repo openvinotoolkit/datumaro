@@ -15,6 +15,7 @@ from datumaro.components.dataset_base import DatasetItem, SubsetBase
 from datumaro.components.errors import InvalidAnnotationError
 from datumaro.components.importer import ImportContext
 from datumaro.components.media import Image
+from datumaro.components.task import TaskAnnotationMapping
 from datumaro.util.image import find_images
 from datumaro.util.mask_tools import generate_colormap, load_mask
 from datumaro.util.meta_file_util import has_meta_file, parse_meta_file
@@ -130,6 +131,7 @@ class _SynthiaBase(SubsetBase):
             images = {}
 
         items = {}
+        ann_types = set()
         if self._inst_dir and osp.isdir(self._inst_dir):
             gt_labels = glob(self._inst_dir + "/*.txt")
             for gt_label in gt_labels:
@@ -142,6 +144,7 @@ class _SynthiaBase(SubsetBase):
                     anno.append(
                         Mask(image=self._lazy_extract_mask(labels_mask, label_id), label=label_id)
                     )
+                    ann_types.add(AnnotationType.mask)
 
                 image = images.get(item_id)
                 if image:
@@ -164,12 +167,14 @@ class _SynthiaBase(SubsetBase):
                     anno.append(
                         Mask(image=self._lazy_extract_mask(color_mask, label_id), label=label_id)
                     )
+                    ann_types.add(AnnotationType.mask)
 
                 image = images.get(item_id)
                 if image:
                     image = Image.from_file(path=image)
 
                 items[item_id] = DatasetItem(id=item_id, media=image, annotations=anno)
+        self._task_type = TaskAnnotationMapping().get_task(ann_types)
 
         return items
 

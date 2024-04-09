@@ -17,6 +17,7 @@ from datumaro.components.errors import (
 )
 from datumaro.components.importer import ImportContext
 from datumaro.components.media import Image
+from datumaro.components.task import TaskAnnotationMapping
 from datumaro.util import NOTSET, parse_json_file
 
 T = TypeVar("T")
@@ -59,6 +60,7 @@ class SegmentAnythingBase(SubsetBase):
     def _load_items(self):
         pbar = self._ctx.progress_reporter
         items = []
+        ann_types = set()
         for annotation_file in pbar.iter(
             glob(osp.join(self._path, "*.json")),
             desc=f"Parsing data in {osp.basename(self._path)}",
@@ -163,7 +165,11 @@ class SegmentAnythingBase(SubsetBase):
 
             try:
                 items.append(DatasetItem(**item_kwargs))
+                for ann in item_kwargs["annotations"]:
+                    ann_types.add(ann.type)
             except Exception as e:
                 self._ctx.error_policy.report_item_error(e, item_id=(image_id, self._subset))
+
+        self._task_type = TaskAnnotationMapping().get_task(ann_types)
 
         return items

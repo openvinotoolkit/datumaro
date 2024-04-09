@@ -13,6 +13,7 @@ from datumaro.components.annotation import AnnotationType, LabelCategories, Mask
 from datumaro.components.dataset import Dataset
 from datumaro.components.dataset_base import DatasetItem
 from datumaro.components.media import Image
+from datumaro.components.task import TaskType
 from datumaro.plugins.data_formats.synthia.base import make_categories
 from datumaro.plugins.data_formats.synthia.format import (
     SynthiaAlLabelMap,
@@ -74,6 +75,7 @@ def fxt_synthia_rand_dataset():
             ),
         ],
         categories=make_categories(label_map=SynthiaRandLabelMap),
+        task_type=TaskType.segmentation_semantic,
     )
 
 
@@ -113,6 +115,7 @@ def fxt_synthia_rand_custom_label_dataset():
                 }
             ),
         },
+        task_type=TaskType.segmentation_semantic,
     )
 
 
@@ -152,6 +155,7 @@ def fxt_synthia_rand_meta_file_dataset():
                 }
             ),
         },
+        task_type=TaskType.segmentation_semantic,
     )
 
 
@@ -193,6 +197,7 @@ def fxt_synthia_sf_dataset():
             ),
         ],
         categories=make_categories(label_map=SynthiaSfLabelMap),
+        task_type=TaskType.segmentation_semantic,
     )
 
 
@@ -234,6 +239,7 @@ def fxt_synthia_al_dataset():
             ),
         ],
         categories=make_categories(label_map=SynthiaAlLabelMap),
+        task_type=TaskType.segmentation_semantic,
     )
 
 

@@ -12,6 +12,7 @@ from datumaro.components.dataset_base import DatasetItem, SubsetBase
 from datumaro.components.errors import InvalidFieldError, UndeclaredLabelError
 from datumaro.components.importer import ImportContext, Importer
 from datumaro.components.media import Image, PointCloud
+from datumaro.components.task import TaskAnnotationMapping
 from datumaro.util import parse_json_file
 from datumaro.util.image import find_images
 
@@ -154,6 +155,7 @@ class SuperviselyPointCloudBase(SubsetBase):
         return items, categories
 
     def _load_items(self, parsed):
+        ann_types = set()
         for frame_id, frame_desc in parsed.items():
             pcd_name = frame_desc["name"]
             name = osp.splitext(pcd_name)[0]
@@ -181,6 +183,10 @@ class SuperviselyPointCloudBase(SubsetBase):
                 annotations=frame_desc.get("annotations"),
                 attributes={"frame": int(frame_id), **frame_desc["attributes"]},
             )
+
+            for ann in frame_desc.get("annotations"):
+                ann_types.add(ann.type)
+        self._task_type = TaskAnnotationMapping().get_task(ann_types)
 
         return parsed
 

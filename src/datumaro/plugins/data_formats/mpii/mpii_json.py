@@ -19,6 +19,7 @@ from datumaro.components.dataset_base import DatasetItem, SubsetBase
 from datumaro.components.format_detection import FormatDetectionContext
 from datumaro.components.importer import ImportContext, Importer
 from datumaro.components.media import Image
+from datumaro.components.task import TaskAnnotationMapping
 from datumaro.util import parse_json_file
 
 from .format import MPII_POINTS_JOINTS, MPII_POINTS_LABELS
@@ -76,6 +77,7 @@ class MpiiJsonBase(SubsetBase):
         else:
             gt_pose = np.array([])
 
+        ann_types = set()
         for i, ann in enumerate(parse_json_file(path)):
             item_id = osp.splitext(ann.get("img_paths", ""))[0]
 
@@ -161,6 +163,11 @@ class MpiiJsonBase(SubsetBase):
                 media=Image.from_file(path=osp.join(root_dir, ann.get("img_paths", ""))),
                 annotations=annotations,
             )
+
+            for ann in annotations:
+                ann_types.add(ann.type)
+
+        self._task_type = TaskAnnotationMapping().get_task(ann_types)
 
         return items
 
