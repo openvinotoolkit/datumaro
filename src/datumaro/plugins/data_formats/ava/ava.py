@@ -17,6 +17,7 @@ from datumaro.components.exporter import Exporter
 from datumaro.components.format_detection import FormatDetectionConfidence, FormatDetectionContext
 from datumaro.components.importer import ImportContext, Importer
 from datumaro.components.media import Image
+from datumaro.components.task import TaskType
 from datumaro.util.os_util import find_files
 
 from . import ava_label_pb2
@@ -152,6 +153,7 @@ class AvaBase(SubsetBase):
                         attributes={"track_id": entity_id},
                     )
                 )
+                self._task_type = TaskType.detection
 
         return items.values()
 

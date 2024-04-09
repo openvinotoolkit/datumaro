@@ -27,6 +27,7 @@ from datumaro.components.exporter import Exporter
 from datumaro.components.format_detection import FormatDetectionContext
 from datumaro.components.importer import ImportContext, Importer
 from datumaro.components.media import Image
+from datumaro.components.task import TaskType
 from datumaro.util import find
 from datumaro.util.annotation_util import make_label_id_mapping
 from datumaro.util.image import find_images, load_image, save_image
@@ -295,6 +296,9 @@ class CityscapesBase(SubsetBase):
                 )
                 mask_id += 1
 
+                if not self._task_type:
+                    self._task_type = TaskType.segmentation_semantic
+
             image = image_path_by_id.pop(item_id, None)
             if image:
                 image = Image.from_file(path=image)
@@ -307,6 +311,9 @@ class CityscapesBase(SubsetBase):
             items[item_id] = DatasetItem(
                 id=item_id, subset=self._subset, media=Image.from_file(path=path)
             )
+
+        if not self._task_type:
+            self._task_type = TaskType.unlabeled
 
         return items
 
