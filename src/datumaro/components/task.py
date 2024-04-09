@@ -42,7 +42,6 @@ class TaskAnnotationMapping(Mapping[TaskType, Set[AnnotationType]]):
             },
             TaskType.detection_rotated: {
                 AnnotationType.label,
-                AnnotationType.polygon,
                 AnnotationType.points,
             },
             TaskType.detection_3d: {AnnotationType.label, AnnotationType.cuboid_3d},
@@ -53,11 +52,13 @@ class TaskAnnotationMapping(Mapping[TaskType, Set[AnnotationType]]):
             TaskType.segmentation_instance: {
                 AnnotationType.label,
                 AnnotationType.bbox,
+                AnnotationType.ellipse,
                 AnnotationType.polygon,
                 AnnotationType.points,
                 AnnotationType.polyline,
                 AnnotationType.mask,
             },
+            TaskType.caption: {AnnotationType.caption},
             TaskType.unlabeled: {},
         }
 
@@ -72,7 +73,7 @@ class TaskAnnotationMapping(Mapping[TaskType, Set[AnnotationType]]):
 
     def get_task(self, ann_types: set[AnnotationType]):
         for task in self._mapping:
-            print(ann_types, task, self._mapping[task])
+            # print(ann_types, task, self._mapping[task])
             if ann_types.issubset(self._mapping[task]):
                 return task
         return None
