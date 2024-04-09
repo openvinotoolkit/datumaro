@@ -884,7 +884,6 @@ class Dataset(IDataset):
                     extractors.append(
                         env.make_extractor(src_conf.format, src_conf.url, **extractor_kwargs)
                     )
-
             dataset = (
                 cls(source=extractor_merger(extractors), env=env)
                 if extractor_merger is not None

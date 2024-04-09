@@ -14,6 +14,7 @@ from datumaro.components.errors import InvalidAnnotationError
 from datumaro.components.format_detection import FormatDetectionContext
 from datumaro.components.importer import ImportContext, Importer
 from datumaro.components.media import Image, PointCloud
+from datumaro.components.task import TaskAnnotationMapping
 from datumaro.util import cast
 from datumaro.util.image import find_images
 from datumaro.util.meta_file_util import has_meta_file, parse_meta_file
@@ -244,6 +245,7 @@ class KittiRawBase(SubsetBase):
         )
 
         items = {}
+        ann_types = set()
         for frame_id, item_desc in parsed.items():
             name = name_mapping.get(frame_id, "%010d" % int(frame_id))
             items[frame_id] = DatasetItem(
@@ -258,6 +260,9 @@ class KittiRawBase(SubsetBase):
                 annotations=item_desc.get("annotations"),
                 attributes={"frame": int(frame_id)},
             )
+            for ann in item_desc.get("annotations"):
+                ann_types.add(ann.type)
+        self._task_type = TaskAnnotationMapping().get_task(ann_types)
 
         for frame_id, name in name_mapping.items():
             if frame_id in items:

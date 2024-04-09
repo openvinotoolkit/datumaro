@@ -22,6 +22,7 @@ from datumaro.components.dataset_base import DatasetItem, SubsetBase
 from datumaro.components.errors import DatasetImportError
 from datumaro.components.importer import ImportContext
 from datumaro.components.media import Image
+from datumaro.components.task import TaskAnnotationMapping
 from datumaro.util import parse_json_file
 from datumaro.util.image import find_images, lazy_image, load_image
 from datumaro.util.mask_tools import bgr2index
@@ -138,6 +139,7 @@ class _MapillaryVistasBase(SubsetBase):
 
     def _load_panoptic_items(self, config):
         items = {}
+        ann_types = set()
 
         images_info = {
             img["id"]: {
@@ -149,7 +151,6 @@ class _MapillaryVistasBase(SubsetBase):
         }
 
         polygon_dir = osp.join(self._annotations_dir, MapillaryVistasPath.POLYGON_DIR)
-
         for item_ann in config["annotations"]:
             item_id = item_ann["image_id"]
             image = None
@@ -197,6 +198,9 @@ class _MapillaryVistasBase(SubsetBase):
             items[item_id] = DatasetItem(
                 id=item_id, subset=self._subset, annotations=annotations, media=image
             )
+            for ann in annotations:
+                ann_types.add(ann.type)
+        self._task_type = TaskAnnotationMapping().get_task(ann_types)
 
         return items.values()
 
@@ -215,25 +219,7 @@ class _MapillaryVistasBase(SubsetBase):
 
     def _load_instances_items(self):
         items = {}
-
-        # class_dir = osp.join(self._annotations_dir, MapillaryVistasPath.CLASS_DIR)
-        # for class_path in find_images(class_dir, recursive=True):
-        #     item_id = osp.splitext(osp.relpath(class_path, class_dir))[0]
-        #     if item_id in items:
-        #         continue
-
-        #     from PIL import Image as PILImage
-
-        #     class_mask = np.array(PILImage.open(class_path))
-        #     classes = np.unique(class_mask)
-
-        #     annotations = []
-        #     for label_id in classes:
-        #         annotations.append(
-        #             Mask(label=label_id, image=self._lazy_extract_mask(class_mask, label_id))
-        #         )
-
-        #     items[item_id] = DatasetItem(id=item_id, subset=self._subset, annotations=annotations)
+        ann_types = set()
 
         instance_dir = osp.join(self._annotations_dir, MapillaryVistasPath.INSTANCES_DIR)
         polygon_dir = osp.join(self._annotations_dir, MapillaryVistasPath.POLYGON_DIR)
@@ -265,9 +251,14 @@ class _MapillaryVistasBase(SubsetBase):
                     points = [int(coord) for point in polygon["polygon"] for coord in point]
                     annotations.append(Polygon(label=label_id, points=points))
 
+            for ann in annotations:
+                ann_types.add(ann.type)
+
             items[item_id] = DatasetItem(
                 id=item_id, subset=self._subset, media=image, annotations=annotations
             )
+
+        self._task_type = TaskAnnotationMapping().get_task(ann_types)
 
         return items.values()
 

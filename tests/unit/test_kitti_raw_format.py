@@ -10,6 +10,7 @@ from datumaro.components.dataset_base import DatasetItem
 from datumaro.components.environment import Environment
 from datumaro.components.media import Image, PointCloud
 from datumaro.components.project import Dataset
+from datumaro.components.task import TaskType
 from datumaro.plugins.data_formats.kitti_raw.base import KittiRawImporter
 from datumaro.plugins.data_formats.kitti_raw.exporter import KittiRawExporter
 
@@ -96,6 +97,7 @@ class KittiRawImporterTest(TestCase):
             ],
             categories={AnnotationType.label: expected_label_cat},
             media_type=PointCloud,
+            task_type=TaskType.detection_3d,
         )
 
         parsed_dataset = Dataset.import_from(DUMMY_DATASET_DIR, "kitti_raw")
@@ -201,6 +203,7 @@ class KittiRawExporterTest(TestCase):
             ],
             categories=["cat", "dog"],
             media_type=PointCloud,
+            task_type=TaskType.detection_3d,
         )
 
         with TestDir() as test_dir:
@@ -289,6 +292,7 @@ class KittiRawExporterTest(TestCase):
                 ],
                 categories={AnnotationType.label: target_label_cat},
                 media_type=PointCloud,
+                task_type=TaskType.detection_3d,
             )
 
             self._test_save_and_load(
@@ -302,7 +306,10 @@ class KittiRawExporterTest(TestCase):
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_preserve_frame_ids(self):
         source_dataset = Dataset.from_iterable(
-            [DatasetItem(id="abc", attributes={"frame": 40})], categories=[], media_type=PointCloud
+            [DatasetItem(id="abc", attributes={"frame": 40})],
+            categories=[],
+            media_type=PointCloud,
+            task_type=TaskType.unlabeled,
         )
 
         with TestDir() as test_dir:
@@ -311,11 +318,17 @@ class KittiRawExporterTest(TestCase):
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_reindex_frames(self):
         source_dataset = Dataset.from_iterable(
-            [DatasetItem(id="abc")], categories=[], media_type=PointCloud
+            [DatasetItem(id="abc")],
+            categories=[],
+            media_type=PointCloud,
+            task_type=TaskType.unlabeled,
         )
 
         expected_dataset = Dataset.from_iterable(
-            [DatasetItem(id="abc", attributes={"frame": 0})], categories=[], media_type=PointCloud
+            [DatasetItem(id="abc", attributes={"frame": 0})],
+            categories=[],
+            media_type=PointCloud,
+            task_type=TaskType.unlabeled,
         )
 
         with TestDir() as test_dir:
@@ -339,6 +352,7 @@ class KittiRawExporterTest(TestCase):
             ],
             categories=["dog"],
             media_type=PointCloud,
+            task_type=TaskType.detection_3d,
         )
 
         with TestDir() as test_dir:
@@ -358,6 +372,7 @@ class KittiRawExporterTest(TestCase):
             ],
             categories=["dog"],
             media_type=PointCloud,
+            task_type=TaskType.detection_3d,
         )
 
         expected_dataset = Dataset.from_iterable(
@@ -376,6 +391,7 @@ class KittiRawExporterTest(TestCase):
             ],
             categories=["dog"],
             media_type=PointCloud,
+            task_type=TaskType.detection_3d,
         )
 
         with TestDir() as test_dir:
@@ -404,6 +420,7 @@ class KittiRawExporterTest(TestCase):
             ],
             categories=["cat"],
             media_type=PointCloud,
+            task_type=TaskType.detection_3d,
         )
 
         target_label_cat = LabelCategories(attributes={"occluded"})
@@ -424,6 +441,7 @@ class KittiRawExporterTest(TestCase):
             ],
             categories={AnnotationType.label: target_label_cat},
             media_type=PointCloud,
+            task_type=TaskType.detection_3d,
         )
 
         with TestDir() as test_dir:
@@ -452,6 +470,7 @@ class KittiRawExporterTest(TestCase):
             ],
             categories=["cat"],
             media_type=PointCloud,
+            task_type=TaskType.detection_3d,
         )
 
         target_label_cat = LabelCategories(attributes={"occluded"})
@@ -472,6 +491,7 @@ class KittiRawExporterTest(TestCase):
             ],
             categories={AnnotationType.label: target_label_cat},
             media_type=PointCloud,
+            task_type=TaskType.detection_3d,
         )
 
         with TestDir() as test_dir:
@@ -485,6 +505,7 @@ class KittiRawExporterTest(TestCase):
             [DatasetItem(id="0000000000", attributes={"frame": 0})],
             categories=[],
             media_type=PointCloud,
+            task_type=TaskType.unlabeled,
         )
 
         with TestDir() as test_dir:
@@ -503,6 +524,7 @@ class KittiRawExporterTest(TestCase):
             ],
             categories=["cat"],
             media_type=PointCloud,
+            task_type=TaskType.detection_3d,
         )
 
         with TestDir() as test_dir:
@@ -532,6 +554,7 @@ class KittiRawExporterTest(TestCase):
                 ],
                 categories={AnnotationType.label: target_label_cat},
                 media_type=PointCloud,
+                task_type=TaskType.detection_3d,
             )
 
             self._test_save_and_load(
@@ -558,6 +581,7 @@ class KittiRawExporterTest(TestCase):
             ],
             categories=["cat"],
             media_type=PointCloud,
+            task_type=TaskType.detection_3d,
         )
 
         with TestDir() as test_dir:
@@ -593,6 +617,7 @@ class KittiRawExporterTest(TestCase):
                 ],
                 categories={AnnotationType.label: target_label_cat},
                 media_type=PointCloud,
+                task_type=TaskType.detection_3d,
             )
 
             self._test_save_and_load(
@@ -622,6 +647,7 @@ class KittiRawExporterTest(TestCase):
                 ],
                 categories=["car", "bus"],
                 media_type=PointCloud,
+                task_type=TaskType.detection_3d,
             )
             dataset.export(path, "kitti_raw", save_media=True)
 
@@ -666,6 +692,7 @@ class KittiRawExporterTest(TestCase):
             ],
             categories=["cat", "dog"],
             media_type=PointCloud,
+            task_type=TaskType.detection_3d,
         )
 
         with TestDir() as test_dir:
@@ -708,6 +735,7 @@ class KittiRawExporterTest(TestCase):
                 ],
                 categories={AnnotationType.label: target_label_cat},
                 media_type=PointCloud,
+                task_type=TaskType.detection_3d,
             )
 
             self._test_save_and_load(

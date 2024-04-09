@@ -43,7 +43,7 @@ class TaskAnnotationMapping(Mapping[TaskType, Set[AnnotationType]]):
             },
             TaskType.detection_rotated: {
                 AnnotationType.label,
-                AnnotationType.points,
+                AnnotationType.polygon,
             },
             TaskType.detection_3d: {AnnotationType.label, AnnotationType.cuboid_3d},
             TaskType.segmentation_semantic: {

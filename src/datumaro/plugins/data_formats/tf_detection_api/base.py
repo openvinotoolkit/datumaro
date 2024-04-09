@@ -15,6 +15,7 @@ from datumaro.components.dataset_base import DatasetItem, SubsetBase
 from datumaro.components.importer import ImportContext, Importer
 from datumaro.components.lazy_plugin import extra_deps
 from datumaro.components.media import Image
+from datumaro.components.task import TaskAnnotationMapping
 from datumaro.util.image import decode_image, lazy_image
 from datumaro.util.tf_util import has_feature
 from datumaro.util.tf_util import import_tf as _import_tf
@@ -121,6 +122,7 @@ class TfDetectionApiBase(SubsetBase):
 
         dataset_items = []
 
+        ann_types = set()
         for record in dataset:
             parsed_record = tf.io.parse_single_example(record, self._features)
             frame_id = parsed_record.get("image/source_id", None)
@@ -185,6 +187,9 @@ class TfDetectionApiBase(SubsetBase):
             elif frame_filename:
                 image = Image.from_file(path=osp.join(images_dir, frame_filename), size=image_size)
 
+            for ann in annotations:
+                ann_types.add(ann.type)
+
             dataset_items.append(
                 DatasetItem(
                     id=item_id,
@@ -194,6 +199,8 @@ class TfDetectionApiBase(SubsetBase):
                     attributes={"source_id": frame_id},
                 )
             )
+
+        self._task_type = TaskAnnotationMapping().get_task(ann_types)
 
         return dataset_items, dataset_labels
 

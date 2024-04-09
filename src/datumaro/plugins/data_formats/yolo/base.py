@@ -19,6 +19,7 @@ from datumaro.components.errors import (
 )
 from datumaro.components.importer import ImportContext
 from datumaro.components.media import Image, ImageFromFile
+from datumaro.components.task import TaskAnnotationMapping, TaskType
 from datumaro.util.image import (
     DEFAULT_IMAGE_META_FILE_NAME,
     IMAGE_EXTENSIONS,
@@ -200,6 +201,8 @@ class YoloStrictBase(SubsetBase):
             )
         }
 
+        self._task_type = TaskType.detection
+
         # The original format is like this:
         #
         # classes = 2
@@ -283,10 +286,15 @@ class YoloStrictBase(SubsetBase):
 
     def __iter__(self) -> Iterator[DatasetItem]:
         subsets = self._subsets
+        ann_types = set()
         pbars = self._ctx.progress_reporter.split(len(subsets))
         for pbar, (subset_name, subset) in zip(pbars, subsets.items()):
             for item in pbar.iter(subset, desc=f"Importing '{subset_name}'"):
                 yield item
+
+                for ann in item.annotations:
+                    ann_types.add(ann.type)
+        self._task_type = TaskAnnotationMapping().get_task(ann_types)
 
     def __len__(self):
         return sum(len(s) for s in self._subsets.values())
@@ -333,6 +341,8 @@ class YoloLooseBase(SubsetBase):
         label_categories = self._load_categories(osp.join(rootpath, self.META_FILE))
         self._categories = {AnnotationType.label: label_categories}
 
+        self._task_type = TaskType.detection
+
         self._urls = urls
         self._img_files = self._load_img_files(rootpath)
 
@@ -341,6 +351,7 @@ class YoloLooseBase(SubsetBase):
         if label_categories is None:
             raise DatasetImportError("label_categories should be not None.")
 
+        ann_types = set()
         pbar = self._ctx.progress_reporter
         for url in pbar.iter(self._urls, desc=f"Importing '{self._subset}'"):
             try:
@@ -352,8 +363,13 @@ class YoloLooseBase(SubsetBase):
                     label_categories=label_categories,
                 )
                 yield DatasetItem(id=fname, subset=self._subset, media=img, annotations=anns)
+
+                for ann in anns:
+                    ann_types.add(ann.type)
             except Exception as e:
                 self._ctx.error_policy.report_item_error(e, item_id=(fname, self._subset))
+
+        self._task_type = TaskAnnotationMapping().get_task(ann_types)
 
     def __len__(self) -> int:
         return len(self._urls)
