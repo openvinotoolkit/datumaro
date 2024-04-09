@@ -7,11 +7,12 @@ from typing import Any, Dict
 import numpy as np
 import pytest
 
-from datumaro.components.annotation import Bbox, Label, Polygon
+from datumaro.components.annotation import Bbox, Label
 from datumaro.components.dataset import Dataset
 from datumaro.components.dataset_base import DatasetItem
 from datumaro.components.importer import Importer
 from datumaro.components.media import Image
+from datumaro.components.task import TaskType
 from datumaro.plugins.data_formats.kaggle.base import *
 
 from .base import TestDataFormatBase
@@ -69,6 +70,7 @@ def fxt_img_dataset() -> Dataset:
             ),
         ],
         categories=["dog", "cat"],
+        task_type=TaskType.classification,
     )
 
 
@@ -105,6 +107,7 @@ def fxt_img_det_dataset() -> Dataset:
             ),
         ],
         categories=["dog", "cat"],
+        task_type=TaskType.detection,
     )
 
 
@@ -141,6 +144,7 @@ def fxt_img_single_det_dataset() -> Dataset:
             ),
         ],
         categories=["object"],
+        task_type=TaskType.detection,
     )
 
 
@@ -176,6 +180,7 @@ def fxt_img_mask_dataset() -> Dataset:
             AnnotationType.label: LabelCategories.from_iterable(["background", "object"]),
             AnnotationType.mask: MaskCategories(colormap),
         },
+        task_type=TaskType.segmentation_semantic,
     )
 
 
@@ -224,6 +229,7 @@ def fxt_img_mask_labelmap_dataset() -> Dataset:
             AnnotationType.label: LabelCategories.from_iterable(["background", "cat", "dog"]),
             AnnotationType.mask: MaskCategories(colormap),
         },
+        task_type=TaskType.segmentation_semantic,
     )
 
 
@@ -261,6 +267,7 @@ def fxt_voc_dataset() -> Dataset:
             ),
         ],
         categories=["cat", "person"],
+        task_type=TaskType.detection,
     )
 
 
@@ -288,6 +295,7 @@ def fxt_yolo_dataset() -> Dataset:
             ),
         ],
         categories=["2", "4", "1", "3"],
+        task_type=TaskType.detection,
     )
 
 
@@ -315,6 +323,7 @@ def fxt_coco_dataset() -> Dataset:
             ),
         ],
         categories=["label_0", "label_1"],
+        task_type=TaskType.detection,
     )
 
 

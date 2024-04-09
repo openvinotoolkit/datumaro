@@ -394,7 +394,6 @@ class CvatBase(SubsetBase):
             for ann in item_desc.get("annotations"):
                 ann_types.add(ann.type)
 
-        print("############", ann_types)
         self._task_type = TaskAnnotationMapping().get_task(ann_types)
 
         return parsed

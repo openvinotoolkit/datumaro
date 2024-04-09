@@ -243,14 +243,20 @@ class SubsetBase(DatasetBase):
         length: Optional[int] = None,
         subset: Optional[str] = None,
         media_type: Type[MediaElement] = Image,
+        task_type: TaskType = None,
         ctx: Optional[ImportContext] = None,
     ):
         self._subset = subset or DEFAULT_SUBSET_NAME
-        super().__init__(length=length, subsets=[self._subset], media_type=media_type, ctx=ctx)
+        super().__init__(
+            length=length,
+            subsets=[self._subset],
+            media_type=media_type,
+            task_type=task_type,
+            ctx=ctx,
+        )
 
         self._infos = {}
         self._categories = {}
-        self._task_type = None
         self._items = []
 
     def infos(self):

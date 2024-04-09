@@ -25,7 +25,8 @@ class TaskType(IntEnum):
     caption = 11
     super_resolution = 12
     depth_estimation = 13
-    unlabeled = 14
+    mixed = 14
+    unlabeled = 15
 
 
 class TaskAnnotationMapping(Mapping[TaskType, Set[AnnotationType]]):
@@ -59,6 +60,17 @@ class TaskAnnotationMapping(Mapping[TaskType, Set[AnnotationType]]):
                 AnnotationType.mask,
             },
             TaskType.caption: {AnnotationType.caption},
+            TaskType.mixed: {
+                AnnotationType.label,
+                AnnotationType.bbox,
+                AnnotationType.cuboid_3d,
+                AnnotationType.ellipse,
+                AnnotationType.polygon,
+                AnnotationType.points,
+                AnnotationType.polyline,
+                AnnotationType.mask,
+                AnnotationType.caption,
+            },
             TaskType.unlabeled: {},
         }
 

@@ -164,7 +164,7 @@ class Dataset(IDataset):
         *,
         env: Optional[Environment] = None,
         media_type: Type[MediaElement] = Image,
-        task_type: Optional[TaskType] = None,
+        task_type: Optional[TaskType] = TaskType.unlabeled,
     ) -> Dataset:
         """
         Creates a new dataset from an iterable object producing dataset items -

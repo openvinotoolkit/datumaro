@@ -73,7 +73,7 @@ class JsonReader:
 
     @staticmethod
     def _load_task_type(parsed) -> TaskType:
-        return parsed.get("task_type", TaskType.segmentation_instance)
+        return parsed.get("task_type", TaskType.mixed)
 
     @staticmethod
     def _load_infos(parsed) -> Dict:
@@ -139,12 +139,10 @@ class JsonReader:
             item = self._parse_item(item_desc)
             if item is not None:
                 items.append(item)
-                ann_types.add(set([ann.type for ann in item.annotations]))
+                for ann in item.annotations:
+                    ann_types.add(ann.type)
 
-        task_ann_mapping = TaskAnnotationMapping()
-        for task in task_ann_mapping:
-            if ann_types.issubset(task_ann_mapping[task]):
-                self.task_type = task
+        self.task_type = TaskAnnotationMapping().get_task(ann_types)
 
         return items
 
@@ -381,17 +379,25 @@ class StreamJsonReader(JsonReader):
     ) -> None:
         super().__init__(path, subset, rootpath, images_dir, pcd_dir, video_dir, ctx)
         self._length = None
+        self.task_type = TaskType.mixed
 
     def __len__(self):
         return len(self._reader)
 
     def __iter__(self):
+        ann_types = set()
         pbar = self._ctx.progress_reporter
         for item_desc in pbar.iter(
             self._reader,
             desc=f"Importing '{self._subset}'",
         ):
-            yield self._parse_item(item_desc)
+            item = self._parse_item(item_desc)
+            yield item
+
+            if item is not None:
+                for ann in item.annotations:
+                    ann_types.add(ann.type)
+        self.task_type = TaskAnnotationMapping().get_task(ann_types)
 
     def _init_reader(self, path: str) -> DatumPageMapper:
         return DatumPageMapper(path)
@@ -410,7 +416,7 @@ class StreamJsonReader(JsonReader):
         task_type = page_mapper.task_type
 
         if task_type is None:
-            return TaskType.segmentation_instance
+            return TaskType.mixed
 
         return task_type
 

@@ -12,6 +12,7 @@ from datumaro.components.annotation import Cuboid3d, Label
 from datumaro.components.dataset_base import DatasetItem
 from datumaro.components.media import Image, PointCloud
 from datumaro.components.project import Dataset
+from datumaro.components.task import TaskType
 from datumaro.util.image import encode_image
 
 from ..datumaro.conftest import (
@@ -79,9 +80,7 @@ def fxt_image(test_dir, n=1000):
         )
 
     source_dataset = Dataset.from_iterable(
-        items,
-        categories=["label"],
-        media_type=Image,
+        items, categories=["label"], media_type=Image, task_type=TaskType.classification
     )
 
     yield source_dataset
@@ -133,6 +132,7 @@ def fxt_point_cloud(test_dir, n=1000):
         items,
         categories=["label"],
         media_type=PointCloud,
+        task_type=TaskType.detection_3d,
     )
 
     yield source_dataset
