@@ -37,6 +37,7 @@ class _MvtecBase(SubsetBase):
 
         self._categories = self._load_categories()
         self._items = list(self._load_items().values())
+        self._task_type = TaskAnnotationMapping().get_task(self._ann_types)
 
     def _load_categories(self):
         label_path = os.listdir(self._path)
@@ -47,7 +48,6 @@ class _MvtecBase(SubsetBase):
 
     def _load_items(self):
         items = {}
-        ann_types = set()
         for image_path in find_images(self._path, recursive=True, max_depth=2):
             label = osp.basename(osp.dirname(image_path))
             label_id = self._categories[AnnotationType.label].find(label)[0]
@@ -101,8 +101,7 @@ class _MvtecBase(SubsetBase):
                 else:
                     anns.append(Label(label=label_id))
             for ann in anns:
-                ann_types.add(ann.type)
-        self._task_type = TaskAnnotationMapping().get_task(ann_types)
+                self._ann_types.add(ann.type)
 
         return items
 

@@ -164,7 +164,6 @@ class VocBase(SubsetBase):
             self._parse_labels() if self._task in [VocTask.voc, VocTask.voc_classification] else {}
         )
 
-        ann_types = set()
         for item_id in self._ctx.progress_reporter.iter(
             self._items, desc=f"Importing '{self._subset}'"
         ):
@@ -211,7 +210,7 @@ class VocBase(SubsetBase):
                 yield DatasetItem(id=item_id, subset=self._subset, media=image, annotations=anns)
 
                 for ann in anns:
-                    ann_types.add(ann.type)
+                    self._ann_types.add(ann.type)
 
             except ElementTree.ParseError as e:
                 readable_wrapper = InvalidAnnotationError("Failed to parse XML file")
@@ -222,7 +221,7 @@ class VocBase(SubsetBase):
             except Exception as e:
                 self._ctx.error_policy.report_item_error(e, item_id=(item_id, self._subset))
 
-        self._task_type = TaskAnnotationMapping().get_task(ann_types)
+        self._task_type = TaskAnnotationMapping().get_task(self._ann_types)
 
     @staticmethod
     def _parse_field(root, xpath: str, cls: Type[T] = str, required: bool = True) -> Optional[T]:

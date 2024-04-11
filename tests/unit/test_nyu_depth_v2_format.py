@@ -7,6 +7,7 @@ from datumaro.components.dataset import Dataset
 from datumaro.components.dataset_base import DatasetItem
 from datumaro.components.environment import Environment
 from datumaro.components.media import Image
+from datumaro.components.task import TaskType
 from datumaro.plugins.data_formats.nyu_depth_v2 import NyuDepthV2Importer
 
 from ..requirements import Requirements, mark_requirement
@@ -37,7 +38,8 @@ class NyuDepthV2ImporterTest(TestCase):
                     media=Image.from_numpy(data=np.ones((4, 3, 3))),
                     annotations=[DepthAnnotation(Image.from_numpy(data=np.ones((4, 3))))],
                 ),
-            ]
+            ],
+            task_type=TaskType.depth_estimation,
         )
 
         dataset = Dataset.import_from(DUMMY_DATASET_DIR, "nyu_depth_v2")

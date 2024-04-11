@@ -16,6 +16,7 @@ from datumaro.components.dataset_base import DatasetItem
 from datumaro.components.exporter import Exporter
 from datumaro.components.importer import Importer
 from datumaro.components.media import Image
+from datumaro.components.task import TaskType
 from datumaro.plugins.data_formats.yolo.exporter import YoloExporter, YoloUltralyticsExporter
 from datumaro.plugins.data_formats.yolo.importer import YoloImporter
 from datumaro.util.definitions import DEFAULT_SUBSET_NAME
@@ -44,6 +45,7 @@ def fxt_train_dataset():
             ),
         ],
         categories=["label_" + str(i) for i in range(10)],
+        task_type=TaskType.detection,
     )
 
 

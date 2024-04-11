@@ -7,6 +7,7 @@ from datumaro.components.dataset import Dataset
 from datumaro.components.dataset_base import DatasetItem
 from datumaro.components.environment import Environment
 from datumaro.components.media import MultiframeImage
+from datumaro.components.task import TaskType
 from datumaro.plugins.data_formats.brats_numpy import BratsNumpyImporter
 
 from ..requirements import Requirements, mark_requirement
@@ -59,6 +60,7 @@ class BratsNumpyImporterTest(TestCase):
                 "enhancing tumor",
             ],
             media_type=MultiframeImage,
+            task_type=TaskType.mixed,
         )
 
         dataset = Dataset.import_from(DUMMY_DATASET_DIR, "brats_numpy")

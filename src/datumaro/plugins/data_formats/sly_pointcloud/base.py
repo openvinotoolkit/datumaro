@@ -39,8 +39,9 @@ class SuperviselyPointCloudBase(SubsetBase):
         super().__init__(subset=subset, media_type=PointCloud, ctx=ctx)
 
         items, categories = self._parse(rootdir)
-        self._items = list(self._load_items(items).values())
         self._categories = categories
+        self._items = list(self._load_items(items).values())
+        self._task_type = TaskAnnotationMapping().get_task(self._ann_types)
 
     @classmethod
     def _parse(cls, rootpath):
@@ -155,7 +156,6 @@ class SuperviselyPointCloudBase(SubsetBase):
         return items, categories
 
     def _load_items(self, parsed):
-        ann_types = set()
         for frame_id, frame_desc in parsed.items():
             pcd_name = frame_desc["name"]
             name = osp.splitext(pcd_name)[0]
@@ -185,8 +185,7 @@ class SuperviselyPointCloudBase(SubsetBase):
             )
 
             for ann in frame_desc.get("annotations"):
-                ann_types.add(ann.type)
-        self._task_type = TaskAnnotationMapping().get_task(ann_types)
+                self._ann_types.add(ann.type)
 
         return parsed
 

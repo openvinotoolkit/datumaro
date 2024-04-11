@@ -40,8 +40,9 @@ class KittiRawBase(SubsetBase):
         super().__init__(subset=subset, media_type=PointCloud, ctx=ctx)
 
         items, categories = self._parse(path)
-        self._items = list(self._load_items(items).values())
         self._categories = categories
+        self._items = list(self._load_items(items).values())
+        self._task_type = TaskAnnotationMapping().get_task(self._ann_types)
 
     @classmethod
     def _parse(cls, path):
@@ -245,7 +246,6 @@ class KittiRawBase(SubsetBase):
         )
 
         items = {}
-        ann_types = set()
         for frame_id, item_desc in parsed.items():
             name = name_mapping.get(frame_id, "%010d" % int(frame_id))
             items[frame_id] = DatasetItem(
@@ -261,8 +261,7 @@ class KittiRawBase(SubsetBase):
                 attributes={"frame": int(frame_id)},
             )
             for ann in item_desc.get("annotations"):
-                ann_types.add(ann.type)
-        self._task_type = TaskAnnotationMapping().get_task(ann_types)
+                self._ann_types.add(ann.type)
 
         for frame_id, name in name_mapping.items():
             if frame_id in items:

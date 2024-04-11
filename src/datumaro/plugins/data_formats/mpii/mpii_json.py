@@ -53,6 +53,7 @@ class MpiiJsonBase(SubsetBase):
         }
 
         self._items = list(self._load_items(path).values())
+        self._task_type = TaskAnnotationMapping().get_task(self._ann_types)
 
     def _load_items(self, path):
         items = {}
@@ -77,7 +78,6 @@ class MpiiJsonBase(SubsetBase):
         else:
             gt_pose = np.array([])
 
-        ann_types = set()
         for i, ann in enumerate(parse_json_file(path)):
             item_id = osp.splitext(ann.get("img_paths", ""))[0]
 
@@ -165,9 +165,7 @@ class MpiiJsonBase(SubsetBase):
             )
 
             for ann in annotations:
-                ann_types.add(ann.type)
-
-        self._task_type = TaskAnnotationMapping().get_task(ann_types)
+                self._ann_types.add(ann.type)
 
         return items
 

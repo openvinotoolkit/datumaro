@@ -56,6 +56,7 @@ class KaggleImageCsvBase(DatasetBase):
         self._label_cat = LabelCategories()
         self._items = self._load_items(ann_file, columns)
         self._categories = {AnnotationType.label: self._label_cat}
+        self._task_type = TaskAnnotationMapping().get_task(self._ann_types)
 
     def _get_media_path(self, media_name: str):
         media_path = osp.join(self._path, media_name)
@@ -150,7 +151,6 @@ class KaggleImageCsvBase(DatasetBase):
                 bbox_flag = False
 
         items = dict()
-        ann_types = set()
         for _, row in df.iloc[1:].iterrows():  # Skip header row
             data_info = list(row)
 
@@ -166,7 +166,7 @@ class KaggleImageCsvBase(DatasetBase):
                 continue
 
             ann = self._load_annotations(data_info, indices, bbox_flag)
-            ann_types.add(ann.type)
+            self._ann_types.add(ann.type)
             if item_id in items:
                 items[item_id].annotations.append(ann)
             else:
@@ -176,7 +176,6 @@ class KaggleImageCsvBase(DatasetBase):
                     media=Image.from_file(path=media_path),
                     annotations=[ann],
                 )
-        self._task_type = TaskAnnotationMapping().get_task(ann_types)
         return items.values()
 
     def categories(self):
@@ -215,7 +214,6 @@ class KaggleImageTxtBase(KaggleImageCsvBase):
                 columns.update(bbox_columns)
 
         items = dict()
-        ann_types = set()
         with open(ann_file, "r", encoding="utf-8") as f:
             for line in f:
                 line = re.split(r"\s|,", line)
@@ -232,7 +230,7 @@ class KaggleImageTxtBase(KaggleImageCsvBase):
                     continue
 
                 ann = self._load_annotations(line, columns, bbox_flag)
-                ann_types.add(ann.type)
+                self._ann_types.add(ann.type)
                 if item_id in items:
                     items[item_id].annotations.append(ann)
                 else:
@@ -242,7 +240,6 @@ class KaggleImageTxtBase(KaggleImageCsvBase):
                         media=Image.from_file(path=media_path),
                         annotations=[ann],
                     )
-        self._task_type = TaskAnnotationMapping().get_task(ann_types)
 
         return items.values()
 
@@ -267,6 +264,7 @@ class KaggleImageMaskBase(DatasetBase):
         self._label_ids = []
         self._categories = self._load_categories(labelmap_file)
         self._items = self._load_items()
+        self._task_type = TaskAnnotationMapping().get_task(self._ann_types)
 
     def _load_categories(self, label_map_file: Optional[str]):
         label_map = dict()
@@ -302,7 +300,6 @@ class KaggleImageMaskBase(DatasetBase):
             return lambda: mask == c
 
         items = []
-        ann_types = set()
         for media_name in sorted(os.listdir(self._path)):
             id = osp.splitext(media_name)[0]
 
@@ -320,7 +317,7 @@ class KaggleImageMaskBase(DatasetBase):
                                 label=label_id,
                             )
                         )
-                        ann_types.add(AnnotationType.mask)
+                        self._ann_types.add(AnnotationType.mask)
 
             items.append(
                 DatasetItem(
@@ -330,7 +327,6 @@ class KaggleImageMaskBase(DatasetBase):
                     annotations=anns,
                 )
             )
-        self._task_type = TaskAnnotationMapping().get_task(ann_types)
 
         return items
 
@@ -357,7 +353,6 @@ class KaggleVocBase(SubsetBase):
         self._label_cat = LabelCategories()
         self._items = []
         self._size = None
-        ann_types = set()
 
         for img_filename in sorted(os.listdir(path)):
             if not img_filename.lower().endswith(tuple(IMAGE_EXTENSIONS)):
@@ -371,7 +366,7 @@ class KaggleVocBase(SubsetBase):
                 self._parse_annotations(img_file, ann_file) if osp.isfile(ann_file) else []
             )
             for ann in annotations:
-                ann_types.add(ann.type)
+                self._ann_types.add(ann.type)
 
             media = Image.from_file(path=img_file, size=self._size)
 
@@ -384,7 +379,7 @@ class KaggleVocBase(SubsetBase):
                 )
             )
         self._categories = {AnnotationType.label: self._label_cat}
-        self._task_type = TaskAnnotationMapping().get_task(ann_types)
+        self._task_type = TaskAnnotationMapping().get_task(self._ann_types)
 
     def _parse_annotations(self, img_file: str, ann_file: str):
         root_elem = ElementTree.parse(ann_file).getroot()
@@ -523,6 +518,7 @@ class KaggleCocoBase(CocoInstancesBase, SubsetBase):
             )
 
             self._items = self._load_items(json_data)
+            self._task_type = TaskAnnotationMapping().get_task(self._ann_types)
 
             del json_data
         else:

@@ -60,6 +60,8 @@ class TaskAnnotationMapping(Mapping[TaskType, Set[AnnotationType]]):
                 AnnotationType.mask,
             },
             TaskType.caption: {AnnotationType.caption},
+            TaskType.super_resolution: {AnnotationType.super_resolution_annotation},
+            TaskType.depth_estimation: {AnnotationType.depth_annotation},
             TaskType.mixed: {
                 AnnotationType.label,
                 AnnotationType.bbox,

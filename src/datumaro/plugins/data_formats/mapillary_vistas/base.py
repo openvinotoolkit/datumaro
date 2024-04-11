@@ -97,6 +97,8 @@ class _MapillaryVistasBase(SubsetBase):
             )
             self._items = self._load_panoptic_items(panoptic_config)
 
+        self._task_type = TaskAnnotationMapping().get_task(self._ann_types)
+
     def _load_panoptic_config(self, path):
         panoptic_config_path = osp.join(
             path,
@@ -139,7 +141,6 @@ class _MapillaryVistasBase(SubsetBase):
 
     def _load_panoptic_items(self, config):
         items = {}
-        ann_types = set()
 
         images_info = {
             img["id"]: {
@@ -199,8 +200,7 @@ class _MapillaryVistasBase(SubsetBase):
                 id=item_id, subset=self._subset, annotations=annotations, media=image
             )
             for ann in annotations:
-                ann_types.add(ann.type)
-        self._task_type = TaskAnnotationMapping().get_task(ann_types)
+                self._ann_types.add(ann.type)
 
         return items.values()
 
@@ -219,7 +219,6 @@ class _MapillaryVistasBase(SubsetBase):
 
     def _load_instances_items(self):
         items = {}
-        ann_types = set()
 
         instance_dir = osp.join(self._annotations_dir, MapillaryVistasPath.INSTANCES_DIR)
         polygon_dir = osp.join(self._annotations_dir, MapillaryVistasPath.POLYGON_DIR)
@@ -252,13 +251,11 @@ class _MapillaryVistasBase(SubsetBase):
                     annotations.append(Polygon(label=label_id, points=points))
 
             for ann in annotations:
-                ann_types.add(ann.type)
+                self._ann_types.add(ann.type)
 
             items[item_id] = DatasetItem(
                 id=item_id, subset=self._subset, media=image, annotations=annotations
             )
-
-        self._task_type = TaskAnnotationMapping().get_task(ann_types)
 
         return items.values()
 

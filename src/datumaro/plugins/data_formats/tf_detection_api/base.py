@@ -74,8 +74,9 @@ class TfDetectionApiBase(SubsetBase):
             del self._features["image/source_id"]
 
         items, labels = self._parse_tfrecord_file(path, self._subset, images_dir)
-        self._items = items
         self._categories = self._load_categories(labels)
+        self._items = items
+        self._task_type = TaskAnnotationMapping().get_task(self._ann_types)
 
     @staticmethod
     def _load_categories(labels):
@@ -122,7 +123,6 @@ class TfDetectionApiBase(SubsetBase):
 
         dataset_items = []
 
-        ann_types = set()
         for record in dataset:
             parsed_record = tf.io.parse_single_example(record, self._features)
             frame_id = parsed_record.get("image/source_id", None)
@@ -188,7 +188,7 @@ class TfDetectionApiBase(SubsetBase):
                 image = Image.from_file(path=osp.join(images_dir, frame_filename), size=image_size)
 
             for ann in annotations:
-                ann_types.add(ann.type)
+                self._ann_types.add(ann.type)
 
             dataset_items.append(
                 DatasetItem(
@@ -199,8 +199,6 @@ class TfDetectionApiBase(SubsetBase):
                     attributes={"source_id": frame_id},
                 )
             )
-
-        self._task_type = TaskAnnotationMapping().get_task(ann_types)
 
         return dataset_items, dataset_labels
 

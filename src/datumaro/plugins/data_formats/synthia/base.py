@@ -94,6 +94,7 @@ class _SynthiaBase(SubsetBase):
 
         self._path_formats = path_formats
         self._label_map = label_map
+        self._ann_types = set()
 
         self._img_dir = None
         self._inst_dir = None
@@ -108,6 +109,7 @@ class _SynthiaBase(SubsetBase):
 
         self._categories = self._load_categories(path)
         self._items = list(self._load_items().values())
+        self._task_type = TaskAnnotationMapping().get_task(self._ann_types)
 
     def _load_categories(self, path):
         if has_meta_file(path):
@@ -131,7 +133,6 @@ class _SynthiaBase(SubsetBase):
             images = {}
 
         items = {}
-        ann_types = set()
         if self._inst_dir and osp.isdir(self._inst_dir):
             gt_labels = glob(self._inst_dir + "/*.txt")
             for gt_label in gt_labels:
@@ -144,7 +145,7 @@ class _SynthiaBase(SubsetBase):
                     anno.append(
                         Mask(image=self._lazy_extract_mask(labels_mask, label_id), label=label_id)
                     )
-                    ann_types.add(AnnotationType.mask)
+                    self._ann_types.add(AnnotationType.mask)
 
                 image = images.get(item_id)
                 if image:
@@ -167,14 +168,13 @@ class _SynthiaBase(SubsetBase):
                     anno.append(
                         Mask(image=self._lazy_extract_mask(color_mask, label_id), label=label_id)
                     )
-                    ann_types.add(AnnotationType.mask)
+                    self._ann_types.add(AnnotationType.mask)
 
                 image = images.get(item_id)
                 if image:
                     image = Image.from_file(path=image)
 
                 items[item_id] = DatasetItem(id=item_id, media=image, annotations=anno)
-        self._task_type = TaskAnnotationMapping().get_task(ann_types)
 
         return items
 

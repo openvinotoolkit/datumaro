@@ -286,15 +286,14 @@ class YoloStrictBase(SubsetBase):
 
     def __iter__(self) -> Iterator[DatasetItem]:
         subsets = self._subsets
-        ann_types = set()
         pbars = self._ctx.progress_reporter.split(len(subsets))
         for pbar, (subset_name, subset) in zip(pbars, subsets.items()):
             for item in pbar.iter(subset, desc=f"Importing '{subset_name}'"):
                 yield item
 
                 for ann in item.annotations:
-                    ann_types.add(ann.type)
-        self._task_type = TaskAnnotationMapping().get_task(ann_types)
+                    self._ann_types.add(ann.type)
+        self._task_type = TaskAnnotationMapping().get_task(self._ann_types)
 
     def __len__(self):
         return sum(len(s) for s in self._subsets.values())
@@ -351,7 +350,6 @@ class YoloLooseBase(SubsetBase):
         if label_categories is None:
             raise DatasetImportError("label_categories should be not None.")
 
-        ann_types = set()
         pbar = self._ctx.progress_reporter
         for url in pbar.iter(self._urls, desc=f"Importing '{self._subset}'"):
             try:
@@ -365,11 +363,11 @@ class YoloLooseBase(SubsetBase):
                 yield DatasetItem(id=fname, subset=self._subset, media=img, annotations=anns)
 
                 for ann in anns:
-                    ann_types.add(ann.type)
+                    self._ann_types.add(ann.type)
             except Exception as e:
                 self._ctx.error_policy.report_item_error(e, item_id=(fname, self._subset))
 
-        self._task_type = TaskAnnotationMapping().get_task(ann_types)
+        self._task_type = TaskAnnotationMapping().get_task(self._ann_types)
 
     def __len__(self) -> int:
         return len(self._urls)

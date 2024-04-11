@@ -128,6 +128,7 @@ class _DatasetBase(IDataset):
     def __init__(self, *, length: Optional[int] = None, subsets: Optional[Sequence[str]] = None):
         self._length = length
         self._subsets = subsets
+        self._ann_types = set()
 
     def _init_cache(self):
         subsets = set()

@@ -14,6 +14,7 @@ from datumaro.components.dataset_base import DatasetItem, SubsetBase
 from datumaro.components.format_detection import FormatDetectionConfidence, FormatDetectionContext
 from datumaro.components.importer import ImportContext, Importer, with_subset_dirs
 from datumaro.components.media import Image
+from datumaro.components.task import TaskAnnotationMapping
 from datumaro.util.image import find_images
 from datumaro.util.mask_tools import generate_colormap, lazy_mask
 from datumaro.util.meta_file_util import DATASET_META_FILE, is_meta_file, parse_meta_file
@@ -74,6 +75,7 @@ class CommonSemanticSegmentationBase(SubsetBase):
             raise FileNotFoundError(errno.ENOENT, "Dataset meta info file was not found", path)
 
         self._items = list(self._load_items().values())
+        self._task_type = TaskAnnotationMapping().get_task(self._ann_types)
 
     def _load_items(self):
         items = {}
@@ -114,6 +116,7 @@ class CommonSemanticSegmentationBase(SubsetBase):
                 annotations.append(
                     Mask(image=self._lazy_extract_mask(mask, label_id), label=label_id)
                 )
+                self._ann_types.add(AnnotationType.mask)
 
             items[item_id] = DatasetItem(
                 id=item_id, subset=self._subset, media=image, annotations=annotations

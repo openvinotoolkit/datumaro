@@ -70,8 +70,9 @@ class CvatBase(SubsetBase):
         super().__init__(subset=subset, ctx=ctx)
 
         items, categories = self._parse(path)
-        self._items = list(self._load_items(items).values())
         self._categories = categories
+        self._items = list(self._load_items(items).values())
+        self._task_type = TaskAnnotationMapping().get_task(self._ann_types)
 
     def _parse(self, path):
         meta_root, context = _find_meta_root(path)
@@ -359,7 +360,6 @@ class CvatBase(SubsetBase):
         return Label(label_id, attributes=attributes, group=group)
 
     def _load_items(self, parsed):
-        ann_types = set()
         for frame_id, item_desc in parsed.items():
             name = item_desc.get("name", "frame_%06d.png" % int(frame_id))
 
@@ -392,9 +392,7 @@ class CvatBase(SubsetBase):
                 attributes={"frame": int(frame_id)},
             )
             for ann in item_desc.get("annotations"):
-                ann_types.add(ann.type)
-
-        self._task_type = TaskAnnotationMapping().get_task(ann_types)
+                self._ann_types.add(ann.type)
 
         return parsed
 

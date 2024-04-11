@@ -45,6 +45,7 @@ class MpiiBase(SubsetBase):
         }
 
         self._items = list(self._load_items(path).values())
+        self._task_type = TaskAnnotationMapping().get_task(self._ann_types)
 
     def _load_items(self, path):
         items = {}
@@ -54,7 +55,6 @@ class MpiiBase(SubsetBase):
         data = spio.loadmat(path, struct_as_record=False, squeeze_me=True).get("RELEASE", {})
         data = getattr(data, "annolist", [])
 
-        ann_types = set()
         for item in data:
             image = ""
             annotations = []
@@ -141,9 +141,7 @@ class MpiiBase(SubsetBase):
             )
 
             for ann in annotations:
-                ann_types.add(ann.type)
-
-        self._task_type = TaskAnnotationMapping().get_task(ann_types)
+                self._ann_types.add(ann.type)
 
         return items
 
