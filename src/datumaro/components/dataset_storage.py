@@ -446,6 +446,7 @@ class DatasetStorage(IDataset):
             )
 
         ann_types = set([ann.type for ann in item.annotations])
+        ann_types.discard(AnnotationType.hash_key)  # hash_key can be included any task
         if not ann_types.issubset(task_annotation_mapping[self._task_type]):
             raise MediaTypeError(
                 "Mismatching item annotation type '%s', "

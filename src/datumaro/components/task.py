@@ -87,7 +87,6 @@ class TaskAnnotationMapping(Mapping[TaskType, Set[AnnotationType]]):
 
     def get_task(self, ann_types: set[AnnotationType]):
         for task in self._mapping:
-            # print(ann_types, task, self._mapping[task])
             if ann_types.issubset(self._mapping[task]):
                 return task
         return None
