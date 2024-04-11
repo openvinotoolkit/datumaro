@@ -20,6 +20,7 @@ from datumaro.components.dataset_item_storage import (
     ItemStatus,
 )
 from datumaro.components.errors import (
+    AnnotationTypeError,
     CategoriesRedefinedError,
     ConflictingCategoriesError,
     DatasetInfosRedefinedError,
@@ -133,6 +134,8 @@ class DatasetStorage(IDataset):
         media_type: Optional[Type[MediaElement]] = None,
         task_type: Optional[TaskType] = None,
     ):
+        self._set_of_ann_types: set = set()
+
         if source is None and categories is None:
             categories = {}
         elif isinstance(source, IDataset) and categories is not None:
@@ -330,6 +333,11 @@ class DatasetStorage(IDataset):
             cache.put(item)
             yield item
 
+            for ann in item.annotations:
+                if ann.type == AnnotationType.hash_key:
+                    continue
+                self._set_of_ann_types.add(ann.type)
+
         if i == -1:
             cache = patch
             for item in patch:
@@ -353,6 +361,7 @@ class DatasetStorage(IDataset):
 
         self._storage = cache
         self._length = len(cache)
+        self._task_type = TaskAnnotationMapping().get_task(self._set_of_ann_types)
 
         if transform:
             source_cat = transform.categories()
@@ -450,7 +459,7 @@ class DatasetStorage(IDataset):
         ann_types.discard(AnnotationType.hash_key)
 
         if not ann_types.issubset(task_annotation_mapping[self._task_type]):
-            raise MediaTypeError(
+            raise AnnotationTypeError(
                 "Mismatching item annotation type '%s', "
                 "while the dataset is for '%s'." % (ann_types, self._task_type)
             )
@@ -691,7 +700,15 @@ class StreamDatasetStorage(DatasetStorage):
         return transform
 
     def __iter__(self) -> Iterator[DatasetItem]:
-        yield from self.stacked_transform
+        # yield from self.stacked_transform
+        for item in self.stacked_transform:
+            yield item
+
+            for ann in item.annotations:
+                if ann.type == AnnotationType.hash_key:
+                    continue
+                self._set_of_ann_types.add(ann.type)
+        self._task_type = TaskAnnotationMapping().get_task(self._set_of_ann_types)
 
     def __len__(self) -> int:
         if self._length is None:

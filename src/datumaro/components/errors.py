@@ -312,6 +312,10 @@ class DatasetError(DatumaroError):
     pass
 
 
+class AnnotationTypeError(DatumaroError):
+    pass
+
+
 class MediaTypeError(DatumaroError):
     pass
 
