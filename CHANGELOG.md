@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## May 2024 Release 1.7.0
 ### New features
+- Add task_type property for dataset
+  (<https://github.com/openvinotoolkit/datumaro/pull/1422>)
 
 ### Enhancements
 
