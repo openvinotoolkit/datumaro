@@ -223,7 +223,7 @@ class DatasetBase(_DatasetBase, CliPlugin):
 
         self._ctx: ImportContext = ctx or NullImportContext()
         self._media_type = media_type
-        self._task_type = task_type
+        self._task_type = task_type if task_type else TaskType.unlabeled
 
     def media_type(self):
         return self._media_type

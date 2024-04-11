@@ -82,10 +82,7 @@ class Merger(IMergerContext, CliPlugin):
             for ann_type in task_annotation_mapping[source.task_type()]:
                 ann_types.add(ann_type)
 
-        if ann_types:
-            return task_annotation_mapping.get_task(ann_types)
-
-        return None
+        return task_annotation_mapping.get_task(ann_types)
 
     def __call__(self, *datasets: IDataset) -> DatasetItemStorageDatasetView:
         infos = self.merge_infos(d.infos() for d in datasets)
