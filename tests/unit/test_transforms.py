@@ -27,6 +27,7 @@ from datumaro.components.annotation import (
 from datumaro.components.dataset import Dataset
 from datumaro.components.dataset_base import DatasetItem
 from datumaro.components.media import Image
+from datumaro.components.task import TaskType
 
 from ..requirements import Requirements, mark_bug, mark_requirement
 
@@ -1090,6 +1091,62 @@ class TransformsTest(TestCase):
         )
 
         compare_datasets(self, expected, actual)
+
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
+    def test_transform_annotation_type_can_update_task_type(self):
+        source = Dataset.from_iterable(
+            [
+                DatasetItem(
+                    id="a",
+                    subset="train",
+                    media=Image.from_numpy(data=np.ones((10, 10, 3))),
+                    annotations=[
+                        Mask(
+                            np.ones((10, 10)),
+                            label=0,
+                            id=0,
+                        ),
+                    ],
+                ),
+                DatasetItem(
+                    id="b",
+                    subset="val",
+                    media=Image.from_numpy(data=np.ones((10, 10, 3))),
+                    annotations=[
+                        Mask(
+                            np.ones((10, 10)),
+                            label=1,
+                            id=1,
+                        ),
+                    ],
+                ),
+            ],
+            categories=["a", "b", "c"],
+            task_type=TaskType.segmentation_semantic,
+        )
+
+        expected = Dataset.from_iterable(
+            [
+                DatasetItem(
+                    id="a",
+                    subset="train",
+                    media=Image.from_numpy(data=np.ones((10, 10, 3))),
+                    annotations=[Bbox(0, 0, 9, 9, label=0, id=0)],
+                ),
+                DatasetItem(
+                    id="b",
+                    subset="val",
+                    media=Image.from_numpy(data=np.ones((10, 10, 3))),
+                    annotations=[Bbox(0, 0, 9, 9, label=1, id=1)],
+                ),
+            ],
+            categories=["a", "b", "c"],
+            task_type=TaskType.detection,
+        )
+
+        trasnformed = source.transform("shapes_to_boxes")
+
+        compare_datasets(self, expected, trasnformed)
 
 
 class RemoveAttributesTest(TestCase):

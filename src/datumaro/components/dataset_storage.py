@@ -247,6 +247,12 @@ class DatasetStorage(IDataset):
             else:
                 assert False, "Unknown status %s" % new_status
 
+        def _add_ann_types(item: DatasetItem):
+            for ann in item.annotations:
+                if ann.type == AnnotationType.hash_key:
+                    continue
+                self._set_of_ann_types.add(ann.type)
+
         media_type = self._media_type
         patch = self._storage  # must be empty after transforming
         cache = DatasetItemStorage()
@@ -279,12 +285,6 @@ class DatasetStorage(IDataset):
                 raise MediaTypeError(
                     "Transforms are not allowed to change media " "type of dataset items"
                 )
-
-            # if not issubclass(transform.task_type(), self._task_type):
-            #     # TODO: make it statically available
-            #     raise MediaTypeError(
-            #         "Transforms are not allowed to change task " "type of dataset items"
-            #     )
 
             self._drop_malformed_transforms(transform.malformed_transform_indices)
 
@@ -332,11 +332,7 @@ class DatasetStorage(IDataset):
 
             cache.put(item)
             yield item
-
-            for ann in item.annotations:
-                if ann.type == AnnotationType.hash_key:
-                    continue
-                self._set_of_ann_types.add(ann.type)
+            _add_ann_types(item)
 
         if i == -1:
             cache = patch
@@ -344,6 +340,7 @@ class DatasetStorage(IDataset):
                 if not self._flush_changes:
                     _update_status((item.id, item.subset), ItemStatus.added)
                 yield item
+                _add_ann_types(item)
         else:
             for item in patch:
                 if item in cache:  # already processed
@@ -352,6 +349,7 @@ class DatasetStorage(IDataset):
                     _update_status((item.id, item.subset), ItemStatus.added)
                 cache.put(item)
                 yield item
+                _add_ann_types(item)
 
         if not self._flush_changes and transform and not transform.is_local:
             # Mark removed items that were not produced by transforms
@@ -473,8 +471,13 @@ class DatasetStorage(IDataset):
 
         if is_new and not self.is_cache_initialized():
             self._length = None
+            self._set_of_ann_types = set()
         if self._length is not None:
             self._length += is_new
+            # # when adding a new item, task_type will be updated automatically
+            # for ann in item.annotations:
+            #     self._set_of_ann_types.add(ann.type)
+            # self._task_type = TaskAnnotationMapping().get_task(self._set_of_ann_types)
 
     def get(self, id: str, subset: Optional[str] = None) -> Optional[DatasetItem]:
         id = str(id)
@@ -502,6 +505,7 @@ class DatasetStorage(IDataset):
             self._updated_items[(id, subset)] = ItemStatus.removed
         if is_removed and not self.is_cache_initialized():
             self._length = None
+            self._set_of_ann_types = set()
         if self._length is not None:
             self._length -= is_removed
 
@@ -541,6 +545,7 @@ class DatasetStorage(IDataset):
         if is_method_redefined("categories", Transform, method):
             self._categories = None
         self._length = None
+        self._set_of_ann_types = set()
 
     def has_updated_items(self):
         return bool(self._transforms) or bool(self._updated_items)
