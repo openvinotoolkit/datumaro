@@ -474,10 +474,6 @@ class DatasetStorage(IDataset):
             self._set_of_ann_types = set()
         if self._length is not None:
             self._length += is_new
-            # # when adding a new item, task_type will be updated automatically
-            # for ann in item.annotations:
-            #     self._set_of_ann_types.add(ann.type)
-            # self._task_type = TaskAnnotationMapping().get_task(self._set_of_ann_types)
 
     def get(self, id: str, subset: Optional[str] = None) -> Optional[DatasetItem]:
         id = str(id)
@@ -705,7 +701,6 @@ class StreamDatasetStorage(DatasetStorage):
         return transform
 
     def __iter__(self) -> Iterator[DatasetItem]:
-        # yield from self.stacked_transform
         for item in self.stacked_transform:
             yield item
 
