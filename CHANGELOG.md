@@ -8,7 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## May 2024 Release 1.6.1
 ### Bug fixes
 - Modify Numpy dependency constraint
-  (<>)
+  (<https://github.com/openvinotoolkit/datumaro/pull/1435>)
 
 ## Apr. 2024 Release 1.6.0
 ### New features
