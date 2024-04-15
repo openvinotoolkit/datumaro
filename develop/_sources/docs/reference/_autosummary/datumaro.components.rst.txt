@@ -59,6 +59,7 @@ datumaro.components
    datumaro.components.project
    datumaro.components.registry
    datumaro.components.shift_analyzer
+   datumaro.components.task
    datumaro.components.transformer
    datumaro.components.validator
    datumaro.components.visualizer

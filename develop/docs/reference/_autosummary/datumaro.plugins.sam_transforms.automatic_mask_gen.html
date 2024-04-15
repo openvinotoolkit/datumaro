@@ -511,6 +511,7 @@ document.write(`
 <li class="toctree-l4"><a class="reference internal" href="datumaro.components.project.html">datumaro.components.project</a></li>
 <li class="toctree-l4"><a class="reference internal" href="datumaro.components.registry.html">datumaro.components.registry</a></li>
 <li class="toctree-l4"><a class="reference internal" href="datumaro.components.shift_analyzer.html">datumaro.components.shift_analyzer</a></li>
+<li class="toctree-l4"><a class="reference internal" href="datumaro.components.task.html">datumaro.components.task</a></li>
 <li class="toctree-l4"><a class="reference internal" href="datumaro.components.transformer.html">datumaro.components.transformer</a></li>
 <li class="toctree-l4"><a class="reference internal" href="datumaro.components.validator.html">datumaro.components.validator</a></li>
 <li class="toctree-l4"><a class="reference internal" href="datumaro.components.visualizer.html">datumaro.components.visualizer</a></li>
@@ -928,6 +929,12 @@ Supposed to be constant and known immediately after the
 object construction (i.e. doesn’t require dataset iteration).</p>
 </dd></dl>
 
+<dl class="py method">
+<dt class="sig sig-object py" id="datumaro.plugins.sam_transforms.automatic_mask_gen.IDataset.task_type">
+<span class="sig-name descname"><span class="pre">task_type</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="datumaro.components.task.html#datumaro.components.task.TaskType" title="datumaro.components.task.TaskType"><span class="pre">TaskType</span></a></span></span><a class="reference internal" href="../../../_modules/datumaro/components/dataset_base.html#IDataset.task_type"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.plugins.sam_transforms.automatic_mask_gen.IDataset.task_type" title="Link to this definition">#</a></dt>
+<dd><p>Returns available task type from dataset annotation types.</p>
+</dd></dl>
+
 <dl class="py property">
 <dt class="sig sig-object py" id="datumaro.plugins.sam_transforms.automatic_mask_gen.IDataset.is_stream">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">is_stream</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.12)"><span class="pre">bool</span></a></em><a class="headerlink" href="#datumaro.plugins.sam_transforms.automatic_mask_gen.IDataset.is_stream" title="Link to this definition">#</a></dt>
@@ -1201,6 +1208,7 @@ The model interpreter implement pre-processing of the model input and post-proce
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.plugins.sam_transforms.automatic_mask_gen.IDataset.categories"><code class="docutils literal notranslate"><span class="pre">IDataset.categories()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.plugins.sam_transforms.automatic_mask_gen.IDataset.get"><code class="docutils literal notranslate"><span class="pre">IDataset.get()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.plugins.sam_transforms.automatic_mask_gen.IDataset.media_type"><code class="docutils literal notranslate"><span class="pre">IDataset.media_type()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.plugins.sam_transforms.automatic_mask_gen.IDataset.task_type"><code class="docutils literal notranslate"><span class="pre">IDataset.task_type()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.plugins.sam_transforms.automatic_mask_gen.IDataset.is_stream"><code class="docutils literal notranslate"><span class="pre">IDataset.is_stream</span></code></a></li>
 </ul>
 </li>

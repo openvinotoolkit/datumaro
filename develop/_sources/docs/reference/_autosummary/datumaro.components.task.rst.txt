@@ -1,0 +1,30 @@
+datumaro.components.task
+========================
+
+.. automodule:: datumaro.components.task
+
+   
+   
+   
+
+   
+   
+   
+
+   
+   
+   .. rubric:: Classes
+
+   .. autosummary::
+   
+      TaskAnnotationMapping
+      TaskType
+   
+   
+
+   
+   
+   
+
+
+

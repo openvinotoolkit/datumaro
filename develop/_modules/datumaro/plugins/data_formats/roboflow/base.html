@@ -365,6 +365,7 @@ document.write(`
 <span class="kn">from</span> <span class="nn">datumaro.components.errors</span> <span class="kn">import</span> <span class="n">InvalidAnnotationError</span><span class="p">,</span> <span class="n">UndeclaredLabelError</span>
 <span class="kn">from</span> <span class="nn">datumaro.components.importer</span> <span class="kn">import</span> <span class="n">ImportContext</span>
 <span class="kn">from</span> <span class="nn">datumaro.components.media</span> <span class="kn">import</span> <span class="n">Image</span><span class="p">,</span> <span class="n">ImageFromFile</span>
+<span class="kn">from</span> <span class="nn">datumaro.components.task</span> <span class="kn">import</span> <span class="n">TaskType</span>
 <span class="kn">from</span> <span class="nn">datumaro.plugins.data_formats.coco.base</span> <span class="kn">import</span> <span class="n">_CocoBase</span>
 <span class="kn">from</span> <span class="nn">datumaro.plugins.data_formats.coco.format</span> <span class="kn">import</span> <span class="n">CocoImporterType</span><span class="p">,</span> <span class="n">CocoTask</span>
 <span class="kn">from</span> <span class="nn">datumaro.plugins.data_formats.voc.base</span> <span class="kn">import</span> <span class="n">VocBase</span>
@@ -593,6 +594,9 @@ document.write(`
                 <span class="n">h</span> <span class="o">=</span> <span class="n">ann</span><span class="p">[</span><span class="s2">&quot;coordinates&quot;</span><span class="p">][</span><span class="s2">&quot;height&quot;</span><span class="p">]</span>
                 <span class="n">annotations</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">Bbox</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">w</span><span class="p">,</span> <span class="n">h</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="n">label_id</span><span class="p">,</span> <span class="nb">id</span><span class="o">=</span><span class="n">ann_id</span><span class="p">,</span> <span class="n">group</span><span class="o">=</span><span class="n">ann_id</span><span class="p">))</span>
 
+            <span class="k">if</span> <span class="n">annotations</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_task_type</span> <span class="o">=</span> <span class="n">TaskType</span><span class="o">.</span><span class="n">detection</span>
+
             <span class="n">img_id</span> <span class="o">=</span> <span class="n">osp</span><span class="o">.</span><span class="n">splitext</span><span class="p">(</span><span class="n">anns</span><span class="p">[</span><span class="s2">&quot;image&quot;</span><span class="p">])[</span><span class="mi">0</span><span class="p">]</span>
             <span class="n">items</span><span class="p">[</span><span class="n">img_id</span><span class="p">]</span> <span class="o">=</span> <span class="n">DatasetItem</span><span class="p">(</span>
                 <span class="nb">id</span><span class="o">=</span><span class="n">img_id</span><span class="p">,</span>
@@ -648,6 +652,7 @@ document.write(`
 
     <span class="k">def</span> <span class="nf">_load_items</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">):</span>
         <span class="n">items</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">max_num_annotations</span> <span class="o">=</span> <span class="mi">0</span>
         <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
             <span class="k">for</span> <span class="n">anns</span> <span class="ow">in</span> <span class="n">csv</span><span class="o">.</span><span class="n">DictReader</span><span class="p">(</span><span class="n">f</span><span class="p">):</span>
                 <span class="n">img_id</span> <span class="o">=</span> <span class="n">anns</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;filename&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
@@ -673,6 +678,13 @@ document.write(`
                         <span class="n">annotations</span><span class="o">=</span><span class="n">annotations</span><span class="p">,</span>
                     <span class="p">)</span>
                 <span class="p">)</span>
+                <span class="n">max_num_annotations</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">max_num_annotations</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">annotations</span><span class="p">))</span>
+        <span class="k">if</span> <span class="n">max_num_annotations</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_task_type</span> <span class="o">=</span> <span class="n">TaskType</span><span class="o">.</span><span class="n">unlabeled</span>
+        <span class="k">elif</span> <span class="n">max_num_annotations</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_task_type</span> <span class="o">=</span> <span class="n">TaskType</span><span class="o">.</span><span class="n">classification_multilabel</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_task_type</span> <span class="o">=</span> <span class="n">TaskType</span><span class="o">.</span><span class="n">classification</span>
 
         <span class="k">return</span> <span class="n">items</span></div>
 

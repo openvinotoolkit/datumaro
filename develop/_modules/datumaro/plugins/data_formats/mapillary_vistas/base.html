@@ -364,6 +364,7 @@ document.write(`
 <span class="kn">from</span> <span class="nn">datumaro.components.errors</span> <span class="kn">import</span> <span class="n">DatasetImportError</span>
 <span class="kn">from</span> <span class="nn">datumaro.components.importer</span> <span class="kn">import</span> <span class="n">ImportContext</span>
 <span class="kn">from</span> <span class="nn">datumaro.components.media</span> <span class="kn">import</span> <span class="n">Image</span>
+<span class="kn">from</span> <span class="nn">datumaro.components.task</span> <span class="kn">import</span> <span class="n">TaskAnnotationMapping</span>
 <span class="kn">from</span> <span class="nn">datumaro.util</span> <span class="kn">import</span> <span class="n">parse_json_file</span>
 <span class="kn">from</span> <span class="nn">datumaro.util.image</span> <span class="kn">import</span> <span class="n">find_images</span><span class="p">,</span> <span class="n">lazy_image</span><span class="p">,</span> <span class="n">load_image</span>
 <span class="kn">from</span> <span class="nn">datumaro.util.mask_tools</span> <span class="kn">import</span> <span class="n">bgr2index</span>
@@ -438,6 +439,8 @@ document.write(`
             <span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_items</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_load_panoptic_items</span><span class="p">(</span><span class="n">panoptic_config</span><span class="p">)</span>
 
+        <span class="bp">self</span><span class="o">.</span><span class="n">_task_type</span> <span class="o">=</span> <span class="n">TaskAnnotationMapping</span><span class="p">()</span><span class="o">.</span><span class="n">get_task</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_ann_types</span><span class="p">)</span>
+
     <span class="k">def</span> <span class="nf">_load_panoptic_config</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">):</span>
         <span class="n">panoptic_config_path</span> <span class="o">=</span> <span class="n">osp</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
             <span class="n">path</span><span class="p">,</span>
@@ -491,7 +494,6 @@ document.write(`
         <span class="p">}</span>
 
         <span class="n">polygon_dir</span> <span class="o">=</span> <span class="n">osp</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_annotations_dir</span><span class="p">,</span> <span class="n">MapillaryVistasPath</span><span class="o">.</span><span class="n">POLYGON_DIR</span><span class="p">)</span>
-
         <span class="k">for</span> <span class="n">item_ann</span> <span class="ow">in</span> <span class="n">config</span><span class="p">[</span><span class="s2">&quot;annotations&quot;</span><span class="p">]:</span>
             <span class="n">item_id</span> <span class="o">=</span> <span class="n">item_ann</span><span class="p">[</span><span class="s2">&quot;image_id&quot;</span><span class="p">]</span>
             <span class="n">image</span> <span class="o">=</span> <span class="kc">None</span>
@@ -539,6 +541,8 @@ document.write(`
             <span class="n">items</span><span class="p">[</span><span class="n">item_id</span><span class="p">]</span> <span class="o">=</span> <span class="n">DatasetItem</span><span class="p">(</span>
                 <span class="nb">id</span><span class="o">=</span><span class="n">item_id</span><span class="p">,</span> <span class="n">subset</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_subset</span><span class="p">,</span> <span class="n">annotations</span><span class="o">=</span><span class="n">annotations</span><span class="p">,</span> <span class="n">media</span><span class="o">=</span><span class="n">image</span>
             <span class="p">)</span>
+            <span class="k">for</span> <span class="n">ann</span> <span class="ow">in</span> <span class="n">annotations</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_ann_types</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">ann</span><span class="o">.</span><span class="n">type</span><span class="p">)</span>
 
         <span class="k">return</span> <span class="n">items</span><span class="o">.</span><span class="n">values</span><span class="p">()</span>
 
@@ -557,25 +561,6 @@ document.write(`
 
     <span class="k">def</span> <span class="nf">_load_instances_items</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="n">items</span> <span class="o">=</span> <span class="p">{}</span>
-
-        <span class="c1"># class_dir = osp.join(self._annotations_dir, MapillaryVistasPath.CLASS_DIR)</span>
-        <span class="c1"># for class_path in find_images(class_dir, recursive=True):</span>
-        <span class="c1">#     item_id = osp.splitext(osp.relpath(class_path, class_dir))[0]</span>
-        <span class="c1">#     if item_id in items:</span>
-        <span class="c1">#         continue</span>
-
-        <span class="c1">#     from PIL import Image as PILImage</span>
-
-        <span class="c1">#     class_mask = np.array(PILImage.open(class_path))</span>
-        <span class="c1">#     classes = np.unique(class_mask)</span>
-
-        <span class="c1">#     annotations = []</span>
-        <span class="c1">#     for label_id in classes:</span>
-        <span class="c1">#         annotations.append(</span>
-        <span class="c1">#             Mask(label=label_id, image=self._lazy_extract_mask(class_mask, label_id))</span>
-        <span class="c1">#         )</span>
-
-        <span class="c1">#     items[item_id] = DatasetItem(id=item_id, subset=self._subset, annotations=annotations)</span>
 
         <span class="n">instance_dir</span> <span class="o">=</span> <span class="n">osp</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_annotations_dir</span><span class="p">,</span> <span class="n">MapillaryVistasPath</span><span class="o">.</span><span class="n">INSTANCES_DIR</span><span class="p">)</span>
         <span class="n">polygon_dir</span> <span class="o">=</span> <span class="n">osp</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_annotations_dir</span><span class="p">,</span> <span class="n">MapillaryVistasPath</span><span class="o">.</span><span class="n">POLYGON_DIR</span><span class="p">)</span>
@@ -606,6 +591,9 @@ document.write(`
 
                     <span class="n">points</span> <span class="o">=</span> <span class="p">[</span><span class="nb">int</span><span class="p">(</span><span class="n">coord</span><span class="p">)</span> <span class="k">for</span> <span class="n">point</span> <span class="ow">in</span> <span class="n">polygon</span><span class="p">[</span><span class="s2">&quot;polygon&quot;</span><span class="p">]</span> <span class="k">for</span> <span class="n">coord</span> <span class="ow">in</span> <span class="n">point</span><span class="p">]</span>
                     <span class="n">annotations</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">Polygon</span><span class="p">(</span><span class="n">label</span><span class="o">=</span><span class="n">label_id</span><span class="p">,</span> <span class="n">points</span><span class="o">=</span><span class="n">points</span><span class="p">))</span>
+
+            <span class="k">for</span> <span class="n">ann</span> <span class="ow">in</span> <span class="n">annotations</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_ann_types</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">ann</span><span class="o">.</span><span class="n">type</span><span class="p">)</span>
 
             <span class="n">items</span><span class="p">[</span><span class="n">item_id</span><span class="p">]</span> <span class="o">=</span> <span class="n">DatasetItem</span><span class="p">(</span>
                 <span class="nb">id</span><span class="o">=</span><span class="n">item_id</span><span class="p">,</span> <span class="n">subset</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_subset</span><span class="p">,</span> <span class="n">media</span><span class="o">=</span><span class="n">image</span><span class="p">,</span> <span class="n">annotations</span><span class="o">=</span><span class="n">annotations</span>

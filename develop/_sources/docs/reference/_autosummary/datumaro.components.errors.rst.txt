@@ -23,6 +23,7 @@ datumaro.components.errors
    
       AnnotationExportError
       AnnotationImportError
+      AnnotationTypeError
       AnnotationsTooCloseError
       AttributeDefinedButNotFound
       CategoriesRedefinedError

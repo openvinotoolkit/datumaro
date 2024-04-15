@@ -358,6 +358,7 @@ document.write(`
 <span class="kn">from</span> <span class="nn">datumaro.components.format_detection</span> <span class="kn">import</span> <span class="n">FormatDetectionContext</span>
 <span class="kn">from</span> <span class="nn">datumaro.components.importer</span> <span class="kn">import</span> <span class="n">ImportContext</span><span class="p">,</span> <span class="n">Importer</span>
 <span class="kn">from</span> <span class="nn">datumaro.components.media</span> <span class="kn">import</span> <span class="n">Image</span>
+<span class="kn">from</span> <span class="nn">datumaro.components.task</span> <span class="kn">import</span> <span class="n">TaskType</span>
 <span class="kn">from</span> <span class="nn">datumaro.util.meta_file_util</span> <span class="kn">import</span> <span class="n">has_meta_file</span><span class="p">,</span> <span class="n">parse_meta_file</span>
 
 
@@ -454,6 +455,7 @@ document.write(`
         <span class="n">items</span> <span class="o">=</span> <span class="p">{}</span>
 
         <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+            <span class="n">max_num_annotations</span> <span class="o">=</span> <span class="mi">0</span>
             <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">f</span><span class="p">:</span>
                 <span class="n">item_id</span><span class="p">,</span> <span class="n">image</span><span class="p">,</span> <span class="n">label_ids</span> <span class="o">=</span> <span class="n">_parse_annotation_line</span><span class="p">(</span><span class="n">line</span><span class="p">)</span>
 
@@ -481,6 +483,13 @@ document.write(`
                     <span class="n">media</span><span class="o">=</span><span class="n">Image</span><span class="o">.</span><span class="n">from_file</span><span class="p">(</span><span class="n">path</span><span class="o">=</span><span class="n">osp</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">image_dir</span><span class="p">,</span> <span class="n">image</span><span class="p">)),</span>
                     <span class="n">annotations</span><span class="o">=</span><span class="n">anno</span><span class="p">,</span>
                 <span class="p">)</span>
+                <span class="n">max_num_annotations</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">max_num_annotations</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">anno</span><span class="p">))</span>
+            <span class="k">if</span> <span class="n">max_num_annotations</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_task_type</span> <span class="o">=</span> <span class="n">TaskType</span><span class="o">.</span><span class="n">unlabeled</span>
+            <span class="k">elif</span> <span class="n">max_num_annotations</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_task_type</span> <span class="o">=</span> <span class="n">TaskType</span><span class="o">.</span><span class="n">classification_multilabel</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_task_type</span> <span class="o">=</span> <span class="n">TaskType</span><span class="o">.</span><span class="n">classification</span>
 
         <span class="k">return</span> <span class="n">items</span></div>
 
