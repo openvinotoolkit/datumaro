@@ -13,6 +13,7 @@ from datumaro.components.dataset_base import DatasetBase, DatasetItem
 from datumaro.components.format_detection import FormatDetectionContext
 from datumaro.components.importer import ImportContext, Importer
 from datumaro.components.media import Video
+from datumaro.components.task import TaskAnnotationMapping
 from datumaro.plugins.data_formats.video import VIDEO_EXTENSIONS
 from datumaro.rust_api import JsonSectionPageMapper
 from datumaro.util import parse_json, parse_json_file
@@ -45,6 +46,7 @@ class KineticsBase(DatasetBase):
                 self._load_items_from_csv(ann_file)
             else:
                 self._load_items_from_json(ann_file)
+        self._task_type = TaskAnnotationMapping().get_task(self._ann_types)
 
     def __iter__(self):
         return iter(self._items)
@@ -93,6 +95,8 @@ class KineticsBase(DatasetBase):
 
         media_path = self._search_media_by_id(self._media_files(subset), item_id)
         media = Video(media_path) if media_path else None
+
+        self._ann_types.add(AnnotationType.label)
 
         return DatasetItem(
             id=item_id,

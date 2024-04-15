@@ -8,6 +8,7 @@ from datumaro.components.dataset import Dataset
 from datumaro.components.dataset_base import DatasetItem
 from datumaro.components.environment import Environment
 from datumaro.components.media import Image
+from datumaro.components.task import TaskType
 from datumaro.plugins.data_formats.vgg_face2 import VggFace2Exporter, VggFace2Importer
 
 from ..requirements import Requirements, mark_requirement
@@ -74,6 +75,7 @@ class VggFace2FormatTest(TestCase):
                     [("label_%s" % i, "class_%s" % i) for i in range(5)]
                 ),
             },
+            task_type=TaskType.detection_landmark,
         )
 
         with TestDir() as test_dir:
@@ -98,6 +100,7 @@ class VggFace2FormatTest(TestCase):
                 ),
             ],
             categories=["a"],
+            task_type=TaskType.detection_landmark,
         )
 
         with TestDir() as test_dir:
@@ -121,6 +124,7 @@ class VggFace2FormatTest(TestCase):
                 ),
             ],
             categories=["a"],
+            task_type=TaskType.detection_landmark,
         )
 
         with TestDir() as test_dir:
@@ -145,6 +149,7 @@ class VggFace2FormatTest(TestCase):
                 ),
             ],
             categories=["label_0"],
+            task_type=TaskType.detection_landmark,
         )
 
         with TestDir() as test_dir:
@@ -174,6 +179,7 @@ class VggFace2FormatTest(TestCase):
                 ),
             ],
             categories=[],
+            task_type=TaskType.detection_landmark,
         )
 
         with TestDir() as test_dir:
@@ -195,6 +201,7 @@ class VggFace2FormatTest(TestCase):
                 ),
             ],
             categories=[],
+            task_type=TaskType.detection_landmark,
         )
 
         target_dataset = Dataset.from_iterable(
@@ -204,6 +211,7 @@ class VggFace2FormatTest(TestCase):
                 ),
             ],
             categories=[],
+            task_type=TaskType.unlabeled,
         )
 
         with TestDir() as test_dir:
@@ -231,6 +239,7 @@ class VggFace2FormatTest(TestCase):
                 ),
             ],
             categories=["a"],
+            task_type=TaskType.detection_landmark,
         )
 
         with TestDir() as test_dir:
@@ -268,6 +277,7 @@ class VggFace2FormatTest(TestCase):
                     [("class_%s" % i) for i in range(5)]
                 ),
             },
+            task_type=TaskType.detection_landmark,
         )
 
         with TestDir() as test_dir:
@@ -337,6 +347,7 @@ class VggFace2ImporterTest(TestCase):
                     [("n000001", "Karl"), ("n000002", "Jay"), ("n000003", "Pol")]
                 ),
             },
+            task_type=TaskType.detection_landmark,
         )
 
         dataset = Dataset.import_from(DUMMY_DATASET_DIR, "vgg_face2")
@@ -362,6 +373,7 @@ class VggFace2ImporterTest(TestCase):
                     [("n000001", "Karl"), ("n000002", "Jay"), ("n000003", "Pol")]
                 ),
             },
+            task_type=TaskType.detection_landmark,
         )
 
         specific_subset = osp.join(DUMMY_DATASET_DIR, "bb_landmark", "loose_bb_test.csv")

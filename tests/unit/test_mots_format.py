@@ -9,6 +9,7 @@ from datumaro.components.dataset import Dataset
 from datumaro.components.dataset_base import DatasetItem
 from datumaro.components.environment import Environment
 from datumaro.components.media import Image
+from datumaro.components.task import TaskType
 from datumaro.plugins.data_formats.mots import MotsImporter, MotsPngExporter
 
 from ..requirements import Requirements, mark_requirement
@@ -83,6 +84,7 @@ class MotsPngExporterTest(TestCase):
                 ),
             ],
             categories=["a", "b", "c", "d"],
+            task_type=TaskType.segmentation_semantic,
         )
 
         target = Dataset.from_iterable(
@@ -115,6 +117,7 @@ class MotsPngExporterTest(TestCase):
                 ),
             ],
             categories=["a", "b", "c", "d"],
+            task_type=TaskType.segmentation_semantic,
         )
 
         with TestDir() as test_dir:
@@ -140,6 +143,7 @@ class MotsPngExporterTest(TestCase):
                 ),
             ],
             categories=["label_0", "label_1"],
+            task_type=TaskType.segmentation_semantic,
         )
 
         with TestDir() as test_dir:
@@ -161,6 +165,7 @@ class MotsPngExporterTest(TestCase):
                 ),
             ],
             categories=["a"],
+            task_type=TaskType.segmentation_semantic,
         )
 
         with TestDir() as test_dir:
@@ -191,6 +196,7 @@ class MotsPngExporterTest(TestCase):
                 ),
             ],
             categories=["a"],
+            task_type=TaskType.segmentation_semantic,
         )
 
         with TestDir() as test_dir:
@@ -216,6 +222,7 @@ class MotsPngExporterTest(TestCase):
                 ),
             ],
             categories=["label_0", "label_1"],
+            task_type=TaskType.segmentation_semantic,
         )
 
         with TestDir() as test_dir:
@@ -266,6 +273,7 @@ class MotsImporterTest(TestCase):
                 ),
             ],
             categories=["a", "b", "c", "d"],
+            task_type=TaskType.segmentation_semantic,
         )
 
         parsed = Dataset.import_from(DUMMY_DATASET_DIR, "mots")

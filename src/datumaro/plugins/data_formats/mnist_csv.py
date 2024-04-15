@@ -16,6 +16,7 @@ from datumaro.components.exporter import Exporter
 from datumaro.components.format_detection import FormatDetectionConfidence
 from datumaro.components.importer import ImportContext, Importer
 from datumaro.components.media import Image
+from datumaro.components.task import TaskType
 from datumaro.util.meta_file_util import has_meta_file, parse_meta_file
 
 
@@ -81,6 +82,7 @@ class MnistCsvBase(SubsetBase):
             with open(metafile, "r", encoding="utf-8") as f:
                 meta = f.readlines()
 
+        max_num_annotations = 0
         for i, data in enumerate(annotation_table):
             data = data.split(",")
             item_anno = []
@@ -111,6 +113,15 @@ class MnistCsvBase(SubsetBase):
                 i = meta[i][0]
 
             items[i] = DatasetItem(id=i, subset=self._subset, media=image, annotations=item_anno)
+            max_num_annotations = max(max_num_annotations, len(item_anno))
+
+        if max_num_annotations == 0:
+            self._task_type = TaskType.unlabeled
+        elif max_num_annotations > 1:
+            self._task_type = TaskType.classification_multilabel
+        else:
+            self._task_type = TaskType.classification
+
         return items
 
 

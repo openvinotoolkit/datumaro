@@ -41,7 +41,7 @@ from .components.annotation import (
     RleMask,
 )
 from .components.cli_plugin import CliPlugin
-from .components.dataset import Dataset, DatasetPatch, DatasetSubset, eager_mode
+from .components.dataset import Dataset, DatasetPatch, DatasetSubset, StreamDataset, eager_mode
 from .components.dataset_base import (
     DEFAULT_SUBSET_NAME,
     CategoriesInfo,
@@ -64,6 +64,7 @@ from .components.progress_reporting import (
     TQDMProgressReporter,
 )
 from .components.registry import PluginRegistry
+from .components.task import TaskType
 from .components.transformer import ItemTransform, ModelTransform, Transform
 from .components.validator import Validator
 from .components.visualizer import Visualizer

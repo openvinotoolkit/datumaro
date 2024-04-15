@@ -14,6 +14,7 @@ from datumaro.components.environment import Environment
 from datumaro.components.importer import DatasetImportError
 from datumaro.components.media import Image
 from datumaro.components.project import Dataset
+from datumaro.components.task import TaskType
 from datumaro.plugins.data_formats.datumaro.exporter import DatumaroExporter
 from datumaro.plugins.data_formats.datumaro.format import DatumaroPath
 from datumaro.plugins.data_formats.datumaro.importer import DatumaroImporter
@@ -190,7 +191,8 @@ class DatumaroFormatTest:
                 DatasetItem(1, subset="a", media=Image.from_numpy(data=np.zeros((3, 2, 3)))),
                 DatasetItem(2, subset="a", media=Image.from_numpy(data=np.ones((3, 2, 3)))),
                 DatasetItem(2, subset="b", media=Image.from_numpy(data=np.ones((3, 2, 3)))),
-            ]
+            ],
+            task_type=TaskType.unlabeled,
         )
 
         # generate initial dataset
@@ -202,7 +204,8 @@ class DatumaroFormatTest:
                 DatasetItem(2, subset="b", media=Image.from_numpy(data=np.ones((3, 2, 3)))),
                 # removed subset
                 DatasetItem(3, subset="c", media=Image.from_numpy(data=np.ones((2, 2, 3)))),
-            ]
+            ],
+            task_type=TaskType.unlabeled,
         )
         dataset.export(test_dir, format=self.format, save_media=True)
 
@@ -233,6 +236,7 @@ class DatumaroFormatTest:
                 DatasetItem(4, subset="test", media=Image.from_numpy(data=np.ones((2, 3, 3)))),
             ],
             media_type=Image,
+            task_type=TaskType.unlabeled,
         )
         dataset = Dataset.from_iterable(
             [
@@ -242,6 +246,7 @@ class DatumaroFormatTest:
                 DatasetItem(4, subset="d", media=Image.from_numpy(data=np.ones((2, 3, 3)))),
             ],
             media_type=Image,
+            task_type=TaskType.unlabeled,
         )
 
         dataset.export(test_dir, format=self.format, save_media=True)

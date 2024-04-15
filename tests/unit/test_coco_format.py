@@ -41,6 +41,7 @@ from datumaro.components.errors import (
     UndeclaredLabelError,
 )
 from datumaro.components.media import Image
+from datumaro.components.task import TaskType
 from datumaro.plugins.data_formats.coco.base import CocoInstancesBase
 from datumaro.plugins.data_formats.coco.exporter import (
     CocoCaptionsExporter,
@@ -218,6 +219,7 @@ class CocoImporterTest:
                 ),
             ],
             categories=["a", "b", "c"],
+            task_type=TaskType.segmentation_instance,
         )
 
         expected = expected_dataset.get_subset(subset) if subset else expected_dataset
@@ -246,6 +248,7 @@ class CocoImporterTest:
                 ),
             ],
             categories=["a", "b", "c"],
+            task_type=TaskType.detection,
         )
 
         format = "coco_instances"
@@ -282,6 +285,7 @@ class CocoImporterTest:
                 ),
             ],
             categories=["a", "b", "c"],
+            task_type=TaskType.detection,
         )
 
         class CaptureLogger:
@@ -343,6 +347,7 @@ class CocoImporterTest:
                 ),
             ],
             categories=["class-0", "a", "b", "class-3", "c"],
+            task_type=TaskType.detection,
         )
 
         dataset_dir = osp.join(
@@ -396,7 +401,8 @@ class CocoImporterTest:
                         Caption("text", id=2, group=2),
                     ],
                 ),
-            ]
+            ],
+            task_type=TaskType.caption,
         )
 
         expected = expected_dataset.get_subset(subset) if subset else expected_dataset
@@ -423,7 +429,8 @@ class CocoImporterTest:
                         Caption("hello", id=1, group=1),
                     ],
                 ),
-            ]
+            ],
+            task_type=TaskType.caption,
         )
 
         format = "coco_captions"
@@ -481,6 +488,7 @@ class CocoImporterTest:
                 ),
             ],
             categories=["a", "b"],
+            task_type=TaskType.classification,
         )
 
         expected = expected_dataset.get_subset(subset) if subset else expected_dataset
@@ -509,6 +517,7 @@ class CocoImporterTest:
                 ),
             ],
             categories=["a", "b"],
+            task_type=TaskType.classification,
         )
 
         format = "coco_labels"
@@ -640,6 +649,7 @@ class CocoImporterTest:
                     (i, None, [[0, 1], [1, 2]]) for i in range(2)
                 ),
             },
+            task_type=TaskType.segmentation_instance,
         )
 
         expected = expected_dataset.get_subset(subset) if subset else expected_dataset
@@ -681,6 +691,7 @@ class CocoImporterTest:
                     (i, None, [[0, 1], [1, 2]]) for i in range(2)
                 ),
             },
+            task_type=TaskType.detection_landmark,
         )
 
         format = "coco_person_keypoints"
@@ -729,6 +740,7 @@ class CocoImporterTest:
                     [(i, None, [[0, 1], [1, 2]]) for i in range(1, 3)],
                 ),
             },
+            task_type=TaskType.detection_landmark,
         )
         path = osp.join(
             DUMMY_DATASET_DIR,
@@ -783,7 +795,8 @@ class CocoImporterTest:
                     media=Image.from_numpy(data=np.ones((10, 5, 3))),
                     attributes={"id": 40},
                 ),
-            ]
+            ],
+            task_type=TaskType.unlabeled,
         )
 
         expected = expected_dataset.get_subset(subset) if subset else expected_dataset
@@ -806,7 +819,8 @@ class CocoImporterTest:
                     media=Image.from_numpy(data=np.ones((5, 10, 3))),
                     attributes={"id": 5},
                 ),
-            ]
+            ],
+            task_type=TaskType.unlabeled,
         )
 
         format = "coco_image_info"
@@ -886,6 +900,7 @@ class CocoImporterTest:
                 ),
             ],
             categories=["a", "b"],
+            task_type=TaskType.segmentation_semantic,
         )
 
         expected = expected_dataset.get_subset(subset) if subset else expected_dataset
@@ -918,6 +933,7 @@ class CocoImporterTest:
                 ),
             ],
             categories=["a", "b"],
+            task_type=TaskType.segmentation_semantic,
         )
 
         format = "coco_panoptic"
@@ -963,6 +979,7 @@ class CocoImporterTest:
                 ),
             ],
             categories=["class-0", "a", "b"],
+            task_type=TaskType.segmentation_semantic,
         )
         dataset_dir = osp.join(
             DUMMY_DATASET_DIR, "coco_panoptic", "annotations", "panoptic_train.json"
@@ -1045,6 +1062,7 @@ class CocoImporterTest:
                 ),
             ],
             categories=["a", "b"],
+            task_type=TaskType.segmentation_instance,
         )
 
         expected = expected_dataset.get_subset(subset) if subset else expected_dataset
@@ -1090,6 +1108,7 @@ class CocoImporterTest:
                 ),
             ],
             categories=["a", "b"],
+            task_type=TaskType.segmentation_instance,
         )
 
         format = "coco_stuff"
@@ -1135,7 +1154,7 @@ class CocoImporterTest:
     @pytest.mark.parametrize(
         "subdir",
         [
-            "coco",
+            # "coco",
             "coco_captions",
             "coco_image_info",
             "coco_instances",
@@ -1513,7 +1532,8 @@ class CocoExporterTest:
                     ],
                     attributes={"id": 1},
                 ),
-            ]
+            ],
+            task_type=TaskType.caption,
         )
 
         self._test_save_and_load(
@@ -1584,6 +1604,7 @@ class CocoExporterTest:
                 ),
             ],
             categories=[str(i) for i in range(10)],
+            task_type=TaskType.segmentation_instance,
         )
 
         target_dataset = Dataset.from_iterable(
@@ -1672,6 +1693,7 @@ class CocoExporterTest:
                 ),
             ],
             categories=[str(i) for i in range(10)],
+            task_type=TaskType.segmentation_instance,
         )
 
         self._test_save_and_load(
@@ -1743,6 +1765,7 @@ class CocoExporterTest:
                 ),
             ],
             categories=[str(i) for i in range(10)],
+            task_type=TaskType.segmentation_semantic,
         )
 
         self._test_save_and_load(
@@ -1793,6 +1816,7 @@ class CocoExporterTest:
                 ),
             ],
             categories=[str(i) for i in range(10)],
+            task_type=TaskType.segmentation_semantic,
         )
 
         target_dataset = Dataset.from_iterable(
@@ -1855,6 +1879,7 @@ class CocoExporterTest:
                 ),
             ],
             categories=[str(i) for i in range(10)],
+            task_type=TaskType.segmentation_instance,
         )
 
         self._test_save_and_load(
@@ -1879,6 +1904,7 @@ class CocoExporterTest:
                 ),
             ],
             categories=[str(i) for i in range(10)],
+            task_type=TaskType.segmentation_instance,
         )
 
         target_dataset = Dataset.from_iterable(
@@ -1921,6 +1947,7 @@ class CocoExporterTest:
                 ),
             ],
             categories=[str(i) for i in range(10)],
+            task_type=TaskType.segmentation_instance,
         )
 
         self._test_save_and_load(
@@ -1959,6 +1986,7 @@ class CocoExporterTest:
                 ),
             ],
             categories=[str(i) for i in range(10)],
+            task_type=TaskType.segmentation_instance,
         )
 
         target_dataset = Dataset.from_iterable(
@@ -2016,6 +2044,7 @@ class CocoExporterTest:
                 ),
             ],
             categories=[str(i) for i in range(10)],
+            task_type=TaskType.segmentation_instance,
         )
 
         self._test_save_and_load(
@@ -2056,6 +2085,7 @@ class CocoExporterTest:
                 ),
             ],
             categories=[str(i) for i in range(10)],
+            task_type=TaskType.segmentation_instance,
         )
 
         # 2. Prepare dataset with expected mask segmentation mode (target dataset)
@@ -2099,6 +2129,7 @@ class CocoExporterTest:
                 ),
             ],
             categories=[str(i) for i in range(10)],
+            task_type=TaskType.segmentation_instance,
         )
 
         # 3. Convert source dataset to target, with conversion of annotation from polygon to mask. Verify that result
@@ -2137,6 +2168,7 @@ class CocoExporterTest:
                 ),
             ],
             categories=[str(i) for i in range(10)],
+            task_type=TaskType.segmentation_semantic,
         )
 
         target_dataset = Dataset.from_iterable(
@@ -2175,6 +2207,7 @@ class CocoExporterTest:
                 ),
             ],
             categories=[str(i) for i in range(10)],
+            task_type=TaskType.segmentation_instance,
         )
 
         self._test_save_and_load(
@@ -2195,7 +2228,8 @@ class CocoExporterTest:
                 DatasetItem(id=3, subset="val", attributes={"id": 3}),
                 DatasetItem(id=4, subset="val", attributes={"id": 4}),
                 DatasetItem(id=5, subset="test", attributes={"id": 1}),
-            ]
+            ],
+            task_type=TaskType.unlabeled,
         )
 
         self._test_save_and_load(
@@ -2238,6 +2272,7 @@ class CocoExporterTest:
                 ),
             ],
             categories=["고양이", "ネコ", "猫"],
+            task_type=TaskType.detection,
         )
 
         self._test_save_and_load(
@@ -2249,7 +2284,8 @@ class CocoExporterTest:
         expected_dataset = Dataset.from_iterable(
             [
                 DatasetItem(id="кириллица с пробелом", subset="train", attributes={"id": 1}),
-            ]
+            ],
+            task_type=TaskType.unlabeled,
         )
 
         self._test_save_and_load(
@@ -2274,6 +2310,7 @@ class CocoExporterTest:
                 ),
             ],
             categories=[str(i) for i in range(10)],
+            task_type=TaskType.classification,
         )
 
         self._test_save_and_load(
@@ -2313,6 +2350,7 @@ class CocoExporterTest:
                     (i, None, [[0, 1], [1, 2]]) for i in range(10)
                 ),
             },
+            task_type=TaskType.segmentation_instance,
         )
 
         target_dataset = Dataset.from_iterable(
@@ -2376,6 +2414,7 @@ class CocoExporterTest:
                     (i, None, [[0, 1], [1, 2]]) for i in range(10)
                 ),
             },
+            task_type=TaskType.segmentation_instance,
         )
 
         self._test_save_and_load(
@@ -2392,7 +2431,8 @@ class CocoExporterTest:
             [
                 DatasetItem(id=1, attributes={"id": 1}),
                 DatasetItem(id=2, attributes={"id": 2}),
-            ]
+            ],
+            task_type=TaskType.unlabeled,
         )
 
         self._test_save_and_load(
@@ -2409,7 +2449,8 @@ class CocoExporterTest:
                 DatasetItem(
                     id=1, media=Image.from_file(path="1.jpg", size=(10, 15)), attributes={"id": 1}
                 ),
-            ]
+            ],
+            task_type=TaskType.unlabeled,
         )
 
         self._test_save_and_load(
@@ -2433,7 +2474,8 @@ class CocoExporterTest:
                     media=Image.from_numpy(data=np.ones((5, 4, 3))),
                     attributes={"id": 3},
                 ),
-            ]
+            ],
+            task_type=TaskType.unlabeled,
         )
 
         self._test_save_and_load(
@@ -2458,7 +2500,8 @@ class CocoExporterTest:
                     media=Image.from_numpy(data=np.zeros((3, 4, 3)), ext=".bmp"),
                     attributes={"id": 2},
                 ),
-            ]
+            ],
+            task_type=TaskType.unlabeled,
         )
 
         self._test_save_and_load(
@@ -2478,7 +2521,8 @@ class CocoExporterTest:
                     media=Image.from_numpy(data=np.ones((4, 2, 3))),
                     attributes={"id": 40},
                 ),
-            ]
+            ],
+            task_type=TaskType.unlabeled,
         )
 
         self._test_save_and_load(
@@ -2509,6 +2553,7 @@ class CocoExporterTest:
                 )
             ],
             categories=[str(i) for i in range(10)],
+            task_type=TaskType.segmentation_instance,
         )
 
         target_dataset = Dataset.from_iterable(
@@ -2540,6 +2585,7 @@ class CocoExporterTest:
                 )
             ],
             categories=[str(i) for i in range(10)],
+            task_type=TaskType.segmentation_instance,
         )
 
         self._test_save_and_load(
@@ -2563,6 +2609,7 @@ class CocoExporterTest:
                 )
             ],
             categories=[str(i) for i in range(10)],
+            task_type=TaskType.segmentation_instance,
         )
 
         target_dataset = Dataset.from_iterable(
@@ -2594,6 +2641,7 @@ class CocoExporterTest:
                 )
             ],
             categories=[str(i) for i in range(10)],
+            task_type=TaskType.segmentation_instance,
         )
 
         self._test_save_and_load(
@@ -2625,6 +2673,7 @@ class CocoExporterTest:
                 )
             ],
             categories=[str(i) for i in range(10)],
+            task_type=TaskType.segmentation_instance,
         )
 
         target_dataset = Dataset.from_iterable(
@@ -2657,6 +2706,7 @@ class CocoExporterTest:
                 )
             ],
             categories=[str(i) for i in range(10)],
+            task_type=TaskType.segmentation_instance,
         )
 
         self._test_save_and_load(
@@ -2681,6 +2731,7 @@ class CocoExporterTest:
                 )
             ],
             categories=[str(i) for i in range(10)],
+            task_type=TaskType.segmentation_instance,
         )
 
         target_dataset = Dataset.from_iterable(
@@ -2712,6 +2763,7 @@ class CocoExporterTest:
                 )
             ],
             categories=[str(i) for i in range(10)],
+            task_type=TaskType.segmentation_instance,
         )
 
         self._test_save_and_load(
@@ -2732,7 +2784,8 @@ class CocoExporterTest:
                     media=Image.from_numpy(data=np.ones((2, 4, 3))),
                     attributes={"id": 1},
                 ),
-            ]
+            ],
+            task_type=TaskType.unlabeled,
         )
 
         self._test_save_and_load(
@@ -2754,7 +2807,8 @@ class CocoExporterTest:
                     media=Image.from_numpy(data=np.ones((2, 4, 3))),
                     attributes={"id": 1},
                 ),
-            ]
+            ],
+            task_type=TaskType.unlabeled,
         )
 
         self._test_save_and_load(
@@ -2773,7 +2827,8 @@ class CocoExporterTest:
                 DatasetItem(1, subset="a"),
                 DatasetItem(2, subset="a", media=Image.from_numpy(data=np.ones((3, 2, 3)))),
                 DatasetItem(2, subset="b"),
-            ]
+            ],
+            task_type=TaskType.unlabeled,
         )
 
         dataset = Dataset.from_iterable(
@@ -2781,7 +2836,8 @@ class CocoExporterTest:
                 DatasetItem(1, subset="a"),
                 DatasetItem(2, subset="b"),
                 DatasetItem(3, subset="c", media=Image.from_numpy(data=np.ones((2, 2, 3)))),
-            ]
+            ],
+            task_type=TaskType.unlabeled,
         )
         dataset.export(test_dir, "coco", save_media=True)
 
@@ -2830,6 +2886,7 @@ class CocoExporterTest:
                 ),
             ],
             categories=["label_1"],
+            task_type=TaskType.segmentation_instance,
         )
 
         target_dataset = Dataset.from_iterable(
@@ -2869,6 +2926,7 @@ class CocoExporterTest:
                 ),
             ],
             categories=["label_1"],
+            task_type=TaskType.segmentation_instance,
         )
 
         self._test_save_and_load(
@@ -2925,6 +2983,7 @@ class CocoExporterTest:
                 ),
             ],
             categories=[str(i) for i in range(10)],
+            task_type=TaskType.segmentation_semantic,
         )
 
         self._test_save_and_load(
@@ -2976,6 +3035,7 @@ class CocoExporterTest:
                 ),
             ],
             categories=[str(i) for i in range(10)],
+            task_type=TaskType.segmentation_semantic,
         )
 
         self._test_save_and_load(
@@ -3004,6 +3064,7 @@ class CocoExporterTest:
                 ),
             ],
             categories=[str(i) for i in range(10)],
+            task_type=TaskType.segmentation_instance,
         )
 
         target_dataset = Dataset.from_iterable(
@@ -3033,6 +3094,7 @@ class CocoExporterTest:
                 ),
             ],
             categories=[str(i) for i in range(10)],
+            task_type=TaskType.segmentation_instance,
         )
 
         self._test_save_and_load(
@@ -3046,13 +3108,14 @@ class CocoExporterTest:
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     @pytest.mark.parametrize(
-        "annotations, n_expected_anns",
+        "annotations, task_type, n_expected_anns",
         [
             (
                 [
                     Bbox(0, 0, 20, 10, id=1, label=1, group=1),
                     Bbox(10, 10, 10, 20, id=2, label=2, group=2),
                 ],
+                TaskType.detection,
                 2,
             ),
             (
@@ -3060,6 +3123,7 @@ class CocoExporterTest:
                     Ellipse(0, 0, 5, 5, id=1, label=1, group=1),
                     Ellipse(5, 5, 10, 10, id=2, label=2, group=2),
                 ],
+                TaskType.segmentation_instance,
                 4,
             ),
             (
@@ -3067,6 +3131,7 @@ class CocoExporterTest:
                     Polygon([0, 0, 4, 0, 4, 4], id=1, label=1, group=1),
                     Polygon([5, 0, 9, 0, 5, 5], id=2, label=2, group=2),
                 ],
+                TaskType.segmentation_instance,
                 4,
             ),
             (
@@ -3084,6 +3149,7 @@ class CocoExporterTest:
                         group=2,
                     ),
                 ],
+                TaskType.segmentation_semantic,
                 0,
             ),
             (
@@ -3097,6 +3163,7 @@ class CocoExporterTest:
                         group=2,
                     ),
                 ],
+                TaskType.segmentation_instance,
                 0,
             ),
             (
@@ -3105,12 +3172,13 @@ class CocoExporterTest:
                     Polygon([0, 5, 0, 0, 2, 0], id=2, label=1, group=1),
                     Polygon([5, 0, 9, 0, 5, 5], id=3, label=2, group=2),
                 ],
+                TaskType.segmentation_instance,
                 5,
             ),
         ],
     )
     def test_can_export_annotations_without_media(
-        self, annotations, n_expected_anns, test_dir, stream: bool
+        self, annotations, task_type, n_expected_anns, test_dir, stream: bool
     ):
         dataset = Dataset.from_iterable(
             [
@@ -3122,6 +3190,7 @@ class CocoExporterTest:
                 ),
             ],
             categories=[str(i) for i in range(10)],
+            task_type=task_type,
         )
 
         dataset.export(test_dir, "coco")

@@ -19,6 +19,7 @@ from datumaro.components.dataset_base import DatasetItem, SubsetBase
 from datumaro.components.format_detection import FormatDetectionContext
 from datumaro.components.importer import ImportContext, Importer
 from datumaro.components.media import Image
+from datumaro.components.task import TaskAnnotationMapping
 
 from .format import MPII_POINTS_JOINTS, MPII_POINTS_LABELS
 
@@ -44,6 +45,7 @@ class MpiiBase(SubsetBase):
         }
 
         self._items = list(self._load_items(path).values())
+        self._task_type = TaskAnnotationMapping().get_task(self._ann_types)
 
     def _load_items(self, path):
         items = {}
@@ -137,6 +139,9 @@ class MpiiBase(SubsetBase):
                 media=Image.from_file(path=osp.join(root_dir, image)),
                 annotations=annotations,
             )
+
+            for ann in annotations:
+                self._ann_types.add(ann.type)
 
         return items
 

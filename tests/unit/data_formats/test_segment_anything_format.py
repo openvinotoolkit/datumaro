@@ -9,6 +9,7 @@ import pytest
 from datumaro.components.annotation import Bbox, RleMask
 from datumaro.components.dataset import Dataset, DatasetItem
 from datumaro.components.media import Image
+from datumaro.components.task import TaskType
 from datumaro.plugins.data_formats.segment_anything import (
     SegmentAnythingExporter,
     SegmentAnythingImporter,
@@ -100,7 +101,8 @@ class SegmentAnythingTest(TestDataFormatBase):
                     ],
                     attributes={"id": 2},
                 ),
-            ]
+            ],
+            task_type=TaskType.segmentation_instance,
         )
 
         return expected_dataset

@@ -20,6 +20,7 @@ from datumaro.components.dataset_item_storage import (
     ItemStatus,
 )
 from datumaro.components.errors import (
+    AnnotationTypeError,
     CategoriesRedefinedError,
     ConflictingCategoriesError,
     DatasetInfosRedefinedError,
@@ -29,6 +30,7 @@ from datumaro.components.errors import (
 )
 from datumaro.components.importer import _ImportFail
 from datumaro.components.media import MediaElement
+from datumaro.components.task import TaskAnnotationMapping, TaskType
 from datumaro.components.transformer import ItemTransform, Transform
 from datumaro.util import is_method_redefined
 
@@ -45,6 +47,7 @@ class DatasetPatch:
                 infos=parent.infos(),
                 categories=parent.categories(),
                 media_type=parent.media_type(),
+                task_type=parent.task_type(),
             )
             self.patch = patch
 
@@ -115,6 +118,12 @@ class _StackedTransform(Transform):
     def media_type(self) -> Type[MediaElement]:
         return self.transforms[-1].media_type()
 
+    def task_type(self) -> TaskType:
+        return self.transforms[-1].task_type()
+
+
+task_annotation_mapping = TaskAnnotationMapping()
+
 
 class DatasetStorage(IDataset):
     def __init__(
@@ -123,7 +132,10 @@ class DatasetStorage(IDataset):
         infos: Optional[DatasetInfo] = None,
         categories: Optional[CategoriesInfo] = None,
         media_type: Optional[Type[MediaElement]] = None,
+        task_type: Optional[TaskType] = None,
     ):
+        self._set_of_ann_types: set = set()
+
         if source is None and categories is None:
             categories = {}
         elif isinstance(source, IDataset) and categories is not None:
@@ -143,7 +155,18 @@ class DatasetStorage(IDataset):
         else:
             raise ValueError("Media type must be provided for a dataset")
         assert issubclass(media_type, MediaElement)
+
         self._media_type = media_type
+
+        if task_type:
+            pass
+        elif isinstance(source, IDataset) and source.task_type():
+            task_type = source.task_type()
+        else:
+            raise ValueError("Task type must be provided for a dataset")
+        assert isinstance(task_type, TaskType)
+
+        self._task_type = task_type
 
         # Possible combinations:
         # 1. source + storage
@@ -224,11 +247,21 @@ class DatasetStorage(IDataset):
             else:
                 assert False, "Unknown status %s" % new_status
 
+        def _add_ann_types(item: DatasetItem):
+            for ann in item.annotations:
+                if ann.type == AnnotationType.hash_key:
+                    continue
+                self._set_of_ann_types.add(ann.type)
+
         media_type = self._media_type
         patch = self._storage  # must be empty after transforming
         cache = DatasetItemStorage()
         source = self._source or DatasetItemStorageDatasetView(
-            self._storage, infos=self._infos, categories=self._categories, media_type=media_type
+            self._storage,
+            infos=self._infos,
+            categories=self._categories,
+            media_type=media_type,
+            task_type=self._task_type,
         )
         transform = None
 
@@ -299,6 +332,7 @@ class DatasetStorage(IDataset):
 
             cache.put(item)
             yield item
+            _add_ann_types(item)
 
         if i == -1:
             cache = patch
@@ -306,6 +340,7 @@ class DatasetStorage(IDataset):
                 if not self._flush_changes:
                     _update_status((item.id, item.subset), ItemStatus.added)
                 yield item
+                _add_ann_types(item)
         else:
             for item in patch:
                 if item in cache:  # already processed
@@ -314,6 +349,7 @@ class DatasetStorage(IDataset):
                     _update_status((item.id, item.subset), ItemStatus.added)
                 cache.put(item)
                 yield item
+                _add_ann_types(item)
 
         if not self._flush_changes and transform and not transform.is_local:
             # Mark removed items that were not produced by transforms
@@ -323,6 +359,7 @@ class DatasetStorage(IDataset):
 
         self._storage = cache
         self._length = len(cache)
+        self._task_type = TaskAnnotationMapping().get_task(self._set_of_ann_types)
 
         if transform:
             source_cat = transform.categories()
@@ -362,6 +399,7 @@ class DatasetStorage(IDataset):
             infos=self._infos,
             categories=self._categories,
             media_type=self._media_type,
+            task_type=self._task_type,
         )
 
     def __len__(self) -> int:
@@ -404,11 +442,24 @@ class DatasetStorage(IDataset):
     def media_type(self) -> Type[MediaElement]:
         return self._media_type
 
+    def task_type(self) -> TaskType:
+        return self._task_type
+
     def put(self, item: DatasetItem) -> None:
         if item.media and not isinstance(item.media, self._media_type):
             raise MediaTypeError(
                 "Mismatching item media type '%s', "
                 "the dataset contains '%s' items." % (type(item.media), self._media_type)
+            )
+
+        ann_types = set([ann.type for ann in item.annotations])
+        # hash_key can be included any task
+        ann_types.discard(AnnotationType.hash_key)
+
+        if not ann_types.issubset(task_annotation_mapping[self._task_type]):
+            raise AnnotationTypeError(
+                "Mismatching item annotation type '%s', "
+                "while the dataset is for '%s'." % (ann_types, self._task_type)
             )
 
         is_new = self._storage.put(item)
@@ -420,6 +471,7 @@ class DatasetStorage(IDataset):
 
         if is_new and not self.is_cache_initialized():
             self._length = None
+            self._set_of_ann_types = set()
         if self._length is not None:
             self._length += is_new
 
@@ -449,6 +501,7 @@ class DatasetStorage(IDataset):
             self._updated_items[(id, subset)] = ItemStatus.removed
         if is_removed and not self.is_cache_initialized():
             self._length = None
+            self._set_of_ann_types = set()
         if self._length is not None:
             self._length -= is_removed
 
@@ -488,6 +541,7 @@ class DatasetStorage(IDataset):
         if is_method_redefined("categories", Transform, method):
             self._categories = None
         self._length = None
+        self._set_of_ann_types = set()
 
     def has_updated_items(self):
         return bool(self._transforms) or bool(self._updated_items)
@@ -604,6 +658,9 @@ class StreamSubset(IDataset):
     def media_type(self) -> Type[MediaElement]:
         return self._source.media_type()
 
+    def task_type(self) -> TaskType:
+        return self._source.task_type()
+
     @property
     def is_stream(self) -> bool:
         return True
@@ -616,12 +673,13 @@ class StreamDatasetStorage(DatasetStorage):
         infos: Optional[DatasetInfo] = None,
         categories: Optional[CategoriesInfo] = None,
         media_type: Optional[Type[MediaElement]] = None,
+        task_type: Optional[TaskType] = None,
     ):
         if not source.is_stream:
             raise ValueError("source should be a stream.")
         self._subset_names = list(source.subsets().keys())
         self._transform_ids_for_latest_subset_names = []
-        super().__init__(source, infos, categories, media_type)
+        super().__init__(source, infos, categories, media_type, task_type)
 
     def is_cache_initialized(self) -> bool:
         log.debug("This function has no effect on streaming.")
@@ -643,7 +701,14 @@ class StreamDatasetStorage(DatasetStorage):
         return transform
 
     def __iter__(self) -> Iterator[DatasetItem]:
-        yield from self.stacked_transform
+        for item in self.stacked_transform:
+            yield item
+
+            for ann in item.annotations:
+                if ann.type == AnnotationType.hash_key:
+                    continue
+                self._set_of_ann_types.add(ann.type)
+        self._task_type = TaskAnnotationMapping().get_task(self._set_of_ann_types)
 
     def __len__(self) -> int:
         if self._length is None:

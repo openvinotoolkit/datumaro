@@ -34,6 +34,7 @@ from datumaro.components.exporter import Exporter
 from datumaro.components.format_detection import FormatDetectionContext
 from datumaro.components.importer import ImportContext, Importer
 from datumaro.components.media import Image
+from datumaro.components.task import TaskAnnotationMapping
 from datumaro.components.validator import Severity
 from datumaro.util import parse_json_file
 from datumaro.util.annotation_util import find_instances
@@ -212,6 +213,7 @@ class OpenImagesBase(DatasetBase):
         else:
             self._load_categories()
         self._load_items()
+        self._task_type = TaskAnnotationMapping().get_task(self._ann_types)
 
     def __iter__(self):
         yield from self._items
@@ -399,6 +401,7 @@ class OpenImagesBase(DatasetBase):
                     item.annotations.append(
                         Label(label=label_index, attributes={"score": confidence})
                     )
+                    self._ann_types.add(AnnotationType.label)
 
     def _load_bboxes(self, items_by_id):
         label_categories = self._categories[AnnotationType.label]
@@ -476,6 +479,7 @@ class OpenImagesBase(DatasetBase):
                             group=group,
                         )
                     )
+                    self._ann_types.add(AnnotationType.bbox)
 
                     normalized_coords[id(item.annotations[-1])] = np.array(
                         [x_min_norm, x_max_norm, y_min_norm, y_max_norm]
@@ -583,6 +587,7 @@ class OpenImagesBase(DatasetBase):
                             group=group,
                         )
                     )
+                    self._ann_types.add(AnnotationType.mask)
 
     @staticmethod
     def _load_and_resize_mask(path, size):

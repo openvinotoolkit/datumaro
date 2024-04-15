@@ -35,6 +35,7 @@ from datumaro.components.errors import (
     UndeclaredLabelError,
 )
 from datumaro.components.media import Image
+from datumaro.components.task import TaskType
 from datumaro.plugins.data_formats.voc.exporter import (
     VocActionExporter,
     VocClassificationExporter,
@@ -235,6 +236,9 @@ class VocImportTest:
             def categories(self):
                 return VOC.make_voc_categories(task=VOC.VocTask.voc)
 
+            def task_type(self):
+                return TaskType.segmentation_instance
+
         actual = dataset_cls.import_from(DUMMY_DATASET_DIR, "voc")
         assert actual.is_stream == is_stream
 
@@ -274,6 +278,9 @@ class VocImportTest:
 
             def categories(self):
                 return VOC.make_voc_categories(task=VOC.VocTask.voc_classification)
+
+            def task_type(self):
+                return TaskType.classification
 
         expected_dataset = DstExtractor()
 
@@ -331,6 +338,7 @@ class VocImportTest:
                 ),
             ],
             categories=VOC.make_voc_categories(task=VOC.VocTask.voc_layout),
+            task_type=TaskType.detection,
         )
 
         if subset:
@@ -400,6 +408,7 @@ class VocImportTest:
                 ),
             ],
             categories=VOC.make_voc_categories(task=VOC.VocTask.voc_detection),
+            task_type=TaskType.detection,
         )
 
         if subset:
@@ -440,6 +449,7 @@ class VocImportTest:
                 ),
             ],
             categories=VOC.make_voc_categories(task=VOC.VocTask.voc_segmentation),
+            task_type=TaskType.segmentation_semantic,
         )
 
         if subset:
@@ -496,6 +506,7 @@ class VocImportTest:
                 ),
             ],
             categories=VOC.make_voc_categories(task=VOC.VocTask.voc_action),
+            task_type=TaskType.detection,
         )
 
         if subset:
@@ -552,6 +563,7 @@ class VocImportTest:
                 )
             ],
             categories=VOC.make_voc_categories(task=VOC.VocTask.voc_detection),
+            task_type=TaskType.detection,
         )
 
         if subset:
@@ -796,6 +808,7 @@ class VocExtractorTest(TestCase):
                     DatasetItem("c", subset="test", annotations=[Label(VOC.VocLabel.cat.value)]),
                 ],
                 categories=VOC.make_voc_categories(task=VOC.VocTask.voc_classification),
+                task_type=TaskType.classification,
             )
             compare_datasets(self, expected, parsed)
 
@@ -903,6 +916,9 @@ class VocExporterTest(TestCase):
             def categories(self):
                 return VOC.make_voc_categories(task=VOC.VocTask.voc_classification)
 
+            def task_type(self):
+                return TaskType.classification
+
         with TestDir() as test_dir:
             self._test_save_and_load(
                 TestExtractor(),
@@ -951,6 +967,9 @@ class VocExporterTest(TestCase):
 
             def categories(self):
                 return VOC.make_voc_categories(task=VOC.VocTask.voc_detection)
+
+            def task_type(self):
+                return TaskType.detection
 
         class DstExtractor(TestExtractorBase):
             def __iter__(self):
@@ -1016,6 +1035,9 @@ class VocExporterTest(TestCase):
             def categories(self):
                 return VOC.make_voc_categories(task=VOC.VocTask.voc_detection)
 
+            def task_type(self):
+                return TaskType.detection
+
         with TestDir() as test_dir:
             self._test_save_and_load(
                 TestExtractor(),
@@ -1048,6 +1070,9 @@ class VocExporterTest(TestCase):
             def categories(self):
                 return VOC.make_voc_categories(task=VOC.VocTask.voc_segmentation)
 
+            def task_type(self):
+                return TaskType.segmentation_semantic
+
         class DstExtractor(TestExtractorBase):
             def __iter__(self):
                 return iter(
@@ -1066,6 +1091,9 @@ class VocExporterTest(TestCase):
 
             def categories(self):
                 return VOC.make_voc_categories(task=VOC.VocTask.voc_segmentation)
+
+            def task_type(self):
+                return TaskType.segmentation_semantic
 
         with TestDir() as test_dir:
             self._test_save_and_load(
@@ -1099,6 +1127,9 @@ class VocExporterTest(TestCase):
             def categories(self):
                 return VOC.make_voc_categories(task=VOC.VocTask.voc_segmentation)
 
+            def task_type(self):
+                return TaskType.segmentation_semantic
+
         class DstExtractor(TestExtractorBase):
             def __iter__(self):
                 return iter(
@@ -1117,6 +1148,9 @@ class VocExporterTest(TestCase):
 
             def categories(self):
                 return VOC.make_voc_categories(task=VOC.VocTask.voc_segmentation)
+
+            def task_type(self):
+                return TaskType.segmentation_semantic
 
         with TestDir() as test_dir:
             self._test_save_and_load(
@@ -1161,6 +1195,9 @@ class VocExporterTest(TestCase):
             def categories(self):
                 return VOC.make_voc_categories(task=VOC.VocTask.voc_segmentation)
 
+            def task_type(self):
+                return TaskType.segmentation_semantic
+
         class DstExtractor(TestExtractorBase):
             def __iter__(self):
                 return iter(
@@ -1183,6 +1220,9 @@ class VocExporterTest(TestCase):
 
             def categories(self):
                 return VOC.make_voc_categories(task=VOC.VocTask.voc_segmentation)
+
+            def task_type(self):
+                return TaskType.segmentation_semantic
 
         with TestDir() as test_dir:
             self._test_save_and_load(
@@ -1231,6 +1271,9 @@ class VocExporterTest(TestCase):
             def categories(self):
                 return VOC.make_voc_categories(task=VOC.VocTask.voc_layout)
 
+            def task_type(self):
+                return TaskType.detection
+
         with TestDir() as test_dir:
             self._test_save_and_load(
                 TestExtractor(),
@@ -1275,6 +1318,9 @@ class VocExporterTest(TestCase):
 
             def categories(self):
                 return VOC.make_voc_categories(task=VOC.VocTask.voc_action)
+
+            def task_type(self):
+                return TaskType.detection
 
         class DstExtractor(TestExtractorBase):
             def __iter__(self):
@@ -1327,6 +1373,9 @@ class VocExporterTest(TestCase):
 
             def categories(self):
                 return VOC.make_voc_categories(task=VOC.VocTask.voc_action)
+
+            def task_type(self):
+                return TaskType.detection
 
         with TestDir() as test_dir:
             self._test_save_and_load(
@@ -1385,6 +1434,9 @@ class VocExporterTest(TestCase):
             def categories(self):
                 return VOC.make_voc_categories(task=self._task)
 
+            def task_type(self):
+                return TaskType.unlabeled
+
         for task in list(VOC.VocTask):
             with self.subTest(subformat=task), TestDir() as test_dir:
                 self._test_save_and_load(
@@ -1420,6 +1472,9 @@ class VocExporterTest(TestCase):
             def categories(self):
                 return VOC.make_voc_categories(task=self._task)
 
+            def task_type(self):
+                return TaskType.unlabeled
+
         for task in list(VOC.VocTask):
             with self.subTest(subformat=task), TestDir() as test_dir:
                 self._test_save_and_load(
@@ -1450,6 +1505,9 @@ class VocExporterTest(TestCase):
                     AnnotationType.label: label_cat,
                 }
 
+            def task_type(self):
+                return TaskType.classification
+
         class DstExtractor(TestExtractorBase):
             def __iter__(self):
                 yield DatasetItem(
@@ -1475,6 +1533,9 @@ class VocExporterTest(TestCase):
 
             def categories(self):
                 return VOC.make_voc_categories()
+
+            def task_type(self):
+                return TaskType.detection
 
         with TestDir() as test_dir:
             self._test_save_and_load(
@@ -1504,6 +1565,9 @@ class VocExporterTest(TestCase):
                 return {
                     AnnotationType.label: label_cat,
                 }
+
+            def task_type(self):
+                return TaskType.detection
 
         class DstExtractor(TestExtractorBase):
             def __iter__(self):
@@ -1548,6 +1612,9 @@ class VocExporterTest(TestCase):
                 label_map["label_2"] = [None, [], []]
                 return VOC.make_voc_categories(label_map)
 
+            def task_type(self):
+                return TaskType.detection
+
         with TestDir() as test_dir:
             self._test_save_and_load(
                 SrcExtractor(),
@@ -1575,6 +1642,9 @@ class VocExporterTest(TestCase):
                 label_map["background"] = [(0, 0, 0), [], []]  # can be not 0
                 label_map["label_2"] = [(3, 2, 1), [], []]
                 return VOC.make_voc_categories(label_map)
+
+            def task_type(self):
+                return TaskType.detection
 
         class DstExtractor(TestExtractorBase):
             def __iter__(self):
@@ -1619,6 +1689,9 @@ class VocExporterTest(TestCase):
                 label_map["label_2"] = [(3, 2, 1), [], []]
                 return VOC.make_voc_categories(label_map)
 
+            def task_type(self):
+                return TaskType.detection
+
         with TestDir() as test_dir:
             self._test_save_and_load(
                 SrcExtractor(),
@@ -1650,6 +1723,9 @@ class VocExporterTest(TestCase):
             def categories(self):
                 return VOC.make_voc_categories(label_map)
 
+            def task_type(self):
+                return TaskType.detection
+
         class DstExtractor(TestExtractorBase):
             def __iter__(self):
                 yield DatasetItem(
@@ -1676,6 +1752,9 @@ class VocExporterTest(TestCase):
 
             def categories(self):
                 return VOC.make_voc_categories(label_map)
+
+            def task_type(self):
+                return TaskType.detection
 
         with TestDir() as test_dir:
             self._test_save_and_load(
@@ -1720,6 +1799,9 @@ class VocExporterTest(TestCase):
                     AnnotationType.label: label_cat,
                 }
 
+            def task_type(self):
+                return TaskType.detection
+
         label_map = OrderedDict(
             [("label", [None, ["label_part1", "label_part2"], ["act1", "act2"]])]
         )
@@ -1760,6 +1842,9 @@ class VocExporterTest(TestCase):
             def categories(self):
                 return VOC.make_voc_categories(dst_label_map)
 
+            def task_type(self):
+                return TaskType.detection
+
         with TestDir() as test_dir:
             self._test_save_and_load(
                 SrcExtractor(),
@@ -1784,6 +1869,7 @@ class VocExporterTest(TestCase):
                 )
             ],
             categories=["background", "a", "b"],
+            task_type=TaskType.segmentation_semantic,
         )
 
         with TestDir() as test_dir:
@@ -1810,6 +1896,9 @@ class VocExporterTest(TestCase):
 
             def categories(self):
                 return VOC.make_voc_categories(task=self._task)
+
+            def task_type(self):
+                return TaskType.unlabeled
 
         for task in list(VOC.VocTask):
             with self.subTest(subformat=task), TestDir() as test_dir:
@@ -1839,6 +1928,9 @@ class VocExporterTest(TestCase):
 
             def categories(self):
                 return VOC.make_voc_categories(task=self._task)
+
+            def task_type(self):
+                return TaskType.unlabeled
 
         for task in list(VOC.VocTask):
             with self.subTest(subformat=task), TestDir() as test_dir:
@@ -1872,6 +1964,9 @@ class VocExporterTest(TestCase):
 
             def categories(self):
                 return VOC.make_voc_categories(task=self._task)
+
+            def task_type(self):
+                return TaskType.unlabeled
 
         for task in list(VOC.VocTask):
             with self.subTest(subformat=task), TestDir() as test_dir:
@@ -1908,6 +2003,9 @@ class VocExporterTest(TestCase):
             def categories(self):
                 return VOC.make_voc_categories(task=VOC.VocTask.voc)
 
+            def task_type(self):
+                return TaskType.detection
+
         class DstExtractor(TestExtractorBase):
             def __iter__(self):
                 return iter(
@@ -1938,6 +2036,9 @@ class VocExporterTest(TestCase):
 
             def categories(self):
                 return VOC.make_voc_categories(task=VOC.VocTask.voc)
+
+            def task_type(self):
+                return TaskType.detection
 
         with TestDir() as test_dir:
             self._test_save_and_load(
@@ -1988,6 +2089,7 @@ class VocExporterTest(TestCase):
                 ),
                 AnnotationType.mask: MaskCategories(colormap=VOC.generate_colormap(5)),
             },
+            task_type=TaskType.detection,
         )
 
         dataset = Dataset.from_iterable(
@@ -2007,6 +2109,7 @@ class VocExporterTest(TestCase):
                 ),
             ],
             categories=["a", "b", "c", "d"],
+            task_type=TaskType.segmentation_instance,
         )
 
         with TestDir() as path:
@@ -2090,6 +2193,7 @@ class VocExporterTest(TestCase):
                 ),
                 AnnotationType.mask: MaskCategories(colormap=VOC.generate_colormap(5)),
             },
+            task_type=TaskType.segmentation_instance,
         )
 
         dataset = Dataset.from_iterable(
@@ -2123,6 +2227,7 @@ class VocExporterTest(TestCase):
                 ),
             ],
             categories=["a", "b", "c", "d"],
+            task_type=TaskType.segmentation_instance,
         )
 
         with TestDir() as path:
@@ -2176,6 +2281,9 @@ class VocExporterTest(TestCase):
 
             def categories(self):
                 return VOC.make_voc_categories(task=VOC.VocTask.voc)
+
+            def task_type(self):
+                return TaskType.detection
 
         with TestDir() as test_dir:
             self._test_save_and_load(

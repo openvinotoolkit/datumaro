@@ -6,6 +6,7 @@ from datumaro.components.dataset import Dataset
 from datumaro.components.dataset_base import DatasetItem
 from datumaro.components.environment import Environment
 from datumaro.components.media import Image
+from datumaro.components.task import TaskType
 from datumaro.plugins.data_formats.market1501 import Market1501Exporter, Market1501Importer
 
 from ..requirements import Requirements, mark_requirement
@@ -58,7 +59,8 @@ class Market1501FormatTest(TestCase):
                         "query": False,
                     },
                 ),
-            ]
+            ],
+            task_type=TaskType.unlabeled,
         )
 
         with TestDir() as test_dir:
@@ -83,7 +85,8 @@ class Market1501FormatTest(TestCase):
                         "query": False,
                     },
                 ),
-            ]
+            ],
+            task_type=TaskType.unlabeled,
         )
 
         with TestDir() as test_dir:
@@ -101,7 +104,8 @@ class Market1501FormatTest(TestCase):
                     media=Image.from_numpy(data=np.ones((2, 5, 3))),
                     attributes={"camera_id": 0, "person_id": "0001", "query": False},
                 ),
-            ]
+            ],
+            task_type=TaskType.unlabeled,
         )
 
         expected_dataset = Dataset.from_iterable(
@@ -118,7 +122,8 @@ class Market1501FormatTest(TestCase):
                         "query": False,
                     },
                 ),
-            ]
+            ],
+            task_type=TaskType.unlabeled,
         )
 
         with TestDir() as test_dir:
@@ -144,7 +149,8 @@ class Market1501FormatTest(TestCase):
                         "query": True,
                     },
                 ),
-            ]
+            ],
+            task_type=TaskType.unlabeled,
         )
 
         with TestDir() as test_dir:
@@ -181,7 +187,8 @@ class Market1501FormatTest(TestCase):
                         "query": False,
                     },
                 ),
-            ]
+            ],
+            task_type=TaskType.unlabeled,
         )
 
         with TestDir() as test_dir:
@@ -199,7 +206,8 @@ class Market1501FormatTest(TestCase):
                     subset="test",
                     media=Image.from_numpy(data=np.ones((2, 5, 3))),
                 ),
-            ]
+            ],
+            task_type=TaskType.unlabeled,
         )
 
         with TestDir() as test_dir:
@@ -261,7 +269,8 @@ class Market1501ImporterTest(TestCase):
                         "query": False,
                     },
                 ),
-            ]
+            ],
+            task_type=TaskType.unlabeled,
         )
         dataset = Dataset.import_from(DUMMY_DATASET_DIR, "market1501")
 

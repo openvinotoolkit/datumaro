@@ -13,6 +13,7 @@ from datumaro.components.annotation import Annotation, AnnotationType, Categorie
 from datumaro.components.cli_plugin import CliPlugin
 from datumaro.components.contexts.importer import ImportContext, NullImportContext
 from datumaro.components.media import Image, MediaElement
+from datumaro.components.task import TaskType
 from datumaro.util.attrs_util import default_if_none, not_empty
 from datumaro.util.definitions import DEFAULT_SUBSET_NAME
 
@@ -108,6 +109,12 @@ class IDataset:
         """
         raise NotImplementedError()
 
+    def task_type(self) -> TaskType:
+        """
+        Returns available task type from dataset annotation types.
+        """
+        raise NotImplementedError()
+
     @property
     def is_stream(self) -> bool:
         """Boolean indicating whether the dataset is a stream
@@ -121,6 +128,7 @@ class _DatasetBase(IDataset):
     def __init__(self, *, length: Optional[int] = None, subsets: Optional[Sequence[str]] = None):
         self._length = length
         self._subsets = subsets
+        self._ann_types = set()
 
     def _init_cache(self):
         subsets = set()
@@ -176,6 +184,9 @@ class _DatasetBase(IDataset):
             def media_type(_):
                 return self.media_type()
 
+            def task_type(_):
+                return self.task_type()
+
         return _DatasetFilter()
 
     def infos(self) -> DatasetInfo:
@@ -205,15 +216,20 @@ class DatasetBase(_DatasetBase, CliPlugin):
         length: Optional[int] = None,
         subsets: Optional[Sequence[str]] = None,
         media_type: Type[MediaElement] = Image,
+        task_type: Optional[TaskType] = None,
         ctx: Optional[ImportContext] = None,
     ):
         super().__init__(length=length, subsets=subsets)
 
         self._ctx: ImportContext = ctx or NullImportContext()
         self._media_type = media_type
+        self._task_type = task_type if task_type else TaskType.unlabeled
 
     def media_type(self):
         return self._media_type
+
+    def task_type(self):
+        return self._task_type
 
 
 class SubsetBase(DatasetBase):
@@ -228,10 +244,17 @@ class SubsetBase(DatasetBase):
         length: Optional[int] = None,
         subset: Optional[str] = None,
         media_type: Type[MediaElement] = Image,
+        task_type: TaskType = None,
         ctx: Optional[ImportContext] = None,
     ):
         self._subset = subset or DEFAULT_SUBSET_NAME
-        super().__init__(length=length, subsets=[self._subset], media_type=media_type, ctx=ctx)
+        super().__init__(
+            length=length,
+            subsets=[self._subset],
+            media_type=media_type,
+            task_type=task_type,
+            ctx=ctx,
+        )
 
         self._infos = {}
         self._categories = {}

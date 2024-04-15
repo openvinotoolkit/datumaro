@@ -8,6 +8,7 @@ from datumaro.components.dataset import Dataset
 from datumaro.components.dataset_base import DatasetItem
 from datumaro.components.environment import Environment
 from datumaro.components.media import Image
+from datumaro.components.task import TaskType
 from datumaro.plugins.data_formats.mnist import MnistExporter, MnistImporter
 
 from ..requirements import Requirements, mark_requirement
@@ -40,6 +41,7 @@ class MnistFormatTest(TestCase):
                     str(label) for label in range(10)
                 ),
             },
+            task_type=TaskType.classification,
         )
 
         with TestDir() as test_dir:
@@ -60,6 +62,7 @@ class MnistFormatTest(TestCase):
                     str(label) for label in range(10)
                 ),
             },
+            task_type=TaskType.classification,
         )
 
         with TestDir() as test_dir:
@@ -84,6 +87,7 @@ class MnistFormatTest(TestCase):
                     str(label) for label in range(10)
                 ),
             },
+            task_type=TaskType.classification,
         )
 
         with TestDir() as test_dir:
@@ -107,6 +111,7 @@ class MnistFormatTest(TestCase):
                     str(label) for label in range(10)
                 ),
             },
+            task_type=TaskType.classification,
         )
 
         with TestDir() as test_dir:
@@ -129,6 +134,7 @@ class MnistFormatTest(TestCase):
                     str(label) for label in range(10)
                 ),
             },
+            task_type=TaskType.unlabeled,
         )
 
         with TestDir() as test_dir:
@@ -146,6 +152,7 @@ class MnistFormatTest(TestCase):
                     str(label) for label in range(10)
                 ),
             },
+            task_type=TaskType.classification,
         )
 
         with TestDir() as test_dir:
@@ -170,6 +177,7 @@ class MnistFormatTest(TestCase):
                     "label_%s" % label for label in range(2)
                 ),
             },
+            task_type=TaskType.classification,
         )
 
         with TestDir() as test_dir:
@@ -201,6 +209,7 @@ class MnistFormatTest(TestCase):
                     str(label) for label in range(10)
                 ),
             },
+            task_type=TaskType.classification,
         )
 
         with TestDir() as test_dir:
@@ -255,6 +264,7 @@ class MnistImporterTest(TestCase):
                     str(label) for label in range(10)
                 ),
             },
+            task_type=TaskType.classification,
         )
 
         dataset = Dataset.import_from(DUMMY_DATASET_DIR, "mnist")

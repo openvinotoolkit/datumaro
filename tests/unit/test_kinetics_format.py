@@ -4,6 +4,7 @@ from datumaro.components.annotation import Label
 from datumaro.components.dataset import Dataset, DatasetItem
 from datumaro.components.environment import Environment
 from datumaro.components.media import Video
+from datumaro.components.task import TaskType
 from datumaro.plugins.data_formats.kinetics import KineticsImporter
 
 from ..requirements import Requirements, mark_requirement
@@ -49,6 +50,7 @@ class KineticsImporterTest(TestCase):
             ],
             categories=["label_0", "label_1", "label_2"],
             media_type=Video,
+            task_type=TaskType.classification,
         )
 
         imported_dataset = Dataset.import_from(DUMMY_DATASET_DIR, "kinetics")
