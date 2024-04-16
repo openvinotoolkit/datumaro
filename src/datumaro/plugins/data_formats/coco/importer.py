@@ -8,7 +8,7 @@ from glob import glob
 from typing import List, Optional
 
 from datumaro.components.dataset_base import DEFAULT_SUBSET_NAME
-from datumaro.components.errors import DatasetNotFoundError, InvalidAnnotationError
+from datumaro.components.errors import DatasetNotFoundError
 from datumaro.components.format_detection import FormatDetectionConfidence, FormatDetectionContext
 from datumaro.components.importer import Importer
 from datumaro.components.merge.extractor_merger import ExtractorMerger
@@ -61,9 +61,12 @@ class CocoImporter(Importer):
             try:
                 context.require_files(f"annotations/{task.name}_*{cls._ANNO_EXT}")
                 num_tasks += 1
-            except InvalidAnnotationError:
+            except Exception:
                 pass
         if num_tasks > 1:
+            log.warning(
+                "Multiple COCO tasks are detected. The detected format will be `coco` instead."
+            )
             return FormatDetectionConfidence.MEDIUM
         else:
             context.raise_unsupported()
