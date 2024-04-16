@@ -27,6 +27,7 @@ from datumaro.components.dataset_base import DatasetItem, SubsetBase
 from datumaro.components.errors import DatasetImportError, MediaTypeError
 from datumaro.components.importer import ImportContext
 from datumaro.components.media import Image, MediaElement, MediaType, PointCloud, Video, VideoFrame
+from datumaro.components.task import TaskAnnotationMapping, TaskType
 from datumaro.plugins.data_formats.datumaro.page_mapper import DatumPageMapper
 from datumaro.util import parse_json_file
 from datumaro.version import __version__
@@ -54,6 +55,7 @@ class JsonReader:
         self._video_dir = video_dir
         self._videos = {}
         self._ctx = ctx
+        self.task_type = None
 
         self._reader = self._init_reader(path)
         self.media_type = self._load_media_type(self._reader)
@@ -68,6 +70,10 @@ class JsonReader:
     def _load_media_type(parsed) -> Type[MediaElement]:
         media_type = parsed.get("media_type", MediaType.IMAGE)
         return MediaType(media_type).media
+
+    @staticmethod
+    def _load_task_type(parsed) -> TaskType:
+        return parsed.get("task_type", TaskType.mixed)
 
     @staticmethod
     def _load_infos(parsed) -> Dict:
@@ -126,12 +132,17 @@ class JsonReader:
                 yield item_descs.pop()
 
         items = []
+        ann_types = set()
         for item_desc in pbar.iter(
             _gen(), desc=f"Importing '{self._subset}'", total=len(item_descs)
         ):
             item = self._parse_item(item_desc)
             if item is not None:
                 items.append(item)
+                for ann in item.annotations:
+                    ann_types.add(ann.type)
+
+        self.task_type = TaskAnnotationMapping().get_task(ann_types)
 
         return items
 
@@ -368,17 +379,25 @@ class StreamJsonReader(JsonReader):
     ) -> None:
         super().__init__(path, subset, rootpath, images_dir, pcd_dir, video_dir, ctx)
         self._length = None
+        self.task_type = TaskType.mixed
 
     def __len__(self):
         return len(self._reader)
 
     def __iter__(self):
+        ann_types = set()
         pbar = self._ctx.progress_reporter
         for item_desc in pbar.iter(
             self._reader,
             desc=f"Importing '{self._subset}'",
         ):
-            yield self._parse_item(item_desc)
+            item = self._parse_item(item_desc)
+            yield item
+
+            if item is not None:
+                for ann in item.annotations:
+                    ann_types.add(ann.type)
+        self.task_type = TaskAnnotationMapping().get_task(ann_types)
 
     def _init_reader(self, path: str) -> DatumPageMapper:
         return DatumPageMapper(path)
@@ -391,6 +410,15 @@ class StreamJsonReader(JsonReader):
             return MediaType.IMAGE.media
 
         return media_type.media
+
+    @staticmethod
+    def _load_task_type(page_mapper: DatumPageMapper) -> TaskType:
+        task_type = page_mapper.task_type
+
+        if task_type is None:
+            return TaskType.mixed
+
+        return task_type
 
     @staticmethod
     def _load_infos(page_mapper: DatumPageMapper) -> Dict:
@@ -473,6 +501,9 @@ class DatumaroBase(SubsetBase):
 
     def media_type(self):
         return self._reader.media_type
+
+    def task_type(self):
+        return self._reader.task_type
 
     def _load_impl(self, path: str) -> None:
         """Actual implementation of loading Datumaro format."""

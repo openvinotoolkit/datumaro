@@ -159,6 +159,9 @@ class ProjectSourceDataset(IDataset):
     def media_type(self):
         return self._dataset.media_type()
 
+    def task_type(self):
+        return self._dataset.task_type()
+
 
 class IgnoreMode(Enum):
     rewrite = auto()

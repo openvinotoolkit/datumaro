@@ -27,6 +27,7 @@ from datumaro.components.errors import (
 )
 from datumaro.components.importer import ImportContext
 from datumaro.components.media import Image
+from datumaro.components.task import TaskAnnotationMapping, TaskType
 from datumaro.util.image import find_images
 from datumaro.util.mask_tools import invert_colormap, lazy_mask
 from datumaro.util.meta_file_util import has_meta_file
@@ -95,6 +96,15 @@ class VocBase(SubsetBase):
                 ),
             )
         self._items = {item: None for item in self._load_subset_list(path)}
+
+        if task in [VocTask.voc_classification, VocTask.voc_action]:
+            self._task_type = TaskType.classification
+        elif task in [VocTask.voc_detection, VocTask.voc_layout]:
+            self._task_type = TaskType.detection
+        elif task == VocTask.voc_segmentation:
+            self._task_type = TaskType.segmentation_semantic
+        elif task in [VocTask.voc, VocTask.voc_instance_segmentation]:
+            self._task_type = TaskType.segmentation_instance
 
     def _get_label_id(self, label: str) -> int:
         label_id, _ = self._categories[AnnotationType.label].find(label)
@@ -198,6 +208,10 @@ class VocBase(SubsetBase):
                     image = Image.from_file(path=image, size=size)
 
                 yield DatasetItem(id=item_id, subset=self._subset, media=image, annotations=anns)
+
+                for ann in anns:
+                    self._ann_types.add(ann.type)
+
             except ElementTree.ParseError as e:
                 readable_wrapper = InvalidAnnotationError("Failed to parse XML file")
                 readable_wrapper.__cause__ = e
@@ -206,6 +220,8 @@ class VocBase(SubsetBase):
                 )
             except Exception as e:
                 self._ctx.error_policy.report_item_error(e, item_id=(item_id, self._subset))
+
+        self._task_type = TaskAnnotationMapping().get_task(self._ann_types)
 
     @staticmethod
     def _parse_field(root, xpath: str, cls: Type[T] = str, required: bool = True) -> Optional[T]:

@@ -6,6 +6,7 @@ import logging as log
 from typing import Any, Dict, Iterator, Optional
 
 from datumaro.components.media import MediaType
+from datumaro.components.task import TaskType
 from datumaro.rust_api import DatumPageMapper as DatumPageMapperImpl
 
 __all__ = ["DatumPageMapper"]
@@ -55,6 +56,14 @@ class DatumPageMapper:
         media_type = self._impl.media_type()
         if media_type is not None:
             return MediaType(media_type)
+        return None
+
+    @property
+    def task_type(self) -> Optional[TaskType]:
+        """Parse "media_type" section from the given JSON file using the stream json parser"""
+        task_type = self._impl.task_type()
+        if task_type is not None:
+            return task_type
         return None
 
     @property

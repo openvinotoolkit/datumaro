@@ -13,6 +13,7 @@ from datumaro.components.dataset_base import DatasetItem
 from datumaro.components.environment import DEFAULT_ENVIRONMENT
 from datumaro.components.importer import Importer
 from datumaro.components.media import Image
+from datumaro.components.task import TaskType
 from datumaro.plugins.data_formats.roboflow.base_tfrecord import (
     RoboflowTfrecordBase,
     RoboflowTfrecordImporter,
@@ -82,6 +83,7 @@ def fxt_coco_dataset():
             ),
         ],
         categories=["label_0", "label_1"],
+        task_type=TaskType.detection,
     )
 
 
@@ -152,6 +154,7 @@ def fxt_voc_dataset():
             ),
         ],
         categories=["label_0", "label_1"],
+        task_type=TaskType.detection,
     )
 
 
@@ -213,6 +216,7 @@ def fxt_yolo_obb_dataset():
             ),
         ],
         categories=["label_0", "label_1"],
+        task_type=TaskType.detection_rotated,
     )
 
 
@@ -253,6 +257,7 @@ def fxt_multiclass_dataset():
             ),
         ],
         categories=["label_0", "label_1"],
+        task_type=TaskType.classification,
     )
 
 
@@ -286,6 +291,7 @@ def fxt_tfrecord_dataset():
             ),
         ],
         categories=["label_0", "label_1"],
+        task_type=TaskType.detection,
     )
 
 

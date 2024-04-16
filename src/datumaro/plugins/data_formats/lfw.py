@@ -15,6 +15,7 @@ from datumaro.components.exporter import Exporter
 from datumaro.components.format_detection import FormatDetectionContext
 from datumaro.components.importer import ImportContext, Importer
 from datumaro.components.media import Image
+from datumaro.components.task import TaskAnnotationMapping
 from datumaro.util.image import find_images
 from datumaro.util.meta_file_util import has_meta_file, parse_meta_file
 
@@ -53,6 +54,7 @@ class LfwBase(SubsetBase):
         self._categories = self._load_categories(people_file)
 
         self._items = list(self._load_items(path).values())
+        self._task_type = TaskAnnotationMapping().get_task(self._ann_types)
 
     def _load_categories(self, path):
         if has_meta_file(self._dataset_dir):
@@ -207,6 +209,9 @@ class LfwBase(SubsetBase):
 
                     annotations = items[item_id].annotations
                     annotations.append(Points([float(p) for p in line[1:]], label=label))
+
+        for ann in annotations:
+            self._ann_types.add(ann.type)
 
         return items
 

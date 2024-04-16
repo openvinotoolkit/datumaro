@@ -160,7 +160,7 @@ format_templates = {
 
 
 def select_uninferenced_dataset(dataset):
-    uninferenced_dataset = Dataset(media_type=MediaElement)
+    uninferenced_dataset = Dataset(media_type=MediaElement, task_type=dataset.task_type())
     for item in dataset:
         if not any(isinstance(annotation, HashKey) for annotation in item.annotations):
             uninferenced_dataset.put(item)

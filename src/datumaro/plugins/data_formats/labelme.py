@@ -20,6 +20,7 @@ from datumaro.components.exporter import Exporter
 from datumaro.components.format_detection import FormatDetectionContext
 from datumaro.components.importer import ImportContext, Importer
 from datumaro.components.media import Image
+from datumaro.components.task import TaskAnnotationMapping
 from datumaro.util import cast, escape, unescape
 from datumaro.util.image import save_image
 from datumaro.util.mask_tools import find_mask_bbox, load_mask
@@ -52,6 +53,7 @@ class LabelMeBase(DatasetBase):
         super().__init__(ctx=ctx)
 
         self._items, self._categories, self._subsets = self._parse(path)
+        self._task_type = TaskAnnotationMapping().get_task(self._ann_types)
         self._length = len(self._items)
 
     def _parse(self, path):
@@ -88,6 +90,9 @@ class LabelMeBase(DatasetBase):
             image = Image.from_file(path=image_path, size=image_size)
 
             annotations = self._parse_annotations(root, path, subset, categories)
+
+            for ann in annotations:
+                self._ann_types.add(ann.type)
 
             items.append(
                 DatasetItem(id=item_id, subset=subset, media=image, annotations=annotations)

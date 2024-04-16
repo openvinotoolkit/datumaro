@@ -34,6 +34,7 @@ from datumaro.components.errors import (
 )
 from datumaro.components.importer import ImportContext
 from datumaro.components.media import Image
+from datumaro.components.task import TaskAnnotationMapping, TaskType
 from datumaro.util import NOTSET, parse_json_file, take_by
 from datumaro.util.image import lazy_image, load_image
 from datumaro.util.mask_tools import bgr2index
@@ -168,6 +169,7 @@ class _CocoBase(SubsetBase):
             )
 
             self._items = self._load_items(json_data)
+            self._task_type = TaskAnnotationMapping().get_task(self._ann_types)
 
             del json_data
         else:
@@ -181,6 +183,19 @@ class _CocoBase(SubsetBase):
             )
 
             self._length = None
+
+            if task == CocoTask.captions:
+                self._task_type = TaskType.caption
+            elif task == CocoTask.instances:
+                self._task_type = TaskType.segmentation_instance
+            elif task == CocoTask.labels:
+                self._task_type = TaskType.classification
+            elif task == CocoTask.person_keypoints:
+                self._task_type = TaskType.detection_landmark
+            elif task == CocoTask.panoptic or task == CocoTask.stuff:
+                self._task_type = TaskType.segmentation_semantic
+            elif task == CocoTask.image_info:
+                self._task_type = TaskType.unlabeled
 
     def __len__(self) -> int:
         if self.is_stream:
@@ -301,8 +316,11 @@ class _CocoBase(SubsetBase):
 
             yield item
             length += 1
+            for ann in item.annotations:
+                self._ann_types.add(ann.type)
 
         self._length = length
+        self._task_type = TaskAnnotationMapping().get_task(self._ann_types)
 
     def _parse_anns(self, img_info, ann_info, item):
         try:
@@ -337,7 +355,6 @@ class _CocoBase(SubsetBase):
             img_infos[img_id] = img_info
 
         ann_lists = self._parse_field(json_data, "annotations", list)
-
         for ann_info in pbar.iter(
             _gen_ann(ann_lists),
             desc=f"Importing '{self._subset}'",
@@ -353,7 +370,8 @@ class _CocoBase(SubsetBase):
                 item = items[img_id]
                 img_info = img_infos[img_id]
                 self._parse_anns(img_info, ann_info, item)
-
+                for ann in item.annotations:
+                    self._ann_types.add(ann.type)
             except Exception as e:
                 self._ctx.error_policy.report_annotation_error(
                     e, item_id=(ann_info.get("id", None), self._subset)

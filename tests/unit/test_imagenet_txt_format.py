@@ -8,6 +8,7 @@ from datumaro.components.dataset import Dataset
 from datumaro.components.dataset_base import DatasetItem
 from datumaro.components.environment import Environment
 from datumaro.components.media import Image
+from datumaro.components.task import TaskType
 from datumaro.plugins.data_formats.imagenet_txt import ImagenetTxtExporter, ImagenetTxtImporter
 
 from ..requirements import Requirements, mark_requirement
@@ -34,6 +35,7 @@ class ImagenetTxtFormatTest(TestCase):
                     "label_" + str(label) for label in range(4)
                 ),
             },
+            task_type=TaskType.classification,
         )
 
         with TestDir() as test_dir:
@@ -50,6 +52,7 @@ class ImagenetTxtFormatTest(TestCase):
                 DatasetItem(id="1", subset="train", annotations=[Label(0)]),
             ],
             categories=["label_0"],
+            task_type=TaskType.classification,
         )
 
         with TestDir() as test_dir:
@@ -67,6 +70,7 @@ class ImagenetTxtFormatTest(TestCase):
                 DatasetItem(id="2", subset="train", annotations=[Label(1)]),
             ],
             categories=["label_0", "label_1"],
+            task_type=TaskType.classification,
         )
 
         with TestDir() as test_dir:
@@ -93,6 +97,7 @@ class ImagenetTxtFormatTest(TestCase):
                     "label_" + str(label) for label in range(10)
                 ),
             },
+            task_type=TaskType.classification_multilabel,
         )
 
         with TestDir() as test_dir:
@@ -117,6 +122,7 @@ class ImagenetTxtFormatTest(TestCase):
                     "label_" + str(label) for label in range(10)
                 ),
             },
+            task_type=TaskType.classification,
         )
 
         with TestDir() as test_dir:
@@ -141,6 +147,7 @@ class ImagenetTxtFormatTest(TestCase):
                     "label_" + str(label) for label in range(2)
                 ),
             },
+            task_type=TaskType.classification_multilabel,
         )
 
         with TestDir() as test_dir:
@@ -162,6 +169,7 @@ class ImagenetTxtFormatTest(TestCase):
                 ),
             ],
             categories=[],
+            task_type=TaskType.unlabeled,
         )
 
         with TestDir() as test_dir:
@@ -202,6 +210,7 @@ class ImagenetTxtImporterTest(TestCase):
                     "label_%s" % label for label in range(10)
                 ),
             },
+            task_type=TaskType.classification,
         )
 
         dataset = Dataset.import_from(DUMMY_DATASET_DIR, "imagenet_txt")
@@ -215,6 +224,7 @@ class ImagenetTxtImporterTest(TestCase):
                 DatasetItem(id="1", subset="train", annotations=[Label(0)]),
             ],
             categories=["alt_label_%s" % label for label in range(10)],
+            task_type=TaskType.classification,
         )
 
         dataset = Dataset.import_from(
@@ -230,6 +240,7 @@ class ImagenetTxtImporterTest(TestCase):
                 DatasetItem(id="1", subset="train", annotations=[Label(4)]),
             ],
             categories=["class-%s" % label for label in range(5)],
+            task_type=TaskType.classification,
         )
 
         dataset = Dataset.import_from(

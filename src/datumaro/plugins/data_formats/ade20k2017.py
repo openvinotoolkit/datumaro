@@ -18,6 +18,7 @@ from datumaro.components.errors import InvalidAnnotationError
 from datumaro.components.format_detection import FormatDetectionContext
 from datumaro.components.importer import ImportContext, Importer
 from datumaro.components.media import Image
+from datumaro.components.task import TaskAnnotationMapping
 from datumaro.util.image import IMAGE_EXTENSIONS, find_images, lazy_image, load_image
 from datumaro.util.meta_file_util import has_meta_file, parse_meta_file
 
@@ -57,6 +58,8 @@ class Ade20k2017Base(DatasetBase):
         for subset in self._subsets:
             self._load_items(subset)
 
+        self._task_type = TaskAnnotationMapping().get_task(self._ann_types)
+
     def __iter__(self):
         return iter(self._items)
 
@@ -68,7 +71,6 @@ class Ade20k2017Base(DatasetBase):
         path = osp.join(self._path, subset)
 
         images = [i for i in find_images(path, recursive=True)]
-
         for image_path in sorted(images):
             item_id = osp.splitext(osp.relpath(image_path, path))[0]
 
@@ -126,6 +128,8 @@ class Ade20k2017Base(DatasetBase):
                     annotations=item_annotations,
                 )
             )
+            for ann in item_annotations:
+                self._ann_types.add(ann.type)
 
     def _load_item_info(self, path):
         attr_path = osp.splitext(path)[0] + "_atr.txt"

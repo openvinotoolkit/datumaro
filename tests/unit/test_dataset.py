@@ -58,6 +58,7 @@ from datumaro.components.media import Image, MediaElement, Video
 from datumaro.components.merge.intersect_merge import IntersectMerge
 from datumaro.components.progress_reporting import NullProgressReporter, ProgressReporter
 from datumaro.components.registry import DatasetBaseRegistry, ImporterRegistry
+from datumaro.components.task import TaskType
 from datumaro.components.transformer import ItemTransform, Transform
 from datumaro.plugins.transforms import ProjectInfos, RemapLabels
 
@@ -216,15 +217,24 @@ class DatasetTest(TestCase):
                 )
             ],
             categories=["a"],
+            task_type=TaskType.mixed,
         )
 
         src1 = Dataset.from_iterable(
-            [DatasetItem(1, annotations=[Bbox(1, 2, 3, 4, label=None)])], categories=[]
+            [DatasetItem(1, annotations=[Bbox(1, 2, 3, 4, label=None)])],
+            categories=[],
+            task_type=TaskType.detection,
         )
 
-        src2 = Dataset.from_iterable([DatasetItem(1, annotations=[Label(0)])], categories=["a"])
+        src2 = Dataset.from_iterable(
+            [DatasetItem(1, annotations=[Label(0)])],
+            categories=["a"],
+            task_type=TaskType.classification,
+        )
 
-        src3 = Dataset.from_iterable([DatasetItem(1, annotations=[Caption("hello world")])])
+        src3 = Dataset.from_iterable(
+            [DatasetItem(1, annotations=[Caption("hello world")])], task_type=TaskType.caption
+        )
 
         actual = Dataset.from_extractors(src1, src2, src3)
 
@@ -428,7 +438,7 @@ class DatasetTest(TestCase):
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_compute_length_when_created_from_scratch(self):
-        dataset = Dataset(media_type=MediaElement)
+        dataset = Dataset(media_type=MediaElement, task_type=TaskType.unlabeled)
 
         dataset.put(DatasetItem(1))
         dataset.put(DatasetItem(2))
@@ -518,6 +528,7 @@ class DatasetTest(TestCase):
                 )
             ],
             categories=["a", "b", "c", "d"],
+            task_type=TaskType.classification_multilabel,
         )
 
         b = Dataset.from_iterable(
@@ -533,6 +544,7 @@ class DatasetTest(TestCase):
                 )
             ],
             categories=["a", "b", "c", "d"],
+            task_type=TaskType.classification_multilabel,
         )
 
         expected = Dataset.from_iterable(
@@ -549,6 +561,7 @@ class DatasetTest(TestCase):
                 )
             ],
             categories=["a", "b", "c", "d"],
+            task_type=TaskType.classification_multilabel,
         )
 
         merged = Dataset.from_extractors(a, b)
@@ -601,9 +614,11 @@ class DatasetTest(TestCase):
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_join_datasets(self):
-        s1 = Dataset.from_iterable([DatasetItem(0), DatasetItem(1)])
-        s2 = Dataset.from_iterable([DatasetItem(1), DatasetItem(2)])
-        expected = Dataset.from_iterable([DatasetItem(0), DatasetItem(1), DatasetItem(2)])
+        s1 = Dataset.from_iterable([DatasetItem(0), DatasetItem(1)], task_type=TaskType.unlabeled)
+        s2 = Dataset.from_iterable([DatasetItem(1), DatasetItem(2)], task_type=TaskType.unlabeled)
+        expected = Dataset.from_iterable(
+            [DatasetItem(0), DatasetItem(1), DatasetItem(2)], task_type=TaskType.unlabeled
+        )
 
         actual = Dataset.from_extractors(s1, s2)
 
@@ -850,7 +865,7 @@ class DatasetTest(TestCase):
                 DatasetItem(3, subset="a"),
                 DatasetItem(4),
                 DatasetItem(5),
-            ]
+            ],
         )
 
         class TestExtractor(DatasetBase):
@@ -932,7 +947,7 @@ class DatasetTest(TestCase):
             [
                 DatasetItem(4),
                 DatasetItem(5),
-            ]
+            ],
         )
 
         class TestExtractor(DatasetBase):
@@ -1089,7 +1104,7 @@ class DatasetTest(TestCase):
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_put(self):
-        dataset = Dataset(media_type=MediaElement)
+        dataset = Dataset(media_type=MediaElement, task_type=TaskType.unlabeled)
 
         dataset.put(DatasetItem(1))
 
@@ -1572,8 +1587,10 @@ class DatasetTest(TestCase):
     @mark_requirement(Requirements.DATUM_BUG_259)
     def test_can_filter_items_in_merged_dataset(self):
         dataset = Dataset.from_extractors(
-            Dataset.from_iterable([DatasetItem(id=0, subset="train")]),
-            Dataset.from_iterable([DatasetItem(id=1, subset="test")]),
+            Dataset.from_iterable(
+                [DatasetItem(id=0, subset="train")], task_type=TaskType.unlabeled
+            ),
+            Dataset.from_iterable([DatasetItem(id=1, subset="test")], task_type=TaskType.unlabeled),
         )
 
         dataset.filter("/item[id > 0]")
@@ -1588,18 +1605,21 @@ class DatasetTest(TestCase):
                     DatasetItem(id=0, subset="train", annotations=[Label(0)]),
                 ],
                 categories=["a", "b", "c"],
+                task_type=TaskType.classification,
             ),
             Dataset.from_iterable(
                 [
                     DatasetItem(id=1, subset="val", annotations=[Label(1)]),
                 ],
                 categories=["a", "b", "c"],
+                task_type=TaskType.classification,
             ),
             Dataset.from_iterable(
                 [
                     DatasetItem(id=2, subset="test", annotations=[Label(2)]),
                 ],
                 categories=["a", "b", "c"],
+                task_type=TaskType.classification,
             ),
         )
 
@@ -1653,7 +1673,9 @@ class DatasetTest(TestCase):
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_update_overwrites_matching_items(self):
         patch = Dataset.from_iterable(
-            [DatasetItem(id=1, annotations=[Bbox(1, 2, 3, 4, label=1)])], categories=["a", "b"]
+            [DatasetItem(id=1, annotations=[Bbox(1, 2, 3, 4, label=1)])],
+            categories=["a", "b"],
+            task_type=TaskType.detection,
         )
 
         dataset = Dataset.from_iterable(
@@ -1662,6 +1684,7 @@ class DatasetTest(TestCase):
                 DatasetItem(id=2, annotations=[Bbox(1, 1, 1, 1, label=1)]),
             ],
             categories=["a", "b"],
+            task_type=TaskType.detection,
         )
 
         expected = Dataset.from_iterable(
@@ -1670,6 +1693,7 @@ class DatasetTest(TestCase):
                 DatasetItem(id=2, annotations=[Bbox(1, 1, 1, 1, label=1)]),
             ],
             categories=["a", "b"],
+            task_type=TaskType.detection,
         )
 
         dataset.update(patch)
@@ -1679,16 +1703,22 @@ class DatasetTest(TestCase):
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_update_can_reorder_labels(self):
         patch = Dataset.from_iterable(
-            [DatasetItem(id=1, annotations=[Bbox(1, 2, 3, 4, label=1)])], categories=["b", "a"]
+            [DatasetItem(id=1, annotations=[Bbox(1, 2, 3, 4, label=1)])],
+            categories=["b", "a"],
+            task_type=TaskType.detection,
         )
 
         dataset = Dataset.from_iterable(
-            [DatasetItem(id=1, annotations=[Bbox(2, 2, 1, 1, label=0)])], categories=["a", "b"]
+            [DatasetItem(id=1, annotations=[Bbox(2, 2, 1, 1, label=0)])],
+            categories=["a", "b"],
+            task_type=TaskType.detection,
         )
 
         # Note that label id and categories are changed
         expected = Dataset.from_iterable(
-            [DatasetItem(id=1, annotations=[Bbox(1, 2, 3, 4, label=0)])], categories=["a", "b"]
+            [DatasetItem(id=1, annotations=[Bbox(1, 2, 3, 4, label=0)])],
+            categories=["a", "b"],
+            task_type=TaskType.detection,
         )
 
         dataset.update(patch)
@@ -1710,6 +1740,7 @@ class DatasetTest(TestCase):
                 DatasetItem(id=1, annotations=[Bbox(1, 2, 3, 4, label=1)]),
             ],
             categories=["a", "b"],
+            task_type=TaskType.detection,
         )
 
         patch = Dataset.from_iterable(
@@ -1729,6 +1760,7 @@ class DatasetTest(TestCase):
                 ),  # Label must be remapped
             ],
             categories=["b", "a", "c"],
+            task_type=TaskType.detection,
         )
 
         expected = Dataset.from_iterable(
@@ -1744,6 +1776,7 @@ class DatasetTest(TestCase):
                 DatasetItem(id=2, annotations=[Bbox(1, 2, 3, 2, label=0)]),
             ],
             categories=["a", "b"],
+            task_type=TaskType.detection,
         )
 
         dataset.update(patch)
@@ -1900,7 +1933,7 @@ class DatasetTest(TestCase):
         progress_reporter.finish = mock.MagicMock()
 
         with TestDir() as test_dir:
-            Dataset(media_type=MediaElement).export(
+            Dataset(media_type=MediaElement, task_type=TaskType.unlabeled).export(
                 test_dir, TestExporter, progress_reporter=progress_reporter
             )
 
@@ -1929,7 +1962,7 @@ class DatasetTest(TestCase):
         error_policy.report_annotation_error = mock.MagicMock()
 
         with TestDir() as test_dir:
-            Dataset(media_type=MediaElement).export(
+            Dataset(media_type=MediaElement, task_type=TaskType.unlabeled).export(
                 test_dir, TestExporter, error_policy=error_policy
             )
 
@@ -1960,6 +1993,7 @@ class DatasetTest(TestCase):
                 AnnotationType.label: LabelCategories.from_iterable(["a", "b"]),
                 AnnotationType.mask: MaskCategories.generate(2),
             },
+            task_type=TaskType.mixed,
         )
         source.init_cache()
 
@@ -1977,7 +2011,7 @@ class DatasetTest(TestCase):
 
     @mark_requirement(Requirements.DATUM_GENERIC_MEDIA)
     def test_cant_put_item_with_mismatching_media_type(self):
-        dataset = Dataset(media_type=Video)
+        dataset = Dataset(media_type=Video, task_type=TaskType.unlabeled)
 
         with self.assertRaises(MediaTypeError):
             dataset.put(DatasetItem(id=1, media=Image.from_numpy(data=np.ones((5, 4, 3)))))
@@ -1988,7 +2022,7 @@ class DatasetTest(TestCase):
             def media_type(self):
                 return Image
 
-        dataset = Dataset(media_type=Video)
+        dataset = Dataset(media_type=Video, task_type=TaskType.unlabeled)
 
         with self.assertRaises(MediaTypeError):
             dataset.transform(TestTransform)
@@ -2324,6 +2358,7 @@ def fxt_sample_dataset_factory():
             items,
             infos=infos,
             categories=categories,
+            task_type=TaskType.unlabeled,
         )
         return dataset
 

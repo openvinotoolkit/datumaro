@@ -26,6 +26,7 @@ from datumaro.components.exporter import Exporter
 from datumaro.components.format_detection import FormatDetectionContext
 from datumaro.components.importer import ImportContext, Importer
 from datumaro.components.media import Image
+from datumaro.components.task import TaskAnnotationMapping
 from datumaro.util import find, str_to_bool
 from datumaro.util.annotation_util import make_label_id_mapping
 from datumaro.util.image import save_image
@@ -191,6 +192,7 @@ class CamvidBase(SubsetBase):
 
         self._categories = self._load_categories(self._dataset_dir)
         self._items = list(self._load_items(path).values())
+        self._task_type = TaskAnnotationMapping().get_task(self._ann_types)
 
     def _load_categories(self, path):
         label_map = None
@@ -230,6 +232,8 @@ class CamvidBase(SubsetBase):
                         if labels[label_id] in self._labels:
                             image = self._lazy_extract_mask(mask, label_id)
                             item_annotations.append(Mask(image=image, label=label_id))
+
+                            self._ann_types.add(AnnotationType.mask)
 
                 items[item_id] = DatasetItem(
                     id=item_id,

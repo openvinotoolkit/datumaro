@@ -343,7 +343,9 @@ class Prune(HashInference):
             source=self._dataset,
         )
 
-        result_dataset = Dataset(media_type=self._dataset.media_type())
+        result_dataset = Dataset(
+            media_type=self._dataset.media_type(), task_type=self._dataset.task_type()
+        )
         result_dataset._source_path = self._dataset._source_path
         result_dataset.define_categories(self._dataset.categories())
         for item in selected_items:

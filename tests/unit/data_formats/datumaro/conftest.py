@@ -30,6 +30,7 @@ from datumaro.components.annotation import (
 from datumaro.components.dataset_base import DatasetItem
 from datumaro.components.media import Image, PointCloud
 from datumaro.components.project import Dataset
+from datumaro.components.task import TaskType
 from datumaro.plugins.data_formats.datumaro.format import DatumaroPath
 from datumaro.util.mask_tools import generate_colormap
 
@@ -196,6 +197,7 @@ def fxt_test_datumaro_format_dataset():
             "int_list": [0, 1, 2],
             "float_list": [0.0, 0.1, 0.2],
         },
+        task_type=TaskType.mixed,
     )
 
 
@@ -227,7 +229,8 @@ def fxt_relative_paths():
             DatasetItem(id="1", media=Image.from_numpy(data=np.ones((4, 2, 3)))),
             DatasetItem(id="subdir1/1", media=Image.from_numpy(data=np.ones((2, 6, 3)))),
             DatasetItem(id="subdir2/1", media=Image.from_numpy(data=np.ones((5, 4, 3)))),
-        ]
+        ],
+        task_type=TaskType.unlabeled,
     )
 
 
@@ -264,13 +267,17 @@ def fxt_can_save_dataset_with_cjk_categories():
             ),
         ],
         categories=["고양이", "ネコ", "猫"],
+        task_type=TaskType.detection,
     )
 
 
 @pytest.fixture
 def fxt_can_save_dataset_with_cyrillic_and_spaces_in_filename():
     return Dataset.from_iterable(
-        [DatasetItem(id="кириллица с пробелом", media=Image.from_numpy(data=np.ones((4, 2, 3))))]
+        [
+            DatasetItem(id="кириллица с пробелом", media=Image.from_numpy(data=np.ones((4, 2, 3)))),
+        ],
+        task_type=TaskType.unlabeled,
     )
 
 
@@ -288,7 +295,8 @@ def fxt_can_save_and_load_image_with_arbitrary_extension():
                 media=Image.from_numpy(data=np.zeros((3, 4, 3)), ext=".bmp"),
                 attributes={"frame": 2},
             ),
-        ]
+        ],
+        task_type=TaskType.unlabeled,
     )
 
 
@@ -299,6 +307,7 @@ def fxt_can_save_and_load_infos():
     return Dataset.from_iterable(
         [DatasetItem(3, subset="train", media=Image.from_numpy(data=np.ones((2, 2, 3))))],
         infos=infos,
+        task_type=TaskType.unlabeled,
     )
 
 
@@ -334,6 +343,7 @@ def fxt_point_cloud_dataset_pair(test_dir):
         ],
         categories=["label"],
         media_type=PointCloud,
+        task_type=TaskType.detection_3d,
     )
 
     target_dataset = Dataset.from_iterable(
@@ -370,6 +380,7 @@ def fxt_point_cloud_dataset_pair(test_dir):
         ],
         categories=["label"],
         media_type=PointCloud,
+        task_type=TaskType.detection_3d,
     )
 
     yield source_dataset, target_dataset
@@ -419,6 +430,7 @@ def fxt_legacy_dataset_pair(test_dir):
         infos={"author": "anonymous", "task": "classification"},
         categories=["car", "bicycle", "tom", "mary"],
         media_type=Image,
+        task_type=TaskType.classification,
     )
 
     yield source_dataset, target_dataset

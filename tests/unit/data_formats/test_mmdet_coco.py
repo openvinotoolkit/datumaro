@@ -13,6 +13,7 @@ from datumaro.components.dataset_base import DatasetItem
 from datumaro.components.environment import DEFAULT_ENVIRONMENT
 from datumaro.components.importer import Importer
 from datumaro.components.media import Image
+from datumaro.components.task import TaskType
 from datumaro.plugins.data_formats.mmdet import MmdetCocoBase, MmdetCocoImporter
 
 from .base import TestDataFormatBase
@@ -82,6 +83,7 @@ def fxt_mmdet_coco_dataset():
             ),
         ],
         categories=["a", "b", "c"],
+        task_type=TaskType.segmentation_instance,
     )
 
 

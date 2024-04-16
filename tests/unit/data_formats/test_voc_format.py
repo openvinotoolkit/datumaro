@@ -31,6 +31,7 @@ from datumaro.components.errors import (
 from datumaro.components.exporter import Exporter
 from datumaro.components.importer import Importer
 from datumaro.components.media import Image
+from datumaro.components.task import TaskType
 from datumaro.plugins.data_formats.voc.exporter import (
     VocActionExporter,
     VocClassificationExporter,
@@ -77,6 +78,7 @@ def fxt_classification_dataset():
             ),
         ],
         categories=VOC.make_voc_categories(task=VocTask.voc_classification),
+        task_type=TaskType.classification,
     )
 
 
@@ -127,6 +129,7 @@ def fxt_detection_dataset():
             ),
         ],
         categories=VOC.make_voc_categories(task=VocTask.voc_detection),
+        task_type=TaskType.detection,
     )
 
 
@@ -147,6 +150,7 @@ def fxt_segmentation_dataset():
             ),
         ],
         categories=VOC.make_voc_categories(task=VocTask.voc_segmentation),
+        task_type=TaskType.segmentation_semantic,
     )
 
 
@@ -183,6 +187,7 @@ def fxt_layout_dataset():
             ),
         ],
         categories=VOC.make_voc_categories(task=VocTask.voc_layout),
+        task_type=TaskType.detection,
     )
 
 
@@ -219,6 +224,7 @@ def fxt_action_dataset():
             ),
         ],
         categories=VOC.make_voc_categories(task=VocTask.voc_action),
+        task_type=TaskType.detection,
     )
 
 
@@ -975,6 +981,7 @@ class VocFormatPracticeTest:
                     ["background", "a", "b", "c", "d"]
                 ),
             },
+            task_type=TaskType.detection,
         )
 
         src_dataset = Dataset.from_iterable(
@@ -999,6 +1006,7 @@ class VocFormatPracticeTest:
                 ),
                 AnnotationType.mask: MaskCategories(colormap=VOC.generate_colormap(5)),
             },
+            task_type=TaskType.segmentation_instance,
         )
 
         src_dataset.export(test_dir, "voc_detection", save_media=True)

@@ -15,6 +15,7 @@ from datumaro.components.dataset_base import DatasetItem, SubsetBase
 from datumaro.components.errors import InvalidAnnotationError
 from datumaro.components.importer import ImportContext
 from datumaro.components.media import Image
+from datumaro.components.task import TaskAnnotationMapping
 from datumaro.util.image import find_images
 from datumaro.util.mask_tools import generate_colormap, load_mask
 from datumaro.util.meta_file_util import has_meta_file, parse_meta_file
@@ -93,6 +94,7 @@ class _SynthiaBase(SubsetBase):
 
         self._path_formats = path_formats
         self._label_map = label_map
+        self._ann_types = set()
 
         self._img_dir = None
         self._inst_dir = None
@@ -107,6 +109,7 @@ class _SynthiaBase(SubsetBase):
 
         self._categories = self._load_categories(path)
         self._items = list(self._load_items().values())
+        self._task_type = TaskAnnotationMapping().get_task(self._ann_types)
 
     def _load_categories(self, path):
         if has_meta_file(path):
@@ -142,6 +145,7 @@ class _SynthiaBase(SubsetBase):
                     anno.append(
                         Mask(image=self._lazy_extract_mask(labels_mask, label_id), label=label_id)
                     )
+                    self._ann_types.add(AnnotationType.mask)
 
                 image = images.get(item_id)
                 if image:
@@ -164,6 +168,7 @@ class _SynthiaBase(SubsetBase):
                     anno.append(
                         Mask(image=self._lazy_extract_mask(color_mask, label_id), label=label_id)
                     )
+                    self._ann_types.add(AnnotationType.mask)
 
                 image = images.get(item_id)
                 if image:

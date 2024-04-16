@@ -18,6 +18,7 @@ from datumaro.components.dataset_base import DatasetItem, SubsetBase
 from datumaro.components.errors import DatasetImportError, InvalidAnnotationError
 from datumaro.components.importer import ImportContext
 from datumaro.components.media import Image
+from datumaro.components.task import TaskAnnotationMapping
 from datumaro.util.image import find_images
 from datumaro.util.meta_file_util import has_meta_file, parse_meta_file
 
@@ -54,6 +55,7 @@ class AlignCelebaBase(SubsetBase):
             }
 
         self._items = list(self._load_items(path).values())
+        self._task_type = TaskAnnotationMapping().get_task(self._ann_types)
 
     def _load_items(self, root_dir):
         items = {}
@@ -83,6 +85,7 @@ class AlignCelebaBase(SubsetBase):
                     while len(label_categories) <= label:
                         label_categories.add("class-%d" % len(label_categories))
                     anno.append(Label(label))
+                    self._ann_types.add(AnnotationType.label)
 
                 image = images.get(item_id)
                 if image:
@@ -121,6 +124,7 @@ class AlignCelebaBase(SubsetBase):
                     anno = items[item_id].annotations
                     label = anno[0].label
                     anno.append(Points(landmarks, label=label))
+                    self._ann_types.add(AnnotationType.points)
 
                 if landmarks_number - 1 != counter:
                     raise InvalidAnnotationError(
