@@ -305,11 +305,11 @@ class DatasetTest(TestCase):
 
         with TestDir() as test_dir:
             dataset_path = osp.join(test_dir, "a", "b")
-            dataset.export(dataset_path, "coco", save_media=True)
+            dataset.export(dataset_path, "coco_labels", save_media=True)
 
             detected_format = Dataset.detect(test_dir, depth=2)
 
-            self.assertEqual("coco", detected_format)
+            self.assertEqual("coco_labels", detected_format)
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_cannot_detect_for_non_existent_path(self):

@@ -921,6 +921,21 @@
     }
   },
   {
+    "import_path": "datumaro.plugins.data_formats.mmdet.MmdetCocoBase",
+    "plugin_name": "mmdet_coco",
+    "plugin_type": "DatasetBase"
+  },
+  {
+    "import_path": "datumaro.plugins.data_formats.mmdet.MmdetCocoImporter",
+    "plugin_name": "mmdet_coco",
+    "plugin_type": "Importer",
+    "metadata": {
+      "file_extensions": [
+        ".json"
+      ]
+    }
+  },
+  {
     "import_path": "datumaro.plugins.data_formats.mnist.MnistBase",
     "plugin_name": "mnist",
     "plugin_type": "DatasetBase"
