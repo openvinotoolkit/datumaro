@@ -1231,9 +1231,9 @@ class CocoImporterTest:
         dataset_dir = request.getfixturevalue(tc)
         with pytest.raises(DatasetImportError):
             if not stream:
-                Dataset.import_from(dataset_dir, format="coco_labels")
+                Dataset.import_from(dataset_dir, format="coco")
             else:
-                StreamDataset.import_from(dataset_dir, format="coco_labels")
+                StreamDataset.import_from(dataset_dir, format="coco")
 
 
 class CocoExtractorTests(TestCase):
@@ -3228,7 +3228,7 @@ class CocoExporterTest:
         assert len(anno["annotations"]) == 2
 
         if n_expected_anns > 0:  ## importable
-            imported = Dataset.import_from(test_dir, "coco_instances")
+            imported = Dataset.import_from(test_dir, "coco")
             imported_anns = []
             for item in imported:
                 imported_anns.extend(item.annotations)
@@ -3236,7 +3236,7 @@ class CocoExporterTest:
         else:
             with pytest.raises(AnnotationImportError) as capture:
                 try:
-                    Dataset.import_from(test_dir, "coco_instances")
+                    Dataset.import_from(test_dir, "coco")
                 except DatasetImportError as e:
                     if str(e).startswith("Failed to import dataset"):
                         raise e.__cause__
