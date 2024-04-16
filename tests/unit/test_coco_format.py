@@ -2882,7 +2882,7 @@ class CocoExporterTest:
         compare_datasets(
             TestCase(),
             expected,
-            Dataset.import_from(test_dir, "coco_image_info"),
+            Dataset.import_from(test_dir, "coco"),
             require_media=True,
             ignored_attrs={"id"},
         )
