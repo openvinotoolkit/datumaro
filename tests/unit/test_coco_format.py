@@ -10,7 +10,6 @@ import shutil
 from copy import deepcopy
 from functools import partial
 from io import StringIO
-from itertools import product
 from unittest import TestCase, skip
 
 import numpy as np
@@ -54,8 +53,6 @@ from datumaro.plugins.data_formats.coco.exporter import (
     CocoStuffExporter,
 )
 from datumaro.plugins.data_formats.coco.format import CocoPath
-
-# from datumaro.plugins.data_formats.coco.importer import CocoImporter
 from datumaro.util import dump_json_file, parse_json_file
 
 from ..requirements import Requirements, mark_requirement
@@ -1161,7 +1158,7 @@ class CocoImporterTest:
     @pytest.mark.parametrize(
         "subdir",
         [
-            # "coco",
+            "coco",
             "coco_captions",
             "coco_image_info",
             "coco_instances",
