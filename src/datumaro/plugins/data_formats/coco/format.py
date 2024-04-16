@@ -13,6 +13,7 @@ class CocoTask(Enum):
     image_info = auto()
     panoptic = auto()
     stuff = auto()
+    mixed = auto()
 
 
 class CocoImporterType(Enum):

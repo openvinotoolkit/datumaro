@@ -27,6 +27,7 @@ from .format import CocoImporterType, CocoTask
 
 
 class CocoImporter(Importer):
+    _TASK = CocoTask.mixed
     _TASKS = {
         CocoTask.instances: CocoInstancesBase,
         CocoTask.person_keypoints: CocoPersonKeypointsBase,
@@ -61,12 +62,14 @@ class CocoImporter(Importer):
         # to use autodetection with the COCO dataset), disable autodetection
         # for the single-task formats.
         if len(cls._TASKS) == 1:
-            context.raise_unsupported()
-
-        with context.require_any():
-            for task in cls._TASKS.keys():
-                with context.alternative():
-                    context.require_file(f"annotations/{task.name}_*{cls._ANNO_EXT}")
+            context.require_file(f"annotations/{cls._TASK.name}_*{cls._ANNO_EXT}")
+            return FormatDetectionConfidence.MEDIUM
+        else:
+            with context.require_any():
+                for task in cls._TASKS.keys():
+                    with context.alternative():
+                        context.require_file(f"annotations/{task.name}_*{cls._ANNO_EXT}")
+            return FormatDetectionConfidence.LOW
 
     def __call__(self, path, stream: bool = False, **extra_params):
         subsets = self.find_sources(path)
@@ -140,8 +143,6 @@ class CocoImporter(Importer):
         subsets = {}
         for subset_path in subset_paths:
             ann_type = detect_coco_task(osp.basename(subset_path))
-            if ann_type is None and len(cls._TASKS) == 1:
-                ann_type = list(cls._TASKS)[0]
 
             if ann_type not in cls._TASKS:
                 log.warning(

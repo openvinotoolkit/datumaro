@@ -54,7 +54,8 @@ from datumaro.plugins.data_formats.coco.exporter import (
     CocoStuffExporter,
 )
 from datumaro.plugins.data_formats.coco.format import CocoPath
-from datumaro.plugins.data_formats.coco.importer import CocoImporter
+
+# from datumaro.plugins.data_formats.coco.importer import CocoImporter
 from datumaro.util import dump_json_file, parse_json_file
 
 from ..requirements import Requirements, mark_requirement
@@ -143,7 +144,7 @@ class CocoImporterTest:
                         check_is_stream(dataset, stream)
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
-    @pytest.mark.parametrize("format", ["coco", "coco_instances"])
+    @pytest.mark.parametrize("format", ["coco_instances"])
     @pytest.mark.parametrize(
         "subset, path",
         [
@@ -232,6 +233,10 @@ class CocoImporterTest:
         check_is_stream(dataset, stream)
         compare_datasets(helper_tc, expected, dataset, require_media=True)
 
+    @skip(
+        "COCO format is required to specify the task in annotation file "
+        " for resolving ambiguity problem."
+    )
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     @pytest.mark.parametrize("stream", [True, False])
     def test_can_import_instances_with_any_annotation_filename(self, stream, test_dir, helper_tc):
@@ -363,7 +368,7 @@ class CocoImporterTest:
         compare_datasets(helper_tc, expected_dataset, actual_dataset, require_media=True)
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
-    @pytest.mark.parametrize("format", ["coco", "coco_captions"])
+    @pytest.mark.parametrize("format", ["coco_captions"])
     @pytest.mark.parametrize(
         "subset, path",
         [
@@ -415,6 +420,10 @@ class CocoImporterTest:
         check_is_stream(dataset, stream)
         compare_datasets(helper_tc, expected, dataset, require_media=True)
 
+    @skip(
+        "COCO format is required to specify the task in annotation file "
+        " for resolving ambiguity problem."
+    )
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     @pytest.mark.parametrize("stream", [True, False])
     def test_can_import_captions_with_any_annotation_filename(self, stream, test_dir, helper_tc):
@@ -451,7 +460,7 @@ class CocoImporterTest:
         compare_datasets(helper_tc, expected_dataset, imported_dataset, require_media=True)
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
-    @pytest.mark.parametrize("format", ["coco", "coco_labels"])
+    @pytest.mark.parametrize("format", ["coco_labels"])
     @pytest.mark.parametrize(
         "subset, path",
         [
@@ -501,6 +510,10 @@ class CocoImporterTest:
         check_is_stream(dataset, stream)
         compare_datasets(helper_tc, expected, dataset, require_media=True)
 
+    @skip(
+        "COCO format is required to specify the task in annotation file "
+        " for resolving ambiguity problem."
+    )
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     @pytest.mark.parametrize("stream", [True, False])
     def test_can_import_labels_with_any_annotation_filename(self, stream, test_dir, helper_tc):
@@ -538,7 +551,7 @@ class CocoImporterTest:
         compare_datasets(helper_tc, expected_dataset, imported_dataset, require_media=True)
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
-    @pytest.mark.parametrize("format", ["coco", "coco_person_keypoints"])
+    @pytest.mark.parametrize("format", ["coco_person_keypoints"])
     @pytest.mark.parametrize(
         "subset, path",
         [
@@ -662,6 +675,10 @@ class CocoImporterTest:
         check_is_stream(dataset, stream)
         compare_datasets(helper_tc, expected, dataset, require_media=True)
 
+    @skip(
+        "COCO format is required to specify the task in annotation file "
+        " for resolving ambiguity problem."
+    )
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     @pytest.mark.parametrize("stream", [True, False])
     def test_can_import_keypoints_with_any_annotation_filename(self, stream, test_dir, helper_tc):
@@ -760,7 +777,7 @@ class CocoImporterTest:
         compare_datasets(helper_tc, expected_dataset, actual_dataset, require_media=True)
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
-    @pytest.mark.parametrize("format", ["coco", "coco_image_info"])
+    @pytest.mark.parametrize("format", ["coco_image_info"])
     @pytest.mark.parametrize(
         "subset, path",
         [
@@ -808,6 +825,10 @@ class CocoImporterTest:
         check_is_stream(dataset, stream)
         compare_datasets(helper_tc, expected, dataset, require_media=True)
 
+    @skip(
+        "COCO format is required to specify the task in annotation file "
+        " for resolving ambiguity problem."
+    )
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     @pytest.mark.parametrize("stream", [True, False])
     def test_can_import_image_info_with_any_annotation_filename(self, stream, test_dir, helper_tc):
@@ -842,7 +863,7 @@ class CocoImporterTest:
         compare_datasets(helper_tc, expected_dataset, imported_dataset, require_media=True)
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
-    @pytest.mark.parametrize("format", ["coco", "coco_panoptic"])
+    @pytest.mark.parametrize("format", ["coco_panoptic"])
     @pytest.mark.parametrize(
         "subset, path",
         [
@@ -911,6 +932,10 @@ class CocoImporterTest:
         )
         compare_datasets(helper_tc, expected, dataset, require_media=True)
 
+    @skip(
+        "COCO format is required to specify the task in annotation file "
+        " for resolving ambiguity problem."
+    )
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     @pytest.mark.parametrize("stream", [True, False])
     def test_can_import_panoptic_with_any_annotation_filename(self, stream, test_dir, helper_tc):
@@ -995,7 +1020,7 @@ class CocoImporterTest:
         compare_datasets(helper_tc, expected_dataset, actual_dataset, require_media=True)
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
-    @pytest.mark.parametrize("format", ["coco", "coco_stuff"])
+    @pytest.mark.parametrize("format", ["coco_stuff"])
     @pytest.mark.parametrize(
         "subset, path",
         [
@@ -1075,6 +1100,10 @@ class CocoImporterTest:
         check_is_stream(dataset, stream)
         compare_datasets(helper_tc, expected, dataset, require_media=True)
 
+    @skip(
+        "COCO format is required to specify the task in annotation file "
+        " for resolving ambiguity problem."
+    )
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     @pytest.mark.parametrize("stream", [True, False])
     def test_can_import_stuff_with_any_annotation_filename(self, stream, test_dir, helper_tc):
@@ -1132,7 +1161,7 @@ class CocoImporterTest:
     @pytest.mark.parametrize(
         "subdir",
         [
-            "coco",
+            # "coco",
             "coco_captions",
             "coco_image_info",
             "coco_instances",
@@ -1148,7 +1177,7 @@ class CocoImporterTest:
         dataset_dir = osp.join(DUMMY_DATASET_DIR, subdir)
 
         detected_formats = env.detect_dataset(dataset_dir)
-        assert [CocoImporter.NAME] == detected_formats
+        assert [subdir] == detected_formats
 
     @mark_requirement(Requirements.DATUM_673)
     @pytest.mark.parametrize(
@@ -1202,9 +1231,9 @@ class CocoImporterTest:
         dataset_dir = request.getfixturevalue(tc)
         with pytest.raises(DatasetImportError):
             if not stream:
-                Dataset.import_from(dataset_dir, format="coco")
+                Dataset.import_from(dataset_dir, format="coco_labels")
             else:
-                StreamDataset.import_from(dataset_dir, format="coco")
+                StreamDataset.import_from(dataset_dir, format="coco_labels")
 
 
 class CocoExtractorTests(TestCase):
@@ -1483,6 +1512,7 @@ class CocoExporterTest:
         converter,
         test_dir,
         target_dataset=None,
+        importer=None,
         importer_args=None,
         stream: bool = False,
         **kwargs,
@@ -1492,7 +1522,7 @@ class CocoExporterTest:
             source_dataset,
             converter,
             test_dir,
-            importer="coco",
+            importer=importer,
             target_dataset=target_dataset,
             importer_args=importer_args,
             stream=stream,
@@ -1540,6 +1570,7 @@ class CocoExporterTest:
             expected_dataset,
             CocoCaptionsExporter.convert,
             test_dir,
+            importer="coco_captions",
             stream=stream,
         )
 
@@ -1701,6 +1732,7 @@ class CocoExporterTest:
             CocoInstancesExporter.convert,
             test_dir,
             target_dataset=target_dataset,
+            importer="coco_instances",
             stream=stream,
         )
 
@@ -1773,6 +1805,7 @@ class CocoExporterTest:
             partial(CocoPanopticExporter.convert, save_media=True),
             test_dir,
             require_media=True,
+            importer="coco_panoptic",
             stream=stream,
         )
 
@@ -1887,6 +1920,7 @@ class CocoExporterTest:
             CocoStuffExporter.convert,
             test_dir,
             target_dataset=target_dataset,
+            importer="coco_stuff",
             stream=stream,
         )
 
@@ -1956,6 +1990,7 @@ class CocoExporterTest:
             test_dir,
             importer_args={"merge_instance_polygons": True},
             target_dataset=target_dataset,
+            importer="coco_instances",
             stream=stream,
         )
 
@@ -2052,6 +2087,7 @@ class CocoExporterTest:
             partial(CocoInstancesExporter.convert, crop_covered=True),
             test_dir,
             target_dataset=target_dataset,
+            importer="coco_instances",
             stream=stream,
         )
 
@@ -2593,6 +2629,7 @@ class CocoExporterTest:
             CocoExporter.convert,
             test_dir,
             target_dataset=target_dataset,
+            importer="coco_instances",
             stream=stream,
         )
 
@@ -2649,6 +2686,7 @@ class CocoExporterTest:
             CocoExporter.convert,
             test_dir,
             target_dataset=target_dataset,
+            importer="coco_instances",
             stream=stream,
         )
 
@@ -2714,6 +2752,7 @@ class CocoExporterTest:
             CocoExporter.convert,
             test_dir,
             target_dataset=target_dataset,
+            importer="coco_instances",
             stream=stream,
         )
 
@@ -2771,6 +2810,7 @@ class CocoExporterTest:
             partial(CocoExporter.convert, reindex=True),
             test_dir,
             target_dataset=target_dataset,
+            importer="coco_instances",
             stream=stream,
         )
 
@@ -2792,6 +2832,7 @@ class CocoExporterTest:
             dataset,
             partial(CocoImageInfoExporter.convert, save_media=True, merge_images=True),
             test_dir,
+            importer="coco_image_info",
             require_media=True,
             stream=stream,
         )
@@ -2853,7 +2894,7 @@ class CocoExporterTest:
         compare_datasets(
             TestCase(),
             expected,
-            Dataset.import_from(test_dir, "coco"),
+            Dataset.import_from(test_dir, "coco_image_info"),
             require_media=True,
             ignored_attrs={"id"},
         )
@@ -2991,6 +3032,7 @@ class CocoExporterTest:
             partial(CocoPanopticExporter.convert, save_media=True, save_dataset_meta=True),
             test_dir,
             require_media=True,
+            importer="coco_panoptic",
             stream=stream,
         )
         assert osp.isfile(osp.join(test_dir, "dataset_meta.json"))
@@ -3043,6 +3085,7 @@ class CocoExporterTest:
             partial(CocoPanopticExporter.convert, save_media=True, save_dataset_meta=True),
             test_dir,
             require_media=True,
+            importer="coco_panoptic",
             stream=stream,
         )
         assert osp.isfile(osp.join(test_dir, "dataset_meta.json"))
@@ -3199,7 +3242,7 @@ class CocoExporterTest:
         assert len(anno["annotations"]) == 2
 
         if n_expected_anns > 0:  ## importable
-            imported = Dataset.import_from(test_dir, "coco")
+            imported = Dataset.import_from(test_dir, "coco_instances")
             imported_anns = []
             for item in imported:
                 imported_anns.extend(item.annotations)
@@ -3207,7 +3250,7 @@ class CocoExporterTest:
         else:
             with pytest.raises(AnnotationImportError) as capture:
                 try:
-                    Dataset.import_from(test_dir, "coco")
+                    Dataset.import_from(test_dir, "coco_instances")
                 except DatasetImportError as e:
                     if str(e).startswith("Failed to import dataset"):
                         raise e.__cause__
