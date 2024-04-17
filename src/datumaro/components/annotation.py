@@ -48,6 +48,7 @@ class AnnotationType(IntEnum):
     hash_key = 12
     feature_vector = 13
     tabular = 14
+    rotated_bbox = 15
 
 
 COORDINATE_ROUNDING_DIGITS = 2
@@ -841,6 +842,55 @@ class Bbox(_Shape):
 
     def wrap(item, **kwargs):
         d = {"x": item.x, "y": item.y, "w": item.w, "h": item.h}
+        d.update(kwargs)
+        return attr.evolve(item, **d)
+
+
+@attrs(slots=True, init=False, order=False)
+class RotatedBbox(_Shape):
+    _type = AnnotationType.rotated_bbox
+
+    def __init__(self, x, y, w, h, r, *args, **kwargs):
+        kwargs.pop("points", None)  # comes from wrap()
+        # points = x1, y1, x2, y2, x3, y3, x4, y4
+        self.__attrs_init__([x, y, x + w, y + h, r], *args, **kwargs)
+
+    @property
+    def x(self):
+        return self.points[0]
+
+    @property
+    def y(self):
+        return self.points[1]
+
+    @property
+    def w(self):
+        return self.points[2] - self.points[0]
+
+    @property
+    def h(self):
+        return self.points[3] - self.points[1]
+
+    @property
+    def r(self):
+        return self.points[4]
+
+    def get_area(self):
+        return self.w * self.h
+
+    def get_bbox(self):
+        return [self.x, self.y, self.w, self.h]
+
+    def as_polygon(self) -> List[float]:
+        return self.points
+
+    def iou(self, other: _Shape) -> Union[float, Literal[-1]]:
+        from datumaro.util.annotation_util import bbox_iou
+
+        return bbox_iou(self.get_bbox(), other.get_bbox())
+
+    def wrap(item, **kwargs):
+        d = {"x": item.x, "y": item.y, "w": item.w, "h": item.h, "r": item.r}
         d.update(kwargs)
         return attr.evolve(item, **d)
 
