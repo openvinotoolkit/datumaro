@@ -4,8 +4,8 @@
     "plugin_name": "ac",
     "plugin_type": "Launcher",
     "extra_deps": [
-      "openvino.tools",
-      "tensorflow"
+      "tensorflow",
+      "openvino.tools.accuracy_checker"
     ]
   },
   {
