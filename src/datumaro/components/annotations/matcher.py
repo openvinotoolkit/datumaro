@@ -367,3 +367,9 @@ class FeatureVectorMatcher(AnnotationMatcher):
 class TabularMatcher(AnnotationMatcher):
     def match_annotations(self, sources):
         raise NotImplementedError()
+
+
+@attrs
+class RotatedBboxMatcher(ShapeMatcher):
+    def distance(self, a, b):
+        return OKS(a, b, sigma=self.sigma)
