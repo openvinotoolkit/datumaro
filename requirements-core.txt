@@ -34,7 +34,7 @@ requests
 pandas~=1.4.0
 
 # OpenVINO
-openvino
+openvino>=2023.2.0
 tokenizers
 
 # Encryption
