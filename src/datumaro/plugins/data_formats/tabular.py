@@ -7,6 +7,8 @@ import os
 import os.path as osp
 from typing import Dict, List, Optional, Tuple, Type, Union
 
+import pandas as pd
+
 from datumaro.components.annotation import AnnotationType, Categories, Tabular, TabularCategories
 from datumaro.components.dataset_base import DatasetBase, DatasetItem
 from datumaro.components.errors import MediaTypeError
@@ -89,7 +91,8 @@ class TabularDataBase(DatasetBase):
 
             targets: List[str] = []
             if target is None:
-                targets.append(table.columns[-1])  # last column
+                # targets.append(table.columns[-1])  # last column
+                targets.extend(table.columns)
             elif isinstance(target, str):
                 if target in table.columns:  # add valid column name only
                     targets.append(target)
@@ -102,13 +105,13 @@ class TabularDataBase(DatasetBase):
             for target in targets:
                 _, category = categories.find(target)
                 target_dtype = table.dtype(target)
-                if target_dtype == str:
+                if target_dtype in [int, float, pd.api.types.CategoricalDtype()]:
                     labels = set(table.features(target, unique=True))
                     if category is None:
                         categories.add(target, target_dtype, labels)
                     else:  # update labels if they are different.
                         category.labels.union(labels)
-                elif target_dtype in [int, float]:
+                elif target_dtype is str:
                     # 'int' can be categorical, but we don't know this unless user gives information.
                     if category is None:
                         categories.add(target, target_dtype)
