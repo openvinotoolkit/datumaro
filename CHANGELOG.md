@@ -11,6 +11,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   (<https://github.com/openvinotoolkit/datumaro/pull/1422>)
 
 ### Enhancements
+- Fix ambiguous COCO format detector
+  (<https://github.com/openvinotoolkit/datumaro/pull/1442>)
 
 ### Bug fixes
 

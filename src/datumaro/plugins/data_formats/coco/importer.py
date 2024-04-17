@@ -56,17 +56,20 @@ class CocoImporter(Importer):
         cls,
         context: FormatDetectionContext,
     ) -> FormatDetectionConfidence:
-        # The `coco` format is inherently ambiguous with `coco_instances`,
-        # `coco_stuff`, etc. To remove the ambiguity (and thus make it possible
-        # to use autodetection with the COCO dataset), disable autodetection
-        # for the single-task formats.
-        if len(cls._TASKS) == 1:
+        num_tasks = 0
+        for task in cls._TASKS.keys():
+            try:
+                context.require_files(f"annotations/{task.name}_*{cls._ANNO_EXT}")
+                num_tasks += 1
+            except Exception:
+                pass
+        if num_tasks > 1:
+            log.warning(
+                "Multiple COCO tasks are detected. The detected format will be `coco` instead."
+            )
+            return FormatDetectionConfidence.MEDIUM
+        else:
             context.raise_unsupported()
-
-        with context.require_any():
-            for task in cls._TASKS.keys():
-                with context.alternative():
-                    context.require_file(f"annotations/{task.name}_*{cls._ANNO_EXT}")
 
     def __call__(self, path, stream: bool = False, **extra_params):
         subsets = self.find_sources(path)
@@ -140,8 +143,6 @@ class CocoImporter(Importer):
         subsets = {}
         for subset_path in subset_paths:
             ann_type = detect_coco_task(osp.basename(subset_path))
-            if ann_type is None and len(cls._TASKS) == 1:
-                ann_type = list(cls._TASKS)[0]
 
             if ann_type not in cls._TASKS:
                 log.warning(
@@ -175,32 +176,40 @@ class CocoImageInfoImporter(CocoImporter):
     _TASK = CocoTask.image_info
     _TASKS = {_TASK: CocoImporter._TASKS[_TASK]}
 
+    @classmethod
+    def detect(
+        cls,
+        context: FormatDetectionContext,
+    ) -> FormatDetectionConfidence:
+        context.require_file(f"annotations/{cls._TASK.name}_*{cls._ANNO_EXT}")
+        return FormatDetectionConfidence.LOW
 
-class CocoCaptionsImporter(CocoImporter):
+
+class CocoCaptionsImporter(CocoImageInfoImporter):
     _TASK = CocoTask.captions
     _TASKS = {_TASK: CocoImporter._TASKS[_TASK]}
 
 
-class CocoInstancesImporter(CocoImporter):
+class CocoInstancesImporter(CocoImageInfoImporter):
     _TASK = CocoTask.instances
     _TASKS = {_TASK: CocoImporter._TASKS[_TASK]}
 
 
-class CocoPersonKeypointsImporter(CocoImporter):
+class CocoPersonKeypointsImporter(CocoImageInfoImporter):
     _TASK = CocoTask.person_keypoints
     _TASKS = {_TASK: CocoImporter._TASKS[_TASK]}
 
 
-class CocoLabelsImporter(CocoImporter):
+class CocoLabelsImporter(CocoImageInfoImporter):
     _TASK = CocoTask.labels
     _TASKS = {_TASK: CocoImporter._TASKS[_TASK]}
 
 
-class CocoPanopticImporter(CocoImporter):
+class CocoPanopticImporter(CocoImageInfoImporter):
     _TASK = CocoTask.panoptic
     _TASKS = {_TASK: CocoImporter._TASKS[_TASK]}
 
 
-class CocoStuffImporter(CocoImporter):
+class CocoStuffImporter(CocoImageInfoImporter):
     _TASK = CocoTask.stuff
     _TASKS = {_TASK: CocoImporter._TASKS[_TASK]}
