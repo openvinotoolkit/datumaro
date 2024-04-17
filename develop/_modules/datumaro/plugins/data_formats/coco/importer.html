@@ -405,17 +405,20 @@ document.write(`
         <span class="bp">cls</span><span class="p">,</span>
         <span class="n">context</span><span class="p">:</span> <span class="n">FormatDetectionContext</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">FormatDetectionConfidence</span><span class="p">:</span>
-        <span class="c1"># The `coco` format is inherently ambiguous with `coco_instances`,</span>
-        <span class="c1"># `coco_stuff`, etc. To remove the ambiguity (and thus make it possible</span>
-        <span class="c1"># to use autodetection with the COCO dataset), disable autodetection</span>
-        <span class="c1"># for the single-task formats.</span>
-        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">cls</span><span class="o">.</span><span class="n">_TASKS</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
-            <span class="n">context</span><span class="o">.</span><span class="n">raise_unsupported</span><span class="p">()</span>
-
-        <span class="k">with</span> <span class="n">context</span><span class="o">.</span><span class="n">require_any</span><span class="p">():</span>
-            <span class="k">for</span> <span class="n">task</span> <span class="ow">in</span> <span class="bp">cls</span><span class="o">.</span><span class="n">_TASKS</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
-                <span class="k">with</span> <span class="n">context</span><span class="o">.</span><span class="n">alternative</span><span class="p">():</span>
-                    <span class="n">context</span><span class="o">.</span><span class="n">require_file</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;annotations/</span><span class="si">{</span><span class="n">task</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">_*</span><span class="si">{</span><span class="bp">cls</span><span class="o">.</span><span class="n">_ANNO_EXT</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span></div>
+        <span class="n">num_tasks</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">for</span> <span class="n">task</span> <span class="ow">in</span> <span class="bp">cls</span><span class="o">.</span><span class="n">_TASKS</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">context</span><span class="o">.</span><span class="n">require_files</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;annotations/</span><span class="si">{</span><span class="n">task</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">_*</span><span class="si">{</span><span class="bp">cls</span><span class="o">.</span><span class="n">_ANNO_EXT</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+                <span class="n">num_tasks</span> <span class="o">+=</span> <span class="mi">1</span>
+            <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
+                <span class="k">pass</span>
+        <span class="k">if</span> <span class="n">num_tasks</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="n">log</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
+                <span class="s2">&quot;Multiple COCO tasks are detected. The detected format will be `coco` instead.&quot;</span>
+            <span class="p">)</span>
+            <span class="k">return</span> <span class="n">FormatDetectionConfidence</span><span class="o">.</span><span class="n">MEDIUM</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">context</span><span class="o">.</span><span class="n">raise_unsupported</span><span class="p">()</span></div>
 
 
     <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">,</span> <span class="n">stream</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="o">**</span><span class="n">extra_params</span><span class="p">):</span>
@@ -492,8 +495,6 @@ document.write(`
         <span class="n">subsets</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="k">for</span> <span class="n">subset_path</span> <span class="ow">in</span> <span class="n">subset_paths</span><span class="p">:</span>
             <span class="n">ann_type</span> <span class="o">=</span> <span class="n">detect_coco_task</span><span class="p">(</span><span class="n">osp</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">subset_path</span><span class="p">))</span>
-            <span class="k">if</span> <span class="n">ann_type</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="bp">cls</span><span class="o">.</span><span class="n">_TASKS</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
-                <span class="n">ann_type</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="bp">cls</span><span class="o">.</span><span class="n">_TASKS</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
 
             <span class="k">if</span> <span class="n">ann_type</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">cls</span><span class="o">.</span><span class="n">_TASKS</span><span class="p">:</span>
                 <span class="n">log</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
@@ -535,13 +536,24 @@ document.write(`
 <a class="viewcode-back" href="../../../../../docs/reference/_autosummary/datumaro.plugins.data_formats.coco.importer.html#datumaro.plugins.data_formats.coco.importer.CocoImageInfoImporter">[docs]</a>
 <span class="k">class</span> <span class="nc">CocoImageInfoImporter</span><span class="p">(</span><span class="n">CocoImporter</span><span class="p">):</span>
     <span class="n">_TASK</span> <span class="o">=</span> <span class="n">CocoTask</span><span class="o">.</span><span class="n">image_info</span>
-    <span class="n">_TASKS</span> <span class="o">=</span> <span class="p">{</span><span class="n">_TASK</span><span class="p">:</span> <span class="n">CocoImporter</span><span class="o">.</span><span class="n">_TASKS</span><span class="p">[</span><span class="n">_TASK</span><span class="p">]}</span></div>
+    <span class="n">_TASKS</span> <span class="o">=</span> <span class="p">{</span><span class="n">_TASK</span><span class="p">:</span> <span class="n">CocoImporter</span><span class="o">.</span><span class="n">_TASKS</span><span class="p">[</span><span class="n">_TASK</span><span class="p">]}</span>
+
+<div class="viewcode-block" id="CocoImageInfoImporter.detect">
+<a class="viewcode-back" href="../../../../../docs/reference/_autosummary/datumaro.plugins.data_formats.coco.importer.html#datumaro.plugins.data_formats.coco.importer.CocoImageInfoImporter.detect">[docs]</a>
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">detect</span><span class="p">(</span>
+        <span class="bp">cls</span><span class="p">,</span>
+        <span class="n">context</span><span class="p">:</span> <span class="n">FormatDetectionContext</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">FormatDetectionConfidence</span><span class="p">:</span>
+        <span class="n">context</span><span class="o">.</span><span class="n">require_file</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;annotations/</span><span class="si">{</span><span class="bp">cls</span><span class="o">.</span><span class="n">_TASK</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">_*</span><span class="si">{</span><span class="bp">cls</span><span class="o">.</span><span class="n">_ANNO_EXT</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">FormatDetectionConfidence</span><span class="o">.</span><span class="n">LOW</span></div>
+</div>
 
 
 
 <div class="viewcode-block" id="CocoCaptionsImporter">
 <a class="viewcode-back" href="../../../../../docs/reference/_autosummary/datumaro.plugins.data_formats.coco.importer.html#datumaro.plugins.data_formats.coco.importer.CocoCaptionsImporter">[docs]</a>
-<span class="k">class</span> <span class="nc">CocoCaptionsImporter</span><span class="p">(</span><span class="n">CocoImporter</span><span class="p">):</span>
+<span class="k">class</span> <span class="nc">CocoCaptionsImporter</span><span class="p">(</span><span class="n">CocoImageInfoImporter</span><span class="p">):</span>
     <span class="n">_TASK</span> <span class="o">=</span> <span class="n">CocoTask</span><span class="o">.</span><span class="n">captions</span>
     <span class="n">_TASKS</span> <span class="o">=</span> <span class="p">{</span><span class="n">_TASK</span><span class="p">:</span> <span class="n">CocoImporter</span><span class="o">.</span><span class="n">_TASKS</span><span class="p">[</span><span class="n">_TASK</span><span class="p">]}</span></div>
 
@@ -549,7 +561,7 @@ document.write(`
 
 <div class="viewcode-block" id="CocoInstancesImporter">
 <a class="viewcode-back" href="../../../../../docs/reference/_autosummary/datumaro.plugins.data_formats.coco.importer.html#datumaro.plugins.data_formats.coco.importer.CocoInstancesImporter">[docs]</a>
-<span class="k">class</span> <span class="nc">CocoInstancesImporter</span><span class="p">(</span><span class="n">CocoImporter</span><span class="p">):</span>
+<span class="k">class</span> <span class="nc">CocoInstancesImporter</span><span class="p">(</span><span class="n">CocoImageInfoImporter</span><span class="p">):</span>
     <span class="n">_TASK</span> <span class="o">=</span> <span class="n">CocoTask</span><span class="o">.</span><span class="n">instances</span>
     <span class="n">_TASKS</span> <span class="o">=</span> <span class="p">{</span><span class="n">_TASK</span><span class="p">:</span> <span class="n">CocoImporter</span><span class="o">.</span><span class="n">_TASKS</span><span class="p">[</span><span class="n">_TASK</span><span class="p">]}</span></div>
 
@@ -557,7 +569,7 @@ document.write(`
 
 <div class="viewcode-block" id="CocoPersonKeypointsImporter">
 <a class="viewcode-back" href="../../../../../docs/reference/_autosummary/datumaro.plugins.data_formats.coco.importer.html#datumaro.plugins.data_formats.coco.importer.CocoPersonKeypointsImporter">[docs]</a>
-<span class="k">class</span> <span class="nc">CocoPersonKeypointsImporter</span><span class="p">(</span><span class="n">CocoImporter</span><span class="p">):</span>
+<span class="k">class</span> <span class="nc">CocoPersonKeypointsImporter</span><span class="p">(</span><span class="n">CocoImageInfoImporter</span><span class="p">):</span>
     <span class="n">_TASK</span> <span class="o">=</span> <span class="n">CocoTask</span><span class="o">.</span><span class="n">person_keypoints</span>
     <span class="n">_TASKS</span> <span class="o">=</span> <span class="p">{</span><span class="n">_TASK</span><span class="p">:</span> <span class="n">CocoImporter</span><span class="o">.</span><span class="n">_TASKS</span><span class="p">[</span><span class="n">_TASK</span><span class="p">]}</span></div>
 
@@ -565,7 +577,7 @@ document.write(`
 
 <div class="viewcode-block" id="CocoLabelsImporter">
 <a class="viewcode-back" href="../../../../../docs/reference/_autosummary/datumaro.plugins.data_formats.coco.importer.html#datumaro.plugins.data_formats.coco.importer.CocoLabelsImporter">[docs]</a>
-<span class="k">class</span> <span class="nc">CocoLabelsImporter</span><span class="p">(</span><span class="n">CocoImporter</span><span class="p">):</span>
+<span class="k">class</span> <span class="nc">CocoLabelsImporter</span><span class="p">(</span><span class="n">CocoImageInfoImporter</span><span class="p">):</span>
     <span class="n">_TASK</span> <span class="o">=</span> <span class="n">CocoTask</span><span class="o">.</span><span class="n">labels</span>
     <span class="n">_TASKS</span> <span class="o">=</span> <span class="p">{</span><span class="n">_TASK</span><span class="p">:</span> <span class="n">CocoImporter</span><span class="o">.</span><span class="n">_TASKS</span><span class="p">[</span><span class="n">_TASK</span><span class="p">]}</span></div>
 
@@ -573,7 +585,7 @@ document.write(`
 
 <div class="viewcode-block" id="CocoPanopticImporter">
 <a class="viewcode-back" href="../../../../../docs/reference/_autosummary/datumaro.plugins.data_formats.coco.importer.html#datumaro.plugins.data_formats.coco.importer.CocoPanopticImporter">[docs]</a>
-<span class="k">class</span> <span class="nc">CocoPanopticImporter</span><span class="p">(</span><span class="n">CocoImporter</span><span class="p">):</span>
+<span class="k">class</span> <span class="nc">CocoPanopticImporter</span><span class="p">(</span><span class="n">CocoImageInfoImporter</span><span class="p">):</span>
     <span class="n">_TASK</span> <span class="o">=</span> <span class="n">CocoTask</span><span class="o">.</span><span class="n">panoptic</span>
     <span class="n">_TASKS</span> <span class="o">=</span> <span class="p">{</span><span class="n">_TASK</span><span class="p">:</span> <span class="n">CocoImporter</span><span class="o">.</span><span class="n">_TASKS</span><span class="p">[</span><span class="n">_TASK</span><span class="p">]}</span></div>
 
@@ -581,7 +593,7 @@ document.write(`
 
 <div class="viewcode-block" id="CocoStuffImporter">
 <a class="viewcode-back" href="../../../../../docs/reference/_autosummary/datumaro.plugins.data_formats.coco.importer.html#datumaro.plugins.data_formats.coco.importer.CocoStuffImporter">[docs]</a>
-<span class="k">class</span> <span class="nc">CocoStuffImporter</span><span class="p">(</span><span class="n">CocoImporter</span><span class="p">):</span>
+<span class="k">class</span> <span class="nc">CocoStuffImporter</span><span class="p">(</span><span class="n">CocoImageInfoImporter</span><span class="p">):</span>
     <span class="n">_TASK</span> <span class="o">=</span> <span class="n">CocoTask</span><span class="o">.</span><span class="n">stuff</span>
     <span class="n">_TASKS</span> <span class="o">=</span> <span class="p">{</span><span class="n">_TASK</span><span class="p">:</span> <span class="n">CocoImporter</span><span class="o">.</span><span class="n">_TASKS</span><span class="p">[</span><span class="n">_TASK</span><span class="p">]}</span></div>
 
