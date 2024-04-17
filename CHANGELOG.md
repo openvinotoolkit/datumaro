@@ -11,6 +11,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   (<https://github.com/openvinotoolkit/datumaro/pull/1422>)
 
 ### Enhancements
+- Prevent AcLauncher for OpenVINO 2024.0
+  (<https://github.com/openvinotoolkit/datumaro/pull/1449>)
 
 ### Bug fixes
 
