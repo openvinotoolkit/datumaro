@@ -1,4 +1,4 @@
-# Copyright (C) 2021-2023 Intel Corporation
+# Copyright (C) 2024 Intel Corporation
 #
 # SPDX-License-Identifier: MIT
 
@@ -30,23 +30,23 @@ from attrs import field, frozen
 from datumaro.components.annotation import AnnotationType, Bbox, Label, LabelCategories
 from datumaro.components.dataset_base import CategoriesInfo, DatasetInfo, DatasetItem, IDataset
 from datumaro.components.media import Image, MediaElement
+from datumaro.util.import_util import lazy_import
 from datumaro.util.tf_util import import_tf
 
 TFDS_EXTRACTOR_AVAILABLE = True if find_spec("tensorflow_datasets") is not None else False
 
-if TYPE_CHECKING:
+if TFDS_EXTRACTOR_AVAILABLE:
     try:
-        tf = import_tf()
-        import tensorflow_datasets as tfds
+        if TYPE_CHECKING:
+            tf = import_tf()
+            import tensorflow_datasets as tfds
+        else:
+            tfds = lazy_import("tensorflow_datasets")
     except ImportError:
         log.debug(
             "Unable to import TensorFlow or TensorFlow Datasets. "
             "Dataset downloading via TFDS is disabled."
         )
-else:
-    from datumaro.util.import_util import lazy_import
-
-    tfds = lazy_import("tensorflow_datasets")
 
 
 @frozen(kw_only=True)
