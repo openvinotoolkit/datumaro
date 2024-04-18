@@ -4,6 +4,7 @@
 
 from __future__ import annotations
 
+import math
 from enum import IntEnum
 from functools import partial
 from itertools import zip_longest
@@ -852,8 +853,7 @@ class RotatedBbox(_Shape):
 
     def __init__(self, x, y, w, h, r, *args, **kwargs):
         kwargs.pop("points", None)  # comes from wrap()
-        # points = x1, y1, x2, y2, x3, y3, x4, y4
-        self.__attrs_init__([x, y, x + w, y + h, r], *args, **kwargs)
+        self.__attrs_init__([x, y, w, h, r], *args, **kwargs)
 
     @property
     def x(self):
@@ -865,11 +865,11 @@ class RotatedBbox(_Shape):
 
     @property
     def w(self):
-        return self.points[2] - self.points[0]
+        return self.points[2]
 
     @property
     def h(self):
-        return self.points[3] - self.points[1]
+        return self.points[3]
 
     @property
     def r(self):
@@ -879,10 +879,40 @@ class RotatedBbox(_Shape):
         return self.w * self.h
 
     def get_bbox(self):
-        return [self.x, self.y, self.w, self.h]
+        points = self.as_polygon()
+        xs = [p for p in points[0::2]]
+        ys = [p for p in points[1::2]]
+
+        return [min(xs), min(ys), max(xs) - min(xs), max(ys) - min(ys)]
+
+    def get_rotated_bbox(self):
+        return [self.x, self.y, self.w, self.h, self.r]
 
     def as_polygon(self) -> List[float]:
-        return self.points
+        """Convert [center_x, center_y, width, height, rotation] to 8 coordinates for a rotated bounding box."""
+
+        half_width = self.w / 2
+        half_height = self.h / 2
+        rot = np.deg2rad(self.r)
+
+        # Calculate coordinates of the four corners
+        corners = np.array(
+            [
+                [-half_width, -half_height],
+                [half_width, -half_height],
+                [half_width, half_height],
+                [-half_width, half_height],
+            ]
+        )
+
+        # Rotate the corners
+        transformed = []
+        for corner in corners:
+            x = corner[0] * math.cos(rot) - corner[1] * math.sin(rot) + self.x
+            y = corner[0] * math.sin(rot) + corner[1] * math.cos(rot) + self.y
+            transformed.extend([x, y])
+
+        return transformed
 
     def iou(self, other: _Shape) -> Union[float, Literal[-1]]:
         from datumaro.util.annotation_util import bbox_iou
