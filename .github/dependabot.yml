@@ -5,15 +5,22 @@ updates:
     schedule:
       interval: daily
 
-  # - package-ecosystem: pip
-  #   directory: /docker/segment-anything
-  #   schedule:
-  #     interval: daily
-
+  # only allow dependencies those are direcly described in the docs/requirements.txt file
+  # to prevent generating redundant PRs for the same dependency update.
   - package-ecosystem: pip
     directory: /docs
     schedule:
       interval: daily
+    allow:
+      - dependency-name: "opencv-python-headless"
+      - dependency-name: "*sphinx*"
+      - dependency-name: "jupyte*"
+      - dependency-name: "markupsafe"
+      - dependency-name: "nbconvert"
+      - dependency-name: "ipython"
+      - dependency-name: "myst-parser"
+      - dependency-name: "tensorflow"
+      - dependency-name: "pandoc"
 
   - package-ecosystem: pip
     directory: /
