@@ -85,7 +85,6 @@ setuptools.setup(
     extras_require={
         "tf": ["tensorflow"],
         "tfds": ["tensorflow-datasets<4.9.3"],
-        "tf-gpu": ["tensorflow-gpu"],
         "torch": ["torch", "torchvision"],
         "default": DEFAULT_REQUIREMENTS,
     },
