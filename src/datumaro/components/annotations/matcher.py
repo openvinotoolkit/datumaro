@@ -374,4 +374,7 @@ class RotatedBboxMatcher(ShapeMatcher):
     sigma: Optional[list] = attrib(default=None)
 
     def distance(self, a, b):
-        return OKS(Points(a.as_polygon()), Points(b.as_polygon()), sigma=self.sigma)
+        a = Points([p for pt in a.as_polygon() for p in pt])
+        b = Points([p for pt in b.as_polygon() for p in pt])
+
+        return OKS(a, b, sigma=self.sigma)

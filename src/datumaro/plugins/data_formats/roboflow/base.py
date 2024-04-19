@@ -16,7 +16,7 @@ from datumaro.components.annotation import (
     Bbox,
     Label,
     LabelCategories,
-    Polygon,
+    RotatedBbox,
 )
 from datumaro.components.dataset import DatasetItem
 from datumaro.components.dataset_base import SubsetBase
@@ -171,8 +171,8 @@ class RoboflowYoloObbBase(RoboflowYoloBase):
             x4 = self._parse_field(x4, float, "x4")
             y4 = self._parse_field(y4, float, "y4")
             annotations.append(
-                Polygon(
-                    points=[x1, y1, x2, y2, x3, y3, x4, y4],
+                RotatedBbox.from_polygon(
+                    points=[(x1, y1), (x2, y2), (x3, y3), (x4, y4)],
                     label=label_id,
                     id=idx,
                     group=idx,

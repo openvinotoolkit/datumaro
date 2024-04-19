@@ -856,7 +856,7 @@ class RotatedBbox(_Shape):
         self.__attrs_init__([cx, cy, w, h, r], *args, **kwargs)
 
     @classmethod
-    def from_polygon(cls, points: List[Tuple[float, float]]):
+    def from_polygon(cls, points: List[Tuple[float, float]], *args, **kwargs):
         assert len(points) == 4, "polygon for a rotated bbox should have only 4 coordinates."
 
         # Calculate rotation angle
@@ -870,7 +870,7 @@ class RotatedBbox(_Shape):
         width = math.sqrt((points[1][0] - points[0][0]) ** 2 + (points[1][1] - points[0][1]) ** 2)
         height = math.sqrt((points[2][0] - points[1][0]) ** 2 + (points[2][1] - points[1][1]) ** 2)
 
-        return cls(cx=cx, cy=cy, w=width, h=height, r=math.degrees(rot))
+        return cls(cx=cx, cy=cy, w=width, h=height, r=math.degrees(rot), *args, **kwargs)
 
     @property
     def cx(self):
@@ -896,9 +896,9 @@ class RotatedBbox(_Shape):
         return self.w * self.h
 
     def get_bbox(self):
-        points = self.as_polygon()
-        xs = [p for p in points[0::2]]
-        ys = [p for p in points[1::2]]
+        polygon = self.as_polygon()
+        xs = [pt[0] for pt in polygon]
+        ys = [pt[1] for pt in polygon]
 
         return [min(xs), min(ys), max(xs) - min(xs), max(ys) - min(ys)]
 
