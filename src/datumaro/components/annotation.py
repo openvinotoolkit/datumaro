@@ -851,16 +851,33 @@ class Bbox(_Shape):
 class RotatedBbox(_Shape):
     _type = AnnotationType.rotated_bbox
 
-    def __init__(self, x, y, w, h, r, *args, **kwargs):
+    def __init__(self, cx, cy, w, h, r, *args, **kwargs):
         kwargs.pop("points", None)  # comes from wrap()
-        self.__attrs_init__([x, y, w, h, r], *args, **kwargs)
+        self.__attrs_init__([cx, cy, w, h, r], *args, **kwargs)
+
+    @classmethod
+    def from_polygon(cls, points: List[Tuple[float, float]]):
+        assert len(points) == 4, "polygon for a rotated bbox should have only 4 coordinates."
+
+        # Calculate rotation angle
+        rot = math.atan2(points[1][1] - points[0][1], points[1][0] - points[0][0])
+
+        # Calculate the center of the bounding box
+        cx = (points[0][0] + points[2][0]) / 2
+        cy = (points[0][1] + points[2][1]) / 2
+
+        # Calculate the width and height
+        width = math.sqrt((points[1][0] - points[0][0]) ** 2 + (points[1][1] - points[0][1]) ** 2)
+        height = math.sqrt((points[2][0] - points[1][0]) ** 2 + (points[2][1] - points[1][1]) ** 2)
+
+        return cls(cx=cx, cy=cy, w=width, h=height, r=math.degrees(rot))
 
     @property
-    def x(self):
+    def cx(self):
         return self.points[0]
 
     @property
-    def y(self):
+    def cy(self):
         return self.points[1]
 
     @property
@@ -886,33 +903,33 @@ class RotatedBbox(_Shape):
         return [min(xs), min(ys), max(xs) - min(xs), max(ys) - min(ys)]
 
     def get_rotated_bbox(self):
-        return [self.x, self.y, self.w, self.h, self.r]
+        return [self.cx, self.cy, self.w, self.h, self.r]
 
-    def as_polygon(self) -> List[float]:
-        """Convert [center_x, center_y, width, height, rotation] to 8 coordinates for a rotated bounding box."""
+    def as_polygon(self) -> List[Tuple[float, float]]:
+        """Convert [center_x, center_y, width, height, rotation] to 4 coordinates for a rotated bounding box."""
 
-        half_width = self.w / 2
-        half_height = self.h / 2
-        rot = np.deg2rad(self.r)
+        def _rotate_point(x, y, angle):
+            """Rotate a point around another point."""
+            angle_rad = math.radians(angle)
+            cos_theta = math.cos(angle_rad)
+            sin_theta = math.sin(angle_rad)
+            nx = cos_theta * x - sin_theta * y
+            ny = sin_theta * x + cos_theta * y
+            return nx, ny
 
-        # Calculate coordinates of the four corners
-        corners = np.array(
-            [
-                [-half_width, -half_height],
-                [half_width, -half_height],
-                [half_width, half_height],
-                [-half_width, half_height],
-            ]
-        )
+        # Calculate corner points of the rectangle
+        corners = [
+            (-self.w / 2, -self.h / 2),
+            (self.w / 2, -self.h / 2),
+            (self.w / 2, self.h / 2),
+            (-self.w / 2, self.h / 2),
+        ]
 
-        # Rotate the corners
-        transformed = []
-        for corner in corners:
-            x = corner[0] * math.cos(rot) - corner[1] * math.sin(rot) + self.x
-            y = corner[0] * math.sin(rot) + corner[1] * math.cos(rot) + self.y
-            transformed.extend([x, y])
+        # Rotate each corner point
+        rotated_corners = [_rotate_point(p[0], p[1], self.r) for p in corners]
 
-        return transformed
+        # Translate the rotated points to the original position
+        return [(p[0] + self.cx, p[1] + self.cy) for p in rotated_corners]
 
     def iou(self, other: _Shape) -> Union[float, Literal[-1]]:
         from datumaro.util.annotation_util import bbox_iou

@@ -8,7 +8,7 @@ import numpy as np
 import pytest
 import shapely.geometry as sg
 
-from datumaro.components.annotation import Ellipse, HashKey
+from datumaro.components.annotation import Ellipse, HashKey, RotatedBbox
 
 
 class EllipseTest:
@@ -52,3 +52,18 @@ class HashKeyTest:
     def test_compare_hashkey(self, fxt_hashkeys, expected, request):
         hashkey1, hashkey2 = request.getfixturevalue(fxt_hashkeys)
         assert (expected, hashkey1 == hashkey2)
+
+
+class RotatedBboxTest:
+    @pytest.fixture
+    def fxt_rot_bbox(self):
+        coords = np.random.randint(0, 180, size=(5,), dtype=np.uint8)
+        return RotatedBbox(coords[0], coords[1], coords[2], coords[3], coords[4])
+
+    @pytest.mark.parametrize("fxt_ann", ["fxt_rot_bbox"])
+    def test_create_polygon(self, fxt_ann, request):
+        fxt_rot_bbox = request.getfixturevalue(fxt_ann)
+        polygon = fxt_rot_bbox.as_polygon()
+
+        expected = RotatedBbox.from_polygon(polygon)
+        assert fxt_rot_bbox == expected

@@ -2,21 +2,13 @@
 #
 # SPDX-License-Identifier: MIT
 
-import math
 from itertools import groupby
 from typing import Callable, Dict, Iterable, NewType, Optional, Sequence, Tuple, Union
 
 import numpy as np
 from typing_extensions import Literal
 
-from datumaro.components.annotation import (
-    AnnotationType,
-    LabelCategories,
-    Mask,
-    Points,
-    RleMask,
-    _Shape,
-)
+from datumaro.components.annotation import AnnotationType, LabelCategories, Mask, RleMask, _Shape
 from datumaro.util.mask_tools import mask_to_rle
 
 
@@ -297,26 +289,3 @@ def make_label_id_mapping(
         return id_mapping.get(src_id, fallback)
 
     return map_id, id_mapping, source_labels, target_labels
-
-
-def points_to_rotated_bbox(points: Points):
-    """Convert 8 points representing a rotated bounding box to [top_left_x, top_left_y, width, height, rotation]."""
-    # Extract individual coordinates from the flat list
-    x1, y1, x2, y2, x3, y3, _, _ = points  # [x1, y1, x1 + w, y1, x1 + w, y1 + h, x1, y1 + h]
-
-    # Calculate rotation angle
-    angle = math.atan2(y2 - y1, x2 - x1)
-
-    # Calculate the center of the bounding box
-    center_x = (x1 + x3) / 2
-    center_y = (y1 + y3) / 2
-
-    # Calculate width and height
-    width = (x3 - x1) / math.cos(angle)
-    height = (y3 - y1) / math.sin(angle)
-
-    # Calculate top-left corner coordinates
-    top_left_x = center_x - width / 2
-    top_left_y = center_y - height / 2
-
-    return [top_left_x, top_left_y, width, height, angle]
