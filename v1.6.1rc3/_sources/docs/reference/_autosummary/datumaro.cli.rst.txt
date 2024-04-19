@@ -1,0 +1,33 @@
+datumaro.cli
+============
+
+.. automodule:: datumaro.cli
+
+   
+   
+   
+
+   
+   
+   
+
+   
+   
+   
+
+   
+   
+   
+
+
+
+.. rubric:: Modules
+
+.. autosummary::
+   :toctree:
+   :recursive:
+
+   datumaro.cli.commands
+   datumaro.cli.contexts
+   datumaro.cli.util
+
