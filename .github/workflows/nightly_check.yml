@@ -27,7 +27,7 @@ jobs:
     name: nightly regression test (${{ matrix.os }}, Python ${{ matrix.python-version }})
     runs-on: ${{ matrix.os }}
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - name: Installing Rust toolchain
         uses: actions-rs/toolchain@v1
         with:
