@@ -9,6 +9,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### New features
 - Add task_type property for dataset
   (<https://github.com/openvinotoolkit/datumaro/pull/1422>)
+- Add AnnotationType.rotated_bbox for oriented object detection
+  (<https://github.com/openvinotoolkit/datumaro/pull/1459>)
 
 ### Enhancements
 - Fix ambiguous COCO format detector
