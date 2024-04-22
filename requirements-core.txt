@@ -31,7 +31,7 @@ scipy
 requests
 
 # Sampler
-pandas~=1.4.0
+pandas>=1.4.0
 
 # OpenVINO
 openvino>=2023.2.0
