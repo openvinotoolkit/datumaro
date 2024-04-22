@@ -18,6 +18,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   (<https://github.com/openvinotoolkit/datumaro/pull/1436>)
 - Modify Numpy dependency constraint
   (<https://github.com/openvinotoolkit/datumaro/pull/1435>)
+- Relax old pandas version constraint
+  (<https://github.com/openvinotoolkit/datumaro/pull/1467>)
 
 ## Apr. 2024 Release 1.6.0
 ### New features
