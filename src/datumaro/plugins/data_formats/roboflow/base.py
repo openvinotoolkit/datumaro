@@ -171,7 +171,7 @@ class RoboflowYoloObbBase(RoboflowYoloBase):
             x4 = self._parse_field(x4, float, "x4")
             y4 = self._parse_field(y4, float, "y4")
             annotations.append(
-                RotatedBbox.from_polygon(
+                RotatedBbox.from_rectangle(
                     points=[(x1, y1), (x2, y2), (x3, y3), (x4, y4)],
                     label=label_id,
                     id=idx,

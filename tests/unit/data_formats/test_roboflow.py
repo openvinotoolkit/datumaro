@@ -7,7 +7,7 @@ from copy import deepcopy
 import numpy as np
 import pytest
 
-from datumaro.components.annotation import Bbox, Label, Polygon, RotatedBbox
+from datumaro.components.annotation import Bbox, Label, RotatedBbox
 from datumaro.components.dataset import Dataset
 from datumaro.components.dataset_base import DatasetItem
 from datumaro.components.environment import DEFAULT_ENVIRONMENT

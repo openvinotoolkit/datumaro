@@ -60,10 +60,8 @@ class RotatedBboxTest:
         coords = np.random.randint(0, 180, size=(5,), dtype=np.uint8)
         return RotatedBbox(coords[0], coords[1], coords[2], coords[3], coords[4])
 
-    @pytest.mark.parametrize("fxt_ann", ["fxt_rot_bbox"])
-    def test_create_polygon(self, fxt_ann, request):
-        fxt_rot_bbox = request.getfixturevalue(fxt_ann)
+    def test_create_polygon(self, fxt_rot_bbox):
         polygon = fxt_rot_bbox.as_polygon()
 
-        expected = RotatedBbox.from_polygon(polygon)
+        expected = RotatedBbox.from_rectangle(polygon)
         assert fxt_rot_bbox == expected
