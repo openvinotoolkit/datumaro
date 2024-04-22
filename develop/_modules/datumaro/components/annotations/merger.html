@@ -363,6 +363,7 @@ document.write(`
     <span class="n">MaskMatcher</span><span class="p">,</span>
     <span class="n">PointsMatcher</span><span class="p">,</span>
     <span class="n">PolygonMatcher</span><span class="p">,</span>
+    <span class="n">RotatedBboxMatcher</span><span class="p">,</span>
     <span class="n">ShapeMatcher</span><span class="p">,</span>
     <span class="n">TabularMatcher</span><span class="p">,</span>
 <span class="p">)</span>
@@ -371,6 +372,7 @@ document.write(`
     <span class="s2">&quot;AnnotationMerger&quot;</span><span class="p">,</span>
     <span class="s2">&quot;LabelMerger&quot;</span><span class="p">,</span>
     <span class="s2">&quot;BboxMerger&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;RotatedBboxMerger&quot;</span><span class="p">,</span>
     <span class="s2">&quot;PolygonMerger&quot;</span><span class="p">,</span>
     <span class="s2">&quot;MaskMerger&quot;</span><span class="p">,</span>
     <span class="s2">&quot;PointsMerger&quot;</span><span class="p">,</span>
@@ -594,6 +596,14 @@ document.write(`
 <a class="viewcode-back" href="../../../../docs/reference/_autosummary/datumaro.components.merge.intersect_merge.html#datumaro.components.annotations.merger.TabularMerger">[docs]</a>
 <span class="nd">@attrs</span>
 <span class="k">class</span> <span class="nc">TabularMerger</span><span class="p">(</span><span class="n">AnnotationMerger</span><span class="p">,</span> <span class="n">TabularMatcher</span><span class="p">):</span>
+    <span class="k">pass</span></div>
+
+
+
+<div class="viewcode-block" id="RotatedBboxMerger">
+<a class="viewcode-back" href="../../../../docs/reference/_autosummary/datumaro.components.merge.intersect_merge.html#datumaro.components.annotations.merger.RotatedBboxMerger">[docs]</a>
+<span class="nd">@attrs</span>
+<span class="k">class</span> <span class="nc">RotatedBboxMerger</span><span class="p">(</span><span class="n">_ShapeMerger</span><span class="p">,</span> <span class="n">RotatedBboxMatcher</span><span class="p">):</span>
     <span class="k">pass</span></div>
 
 </pre></div>

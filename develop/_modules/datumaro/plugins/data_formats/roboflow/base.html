@@ -358,7 +358,7 @@ document.write(`
     <span class="n">Bbox</span><span class="p">,</span>
     <span class="n">Label</span><span class="p">,</span>
     <span class="n">LabelCategories</span><span class="p">,</span>
-    <span class="n">Polygon</span><span class="p">,</span>
+    <span class="n">RotatedBbox</span><span class="p">,</span>
 <span class="p">)</span>
 <span class="kn">from</span> <span class="nn">datumaro.components.dataset</span> <span class="kn">import</span> <span class="n">DatasetItem</span>
 <span class="kn">from</span> <span class="nn">datumaro.components.dataset_base</span> <span class="kn">import</span> <span class="n">SubsetBase</span>
@@ -524,8 +524,8 @@ document.write(`
             <span class="n">x4</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_parse_field</span><span class="p">(</span><span class="n">x4</span><span class="p">,</span> <span class="nb">float</span><span class="p">,</span> <span class="s2">&quot;x4&quot;</span><span class="p">)</span>
             <span class="n">y4</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_parse_field</span><span class="p">(</span><span class="n">y4</span><span class="p">,</span> <span class="nb">float</span><span class="p">,</span> <span class="s2">&quot;y4&quot;</span><span class="p">)</span>
             <span class="n">annotations</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
-                <span class="n">Polygon</span><span class="p">(</span>
-                    <span class="n">points</span><span class="o">=</span><span class="p">[</span><span class="n">x1</span><span class="p">,</span> <span class="n">y1</span><span class="p">,</span> <span class="n">x2</span><span class="p">,</span> <span class="n">y2</span><span class="p">,</span> <span class="n">x3</span><span class="p">,</span> <span class="n">y3</span><span class="p">,</span> <span class="n">x4</span><span class="p">,</span> <span class="n">y4</span><span class="p">],</span>
+                <span class="n">RotatedBbox</span><span class="o">.</span><span class="n">from_rectangle</span><span class="p">(</span>
+                    <span class="n">points</span><span class="o">=</span><span class="p">[(</span><span class="n">x1</span><span class="p">,</span> <span class="n">y1</span><span class="p">),</span> <span class="p">(</span><span class="n">x2</span><span class="p">,</span> <span class="n">y2</span><span class="p">),</span> <span class="p">(</span><span class="n">x3</span><span class="p">,</span> <span class="n">y3</span><span class="p">),</span> <span class="p">(</span><span class="n">x4</span><span class="p">,</span> <span class="n">y4</span><span class="p">)],</span>
                     <span class="n">label</span><span class="o">=</span><span class="n">label_id</span><span class="p">,</span>
                     <span class="nb">id</span><span class="o">=</span><span class="n">idx</span><span class="p">,</span>
                     <span class="n">group</span><span class="o">=</span><span class="n">idx</span><span class="p">,</span>
