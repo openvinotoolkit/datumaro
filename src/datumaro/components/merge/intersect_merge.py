@@ -29,6 +29,7 @@ from datumaro.components.annotations.merger import (
     MaskMerger,
     PointsMerger,
     PolygonMerger,
+    RotatedBboxMerger,
     TabularMerger,
 )
 from datumaro.components.dataset_base import DatasetItem, IDataset
@@ -452,6 +453,8 @@ class IntersectMerge(Merger):
                 return _make(FeatureVectorMerger, **kwargs)
             elif t is AnnotationType.tabular:
                 return _make(TabularMerger, **kwargs)
+            elif t is AnnotationType.rotated_bbox:
+                return _make(RotatedBboxMerger, **kwargs)
             else:
                 raise NotImplementedError("Type %s is not supported" % t)
 

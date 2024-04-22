@@ -42,8 +42,7 @@ class TaskAnnotationMapping(Mapping[TaskType, Set[AnnotationType]]):
                 AnnotationType.points,
             },
             TaskType.detection_rotated: {
-                AnnotationType.label,
-                AnnotationType.polygon,
+                AnnotationType.rotated_bbox,
             },
             TaskType.detection_3d: {AnnotationType.label, AnnotationType.cuboid_3d},
             TaskType.segmentation_semantic: {
@@ -53,6 +52,7 @@ class TaskAnnotationMapping(Mapping[TaskType, Set[AnnotationType]]):
             TaskType.segmentation_instance: {
                 AnnotationType.label,
                 AnnotationType.bbox,
+                AnnotationType.rotated_bbox,
                 AnnotationType.ellipse,
                 AnnotationType.polygon,
                 AnnotationType.points,
@@ -65,6 +65,7 @@ class TaskAnnotationMapping(Mapping[TaskType, Set[AnnotationType]]):
             TaskType.mixed: {
                 AnnotationType.label,
                 AnnotationType.bbox,
+                AnnotationType.rotated_bbox,
                 AnnotationType.cuboid_3d,
                 AnnotationType.ellipse,
                 AnnotationType.polygon,

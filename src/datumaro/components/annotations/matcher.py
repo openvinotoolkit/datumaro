@@ -9,7 +9,7 @@ from attr import attrib, attrs
 
 from datumaro.components.abstracts import IMergerContext
 from datumaro.components.abstracts.merger import IMatcherContext
-from datumaro.components.annotation import Annotation
+from datumaro.components.annotation import Annotation, Points
 from datumaro.util.annotation_util import (
     OKS,
     approximate_line,
@@ -367,3 +367,14 @@ class FeatureVectorMatcher(AnnotationMatcher):
 class TabularMatcher(AnnotationMatcher):
     def match_annotations(self, sources):
         raise NotImplementedError()
+
+
+@attrs
+class RotatedBboxMatcher(ShapeMatcher):
+    sigma: Optional[list] = attrib(default=None)
+
+    def distance(self, a, b):
+        a = Points([p for pt in a.as_polygon() for p in pt])
+        b = Points([p for pt in b.as_polygon() for p in pt])
+
+        return OKS(a, b, sigma=self.sigma)
