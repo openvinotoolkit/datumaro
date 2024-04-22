@@ -12,6 +12,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   (<https://github.com/openvinotoolkit/datumaro/pull/1450>)
 
 ### Bug fixes
+- Modify lxml dependency constraint
+  (<https://github.com/openvinotoolkit/datumaro/pull/1460>)
 - Fix CLI error occurring when installed with default option only
   (<https://github.com/openvinotoolkit/datumaro/issues/1444>, <https://github.com/openvinotoolkit/datumaro/pull/1454>)
 - Relax Pillow dependency constraint
