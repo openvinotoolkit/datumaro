@@ -375,9 +375,6 @@ class Dataset(IDataset):
             if isinstance(category, LabelCategories):
                 category_names = list(category._indices.keys())
                 category_dict[annotation_type] = category_names
-            # elif isinstance(category, TabularCategories):#TODO
-            #     category_names = list(category._indices_by_name.keys())
-            #     category_dict[annotation_type] = category_names
         return (
             f"{str(annotation_type).split('.')[-1]}: {list(category_dict.get(annotation_type, []))}\n"
             for annotation_type in self.categories().keys()
