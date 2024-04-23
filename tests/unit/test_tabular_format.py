@@ -29,7 +29,7 @@ def txf_electricity(fxt_tabular_root):
 
 @pytest.fixture()
 def fxt_buddy_target():
-    yield ["breed_category", "pet_category"]
+    yield {"input": "length(m)", "output": ["breed_category", "pet_category"]}
 
 
 @pytest.fixture()
@@ -43,14 +43,22 @@ class TabularImporterTest:
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_import_tabular_file(self, txf_electricity) -> None:
         dataset: Type[Dataset] = txf_electricity
-        expected_categories = {
-            AnnotationType.tabular: TabularCategories.from_iterable(
-                [("class", str, {"UP", "DOWN"})]
-            )
-        }
+        expected_categories_keys = [
+            ("date", float),
+            ("day", int),
+            ("period", float),
+            ("nswprice", float),
+            ("nswdemand", float),
+            ("vicprice", float),
+            ("vicdemand", float),
+            ("transfer", float),
+            ("class", pd.api.types.CategoricalDtype()),
+        ]
         expected_subset = "electricity"
 
-        assert dataset.categories() == expected_categories
+        assert [
+            (cat.name, cat.dtype) for cat in dataset.categories()[AnnotationType.tabular].items
+        ] == expected_categories_keys
         assert len(dataset) == 100
         assert set(dataset.subsets()) == {expected_subset}
 
@@ -62,13 +70,11 @@ class TabularImporterTest:
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_import_tabular_folder(self, fxt_buddy) -> None:
         dataset: Type[Dataset] = fxt_buddy
-        expected_categories = {
-            AnnotationType.tabular: TabularCategories.from_iterable(
-                [("breed_category", float), ("pet_category", int)]
-            )
-        }
+        expected_categories_keys = [("breed_category", float), ("pet_category", int)]
 
-        assert dataset.categories() == expected_categories
+        assert [
+            (cat.name, cat.dtype) for cat in dataset.categories()[AnnotationType.tabular].items
+        ] == expected_categories_keys
         assert len(dataset) == 200
         assert set(dataset.subsets()) == {"train", "test"}
 

@@ -64,7 +64,7 @@ class TabularDataBase(DatasetBase):
     def _parse(
         self,
         paths: List[str],
-        target: Optional[Union[str, List[str]]] = None,
+        target: Optional[Dict[str, List[str]]] = None,
         dtype: Optional[Dict[str, Type[TableDtype]]] = None,
     ) -> Tuple[List[DatasetItem], Dict[AnnotationType, Categories]]:
         """
@@ -72,8 +72,8 @@ class TabularDataBase(DatasetBase):
 
         Args:
             paths (list(str)) : A list of paths to tabular data files(csv files).
-            target (optional, str or list) : Target column or list of target columns.
-                If this is not specified (None), the last column is regarded as a target column.
+            target (optional, dict(str or list)) : Target column or list of target columns for each input and output.
+                If this is not specified (None), the whole columns are regarded as a target column.
                 In case of a dataset with no targets, give an empty list as a parameter.
             dtype (optional, dict(str,str)) : Dictionay of column name -> type str ('str', 'int', or 'float').
                 This can be used when automatic type inferencing is failed.
@@ -86,46 +86,55 @@ class TabularDataBase(DatasetBase):
         items: List[DatasetItem] = []
         categories: TabularCategories = TabularCategories()
 
+        if target is not None:
+            if target["input"] is None or target["output"] is None:
+                raise TypeError('Target should have both "input" and "output"')
+
         for path in paths:
             table = Table.from_csv(path, dtype=dtype)
 
             targets: List[str] = []
+            targets_ann: List[str] = []
             if target is None:
-                # targets.append(table.columns[-1])  # last column
-                targets.extend(table.columns)
-            elif isinstance(target, str):
-                if target in table.columns:  # add valid column name only
-                    targets.append(target)
-            elif isinstance(target, list):  # add valid column names only
-                for t in target:
-                    if t in table.columns:
-                        targets.append(t)
+                targets_ann.extend(table.columns)  # add all columns
+            else:
+                # add valid targeted output column name only
+                if isinstance(target.get("input"), str) and target["input"] in table.columns:
+                    targets.insert(0, target["input"])
+                elif isinstance(target.get("input"), list):
+                    (col for col in target["input"] if col in table.columns).extend(targets)
+                if isinstance(target.get("output"), str) and target["output"] in table.columns:
+                    targets_ann.append(target["output"])
+                elif isinstance(target.get("output"), list):
+                    targets_ann.extend(col for col in target["output"] if col in table.columns)
+            targets = targets + targets_ann
 
             # set categories
-            for target in targets:
-                _, category = categories.find(target)
-                target_dtype = table.dtype(target)
+            for target_ in targets_ann:
+                _, category = categories.find(target_)
+                target_dtype = table.dtype(target_)
                 if target_dtype in [int, float, pd.api.types.CategoricalDtype()]:
-                    labels = set(table.features(target, unique=True))
+                    # 'int' can be categorical, but we don't know this unless user gives information.
+                    labels = set(table.features(target_, unique=True))
                     if category is None:
-                        categories.add(target, target_dtype, labels)
+                        categories.add(target_, target_dtype, labels)
                     else:  # update labels if they are different.
                         category.labels.union(labels)
                 elif target_dtype is str:
-                    # 'int' can be categorical, but we don't know this unless user gives information.
                     if category is None:
-                        categories.add(target, target_dtype)
+                        categories.add(target_, target_dtype)
                 else:
                     raise TypeError(
-                        f"Unsupported type '{target_dtype}' for target column '{target}'."
+                        f"Unsupported type '{target_dtype}' for target column '{target_}'."
                     )
 
             # load annotations
             subset = osp.splitext(osp.basename(path))[0]
             row: TableRow
+            table.select(targets)
             for row in table:  # type: TableRow
                 id = f"{row.index}@{subset}"
-                ann = [Tabular(values=row.data(targets))] if targets else None
+                ann = [Tabular(values=row.data(targets_ann))] if targets_ann else None
                 item = DatasetItem(
                     id=id,
                     subset=subset,
