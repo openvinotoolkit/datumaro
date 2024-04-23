@@ -38,7 +38,7 @@ def fxt_buddy_path(fxt_tabular_root):
 
 @pytest.fixture()
 def fxt_buddy_target():
-    yield ("breed_category", "pet_category")
+    yield {"input": "length(m)", "output": ["breed_category", "pet_category"]}
 
 
 @pytest.fixture()
@@ -81,7 +81,7 @@ class TabularIntegrationTest:
             run(helper_tc, "project", "create", "-o", test_dir)
             args = ["project", "import", "-p", test_dir, "-f", "tabular", path]
             if target:
-                args.extend(["--", "--target", ",".join(target)])
+                args.extend(["--", "--target", str(target)])
             run(helper_tc, *args)
 
             export_dir = osp.join(test_dir, "export_dir")

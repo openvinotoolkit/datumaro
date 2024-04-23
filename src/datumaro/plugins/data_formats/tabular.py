@@ -87,6 +87,7 @@ class TabularDataBase(DatasetBase):
         categories: TabularCategories = TabularCategories()
 
         if target is not None:
+            target = eval(",".join(target)) if isinstance(target, list) else target
             if target["input"] is None or target["output"] is None:
                 raise TypeError('Target should have both "input" and "output"')
 
