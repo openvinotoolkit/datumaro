@@ -9,7 +9,6 @@ import pytest
 from datumaro.components.annotation import AnnotationType, TabularCategories
 from datumaro.components.dataset import Dataset
 from datumaro.components.environment import Environment
-from datumaro.components.errors import DatasetImportError
 from datumaro.plugins.data_formats.tabular import *
 
 from tests.requirements import Requirements, mark_requirement
@@ -37,17 +36,6 @@ def fxt_buddy_target():
 def fxt_buddy(fxt_tabular_root, fxt_buddy_target):
     path = osp.join(fxt_tabular_root, "adopt-a-buddy")
     yield Dataset.import_from(path, "tabular", target=fxt_buddy_target)
-
-
-@pytest.fixture()
-def fxt_electricity_broken_target():
-    yield {"output": "class"}
-
-
-@pytest.fixture()
-def fxt_electricity_broken(fxt_tabular_root, fxt_electricity_broken_target):
-    path = osp.join(fxt_tabular_root, "electricity.csv")
-    yield Dataset.import_from(path, "tabular", target=fxt_electricity_broken_target)
 
 
 @pytest.mark.new
