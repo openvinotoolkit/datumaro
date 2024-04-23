@@ -43,29 +43,16 @@ class TabularImporterTest:
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_import_tabular_file(self, txf_electricity) -> None:
         dataset: Type[Dataset] = txf_electricity
-        expected_categories_keys = [
-            ("date", float),
-            ("day", int),
-            ("period", float),
-            ("nswprice", float),
-            ("nswdemand", float),
-            ("vicprice", float),
-            ("vicdemand", float),
-            ("transfer", float),
-            ("class", pd.api.types.CategoricalDtype()),
-        ]
+        expected_categories = {AnnotationType.tabular: TabularCategories.from_iterable([])}
         expected_subset = "electricity"
 
-        assert [
-            (cat.name, cat.dtype) for cat in dataset.categories()[AnnotationType.tabular].items
-        ] == expected_categories_keys
+        assert dataset.categories() == expected_categories
         assert len(dataset) == 100
         assert set(dataset.subsets()) == {expected_subset}
 
         for idx, item in enumerate(dataset):
             assert idx == item.media.index
-            assert len(item.annotations) == 1
-            assert item.media.data()["class"] == item.annotations[0].values["class"]
+            assert len(item.annotations) == 0
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_import_tabular_folder(self, fxt_buddy) -> None:

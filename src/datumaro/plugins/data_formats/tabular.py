@@ -97,7 +97,7 @@ class TabularDataBase(DatasetBase):
             targets: List[str] = []
             targets_ann: List[str] = []
             if target is None:
-                targets_ann.extend(table.columns)  # add all columns
+                targets.extend(table.columns)  # add all columns
             else:
                 # add valid targeted output column name only
                 if isinstance(target.get("input"), str) and target["input"] in table.columns:
