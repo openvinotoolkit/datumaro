@@ -1234,7 +1234,7 @@ class Table:
     def dtype(self, column: str) -> Optional[Type[TableDtype]]:
         """Returns native python type for a given column"""
         numpy_type = self.data.dtypes[column]
-        if self.data[column].nunique() / self.shape[0] < 0.1:  # TODO
+        if numpy_type == object and self.data[column].nunique() / self.shape[0] < 0.1:  # TODO
             # Convert to CategoricalDtype for efficient storage and categorical analysis
             return pd.api.types.CategoricalDtype()
         if numpy_type == object:
@@ -1301,6 +1301,10 @@ class TableFromCSV(FromFileMixin, Table):
     def data(self) -> Optional[pd.DataFrame]:
         """Table data in pandas DataFrame format"""
         return self.__data
+
+    def select(self, columns: List[str]):
+        self.__data = self.__data[columns]
+        self._shape = self.__data.shape
 
 
 class TableFromDataFrame(FromDataMixin, Table):
