@@ -9,6 +9,7 @@ import pytest
 from datumaro.components.annotation import AnnotationType, TabularCategories
 from datumaro.components.dataset import Dataset
 from datumaro.components.environment import Environment
+from datumaro.components.errors import DatasetImportError
 from datumaro.plugins.data_formats.tabular import *
 
 from tests.requirements import Requirements, mark_requirement
@@ -22,7 +23,7 @@ def fxt_tabular_root():
 
 
 @pytest.fixture()
-def txf_electricity(fxt_tabular_root):
+def fxt_electricity(fxt_tabular_root):
     path = osp.join(fxt_tabular_root, "electricity.csv")
     yield Dataset.import_from(path, "tabular")
 
@@ -38,11 +39,22 @@ def fxt_buddy(fxt_tabular_root, fxt_buddy_target):
     yield Dataset.import_from(path, "tabular", target=fxt_buddy_target)
 
 
+@pytest.fixture()
+def fxt_electricity_broken_target():
+    yield {"output": "class"}
+
+
+@pytest.fixture()
+def fxt_electricity_broken(fxt_tabular_root, fxt_electricity_broken_target):
+    path = osp.join(fxt_tabular_root, "electricity.csv")
+    yield Dataset.import_from(path, "tabular", target=fxt_electricity_broken_target)
+
+
 @pytest.mark.new
 class TabularImporterTest:
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
-    def test_can_import_tabular_file(self, txf_electricity) -> None:
-        dataset: Type[Dataset] = txf_electricity
+    def test_can_import_tabular_file(self, fxt_electricity) -> None:
+        dataset: Type[Dataset] = fxt_electricity
         expected_categories = {AnnotationType.tabular: TabularCategories.from_iterable([])}
         expected_subset = "electricity"
 
@@ -91,7 +103,7 @@ class TabularImporterTest:
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     @pytest.mark.parametrize(
-        "fxt,target", [("txf_electricity", None), ("fxt_buddy", "fxt_buddy_target")]
+        "fxt,target", [("fxt_electricity", None), ("fxt_buddy", "fxt_buddy_target")]
     )
     def test_can_export_tabular(self, fxt: str, target, request) -> None:
         dataset: Type[Dataset] = request.getfixturevalue(fxt)

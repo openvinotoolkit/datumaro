@@ -87,8 +87,8 @@ class TabularDataBase(DatasetBase):
         categories: TabularCategories = TabularCategories()
 
         if target is not None:
-            target = eval(",".join(target)) if isinstance(target, list) else target
-            if target["input"] is None or target["output"] is None:
+            # target = eval(",".join(target)) if isinstance(target, list) else target
+            if "input" not in target or "output" not in target:
                 raise TypeError('Target should have both "input" and "output"')
 
         for path in paths:
@@ -103,7 +103,7 @@ class TabularDataBase(DatasetBase):
                 if isinstance(target.get("input"), str) and target["input"] in table.columns:
                     targets.insert(0, target["input"])
                 elif isinstance(target.get("input"), list):
-                    (col for col in target["input"] if col in table.columns).extend(targets)
+                    targets.extend(col for col in target["input"] if col in table.columns)
                 if isinstance(target.get("output"), str) and target["output"] in table.columns:
                     targets_ann.append(target["output"])
                 elif isinstance(target.get("output"), list):
@@ -153,6 +153,29 @@ class TabularDataBase(DatasetBase):
         yield from self._items
 
 
+def string_to_dict(input_string):
+    pairs = input_string.split(",")
+    result = {}
+
+    for pair in pairs:
+        split_pair = pair.split(":")
+        # Check if the key is "input" or "output".
+        if len(split_pair) == 2:
+            key, value = split_pair
+            if key == "input" or key == "output":
+                if key in result:
+                    result[key].append(value)
+                else:
+                    result[key] = [value]
+            else:
+                # Ignore other keys
+                pass
+        else:
+            result[key].extend(split_pair)
+
+    return result
+
+
 class TabularDataImporter(Importer):
     """
     Import a tabular dataset.
@@ -166,9 +189,10 @@ class TabularDataImporter(Importer):
         parser = super().build_cmdline_parser(**kwargs)
         parser.add_argument(
             "--target",
-            type=lambda x: x.split(","),
-            help="Target column or list of target columns. (ex. 'class', 'class,breed') (default:None) "
-            "If this is not specified (None), the last column is regarded as a target column."
+            type=lambda x: string_to_dict(x),
+            help="Target column or list of target columns for each input and output."
+            "(ex. 'input:date,output:class', 'input:data,output:class,breed') (default:None)"
+            "If this is not specified (None), the whole columns are regarded as a target column."
             "In case of a dataset with no targets, give an empty list as a parameter.",
         )
         parser.add_argument(

@@ -66,8 +66,8 @@ which can be specified by the user when importing the dataset as shown below.
 
 ```bash
 datum project create
-datum project import --format tabular <path/to/buddy/dataset> -- --target {"input":"length(m)", "output":["breed_category","pet_category"]}
-datum project import --format tabular <path/to/electricity/dataset>
+datum project import --format tabular <path/to/buddy/dataset> -- --target input:length(m),output:breed_category,pet_category
+datum project import --format tabular <path/to/electricity/dataset> -- --target class
 ```
 
 ```python
