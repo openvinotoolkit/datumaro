@@ -46,9 +46,7 @@ class TabularImporterTest:
         expected_categories = {AnnotationType.tabular: TabularCategories.from_iterable([])}
         expected_subset = "electricity"
 
-        assert [
-            (cat.name, cat.dtype) for cat in dataset.categories()[AnnotationType.tabular].items
-        ] == expected_categories_keys
+        assert dataset.categories() == expected_categories
         assert len(dataset) == 100
         assert set(dataset.subsets()) == {expected_subset}
 
