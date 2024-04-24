@@ -126,7 +126,10 @@ class TabularImporterTest:
         path = osp.join(fxt_tabular_root, "adopt-a-buddy")
         dataset = Dataset.import_from(path, "tabular", target=target)
 
-        assert list(dataset.__getitem__(100).media.data().keys()) == expected_media_data_keys
+        assert (
+            list(next(iter(dataset.get_subset("train"))).media.data().keys())
+            == expected_media_data_keys
+        )
         assert [
             (cat.name, cat.dtype) for cat in dataset.categories()[AnnotationType.tabular].items
         ] == expected_categories_keys
