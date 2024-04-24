@@ -87,7 +87,6 @@ class TabularDataBase(DatasetBase):
         categories: TabularCategories = TabularCategories()
 
         if target is not None:
-            # target = eval(",".join(target)) if isinstance(target, list) else target
             if "input" not in target or "output" not in target:
                 raise TypeError('Target should have both "input" and "output"')
 
@@ -101,7 +100,7 @@ class TabularDataBase(DatasetBase):
             else:
                 # add valid targeted output column name only
                 if isinstance(target.get("input"), str) and target["input"] in table.columns:
-                    targets.insert(0, target["input"])
+                    targets.append(target["input"])
                 elif isinstance(target.get("input"), list):
                     targets.extend(col for col in target["input"] if col in table.columns)
                 if isinstance(target.get("output"), str) and target["output"] in table.columns:

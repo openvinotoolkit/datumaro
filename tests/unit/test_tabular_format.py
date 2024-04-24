@@ -102,3 +102,50 @@ class TabularImporterTest:
             dataset.export(test_dir, "tabular")
             back_dataset = Dataset.import_from(test_dir, "tabular", target=target)
             compare_datasets(TestCase(), dataset, back_dataset)
+
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
+    @pytest.mark.parametrize(
+        "target, expected_media_data_keys, expected_categories_keys",
+        [
+            (
+                {"input": "length(m)", "output": "breed_category"},
+                ["length(m)", "breed_category"],
+                [("breed_category", float)],
+            ),
+            (
+                {"input": "length", "output": "breed_category"},
+                ["breed_category"],
+                [("breed_category", float)],
+            ),
+            ({"input": "length(m)", "output": "breed"}, ["length(m)"], []),
+        ],
+    )
+    def test_target_check_in_table(
+        self, fxt_tabular_root, target, expected_media_data_keys, expected_categories_keys
+    ) -> None:
+        path = osp.join(fxt_tabular_root, "adopt-a-buddy")
+        dataset = Dataset.import_from(path, "tabular", target=target)
+
+        assert list(dataset.__getitem__(100).media.data().keys()) == expected_media_data_keys
+        assert [
+            (cat.name, cat.dtype) for cat in dataset.categories()[AnnotationType.tabular].items
+        ] == expected_categories_keys
+
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
+    @pytest.mark.parametrize(
+        "target,expected_included_labels",
+        [
+            ({"input": "length(m)", "output": "breed_category"}, [True]),
+            ({"input": "length(m)", "output": ["color_type", "breed_category"]}, [False, True]),
+        ],
+    )
+    def test_target_dtype(self, fxt_tabular_root, target, expected_included_labels) -> None:
+        path = osp.join(fxt_tabular_root, "adopt-a-buddy")
+        dataset = Dataset.import_from(path, "tabular", target=target)
+
+        included_lables_result = [
+            False if len(cat.labels) == 0 else True
+            for cat in dataset.categories()[AnnotationType.tabular].items
+        ]
+
+        assert included_lables_result == expected_included_labels
