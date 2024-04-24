@@ -50,23 +50,6 @@ def fxt_buddy(fxt_buddy_path, fxt_buddy_target):
 class TabularIntegrationTest:
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     @pytest.mark.parametrize(
-        "input_string,expected_result",
-        [
-            ("input:date,output:class", {"input": ["date"], "output": ["class"]}),
-            (
-                "input:length(m),output:breed_category,pet_category",
-                {"input": ["length(m)"], "output": ["breed_category", "pet_category"]},
-            ),
-            ("input:age,color,output:size", {"input": ["age", "color"], "output": ["size"]}),
-            ("input:height", {"input": ["height"]}),
-            ("output:breed_category", {"output": ["breed_category"]}),
-        ],
-    )
-    def test_string_to_dict(self, input_string, expected_result):
-        assert string_to_dict(input_string) == expected_result
-
-    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
-    @pytest.mark.parametrize(
         "fxt_dataset, fxt_path, fxt_target",
         [
             ("txf_electricity", "fxt_electricity_path", None),

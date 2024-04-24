@@ -118,6 +118,11 @@ class TabularImporterTest:
                 [("breed_category", float)],
             ),
             ({"input": "length(m)", "output": "breed"}, ["length(m)"], []),
+            (
+                {"input": ["length(m)", "height(cm)"], "output": "breed_category"},
+                ["length(m)", "height(cm)", "breed_category"],
+                [("breed_category", float)],
+            ),
         ],
     )
     def test_target_check_in_table(
@@ -152,3 +157,20 @@ class TabularImporterTest:
         ]
 
         assert included_lables_result == expected_included_labels
+
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
+    @pytest.mark.parametrize(
+        "input_string,expected_result",
+        [
+            ("input:date,output:class", {"input": ["date"], "output": ["class"]}),
+            (
+                "input:length(m),output:breed_category,pet_category",
+                {"input": ["length(m)"], "output": ["breed_category", "pet_category"]},
+            ),
+            ("input:age,color,output:size", {"input": ["age", "color"], "output": ["size"]}),
+            ("input:height", {"input": ["height"]}),
+            ("output:breed_category", {"output": ["breed_category"]}),
+        ],
+    )
+    def test_string_to_dict(self, input_string, expected_result):
+        assert string_to_dict(input_string) == expected_result
