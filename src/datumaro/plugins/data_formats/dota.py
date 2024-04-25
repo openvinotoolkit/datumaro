@@ -19,7 +19,7 @@ from datumaro.components.errors import (
     MediaTypeError,
 )
 from datumaro.components.exporter import Exporter
-from datumaro.components.format_detection import FormatDetectionContext
+from datumaro.components.format_detection import FormatDetectionConfidence, FormatDetectionContext
 from datumaro.components.importer import ImportContext, Importer
 from datumaro.components.media import Image
 from datumaro.components.task import TaskAnnotationMapping
@@ -131,7 +131,7 @@ class DotaBase(SubsetBase):
                 )
                 for i in range(0, 8, 2)
             ]
-            difficulty = self._parse_field(parts[-1], bool, "difficulty")
+            difficulty = self._parse_field(parts[-1], int, "difficulty")
 
             annotations.append(
                 RotatedBbox.from_rectangle(
@@ -156,8 +156,41 @@ class DotaImporter(Importer):
     _ANNO_EXT = ".txt"
 
     @classmethod
-    def detect(cls, context: FormatDetectionContext) -> None:
-        context.require_file(f"{DotaFormat.ANNOTATION_DIR}/*/*{cls._ANNO_EXT}")
+    def detect(cls, context: FormatDetectionContext) -> FormatDetectionConfidence:
+        context.require_file("**/" + DotaFormat.ANNOTATION_DIR + "/*" + cls._ANNO_EXT)
+        return FormatDetectionConfidence.MEDIUM
+
+    # @classmethod
+    # def detect(cls, context: FormatDetectionContext) -> FormatDetectionConfidence:
+    #     with context.require_any():
+    #         with context.alternative():
+    #             cls._check_ann_file(
+    #                 context.require_file("**/" + cls.ANN_DIR_NAME + "*" + cls.FORMAT_EXT), context
+    #             )
+
+    #     return FormatDetectionConfidence.MEDIUM
+
+    # @classmethod
+    # def _check_ann_file(cls, fpath: str, context: FormatDetectionContext) -> None:
+    #     with context.probe_text_file(
+    #         fpath, "Requirements for the annotation file of voc format"
+    #     ) as fp:
+    #         cls._check_ann_file_impl(fp)
+
+    # @classmethod
+    # def _check_ann_file_impl(cls, fp: TextIOWrapper) -> bool:
+    #     for line in fp:
+    #         fields = line.rstrip("\n").split(" ")
+    #         if len(fields) != 10:
+    #             raise DatasetImportError(
+    #                 f"Roboflow Yolo OBB format txt file should have 10 fields for each line, "
+    #                 f"but the read line has {len(fields)} fields: fields={fields}."
+    #             )
+
+    #         # Check the first line only
+    #         return True
+
+    #     raise DatasetImportError("Empty file is not allowed.")
 
     @classmethod
     def find_sources(cls, path: str) -> List[Dict[str, Any]]:
