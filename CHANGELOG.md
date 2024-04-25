@@ -11,6 +11,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   (<https://github.com/openvinotoolkit/datumaro/pull/1422>)
 - Add AnnotationType.rotated_bbox for oriented object detection
   (<https://github.com/openvinotoolkit/datumaro/pull/1459>)
+- Add DOTA data format for oriented object detection task
+  (<https://github.com/openvinotoolkit/datumaro/pull/1475>)
 
 ### Enhancements
 - Fix ambiguous COCO format detector
