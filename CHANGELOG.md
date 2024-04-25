@@ -15,6 +15,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Enhancements
 - Fix ambiguous COCO format detector
   (<https://github.com/openvinotoolkit/datumaro/pull/1442>)
+- Get target information for tabular dataset
+  (<https://github.com/openvinotoolkit/datumaro/pull/1471>)
 
 ### Bug fixes
 
