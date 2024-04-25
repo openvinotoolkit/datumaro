@@ -66,14 +66,14 @@ which can be specified by the user when importing the dataset as shown below.
 
 ```bash
 datum project create
-datum project import --format tabular <path/to/buddy/dataset> -- --target breed_category,pet_category
-datum project import --format tabular <path/to/electricity/dataset> -- --target class
+datum project import --format tabular <path/to/buddy/dataset> -- --target input:length(m),output:breed_category,pet_category
+datum project import --format tabular <path/to/electricity/dataset>
 ```
 
 ```python
 import datumaro as dm
-dataset = dm.Dataset.import_from('<path/to/buddy/dataset>', 'tabular', target=["breed_category", "pet_category"])
-dataset = dm.Dataset.import_from('<path/to/electricity/dataset>', 'tabular', target="class")
+dataset = dm.Dataset.import_from('<path/to/buddy/dataset>', 'tabular', target={"input":"length(m)", "output":["breed_category", "pet_category"]})
+dataset = dm.Dataset.import_from('<path/to/electricity/dataset>', 'tabular')
 ```
 
 As shown, the target can be a single column name or a comma-separated list of columns.
