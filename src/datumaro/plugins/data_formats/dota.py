@@ -160,38 +160,6 @@ class DotaImporter(Importer):
         context.require_file("**/" + DotaFormat.ANNOTATION_DIR + "/*" + cls._ANNO_EXT)
         return FormatDetectionConfidence.MEDIUM
 
-    # @classmethod
-    # def detect(cls, context: FormatDetectionContext) -> FormatDetectionConfidence:
-    #     with context.require_any():
-    #         with context.alternative():
-    #             cls._check_ann_file(
-    #                 context.require_file("**/" + cls.ANN_DIR_NAME + "*" + cls.FORMAT_EXT), context
-    #             )
-
-    #     return FormatDetectionConfidence.MEDIUM
-
-    # @classmethod
-    # def _check_ann_file(cls, fpath: str, context: FormatDetectionContext) -> None:
-    #     with context.probe_text_file(
-    #         fpath, "Requirements for the annotation file of voc format"
-    #     ) as fp:
-    #         cls._check_ann_file_impl(fp)
-
-    # @classmethod
-    # def _check_ann_file_impl(cls, fp: TextIOWrapper) -> bool:
-    #     for line in fp:
-    #         fields = line.rstrip("\n").split(" ")
-    #         if len(fields) != 10:
-    #             raise DatasetImportError(
-    #                 f"Roboflow Yolo OBB format txt file should have 10 fields for each line, "
-    #                 f"but the read line has {len(fields)} fields: fields={fields}."
-    #             )
-
-    #         # Check the first line only
-    #         return True
-
-    #     raise DatasetImportError("Empty file is not allowed.")
-
     @classmethod
     def find_sources(cls, path: str) -> List[Dict[str, Any]]:
         sources = cls._find_sources_recursive(

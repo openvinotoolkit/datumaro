@@ -311,7 +311,7 @@ def fxt_tfrecord_dataset():
     )
 
 
-IDS = ["COCO", "VOC", "YOLO", "YOLO_OBB", "CREATE_ML", "MULTICLASS"]
+IDS = ["COCO", "VOC", "YOLO", "CREATE_ML", "MULTICLASS"]
 
 
 @pytest.mark.new
@@ -322,7 +322,7 @@ class RoboflowImporterTest(TestDataFormatBase):
             (DUMMY_DATASET_COCO_DIR, RoboflowCocoImporter),
             (DUMMY_DATASET_VOC_DIR, RoboflowVocImporter),
             (DUMMY_DATASET_YOLO_DIR, RoboflowYoloImporter),
-            (DUMMY_DATASET_YOLO_OBB_DIR, RoboflowYoloObbImporter),
+            # (DUMMY_DATASET_YOLO_OBB_DIR, RoboflowYoloObbImporter), # deprecated by supporting DOTA format
             (DUMMY_DATASET_CREATEML_DIR, RoboflowCreateMlImporter),
             (DUMMY_DATASET_MULTICLASS_DIR, RoboflowMulticlassImporter),
         ],
@@ -337,7 +337,7 @@ class RoboflowImporterTest(TestDataFormatBase):
             (DUMMY_DATASET_COCO_DIR, "fxt_coco_dataset", RoboflowCocoImporter),
             (DUMMY_DATASET_VOC_DIR, "fxt_voc_dataset", RoboflowVocImporter),
             (DUMMY_DATASET_YOLO_DIR, "fxt_yolo_dataset", RoboflowYoloImporter),
-            (DUMMY_DATASET_YOLO_OBB_DIR, "fxt_yolo_obb_dataset", RoboflowYoloObbImporter),
+            # (DUMMY_DATASET_YOLO_OBB_DIR, "fxt_yolo_obb_dataset", RoboflowYoloObbImporter), # deprecated by supporting DOTA format
             (DUMMY_DATASET_CREATEML_DIR, "fxt_createml_dataset", RoboflowCreateMlImporter),
             (DUMMY_DATASET_MULTICLASS_DIR, "fxt_multiclass_dataset", RoboflowMulticlassImporter),
         ],
