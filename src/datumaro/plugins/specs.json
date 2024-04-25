@@ -460,6 +460,26 @@
     }
   },
   {
+    "import_path": "datumaro.plugins.data_formats.dota.DotaBase",
+    "plugin_name": "dota",
+    "plugin_type": "DatasetBase"
+  },
+  {
+    "import_path": "datumaro.plugins.data_formats.dota.DotaExporter",
+    "plugin_name": "dota",
+    "plugin_type": "Exporter"
+  },
+  {
+    "import_path": "datumaro.plugins.data_formats.dota.DotaImporter",
+    "plugin_name": "dota",
+    "plugin_type": "Importer",
+    "metadata": {
+      "file_extensions": [
+        ".txt"
+      ]
+    }
+  },
+  {
     "import_path": "datumaro.plugins.data_formats.icdar.base.IcdarTextLocalizationBase",
     "plugin_name": "icdar_text_localization",
     "plugin_type": "DatasetBase"
