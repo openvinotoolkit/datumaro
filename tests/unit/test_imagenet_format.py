@@ -10,7 +10,6 @@ from datumaro.components.dataset import Dataset
 from datumaro.components.dataset_base import DatasetItem
 from datumaro.components.environment import Environment
 from datumaro.components.media import Image
-from datumaro.components.task import TaskType
 from datumaro.plugins.data_formats.imagenet import (
     ImagenetExporter,
     ImagenetImporter,

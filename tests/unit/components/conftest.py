@@ -9,7 +9,6 @@ import pytest
 from datumaro.components.annotation import AnnotationType, Label, LabelCategories
 from datumaro.components.dataset_base import CategoriesInfo, DatasetInfo, DatasetItem, IDataset
 from datumaro.components.media import MediaElement
-from datumaro.components.task import TaskType
 from datumaro.util.definitions import DEFAULT_SUBSET_NAME
 
 

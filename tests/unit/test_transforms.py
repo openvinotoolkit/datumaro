@@ -27,7 +27,6 @@ from datumaro.components.annotation import (
 from datumaro.components.dataset import Dataset
 from datumaro.components.dataset_base import DatasetItem
 from datumaro.components.media import Image
-from datumaro.components.task import TaskType
 
 from ..requirements import Requirements, mark_bug, mark_requirement
 

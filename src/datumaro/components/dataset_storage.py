@@ -29,7 +29,6 @@ from datumaro.components.errors import (
 )
 from datumaro.components.importer import _ImportFail
 from datumaro.components.media import MediaElement
-from datumaro.components.task import TaskAnnotationMapping, TaskType
 from datumaro.components.transformer import ItemTransform, Transform
 from datumaro.util import is_method_redefined
 
@@ -117,11 +116,8 @@ class _StackedTransform(Transform):
     def media_type(self) -> Type[MediaElement]:
         return self.transforms[-1].media_type()
 
-    def ann_types(self) -> TaskType:
+    def ann_types(self) -> Set[AnnotationType]:
         return self.transforms[-1].ann_types()
-
-
-task_annotation_mapping = TaskAnnotationMapping()
 
 
 class DatasetStorage(IDataset):
@@ -437,7 +433,7 @@ class DatasetStorage(IDataset):
     def media_type(self) -> Type[MediaElement]:
         return self._media_type
 
-    def ann_types(self) -> TaskType:
+    def ann_types(self) -> Set[AnnotationType]:
         return self._ann_types
 
     def put(self, item: DatasetItem) -> None:

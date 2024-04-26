@@ -58,7 +58,6 @@ from datumaro.components.launcher import Launcher
 from datumaro.components.media import Image, MediaElement
 from datumaro.components.merge import DEFAULT_MERGE_POLICY
 from datumaro.components.progress_reporting import NullProgressReporter, ProgressReporter
-from datumaro.components.task import TaskType
 from datumaro.components.transformer import ItemTransform, ModelTransform, Transform
 from datumaro.util.log_utils import logging_disabled
 from datumaro.util.meta_file_util import load_hash_key
@@ -125,12 +124,6 @@ class DatasetSubset(IDataset):  # non-owning view
             for ann in item.annotations:
                 annotations_by_type[ann.type.name]["count"] += 1
         return sum(t["count"] for t in annotations_by_type.values())
-
-    # def get_annotated_type(self):
-    #     annotation_types = []
-    #     for item in self.parent._data.get_subset(self.name):
-    #         annotation_types.extend([str(anno.type).split(".")[-1] for anno in item.annotations])
-    #     return list(set(annotation_types))
 
     def as_dataset(self) -> Dataset:
         dataset = Dataset.from_extractors(self, env=self.parent.env)
@@ -332,7 +325,7 @@ class Dataset(IDataset):
     def media_type(self) -> Type[MediaElement]:
         return self._data.media_type()
 
-    def ann_types(self) -> TaskType:
+    def ann_types(self) -> Set[AnnotationType]:
         return self._data.ann_types()
 
     def get(self, id: str, subset: Optional[str] = None) -> Optional[DatasetItem]:
@@ -360,7 +353,6 @@ class Dataset(IDataset):
             f"{subset_name}: # of items={len(self.get_subset(subset_name))}, "
             f"# of annotated items={self.get_subset(subset_name).get_annotated_items()}, "
             f"# of annotations={self.get_subset(subset_name).get_annotations()}\n"
-            # f"annotation types={self.get_subset(subset_name).get_annotated_type()}\n"
             for subset_name in sorted(self.subsets().keys())
         )
 
