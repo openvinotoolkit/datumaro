@@ -345,7 +345,9 @@ class MaskCategories(Categories):
 
 
 BinaryMaskImage = np.ndarray  # 2d array of type bool
+BinaryMaskImageCallable = Callable[[], BinaryMaskImage]
 IndexMaskImage = np.ndarray  # 2d array of type int
+IndexMaskImageCallable = Callable[[], IndexMaskImage]
 
 
 @attrs(slots=True, eq=False, order=False)
@@ -355,7 +357,7 @@ class Mask(Annotation):
     """
 
     _type = AnnotationType.mask
-    _image = field()
+    _image: Union[BinaryMaskImage, BinaryMaskImageCallable] = field()
     label: Optional[int] = field(
         converter=attr.converters.optional(int), default=None, kw_only=True
     )
@@ -499,6 +501,41 @@ class RleMask(Mask):
         if not isinstance(other, __class__):
             return super().__eq__(other)
         return self.rle == other.rle
+
+
+@attrs(slots=True, eq=False, order=False)
+class ExtractedMask(Mask):
+    """Mask annotation (binary mask) extracted from an index mask (integer 2D Numpy array).
+
+    This class can extract a binary mask with given index mask and index value.
+    The advantage of this class is that we can create multiple binary mask but they share a single index mask source.
+
+    Attributes:
+        index_mask: Integer 2D Numpy array. Its pixel can indicate a label id (class) or an instance id.
+        index: Integer value to extract a binary mask from the given index mask.
+
+    Examples:
+        >>> import numpy as np
+        >>> from datumaro.components.annotation import ExtractedMask
+        >>>
+        >>> index_mask = np.random.randint(low=1, high=3, size=(10, 10), dtype=np.uint8)
+        >>> mask1 = ExtractedMask(index_mask=index_mask, index=1, label=1) #
+        >>> mask2 = ExtractedMask(index_mask=index_mask, index=2, label=2) #
+        >>> np.unique(mask1.image).tolist()  # `image` property create a binary mask
+        np.array([0, 1])
+        >>> mask1.index_mask == mask2.index_mask  # They share the same source
+        True
+    """
+
+    index_mask: Union[IndexMaskImage, IndexMaskImageCallable] = field()
+    index: int = field()
+
+    _image: None = field(init=False, default=None)
+
+    @property
+    def image(self) -> BinaryMaskImage:
+        index_mask = self.index_mask() if callable(self.index_mask) else self.index_mask
+        return index_mask == self.index
 
 
 CompiledMaskImage = np.ndarray  # 2d of integers (of different precision)

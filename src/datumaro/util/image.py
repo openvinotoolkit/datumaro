@@ -10,6 +10,7 @@ import weakref
 from contextlib import contextmanager
 from contextvars import ContextVar
 from enum import Enum, auto
+from functools import partial
 from io import BytesIO, IOBase
 from typing import TYPE_CHECKING, Any, Callable, Dict, Iterable, Iterator, Optional, Tuple, Union
 
@@ -355,6 +356,7 @@ class lazy_image:
         loader: Callable[[str], np.ndarray] = None,
         cache: Union[bool, ImageCache] = True,
         crypter: Crypter = NULL_CRYPTER,
+        dtype: Optional[DTypeLike] = None,
     ) -> None:
         """
         Cache:
@@ -366,7 +368,7 @@ class lazy_image:
         self._custom_loader = True
 
         if loader is None:
-            loader = load_image
+            loader = partial(load_image, dtype=dtype) if dtype else load_image
             self._custom_loader = False
 
         self._path = path
