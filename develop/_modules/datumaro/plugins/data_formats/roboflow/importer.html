@@ -346,6 +346,7 @@ document.write(`
 
 <span class="kn">import</span> <span class="nn">os</span>
 <span class="kn">import</span> <span class="nn">os.path</span> <span class="k">as</span> <span class="nn">osp</span>
+<span class="kn">import</span> <span class="nn">warnings</span>
 <span class="kn">from</span> <span class="nn">collections</span> <span class="kn">import</span> <span class="n">defaultdict</span>
 <span class="kn">from</span> <span class="nn">glob</span> <span class="kn">import</span> <span class="n">glob</span>
 <span class="kn">from</span> <span class="nn">io</span> <span class="kn">import</span> <span class="n">TextIOWrapper</span>
@@ -570,6 +571,24 @@ document.write(`
     <span class="n">FORMAT</span> <span class="o">=</span> <span class="s2">&quot;roboflow_yolo_obb&quot;</span>
     <span class="n">FORMAT_EXT</span> <span class="o">=</span> <span class="s2">&quot;.txt&quot;</span>
     <span class="n">ANN_DIR_NAME</span> <span class="o">=</span> <span class="s2">&quot;labelTxt/&quot;</span>
+
+<div class="viewcode-block" id="RoboflowYoloObbImporter.detect">
+<a class="viewcode-back" href="../../../../../docs/reference/_autosummary/datumaro.plugins.data_formats.roboflow.importer.html#datumaro.plugins.data_formats.roboflow.importer.RoboflowYoloObbImporter.detect">[docs]</a>
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">detect</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">context</span><span class="p">:</span> <span class="n">FormatDetectionContext</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">FormatDetectionConfidence</span><span class="p">:</span>
+        <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;FormatDetectionConfidence of &#39;</span><span class="si">{</span><span class="bp">cls</span><span class="o">.</span><span class="n">FORMAT</span><span class="si">}</span><span class="s2">&#39; is lowered because of &#39;dota&#39; format support. &quot;</span>
+            <span class="sa">f</span><span class="s2">&quot;It will be deprecated in datumaro==1.8.0.&quot;</span><span class="p">,</span>
+            <span class="ne">DeprecationWarning</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="k">with</span> <span class="n">context</span><span class="o">.</span><span class="n">require_any</span><span class="p">():</span>
+            <span class="k">with</span> <span class="n">context</span><span class="o">.</span><span class="n">alternative</span><span class="p">():</span>
+                <span class="bp">cls</span><span class="o">.</span><span class="n">_check_ann_file</span><span class="p">(</span>
+                    <span class="n">context</span><span class="o">.</span><span class="n">require_file</span><span class="p">(</span><span class="s2">&quot;**/&quot;</span> <span class="o">+</span> <span class="bp">cls</span><span class="o">.</span><span class="n">ANN_DIR_NAME</span> <span class="o">+</span> <span class="s2">&quot;*&quot;</span> <span class="o">+</span> <span class="bp">cls</span><span class="o">.</span><span class="n">FORMAT_EXT</span><span class="p">),</span> <span class="n">context</span>
+                <span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">FormatDetectionConfidence</span><span class="o">.</span><span class="n">LOW</span></div>
+
 
     <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">_check_ann_file_impl</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">fp</span><span class="p">:</span> <span class="n">TextIOWrapper</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
