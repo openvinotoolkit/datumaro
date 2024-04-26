@@ -13,7 +13,7 @@ from datumaro.components.lazy_plugin import extra_deps
 from .details.ac import GenericAcLauncher as _GenericAcLauncher
 
 
-@extra_deps("openvino.tools", "tensorflow")
+@extra_deps("tensorflow", "openvino.tools.accuracy_checker")
 class AcLauncher(Launcher, CliPlugin):
     """
     Generic model launcher with Accuracy Checker backend.
