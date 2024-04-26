@@ -22,14 +22,14 @@ def fxt_tabular_root():
 
 
 @pytest.fixture()
-def txf_electricity(fxt_tabular_root):
+def fxt_electricity(fxt_tabular_root):
     path = osp.join(fxt_tabular_root, "electricity.csv")
     yield Dataset.import_from(path, "tabular")
 
 
 @pytest.fixture()
 def fxt_buddy_target():
-    yield ["breed_category", "pet_category"]
+    yield {"input": "length(m)", "output": ["breed_category", "pet_category"]}
 
 
 @pytest.fixture()
@@ -41,13 +41,9 @@ def fxt_buddy(fxt_tabular_root, fxt_buddy_target):
 @pytest.mark.new
 class TabularImporterTest:
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
-    def test_can_import_tabular_file(self, txf_electricity) -> None:
-        dataset: Type[Dataset] = txf_electricity
-        expected_categories = {
-            AnnotationType.tabular: TabularCategories.from_iterable(
-                [("class", str, {"UP", "DOWN"})]
-            )
-        }
+    def test_can_import_tabular_file(self, fxt_electricity) -> None:
+        dataset: Type[Dataset] = fxt_electricity
+        expected_categories = {AnnotationType.tabular: TabularCategories.from_iterable([])}
         expected_subset = "electricity"
 
         assert dataset.categories() == expected_categories
@@ -56,19 +52,16 @@ class TabularImporterTest:
 
         for idx, item in enumerate(dataset):
             assert idx == item.media.index
-            assert len(item.annotations) == 1
-            assert item.media.data()["class"] == item.annotations[0].values["class"]
+            assert len(item.annotations) == 0
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_import_tabular_folder(self, fxt_buddy) -> None:
         dataset: Type[Dataset] = fxt_buddy
-        expected_categories = {
-            AnnotationType.tabular: TabularCategories.from_iterable(
-                [("breed_category", float), ("pet_category", int)]
-            )
-        }
+        expected_categories_keys = [("breed_category", float), ("pet_category", int)]
 
-        assert dataset.categories() == expected_categories
+        assert [
+            (cat.name, cat.dtype) for cat in dataset.categories()[AnnotationType.tabular].items
+        ] == expected_categories_keys
         assert len(dataset) == 200
         assert set(dataset.subsets()) == {"train", "test"}
 
@@ -98,7 +91,7 @@ class TabularImporterTest:
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     @pytest.mark.parametrize(
-        "fxt,target", [("txf_electricity", None), ("fxt_buddy", "fxt_buddy_target")]
+        "fxt,target", [("fxt_electricity", None), ("fxt_buddy", "fxt_buddy_target")]
     )
     def test_can_export_tabular(self, fxt: str, target, request) -> None:
         dataset: Type[Dataset] = request.getfixturevalue(fxt)
@@ -109,3 +102,75 @@ class TabularImporterTest:
             dataset.export(test_dir, "tabular")
             back_dataset = Dataset.import_from(test_dir, "tabular", target=target)
             compare_datasets(TestCase(), dataset, back_dataset)
+
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
+    @pytest.mark.parametrize(
+        "target, expected_media_data_keys, expected_categories_keys",
+        [
+            (
+                {"input": "length(m)", "output": "breed_category"},
+                ["length(m)", "breed_category"],
+                [("breed_category", float)],
+            ),
+            (
+                {"input": "length", "output": "breed_category"},
+                ["breed_category"],
+                [("breed_category", float)],
+            ),
+            ({"input": "length(m)", "output": "breed"}, ["length(m)"], []),
+            (
+                {"input": ["length(m)", "height(cm)"], "output": "breed_category"},
+                ["length(m)", "height(cm)", "breed_category"],
+                [("breed_category", float)],
+            ),
+        ],
+    )
+    def test_target_check_in_table(
+        self, fxt_tabular_root, target, expected_media_data_keys, expected_categories_keys
+    ) -> None:
+        path = osp.join(fxt_tabular_root, "adopt-a-buddy")
+        dataset = Dataset.import_from(path, "tabular", target=target)
+
+        assert (
+            list(next(iter(dataset.get_subset("train"))).media.data().keys())
+            == expected_media_data_keys
+        )
+        assert [
+            (cat.name, cat.dtype) for cat in dataset.categories()[AnnotationType.tabular].items
+        ] == expected_categories_keys
+
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
+    @pytest.mark.parametrize(
+        "target,expected_included_labels",
+        [
+            ({"input": "length(m)", "output": "breed_category"}, [True]),
+            ({"input": "length(m)", "output": ["color_type", "breed_category"]}, [False, True]),
+        ],
+    )
+    def test_target_dtype(self, fxt_tabular_root, target, expected_included_labels) -> None:
+        path = osp.join(fxt_tabular_root, "adopt-a-buddy")
+        dataset = Dataset.import_from(path, "tabular", target=target)
+
+        included_lables_result = [
+            False if len(cat.labels) == 0 else True
+            for cat in dataset.categories()[AnnotationType.tabular].items
+        ]
+
+        assert included_lables_result == expected_included_labels
+
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
+    @pytest.mark.parametrize(
+        "input_string,expected_result",
+        [
+            ("input:date,output:class", {"input": ["date"], "output": ["class"]}),
+            (
+                "input:length(m),output:breed_category,pet_category",
+                {"input": ["length(m)"], "output": ["breed_category", "pet_category"]},
+            ),
+            ("input:age,color,output:size", {"input": ["age", "color"], "output": ["size"]}),
+            ("input:height", {"input": ["height"]}),
+            ("output:breed_category", {"output": ["breed_category"]}),
+        ],
+    )
+    def test_string_to_dict(self, input_string, expected_result):
+        assert string_to_dict(input_string) == expected_result

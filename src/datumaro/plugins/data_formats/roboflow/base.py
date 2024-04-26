@@ -16,13 +16,14 @@ from datumaro.components.annotation import (
     Bbox,
     Label,
     LabelCategories,
-    Polygon,
+    RotatedBbox,
 )
 from datumaro.components.dataset import DatasetItem
 from datumaro.components.dataset_base import SubsetBase
 from datumaro.components.errors import InvalidAnnotationError, UndeclaredLabelError
 from datumaro.components.importer import ImportContext
 from datumaro.components.media import Image, ImageFromFile
+from datumaro.components.task import TaskType
 from datumaro.plugins.data_formats.coco.base import _CocoBase
 from datumaro.plugins.data_formats.coco.format import CocoImporterType, CocoTask
 from datumaro.plugins.data_formats.voc.base import VocBase
@@ -170,8 +171,8 @@ class RoboflowYoloObbBase(RoboflowYoloBase):
             x4 = self._parse_field(x4, float, "x4")
             y4 = self._parse_field(y4, float, "y4")
             annotations.append(
-                Polygon(
-                    points=[x1, y1, x2, y2, x3, y3, x4, y4],
+                RotatedBbox.from_rectangle(
+                    points=[(x1, y1), (x2, y2), (x3, y3), (x4, y4)],
                     label=label_id,
                     id=idx,
                     group=idx,
@@ -237,6 +238,9 @@ class RoboflowCreateMlBase(SubsetBase):
                 h = ann["coordinates"]["height"]
                 annotations.append(Bbox(x, y, w, h, label=label_id, id=ann_id, group=ann_id))
 
+            if annotations:
+                self._task_type = TaskType.detection
+
             img_id = osp.splitext(anns["image"])[0]
             items[img_id] = DatasetItem(
                 id=img_id,
@@ -289,6 +293,7 @@ class RoboflowMulticlassBase(SubsetBase):
 
     def _load_items(self, path):
         items = []
+        max_num_annotations = 0
         with open(path, "r", encoding="utf-8") as f:
             for anns in csv.DictReader(f):
                 img_id = anns.get("filename", None)
@@ -314,5 +319,12 @@ class RoboflowMulticlassBase(SubsetBase):
                         annotations=annotations,
                     )
                 )
+                max_num_annotations = max(max_num_annotations, len(annotations))
+        if max_num_annotations == 0:
+            self._task_type = TaskType.unlabeled
+        elif max_num_annotations > 1:
+            self._task_type = TaskType.classification_multilabel
+        else:
+            self._task_type = TaskType.classification
 
         return items

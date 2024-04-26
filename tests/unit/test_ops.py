@@ -17,6 +17,7 @@ from datumaro.components.annotation import (
     PointsCategories,
     Polygon,
     PolyLine,
+    RotatedBbox,
 )
 from datumaro.components.dataset import Dataset
 from datumaro.components.dataset_base import DEFAULT_SUBSET_NAME, DatasetItem
@@ -222,6 +223,7 @@ class TestMultimerge(TestCase):
                         Points([5, 6], label=0, group=1),
                         Points([6, 8], label=1, group=1),
                         PolyLine([1, 1, 2, 1, 3, 1]),
+                        RotatedBbox(4, 5, 2, 4, 20, label=2),
                     ],
                 ),
             ],
@@ -251,6 +253,7 @@ class TestMultimerge(TestCase):
                         Points([5.5, 6.5], label=0, group=2),
                         Points([6, 8], label=1, group=2),
                         PolyLine([1, 1.5, 2, 1.5]),
+                        RotatedBbox(2, 4, 2, 4, 10, label=1),
                     ],
                 ),
             ],
@@ -280,6 +283,7 @@ class TestMultimerge(TestCase):
                         Bbox(3, 6, 2, 3, label=2, z_order=4, group=3),
                         Points([4.5, 5.5], label=0, group=3),
                         PolyLine([1, 1.25, 3, 1, 4, 2]),
+                        RotatedBbox(2, 4, 2, 4, 10, label=1),
                     ],
                 ),
             ],
@@ -313,6 +317,8 @@ class TestMultimerge(TestCase):
                         Points([5, 6], label=0, group=1),
                         Points([6, 8], label=1, group=1),
                         PolyLine([1, 1.25, 3, 1, 4, 2]),
+                        RotatedBbox(4, 5, 2, 4, 20, label=2),
+                        RotatedBbox(2, 4, 2, 4, 10, label=1),
                     ],
                 ),
             ],
@@ -332,8 +338,18 @@ class TestMultimerge(TestCase):
                 ),
                 NoMatchingAnnError(
                     item_id=("1", DEFAULT_SUBSET_NAME),
+                    sources={0},
+                    ann=source1.get("1").annotations[6],
+                ),
+                NoMatchingAnnError(
+                    item_id=("1", DEFAULT_SUBSET_NAME),
                     sources={1, 2},
                     ann=source0.get("1").annotations[0],
+                ),
+                NoMatchingAnnError(
+                    item_id=("1", DEFAULT_SUBSET_NAME),
+                    sources={1, 2},
+                    ann=source0.get("1").annotations[7],
                 ),
             ],
             sorted(

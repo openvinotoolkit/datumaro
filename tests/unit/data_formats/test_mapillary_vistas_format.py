@@ -16,6 +16,7 @@ from datumaro.components.annotation import (
 from datumaro.components.dataset import Dataset, DatasetItem
 from datumaro.components.environment import DEFAULT_ENVIRONMENT
 from datumaro.components.media import Image
+from datumaro.components.task import TaskType
 from datumaro.plugins.data_formats.mapillary_vistas.format import (
     MapillaryVistasLabelMaps,
     make_mapillary_instance_categories,
@@ -83,6 +84,7 @@ def fxt_dataset_instances_w_polygon():
             ),
         ],
         categories={AnnotationType.label: label_cat, AnnotationType.mask: mask_cat},
+        task_type=TaskType.segmentation_instance,
     )
 
     return expected_dataset
@@ -130,6 +132,7 @@ def fxt_dataset_instances_wo_polygon():
             ),
         ],
         categories={AnnotationType.label: label_cat, AnnotationType.mask: mask_cat},
+        task_type=TaskType.segmentation_semantic,
     )
 
     return expected_dataset
@@ -251,6 +254,7 @@ def fxt_dataset_panoptic_w_polygon():
             ),
         ],
         categories={AnnotationType.label: label_cat, AnnotationType.mask: mask_cat},
+        task_type=TaskType.segmentation_instance,
     )
 
     return expected_dataset
@@ -362,6 +366,7 @@ def fxt_dataset_panoptic_wo_polygon():
             ),
         ],
         categories={AnnotationType.label: label_cat, AnnotationType.mask: mask_cat},
+        task_type=TaskType.segmentation_semantic,
     )
 
     return expected_dataset
@@ -392,6 +397,7 @@ def fxt_dataset_original_config():
             ),
         ],
         categories=make_mapillary_instance_categories(MapillaryVistasLabelMaps["v1.2"]),
+        task_type=TaskType.segmentation_semantic,
     )
 
 
@@ -458,6 +464,7 @@ def fxt_dataset_keep_category():
             ),
         ],
         categories={AnnotationType.label: label_cat, AnnotationType.mask: mask_cat},
+        task_type=TaskType.segmentation_semantic,
     )
 
 

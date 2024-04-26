@@ -13,6 +13,7 @@ from datumaro.components.annotation import Caption, Label
 from datumaro.components.dataset import Dataset
 from datumaro.components.dataset_base import DatasetItem
 from datumaro.components.media import Image
+from datumaro.components.task import TaskType
 from datumaro.plugins.data_formats.datumaro.exporter import DatumaroExporter
 
 from ..requirements import Requirements, mark_requirement
@@ -52,6 +53,7 @@ class PruneTest:
                 ),
             ],
             categories=["1", "2"],
+            task_type=TaskType.mixed,
         )
         return dataset
 

@@ -21,6 +21,7 @@ from .matcher import (
     MaskMatcher,
     PointsMatcher,
     PolygonMatcher,
+    RotatedBboxMatcher,
     ShapeMatcher,
     TabularMatcher,
 )
@@ -29,6 +30,7 @@ __all__ = [
     "AnnotationMerger",
     "LabelMerger",
     "BboxMerger",
+    "RotatedBboxMerger",
     "PolygonMerger",
     "MaskMerger",
     "PointsMerger",
@@ -202,4 +204,9 @@ class FeatureVectorMerger(AnnotationMerger, FeatureVectorMatcher):
 
 @attrs
 class TabularMerger(AnnotationMerger, TabularMatcher):
+    pass
+
+
+@attrs
+class RotatedBboxMerger(_ShapeMerger, RotatedBboxMatcher):
     pass

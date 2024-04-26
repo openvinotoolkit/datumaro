@@ -5,8 +5,20 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## May 2024 Release 1.6.1
+## \[unreleased\]
+### New features
+- Add task_type property for dataset
+  (<https://github.com/openvinotoolkit/datumaro/pull/1422>)
+- Add AnnotationType.rotated_bbox for oriented object detection
+  (<https://github.com/openvinotoolkit/datumaro/pull/1459>)
 
+### Enhancements
+- Fix ambiguous COCO format detector
+  (<https://github.com/openvinotoolkit/datumaro/pull/1442>)
+- Get target information for tabular dataset
+  (<https://github.com/openvinotoolkit/datumaro/pull/1471>)
+
+## May 2024 Release 1.6.1
 ### Enhancements
 - Prevent AcLauncher for OpenVINO 2024.0
   (<https://github.com/openvinotoolkit/datumaro/pull/1450>)

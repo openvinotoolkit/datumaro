@@ -14,6 +14,7 @@ from datumaro.components.dataset import Dataset
 from datumaro.components.dataset_base import DatasetItem
 from datumaro.components.media import Image, Video, VideoFrame
 from datumaro.components.project import Project
+from datumaro.components.task import TaskType
 from datumaro.util.scope import Scope, on_exit_do, scope_add, scoped
 
 from ..requirements import Requirements, mark_requirement
@@ -129,7 +130,8 @@ class VideoExtractorTest:
                     media=Image.from_numpy(data=np.ones((4, 6, 3)) * i),
                 )
                 for i in range(4)
-            ]
+            ],
+            task_type=TaskType.unlabeled,
         )
 
         actual = Dataset.import_from(
@@ -147,7 +149,8 @@ class VideoExtractorTest:
             [
                 DatasetItem("frame_%06d" % i, media=Image.from_numpy(data=np.ones((4, 6, 3)) * i))
                 for i in range(4)
-            ]
+            ],
+            task_type=TaskType.unlabeled,
         )
 
         dataset = Dataset.import_from(
@@ -212,6 +215,7 @@ class ProjectTest:
                 DatasetItem(1),
             ],
             categories=["a"],
+            task_type=TaskType.unlabeled,
         )
         src.save(src_url)
         project.add_source(src_url, "datumaro")
@@ -255,6 +259,7 @@ class VideoAnnotationTest:
                 for i in range(4)
             ],
             categories=["a", "b"],
+            task_type=TaskType.detection,
         )
 
         with TestDir() as test_dir:

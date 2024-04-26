@@ -29,6 +29,7 @@ from datumaro.components.annotations.merger import (
     MaskMerger,
     PointsMerger,
     PolygonMerger,
+    RotatedBboxMerger,
     TabularMerger,
 )
 from datumaro.components.dataset_base import DatasetItem, IDataset
@@ -187,8 +188,13 @@ class IntersectMerge(Merger):
         infos = self.merge_infos(d.infos() for d in datasets)
         categories = self.merge_categories(d.categories() for d in datasets)
         media_type = self.merge_media_types(datasets)
+        task_type = self.merge_task_types(datasets)
         return DatasetItemStorageDatasetView(
-            parent=merged, infos=infos, categories=categories, media_type=media_type
+            parent=merged,
+            infos=infos,
+            categories=categories,
+            media_type=media_type,
+            task_type=task_type,
         )
 
     def merge_categories(self, sources: Sequence[IDataset]) -> Dict:
@@ -447,6 +453,8 @@ class IntersectMerge(Merger):
                 return _make(FeatureVectorMerger, **kwargs)
             elif t is AnnotationType.tabular:
                 return _make(TabularMerger, **kwargs)
+            elif t is AnnotationType.rotated_bbox:
+                return _make(RotatedBboxMerger, **kwargs)
             else:
                 raise NotImplementedError("Type %s is not supported" % t)
 

@@ -10,7 +10,7 @@ import cv2
 import numpy as np
 import pytest
 
-from datumaro.components.annotation import Bbox, Caption, Ellipse, Label, Mask, Points
+from datumaro.components.annotation import Bbox, Caption, Ellipse, Label, Mask, Points, RotatedBbox
 from datumaro.components.dataset import Dataset
 from datumaro.components.dataset_base import DatasetItem
 from datumaro.components.errors import DatumaroError
@@ -222,6 +222,16 @@ class AnnStatisticsTest:
                                 "occluded": False,
                             },
                         ),
+                        RotatedBbox(
+                            4,
+                            4,
+                            2,
+                            2,
+                            20,
+                            attributes={
+                                "tiny": True,
+                            },
+                        ),
                     ],
                 ),
                 DatasetItem(id=3),
@@ -232,7 +242,7 @@ class AnnStatisticsTest:
 
         expected = {
             "images count": 4,
-            "annotations count": 11,
+            "annotations count": 12,
             "unannotated images count": 2,
             "unannotated images": ["3", "2.2"],
             "annotations by type": {
@@ -256,6 +266,9 @@ class AnnStatisticsTest:
                 },
                 "caption": {
                     "count": 2,
+                },
+                "rotated_bbox": {
+                    "count": 1,
                 },
                 "cuboid_3d": {"count": 0},
                 "super_resolution_annotation": {"count": 0},
@@ -375,27 +388,13 @@ class AnnStatisticsTest:
             "unannotated images count": 0,
             "unannotated images": [],
             "annotations by type": {
-                "label": {
-                    "count": 0,
-                },
-                "polygon": {
-                    "count": 0,
-                },
-                "polyline": {
-                    "count": 0,
-                },
-                "bbox": {
-                    "count": 0,
-                },
-                "mask": {
-                    "count": 0,
-                },
-                "points": {
-                    "count": 0,
-                },
-                "caption": {
-                    "count": 0,
-                },
+                "label": {"count": 0},
+                "polygon": {"count": 0},
+                "polyline": {"count": 0},
+                "bbox": {"count": 0},
+                "mask": {"count": 0},
+                "points": {"count": 0},
+                "caption": {"count": 0},
                 "cuboid_3d": {"count": 0},
                 "super_resolution_annotation": {"count": 0},
                 "depth_annotation": {"count": 0},
@@ -403,6 +402,7 @@ class AnnStatisticsTest:
                 "hash_key": {"count": 0},
                 "feature_vector": {"count": 0},
                 "tabular": {"count": 0},
+                "rotated_bbox": {"count": 0},
                 "unknown": {"count": 0},
             },
             "annotations": {

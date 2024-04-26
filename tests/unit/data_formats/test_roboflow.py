@@ -7,12 +7,13 @@ from copy import deepcopy
 import numpy as np
 import pytest
 
-from datumaro.components.annotation import Bbox, Label, Polygon
+from datumaro.components.annotation import Bbox, Label, RotatedBbox
 from datumaro.components.dataset import Dataset
 from datumaro.components.dataset_base import DatasetItem
 from datumaro.components.environment import DEFAULT_ENVIRONMENT
 from datumaro.components.importer import Importer
 from datumaro.components.media import Image
+from datumaro.components.task import TaskType
 from datumaro.plugins.data_formats.roboflow.base_tfrecord import (
     RoboflowTfrecordBase,
     RoboflowTfrecordImporter,
@@ -82,6 +83,7 @@ def fxt_coco_dataset():
             ),
         ],
         categories=["label_0", "label_1"],
+        task_type=TaskType.detection,
     )
 
 
@@ -152,6 +154,7 @@ def fxt_voc_dataset():
             ),
         ],
         categories=["label_0", "label_1"],
+        task_type=TaskType.detection,
     )
 
 
@@ -171,8 +174,12 @@ def fxt_yolo_obb_dataset():
                 subset="train",
                 media=Image.from_numpy(data=np.ones((5, 10, 3))),
                 annotations=[
-                    Polygon(
-                        points=[0, 0, 0, 2, 2, 2, 2, 0],
+                    RotatedBbox(
+                        1,
+                        1,
+                        2,
+                        2,
+                        90,
                         label=0,
                         group=0,
                         id=0,
@@ -184,8 +191,12 @@ def fxt_yolo_obb_dataset():
                 subset="train",
                 media=Image.from_numpy(data=np.ones((5, 10, 3))),
                 annotations=[
-                    Polygon(
-                        points=[1, 1, 1, 5, 5, 5, 5, 1],
+                    RotatedBbox(
+                        3,
+                        3,
+                        4,
+                        4,
+                        90,
                         label=1,
                         group=0,
                         id=0,
@@ -197,14 +208,22 @@ def fxt_yolo_obb_dataset():
                 subset="val",
                 media=Image.from_numpy(data=np.ones((5, 10, 3))),
                 annotations=[
-                    Polygon(
-                        points=[0, 0, 0, 1, 1, 1, 1, 0],
+                    RotatedBbox(
+                        0.5,
+                        0.5,
+                        1,
+                        1,
+                        90,
                         label=0,
                         group=0,
                         id=0,
                     ),
-                    Polygon(
-                        points=[1, 2, 1, 5, 10, 5, 10, 2],
+                    RotatedBbox(
+                        5.5,
+                        3.5,
+                        3,
+                        9,
+                        90,
                         label=1,
                         group=1,
                         id=1,
@@ -213,6 +232,7 @@ def fxt_yolo_obb_dataset():
             ),
         ],
         categories=["label_0", "label_1"],
+        task_type=TaskType.detection_rotated,
     )
 
 
@@ -253,6 +273,7 @@ def fxt_multiclass_dataset():
             ),
         ],
         categories=["label_0", "label_1"],
+        task_type=TaskType.classification,
     )
 
 
@@ -286,6 +307,7 @@ def fxt_tfrecord_dataset():
             ),
         ],
         categories=["label_0", "label_1"],
+        task_type=TaskType.detection,
     )
 
 

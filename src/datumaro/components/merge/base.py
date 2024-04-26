@@ -17,6 +17,7 @@ from datumaro.components.errors import (
     MediaTypeError,
 )
 from datumaro.components.media import MediaElement
+from datumaro.components.task import TaskAnnotationMapping, TaskType
 from datumaro.util import dump_json_file
 
 
@@ -73,12 +74,27 @@ class Merger(IMergerContext, CliPlugin):
 
         return None
 
+    @staticmethod
+    def merge_task_types(sources: Sequence[IDataset]) -> Optional[TaskType]:
+        task_annotation_mapping = TaskAnnotationMapping()
+        ann_types = set()
+        for source in sources:
+            for ann_type in task_annotation_mapping[source.task_type()]:
+                ann_types.add(ann_type)
+
+        return task_annotation_mapping.get_task(ann_types)
+
     def __call__(self, *datasets: IDataset) -> DatasetItemStorageDatasetView:
         infos = self.merge_infos(d.infos() for d in datasets)
         categories = self.merge_categories(d.categories() for d in datasets)
         media_type = self.merge_media_types(datasets)
+        task_type = self.merge_task_types(datasets)
         return DatasetItemStorageDatasetView(
-            parent=self.merge(datasets), infos=infos, categories=categories, media_type=media_type
+            parent=self.merge(datasets),
+            infos=infos,
+            categories=categories,
+            media_type=media_type,
+            task_type=task_type,
         )
 
     def save_merge_report(self, path: str) -> None:

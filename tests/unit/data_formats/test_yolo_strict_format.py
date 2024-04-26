@@ -21,6 +21,7 @@ from datumaro.components.errors import (
     UndeclaredLabelError,
 )
 from datumaro.components.media import Image
+from datumaro.components.task import TaskType
 from datumaro.plugins.data_formats.yolo.base import YoloStrictBase
 from datumaro.plugins.data_formats.yolo.exporter import YoloExporter
 from datumaro.util.image import save_image
@@ -69,6 +70,7 @@ class YoloExportertTest:
                 ),
             ],
             categories=["label_" + str(i) for i in range(10)],
+            task_type=TaskType.detection,
         )
 
         YoloExporter.convert(source_dataset, test_dir, save_media=True, stream=is_stream)
@@ -93,6 +95,7 @@ class YoloExportertTest:
                 ),
             ],
             categories=["label_" + str(i) for i in range(10)],
+            task_type=TaskType.detection,
         )
 
         YoloExporter.convert(source_dataset, test_dir, stream=is_stream)
@@ -123,6 +126,7 @@ class YoloExportertTest:
                 ),
             ],
             categories=["label_" + str(i) for i in range(10)],
+            task_type=TaskType.detection,
         )
 
         YoloExporter.convert(source_dataset, test_dir, stream=is_stream)
@@ -150,6 +154,7 @@ class YoloExportertTest:
                 ),
             ],
             categories=["label_" + str(i) for i in range(10)],
+            task_type=TaskType.detection,
         )
 
         YoloExporter.convert(source_dataset, test_dir, save_media=True, stream=is_stream)
@@ -175,6 +180,7 @@ class YoloExportertTest:
                 ),
             ],
             categories=[],
+            task_type=TaskType.unlabeled,
         )
 
         YoloExporter.convert(source_dataset, test_dir, save_media=save_media, stream=is_stream)
@@ -202,6 +208,7 @@ class YoloExportertTest:
                 ),
             ],
             categories=[],
+            task_type=TaskType.unlabeled,
         )
 
         YoloExporter.convert(dataset, test_dir, save_media=True, stream=is_stream)
@@ -221,6 +228,7 @@ class YoloExportertTest:
                 DatasetItem(2, subset="train", media=Image.from_numpy(data=np.ones((3, 2, 3)))),
             ],
             categories=[],
+            task_type=TaskType.unlabeled,
         )
 
         dataset = Dataset.from_iterable(
@@ -230,6 +238,7 @@ class YoloExportertTest:
                 DatasetItem(3, subset="valid", media=Image.from_numpy(data=np.ones((2, 2, 3)))),
             ],
             categories=[],
+            task_type=TaskType.unlabeled,
         )
         dataset.export(test_dir, "yolo", save_media=True, stream=is_stream)
 
@@ -282,6 +291,7 @@ class YoloExportertTest:
                 ),
             ],
             categories=["label_" + str(i) for i in range(10)],
+            task_type=TaskType.detection,
         )
 
         YoloExporter.convert(
@@ -311,6 +321,7 @@ class YoloExportertTest:
                 ),
             ],
             categories=["label_" + str(i) for i in range(10)],
+            task_type=TaskType.detection,
         )
 
         YoloExporter.convert(source_dataset, test_dir, save_media=True, stream=is_stream)
@@ -331,6 +342,7 @@ class YoloExportertTest:
                     ),
                 ],
                 categories=["a"],
+                task_type=TaskType.unlabeled,
             )
 
             with TestDir() as test_dir:
@@ -354,6 +366,7 @@ class YoloExportertTest:
                 ),
             ],
             categories=["a", "b"],
+            task_type=TaskType.detection,
         )
 
         YoloExporter.convert(
@@ -401,6 +414,7 @@ class YoloStrictBaseTest:
                 )
             ],
             categories=["test"],
+            task_type=TaskType.detection,
         )
         dataset.export(test_dir, "yolo", save_media=True)
 

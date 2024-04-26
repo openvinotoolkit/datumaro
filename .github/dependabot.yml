@@ -5,22 +5,7 @@ updates:
     schedule:
       interval: daily
 
-  # - package-ecosystem: pip
-  #   directory: /docker/segment-anything
-  #   schedule:
-  #     interval: daily
-
-  - package-ecosystem: pip
-    directory: /docs
-    schedule:
-      interval: daily
-
   - package-ecosystem: pip
     directory: /
-    schedule:
-      interval: daily
-
-  - package-ecosystem: pip
-    directory: /tests
     schedule:
       interval: daily

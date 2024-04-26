@@ -25,6 +25,7 @@ from datumaro.components.dataset_base import DEFAULT_SUBSET_NAME, DatasetBase, S
 from datumaro.components.errors import InvalidAnnotationError, InvalidFieldError, MissingFieldError
 from datumaro.components.importer import ImportContext
 from datumaro.components.media import Image, ImageFromFile
+from datumaro.components.task import TaskAnnotationMapping, TaskType
 from datumaro.plugins.data_formats.coco.base import CocoInstancesBase
 from datumaro.plugins.data_formats.coco.format import CocoTask
 from datumaro.plugins.data_formats.coco.page_mapper import COCOPageMapper
@@ -55,6 +56,7 @@ class KaggleImageCsvBase(DatasetBase):
         self._label_cat = LabelCategories()
         self._items = self._load_items(ann_file, columns)
         self._categories = {AnnotationType.label: self._label_cat}
+        self._task_type = TaskAnnotationMapping().get_task(self._ann_types)
 
     def _get_media_path(self, media_name: str):
         media_path = osp.join(self._path, media_name)
@@ -164,6 +166,7 @@ class KaggleImageCsvBase(DatasetBase):
                 continue
 
             ann = self._load_annotations(data_info, indices, bbox_flag)
+            self._ann_types.add(ann.type)
             if item_id in items:
                 items[item_id].annotations.append(ann)
             else:
@@ -227,6 +230,7 @@ class KaggleImageTxtBase(KaggleImageCsvBase):
                     continue
 
                 ann = self._load_annotations(line, columns, bbox_flag)
+                self._ann_types.add(ann.type)
                 if item_id in items:
                     items[item_id].annotations.append(ann)
                 else:
@@ -260,6 +264,7 @@ class KaggleImageMaskBase(DatasetBase):
         self._label_ids = []
         self._categories = self._load_categories(labelmap_file)
         self._items = self._load_items()
+        self._task_type = TaskAnnotationMapping().get_task(self._ann_types)
 
     def _load_categories(self, label_map_file: Optional[str]):
         label_map = dict()
@@ -312,6 +317,7 @@ class KaggleImageMaskBase(DatasetBase):
                                 label=label_id,
                             )
                         )
+                        self._ann_types.add(AnnotationType.mask)
 
             items.append(
                 DatasetItem(
@@ -359,6 +365,8 @@ class KaggleVocBase(SubsetBase):
             annotations = (
                 self._parse_annotations(img_file, ann_file) if osp.isfile(ann_file) else []
             )
+            for ann in annotations:
+                self._ann_types.add(ann.type)
 
             media = Image.from_file(path=img_file, size=self._size)
 
@@ -371,6 +379,7 @@ class KaggleVocBase(SubsetBase):
                 )
             )
         self._categories = {AnnotationType.label: self._label_cat}
+        self._task_type = TaskAnnotationMapping().get_task(self._ann_types)
 
     def _parse_annotations(self, img_file: str, ann_file: str):
         root_elem = ElementTree.parse(ann_file).getroot()
@@ -509,6 +518,7 @@ class KaggleCocoBase(CocoInstancesBase, SubsetBase):
             )
 
             self._items = self._load_items(json_data)
+            self._task_type = TaskAnnotationMapping().get_task(self._ann_types)
 
             del json_data
         else:
@@ -522,3 +532,4 @@ class KaggleCocoBase(CocoInstancesBase, SubsetBase):
             )
 
             self._length = None
+            self._task_type = TaskType.segmentation_instance

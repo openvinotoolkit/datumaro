@@ -9,6 +9,7 @@ from datumaro.components.dataset import Dataset
 from datumaro.components.dataset_base import DatasetItem
 from datumaro.components.environment import Environment
 from datumaro.components.media import Image
+from datumaro.components.task import TaskType
 from datumaro.plugins.data_formats.mot import MotSeqGtExporter, MotSeqImporter
 
 from ..requirements import Requirements, mark_requirement
@@ -83,6 +84,7 @@ class MotConverterTest(TestCase):
                     "label_" + str(label) for label in range(10)
                 ),
             },
+            task_type=TaskType.detection,
         )
 
         target_dataset = Dataset.from_iterable(
@@ -156,6 +158,7 @@ class MotConverterTest(TestCase):
                     "label_" + str(label) for label in range(10)
                 ),
             },
+            task_type=TaskType.detection,
         )
 
         with TestDir() as test_dir:
@@ -209,6 +212,7 @@ class MotConverterTest(TestCase):
                 ),
             ],
             categories=["label_0", "label_1"],
+            task_type=TaskType.detection,
         )
 
         with TestDir() as test_dir:
@@ -244,6 +248,7 @@ class MotConverterTest(TestCase):
                 ),
             ],
             categories=["a"],
+            task_type=TaskType.detection,
         )
 
         with TestDir() as test_dir:
@@ -296,6 +301,7 @@ class MotConverterTest(TestCase):
                 ),
             ],
             categories=["label_0", "label_1"],
+            task_type=TaskType.detection,
         )
 
         with TestDir() as test_dir:
@@ -336,6 +342,7 @@ class MotImporterTest(TestCase):
                 ),
             ],
             categories=["label_" + str(label) for label in range(10)],
+            task_type=TaskType.detection,
         )
 
         return expected_dataset
