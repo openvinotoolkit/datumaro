@@ -5,12 +5,14 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## May 2024 Release 1.7.0
+## \[unreleased\]
 ### New features
 - Add task_type property for dataset
   (<https://github.com/openvinotoolkit/datumaro/pull/1422>)
 - Add AnnotationType.rotated_bbox for oriented object detection
   (<https://github.com/openvinotoolkit/datumaro/pull/1459>)
+- Add DOTA data format for oriented object detection task
+  (<https://github.com/openvinotoolkit/datumaro/pull/1475>)
 
 ### Enhancements
 - Fix ambiguous COCO format detector
@@ -20,7 +22,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Add ExtractedMask and update importers who can use it to use it
   (<https://github.com/openvinotoolkit/datumaro/pull/1480>)
 
+## May 2024 Release 1.6.1
+### Enhancements
+- Prevent AcLauncher for OpenVINO 2024.0
+  (<https://github.com/openvinotoolkit/datumaro/pull/1450>)
+
 ### Bug fixes
+- Modify lxml dependency constraint
+  (<https://github.com/openvinotoolkit/datumaro/pull/1460>)
+- Fix CLI error occurring when installed with default option only
+  (<https://github.com/openvinotoolkit/datumaro/issues/1444>, <https://github.com/openvinotoolkit/datumaro/pull/1454>)
+- Relax Pillow dependency constraint
+  (<https://github.com/openvinotoolkit/datumaro/pull/1436>)
+- Modify Numpy dependency constraint
+  (<https://github.com/openvinotoolkit/datumaro/pull/1435>)
+- Relax old pandas version constraint
+  (<https://github.com/openvinotoolkit/datumaro/pull/1467>)
 
 ## Apr. 2024 Release 1.6.0
 ### New features

@@ -4,8 +4,8 @@
     "plugin_name": "ac",
     "plugin_type": "Launcher",
     "extra_deps": [
-      "openvino.tools",
-      "tensorflow"
+      "tensorflow",
+      "openvino.tools.accuracy_checker"
     ]
   },
   {
@@ -456,6 +456,26 @@
     "metadata": {
       "file_extensions": [
         ".datum"
+      ]
+    }
+  },
+  {
+    "import_path": "datumaro.plugins.data_formats.dota.DotaBase",
+    "plugin_name": "dota",
+    "plugin_type": "DatasetBase"
+  },
+  {
+    "import_path": "datumaro.plugins.data_formats.dota.DotaExporter",
+    "plugin_name": "dota",
+    "plugin_type": "Exporter"
+  },
+  {
+    "import_path": "datumaro.plugins.data_formats.dota.DotaImporter",
+    "plugin_name": "dota",
+    "plugin_type": "Importer",
+    "metadata": {
+      "file_extensions": [
+        ".txt"
       ]
     }
   },
