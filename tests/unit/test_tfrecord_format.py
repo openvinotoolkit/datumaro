@@ -10,7 +10,6 @@ from datumaro.components.dataset import Dataset
 from datumaro.components.dataset_base import DatasetItem
 from datumaro.components.environment import Environment
 from datumaro.components.media import Image
-from datumaro.components.task import TaskType
 from datumaro.util.image import encode_image
 from datumaro.util.tf_util import check_import
 
@@ -81,7 +80,6 @@ class TfrecordExporterTest(TestCase):
                     "label_" + str(label) for label in range(10)
                 ),
             },
-            task_type=TaskType.detection,
         )
 
         with TestDir() as test_dir:
@@ -118,7 +116,6 @@ class TfrecordExporterTest(TestCase):
                     "label_" + str(label) for label in range(10)
                 ),
             },
-            task_type=TaskType.segmentation_semantic,
         )
 
         with TestDir() as test_dir:
@@ -158,7 +155,6 @@ class TfrecordExporterTest(TestCase):
                     "label_" + str(label) for label in range(10)
                 ),
             },
-            task_type=TaskType.detection,
         )
 
         with TestDir() as test_dir:
@@ -185,7 +181,6 @@ class TfrecordExporterTest(TestCase):
                     "label_" + str(label) for label in range(10)
                 ),
             },
-            task_type=TaskType.detection,
         )
 
         with TestDir() as test_dir:
@@ -204,7 +199,6 @@ class TfrecordExporterTest(TestCase):
                 )
             ],
             categories=[],
-            task_type=TaskType.unlabeled,
         )
 
         with TestDir() as test_dir:
@@ -226,7 +220,6 @@ class TfrecordExporterTest(TestCase):
                 ),
             ],
             categories=[],
-            task_type=TaskType.unlabeled,
         )
 
         with TestDir() as test_dir:
@@ -255,7 +248,6 @@ class TfrecordExporterTest(TestCase):
                 ),
             ],
             categories=[],
-            task_type=TaskType.unlabeled,
         )
 
         with TestDir() as test_dir:
@@ -276,7 +268,6 @@ class TfrecordExporterTest(TestCase):
                     DatasetItem(2, subset="b", media=Image.from_numpy(data=np.ones((2, 4, 3)))),
                     DatasetItem(3, subset="c", media=Image.from_numpy(data=np.ones((2, 5, 3)))),
                 ],
-                task_type=TaskType.unlabeled,
             )
             dataset.export(path, "tf_detection_api", save_media=True)
             os.unlink(osp.join(path, "a.tfrecord"))
@@ -365,7 +356,6 @@ class TfrecordImporterTest(TestCase):
                     "label_" + str(label) for label in range(10)
                 ),
             },
-            task_type=TaskType.detection,
         )
 
         dataset = Dataset.import_from(DUMMY_DATASET_DIR, "tf_detection_api")

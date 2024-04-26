@@ -52,7 +52,7 @@ def fxt_stream_extractor(
     stream_extractor.infos.return_value = fxt_infos
     stream_extractor.categories.return_value = fxt_categories
     stream_extractor.media_type.return_value = MediaElement
-    stream_extractor.task_type.return_value = TaskType.classification
+    stream_extractor.ann_types.return_value = {AnnotationType.label}
     stream_extractor.is_stream = True
 
     stream_extractor.subsets.return_value = {DEFAULT_SUBSET_NAME: stream_extractor}

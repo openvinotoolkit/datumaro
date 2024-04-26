@@ -7,7 +7,6 @@ from datumaro.components.dataset import Dataset
 from datumaro.components.dataset_base import DatasetItem
 from datumaro.components.environment import Environment
 from datumaro.components.media import Image
-from datumaro.components.task import TaskType
 from datumaro.plugins.data_formats.vott_json import VottJsonImporter
 
 from ..requirements import Requirements, mark_requirement
@@ -55,7 +54,6 @@ class VottJsonImporterTest(TestCase):
                 ),
             ],
             categories=["animal", "dog", "person"],
-            task_type=TaskType.detection,
         )
 
         dataset = Dataset.import_from(DUMMY_DATASET_DIR, "vott_json")
@@ -94,7 +92,6 @@ class VottJsonImporterTest(TestCase):
                 ),
             ],
             categories=["animal", "dog", "person"],
-            task_type=TaskType.detection,
         )
 
         dataset = Dataset.import_from(DUMMY_DATASET_DIR_WITH_META_FILE, "vott_json")

@@ -36,7 +36,6 @@ from datumaro.components.errors import (
 from datumaro.components.launcher import Launcher
 from datumaro.components.media import Image
 from datumaro.components.project import DiffStatus, Project
-from datumaro.components.task import TaskType
 from datumaro.components.transformer import ItemTransform
 from datumaro.util.os_util import find_files
 from datumaro.util.scope import scope_add, scoped
@@ -1147,7 +1146,6 @@ class ProjectTest(TestCase):
                     """
                 from datumaro.components.dataset_base import (SubsetBase,
                     DatasetItem)
-                from datumaro.components.task import TaskType
                 class MyBase(SubsetBase):
                     def __init__(self, *args, **kwargs):
                         super().__init__()
@@ -1156,8 +1154,8 @@ class ProjectTest(TestCase):
                             DatasetItem('1'),
                             DatasetItem('2'),
                         ]
-                    def task_type(self):
-                        return TaskType.unlabeled
+                    def ann_types(self):
+                        return {}
             """
                 )
             )
@@ -1165,9 +1163,7 @@ class ProjectTest(TestCase):
         project = scope_add(Project(test_dir))
         project.import_source("src", url="", format="my")
 
-        expected = Dataset.from_iterable(
-            [DatasetItem("1"), DatasetItem("2")], task_type=TaskType.unlabeled
-        )
+        expected = Dataset.from_iterable([DatasetItem("1"), DatasetItem("2")])
         actual = project.working_tree.make_dataset()
         compare_datasets(self, expected, actual)
 

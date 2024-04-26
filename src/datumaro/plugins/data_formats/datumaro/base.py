@@ -54,6 +54,7 @@ class JsonReader:
         self._video_dir = video_dir
         self._videos = {}
         self._ctx = ctx
+        self.ann_types = {}
 
         self._reader = self._init_reader(path)
         self.media_type = self._load_media_type(self._reader)

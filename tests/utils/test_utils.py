@@ -181,7 +181,6 @@ def compare_datasets(
     compare_categories(test, expected.categories(), actual.categories())
 
     test.assertTrue(issubclass(actual.media_type(), expected.media_type()))
-    test.assertTrue(actual.task_type(), expected.task_type())
 
     test.assertEqual(sorted(expected.subsets()), sorted(actual.subsets()))
     test.assertEqual(len(expected), len(actual))

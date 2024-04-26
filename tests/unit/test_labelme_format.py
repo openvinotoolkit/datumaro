@@ -10,7 +10,6 @@ from datumaro.components.dataset import Dataset
 from datumaro.components.dataset_base import DatasetItem
 from datumaro.components.environment import Environment
 from datumaro.components.media import Image
-from datumaro.components.task import TaskType
 from datumaro.plugins.data_formats.labelme import LabelMeExporter, LabelMeImporter
 
 from ..requirements import Requirements, mark_requirement
@@ -71,7 +70,6 @@ class LabelMeExporterTest(TestCase):
                 ),
             ],
             categories=["label_" + str(label) for label in range(10)],
-            task_type=TaskType.segmentation_instance,
         )
 
         target_dataset = Dataset.from_iterable(
@@ -136,7 +134,6 @@ class LabelMeExporterTest(TestCase):
                 ),
             ],
             categories=["label_2", "label_3"],
-            task_type=TaskType.segmentation_instance,
         )
 
         with TestDir() as test_dir:
@@ -160,7 +157,6 @@ class LabelMeExporterTest(TestCase):
                 ),
             ],
             categories=[],
-            task_type=TaskType.unlabeled,
         )
 
         with TestDir() as test_dir:
@@ -183,7 +179,6 @@ class LabelMeExporterTest(TestCase):
                 ),
             ],
             categories=["label_" + str(label) for label in range(10)],
-            task_type=TaskType.detection_rotated,
         )
 
         target_dataset = Dataset.from_iterable(
@@ -203,7 +198,6 @@ class LabelMeExporterTest(TestCase):
                 ),
             ],
             categories=["label_3"],
-            task_type=TaskType.detection_rotated,
         )
 
         with TestDir() as test_dir:
@@ -254,7 +248,6 @@ class LabelMeExporterTest(TestCase):
                 ),
             ],
             categories=["label1", "label2"],
-            task_type=TaskType.segmentation_instance,
         )
 
         with TestDir() as test_dir:
@@ -274,7 +267,6 @@ class LabelMeExporterTest(TestCase):
                 ),
             ],
             categories=[],
-            task_type=TaskType.unlabeled,
         )
 
         with TestDir() as test_dir:
@@ -325,7 +317,6 @@ class LabelMeExporterTest(TestCase):
                 ),
             ],
             categories=["label1", "label2"],
-            task_type=TaskType.segmentation_instance,
         )
 
         with TestDir() as test_dir:
@@ -444,7 +435,6 @@ class LabelMeImporterTest(TestCase):
                 "m1",
                 "hg",
             ],
-            task_type=TaskType.segmentation_instance,
         )
 
         parsed = Dataset.import_from(DUMMY_DATASET_DIR, "label_me")

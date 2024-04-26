@@ -10,7 +10,6 @@ from datumaro.components.annotation import AnnotationType, LabelCategories, Mask
 from datumaro.components.dataset import Dataset, DatasetItem
 from datumaro.components.environment import Environment
 from datumaro.components.media import Image
-from datumaro.components.task import TaskType
 from datumaro.plugins.data_formats.ade20k2020 import Ade20k2020Importer
 
 from tests.requirements import Requirements, mark_requirement
@@ -140,7 +139,6 @@ class Ade20k2020ImporterTest(TestCase):
                     ["car", "person", "door", "rim"]
                 )
             },
-            task_type=TaskType.segmentation_instance,
         )
 
         imported_dataset = Dataset.import_from(DUMMY_DATASET_DIR, "ade20k2020")
@@ -206,7 +204,6 @@ class Ade20k2020ImporterTest(TestCase):
                     ["car", "person", "door", "rim"]
                 )
             },
-            task_type=TaskType.segmentation_instance,
         )
 
         imported_dataset = Dataset.import_from(DUMMY_DATASET_DIR_META_FILE, "ade20k2020")

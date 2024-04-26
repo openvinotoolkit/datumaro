@@ -552,7 +552,12 @@ class _TfdsExtractor(IDataset):
         return self._media_type
 
     def ann_types(self) -> Set[AnnotationType]:
-        return self._ann_types
+        ann_types = set()
+        for items in self._split_extractors.values():
+            for item in items:
+                for ann in item.annotations:
+                    ann_types.add(ann.type)
+        return ann_types
 
 
 # Some dataset metadata elements are either inconvenient to hardcode, or may change

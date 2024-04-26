@@ -8,7 +8,6 @@ from datumaro.components.dataset import Dataset
 from datumaro.components.dataset_base import DatasetItem
 from datumaro.components.environment import Environment
 from datumaro.components.media import Image
-from datumaro.components.task import TaskType
 from datumaro.plugins.data_formats.mvtec.exporter import MvtecExporter
 from datumaro.plugins.data_formats.mvtec.importer import (
     MvtecClassificationImporter,
@@ -42,7 +41,6 @@ class MVTecFormatTest(TestCase):
                     "label_" + str(label) for label in range(2)
                 ),
             },
-            task_type=TaskType.classification,
         )
 
         with TestDir() as test_dir:
@@ -76,7 +74,6 @@ class MVTecFormatTest(TestCase):
                     "label_" + str(label) for label in range(3)
                 ),
             },
-            task_type=TaskType.segmentation_semantic,
         )
 
         with TestDir() as test_dir:
@@ -110,7 +107,6 @@ class MVTecFormatTest(TestCase):
                     "label_" + str(label) for label in range(3)
                 ),
             },
-            task_type=TaskType.detection,
         )
 
         with TestDir() as test_dir:
@@ -149,7 +145,6 @@ class MvtecImporterTest(TestCase):
                     "label_" + str(label) for label in range(3)
                 ),
             },
-            task_type=TaskType.classification,
         )
 
         dataset = Dataset.import_from(DUMMY_DATASET_DIR, "mvtec_classification")
@@ -189,7 +184,6 @@ class MvtecImporterTest(TestCase):
                     "label_" + str(label) for label in range(3)
                 ),
             },
-            task_type=TaskType.segmentation_semantic,
         )
 
         dataset = Dataset.import_from(DUMMY_DATASET_DIR, "mvtec_segmentation")
@@ -221,7 +215,6 @@ class MvtecImporterTest(TestCase):
                     "label_" + str(label) for label in range(3)
                 ),
             },
-            task_type=TaskType.detection,
         )
 
         dataset = Dataset.import_from(DUMMY_DATASET_DIR, "mvtec_detection")
@@ -260,7 +253,6 @@ class MVTecExporterTest(TestCase):
                     "label_" + str(label) for label in range(2)
                 ),
             },
-            task_type=TaskType.classification,
         )
 
         with TestDir() as test_dir:
@@ -282,7 +274,6 @@ class MVTecExporterTest(TestCase):
                     "label_" + str(label) for label in range(2)
                 ),
             },
-            task_type=TaskType.detection,
         )
 
         with TestDir() as test_dir:
