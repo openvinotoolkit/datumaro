@@ -3,10 +3,10 @@
 # SPDX-License-Identifier: MIT
 
 import logging as log
-from typing import Any, Dict, Iterator, Optional
+from typing import Any, Dict, Iterator, Optional, Set
 
+from datumaro.components.annotation import AnnotationType
 from datumaro.components.media import MediaType
-from datumaro.components.task import TaskType
 from datumaro.rust_api import DatumPageMapper as DatumPageMapperImpl
 
 __all__ = ["DatumPageMapper"]
@@ -59,11 +59,11 @@ class DatumPageMapper:
         return None
 
     @property
-    def task_type(self) -> Optional[TaskType]:
+    def ann_types(self) -> Optional[Set[AnnotationType]]:
         """Parse "media_type" section from the given JSON file using the stream json parser"""
-        task_type = self._impl.task_type()
-        if task_type is not None:
-            return task_type
+        ann_types = self._impl.ann_types()
+        if ann_types is not None:
+            return ann_types
         return None
 
     @property

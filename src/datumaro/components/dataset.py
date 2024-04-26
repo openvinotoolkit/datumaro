@@ -19,6 +19,7 @@ from typing import (
     Iterator,
     List,
     Optional,
+    Set,
     Tuple,
     Type,
     Union,
@@ -112,8 +113,8 @@ class DatasetSubset(IDataset):  # non-owning view
     def media_type(self):
         return self.parent.media_type()
 
-    def task_type(self):
-        return self.parent.task_type()
+    def ann_types(self):
+        return self.parent.ann_types()
 
     def get_annotated_items(self):
         return sum(bool(s.annotations) for s in self.parent._data.get_subset(self.name))
@@ -125,11 +126,11 @@ class DatasetSubset(IDataset):  # non-owning view
                 annotations_by_type[ann.type.name]["count"] += 1
         return sum(t["count"] for t in annotations_by_type.values())
 
-    def get_annotated_type(self):
-        annotation_types = []
-        for item in self.parent._data.get_subset(self.name):
-            annotation_types.extend([str(anno.type).split(".")[-1] for anno in item.annotations])
-        return list(set(annotation_types))
+    # def get_annotated_type(self):
+    #     annotation_types = []
+    #     for item in self.parent._data.get_subset(self.name):
+    #         annotation_types.extend([str(anno.type).split(".")[-1] for anno in item.annotations])
+    #     return list(set(annotation_types))
 
     def as_dataset(self) -> Dataset:
         dataset = Dataset.from_extractors(self, env=self.parent.env)
@@ -164,7 +165,7 @@ class Dataset(IDataset):
         *,
         env: Optional[Environment] = None,
         media_type: Type[MediaElement] = Image,
-        task_type: Optional[TaskType] = TaskType.unlabeled,
+        ann_types: Optional[Set[AnnotationType]] = [],
     ) -> Dataset:
         """
         Creates a new dataset from an iterable object producing dataset items -
@@ -204,7 +205,7 @@ class Dataset(IDataset):
                 super().__init__(
                     length=len(iterable) if hasattr(iterable, "__len__") else None,
                     media_type=media_type,
-                    task_type=task_type,
+                    ann_types=ann_types,
                 )
 
             def __iter__(self):
@@ -260,7 +261,7 @@ class Dataset(IDataset):
         infos: Optional[DatasetInfo] = None,
         categories: Optional[CategoriesInfo] = None,
         media_type: Optional[Type[MediaElement]] = None,
-        task_type: Optional[TaskType] = None,
+        ann_types: Optional[Set[AnnotationType]] = None,
         env: Optional[Environment] = None,
     ) -> None:
         super().__init__()
@@ -274,7 +275,7 @@ class Dataset(IDataset):
             infos=infos,
             categories=categories,
             media_type=media_type,
-            task_type=task_type,
+            ann_types=ann_types,
         )
         if self.is_eager:
             self.init_cache()
@@ -290,7 +291,7 @@ class Dataset(IDataset):
             f"\tsize={len(self._data)}\n"
             f"\tsource_path={self._source_path}\n"
             f"\tmedia_type={self.media_type()}\n"
-            f"\ttask_type={self.task_type()}\n"
+            f"\tann_types={self.ann_types()}\n"
             f"\tannotated_items_count={self.get_annotated_items()}\n"
             f"\tannotations_count={self.get_annotations()}\n"
             f"subsets\n"
@@ -331,8 +332,8 @@ class Dataset(IDataset):
     def media_type(self) -> Type[MediaElement]:
         return self._data.media_type()
 
-    def task_type(self) -> TaskType:
-        return self._data.task_type()
+    def ann_types(self) -> TaskType:
+        return self._data.ann_types()
 
     def get(self, id: str, subset: Optional[str] = None) -> Optional[DatasetItem]:
         return self._data.get(id, subset)
@@ -358,8 +359,8 @@ class Dataset(IDataset):
         return (
             f"{subset_name}: # of items={len(self.get_subset(subset_name))}, "
             f"# of annotated items={self.get_subset(subset_name).get_annotated_items()}, "
-            f"# of annotations={self.get_subset(subset_name).get_annotations()}, "
-            f"annotation types={self.get_subset(subset_name).get_annotated_type()}\n"
+            f"# of annotations={self.get_subset(subset_name).get_annotations()}\n"
+            # f"annotation types={self.get_subset(subset_name).get_annotated_type()}\n"
             for subset_name in sorted(self.subsets().keys())
         )
 
@@ -961,7 +962,7 @@ class StreamDataset(Dataset):
         infos: Optional[DatasetInfo] = None,
         categories: Optional[CategoriesInfo] = None,
         media_type: Optional[Type[MediaElement]] = None,
-        task_type: Optional[TaskType] = None,
+        ann_types: Optional[Set[AnnotationType]] = None,
         env: Optional[Environment] = None,
     ) -> None:
         assert env is None or isinstance(env, Environment), env
@@ -972,7 +973,7 @@ class StreamDataset(Dataset):
             infos=infos,
             categories=categories,
             media_type=media_type,
-            task_type=task_type,
+            ann_types=ann_types,
         )
 
         self._format = DEFAULT_FORMAT

@@ -15,7 +15,6 @@ from datumaro.components.dataset_base import DatasetItem, SubsetBase
 from datumaro.components.format_detection import FormatDetectionContext
 from datumaro.components.importer import ImportContext, Importer
 from datumaro.components.media import MultiframeImage
-from datumaro.components.task import TaskAnnotationMapping
 
 
 class BratsPath:
@@ -40,7 +39,6 @@ class BratsBase(SubsetBase):
         self._root_dir = osp.dirname(path)
         self._categories = self._load_categories()
         self._items = list(self._load_items(path).values())
-        self._task_type = TaskAnnotationMapping().get_task(self._ann_types)
 
     def _load_categories(self):
         label_cat = LabelCategories()

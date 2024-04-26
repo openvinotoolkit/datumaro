@@ -13,7 +13,6 @@ from datumaro.components.dataset_base import (
     DatasetItem,
     SubsetBase,
 )
-from datumaro.components.task import TaskAnnotationMapping
 
 T = TypeVar("T")
 
@@ -44,12 +43,10 @@ class ExtractorMerger(DatasetBase):
         self._categories = check_identicalness([s.categories() for s in sources])
         self._media_type = check_identicalness([s.media_type() for s in sources])
 
-        task_annotation_mapping = TaskAnnotationMapping()
         ann_types = set()
         for source in sources:
-            for ann_type in task_annotation_mapping[source.task_type()]:
-                ann_types.add(ann_type)
-        self._task_type = task_annotation_mapping.get_task(ann_types)
+            ann_types.union(source.ann_types())
+        self._ann_types = ann_types
 
         self._is_stream = check_identicalness([s.is_stream for s in sources])
 

@@ -25,7 +25,6 @@ from datumaro.components.dataset_base import DEFAULT_SUBSET_NAME, DatasetBase, S
 from datumaro.components.errors import InvalidAnnotationError, InvalidFieldError, MissingFieldError
 from datumaro.components.importer import ImportContext
 from datumaro.components.media import Image, ImageFromFile
-from datumaro.components.task import TaskAnnotationMapping, TaskType
 from datumaro.plugins.data_formats.coco.base import CocoInstancesBase
 from datumaro.plugins.data_formats.coco.format import CocoTask
 from datumaro.plugins.data_formats.coco.page_mapper import COCOPageMapper
@@ -56,7 +55,6 @@ class KaggleImageCsvBase(DatasetBase):
         self._label_cat = LabelCategories()
         self._items = self._load_items(ann_file, columns)
         self._categories = {AnnotationType.label: self._label_cat}
-        self._task_type = TaskAnnotationMapping().get_task(self._ann_types)
 
     def _get_media_path(self, media_name: str):
         media_path = osp.join(self._path, media_name)
@@ -264,7 +262,6 @@ class KaggleImageMaskBase(DatasetBase):
         self._label_ids = []
         self._categories = self._load_categories(labelmap_file)
         self._items = self._load_items()
-        self._task_type = TaskAnnotationMapping().get_task(self._ann_types)
 
     def _load_categories(self, label_map_file: Optional[str]):
         label_map = dict()
@@ -379,7 +376,6 @@ class KaggleVocBase(SubsetBase):
                 )
             )
         self._categories = {AnnotationType.label: self._label_cat}
-        self._task_type = TaskAnnotationMapping().get_task(self._ann_types)
 
     def _parse_annotations(self, img_file: str, ann_file: str):
         root_elem = ElementTree.parse(ann_file).getroot()
@@ -518,7 +514,6 @@ class KaggleCocoBase(CocoInstancesBase, SubsetBase):
             )
 
             self._items = self._load_items(json_data)
-            self._task_type = TaskAnnotationMapping().get_task(self._ann_types)
 
             del json_data
         else:
@@ -532,4 +527,3 @@ class KaggleCocoBase(CocoInstancesBase, SubsetBase):
             )
 
             self._length = None
-            self._task_type = TaskType.segmentation_instance

@@ -13,7 +13,6 @@ from datumaro.components.dataset_base import DatasetItem, SubsetBase
 from datumaro.components.exporter import Exporter
 from datumaro.components.importer import ImportContext, Importer
 from datumaro.components.media import Image
-from datumaro.components.task import TaskType
 from datumaro.util import parse_str_enum_value
 from datumaro.util.image import IMAGE_EXTENSIONS, encode_image
 
@@ -50,7 +49,7 @@ class ImageZipBase(SubsetBase):
                 image = Image.from_bytes(data=zf.read(path.filename))
                 self._items.append(DatasetItem(id=item_id, media=image, subset=self._subset))
 
-        self._task_type = TaskType.unlabeled
+        self._ann_types = set()
 
 
 class ImageZipImporter(Importer):

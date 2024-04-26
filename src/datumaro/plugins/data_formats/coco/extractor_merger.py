@@ -9,7 +9,6 @@ from datumaro.components.contexts.importer import _ImportFail
 from datumaro.components.dataset_base import SubsetBase
 from datumaro.components.merge import ExactMerge
 from datumaro.components.merge.extractor_merger import ExtractorMerger, check_identicalness
-from datumaro.components.task import TaskAnnotationMapping
 from datumaro.plugins.data_formats.coco.base import _CocoBase
 
 
@@ -80,12 +79,10 @@ class COCOExtractorMerger(ExtractorMerger):
         self._is_stream = check_identicalness([s.is_stream for s in sources])
         self._categories = ExactMerge.merge_categories([s.categories() for s in sources])
 
-        task_annotation_mapping = TaskAnnotationMapping()
         ann_types = set()
         for source in sources:
-            for ann_type in task_annotation_mapping[source.task_type()]:
-                ann_types.add(ann_type)
-        self._task_type = task_annotation_mapping.get_task(ann_types)
+            ann_types.union(source.ann_types())
+        self._ann_types = ann_types
 
         grouped_by_subset = defaultdict(list)
 

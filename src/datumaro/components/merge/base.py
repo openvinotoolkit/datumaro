@@ -4,9 +4,10 @@
 import logging as log
 import os
 from collections import OrderedDict
-from typing import Dict, Optional, Sequence, Type
+from typing import Dict, Optional, Sequence, Set, Type
 
 from datumaro.components.abstracts.merger import IMergerContext
+from datumaro.components.annotation import AnnotationType
 from datumaro.components.cli_plugin import CliPlugin
 from datumaro.components.dataset_base import CategoriesInfo, DatasetInfo, IDataset
 from datumaro.components.dataset_item_storage import DatasetItemStorageDatasetView
@@ -17,7 +18,6 @@ from datumaro.components.errors import (
     MediaTypeError,
 )
 from datumaro.components.media import MediaElement
-from datumaro.components.task import TaskAnnotationMapping, TaskType
 from datumaro.util import dump_json_file
 
 
@@ -75,26 +75,23 @@ class Merger(IMergerContext, CliPlugin):
         return None
 
     @staticmethod
-    def merge_task_types(sources: Sequence[IDataset]) -> Optional[TaskType]:
-        task_annotation_mapping = TaskAnnotationMapping()
+    def merge_ann_types(sources: Sequence[IDataset]) -> Optional[Set[AnnotationType]]:
         ann_types = set()
         for source in sources:
-            for ann_type in task_annotation_mapping[source.task_type()]:
-                ann_types.add(ann_type)
-
-        return task_annotation_mapping.get_task(ann_types)
+            ann_types.union(source.ann_types())
+        return ann_types
 
     def __call__(self, *datasets: IDataset) -> DatasetItemStorageDatasetView:
         infos = self.merge_infos(d.infos() for d in datasets)
         categories = self.merge_categories(d.categories() for d in datasets)
         media_type = self.merge_media_types(datasets)
-        task_type = self.merge_task_types(datasets)
+        ann_types = self.merge_ann_types(datasets)
         return DatasetItemStorageDatasetView(
             parent=self.merge(datasets),
             infos=infos,
             categories=categories,
             media_type=media_type,
-            task_type=task_type,
+            ann_types=ann_types,
         )
 
     def save_merge_report(self, path: str) -> None:

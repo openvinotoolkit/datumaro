@@ -19,7 +19,6 @@ from datumaro.components.errors import (
 )
 from datumaro.components.importer import ImportContext
 from datumaro.components.media import Image, ImageFromFile
-from datumaro.components.task import TaskAnnotationMapping, TaskType
 from datumaro.util.image import (
     DEFAULT_IMAGE_META_FILE_NAME,
     IMAGE_EXTENSIONS,
@@ -201,8 +200,6 @@ class YoloStrictBase(SubsetBase):
             )
         }
 
-        self._task_type = TaskType.detection
-
         # The original format is like this:
         #
         # classes = 2
@@ -293,7 +290,6 @@ class YoloStrictBase(SubsetBase):
 
                 for ann in item.annotations:
                     self._ann_types.add(ann.type)
-        self._task_type = TaskAnnotationMapping().get_task(self._ann_types)
 
     def __len__(self):
         return sum(len(s) for s in self._subsets.values())
@@ -340,8 +336,6 @@ class YoloLooseBase(SubsetBase):
         label_categories = self._load_categories(osp.join(rootpath, self.META_FILE))
         self._categories = {AnnotationType.label: label_categories}
 
-        self._task_type = TaskType.detection
-
         self._urls = urls
         self._img_files = self._load_img_files(rootpath)
 
@@ -366,8 +360,6 @@ class YoloLooseBase(SubsetBase):
                     self._ann_types.add(ann.type)
             except Exception as e:
                 self._ctx.error_policy.report_item_error(e, item_id=(fname, self._subset))
-
-        self._task_type = TaskAnnotationMapping().get_task(self._ann_types)
 
     def __len__(self) -> int:
         return len(self._urls)

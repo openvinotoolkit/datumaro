@@ -4,12 +4,11 @@
 
 from copy import copy
 from enum import Enum, auto
-from typing import Any, Iterator, Optional, Tuple, Type, Union
+from typing import Any, Iterator, Optional, Set, Tuple, Type, Union
 
 from datumaro.components.annotation import AnnotationType
 from datumaro.components.dataset_base import CategoriesInfo, DatasetInfo, DatasetItem, IDataset
 from datumaro.components.media import MediaElement
-from datumaro.components.task import TaskType
 from datumaro.util.definitions import DEFAULT_SUBSET_NAME
 
 __all__ = ["ItemStatus", "DatasetItemStorage", "DatasetItemStorageDatasetView"]
@@ -170,8 +169,8 @@ class DatasetItemStorageDatasetView(IDataset):
         def media_type(self):
             return self.parent.media_type()
 
-        def task_type(self):
-            return self.parent.task_type()
+        def ann_types(self):
+            return self.parent.ann_types()
 
     def __init__(
         self,
@@ -179,13 +178,13 @@ class DatasetItemStorageDatasetView(IDataset):
         infos: DatasetInfo,
         categories: CategoriesInfo,
         media_type: Optional[Type[MediaElement]],
-        task_type: Optional[TaskType],
+        ann_types: Optional[Set[AnnotationType]],
     ):
         self._parent = parent
         self._infos = infos
         self._categories = categories
         self._media_type = media_type
-        self._task_type = task_type
+        self._ann_types = ann_types
 
     def __iter__(self):
         yield from self._parent
@@ -214,5 +213,5 @@ class DatasetItemStorageDatasetView(IDataset):
     def media_type(self):
         return self._media_type
 
-    def task_type(self):
-        return self._task_type
+    def ann_types(self):
+        return self._ann_types

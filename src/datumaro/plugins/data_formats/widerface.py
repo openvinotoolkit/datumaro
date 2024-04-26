@@ -15,7 +15,6 @@ from datumaro.components.exporter import Exporter
 from datumaro.components.format_detection import FormatDetectionContext
 from datumaro.components.importer import ImportContext, Importer
 from datumaro.components.media import Image
-from datumaro.components.task import TaskAnnotationMapping
 from datumaro.util import str_to_bool
 from datumaro.util.meta_file_util import has_meta_file, parse_meta_file
 
@@ -53,7 +52,6 @@ class WiderFaceBase(SubsetBase):
 
         self._categories = self._load_categories()
         self._items = list(self._load_items(path).values())
-        self._task_type = TaskAnnotationMapping().get_task(self._ann_types)
 
     def _load_categories(self):
         label_cat = LabelCategories()

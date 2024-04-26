@@ -13,7 +13,6 @@ from datumaro.components.annotation import Annotation, AnnotationType, Categorie
 from datumaro.components.cli_plugin import CliPlugin
 from datumaro.components.contexts.importer import ImportContext, NullImportContext
 from datumaro.components.media import Image, MediaElement
-from datumaro.components.task import TaskType
 from datumaro.util.attrs_util import default_if_none, not_empty
 from datumaro.util.definitions import DEFAULT_SUBSET_NAME
 
@@ -109,7 +108,7 @@ class IDataset:
         """
         raise NotImplementedError()
 
-    def task_type(self) -> TaskType:
+    def ann_types(self) -> List[AnnotationType]:
         """
         Returns available task type from dataset annotation types.
         """
@@ -184,8 +183,8 @@ class _DatasetBase(IDataset):
             def media_type(_):
                 return self.media_type()
 
-            def task_type(_):
-                return self.task_type()
+            def ann_types(_):
+                return self.ann_types()
 
         return _DatasetFilter()
 
@@ -216,20 +215,20 @@ class DatasetBase(_DatasetBase, CliPlugin):
         length: Optional[int] = None,
         subsets: Optional[Sequence[str]] = None,
         media_type: Type[MediaElement] = Image,
-        task_type: Optional[TaskType] = None,
+        ann_types: Optional[List[AnnotationType]] = None,
         ctx: Optional[ImportContext] = None,
     ):
         super().__init__(length=length, subsets=subsets)
 
         self._ctx: ImportContext = ctx or NullImportContext()
         self._media_type = media_type
-        self._task_type = task_type if task_type else TaskType.unlabeled
+        self._ann_types = ann_types if ann_types else set()
 
     def media_type(self):
         return self._media_type
 
-    def task_type(self):
-        return self._task_type
+    def ann_types(self):
+        return self._ann_types
 
 
 class SubsetBase(DatasetBase):
@@ -244,7 +243,7 @@ class SubsetBase(DatasetBase):
         length: Optional[int] = None,
         subset: Optional[str] = None,
         media_type: Type[MediaElement] = Image,
-        task_type: TaskType = None,
+        ann_types: List[AnnotationType] = None,
         ctx: Optional[ImportContext] = None,
     ):
         self._subset = subset or DEFAULT_SUBSET_NAME
@@ -252,7 +251,7 @@ class SubsetBase(DatasetBase):
             length=length,
             subsets=[self._subset],
             media_type=media_type,
-            task_type=task_type,
+            ann_types=ann_types,
             ctx=ctx,
         )
 

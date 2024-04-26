@@ -18,7 +18,6 @@ from datumaro.components.errors import InvalidAnnotationError
 from datumaro.components.format_detection import FormatDetectionContext
 from datumaro.components.importer import ImportContext, Importer
 from datumaro.components.media import Image
-from datumaro.components.task import TaskAnnotationMapping
 from datumaro.util.image import IMAGE_EXTENSIONS, find_images, lazy_image, load_image
 from datumaro.util.meta_file_util import has_meta_file, parse_meta_file
 
@@ -57,8 +56,6 @@ class Ade20k2017Base(DatasetBase):
 
         for subset in self._subsets:
             self._load_items(subset)
-
-        self._task_type = TaskAnnotationMapping().get_task(self._ann_types)
 
     def __iter__(self):
         return iter(self._items)

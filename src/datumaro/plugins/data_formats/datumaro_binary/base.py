@@ -13,7 +13,6 @@ from datumaro.components.dataset_base import DatasetItem
 from datumaro.components.errors import DatasetImportError
 from datumaro.components.importer import ImportContext
 from datumaro.components.media import Image, MediaElement, MediaType, PointCloud, VideoFrame
-from datumaro.components.task import TaskAnnotationMapping
 from datumaro.plugins.data_formats.datumaro_binary.format import DatumaroBinaryPath
 from datumaro.plugins.data_formats.datumaro_binary.mapper import DictMapper
 from datumaro.plugins.data_formats.datumaro_binary.mapper.common import IntListMapper
@@ -132,14 +131,12 @@ class DatumaroBinaryBase(DatumaroBase):
         else:
             self._items = self._read_items_sp(blob_sizes, media_path_prefix)
 
-        ann_types = set()
         for item in self._items:
             if item.media is not None and self._media_encryption:
                 item.media.set_crypter(self._crypter)
 
             for ann in item.annotations:
-                ann_types.add(ann.type)
-        self._task_type = TaskAnnotationMapping().get_task(ann_types)
+                self._ann_types.add(ann.type)
 
     def _read_items_mp(
         self, blob_sizes: List[int], media_path_prefix: Dict[MediaType, str]
@@ -208,8 +205,8 @@ class DatumaroBinaryBase(DatumaroBase):
     def media_type(self):
         return self._media_type
 
-    def task_type(self):
-        return self._task_type
+    def ann_types(self):
+        return self._ann_types
 
     def __len__(self) -> int:
         return len(self._items)

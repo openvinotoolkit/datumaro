@@ -34,7 +34,6 @@ from datumaro.components.exporter import Exporter
 from datumaro.components.format_detection import FormatDetectionContext
 from datumaro.components.importer import ImportContext, Importer
 from datumaro.components.media import Image
-from datumaro.components.task import TaskAnnotationMapping
 from datumaro.components.validator import Severity
 from datumaro.util import parse_json_file
 from datumaro.util.annotation_util import find_instances
@@ -213,7 +212,6 @@ class OpenImagesBase(DatasetBase):
         else:
             self._load_categories()
         self._load_items()
-        self._task_type = TaskAnnotationMapping().get_task(self._ann_types)
 
     def __iter__(self):
         yield from self._items

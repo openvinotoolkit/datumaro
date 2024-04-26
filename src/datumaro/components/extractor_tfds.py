@@ -18,6 +18,7 @@ from typing import (
     Mapping,
     Optional,
     Sequence,
+    Set,
     Tuple,
     Type,
     Union,
@@ -30,7 +31,6 @@ from attrs import field, frozen
 from datumaro.components.annotation import AnnotationType, Bbox, Label, LabelCategories
 from datumaro.components.dataset_base import CategoriesInfo, DatasetInfo, DatasetItem, IDataset
 from datumaro.components.media import Image, MediaElement
-from datumaro.components.task import TaskAnnotationMapping, TaskType
 from datumaro.util.import_util import lazy_import
 from datumaro.util.tf_util import import_tf
 
@@ -483,8 +483,8 @@ class _TfdsSplitExtractor(IDataset):
     def media_type(self) -> Type[MediaElement]:
         return self._parent._media_type
 
-    def task_type(self) -> TaskType:
-        return self._parent.task_type()
+    def ann_types(self) -> Set[AnnotationType]:
+        return self._parent.ann_types()
 
 
 class _TfdsExtractor(IDataset):
@@ -551,13 +551,8 @@ class _TfdsExtractor(IDataset):
     def media_type(self) -> Type[MediaElement]:
         return self._media_type
 
-    def task_type(self) -> TaskType:
-        ann_types = set()
-        for items in self._split_extractors.values():
-            for item in items:
-                for ann in item.annotations:
-                    ann_types.add(ann.type)
-        return TaskAnnotationMapping().get_task(ann_types)
+    def ann_types(self) -> Set[AnnotationType]:
+        return self._ann_types
 
 
 # Some dataset metadata elements are either inconvenient to hardcode, or may change

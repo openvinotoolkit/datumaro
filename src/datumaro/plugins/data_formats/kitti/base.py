@@ -12,7 +12,6 @@ from datumaro.components.annotation import AnnotationType, Bbox, LabelCategories
 from datumaro.components.dataset_base import DatasetItem, SubsetBase
 from datumaro.components.importer import ImportContext
 from datumaro.components.media import Image
-from datumaro.components.task import TaskType
 from datumaro.util.image import find_images, load_image
 from datumaro.util.meta_file_util import has_meta_file, parse_meta_file
 
@@ -68,8 +67,6 @@ class _KittiBase(SubsetBase):
 
     def _load_items(self):
         items = {}
-        self._task_type = TaskType.unlabeled
-
         image_dir = osp.join(self._path, KittiPath.IMAGES_DIR)
         image_path_by_id = {
             osp.splitext(osp.relpath(p, image_dir))[0]: p
@@ -96,8 +93,7 @@ class _KittiBase(SubsetBase):
                             attributes={"is_crowd": isCrowd},
                         )
                     )
-                if anns:
-                    self._task_type = TaskType.segmentation_instance
+                    self._ann_types.add(AnnotationType.mask)
 
                 image = image_path_by_id.pop(item_id, None)
                 if image:
@@ -145,8 +141,7 @@ class _KittiBase(SubsetBase):
                             label=label_id,
                         )
                     )
-                if anns:
-                    self._task_type = TaskType.detection
+                    self._ann_types.add(AnnotationType.bbox)
 
                 image = image_path_by_id.pop(item_id, None)
                 if image:

@@ -344,7 +344,7 @@ class Prune(HashInference):
         )
 
         result_dataset = Dataset(
-            media_type=self._dataset.media_type(), task_type=self._dataset.task_type()
+            media_type=self._dataset.media_type(), ann_types=self._dataset.ann_types()
         )
         result_dataset._source_path = self._dataset._source_path
         result_dataset.define_categories(self._dataset.categories())

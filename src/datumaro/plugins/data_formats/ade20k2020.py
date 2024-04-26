@@ -23,7 +23,6 @@ from datumaro.components.dataset_base import DatasetBase, DatasetItem
 from datumaro.components.format_detection import FormatDetectionContext
 from datumaro.components.importer import ImportContext, Importer
 from datumaro.components.media import Image
-from datumaro.components.task import TaskAnnotationMapping
 from datumaro.rust_api import JsonSectionPageMapper
 from datumaro.util import parse_json
 from datumaro.util.image import IMAGE_EXTENSIONS, find_images, lazy_image, load_image
@@ -65,8 +64,6 @@ class Ade20k2020Base(DatasetBase):
 
         for subset in self._subsets:
             self._load_items(subset)
-
-        self._task_type = TaskAnnotationMapping().get_task(self._ann_types)
 
     def __iter__(self):
         return iter(self._items)

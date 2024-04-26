@@ -14,7 +14,6 @@ from datumaro.components.exporter import Exporter
 from datumaro.components.format_detection import FormatDetectionConfidence
 from datumaro.components.importer import ImportContext, Importer
 from datumaro.components.media import Image
-from datumaro.components.task import TaskAnnotationMapping
 from datumaro.util import str_to_bool
 from datumaro.util.image import find_images
 
@@ -57,7 +56,6 @@ class Market1501Base(DatasetBase):
         self._items = []
         for subset, subset_path in subsets.items():
             self._items.extend(list(self._load_items(subset, subset_path).values()))
-        self._task_type = TaskAnnotationMapping().get_task(self._ann_types)
 
     def __iter__(self):
         yield from self._items

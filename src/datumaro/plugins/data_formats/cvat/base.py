@@ -25,7 +25,6 @@ from datumaro.components.errors import DatasetImportError
 from datumaro.components.format_detection import FormatDetectionContext
 from datumaro.components.importer import ImportContext, Importer
 from datumaro.components.media import Image
-from datumaro.components.task import TaskAnnotationMapping
 from datumaro.util import mask_tools
 
 from .format import CvatPath
@@ -72,7 +71,6 @@ class CvatBase(SubsetBase):
         items, categories = self._parse(path)
         self._categories = categories
         self._items = list(self._load_items(items).values())
-        self._task_type = TaskAnnotationMapping().get_task(self._ann_types)
 
     def _parse(self, path):
         meta_root, context = _find_meta_root(path)
