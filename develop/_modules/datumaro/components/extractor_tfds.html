@@ -340,7 +340,7 @@ document.write(`
                 <article class="bd-article">
                   
   <h1>Source code for datumaro.components.extractor_tfds</h1><div class="highlight"><pre>
-<span></span><span class="c1"># Copyright (C) 2021-2023 Intel Corporation</span>
+<span></span><span class="c1"># Copyright (C) 2024 Intel Corporation</span>
 <span class="c1">#</span>
 <span class="c1"># SPDX-License-Identifier: MIT</span>
 
@@ -373,23 +373,23 @@ document.write(`
 <span class="kn">from</span> <span class="nn">datumaro.components.dataset_base</span> <span class="kn">import</span> <span class="n">CategoriesInfo</span><span class="p">,</span> <span class="n">DatasetInfo</span><span class="p">,</span> <span class="n">DatasetItem</span><span class="p">,</span> <span class="n">IDataset</span>
 <span class="kn">from</span> <span class="nn">datumaro.components.media</span> <span class="kn">import</span> <span class="n">Image</span><span class="p">,</span> <span class="n">MediaElement</span>
 <span class="kn">from</span> <span class="nn">datumaro.components.task</span> <span class="kn">import</span> <span class="n">TaskAnnotationMapping</span><span class="p">,</span> <span class="n">TaskType</span>
+<span class="kn">from</span> <span class="nn">datumaro.util.import_util</span> <span class="kn">import</span> <span class="n">lazy_import</span>
 <span class="kn">from</span> <span class="nn">datumaro.util.tf_util</span> <span class="kn">import</span> <span class="n">import_tf</span>
 
 <span class="n">TFDS_EXTRACTOR_AVAILABLE</span> <span class="o">=</span> <span class="kc">True</span> <span class="k">if</span> <span class="n">find_spec</span><span class="p">(</span><span class="s2">&quot;tensorflow_datasets&quot;</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="kc">False</span>
 
-<span class="k">if</span> <span class="n">TYPE_CHECKING</span><span class="p">:</span>
+<span class="k">if</span> <span class="n">TFDS_EXTRACTOR_AVAILABLE</span><span class="p">:</span>
     <span class="k">try</span><span class="p">:</span>
-        <span class="n">tf</span> <span class="o">=</span> <span class="n">import_tf</span><span class="p">()</span>
-        <span class="kn">import</span> <span class="nn">tensorflow_datasets</span> <span class="k">as</span> <span class="nn">tfds</span>
+        <span class="k">if</span> <span class="n">TYPE_CHECKING</span><span class="p">:</span>
+            <span class="n">tf</span> <span class="o">=</span> <span class="n">import_tf</span><span class="p">()</span>
+            <span class="kn">import</span> <span class="nn">tensorflow_datasets</span> <span class="k">as</span> <span class="nn">tfds</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">tfds</span> <span class="o">=</span> <span class="n">lazy_import</span><span class="p">(</span><span class="s2">&quot;tensorflow_datasets&quot;</span><span class="p">)</span>
     <span class="k">except</span> <span class="ne">ImportError</span><span class="p">:</span>
         <span class="n">log</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
             <span class="s2">&quot;Unable to import TensorFlow or TensorFlow Datasets. &quot;</span>
             <span class="s2">&quot;Dataset downloading via TFDS is disabled.&quot;</span>
         <span class="p">)</span>
-<span class="k">else</span><span class="p">:</span>
-    <span class="kn">from</span> <span class="nn">datumaro.util.import_util</span> <span class="kn">import</span> <span class="n">lazy_import</span>
-
-    <span class="n">tfds</span> <span class="o">=</span> <span class="n">lazy_import</span><span class="p">(</span><span class="s2">&quot;tensorflow_datasets&quot;</span><span class="p">)</span>
 
 
 <div class="viewcode-block" id="TfdsDatasetMetadata">
