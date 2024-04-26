@@ -4,6 +4,7 @@
 
 import os
 import os.path as osp
+import warnings
 from collections import defaultdict
 from glob import glob
 from io import TextIOWrapper
@@ -193,6 +194,21 @@ class RoboflowYoloObbImporter(RoboflowYoloImporter):
     FORMAT = "roboflow_yolo_obb"
     FORMAT_EXT = ".txt"
     ANN_DIR_NAME = "labelTxt/"
+
+    @classmethod
+    def detect(cls, context: FormatDetectionContext) -> FormatDetectionConfidence:
+        warnings.warn(
+            f"FormatDetectionConfidence of '{cls.FORMAT}' is lowered because of 'dota' format support. "
+            f"It will be deprecated in datumaro==1.8.0.",
+            DeprecationWarning,
+        )
+        with context.require_any():
+            with context.alternative():
+                cls._check_ann_file(
+                    context.require_file("**/" + cls.ANN_DIR_NAME + "*" + cls.FORMAT_EXT), context
+                )
+
+        return FormatDetectionConfidence.LOW
 
     @classmethod
     def _check_ann_file_impl(cls, fp: TextIOWrapper) -> bool:
