@@ -10,8 +10,7 @@ import os.path as osp
 from typing import Any, Dict, List, Optional, Type, TypeVar
 
 from datumaro.components.annotation import Annotation, AnnotationType, LabelCategories, RotatedBbox
-from datumaro.components.dataset_base import DEFAULT_SUBSET_NAME, DatasetItem, IDataset, SubsetBase
-from datumaro.components.dataset_item_storage import ItemStatus
+from datumaro.components.dataset_base import DEFAULT_SUBSET_NAME, DatasetItem, SubsetBase
 from datumaro.components.errors import (
     DatasetExportError,
     DatasetImportError,
@@ -23,7 +22,6 @@ from datumaro.components.format_detection import FormatDetectionConfidence, Form
 from datumaro.components.importer import ImportContext, Importer
 from datumaro.components.media import Image
 from datumaro.components.task import TaskAnnotationMapping
-from datumaro.util import str_to_bool
 from datumaro.util.image import IMAGE_EXTENSIONS
 from datumaro.util.os_util import find_files
 
@@ -195,22 +193,6 @@ class DotaImporter(Importer):
 class DotaExporter(Exporter):
     DEFAULT_IMAGE_EXT = ".png"
 
-    @classmethod
-    def build_cmdline_parser(cls, **kwargs):
-        parser = super().build_cmdline_parser(**kwargs)
-        parser.add_argument(
-            "--add-path-prefix",
-            default=True,
-            type=str_to_bool,
-            help="Add the 'data/' prefix for paths in the dataset info (default: %(default)s)",
-        )
-        return parser
-
-    def __init__(
-        self, extractor: IDataset, save_dir: str, *, add_path_prefix: bool = True, **kwargs
-    ) -> None:
-        super().__init__(extractor, save_dir, **kwargs)
-
     def _apply_impl(self):
         extractor = self._extractor
         save_dir = self._save_dir
@@ -276,30 +258,3 @@ class DotaExporter(Exporter):
 
         except Exception as e:
             self._ctx.error_policy.report_item_error(e, item_id=(item.id, item.subset))
-
-    @classmethod
-    def patch(cls, dataset, patch, save_dir, **kwargs):
-        conv = cls(dataset, save_dir=save_dir, **kwargs)
-        conv._patch = patch
-        conv.apply()
-
-        for (item_id, subset), status in patch.updated_items.items():
-            if status != ItemStatus.removed:
-                item = patch.data.get(item_id, subset)
-            else:
-                item = DatasetItem(item_id, subset=subset)
-
-            if not (status == ItemStatus.removed or not item.media):
-                continue
-
-            if subset == DEFAULT_SUBSET_NAME:
-                subset = DEFAULT_SUBSET_NAME
-            subset_dir = osp.join(save_dir, "obj_%s_data" % subset)
-
-            image_path = osp.join(subset_dir, conv._make_image_filename(item))
-            if osp.isfile(image_path):
-                os.remove(image_path)
-
-            ann_path = osp.join(subset_dir, "%s.txt" % item.id)
-            if osp.isfile(ann_path):
-                os.remove(ann_path)
