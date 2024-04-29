@@ -515,12 +515,16 @@ class ExtractedMask(Mask):
         index: Integer value to extract a binary mask from the given index mask.
 
     Examples:
+        This example demonstrates how to create an `ExtractedMask` from a synthetic index mask,
+        which denotes a semantic segmentation mask with binary values such as 0 for background
+        and 1 for foreground.
+
         >>> import numpy as np
         >>> from datumaro.components.annotation import ExtractedMask
         >>>
-        >>> index_mask = np.random.randint(low=1, high=3, size=(10, 10), dtype=np.uint8)
-        >>> mask1 = ExtractedMask(index_mask=index_mask, index=1, label=1) #
-        >>> mask2 = ExtractedMask(index_mask=index_mask, index=2, label=2) #
+        >>> index_mask = np.random.randint(low=0, high=2, size=(10, 10), dtype=np.uint8)
+        >>> mask1 = ExtractedMask(index_mask=index_mask, index=0, label=0)  # 0 for background
+        >>> mask2 = ExtractedMask(index_mask=index_mask, index=1, label=1)  # 1 for foreground
         >>> np.unique(mask1.image).tolist()  # `image` property create a binary mask
         np.array([0, 1])
         >>> mask1.index_mask == mask2.index_mask  # They share the same source
