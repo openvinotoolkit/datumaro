@@ -7,14 +7,12 @@ from typing import Any, Dict, Optional
 import numpy as np
 import pytest
 
-from datumaro.components.annotation import Bbox, Label, RotatedBbox
+from datumaro.components.annotation import RotatedBbox
 from datumaro.components.dataset import Dataset
 from datumaro.components.dataset_base import DatasetItem
-from datumaro.components.environment import DEFAULT_ENVIRONMENT
 from datumaro.components.exporter import Exporter
 from datumaro.components.importer import Importer
 from datumaro.components.media import Image
-from datumaro.components.task import TaskType
 from datumaro.plugins.data_formats.dota import DotaExporter, DotaImporter
 
 from .base import TestDataFormatBase
@@ -87,7 +85,6 @@ def fxt_dota_dataset():
             ),
         ],
         categories=["label_0", "label_1"],
-        task_type=TaskType.detection_rotated,
     )
 
 

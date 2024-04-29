@@ -7,8 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## \[unreleased\]
 ### New features
-- Add task_type property for dataset
-  (<https://github.com/openvinotoolkit/datumaro/pull/1422>)
+- Add ann_types property for dataset
+  (<https://github.com/openvinotoolkit/datumaro/pull/1422>, <https://github.com/openvinotoolkit/datumaro/pull/1479>)
 - Add AnnotationType.rotated_bbox for oriented object detection
   (<https://github.com/openvinotoolkit/datumaro/pull/1459>)
 - Add DOTA data format for oriented object detection task
