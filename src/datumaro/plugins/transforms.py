@@ -18,6 +18,7 @@ from typing import Dict, Iterable, List, Optional, Tuple, Union
 import cv2
 import numpy as np
 import pycocotools.mask as mask_utils
+from pandas.api.types import CategoricalDtype
 
 import datumaro.util.mask_tools as mask_tools
 from datumaro.components.annotation import (
@@ -1447,3 +1448,68 @@ class Correct(Transform, CliPlugin):
                         )
                     updated_anns.append(new_ann)
                 yield item.wrap(annotations=updated_anns)
+
+
+class AstypeAnnotation(ItemTransform):
+    """ """
+
+    @staticmethod
+    def _split_arg(s):
+        parts = s.split(":")
+        if len(parts) != 2:
+            raise argparse.ArgumentTypeError()
+        return (parts[0], parts[1])
+
+    @classmethod
+    def build_cmdline_parser(cls, **kwargs):
+        parser = super().build_cmdline_parser(**kwargs)
+        parser.add_argument(
+            "--mapping",
+            action="append",
+            type=cls._split_arg,
+            dest="mapping",
+            help="Annotations in the form of: '<src>:<dst>' (repeatable)",
+        )
+        return parser
+
+    def __init__(
+        self,
+        extractor: IDataset,
+        mapping: Optional[Union[Dict[str, str], List[Tuple[str, str]]]] = None,
+    ):
+        super().__init__(extractor)
+
+        assert isinstance(mapping, (dict, list))
+        if isinstance(mapping, list):
+            mapping = dict(mapping)
+
+        self._categories = {}
+
+        src_categories = self._extractor.categories()
+        src_tabular_cat = src_categories.get(AnnotationType.tabular)
+        self._tabular_cat_types = {}
+
+        # Make LabelCategories
+        self._id_mapping = {}
+        dst_label_cat = LabelCategories()
+        for src_cat in src_tabular_cat:
+            if src_cat.dtype == CategoricalDtype():
+                dst_parent = src_cat.name
+                dst_labels = src_cat.labels
+                for dst_label in dst_labels:
+                    dst_index = dst_label_cat.add(dst_label, parent=dst_parent, attributes={})
+                dst_label_cat.add_label_group(src_cat.name, src_cat.labels, group_type=0)
+            self._id_mapping[dst_parent] = dst_index
+            self._tabular_cat_types[src_cat.name] = src_cat.dtype
+        self._categories[AnnotationType.label] = dst_label_cat
+
+    def transform_item(self, item):
+        annotations = []
+        for name, value in item.annotations[0].values.items():
+            dtype = self._tabular_cat_types[name]
+            if dtype == CategoricalDtype():
+                annotations.append(Label(label=self._id_mapping[name]))
+            else:
+                annotations.append(Caption(value))
+
+        return self.wrap_item(item, annotations=annotations)
