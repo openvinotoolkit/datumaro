@@ -356,8 +356,8 @@ document.write(`
     <span class="n">AnnotationType</span><span class="p">,</span>
     <span class="n">Bbox</span><span class="p">,</span>
     <span class="n">CompiledMask</span><span class="p">,</span>
+    <span class="n">ExtractedMask</span><span class="p">,</span>
     <span class="n">Label</span><span class="p">,</span>
-    <span class="n">Mask</span><span class="p">,</span>
 <span class="p">)</span>
 <span class="kn">from</span> <span class="nn">datumaro.components.dataset_base</span> <span class="kn">import</span> <span class="n">DatasetItem</span><span class="p">,</span> <span class="n">SubsetBase</span>
 <span class="kn">from</span> <span class="nn">datumaro.components.errors</span> <span class="kn">import</span> <span class="p">(</span>
@@ -719,22 +719,28 @@ document.write(`
                         <span class="n">UndeclaredLabelError</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">label_id</span><span class="p">)),</span> <span class="n">item_id</span><span class="o">=</span><span class="p">(</span><span class="n">item_id</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_subset</span><span class="p">)</span>
                     <span class="p">)</span>
 
-                <span class="n">image</span> <span class="o">=</span> <span class="n">compiled_mask</span><span class="o">.</span><span class="n">lazy_extract</span><span class="p">(</span><span class="n">instance_id</span><span class="p">)</span>
-
-                <span class="n">item_annotations</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">Mask</span><span class="p">(</span><span class="n">image</span><span class="o">=</span><span class="n">image</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="n">label_id</span><span class="p">,</span> <span class="n">group</span><span class="o">=</span><span class="n">instance_id</span><span class="p">))</span>
+                <span class="n">item_annotations</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                    <span class="n">ExtractedMask</span><span class="p">(</span>
+                        <span class="n">index_mask</span><span class="o">=</span><span class="n">instances_mask</span><span class="p">,</span>
+                        <span class="n">index</span><span class="o">=</span><span class="n">instance_id</span><span class="p">,</span>
+                        <span class="n">label</span><span class="o">=</span><span class="n">label_id</span><span class="p">,</span>
+                        <span class="n">group</span><span class="o">=</span><span class="n">instance_id</span><span class="p">,</span>
+                    <span class="p">)</span>
+                <span class="p">)</span>
         <span class="k">elif</span> <span class="n">class_mask</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">log</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;Item </span><span class="si">%s</span><span class="s2">: only class segmentations available&quot;</span><span class="p">,</span> <span class="n">item_id</span><span class="p">)</span>
 
-            <span class="n">class_mask</span> <span class="o">=</span> <span class="n">class_mask</span><span class="p">()</span>
-            <span class="n">classes</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="n">class_mask</span><span class="p">)</span>
+            <span class="n">np_class_mask</span> <span class="o">=</span> <span class="n">class_mask</span><span class="p">()</span>
+            <span class="n">classes</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="n">np_class_mask</span><span class="p">)</span>
             <span class="k">for</span> <span class="n">label_id</span> <span class="ow">in</span> <span class="n">classes</span><span class="p">:</span>
                 <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">label_cat</span><span class="p">)</span> <span class="o">&lt;=</span> <span class="n">label_id</span><span class="p">:</span>
                     <span class="bp">self</span><span class="o">.</span><span class="n">_ctx</span><span class="o">.</span><span class="n">error_policy</span><span class="o">.</span><span class="n">report_annotation_error</span><span class="p">(</span>
                         <span class="n">UndeclaredLabelError</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">label_id</span><span class="p">)),</span> <span class="n">item_id</span><span class="o">=</span><span class="p">(</span><span class="n">item_id</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_subset</span><span class="p">)</span>
                     <span class="p">)</span>
 
-                <span class="n">image</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_lazy_extract_mask</span><span class="p">(</span><span class="n">class_mask</span><span class="p">,</span> <span class="n">label_id</span><span class="p">)</span>
-                <span class="n">item_annotations</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">Mask</span><span class="p">(</span><span class="n">image</span><span class="o">=</span><span class="n">image</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="n">label_id</span><span class="p">))</span>
+                <span class="n">item_annotations</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                    <span class="n">ExtractedMask</span><span class="p">(</span><span class="n">index_mask</span><span class="o">=</span><span class="n">class_mask</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="n">label_id</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="n">label_id</span><span class="p">)</span>
+                <span class="p">)</span>
 
         <span class="k">return</span> <span class="n">item_annotations</span>
 

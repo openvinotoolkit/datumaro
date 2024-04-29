@@ -32,6 +32,7 @@ datumaro.components.annotation
       Cuboid3d
       DepthAnnotation
       Ellipse
+      ExtractedMask
       FeatureVector
       GroupType
       HashKey

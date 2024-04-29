@@ -354,7 +354,7 @@ document.write(`
 
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 
-<span class="kn">from</span> <span class="nn">datumaro.components.annotation</span> <span class="kn">import</span> <span class="n">AnnotationType</span><span class="p">,</span> <span class="n">CompiledMask</span><span class="p">,</span> <span class="n">LabelCategories</span><span class="p">,</span> <span class="n">Mask</span>
+<span class="kn">from</span> <span class="nn">datumaro.components.annotation</span> <span class="kn">import</span> <span class="n">AnnotationType</span><span class="p">,</span> <span class="n">ExtractedMask</span><span class="p">,</span> <span class="n">LabelCategories</span>
 <span class="kn">from</span> <span class="nn">datumaro.components.dataset_base</span> <span class="kn">import</span> <span class="n">DatasetBase</span><span class="p">,</span> <span class="n">DatasetItem</span>
 <span class="kn">from</span> <span class="nn">datumaro.components.errors</span> <span class="kn">import</span> <span class="n">InvalidAnnotationError</span>
 <span class="kn">from</span> <span class="nn">datumaro.components.format_detection</span> <span class="kn">import</span> <span class="n">FormatDetectionContext</span>
@@ -447,7 +447,6 @@ document.write(`
                     <span class="k">continue</span>
 
                 <span class="n">mask</span> <span class="o">=</span> <span class="n">lazy_image</span><span class="p">(</span><span class="n">mask_path</span><span class="p">,</span> <span class="n">loader</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_load_instance_mask</span><span class="p">)</span>
-                <span class="n">mask</span> <span class="o">=</span> <span class="n">CompiledMask</span><span class="p">(</span><span class="n">instance_mask</span><span class="o">=</span><span class="n">mask</span><span class="p">)</span>
 
                 <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">item_info</span><span class="p">:</span>
                     <span class="k">if</span> <span class="n">v</span><span class="p">[</span><span class="s2">&quot;part_level&quot;</span><span class="p">]</span> <span class="o">!=</span> <span class="n">part_level</span><span class="p">:</span>
@@ -458,9 +457,10 @@ document.write(`
                     <span class="n">attributes</span> <span class="o">=</span> <span class="p">{</span><span class="n">k</span><span class="p">:</span> <span class="kc">True</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">v</span><span class="p">[</span><span class="s2">&quot;attributes&quot;</span><span class="p">]}</span>
 
                     <span class="n">item_annotations</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
-                        <span class="n">Mask</span><span class="p">(</span>
+                        <span class="n">ExtractedMask</span><span class="p">(</span>
+                            <span class="n">index_mask</span><span class="o">=</span><span class="n">mask</span><span class="p">,</span>
+                            <span class="n">index</span><span class="o">=</span><span class="n">instance_id</span><span class="p">,</span>
                             <span class="n">label</span><span class="o">=</span><span class="n">label_id</span><span class="p">,</span>
-                            <span class="n">image</span><span class="o">=</span><span class="n">mask</span><span class="o">.</span><span class="n">lazy_extract</span><span class="p">(</span><span class="n">instance_id</span><span class="p">),</span>
                             <span class="nb">id</span><span class="o">=</span><span class="n">instance_id</span><span class="p">,</span>
                             <span class="n">attributes</span><span class="o">=</span><span class="n">attributes</span><span class="p">,</span>
                             <span class="n">z_order</span><span class="o">=</span><span class="n">part_level</span><span class="p">,</span>

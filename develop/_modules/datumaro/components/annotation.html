@@ -747,7 +747,9 @@ document.write(`
 
 
 <span class="n">BinaryMaskImage</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span>  <span class="c1"># 2d array of type bool</span>
+<span class="n">BinaryMaskImageCallable</span> <span class="o">=</span> <span class="n">Callable</span><span class="p">[[],</span> <span class="n">BinaryMaskImage</span><span class="p">]</span>
 <span class="n">IndexMaskImage</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span>  <span class="c1"># 2d array of type int</span>
+<span class="n">IndexMaskImageCallable</span> <span class="o">=</span> <span class="n">Callable</span><span class="p">[[],</span> <span class="n">IndexMaskImage</span><span class="p">]</span>
 
 
 <div class="viewcode-block" id="Mask">
@@ -759,7 +761,7 @@ document.write(`
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="n">_type</span> <span class="o">=</span> <span class="n">AnnotationType</span><span class="o">.</span><span class="n">mask</span>
-    <span class="n">_image</span> <span class="o">=</span> <span class="n">field</span><span class="p">()</span>
+    <span class="n">_image</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">BinaryMaskImage</span><span class="p">,</span> <span class="n">BinaryMaskImageCallable</span><span class="p">]</span> <span class="o">=</span> <span class="n">field</span><span class="p">()</span>
     <span class="n">label</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span>
         <span class="n">converter</span><span class="o">=</span><span class="n">attr</span><span class="o">.</span><span class="n">converters</span><span class="o">.</span><span class="n">optional</span><span class="p">(</span><span class="nb">int</span><span class="p">),</span> <span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">kw_only</span><span class="o">=</span><span class="kc">True</span>
     <span class="p">)</span>
@@ -927,6 +929,48 @@ document.write(`
         <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">other</span><span class="p">,</span> <span class="vm">__class__</span><span class="p">):</span>
             <span class="k">return</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__eq__</span><span class="p">(</span><span class="n">other</span><span class="p">)</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">rle</span> <span class="o">==</span> <span class="n">other</span><span class="o">.</span><span class="n">rle</span></div>
+
+
+
+<div class="viewcode-block" id="ExtractedMask">
+<a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.components.annotation.html#datumaro.components.abstracts.merger.ExtractedMask">[docs]</a>
+<span class="nd">@attrs</span><span class="p">(</span><span class="n">slots</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">eq</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">order</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+<span class="k">class</span> <span class="nc">ExtractedMask</span><span class="p">(</span><span class="n">Mask</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Mask annotation (binary mask) extracted from an index mask (integer 2D Numpy array).</span>
+
+<span class="sd">    This class can extract a binary mask with given index mask and index value.</span>
+<span class="sd">    The advantage of this class is that we can create multiple binary mask but they share a single index mask source.</span>
+
+<span class="sd">    Attributes:</span>
+<span class="sd">        index_mask: Integer 2D Numpy array. Its pixel can indicate a label id (class) or an instance id.</span>
+<span class="sd">        index: Integer value to extract a binary mask from the given index mask.</span>
+
+<span class="sd">    Examples:</span>
+<span class="sd">        This example demonstrates how to create an `ExtractedMask` from a synthetic index mask,</span>
+<span class="sd">        which denotes a semantic segmentation mask with binary values such as 0 for background</span>
+<span class="sd">        and 1 for foreground.</span>
+
+<span class="sd">        &gt;&gt;&gt; import numpy as np</span>
+<span class="sd">        &gt;&gt;&gt; from datumaro.components.annotation import ExtractedMask</span>
+<span class="sd">        &gt;&gt;&gt;</span>
+<span class="sd">        &gt;&gt;&gt; index_mask = np.random.randint(low=0, high=2, size=(10, 10), dtype=np.uint8)</span>
+<span class="sd">        &gt;&gt;&gt; mask1 = ExtractedMask(index_mask=index_mask, index=0, label=0)  # 0 for background</span>
+<span class="sd">        &gt;&gt;&gt; mask2 = ExtractedMask(index_mask=index_mask, index=1, label=1)  # 1 for foreground</span>
+<span class="sd">        &gt;&gt;&gt; np.unique(mask1.image).tolist()  # `image` property create a binary mask</span>
+<span class="sd">        np.array([0, 1])</span>
+<span class="sd">        &gt;&gt;&gt; mask1.index_mask == mask2.index_mask  # They share the same source</span>
+<span class="sd">        True</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">index_mask</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">IndexMaskImage</span><span class="p">,</span> <span class="n">IndexMaskImageCallable</span><span class="p">]</span> <span class="o">=</span> <span class="n">field</span><span class="p">()</span>
+    <span class="n">index</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">field</span><span class="p">()</span>
+
+    <span class="n">_image</span><span class="p">:</span> <span class="kc">None</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">init</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">image</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">BinaryMaskImage</span><span class="p">:</span>
+        <span class="n">index_mask</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">index_mask</span><span class="p">()</span> <span class="k">if</span> <span class="nb">callable</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">index_mask</span><span class="p">)</span> <span class="k">else</span> <span class="bp">self</span><span class="o">.</span><span class="n">index_mask</span>
+        <span class="k">return</span> <span class="n">index_mask</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">index</span></div>
 
 
 

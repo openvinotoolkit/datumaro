@@ -357,9 +357,9 @@ document.write(`
 <span class="kn">from</span> <span class="nn">datumaro.components.annotation</span> <span class="kn">import</span> <span class="p">(</span>
     <span class="n">AnnotationType</span><span class="p">,</span>
     <span class="n">Bbox</span><span class="p">,</span>
+    <span class="n">ExtractedMask</span><span class="p">,</span>
     <span class="n">Label</span><span class="p">,</span>
     <span class="n">LabelCategories</span><span class="p">,</span>
-    <span class="n">Mask</span><span class="p">,</span>
     <span class="n">MaskCategories</span><span class="p">,</span>
 <span class="p">)</span>
 <span class="kn">from</span> <span class="nn">datumaro.components.dataset</span> <span class="kn">import</span> <span class="n">DatasetItem</span>
@@ -372,7 +372,7 @@ document.write(`
 <span class="kn">from</span> <span class="nn">datumaro.plugins.data_formats.coco.format</span> <span class="kn">import</span> <span class="n">CocoTask</span>
 <span class="kn">from</span> <span class="nn">datumaro.plugins.data_formats.coco.page_mapper</span> <span class="kn">import</span> <span class="n">COCOPageMapper</span>
 <span class="kn">from</span> <span class="nn">datumaro.util</span> <span class="kn">import</span> <span class="n">parse_json_file</span>
-<span class="kn">from</span> <span class="nn">datumaro.util.image</span> <span class="kn">import</span> <span class="n">IMAGE_EXTENSIONS</span><span class="p">,</span> <span class="n">load_image</span>
+<span class="kn">from</span> <span class="nn">datumaro.util.image</span> <span class="kn">import</span> <span class="n">IMAGE_EXTENSIONS</span><span class="p">,</span> <span class="n">lazy_image</span>
 
 <span class="n">T</span> <span class="o">=</span> <span class="n">TypeVar</span><span class="p">(</span><span class="s2">&quot;T&quot;</span><span class="p">)</span>
 
@@ -649,9 +649,6 @@ document.write(`
         <span class="k">return</span> <span class="n">categories</span>
 
     <span class="k">def</span> <span class="nf">_load_items</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">def</span> <span class="nf">_lazy_extract_mask</span><span class="p">(</span><span class="n">mask</span><span class="p">,</span> <span class="n">c</span><span class="p">):</span>
-            <span class="k">return</span> <span class="k">lambda</span><span class="p">:</span> <span class="n">mask</span> <span class="o">==</span> <span class="n">c</span>
-
         <span class="n">items</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="k">for</span> <span class="n">media_name</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">listdir</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_path</span><span class="p">)):</span>
             <span class="nb">id</span> <span class="o">=</span> <span class="n">osp</span><span class="o">.</span><span class="n">splitext</span><span class="p">(</span><span class="n">media_name</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
@@ -659,14 +656,14 @@ document.write(`
             <span class="n">anns</span> <span class="o">=</span> <span class="p">[]</span>
             <span class="k">for</span> <span class="n">mask_name</span> <span class="ow">in</span> <span class="n">os</span><span class="o">.</span><span class="n">listdir</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_mask_path</span><span class="p">):</span>
                 <span class="k">if</span> <span class="nb">id</span> <span class="ow">in</span> <span class="n">mask_name</span><span class="p">:</span>
-                    <span class="n">instances_mask</span> <span class="o">=</span> <span class="n">load_image</span><span class="p">(</span>
-                        <span class="n">osp</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_mask_path</span><span class="p">,</span> <span class="n">mask_name</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">int32</span>
+                    <span class="n">index_mask</span> <span class="o">=</span> <span class="n">lazy_image</span><span class="p">(</span>
+                        <span class="n">path</span><span class="o">=</span><span class="n">osp</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_mask_path</span><span class="p">,</span> <span class="n">mask_name</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">int32</span>
                     <span class="p">)</span>
-                    <span class="c1"># label_ids = np.unique(instances_mask)</span>
                     <span class="k">for</span> <span class="n">label_id</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_label_ids</span><span class="p">:</span>
                         <span class="n">anns</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
-                            <span class="n">Mask</span><span class="p">(</span>
-                                <span class="n">image</span><span class="o">=</span><span class="n">_lazy_extract_mask</span><span class="p">(</span><span class="n">instances_mask</span><span class="p">,</span> <span class="n">label_id</span><span class="p">),</span>
+                            <span class="n">ExtractedMask</span><span class="p">(</span>
+                                <span class="n">index_mask</span><span class="o">=</span><span class="n">index_mask</span><span class="p">,</span>
+                                <span class="n">index</span><span class="o">=</span><span class="n">label_id</span><span class="p">,</span>
                                 <span class="n">label</span><span class="o">=</span><span class="n">label_id</span><span class="p">,</span>
                             <span class="p">)</span>
                         <span class="p">)</span>

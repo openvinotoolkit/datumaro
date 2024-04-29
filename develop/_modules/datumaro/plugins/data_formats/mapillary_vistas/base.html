@@ -354,9 +354,8 @@ document.write(`
 
 <span class="kn">from</span> <span class="nn">datumaro.components.annotation</span> <span class="kn">import</span> <span class="p">(</span>
     <span class="n">AnnotationType</span><span class="p">,</span>
-    <span class="n">CompiledMask</span><span class="p">,</span>
+    <span class="n">ExtractedMask</span><span class="p">,</span>
     <span class="n">LabelCategories</span><span class="p">,</span>
-    <span class="n">Mask</span><span class="p">,</span>
     <span class="n">MaskCategories</span><span class="p">,</span>
     <span class="n">Polygon</span><span class="p">,</span>
 <span class="p">)</span>
@@ -507,7 +506,6 @@ document.write(`
                 <span class="bp">self</span><span class="o">.</span><span class="n">_annotations_dir</span><span class="p">,</span> <span class="n">MapillaryVistasPath</span><span class="o">.</span><span class="n">PANOPTIC_DIR</span><span class="p">,</span> <span class="n">item_ann</span><span class="p">[</span><span class="s2">&quot;file_name&quot;</span><span class="p">]</span>
             <span class="p">)</span>
             <span class="n">mask</span> <span class="o">=</span> <span class="n">lazy_image</span><span class="p">(</span><span class="n">mask_path</span><span class="p">,</span> <span class="n">loader</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_load_pan_mask</span><span class="p">)</span>
-            <span class="n">mask</span> <span class="o">=</span> <span class="n">CompiledMask</span><span class="p">(</span><span class="n">instance_mask</span><span class="o">=</span><span class="n">mask</span><span class="p">)</span>
 
             <span class="n">annotations</span> <span class="o">=</span> <span class="p">[]</span>
             <span class="k">for</span> <span class="n">segment_info</span> <span class="ow">in</span> <span class="n">item_ann</span><span class="p">[</span><span class="s2">&quot;segments_info&quot;</span><span class="p">]:</span>
@@ -515,8 +513,9 @@ document.write(`
                 <span class="n">segment_id</span> <span class="o">=</span> <span class="n">segment_info</span><span class="p">[</span><span class="s2">&quot;id&quot;</span><span class="p">]</span>
                 <span class="n">attributes</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;is_crowd&quot;</span><span class="p">:</span> <span class="nb">bool</span><span class="p">(</span><span class="n">segment_info</span><span class="p">[</span><span class="s2">&quot;iscrowd&quot;</span><span class="p">])}</span>
                 <span class="n">annotations</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
-                    <span class="n">Mask</span><span class="p">(</span>
-                        <span class="n">image</span><span class="o">=</span><span class="n">mask</span><span class="o">.</span><span class="n">lazy_extract</span><span class="p">(</span><span class="n">segment_id</span><span class="p">),</span>
+                    <span class="n">ExtractedMask</span><span class="p">(</span>
+                        <span class="n">index_mask</span><span class="o">=</span><span class="n">mask</span><span class="p">,</span>
+                        <span class="n">index</span><span class="o">=</span><span class="n">segment_id</span><span class="p">,</span>
                         <span class="n">label</span><span class="o">=</span><span class="n">cat_id</span><span class="p">,</span>
                         <span class="nb">id</span><span class="o">=</span><span class="n">segment_id</span><span class="p">,</span>
                         <span class="n">group</span><span class="o">=</span><span class="n">segment_id</span><span class="p">,</span>
@@ -569,13 +568,14 @@ document.write(`
             <span class="n">image</span> <span class="o">=</span> <span class="n">Image</span><span class="o">.</span><span class="n">from_file</span><span class="p">(</span><span class="n">path</span><span class="o">=</span><span class="n">image_path</span><span class="p">)</span>
 
             <span class="n">instance_path</span> <span class="o">=</span> <span class="n">osp</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">instance_dir</span><span class="p">,</span> <span class="n">item_id</span> <span class="o">+</span> <span class="n">MapillaryVistasPath</span><span class="o">.</span><span class="n">MASK_EXT</span><span class="p">)</span>
-            <span class="n">mask</span> <span class="o">=</span> <span class="n">load_image</span><span class="p">(</span><span class="n">instance_path</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">uint32</span><span class="p">)</span>
+            <span class="n">index_mask</span> <span class="o">=</span> <span class="n">lazy_image</span><span class="p">(</span><span class="n">instance_path</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">uint32</span><span class="p">)</span>
+            <span class="n">np_index_mask</span> <span class="o">=</span> <span class="n">index_mask</span><span class="p">()</span>
 
             <span class="n">annotations</span> <span class="o">=</span> <span class="p">[]</span>
-            <span class="k">for</span> <span class="n">uval</span> <span class="ow">in</span> <span class="n">np</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="n">mask</span><span class="p">):</span>
+            <span class="k">for</span> <span class="n">uval</span> <span class="ow">in</span> <span class="n">np</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="n">np_index_mask</span><span class="p">):</span>
                 <span class="n">label_id</span><span class="p">,</span> <span class="n">instance_id</span> <span class="o">=</span> <span class="n">uval</span> <span class="o">&gt;&gt;</span> <span class="mi">8</span><span class="p">,</span> <span class="n">uval</span> <span class="o">&amp;</span> <span class="mi">255</span>
                 <span class="n">annotations</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
-                    <span class="n">Mask</span><span class="p">(</span><span class="n">image</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_lazy_extract_mask</span><span class="p">(</span><span class="n">mask</span><span class="p">,</span> <span class="n">uval</span><span class="p">),</span> <span class="n">label</span><span class="o">=</span><span class="n">label_id</span><span class="p">,</span> <span class="nb">id</span><span class="o">=</span><span class="n">instance_id</span><span class="p">)</span>
+                    <span class="n">ExtractedMask</span><span class="p">(</span><span class="n">index_mask</span><span class="o">=</span><span class="n">index_mask</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="n">uval</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="n">label_id</span><span class="p">,</span> <span class="nb">id</span><span class="o">=</span><span class="n">instance_id</span><span class="p">)</span>
                 <span class="p">)</span>
 
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_parse_polygon</span><span class="p">:</span>
@@ -607,10 +607,6 @@ document.write(`
         <span class="k">if</span> <span class="nb">all</span><span class="p">(</span><span class="n">image_size</span><span class="p">):</span>
             <span class="k">return</span> <span class="nb">int</span><span class="p">(</span><span class="n">image_size</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span> <span class="nb">int</span><span class="p">(</span><span class="n">image_size</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
         <span class="k">return</span> <span class="kc">None</span>
-
-    <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">_lazy_extract_mask</span><span class="p">(</span><span class="n">mask</span><span class="p">,</span> <span class="n">c</span><span class="p">):</span>
-        <span class="k">return</span> <span class="k">lambda</span><span class="p">:</span> <span class="n">mask</span> <span class="o">==</span> <span class="n">c</span>
 
     <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">_load_pan_mask</span><span class="p">(</span><span class="n">path</span><span class="p">):</span>

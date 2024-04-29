@@ -358,8 +358,8 @@ document.write(`
 <span class="kn">from</span> <span class="nn">datumaro.components.annotation</span> <span class="kn">import</span> <span class="p">(</span>
     <span class="n">AnnotationType</span><span class="p">,</span>
     <span class="n">CompiledMask</span><span class="p">,</span>
+    <span class="n">ExtractedMask</span><span class="p">,</span>
     <span class="n">LabelCategories</span><span class="p">,</span>
-    <span class="n">Mask</span><span class="p">,</span>
     <span class="n">MaskCategories</span><span class="p">,</span>
 <span class="p">)</span>
 <span class="kn">from</span> <span class="nn">datumaro.components.dataset_base</span> <span class="kn">import</span> <span class="n">DatasetItem</span><span class="p">,</span> <span class="n">SubsetBase</span>
@@ -372,7 +372,7 @@ document.write(`
 <span class="kn">from</span> <span class="nn">datumaro.components.task</span> <span class="kn">import</span> <span class="n">TaskAnnotationMapping</span>
 <span class="kn">from</span> <span class="nn">datumaro.util</span> <span class="kn">import</span> <span class="n">find</span>
 <span class="kn">from</span> <span class="nn">datumaro.util.annotation_util</span> <span class="kn">import</span> <span class="n">make_label_id_mapping</span>
-<span class="kn">from</span> <span class="nn">datumaro.util.image</span> <span class="kn">import</span> <span class="n">find_images</span><span class="p">,</span> <span class="n">load_image</span><span class="p">,</span> <span class="n">save_image</span>
+<span class="kn">from</span> <span class="nn">datumaro.util.image</span> <span class="kn">import</span> <span class="n">find_images</span><span class="p">,</span> <span class="n">lazy_image</span><span class="p">,</span> <span class="n">save_image</span>
 <span class="kn">from</span> <span class="nn">datumaro.util.mask_tools</span> <span class="kn">import</span> <span class="n">generate_colormap</span><span class="p">,</span> <span class="n">paint_mask</span>
 <span class="kn">from</span> <span class="nn">datumaro.util.meta_file_util</span> <span class="kn">import</span> <span class="n">has_meta_file</span><span class="p">,</span> <span class="n">is_meta_file</span><span class="p">,</span> <span class="n">parse_meta_file</span>
 
@@ -638,16 +638,18 @@ document.write(`
             <span class="n">item_id</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_id_from_mask_path</span><span class="p">(</span><span class="n">mask_path</span><span class="p">,</span> <span class="n">mask_suffix</span><span class="p">)</span>
 
             <span class="n">anns</span> <span class="o">=</span> <span class="p">[]</span>
-            <span class="n">instances_mask</span> <span class="o">=</span> <span class="n">load_image</span><span class="p">(</span><span class="n">mask_path</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">int32</span><span class="p">)</span>
+            <span class="n">index_mask</span> <span class="o">=</span> <span class="n">lazy_image</span><span class="p">(</span><span class="n">mask_path</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">int32</span><span class="p">)</span>
+            <span class="n">np_index_mask</span> <span class="o">=</span> <span class="n">index_mask</span><span class="p">()</span>
+
             <span class="n">mask_id</span> <span class="o">=</span> <span class="mi">1</span>
             <span class="k">for</span> <span class="n">label_id</span> <span class="ow">in</span> <span class="n">label_ids</span><span class="p">:</span>
-                <span class="k">if</span> <span class="n">label_id</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">instances_mask</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">label_id</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">np_index_mask</span><span class="p">:</span>
                     <span class="k">continue</span>
-                <span class="n">binary_mask</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_lazy_extract_mask</span><span class="p">(</span><span class="n">instances_mask</span><span class="p">,</span> <span class="n">label_id</span><span class="p">)</span>
                 <span class="n">anns</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
-                    <span class="n">Mask</span><span class="p">(</span>
+                    <span class="n">ExtractedMask</span><span class="p">(</span>
+                        <span class="n">index_mask</span><span class="o">=</span><span class="n">index_mask</span><span class="p">,</span>
+                        <span class="n">index</span><span class="o">=</span><span class="n">label_id</span><span class="p">,</span>
                         <span class="nb">id</span><span class="o">=</span><span class="n">mask_id</span><span class="p">,</span>
-                        <span class="n">image</span><span class="o">=</span><span class="n">binary_mask</span><span class="p">,</span>
                         <span class="n">label</span><span class="o">=</span><span class="n">label_id</span><span class="p">,</span>
                     <span class="p">)</span>
                 <span class="p">)</span>

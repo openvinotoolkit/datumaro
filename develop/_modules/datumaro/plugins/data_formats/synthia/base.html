@@ -352,7 +352,12 @@ document.write(`
 
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 
-<span class="kn">from</span> <span class="nn">datumaro.components.annotation</span> <span class="kn">import</span> <span class="n">AnnotationType</span><span class="p">,</span> <span class="n">LabelCategories</span><span class="p">,</span> <span class="n">Mask</span><span class="p">,</span> <span class="n">MaskCategories</span>
+<span class="kn">from</span> <span class="nn">datumaro.components.annotation</span> <span class="kn">import</span> <span class="p">(</span>
+    <span class="n">AnnotationType</span><span class="p">,</span>
+    <span class="n">ExtractedMask</span><span class="p">,</span>
+    <span class="n">LabelCategories</span><span class="p">,</span>
+    <span class="n">MaskCategories</span><span class="p">,</span>
+<span class="p">)</span>
 <span class="kn">from</span> <span class="nn">datumaro.components.dataset_base</span> <span class="kn">import</span> <span class="n">DatasetItem</span><span class="p">,</span> <span class="n">SubsetBase</span>
 <span class="kn">from</span> <span class="nn">datumaro.components.errors</span> <span class="kn">import</span> <span class="n">InvalidAnnotationError</span>
 <span class="kn">from</span> <span class="nn">datumaro.components.importer</span> <span class="kn">import</span> <span class="n">ImportContext</span>
@@ -491,7 +496,7 @@ document.write(`
                 <span class="n">classes</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="n">labels_mask</span><span class="p">)</span>
                 <span class="k">for</span> <span class="n">label_id</span> <span class="ow">in</span> <span class="n">classes</span><span class="p">:</span>
                     <span class="n">anno</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
-                        <span class="n">Mask</span><span class="p">(</span><span class="n">image</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_lazy_extract_mask</span><span class="p">(</span><span class="n">labels_mask</span><span class="p">,</span> <span class="n">label_id</span><span class="p">),</span> <span class="n">label</span><span class="o">=</span><span class="n">label_id</span><span class="p">)</span>
+                        <span class="n">ExtractedMask</span><span class="p">(</span><span class="n">index_mask</span><span class="o">=</span><span class="n">labels_mask</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="n">label_id</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="n">label_id</span><span class="p">)</span>
                     <span class="p">)</span>
                     <span class="bp">self</span><span class="o">.</span><span class="n">_ann_types</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">AnnotationType</span><span class="o">.</span><span class="n">mask</span><span class="p">)</span>
 
@@ -514,7 +519,7 @@ document.write(`
                 <span class="n">classes</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="n">color_mask</span><span class="p">)</span>
                 <span class="k">for</span> <span class="n">label_id</span> <span class="ow">in</span> <span class="n">classes</span><span class="p">:</span>
                     <span class="n">anno</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
-                        <span class="n">Mask</span><span class="p">(</span><span class="n">image</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_lazy_extract_mask</span><span class="p">(</span><span class="n">color_mask</span><span class="p">,</span> <span class="n">label_id</span><span class="p">),</span> <span class="n">label</span><span class="o">=</span><span class="n">label_id</span><span class="p">)</span>
+                        <span class="n">ExtractedMask</span><span class="p">(</span><span class="n">index_mask</span><span class="o">=</span><span class="n">color_mask</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="n">label_id</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="n">label_id</span><span class="p">)</span>
                     <span class="p">)</span>
                     <span class="bp">self</span><span class="o">.</span><span class="n">_ann_types</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">AnnotationType</span><span class="o">.</span><span class="n">mask</span><span class="p">)</span>
 
@@ -525,10 +530,6 @@ document.write(`
                 <span class="n">items</span><span class="p">[</span><span class="n">item_id</span><span class="p">]</span> <span class="o">=</span> <span class="n">DatasetItem</span><span class="p">(</span><span class="nb">id</span><span class="o">=</span><span class="n">item_id</span><span class="p">,</span> <span class="n">media</span><span class="o">=</span><span class="n">image</span><span class="p">,</span> <span class="n">annotations</span><span class="o">=</span><span class="n">anno</span><span class="p">)</span>
 
         <span class="k">return</span> <span class="n">items</span>
-
-    <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">_lazy_extract_mask</span><span class="p">(</span><span class="n">mask</span><span class="p">,</span> <span class="n">c</span><span class="p">):</span>
-        <span class="k">return</span> <span class="k">lambda</span><span class="p">:</span> <span class="n">mask</span> <span class="o">==</span> <span class="n">c</span>
 
 
 <div class="viewcode-block" id="SynthiaRandBase">
