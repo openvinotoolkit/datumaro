@@ -9,7 +9,12 @@ from typing import List, Optional
 
 import numpy as np
 
-from datumaro.components.annotation import AnnotationType, LabelCategories, Mask, MaskCategories
+from datumaro.components.annotation import (
+    AnnotationType,
+    ExtractedMask,
+    LabelCategories,
+    MaskCategories,
+)
 from datumaro.components.dataset_base import DatasetItem, SubsetBase
 from datumaro.components.format_detection import FormatDetectionConfidence, FormatDetectionContext
 from datumaro.components.importer import ImportContext, Importer, with_subset_dirs
@@ -108,13 +113,19 @@ class CommonSemanticSegmentationBase(SubsetBase):
                 image = Image.from_file(path=image)
 
             annotations = []
-            mask = lazy_mask(mask_path, self._categories[AnnotationType.mask].inverse_colormap)
-            mask = mask()  # loading mask through cache
+            index_mask = lazy_mask(
+                mask_path, self._categories[AnnotationType.mask].inverse_colormap
+            )
+            np_mask = index_mask()  # loading mask through cache
 
-            classes = np.unique(mask)
+            classes = np.unique(np_mask)
             for label_id in classes:
                 annotations.append(
-                    Mask(image=self._lazy_extract_mask(mask, label_id), label=label_id)
+                    ExtractedMask(
+                        index_mask=index_mask,
+                        index=label_id,
+                        label=label_id,
+                    )
                 )
                 self._ann_types.add(AnnotationType.mask)
 

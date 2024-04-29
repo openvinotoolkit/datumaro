@@ -10,7 +10,12 @@ from typing import Optional
 
 import numpy as np
 
-from datumaro.components.annotation import AnnotationType, LabelCategories, Mask, MaskCategories
+from datumaro.components.annotation import (
+    AnnotationType,
+    ExtractedMask,
+    LabelCategories,
+    MaskCategories,
+)
 from datumaro.components.dataset_base import DatasetItem, SubsetBase
 from datumaro.components.errors import InvalidAnnotationError
 from datumaro.components.importer import ImportContext
@@ -143,7 +148,7 @@ class _SynthiaBase(SubsetBase):
                 classes = np.unique(labels_mask)
                 for label_id in classes:
                     anno.append(
-                        Mask(image=self._lazy_extract_mask(labels_mask, label_id), label=label_id)
+                        ExtractedMask(index_mask=labels_mask, index=label_id, label=label_id)
                     )
                     self._ann_types.add(AnnotationType.mask)
 
@@ -166,7 +171,7 @@ class _SynthiaBase(SubsetBase):
                 classes = np.unique(color_mask)
                 for label_id in classes:
                     anno.append(
-                        Mask(image=self._lazy_extract_mask(color_mask, label_id), label=label_id)
+                        ExtractedMask(index_mask=color_mask, index=label_id, label=label_id)
                     )
                     self._ann_types.add(AnnotationType.mask)
 
@@ -177,10 +182,6 @@ class _SynthiaBase(SubsetBase):
                 items[item_id] = DatasetItem(id=item_id, media=image, annotations=anno)
 
         return items
-
-    @staticmethod
-    def _lazy_extract_mask(mask, c):
-        return lambda: mask == c
 
 
 class SynthiaRandBase(_SynthiaBase):

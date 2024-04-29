@@ -7,7 +7,7 @@ from typing import Any, Dict
 import numpy as np
 import pytest
 
-from datumaro.components.annotation import Bbox, Label
+from datumaro.components.annotation import Bbox, Label, Mask
 from datumaro.components.dataset import Dataset
 from datumaro.components.dataset_base import DatasetItem
 from datumaro.components.importer import Importer

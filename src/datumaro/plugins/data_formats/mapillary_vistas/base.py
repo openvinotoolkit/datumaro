@@ -12,9 +12,8 @@ import numpy as np
 
 from datumaro.components.annotation import (
     AnnotationType,
-    CompiledMask,
+    ExtractedMask,
     LabelCategories,
-    Mask,
     MaskCategories,
     Polygon,
 )
@@ -165,7 +164,6 @@ class _MapillaryVistasBase(SubsetBase):
                 self._annotations_dir, MapillaryVistasPath.PANOPTIC_DIR, item_ann["file_name"]
             )
             mask = lazy_image(mask_path, loader=self._load_pan_mask)
-            mask = CompiledMask(instance_mask=mask)
 
             annotations = []
             for segment_info in item_ann["segments_info"]:
@@ -173,8 +171,9 @@ class _MapillaryVistasBase(SubsetBase):
                 segment_id = segment_info["id"]
                 attributes = {"is_crowd": bool(segment_info["iscrowd"])}
                 annotations.append(
-                    Mask(
-                        image=mask.lazy_extract(segment_id),
+                    ExtractedMask(
+                        index_mask=mask,
+                        index=segment_id,
                         label=cat_id,
                         id=segment_id,
                         group=segment_id,
@@ -227,13 +226,14 @@ class _MapillaryVistasBase(SubsetBase):
             image = Image.from_file(path=image_path)
 
             instance_path = osp.join(instance_dir, item_id + MapillaryVistasPath.MASK_EXT)
-            mask = load_image(instance_path, dtype=np.uint32)
+            index_mask = lazy_image(instance_path, dtype=np.uint32)
+            np_index_mask = index_mask()
 
             annotations = []
-            for uval in np.unique(mask):
+            for uval in np.unique(np_index_mask):
                 label_id, instance_id = uval >> 8, uval & 255
                 annotations.append(
-                    Mask(image=self._lazy_extract_mask(mask, uval), label=label_id, id=instance_id)
+                    ExtractedMask(index_mask=index_mask, index=uval, label=label_id, id=instance_id)
                 )
 
             if self._parse_polygon:
@@ -265,10 +265,6 @@ class _MapillaryVistasBase(SubsetBase):
         if all(image_size):
             return int(image_size[0]), int(image_size[1])
         return None
-
-    @staticmethod
-    def _lazy_extract_mask(mask, c):
-        return lambda: mask == c
 
     @staticmethod
     def _load_pan_mask(path):

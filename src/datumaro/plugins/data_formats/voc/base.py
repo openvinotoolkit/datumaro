@@ -14,8 +14,8 @@ from datumaro.components.annotation import (
     AnnotationType,
     Bbox,
     CompiledMask,
+    ExtractedMask,
     Label,
-    Mask,
 )
 from datumaro.components.dataset_base import DatasetItem, SubsetBase
 from datumaro.components.errors import (
@@ -375,22 +375,28 @@ class VocBase(SubsetBase):
                         UndeclaredLabelError(str(label_id)), item_id=(item_id, self._subset)
                     )
 
-                image = compiled_mask.lazy_extract(instance_id)
-
-                item_annotations.append(Mask(image=image, label=label_id, group=instance_id))
+                item_annotations.append(
+                    ExtractedMask(
+                        index_mask=instances_mask,
+                        index=instance_id,
+                        label=label_id,
+                        group=instance_id,
+                    )
+                )
         elif class_mask is not None:
             log.warning("Item %s: only class segmentations available", item_id)
 
-            class_mask = class_mask()
-            classes = np.unique(class_mask)
+            np_class_mask = class_mask()
+            classes = np.unique(np_class_mask)
             for label_id in classes:
                 if len(label_cat) <= label_id:
                     self._ctx.error_policy.report_annotation_error(
                         UndeclaredLabelError(str(label_id)), item_id=(item_id, self._subset)
                     )
 
-                image = self._lazy_extract_mask(class_mask, label_id)
-                item_annotations.append(Mask(image=image, label=label_id))
+                item_annotations.append(
+                    ExtractedMask(index_mask=class_mask, index=label_id, label=label_id)
+                )
 
         return item_annotations
 

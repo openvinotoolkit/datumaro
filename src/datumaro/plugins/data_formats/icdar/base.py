@@ -11,7 +11,7 @@ from typing import List, Optional
 
 import numpy as np
 
-from datumaro.components.annotation import Bbox, Caption, Mask, MaskCategories, Polygon
+from datumaro.components.annotation import Bbox, Caption, ExtractedMask, MaskCategories, Polygon
 from datumaro.components.dataset_base import DatasetItem, SubsetBase
 from datumaro.components.errors import InvalidAnnotationError
 from datumaro.components.format_detection import FormatDetectionContext
@@ -248,18 +248,19 @@ class _IcdarBase(SubsetBase):
             gt_path = osp.join(self._path, item_id + "_GT" + IcdarPath.GT_EXT)
             if osp.isfile(gt_path):
                 # load mask through cache
-                mask = lazy_mask(gt_path, inverse_cls_colormap)
-                mask = mask()
+                index_mask = lazy_mask(gt_path, inverse_cls_colormap)
+                np_index_mask = index_mask()
 
-                classes = np.unique(mask)
+                classes = np.unique(np_index_mask)
                 for label_id in classes:
                     if label_id == 0:
                         continue
                     i = int(label_id)
                     annotations.append(
-                        Mask(
+                        ExtractedMask(
+                            index_mask=index_mask,
+                            index=label_id,
                             group=groups[i],
-                            image=self._lazy_extract_mask(mask, label_id),
                             attributes={
                                 "index": i - 1,
                                 "color": " ".join(str(p) for p in colors[i]),

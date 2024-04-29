@@ -8,12 +8,12 @@ from typing import Optional
 
 import numpy as np
 
-from datumaro.components.annotation import AnnotationType, Bbox, LabelCategories, Mask
+from datumaro.components.annotation import AnnotationType, Bbox, ExtractedMask, LabelCategories
 from datumaro.components.dataset_base import DatasetItem, SubsetBase
 from datumaro.components.importer import ImportContext
 from datumaro.components.media import Image
 from datumaro.components.task import TaskType
-from datumaro.util.image import find_images, load_image
+from datumaro.util.image import find_images, lazy_image
 from datumaro.util.meta_file_util import has_meta_file, parse_meta_file
 
 from .format import KittiLabelMap, KittiPath, KittiTask, make_kitti_categories, parse_label_map
@@ -82,15 +82,17 @@ class _KittiBase(SubsetBase):
                 item_id = osp.splitext(osp.relpath(instances_path, segm_dir))[0]
                 anns = []
 
-                instances_mask = load_image(instances_path, dtype=np.int32)
-                segm_ids = np.unique(instances_mask)
+                instances_mask = lazy_image(instances_path, dtype=np.int32)
+                np_instances_mask = instances_mask()
+                segm_ids = np.unique(np_instances_mask)
                 for segm_id in segm_ids:
                     semantic_id = segm_id >> 8
                     ann_id = int(segm_id % 256)
                     isCrowd = ann_id == 0
                     anns.append(
-                        Mask(
-                            image=self._lazy_extract_mask(instances_mask, segm_id),
+                        ExtractedMask(
+                            index_mask=instances_mask,
+                            index=segm_id,
                             label=semantic_id,
                             id=ann_id,
                             attributes={"is_crowd": isCrowd},

@@ -13,14 +13,14 @@ from typing import List, Optional
 
 import numpy as np
 
-from datumaro.components.annotation import AnnotationType, LabelCategories, Mask
+from datumaro.components.annotation import AnnotationType, ExtractedMask, LabelCategories
 from datumaro.components.dataset_base import DatasetItem, SubsetBase
 from datumaro.components.errors import MediaTypeError
 from datumaro.components.exporter import Exporter
 from datumaro.components.importer import ImportContext, Importer
 from datumaro.components.media import Image
 from datumaro.components.task import TaskAnnotationMapping
-from datumaro.util.image import find_images, load_image, save_image
+from datumaro.util.image import find_images, lazy_image, save_image
 from datumaro.util.mask_tools import merge_masks
 from datumaro.util.meta_file_util import has_meta_file, parse_meta_file
 
@@ -113,9 +113,11 @@ class MotsPngExtractor(SubsetBase):
         return lambda: mask == v
 
     def _parse_annotations(self, path):
-        combined_mask = load_image(path, dtype=np.uint16)
+        index_mask = lazy_image(path, dtype=np.uint16)
+        np_index_mask = index_mask()
+
         masks = []
-        for obj_id in np.unique(combined_mask):
+        for obj_id in np.unique(np_index_mask):
             class_id, instance_id = divmod(obj_id, MotsPath.MAX_INSTANCES)
             z_order = 0
             if class_id == 0:
@@ -126,8 +128,9 @@ class MotsPngExtractor(SubsetBase):
             else:
                 class_id -= 1
             masks.append(
-                Mask(
-                    self._lazy_extract_mask(combined_mask, obj_id),
+                ExtractedMask(
+                    index_mask=index_mask,
+                    index=obj_id,
                     label=class_id,
                     z_order=z_order,
                     attributes={"track_id": instance_id},
