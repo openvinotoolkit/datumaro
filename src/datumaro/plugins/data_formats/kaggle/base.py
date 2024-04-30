@@ -15,9 +15,9 @@ from defusedxml import ElementTree
 from datumaro.components.annotation import (
     AnnotationType,
     Bbox,
+    ExtractedMask,
     Label,
     LabelCategories,
-    Mask,
     MaskCategories,
 )
 from datumaro.components.dataset import DatasetItem
@@ -29,7 +29,7 @@ from datumaro.plugins.data_formats.coco.base import CocoInstancesBase
 from datumaro.plugins.data_formats.coco.format import CocoTask
 from datumaro.plugins.data_formats.coco.page_mapper import COCOPageMapper
 from datumaro.util import parse_json_file
-from datumaro.util.image import IMAGE_EXTENSIONS, load_image
+from datumaro.util.image import IMAGE_EXTENSIONS, lazy_image
 
 T = TypeVar("T")
 
@@ -293,9 +293,6 @@ class KaggleImageMaskBase(DatasetBase):
         return categories
 
     def _load_items(self):
-        def _lazy_extract_mask(mask, c):
-            return lambda: mask == c
-
         items = []
         for media_name in sorted(os.listdir(self._path)):
             id = osp.splitext(media_name)[0]
@@ -303,14 +300,14 @@ class KaggleImageMaskBase(DatasetBase):
             anns = []
             for mask_name in os.listdir(self._mask_path):
                 if id in mask_name:
-                    instances_mask = load_image(
-                        osp.join(self._mask_path, mask_name), dtype=np.int32
+                    index_mask = lazy_image(
+                        path=osp.join(self._mask_path, mask_name), dtype=np.int32
                     )
-                    # label_ids = np.unique(instances_mask)
                     for label_id in self._label_ids:
                         anns.append(
-                            Mask(
-                                image=_lazy_extract_mask(instances_mask, label_id),
+                            ExtractedMask(
+                                index_mask=index_mask,
+                                index=label_id,
                                 label=label_id,
                             )
                         )

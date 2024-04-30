@@ -2,13 +2,16 @@
 #
 # SPDX-License-Identifier: MIT
 
+from pathlib import Path
 from typing import List
 
+import cv2
 import numpy as np
 import pytest
 import shapely.geometry as sg
 
-from datumaro.components.annotation import Ellipse, HashKey, RotatedBbox
+from datumaro.components.annotation import Ellipse, ExtractedMask, HashKey, RotatedBbox
+from datumaro.util.image import lazy_image
 
 
 class EllipseTest:
@@ -65,3 +68,21 @@ class RotatedBboxTest:
 
         expected = RotatedBbox.from_rectangle(polygon)
         assert fxt_rot_bbox == expected
+
+
+class ExtractedMaskTest:
+    @pytest.fixture
+    def fxt_index_mask(self):
+        return np.random.randint(0, 10, size=(10, 10))
+
+    @pytest.fixture
+    def fxt_index_mask_file(self, fxt_index_mask, tmpdir):
+        fpath = Path(tmpdir, "mask.png")
+        cv2.imwrite(str(fpath), fxt_index_mask)
+        yield fpath
+
+    def test_extracted_mask(self, fxt_index_mask, fxt_index_mask_file):
+        index_mask = lazy_image(path=str(fxt_index_mask_file), dtype=np.uint8)
+        for index in range(10):
+            mask = ExtractedMask(index_mask=index_mask, index=index)
+            assert np.allclose(mask.image, (fxt_index_mask == index))

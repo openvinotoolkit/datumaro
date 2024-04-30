@@ -8,13 +8,14 @@ import logging as log
 import os
 import os.path as osp
 import re
+from functools import partial
 from typing import List, Optional
 
 import numpy as np
 
 from datumaro.components.annotation import (
     AnnotationType,
-    CompiledMask,
+    ExtractedMask,
     LabelCategories,
     Mask,
     Polygon,
@@ -97,7 +98,6 @@ class Ade20k2020Base(DatasetBase):
                     continue
 
                 mask = lazy_image(mask_path, loader=self._load_class_mask)
-                mask = CompiledMask(instance_mask=mask)
 
                 classes = {
                     (v["class_idx"], v["label_name"])
@@ -108,10 +108,11 @@ class Ade20k2020Base(DatasetBase):
                 for class_idx, label_name in classes:
                     label_id = labels.find(label_name)[0]
                     item_annotations.append(
-                        Mask(
+                        ExtractedMask(
+                            index_mask=mask,
+                            index=class_idx,
                             label=label_id,
                             id=class_idx,
-                            image=mask.lazy_extract(class_idx),
                             group=class_idx,
                             z_order=part_level,
                         )
@@ -126,7 +127,6 @@ class Ade20k2020Base(DatasetBase):
                     continue
 
                 mask = lazy_image(instance_path, loader=self._load_instance_mask)
-                mask = CompiledMask(instance_mask=mask)
 
                 label_id = labels.find(item["label_name"])[0]
                 instance_id = item["id"]
@@ -136,7 +136,7 @@ class Ade20k2020Base(DatasetBase):
                 item_annotations.append(
                     Mask(
                         label=label_id,
-                        image=mask.lazy_extract(1),
+                        image=partial(self._get_instance_mask, mask),
                         id=instance_id,
                         attributes=attributes,
                         z_order=item["part_level"],
@@ -215,6 +215,10 @@ class Ade20k2020Base(DatasetBase):
         mask = load_image(path)
         mask = ((mask[:, :, 2] / 10).astype(np.int32) << 8) + mask[:, :, 1].astype(np.int32)
         return mask
+
+    @staticmethod
+    def _get_instance_mask(mask: lazy_image) -> np.ndarray:
+        return mask() == 1
 
 
 class Ade20k2020Importer(Importer):

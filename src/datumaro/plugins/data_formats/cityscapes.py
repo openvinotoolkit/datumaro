@@ -16,8 +16,8 @@ import numpy as np
 from datumaro.components.annotation import (
     AnnotationType,
     CompiledMask,
+    ExtractedMask,
     LabelCategories,
-    Mask,
     MaskCategories,
 )
 from datumaro.components.dataset_base import DatasetItem, SubsetBase
@@ -29,7 +29,7 @@ from datumaro.components.importer import ImportContext, Importer
 from datumaro.components.media import Image
 from datumaro.util import find
 from datumaro.util.annotation_util import make_label_id_mapping
-from datumaro.util.image import find_images, load_image, save_image
+from datumaro.util.image import find_images, lazy_image, save_image
 from datumaro.util.mask_tools import generate_colormap, paint_mask
 from datumaro.util.meta_file_util import has_meta_file, is_meta_file, parse_meta_file
 
@@ -280,16 +280,18 @@ class CityscapesBase(SubsetBase):
             item_id = self._get_id_from_mask_path(mask_path, mask_suffix)
 
             anns = []
-            instances_mask = load_image(mask_path, dtype=np.int32)
+            index_mask = lazy_image(mask_path, dtype=np.int32)
+            np_index_mask = index_mask()
+
             mask_id = 1
             for label_id in label_ids:
-                if label_id not in instances_mask:
+                if label_id not in np_index_mask:
                     continue
-                binary_mask = self._lazy_extract_mask(instances_mask, label_id)
                 anns.append(
-                    Mask(
+                    ExtractedMask(
+                        index_mask=index_mask,
+                        index=label_id,
                         id=mask_id,
-                        image=binary_mask,
                         label=label_id,
                     )
                 )

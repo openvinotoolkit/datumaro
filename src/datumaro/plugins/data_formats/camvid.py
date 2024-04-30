@@ -15,8 +15,8 @@ import numpy as np
 from datumaro.components.annotation import (
     AnnotationType,
     CompiledMask,
+    ExtractedMask,
     LabelCategories,
-    Mask,
     MaskCategories,
 )
 from datumaro.components.dataset_base import DatasetItem, SubsetBase
@@ -223,13 +223,18 @@ class CamvidBase(SubsetBase):
                     mask = lazy_mask(
                         gt_path, self._categories[AnnotationType.mask].inverse_colormap
                     )
-                    mask = mask()  # loading mask through cache
+                    np_mask = mask()  # loading mask through cache
 
-                    classes = np.unique(mask)
+                    classes = np.unique(np_mask)
                     for label_id in classes:
                         if labels[label_id] in self._labels:
-                            image = self._lazy_extract_mask(mask, label_id)
-                            item_annotations.append(Mask(image=image, label=label_id))
+                            item_annotations.append(
+                                ExtractedMask(
+                                    index_mask=mask,
+                                    index=label_id,
+                                    label=label_id,
+                                )
+                            )
 
                             self._ann_types.add(AnnotationType.mask)
 
@@ -241,10 +246,6 @@ class CamvidBase(SubsetBase):
                 )
 
         return items
-
-    @staticmethod
-    def _lazy_extract_mask(mask, c):
-        return lambda: mask == c
 
 
 class CamvidImporter(Importer):

@@ -10,7 +10,7 @@ from typing import List, Optional
 import nibabel as nib
 import numpy as np
 
-from datumaro.components.annotation import AnnotationType, LabelCategories, Mask
+from datumaro.components.annotation import AnnotationType, ExtractedMask, LabelCategories
 from datumaro.components.dataset_base import DatasetItem, SubsetBase
 from datumaro.components.format_detection import FormatDetectionContext
 from datumaro.components.importer import ImportContext, Importer
@@ -78,11 +78,13 @@ class BratsBase(SubsetBase):
 
             anno = []
             for i in range(data.shape[2]):
-                classes = np.unique(data[:, :, i])
+                np_mask = data[:, :, i]
+                classes = np.unique(np_mask)
                 for class_id in classes:
                     anno.append(
-                        Mask(
-                            image=self._lazy_extract_mask(data[:, :, i], class_id),
+                        ExtractedMask(
+                            index_mask=np_mask,
+                            index=class_id,
                             label=class_id,
                             attributes={"image_id": i},
                         )
@@ -92,10 +94,6 @@ class BratsBase(SubsetBase):
             items[item_id].annotations = anno
 
         return items
-
-    @staticmethod
-    def _lazy_extract_mask(mask, c):
-        return lambda: mask == c
 
 
 class BratsImporter(Importer):
