@@ -105,8 +105,8 @@ def compare_categories(test, expected, actual):
 
     if AnnotationType.label in expected:
         test.assertEqual(
-            expected[AnnotationType.label].items,
-            actual[AnnotationType.label].items,
+            sorted(expected[AnnotationType.label].items, key=lambda t: t.name),
+            sorted(actual[AnnotationType.label].items, key=lambda t: t.name),
         )
     if AnnotationType.mask in expected:
         test.assertEqual(

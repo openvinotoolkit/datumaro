@@ -1450,7 +1450,7 @@ class Correct(Transform, CliPlugin):
                 yield item.wrap(annotations=updated_anns)
 
 
-class AstypeAnnotation(ItemTransform):
+class AstypeAnnotations(ItemTransform):
     """ """
 
     @staticmethod
@@ -1479,7 +1479,9 @@ class AstypeAnnotation(ItemTransform):
     ):
         super().__init__(extractor)
 
-        assert isinstance(mapping, (dict, list))
+        # Turn off for default setting
+        # assert isinstance(mapping, (dict, list))
+
         if isinstance(mapping, list):
             mapping = dict(mapping)
 
@@ -1498,17 +1500,20 @@ class AstypeAnnotation(ItemTransform):
                 dst_labels = src_cat.labels
                 for dst_label in dst_labels:
                     dst_index = dst_label_cat.add(dst_label, parent=dst_parent, attributes={})
+                    self._id_mapping[dst_label] = dst_index
                 dst_label_cat.add_label_group(src_cat.name, src_cat.labels, group_type=0)
-            self._id_mapping[dst_parent] = dst_index
             self._tabular_cat_types[src_cat.name] = src_cat.dtype
         self._categories[AnnotationType.label] = dst_label_cat
 
-    def transform_item(self, item):
+    def categories(self):
+        return self._categories
+
+    def transform_item(self, item: DatasetItem):
         annotations = []
         for name, value in item.annotations[0].values.items():
             dtype = self._tabular_cat_types[name]
             if dtype == CategoricalDtype():
-                annotations.append(Label(label=self._id_mapping[name]))
+                annotations.append(Label(label=self._id_mapping[value]))
             else:
                 annotations.append(Caption(value))
 

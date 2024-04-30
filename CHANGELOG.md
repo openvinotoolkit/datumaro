@@ -13,7 +13,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   (<https://github.com/openvinotoolkit/datumaro/pull/1459>)
 - Add DOTA data format for oriented object detection task
   (<https://github.com/openvinotoolkit/datumaro/pull/1475>)
-- Add AstypeTransform
+- Add AstypeAnnotation Transform
   (<https://github.com/openvinotoolkit/datumaro/pull/1484>)
 
 ### Enhancements

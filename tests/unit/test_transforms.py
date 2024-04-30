@@ -23,6 +23,8 @@ from datumaro.components.annotation import (
     Polygon,
     PolyLine,
     RleMask,
+    Tabular,
+    TabularCategories,
 )
 from datumaro.components.dataset import Dataset
 from datumaro.components.dataset_base import DatasetItem
@@ -1214,3 +1216,73 @@ class ReindexAnnotationsTest:
         assert n_anns == len(
             {(item.id, ann.id) for item in fxt_dataset for ann in item.annotations}
         )
+
+
+from pandas.api.types import CategoricalDtype
+
+
+class AstypeAnnotationsTest(TestCase):
+    def setUp(self):
+        self.table = Table.from_list(
+            [{"nswprice": 0.076108, "class": "DOWN"}, {"nswprice": 0.060376, "class": "UP"}]
+        )
+        self.dataset = Dataset.from_iterable(
+            [
+                DatasetItem(
+                    id="0",
+                    subset="train",
+                    media=TableRow(table=self.table, index=0),
+                    annotations=[Tabular(values={"class": "DOWN"})],
+                ),
+                DatasetItem(
+                    id="1",
+                    subset="train",
+                    media=TableRow(table=self.table, index=1),
+                    annotations=[Tabular(values={"class": "UP"})],
+                ),
+            ],
+            categories={
+                AnnotationType.tabular: TabularCategories.from_iterable(
+                    [("class", CategoricalDtype(), {"DOWN", "UP"})]
+                )
+            },
+            media_type=TableRow,
+        )
+
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
+    def test_transform_annotation_type(self):
+        table = self.table
+        expected = Dataset.from_iterable(
+            [
+                DatasetItem(
+                    id="0",
+                    subset="train",
+                    media=TableRow(table=table, index=0),
+                    annotations=[Label(label=0)],
+                ),
+                DatasetItem(
+                    id="1",
+                    subset="train",
+                    media=TableRow(table=table, index=1),
+                    annotations=[Label(label=1)],
+                ),
+            ],
+            categories={
+                AnnotationType.label: LabelCategories.from_iterable(
+                    [("DOWN", "class"), ("UP", "class")]
+                )
+            },
+            media_type=TableRow,
+        )
+
+        dataset = self.dataset
+        result = transforms.AstypeAnnotations(dataset)
+
+        categories = result._categories.get(AnnotationType.label, None)
+        assert categories
+
+        # Check label_groups of categories
+        assert categories.label_groups[0].name == "class"
+        assert sorted(categories.label_groups[0].labels) == ["DOWN", "UP"]
+
+        compare_datasets(self, expected, result)
