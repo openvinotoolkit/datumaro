@@ -22,6 +22,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Add ExtractedMask and update importers who can use it to use it
   (<https://github.com/openvinotoolkit/datumaro/pull/1480>)
 
+### Bug fixes
+- Split the video directory into subsets to avoid overwriting
+  (<https://github.com/openvinotoolkit/datumaro/pull/1485>)
+
 ## May 2024 Release 1.6.1
 ### Enhancements
 - Prevent AcLauncher for OpenVINO 2024.0
