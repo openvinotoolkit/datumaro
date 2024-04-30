@@ -367,7 +367,6 @@ document.write(`
 <span class="kn">from</span> <span class="nn">datumaro.components.errors</span> <span class="kn">import</span> <span class="n">InvalidAnnotationError</span><span class="p">,</span> <span class="n">InvalidFieldError</span><span class="p">,</span> <span class="n">MissingFieldError</span>
 <span class="kn">from</span> <span class="nn">datumaro.components.importer</span> <span class="kn">import</span> <span class="n">ImportContext</span>
 <span class="kn">from</span> <span class="nn">datumaro.components.media</span> <span class="kn">import</span> <span class="n">Image</span><span class="p">,</span> <span class="n">ImageFromFile</span>
-<span class="kn">from</span> <span class="nn">datumaro.components.task</span> <span class="kn">import</span> <span class="n">TaskAnnotationMapping</span><span class="p">,</span> <span class="n">TaskType</span>
 <span class="kn">from</span> <span class="nn">datumaro.plugins.data_formats.coco.base</span> <span class="kn">import</span> <span class="n">CocoInstancesBase</span>
 <span class="kn">from</span> <span class="nn">datumaro.plugins.data_formats.coco.format</span> <span class="kn">import</span> <span class="n">CocoTask</span>
 <span class="kn">from</span> <span class="nn">datumaro.plugins.data_formats.coco.page_mapper</span> <span class="kn">import</span> <span class="n">COCOPageMapper</span>
@@ -400,7 +399,6 @@ document.write(`
         <span class="bp">self</span><span class="o">.</span><span class="n">_label_cat</span> <span class="o">=</span> <span class="n">LabelCategories</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_items</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_load_items</span><span class="p">(</span><span class="n">ann_file</span><span class="p">,</span> <span class="n">columns</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_categories</span> <span class="o">=</span> <span class="p">{</span><span class="n">AnnotationType</span><span class="o">.</span><span class="n">label</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_label_cat</span><span class="p">}</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_task_type</span> <span class="o">=</span> <span class="n">TaskAnnotationMapping</span><span class="p">()</span><span class="o">.</span><span class="n">get_task</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_ann_types</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">_get_media_path</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">media_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
         <span class="n">media_path</span> <span class="o">=</span> <span class="n">osp</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_path</span><span class="p">,</span> <span class="n">media_name</span><span class="p">)</span>
@@ -617,7 +615,6 @@ document.write(`
         <span class="bp">self</span><span class="o">.</span><span class="n">_label_ids</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_categories</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_load_categories</span><span class="p">(</span><span class="n">labelmap_file</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_items</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_load_items</span><span class="p">()</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_task_type</span> <span class="o">=</span> <span class="n">TaskAnnotationMapping</span><span class="p">()</span><span class="o">.</span><span class="n">get_task</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_ann_types</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">_load_categories</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">label_map_file</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]):</span>
         <span class="n">label_map</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
@@ -735,7 +732,6 @@ document.write(`
                 <span class="p">)</span>
             <span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_categories</span> <span class="o">=</span> <span class="p">{</span><span class="n">AnnotationType</span><span class="o">.</span><span class="n">label</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_label_cat</span><span class="p">}</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_task_type</span> <span class="o">=</span> <span class="n">TaskAnnotationMapping</span><span class="p">()</span><span class="o">.</span><span class="n">get_task</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_ann_types</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">_parse_annotations</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">img_file</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">ann_file</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
         <span class="n">root_elem</span> <span class="o">=</span> <span class="n">ElementTree</span><span class="o">.</span><span class="n">parse</span><span class="p">(</span><span class="n">ann_file</span><span class="p">)</span><span class="o">.</span><span class="n">getroot</span><span class="p">()</span>
@@ -880,7 +876,6 @@ document.write(`
             <span class="p">)</span>
 
             <span class="bp">self</span><span class="o">.</span><span class="n">_items</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_load_items</span><span class="p">(</span><span class="n">json_data</span><span class="p">)</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_task_type</span> <span class="o">=</span> <span class="n">TaskAnnotationMapping</span><span class="p">()</span><span class="o">.</span><span class="n">get_task</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_ann_types</span><span class="p">)</span>
 
             <span class="k">del</span> <span class="n">json_data</span>
         <span class="k">else</span><span class="p">:</span>
@@ -893,8 +888,7 @@ document.write(`
                 <span class="n">keep_original_ids</span><span class="o">=</span><span class="n">keep_original_category_ids</span><span class="p">,</span>
             <span class="p">)</span>
 
-            <span class="bp">self</span><span class="o">.</span><span class="n">_length</span> <span class="o">=</span> <span class="kc">None</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_task_type</span> <span class="o">=</span> <span class="n">TaskType</span><span class="o">.</span><span class="n">segmentation_instance</span></div>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_length</span> <span class="o">=</span> <span class="kc">None</span></div>
 
 </pre></div>
 

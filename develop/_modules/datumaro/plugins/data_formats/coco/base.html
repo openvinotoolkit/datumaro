@@ -376,7 +376,6 @@ document.write(`
 <span class="p">)</span>
 <span class="kn">from</span> <span class="nn">datumaro.components.importer</span> <span class="kn">import</span> <span class="n">ImportContext</span>
 <span class="kn">from</span> <span class="nn">datumaro.components.media</span> <span class="kn">import</span> <span class="n">Image</span>
-<span class="kn">from</span> <span class="nn">datumaro.components.task</span> <span class="kn">import</span> <span class="n">TaskAnnotationMapping</span><span class="p">,</span> <span class="n">TaskType</span>
 <span class="kn">from</span> <span class="nn">datumaro.util</span> <span class="kn">import</span> <span class="n">NOTSET</span><span class="p">,</span> <span class="n">parse_json_file</span><span class="p">,</span> <span class="n">take_by</span>
 <span class="kn">from</span> <span class="nn">datumaro.util.image</span> <span class="kn">import</span> <span class="n">lazy_image</span><span class="p">,</span> <span class="n">load_image</span>
 <span class="kn">from</span> <span class="nn">datumaro.util.mask_tools</span> <span class="kn">import</span> <span class="n">bgr2index</span>
@@ -538,7 +537,6 @@ document.write(`
             <span class="p">)</span>
 
             <span class="bp">self</span><span class="o">.</span><span class="n">_items</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_load_items</span><span class="p">(</span><span class="n">json_data</span><span class="p">)</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_task_type</span> <span class="o">=</span> <span class="n">TaskAnnotationMapping</span><span class="p">()</span><span class="o">.</span><span class="n">get_task</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_ann_types</span><span class="p">)</span>
 
             <span class="k">del</span> <span class="n">json_data</span>
         <span class="k">else</span><span class="p">:</span>
@@ -552,19 +550,6 @@ document.write(`
             <span class="p">)</span>
 
             <span class="bp">self</span><span class="o">.</span><span class="n">_length</span> <span class="o">=</span> <span class="kc">None</span>
-
-            <span class="k">if</span> <span class="n">task</span> <span class="o">==</span> <span class="n">CocoTask</span><span class="o">.</span><span class="n">captions</span><span class="p">:</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">_task_type</span> <span class="o">=</span> <span class="n">TaskType</span><span class="o">.</span><span class="n">caption</span>
-            <span class="k">elif</span> <span class="n">task</span> <span class="o">==</span> <span class="n">CocoTask</span><span class="o">.</span><span class="n">instances</span><span class="p">:</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">_task_type</span> <span class="o">=</span> <span class="n">TaskType</span><span class="o">.</span><span class="n">segmentation_instance</span>
-            <span class="k">elif</span> <span class="n">task</span> <span class="o">==</span> <span class="n">CocoTask</span><span class="o">.</span><span class="n">labels</span><span class="p">:</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">_task_type</span> <span class="o">=</span> <span class="n">TaskType</span><span class="o">.</span><span class="n">classification</span>
-            <span class="k">elif</span> <span class="n">task</span> <span class="o">==</span> <span class="n">CocoTask</span><span class="o">.</span><span class="n">person_keypoints</span><span class="p">:</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">_task_type</span> <span class="o">=</span> <span class="n">TaskType</span><span class="o">.</span><span class="n">detection_landmark</span>
-            <span class="k">elif</span> <span class="n">task</span> <span class="o">==</span> <span class="n">CocoTask</span><span class="o">.</span><span class="n">panoptic</span> <span class="ow">or</span> <span class="n">task</span> <span class="o">==</span> <span class="n">CocoTask</span><span class="o">.</span><span class="n">stuff</span><span class="p">:</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">_task_type</span> <span class="o">=</span> <span class="n">TaskType</span><span class="o">.</span><span class="n">segmentation_semantic</span>
-            <span class="k">elif</span> <span class="n">task</span> <span class="o">==</span> <span class="n">CocoTask</span><span class="o">.</span><span class="n">image_info</span><span class="p">:</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">_task_type</span> <span class="o">=</span> <span class="n">TaskType</span><span class="o">.</span><span class="n">unlabeled</span>
 
     <span class="k">def</span> <span class="fm">__len__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_stream</span><span class="p">:</span>
@@ -689,7 +674,6 @@ document.write(`
                 <span class="bp">self</span><span class="o">.</span><span class="n">_ann_types</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">ann</span><span class="o">.</span><span class="n">type</span><span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">_length</span> <span class="o">=</span> <span class="n">length</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_task_type</span> <span class="o">=</span> <span class="n">TaskAnnotationMapping</span><span class="p">()</span><span class="o">.</span><span class="n">get_task</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_ann_types</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">_parse_anns</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">img_info</span><span class="p">,</span> <span class="n">ann_info</span><span class="p">,</span> <span class="n">item</span><span class="p">):</span>
         <span class="k">try</span><span class="p">:</span>

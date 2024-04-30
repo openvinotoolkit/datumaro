@@ -346,7 +346,7 @@ document.write(`
 
 <span class="kn">import</span> <span class="nn">struct</span>
 <span class="kn">from</span> <span class="nn">dataclasses</span> <span class="kn">import</span> <span class="n">dataclass</span>
-<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">Iterator</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Type</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">Iterator</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Set</span><span class="p">,</span> <span class="n">Type</span>
 
 <span class="kn">import</span> <span class="nn">pyarrow</span> <span class="k">as</span> <span class="nn">pa</span>
 
@@ -362,7 +362,6 @@ document.write(`
 <span class="kn">from</span> <span class="nn">datumaro.components.importer</span> <span class="kn">import</span> <span class="n">ImportContext</span>
 <span class="kn">from</span> <span class="nn">datumaro.components.media</span> <span class="kn">import</span> <span class="n">Image</span><span class="p">,</span> <span class="n">MediaElement</span><span class="p">,</span> <span class="n">MediaType</span>
 <span class="kn">from</span> <span class="nn">datumaro.components.merge.extractor_merger</span> <span class="kn">import</span> <span class="n">check_identicalness</span>
-<span class="kn">from</span> <span class="nn">datumaro.components.task</span> <span class="kn">import</span> <span class="n">TaskAnnotationMapping</span><span class="p">,</span> <span class="n">TaskType</span>
 <span class="kn">from</span> <span class="nn">datumaro.plugins.data_formats.arrow.format</span> <span class="kn">import</span> <span class="n">DatumaroArrow</span>
 <span class="kn">from</span> <span class="nn">datumaro.plugins.data_formats.datumaro.base</span> <span class="kn">import</span> <span class="n">JsonReader</span>
 <span class="kn">from</span> <span class="nn">datumaro.plugins.data_formats.datumaro_binary.mapper.common</span> <span class="kn">import</span> <span class="n">DictMapper</span>
@@ -383,10 +382,10 @@ document.write(`
         <span class="n">categories</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="n">AnnotationType</span><span class="p">,</span> <span class="n">Categories</span><span class="p">],</span>
         <span class="n">subset</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
         <span class="n">media_type</span><span class="p">:</span> <span class="n">Type</span><span class="p">[</span><span class="n">MediaElement</span><span class="p">]</span> <span class="o">=</span> <span class="n">Image</span><span class="p">,</span>
-        <span class="n">task_type</span><span class="p">:</span> <span class="n">TaskType</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">ann_types</span><span class="p">:</span> <span class="n">Set</span><span class="p">[</span><span class="n">AnnotationType</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">):</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
-            <span class="n">length</span><span class="o">=</span><span class="nb">len</span><span class="p">(</span><span class="n">lookup</span><span class="p">),</span> <span class="n">subset</span><span class="o">=</span><span class="n">subset</span><span class="p">,</span> <span class="n">media_type</span><span class="o">=</span><span class="n">media_type</span><span class="p">,</span> <span class="n">task_type</span><span class="o">=</span><span class="n">task_type</span><span class="p">,</span> <span class="n">ctx</span><span class="o">=</span><span class="kc">None</span>
+            <span class="n">length</span><span class="o">=</span><span class="nb">len</span><span class="p">(</span><span class="n">lookup</span><span class="p">),</span> <span class="n">subset</span><span class="o">=</span><span class="n">subset</span><span class="p">,</span> <span class="n">media_type</span><span class="o">=</span><span class="n">media_type</span><span class="p">,</span> <span class="n">ann_types</span><span class="o">=</span><span class="n">ann_types</span><span class="p">,</span> <span class="n">ctx</span><span class="o">=</span><span class="kc">None</span>
         <span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">_lookup</span> <span class="o">=</span> <span class="n">lookup</span>
@@ -503,7 +502,7 @@ document.write(`
                             <span class="n">ann_types</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">ann</span><span class="o">.</span><span class="n">type</span><span class="p">)</span>
                         <span class="n">pbar</span><span class="o">.</span><span class="n">report_status</span><span class="p">(</span><span class="n">cnt</span><span class="p">)</span>
                         <span class="n">cnt</span> <span class="o">+=</span> <span class="mi">1</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_task_type</span> <span class="o">=</span> <span class="n">TaskAnnotationMapping</span><span class="p">()</span><span class="o">.</span><span class="n">get_task</span><span class="p">(</span><span class="n">ann_types</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_ann_types</span> <span class="o">=</span> <span class="n">ann_types</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">_subsets</span> <span class="o">=</span> <span class="p">{</span>
             <span class="n">subset</span><span class="p">:</span> <span class="n">ArrowSubsetBase</span><span class="p">(</span>
@@ -512,7 +511,7 @@ document.write(`
                 <span class="n">categories</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_categories</span><span class="p">,</span>
                 <span class="n">subset</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_subsets</span><span class="p">,</span>
                 <span class="n">media_type</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_media_type</span><span class="p">,</span>
-                <span class="n">task_type</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_task_type</span><span class="p">,</span>
+                <span class="n">ann_types</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_ann_types</span><span class="p">,</span>
             <span class="p">)</span>
             <span class="k">for</span> <span class="n">subset</span><span class="p">,</span> <span class="n">lookup</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_lookup</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
         <span class="p">}</span>

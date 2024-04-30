@@ -346,12 +346,11 @@ document.write(`
 
 <span class="kn">from</span> <span class="nn">copy</span> <span class="kn">import</span> <span class="n">copy</span>
 <span class="kn">from</span> <span class="nn">enum</span> <span class="kn">import</span> <span class="n">Enum</span><span class="p">,</span> <span class="n">auto</span>
-<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Iterator</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">,</span> <span class="n">Type</span><span class="p">,</span> <span class="n">Union</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Iterator</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Set</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">,</span> <span class="n">Type</span><span class="p">,</span> <span class="n">Union</span>
 
 <span class="kn">from</span> <span class="nn">datumaro.components.annotation</span> <span class="kn">import</span> <span class="n">AnnotationType</span>
 <span class="kn">from</span> <span class="nn">datumaro.components.dataset_base</span> <span class="kn">import</span> <span class="n">CategoriesInfo</span><span class="p">,</span> <span class="n">DatasetInfo</span><span class="p">,</span> <span class="n">DatasetItem</span><span class="p">,</span> <span class="n">IDataset</span>
 <span class="kn">from</span> <span class="nn">datumaro.components.media</span> <span class="kn">import</span> <span class="n">MediaElement</span>
-<span class="kn">from</span> <span class="nn">datumaro.components.task</span> <span class="kn">import</span> <span class="n">TaskType</span>
 <span class="kn">from</span> <span class="nn">datumaro.util.definitions</span> <span class="kn">import</span> <span class="n">DEFAULT_SUBSET_NAME</span>
 
 <span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;ItemStatus&quot;</span><span class="p">,</span> <span class="s2">&quot;DatasetItemStorage&quot;</span><span class="p">,</span> <span class="s2">&quot;DatasetItemStorageDatasetView&quot;</span><span class="p">]</span>
@@ -573,10 +572,10 @@ document.write(`
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">media_type</span><span class="p">()</span></div>
 
 
-<div class="viewcode-block" id="DatasetItemStorageDatasetView.Subset.task_type">
-<a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.components.merge.intersect_merge.html#datumaro.components.abstracts.merger.DatasetItemStorageDatasetView.Subset.task_type">[docs]</a>
-        <span class="k">def</span> <span class="nf">task_type</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">task_type</span><span class="p">()</span></div>
+<div class="viewcode-block" id="DatasetItemStorageDatasetView.Subset.ann_types">
+<a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.components.merge.intersect_merge.html#datumaro.components.abstracts.merger.DatasetItemStorageDatasetView.Subset.ann_types">[docs]</a>
+        <span class="k">def</span> <span class="nf">ann_types</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">ann_types</span><span class="p">()</span></div>
 </div>
 
 
@@ -586,13 +585,13 @@ document.write(`
         <span class="n">infos</span><span class="p">:</span> <span class="n">DatasetInfo</span><span class="p">,</span>
         <span class="n">categories</span><span class="p">:</span> <span class="n">CategoriesInfo</span><span class="p">,</span>
         <span class="n">media_type</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Type</span><span class="p">[</span><span class="n">MediaElement</span><span class="p">]],</span>
-        <span class="n">task_type</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">TaskType</span><span class="p">],</span>
+        <span class="n">ann_types</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Set</span><span class="p">[</span><span class="n">AnnotationType</span><span class="p">]],</span>
     <span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_parent</span> <span class="o">=</span> <span class="n">parent</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_infos</span> <span class="o">=</span> <span class="n">infos</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_categories</span> <span class="o">=</span> <span class="n">categories</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_media_type</span> <span class="o">=</span> <span class="n">media_type</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_task_type</span> <span class="o">=</span> <span class="n">task_type</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_ann_types</span> <span class="o">=</span> <span class="n">ann_types</span>
 
     <span class="k">def</span> <span class="fm">__iter__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">yield from</span> <span class="bp">self</span><span class="o">.</span><span class="n">_parent</span>
@@ -639,10 +638,10 @@ document.write(`
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_media_type</span></div>
 
 
-<div class="viewcode-block" id="DatasetItemStorageDatasetView.task_type">
-<a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.components.merge.intersect_merge.html#datumaro.components.abstracts.merger.DatasetItemStorageDatasetView.task_type">[docs]</a>
-    <span class="k">def</span> <span class="nf">task_type</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_task_type</span></div>
+<div class="viewcode-block" id="DatasetItemStorageDatasetView.ann_types">
+<a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.components.merge.intersect_merge.html#datumaro.components.abstracts.merger.DatasetItemStorageDatasetView.ann_types">[docs]</a>
+    <span class="k">def</span> <span class="nf">ann_types</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_ann_types</span></div>
 </div>
 
 </pre></div>
