@@ -16,7 +16,6 @@ from datumaro.components.exporter import Exporter
 from datumaro.components.format_detection import FormatDetectionConfidence, FormatDetectionContext
 from datumaro.components.importer import ImportContext, Importer, with_subset_dirs
 from datumaro.components.media import Image
-from datumaro.components.task import TaskType
 from datumaro.util.definitions import SUBSET_NAME_BLACKLIST
 from datumaro.util.image import IMAGE_EXTENSIONS, find_images
 
@@ -60,7 +59,6 @@ class ImagenetBase(SubsetBase):
 
         # Images should be in root/label_dir/*.img and root/*.img is not allowed.
         # => max_depth=1, min_depth=1
-        max_num_annotations = 0
         for image_path in find_images(path, recursive=True, max_depth=1, min_depth=1):
             label = osp.basename(osp.dirname(image_path))
             image_name = osp.splitext(osp.basename(image_path))[0]
@@ -81,17 +79,11 @@ class ImagenetBase(SubsetBase):
                 try:
                     label = self._categories[AnnotationType.label].find(label)[0]
                     annotations.append(Label(label=label))
+                    self._ann_types.add(AnnotationType.label)
                 except Exception as e:
                     self._ctx.error_policy.report_annotation_error(
                         e, item_id=(item_id, self._subset)
                     )
-            max_num_annotations = max(max_num_annotations, len(annotations))
-        if max_num_annotations == 0:
-            self._task_type = TaskType.unlabeled
-        elif max_num_annotations > 1:
-            self._task_type = TaskType.classification_multilabel
-        else:
-            self._task_type = TaskType.classification
 
         return items
 

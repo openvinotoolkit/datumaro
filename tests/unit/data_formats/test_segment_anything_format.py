@@ -9,17 +9,14 @@ import pytest
 from datumaro.components.annotation import Bbox, RleMask
 from datumaro.components.dataset import Dataset, DatasetItem
 from datumaro.components.media import Image
-from datumaro.components.task import TaskType
 from datumaro.plugins.data_formats.segment_anything import (
     SegmentAnythingExporter,
     SegmentAnythingImporter,
 )
 
-from ...requirements import Requirements, mark_requirement
 from .base import TestDataFormatBase
 
 from tests.utils.assets import get_test_asset_path
-from tests.utils.test_utils import compare_datasets
 
 DATASET_DIR = get_test_asset_path("segment_anything_dataset")
 
@@ -102,7 +99,6 @@ class SegmentAnythingTest(TestDataFormatBase):
                     attributes={"id": 2},
                 ),
             ],
-            task_type=TaskType.segmentation_instance,
         )
 
         return expected_dataset

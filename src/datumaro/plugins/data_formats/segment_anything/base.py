@@ -17,7 +17,6 @@ from datumaro.components.errors import (
 )
 from datumaro.components.importer import ImportContext
 from datumaro.components.media import Image
-from datumaro.components.task import TaskAnnotationMapping
 from datumaro.util import NOTSET, parse_json_file
 
 T = TypeVar("T")
@@ -56,7 +55,6 @@ class SegmentAnythingBase(SubsetBase):
 
         super().__init__(subset=subset, ctx=ctx)
         self._items = self._load_items()
-        self._task_type = TaskAnnotationMapping().get_task(self._ann_types)
 
     def _load_items(self):
         pbar = self._ctx.progress_reporter

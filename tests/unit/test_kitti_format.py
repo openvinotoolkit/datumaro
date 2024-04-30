@@ -10,7 +10,6 @@ from datumaro.components.dataset import Dataset
 from datumaro.components.dataset_base import DatasetBase, DatasetItem
 from datumaro.components.environment import Environment
 from datumaro.components.media import Image
-from datumaro.components.task import TaskType
 from datumaro.plugins.data_formats.kitti.exporter import KittiExporter
 from datumaro.plugins.data_formats.kitti.format import (
     KittiLabelMap,
@@ -120,7 +119,6 @@ class KittiImportTest(TestCase):
                 ),
             ],
             categories=make_kitti_categories(),
-            task_type=TaskType.segmentation_semantic,
         )
 
         parsed_dataset = Dataset.import_from(
@@ -194,7 +192,6 @@ class KittiImportTest(TestCase):
                 ),
             ],
             categories=["Truck", "Van"],
-            task_type=TaskType.detection,
         )
 
         parsed_dataset = Dataset.import_from(
@@ -364,7 +361,6 @@ class KittiExporterTest(TestCase):
                 ),
             ],
             categories=["label_0", "label_1"],
-            task_type=TaskType.detection,
         )
 
         with TestDir() as test_dir:

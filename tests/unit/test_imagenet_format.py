@@ -10,7 +10,6 @@ from datumaro.components.dataset import Dataset
 from datumaro.components.dataset_base import DatasetItem
 from datumaro.components.environment import Environment
 from datumaro.components.media import Image
-from datumaro.components.task import TaskType
 from datumaro.plugins.data_formats.imagenet import (
     ImagenetExporter,
     ImagenetImporter,
@@ -49,7 +48,6 @@ def fxt_standard():
                 "label_" + str(label) for label in range(2)
             ),
         },
-        task_type=TaskType.classification,
     )
     expected = deepcopy(source)
     return source, expected
@@ -71,7 +69,6 @@ def fxt_multiple_labels():
                 "label_" + str(label) for label in range(2)
             ),
         },
-        task_type=TaskType.classification_multilabel,
     )
 
     expected = Dataset.from_iterable(
@@ -89,7 +86,6 @@ def fxt_multiple_labels():
             DatasetItem(id="no_label:2", media=Image.from_numpy(data=np.ones((8, 8, 3)))),
         ],
         categories=["label_0", "label_1"],
-        task_type=TaskType.classification,
     )
     return source, expected
 
@@ -105,7 +101,6 @@ def fxt_cyrillic_and_spaces_in_filename():
             ),
         ],
         categories=["label_0"],
-        task_type=TaskType.classification,
     )
     expected = deepcopy(source)
     return source, expected
@@ -119,7 +114,6 @@ def fxt_arbitrary_extension():
             DatasetItem(id="no_label:b", media=Image.from_numpy(data=np.zeros((3, 4, 3)))),
         ],
         categories=[],
-        task_type=TaskType.unlabeled,
     )
     expected = deepcopy(source)
     return source, expected
@@ -210,7 +204,6 @@ class ImagenetImporterTest(TestCase):
                     "label_" + str(label) for label in range(2)
                 ),
             },
-            task_type=TaskType.classification,
         )
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)

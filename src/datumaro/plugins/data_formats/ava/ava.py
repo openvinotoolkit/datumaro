@@ -17,7 +17,6 @@ from datumaro.components.exporter import Exporter
 from datumaro.components.format_detection import FormatDetectionConfidence, FormatDetectionContext
 from datumaro.components.importer import ImportContext, Importer
 from datumaro.components.media import Image
-from datumaro.components.task import TaskAnnotationMapping
 from datumaro.util.os_util import find_files
 
 from . import ava_label_pb2
@@ -78,7 +77,6 @@ class AvaBase(SubsetBase):
         self._categories = self._load_categories(category_path)
 
         self._items = self._load_items(path)
-        self._task_type = TaskAnnotationMapping().get_task(self._ann_types)
 
     def _load_infos(self, path):
         infos = {}

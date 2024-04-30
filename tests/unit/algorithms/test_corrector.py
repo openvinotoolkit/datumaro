@@ -11,7 +11,6 @@ import datumaro.plugins.transforms as transforms
 from datumaro.components.annotation import AnnotationType, Bbox, Label, LabelCategories
 from datumaro.components.dataset import Dataset, DatasetItem
 from datumaro.components.media import Image
-from datumaro.components.task import TaskType
 from datumaro.components.validator import Validator
 from datumaro.plugins.validators import ClassificationValidator, DetectionValidator
 
@@ -54,7 +53,6 @@ def fxt_original_missing_cat_dataset():
                 ],
             ),
         ],
-        task_type=TaskType.classification,
     )
 
 
@@ -94,7 +92,6 @@ def fxt_original_missing_label_dataset():
             ),
         ],
         categories=["a", "b"],
-        task_type=TaskType.classification,
     )
 
 
@@ -146,7 +143,6 @@ def fxt_original_missing_attr_dataset():
                 ]
             ),
         },
-        task_type=TaskType.classification,
     )
 
 
@@ -204,7 +200,6 @@ def fxt_original_multi_label_dataset():
             ),
         ],
         categories=["a", "b"],
-        task_type=TaskType.classification_multilabel,
     )
 
 
@@ -242,7 +237,6 @@ def fxt_original_undefined_label_dataset():
             ),
         ],
         categories=["a", "b"],
-        task_type=TaskType.classification,
     )
 
 
@@ -287,7 +281,6 @@ def fxt_original_undefined_attr_dataset():
                 ]
             ),
         },
-        task_type=TaskType.classification,
     )
 
 
@@ -352,7 +345,6 @@ def fxt_original_neg_len_dataset():
             ),
         ],
         categories=["a", "b"],
-        task_type=TaskType.detection,
     )
 
 
@@ -399,7 +391,6 @@ def fxt_original_invalid_val_dataset():
             ),
         ],
         categories=["a", "b"],
-        task_type=TaskType.detection,
     )
 
 
@@ -455,7 +446,6 @@ def fxt_original_far_from_mean_dataset():
             ),
         ],
         categories=["a", "b"],
-        task_type=TaskType.detection,
     )
 
 
@@ -595,7 +585,6 @@ def fxt_original_far_from_mean_attr_dataset():
                 ]
             ),
         },
-        task_type=TaskType.detection,
     )
 
 
@@ -712,7 +701,6 @@ def fxt_original_cls_dataset():
                 "label_" + str(label) for label in range(4)
             ),
         },
-        task_type=TaskType.classification_multilabel,
     )
 
 
@@ -796,7 +784,6 @@ def fxt_original_det_dataset():
                 "label_" + str(label) for label in range(4)
             ),
         },
-        task_type=TaskType.detection,
     )
 
 

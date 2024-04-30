@@ -10,7 +10,6 @@ from datumaro.components.annotation import Label
 from datumaro.components.dataset import Dataset, DatasetItem
 from datumaro.components.environment import Environment
 from datumaro.components.media import Image
-from datumaro.components.task import TaskType
 from datumaro.plugins.data_formats.mars import MarsImporter
 
 from tests.requirements import Requirements, mark_requirement
@@ -58,7 +57,6 @@ class MarsImporterTest(TestCase):
                 ),
             ],
             categories=["00-1", "0000", "0001"],
-            task_type=TaskType.classification,
         )
 
         imported_dataset = Dataset.import_from(DUMMY_MARS_DATASET, "mars")

@@ -17,7 +17,6 @@ from datumaro.components.errors import InvalidAnnotationError
 from datumaro.components.format_detection import FormatDetectionContext
 from datumaro.components.importer import ImportContext, Importer
 from datumaro.components.media import Image
-from datumaro.components.task import TaskAnnotationMapping
 from datumaro.util.image import IMAGE_EXTENSIONS, find_images
 from datumaro.util.mask_tools import lazy_mask
 
@@ -63,8 +62,6 @@ class _IcdarBase(SubsetBase):
                 self._items = list(self._load_localization_items().values())
             else:
                 self._items = list(self._load_segmentation_items().values())
-
-        self._task_type = TaskAnnotationMapping().get_task(self._ann_types)
 
     def _load_recognition_items(self):
         items = {}

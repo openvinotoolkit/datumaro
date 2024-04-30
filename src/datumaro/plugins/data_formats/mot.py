@@ -21,7 +21,6 @@ from datumaro.components.exporter import Exporter
 from datumaro.components.format_detection import FormatDetectionContext
 from datumaro.components.importer import ImportContext, Importer
 from datumaro.components.media import Image
-from datumaro.components.task import TaskAnnotationMapping
 from datumaro.util import cast
 from datumaro.util.image import find_images
 from datumaro.util.meta_file_util import has_meta_file, parse_meta_file
@@ -118,7 +117,6 @@ class MotSeqBase(SubsetBase):
             raise TypeError("Unexpected type of 'labels' argument: %s" % labels)
         self._categories = self._load_categories(labels)
         self._items = list(self._load_items(path).values())
-        self._task_type = TaskAnnotationMapping().get_task(self._ann_types)
 
     @staticmethod
     def _parse_labels(path):

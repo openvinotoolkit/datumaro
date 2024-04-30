@@ -10,7 +10,6 @@ from datumaro.components.dataset import Dataset
 from datumaro.components.dataset_base import DatasetItem
 from datumaro.components.environment import Environment
 from datumaro.components.media import Image
-from datumaro.components.task import TaskType
 from datumaro.plugins.data_formats.lfw import LfwExporter, LfwImporter
 
 from ..requirements import Requirements, mark_requirement
@@ -66,7 +65,6 @@ class LfwFormatTest(TestCase):
                 ),
             ],
             categories=["name0", "name1"],
-            task_type=TaskType.classification,
         )
 
         with TestDir() as test_dir:
@@ -107,7 +105,6 @@ class LfwFormatTest(TestCase):
                 ),
             ],
             categories=["name0", "name1"],
-            task_type=TaskType.classification,
         )
 
         with TestDir() as test_dir:
@@ -140,7 +137,6 @@ class LfwFormatTest(TestCase):
                 ),
             ],
             categories=["name0"],
-            task_type=TaskType.detection_landmark,
         )
 
         with TestDir() as test_dir:
@@ -165,7 +161,6 @@ class LfwFormatTest(TestCase):
                 ),
             ],
             categories=["name0"],
-            task_type=TaskType.classification,
         )
 
         with TestDir() as test_dir:
@@ -204,7 +199,6 @@ class LfwFormatTest(TestCase):
                 ),
             ],
             categories=["name0", "name1"],
-            task_type=TaskType.classification,
         )
 
         with TestDir() as test_dir:
@@ -227,7 +221,6 @@ class LfwFormatTest(TestCase):
                 ),
             ],
             categories=["name0"],
-            task_type=TaskType.classification,
         )
 
         with TestDir() as test_dir:
@@ -252,7 +245,6 @@ class LfwFormatTest(TestCase):
                 ),
             ],
             categories=["name0", "name1"],
-            task_type=TaskType.classification,
         )
 
         with TestDir() as test_dir:
@@ -307,7 +299,6 @@ class LfwFormatTest(TestCase):
                 ),
             ],
             categories=["name0", "name1"],
-            task_type=TaskType.classification,
         )
 
         with TestDir() as test_dir:
@@ -368,7 +359,6 @@ class LfwImporterTest(TestCase):
                 ),
             ],
             categories=["name0", "name1"],
-            task_type=TaskType.detection_landmark,
         )
 
         dataset = Dataset.import_from(DUMMY_DATASET_DIR, "lfw")
@@ -416,7 +406,6 @@ class LfwImporterTest(TestCase):
                 ),
             ],
             categories=["name0", "name1"],
-            task_type=TaskType.detection_landmark,
         )
 
         with TestDir() as test_dir:

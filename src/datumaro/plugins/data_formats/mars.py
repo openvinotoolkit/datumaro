@@ -15,7 +15,6 @@ from datumaro.components.dataset_base import DatasetBase
 from datumaro.components.format_detection import FormatDetectionContext
 from datumaro.components.importer import ImportContext, Importer
 from datumaro.components.media import Image
-from datumaro.components.task import TaskType
 from datumaro.util.image import find_images
 
 
@@ -104,7 +103,7 @@ class MarsBase(DatasetBase):
                         },
                     )
                 )
-                self._task_type = TaskType.classification
+                self._ann_types.add(AnnotationType.label)
 
         return items
 

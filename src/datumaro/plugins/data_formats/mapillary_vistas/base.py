@@ -21,7 +21,6 @@ from datumaro.components.dataset_base import DatasetItem, SubsetBase
 from datumaro.components.errors import DatasetImportError
 from datumaro.components.importer import ImportContext
 from datumaro.components.media import Image
-from datumaro.components.task import TaskAnnotationMapping
 from datumaro.util import parse_json_file
 from datumaro.util.image import find_images, lazy_image, load_image
 from datumaro.util.mask_tools import bgr2index
@@ -95,8 +94,6 @@ class _MapillaryVistasBase(SubsetBase):
                 panoptic_config["categories"], keep_original_category_ids
             )
             self._items = self._load_panoptic_items(panoptic_config)
-
-        self._task_type = TaskAnnotationMapping().get_task(self._ann_types)
 
     def _load_panoptic_config(self, path):
         panoptic_config_path = osp.join(

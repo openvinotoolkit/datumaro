@@ -12,7 +12,6 @@ from datumaro.components.exporter import Exporter
 from datumaro.components.format_detection import FormatDetectionConfidence
 from datumaro.components.importer import ImportContext, Importer
 from datumaro.components.media import Image
-from datumaro.components.task import TaskType
 from datumaro.util.image import IMAGE_EXTENSIONS, find_images
 
 
@@ -60,7 +59,7 @@ class ImageDirBase(SubsetBase):
             self._items.append(
                 DatasetItem(id=item_id, subset=self._subset, media=Image.from_file(path=path))
             )
-        self._task_type = TaskType.unlabeled
+        self._ann_types = set()
 
 
 class ImageDirExporter(Exporter):

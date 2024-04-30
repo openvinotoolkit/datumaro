@@ -21,7 +21,6 @@ from datumaro.components.exporter import Exporter
 from datumaro.components.format_detection import FormatDetectionConfidence, FormatDetectionContext
 from datumaro.components.importer import ImportContext, Importer
 from datumaro.components.media import Image
-from datumaro.components.task import TaskAnnotationMapping
 from datumaro.util.image import IMAGE_EXTENSIONS
 from datumaro.util.os_util import find_files
 
@@ -56,7 +55,6 @@ class DotaBase(SubsetBase):
         self._categories = {AnnotationType.label: self._label_categories}
 
         self._items = self._load_items(path)
-        self._task_type = TaskAnnotationMapping().get_task(self._ann_types)
 
     def _load_img_files(self, rootpath: str) -> Dict[str, str]:
         return {

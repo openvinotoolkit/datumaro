@@ -16,7 +16,6 @@ from datumaro.components.errors import MediaTypeError
 from datumaro.components.exporter import Exporter
 from datumaro.components.importer import ImportContext, Importer
 from datumaro.components.media import Image
-from datumaro.components.task import TaskType
 from datumaro.util.meta_file_util import has_meta_file, parse_meta_file
 
 
@@ -101,12 +100,12 @@ class MnistBase(SubsetBase):
                     images = images.reshape(len(labels), MnistPath.IMAGE_SIZE, MnistPath.IMAGE_SIZE)
 
         pix_num = 0
-        max_num_annotations = 0
         for i, annotation in enumerate(labels):
             annotations = []
             label = annotation
             if label != MnistPath.NONE_LABEL:
                 annotations.append(Label(label))
+                self._ann_types.add(AnnotationType.label)
 
             image = None
             if images is not None:
@@ -124,14 +123,6 @@ class MnistBase(SubsetBase):
                 i = meta[i][0]
 
             items[i] = DatasetItem(id=i, subset=self._subset, media=image, annotations=annotations)
-            max_num_annotations = max(max_num_annotations, len(annotations))
-
-        if max_num_annotations == 0:
-            self._task_type = TaskType.unlabeled
-        elif max_num_annotations > 1:
-            self._task_type = TaskType.classification_multilabel
-        else:
-            self._task_type = TaskType.classification
 
         return items
 

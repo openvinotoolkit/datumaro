@@ -9,7 +9,6 @@ from datumaro.components.dataset import Dataset
 from datumaro.components.dataset_base import DatasetItem
 from datumaro.components.environment import Environment
 from datumaro.components.media import Image
-from datumaro.components.task import TaskType
 from datumaro.plugins.data_formats.widerface import WiderFaceExporter, WiderFaceImporter
 
 from ..requirements import Requirements, mark_requirement
@@ -143,7 +142,6 @@ class WiderFaceFormatTest(TestCase):
                 DatasetItem(id="4", subset="val", media=Image.from_numpy(data=np.ones((8, 8, 3)))),
             ],
             categories=["face", "label_0", "label_1"],
-            task_type=TaskType.detection,
         )
 
         with TestDir() as test_dir:
@@ -182,7 +180,6 @@ class WiderFaceFormatTest(TestCase):
                 )
             ],
             categories=["face", "label_0"],
-            task_type=TaskType.detection,
         )
 
         with TestDir() as test_dir:
@@ -219,7 +216,6 @@ class WiderFaceFormatTest(TestCase):
                 ),
             ],
             categories=["face", "label_0", "label_1"],
-            task_type=TaskType.detection,
         )
 
         with TestDir() as test_dir:
@@ -257,7 +253,6 @@ class WiderFaceFormatTest(TestCase):
                 ),
             ],
             categories=["face", "label_0", "label_1"],
-            task_type=TaskType.detection,
         )
 
         with TestDir() as test_dir:
@@ -296,7 +291,6 @@ class WiderFaceFormatTest(TestCase):
                 ),
             ],
             categories=["face"],
-            task_type=TaskType.detection,
         )
 
         with TestDir() as test_dir:
@@ -327,7 +321,6 @@ class WiderFaceFormatTest(TestCase):
                 ),
             ],
             categories=["face"],
-            task_type=TaskType.detection,
         )
 
         target_dataset = Dataset.from_iterable(
@@ -343,7 +336,6 @@ class WiderFaceFormatTest(TestCase):
                 ),
             ],
             categories=["face"],
-            task_type=TaskType.detection,
         )
 
         with TestDir() as test_dir:
@@ -362,7 +354,6 @@ class WiderFaceFormatTest(TestCase):
                 ),
             ],
             categories=[],
-            task_type=TaskType.unlabeled,
         )
 
         with TestDir() as test_dir:
@@ -379,7 +370,6 @@ class WiderFaceFormatTest(TestCase):
                 DatasetItem(2, subset="train", media=Image.from_numpy(data=np.ones((3, 2, 3)))),
             ],
             categories=[],
-            task_type=TaskType.unlabeled,
         )
 
         with TestDir() as path:
@@ -392,7 +382,6 @@ class WiderFaceFormatTest(TestCase):
                     DatasetItem(3, subset="valid", media=Image.from_numpy(data=np.ones((2, 2, 3)))),
                 ],
                 categories=[],
-                task_type=TaskType.unlabeled,
             )
             dataset.export(path, "wider_face", save_media=True)
 
@@ -541,7 +530,6 @@ class WiderFaceImporterTest(TestCase):
                 ),
             ],
             categories=["Parade", "Handshaking"],
-            task_type=TaskType.detection,
         )
 
         dataset = Dataset.import_from(DUMMY_DATASET_DIR, "wider_face")

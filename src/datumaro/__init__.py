@@ -64,7 +64,6 @@ from .components.progress_reporting import (
     TQDMProgressReporter,
 )
 from .components.registry import PluginRegistry
-from .components.task import TaskType
 from .components.transformer import ItemTransform, ModelTransform, Transform
 from .components.validator import Validator
 from .components.visualizer import Visualizer

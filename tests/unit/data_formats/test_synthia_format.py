@@ -13,7 +13,6 @@ from datumaro.components.annotation import AnnotationType, LabelCategories, Mask
 from datumaro.components.dataset import Dataset
 from datumaro.components.dataset_base import DatasetItem
 from datumaro.components.media import Image
-from datumaro.components.task import TaskType
 from datumaro.plugins.data_formats.synthia.base import make_categories
 from datumaro.plugins.data_formats.synthia.format import (
     SynthiaAlLabelMap,
@@ -75,7 +74,6 @@ def fxt_synthia_rand_dataset():
             ),
         ],
         categories=make_categories(label_map=SynthiaRandLabelMap),
-        task_type=TaskType.segmentation_semantic,
     )
 
 
@@ -115,7 +113,6 @@ def fxt_synthia_rand_custom_label_dataset():
                 }
             ),
         },
-        task_type=TaskType.segmentation_semantic,
     )
 
 
@@ -155,7 +152,6 @@ def fxt_synthia_rand_meta_file_dataset():
                 }
             ),
         },
-        task_type=TaskType.segmentation_semantic,
     )
 
 
@@ -197,7 +193,6 @@ def fxt_synthia_sf_dataset():
             ),
         ],
         categories=make_categories(label_map=SynthiaSfLabelMap),
-        task_type=TaskType.segmentation_semantic,
     )
 
 
@@ -239,7 +234,6 @@ def fxt_synthia_al_dataset():
             ),
         ],
         categories=make_categories(label_map=SynthiaAlLabelMap),
-        task_type=TaskType.segmentation_semantic,
     )
 
 
@@ -360,47 +354,3 @@ class SynthiaAlFormatTest(TestDataFormatBase):
             fxt_import_kwargs,
             request,
         )
-
-
-# class SynthiaImporterTest(TestCase):
-#     @mark_requirement(Requirements.DATUM_497)
-#     def test_can_import_with_meta_file(self):
-#         expected_dataset = Dataset.from_iterable(
-#             [
-#                 DatasetItem(
-#                     id="Stereo_Left/Omni_F/000000",
-#                     media=Image.from_numpy(data=np.ones((1, 5, 3))),
-#                     annotations=[
-#                         Mask(np.array([[1, 1, 1, 0, 0]]), label=1),
-#                         Mask(np.array([[0, 0, 0, 1, 1]]), label=4),
-#                     ],
-#                 ),
-#                 DatasetItem(
-#                     id="Stereo_Left/Omni_F/000001",
-#                     media=Image.from_numpy(data=np.ones((1, 5, 3))),
-#                     annotations=[
-#                         Mask(np.array([[1, 1, 0, 0, 0]]), label=2),
-#                         Mask(np.array([[0, 0, 1, 1, 0]]), label=3),
-#                         Mask(np.array([[0, 0, 0, 0, 1]]), label=4),
-#                     ],
-#                 ),
-#             ],
-#             categories={
-#                 AnnotationType.label: LabelCategories.from_iterable(
-#                     ["background", "sky", "building", "person", "road"]
-#                 ),
-#                 AnnotationType.mask: MaskCategories(
-#                     {
-#                         0: (0, 0, 0),
-#                         1: (0, 0, 64),
-#                         2: (0, 128, 128),
-#                         3: (128, 0, 64),
-#                         4: (0, 192, 128),
-#                     }
-#                 ),
-#             },
-#         )
-
-#         dataset = Dataset.import_from(DUMMY_DATASET_DIR_META_FILE, "synthia")
-
-#         compare_datasets(self, expected_dataset, dataset, require_media=True)

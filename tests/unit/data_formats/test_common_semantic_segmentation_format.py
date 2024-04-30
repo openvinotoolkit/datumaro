@@ -11,10 +11,7 @@ import pytest
 from datumaro.components.annotation import Mask
 from datumaro.components.dataset import Dataset
 from datumaro.components.dataset_base import DatasetItem
-from datumaro.components.exporter import Exporter
-from datumaro.components.importer import Importer
 from datumaro.components.media import Image
-from datumaro.components.task import TaskType
 from datumaro.plugins.data_formats.common_semantic_segmentation import (
     CommonSemanticSegmentationImporter,
     CommonSemanticSegmentationWithSubsetDirsImporter,
@@ -66,7 +63,6 @@ def fxt_dataset():
                 ]
             )
         ),
-        task_type=TaskType.segmentation_semantic,
     )
 
 
@@ -106,7 +102,6 @@ def fxt_non_standard_dataset():
                 ]
             )
         ),
-        task_type=TaskType.segmentation_semantic,
     )
 
 

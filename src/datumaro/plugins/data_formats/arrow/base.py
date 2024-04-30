@@ -4,7 +4,7 @@
 
 import struct
 from dataclasses import dataclass
-from typing import Any, Dict, Iterator, List, Optional, Type
+from typing import Any, Dict, Iterator, List, Optional, Set, Type
 
 import pyarrow as pa
 
@@ -20,7 +20,6 @@ from datumaro.components.dataset_base import (
 from datumaro.components.importer import ImportContext
 from datumaro.components.media import Image, MediaElement, MediaType
 from datumaro.components.merge.extractor_merger import check_identicalness
-from datumaro.components.task import TaskAnnotationMapping, TaskType
 from datumaro.plugins.data_formats.arrow.format import DatumaroArrow
 from datumaro.plugins.data_formats.datumaro.base import JsonReader
 from datumaro.plugins.data_formats.datumaro_binary.mapper.common import DictMapper
@@ -39,10 +38,10 @@ class ArrowSubsetBase(SubsetBase):
         categories: Dict[AnnotationType, Categories],
         subset: str,
         media_type: Type[MediaElement] = Image,
-        task_type: TaskType = None,
+        ann_types: Set[AnnotationType] = None,
     ):
         super().__init__(
-            length=len(lookup), subset=subset, media_type=media_type, task_type=task_type, ctx=None
+            length=len(lookup), subset=subset, media_type=media_type, ann_types=ann_types, ctx=None
         )
 
         self._lookup = lookup
@@ -144,7 +143,7 @@ class ArrowBase(DatasetBase):
                             ann_types.add(ann.type)
                         pbar.report_status(cnt)
                         cnt += 1
-        self._task_type = TaskAnnotationMapping().get_task(ann_types)
+        self._ann_types = ann_types
 
         self._subsets = {
             subset: ArrowSubsetBase(
@@ -153,7 +152,7 @@ class ArrowBase(DatasetBase):
                 categories=self._categories,
                 subset=self._subsets,
                 media_type=self._media_type,
-                task_type=self._task_type,
+                ann_types=self._ann_types,
             )
             for subset, lookup in self._lookup.items()
         }

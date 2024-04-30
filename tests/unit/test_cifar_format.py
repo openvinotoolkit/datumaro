@@ -16,7 +16,6 @@ from datumaro.components.dataset_base import DatasetItem
 from datumaro.components.environment import Environment
 from datumaro.components.errors import DatasetImportError
 from datumaro.components.media import Image
-from datumaro.components.task import TaskType
 from datumaro.plugins.data_formats.cifar import CifarExporter, CifarImporter
 
 from ..requirements import Requirements, mark_requirement
@@ -50,7 +49,6 @@ class CifarFormatTest(TestCase):
                 ),
             ],
             categories=["label_0", "label_1"],
-            task_type=TaskType.classification,
         )
 
         with TestDir() as test_dir:
@@ -67,7 +65,6 @@ class CifarFormatTest(TestCase):
                 DatasetItem(id="b", subset="train_first", annotations=[Label(1)]),
             ],
             categories=["x", "y"],
-            task_type=TaskType.classification,
         )
 
         with TestDir() as test_dir:
@@ -92,7 +89,6 @@ class CifarFormatTest(TestCase):
                 ),
             ],
             categories=["dog", "cat"],
-            task_type=TaskType.classification,
         )
 
         with TestDir() as test_dir:
@@ -112,7 +108,6 @@ class CifarFormatTest(TestCase):
                 ),
             ],
             categories=["label_0"],
-            task_type=TaskType.classification,
         )
 
         with TestDir() as test_dir:
@@ -133,7 +128,6 @@ class CifarFormatTest(TestCase):
                 ),
             ],
             categories=[],
-            task_type=TaskType.unlabeled,
         )
 
         with TestDir() as test_dir:
@@ -147,7 +141,6 @@ class CifarFormatTest(TestCase):
         dataset = Dataset.from_iterable(
             [DatasetItem(id="a", annotations=[Label(0)]), DatasetItem(id="b")],
             categories=["label_0"],
-            task_type=TaskType.classification,
         )
 
         with TestDir() as test_dir:
@@ -180,7 +173,6 @@ class CifarFormatTest(TestCase):
                 ),
             ],
             categories=["a", "b", "c", "d"],
-            task_type=TaskType.classification,
         )
 
         dataset = Dataset.from_iterable(
@@ -205,7 +197,6 @@ class CifarFormatTest(TestCase):
                 ),
             ],
             categories=["a", "b", "c", "d"],
-            task_type=TaskType.classification,
         )
 
         with TestDir() as path:
@@ -246,7 +237,6 @@ class CifarFormatTest(TestCase):
                 ),
             ],
             categories=[["class_0", "superclass_0"], ["class_1", "superclass_0"]],
-            task_type=TaskType.classification,
         )
 
         with TestDir() as test_dir:
@@ -263,7 +253,6 @@ class CifarFormatTest(TestCase):
                 DatasetItem(id="b", subset="train_1", annotations=[Label(1)]),
             ],
             categories=[["class_0", "superclass_0"], ["class_1", "superclass_0"]],
-            task_type=TaskType.classification,
         )
 
         with TestDir() as test_dir:
@@ -311,7 +300,6 @@ class CifarFormatTest(TestCase):
                 ),
             ],
             categories=["label_0", "label_1"],
-            task_type=TaskType.classification,
         )
 
         with TestDir() as test_dir:
@@ -361,7 +349,6 @@ class CifarImporterTest(TestCase):
                 ),
             ],
             categories=["airplane", "automobile", "bird", "cat"],
-            task_type=TaskType.classification,
         )
 
         dataset = Dataset.import_from(DUMMY_10_DATASET_DIR, "cifar")
@@ -424,7 +411,6 @@ class CifarImporterTest(TestCase):
                 ["automobile", "ground_object"],
                 ["bird", "air_object"],
             ],
-            task_type=TaskType.classification,
         )
 
         dataset = Dataset.import_from(DUMMY_100_DATASET_DIR, "cifar")

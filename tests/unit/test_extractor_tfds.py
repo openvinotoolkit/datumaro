@@ -9,7 +9,6 @@ from datumaro.components.dataset_base import DatasetItem
 from datumaro.components.environment import Environment
 from datumaro.components.extractor_tfds import AVAILABLE_TFDS_DATASETS, TFDS_EXTRACTOR_AVAILABLE
 from datumaro.components.media import Image, MediaElement
-from datumaro.components.task import TaskType
 from datumaro.util.image import decode_image, encode_image
 
 from tests.requirements import Requirements, mark_requirement
@@ -103,7 +102,6 @@ class TfdsExtractorTest(TestCase):
                     ),
                 ],
                 categories=tfds_info.features["label"].names,
-                task_type=TaskType.classification,
             )
 
             extractor = AVAILABLE_TFDS_DATASETS["mnist"].make_extractor()
@@ -126,7 +124,6 @@ class TfdsExtractorTest(TestCase):
                     ),
                 ],
                 categories=tfds_info.features["label"].names,
-                task_type=TaskType.classification,
             )
 
             extractor = AVAILABLE_TFDS_DATASETS[name].make_extractor()
@@ -171,7 +168,6 @@ class TfdsExtractorTest(TestCase):
                     ),
                 ],
                 categories=tfds_info.features["objects"].feature["label"].names,
-                task_type=TaskType.detection,
             )
 
             extractor = AVAILABLE_TFDS_DATASETS["coco/2014"].make_extractor()
@@ -210,7 +206,6 @@ class TfdsExtractorTest(TestCase):
                     ),
                 ],
                 categories=tfds_info.features["label"].names,
-                task_type=TaskType.classification,
             )
 
             extractor = AVAILABLE_TFDS_DATASETS["imagenet_v2"].make_extractor()
@@ -262,7 +257,6 @@ class TfdsExtractorTest(TestCase):
                     ),
                 ],
                 categories=tfds_info.features["objects"].feature["label"].names,
-                task_type=TaskType.detection,
             )
 
             extractor = AVAILABLE_TFDS_DATASETS["voc/2012"].make_extractor()

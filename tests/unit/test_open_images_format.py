@@ -14,7 +14,6 @@ from datumaro.components.dataset import Dataset
 from datumaro.components.dataset_base import DatasetItem
 from datumaro.components.environment import Environment
 from datumaro.components.media import Image
-from datumaro.components.task import TaskType
 from datumaro.plugins.data_formats.open_images import OpenImagesExporter, OpenImagesImporter
 
 from tests.requirements import Requirements, mark_requirement
@@ -76,7 +75,6 @@ class OpenImagesFormatTest(TestCase):
                     ]
                 ),
             },
-            task_type=TaskType.segmentation_instance,
         )
 
         expected_dataset = Dataset.from_extractors(source_dataset)
@@ -145,7 +143,6 @@ class OpenImagesFormatTest(TestCase):
                 DatasetItem(id="a", annotations=[Label(0, attributes={"score": 0.7})]),
             ],
             categories=["/m/0"],
-            task_type=TaskType.classification,
         )
 
         with TestDir() as test_dir:
@@ -167,7 +164,6 @@ class OpenImagesFormatTest(TestCase):
                 ),
             ],
             categories=[],
-            task_type=TaskType.unlabeled,
         )
 
         with TestDir() as test_dir:
@@ -213,7 +209,6 @@ class OpenImagesFormatTest(TestCase):
                 ),
             ],
             categories=["/m/0", "/m/1", "/m/2", "/m/3"],
-            task_type=TaskType.segmentation_instance,
         )
 
         with TestDir() as path:
@@ -277,7 +272,6 @@ class OpenImagesFormatTest(TestCase):
                 )
             ],
             categories=["label_0", "label_1"],
-            task_type=TaskType.segmentation_instance,
         )
 
         with TestDir() as test_dir:
@@ -306,7 +300,6 @@ class OpenImagesFormatTest(TestCase):
                 )
             ],
             categories=["label_0", "label_1"],
-            task_type=TaskType.segmentation_instance,
         )
 
         with TestDir() as test_dir:
@@ -397,7 +390,6 @@ class OpenImagesImporterTest(TestCase):
                     ]
                 ),
             },
-            task_type=TaskType.segmentation_instance,
         )
 
         dataset = Dataset.import_from(DUMMY_DATASET_DIR_V6, "open_images")
@@ -419,7 +411,6 @@ class OpenImagesImporterTest(TestCase):
                 "/m/0",
                 "/m/1",
             ],
-            task_type=TaskType.unlabeled,
         )
 
         dataset = Dataset.import_from(DUMMY_DATASET_DIR_V5, "open_images")
@@ -490,7 +481,6 @@ class OpenImagesImporterTest(TestCase):
                     ]
                 ),
             },
-            task_type=TaskType.segmentation_instance,
         )
 
         with TestDir() as test_dir:

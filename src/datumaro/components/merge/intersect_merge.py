@@ -188,13 +188,13 @@ class IntersectMerge(Merger):
         infos = self.merge_infos(d.infos() for d in datasets)
         categories = self.merge_categories(d.categories() for d in datasets)
         media_type = self.merge_media_types(datasets)
-        task_type = self.merge_task_types(datasets)
+        ann_types = self.merge_ann_types(datasets)
         return DatasetItemStorageDatasetView(
             parent=merged,
             infos=infos,
             categories=categories,
             media_type=media_type,
-            task_type=task_type,
+            ann_types=ann_types,
         )
 
     def merge_categories(self, sources: Sequence[IDataset]) -> Dict:

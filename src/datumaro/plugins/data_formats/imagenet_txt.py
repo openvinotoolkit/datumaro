@@ -16,7 +16,6 @@ from datumaro.components.exporter import Exporter
 from datumaro.components.format_detection import FormatDetectionContext
 from datumaro.components.importer import ImportContext, Importer
 from datumaro.components.media import Image
-from datumaro.components.task import TaskType
 from datumaro.util.meta_file_util import has_meta_file, parse_meta_file
 
 
@@ -108,7 +107,6 @@ class ImagenetTxtBase(SubsetBase):
         items = {}
 
         with open(path, encoding="utf-8") as f:
-            max_num_annotations = 0
             for line in f:
                 item_id, image, label_ids = _parse_annotation_line(line)
 
@@ -129,6 +127,7 @@ class ImagenetTxtBase(SubsetBase):
                             )
 
                     anno.append(Label(label))
+                    self._ann_types.add(AnnotationType.label)
 
                 items[item_id] = DatasetItem(
                     id=item_id,
@@ -136,14 +135,6 @@ class ImagenetTxtBase(SubsetBase):
                     media=Image.from_file(path=osp.join(self.image_dir, image)),
                     annotations=anno,
                 )
-                max_num_annotations = max(max_num_annotations, len(anno))
-            if max_num_annotations == 0:
-                self._task_type = TaskType.unlabeled
-            elif max_num_annotations > 1:
-                self._task_type = TaskType.classification_multilabel
-            else:
-                self._task_type = TaskType.classification
-
         return items
 
 

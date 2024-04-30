@@ -15,7 +15,6 @@ from datumaro.components.dataset_base import DatasetItem, SubsetBase
 from datumaro.components.format_detection import FormatDetectionContext
 from datumaro.components.importer import ImportContext, Importer
 from datumaro.components.media import Image
-from datumaro.components.task import TaskAnnotationMapping
 
 
 class NyuDepthV2Base(SubsetBase):
@@ -32,7 +31,6 @@ class NyuDepthV2Base(SubsetBase):
         super().__init__(subset=subset, ctx=ctx)
 
         self._items = list(self._load_items(path).values())
-        self._task_type = TaskAnnotationMapping().get_task(self._ann_types)
 
     def _load_items(self, path):
         items = {}

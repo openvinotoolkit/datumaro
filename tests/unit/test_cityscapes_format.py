@@ -12,7 +12,6 @@ from datumaro.components.dataset import Dataset
 from datumaro.components.dataset_base import DatasetBase, DatasetItem
 from datumaro.components.environment import Environment
 from datumaro.components.media import Image
-from datumaro.components.task import TaskType
 from datumaro.plugins.data_formats.cityscapes import (
     TRAIN_CITYSCAPES_LABEL_MAP,
     CityscapesExporter,
@@ -50,7 +49,6 @@ class CityscapesFormatTest(TestCase):
             source_dataset = Dataset.from_iterable(
                 [],
                 categories=Cityscapes.make_cityscapes_categories(src_label_map),
-                task_type=TaskType.unlabeled,
             )
 
             CityscapesExporter.convert(source_dataset, test_dir, save_dataset_meta=True)
@@ -104,7 +102,6 @@ class CityscapesImportTest(TestCase):
                 ),
             ],
             categories=Cityscapes.make_cityscapes_categories(),
-            task_type=TaskType.segmentation_semantic,
         )
 
         parsed_dataset = Dataset.import_from(DUMMY_DATASET_DIR, "cityscapes")
@@ -156,7 +153,6 @@ class CityscapesImportTest(TestCase):
                 ),
             ],
             categories=Cityscapes.make_cityscapes_categories(label_map=TRAIN_CITYSCAPES_LABEL_MAP),
-            task_type=TaskType.segmentation_semantic,
         )
 
         parsed_dataset = Dataset.import_from(DUMMY_TRAIN_DATASET_DIR, "cityscapes")
@@ -343,7 +339,6 @@ class CityscapesExporterTest(TestCase):
                 ),
             ],
             categories=["a", "b"],
-            task_type=TaskType.segmentation_semantic,
         )
 
         class DstExtractor(TestExtractorBase):
@@ -394,7 +389,6 @@ class CityscapesExporterTest(TestCase):
                 ),
             ],
             categories=["a", "b"],
-            task_type=TaskType.segmentation_semantic,
         )
 
         class DstExtractor(TestExtractorBase):
@@ -569,7 +563,6 @@ class CityscapesExporterTest(TestCase):
                     ]
                 )
             ),
-            task_type=TaskType.segmentation_semantic,
         )
 
         with TestDir() as path:
@@ -598,7 +591,6 @@ class CityscapesExporterTest(TestCase):
                     AnnotationType.label: LabelCategories.from_iterable(["a", "b"]),
                     AnnotationType.mask: src_mask_cat,
                 },
-                task_type=TaskType.segmentation_semantic,
             )
             dataset.export(path, "cityscapes", save_media=True)
 

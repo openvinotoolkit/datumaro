@@ -159,8 +159,8 @@ class ProjectSourceDataset(IDataset):
     def media_type(self):
         return self._dataset.media_type()
 
-    def task_type(self):
-        return self._dataset.task_type()
+    def ann_types(self):
+        return self._dataset.ann_types()
 
 
 class IgnoreMode(Enum):

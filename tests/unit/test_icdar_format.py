@@ -9,7 +9,6 @@ from datumaro.components.dataset_base import DatasetItem
 from datumaro.components.environment import Environment
 from datumaro.components.media import Image
 from datumaro.components.project import Dataset
-from datumaro.components.task import TaskType
 from datumaro.plugins.data_formats.icdar.base import (
     IcdarTextLocalizationImporter,
     IcdarTextSegmentationImporter,
@@ -72,7 +71,6 @@ class IcdarImporterTest(TestCase):
                     ],
                 ),
             ],
-            task_type=TaskType.caption,
         )
 
         dataset = Dataset.import_from(
@@ -103,7 +101,6 @@ class IcdarImporterTest(TestCase):
                     ],
                 ),
             ],
-            task_type=TaskType.segmentation_instance,
         )
 
         dataset = Dataset.import_from(
@@ -154,7 +151,6 @@ class IcdarImporterTest(TestCase):
                     ],
                 ),
             ],
-            task_type=TaskType.segmentation_semantic,
         )
 
         dataset = Dataset.import_from(
@@ -207,7 +203,6 @@ class IcdarConverterTest(TestCase):
                     ],
                 ),
             ],
-            task_type=TaskType.caption,
         )
 
         with TestDir() as test_dir:
@@ -231,7 +226,6 @@ class IcdarConverterTest(TestCase):
                     ],
                 )
             ],
-            task_type=TaskType.caption,
         )
 
         with TestDir() as test_dir:
@@ -274,7 +268,6 @@ class IcdarConverterTest(TestCase):
                     ],
                 ),
             ],
-            task_type=TaskType.segmentation_instance,
         )
 
         with TestDir() as test_dir:
@@ -299,7 +292,6 @@ class IcdarConverterTest(TestCase):
                     ],
                 ),
             ],
-            task_type=TaskType.segmentation_instance,
         )
 
         with TestDir() as test_dir:
@@ -389,7 +381,6 @@ class IcdarConverterTest(TestCase):
                     ],
                 ),
             ],
-            task_type=TaskType.segmentation_semantic,
         )
 
         with TestDir() as test_dir:
@@ -432,7 +423,6 @@ class IcdarConverterTest(TestCase):
                     ],
                 ),
             ],
-            task_type=TaskType.segmentation_semantic,
         )
 
         with TestDir() as test_dir:
@@ -455,7 +445,6 @@ class IcdarConverterTest(TestCase):
                     ],
                 ),
             ],
-            task_type=TaskType.detection,
         )
 
         with TestDir() as test_dir:
@@ -501,7 +490,6 @@ class IcdarConverterTest(TestCase):
                     id="a/b/c/2", media=Image.from_numpy(data=np.zeros((3, 4, 3)), ext=".bmp")
                 ),
             ],
-            task_type=TaskType.unlabeled,
         )
 
         for importer, converter in [
@@ -528,7 +516,6 @@ class IcdarConverterTest(TestCase):
                     annotations=[Caption('caption"')],
                 )
             ],
-            task_type=TaskType.caption,
         )
 
         with TestDir() as test_dir:
@@ -571,7 +558,6 @@ class IcdarConverterTest(TestCase):
                     ],
                 ),
             ],
-            task_type=TaskType.segmentation_semantic,
         )
 
         expected_dataset = Dataset.from_iterable(
@@ -614,7 +600,6 @@ class IcdarConverterTest(TestCase):
                     ],
                 ),
             ],
-            task_type=TaskType.segmentation_semantic,
         )
 
         with TestDir() as test_dir:

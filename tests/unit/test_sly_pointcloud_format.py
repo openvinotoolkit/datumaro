@@ -10,7 +10,6 @@ from datumaro.components.dataset_base import DatasetItem
 from datumaro.components.environment import Environment
 from datumaro.components.media import Image, PointCloud
 from datumaro.components.project import Dataset
-from datumaro.components.task import TaskType
 from datumaro.plugins.data_formats.sly_pointcloud.base import SuperviselyPointCloudImporter
 from datumaro.plugins.data_formats.sly_pointcloud.exporter import SuperviselyPointCloudExporter
 
@@ -83,7 +82,6 @@ class SuperviselyPointcloudImporterTest(TestCase):
             ],
             categories={AnnotationType.label: label_cat},
             media_type=PointCloud,
-            task_type=TaskType.detection_3d,
         )
 
         parsed_dataset = Dataset.import_from(DUMMY_DATASET_DIR, "sly_pointcloud")
@@ -179,7 +177,6 @@ class PointCloudConverterTest(TestCase):
             ],
             categories={AnnotationType.label: src_label_cat},
             media_type=PointCloud,
-            task_type=TaskType.detection_3d,
         )
 
         with TestDir() as test_dir:
@@ -261,7 +258,6 @@ class PointCloudConverterTest(TestCase):
                 ],
                 categories={AnnotationType.label: target_label_cat},
                 media_type=PointCloud,
-                task_type=TaskType.detection_3d,
             )
 
             self._test_save_and_load(
@@ -280,7 +276,6 @@ class PointCloudConverterTest(TestCase):
             ],
             categories=[],
             media_type=PointCloud,
-            task_type=TaskType.unlabeled,
         )
 
         with TestDir() as test_dir:
@@ -296,14 +291,12 @@ class PointCloudConverterTest(TestCase):
         source_dataset = Dataset.from_iterable(
             [DatasetItem(id="somename", attributes={"frame": 1234})],
             media_type=PointCloud,
-            task_type=TaskType.unlabeled,
         )
 
         expected_dataset = Dataset.from_iterable(
             [DatasetItem(id="somename", attributes={"frame": 1})],
             categories=[],
             media_type=PointCloud,
-            task_type=TaskType.unlabeled,
         )
 
         with TestDir() as test_dir:
@@ -342,7 +335,6 @@ class PointCloudConverterTest(TestCase):
             ],
             categories={AnnotationType.label: src_label_cat},
             media_type=PointCloud,
-            task_type=TaskType.unlabeled,
         )
 
         with TestDir() as test_dir:
@@ -379,7 +371,6 @@ class PointCloudConverterTest(TestCase):
             ],
             categories={AnnotationType.label: src_label_cat},
             media_type=PointCloud,
-            task_type=TaskType.unlabeled,
         )
 
         target_dataset = Dataset.from_iterable(
@@ -399,7 +390,6 @@ class PointCloudConverterTest(TestCase):
             ],
             categories={AnnotationType.label: src_label_cat},
             media_type=PointCloud,
-            task_type=TaskType.detection_3d,
         )
 
         with TestDir() as test_dir:
@@ -439,7 +429,6 @@ class PointCloudConverterTest(TestCase):
                 ],
                 categories=[],
                 media_type=PointCloud,
-                task_type=TaskType.unlabeled,
             )
 
             self._test_save_and_load(
@@ -472,7 +461,6 @@ class PointCloudConverterTest(TestCase):
                 ],
                 categories=["car", "bus"],
                 media_type=PointCloud,
-                task_type=TaskType.detection_3d,
             )
             dataset.export(path, "sly_pointcloud", save_media=True)
 

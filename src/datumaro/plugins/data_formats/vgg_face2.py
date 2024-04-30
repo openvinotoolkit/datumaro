@@ -20,7 +20,6 @@ from datumaro.components.exporter import Exporter
 from datumaro.components.format_detection import FormatDetectionContext
 from datumaro.components.importer import ImportContext, Importer
 from datumaro.components.media import Image
-from datumaro.components.task import TaskAnnotationMapping
 from datumaro.util.image import find_images
 from datumaro.util.meta_file_util import has_meta_file, parse_meta_file
 
@@ -71,7 +70,6 @@ class VggFace2Base(DatasetBase):
         self._load_categories()
         for subset in self._subsets:
             self._items.extend(list(self._load_items(subset).values()))
-        self._task_type = TaskAnnotationMapping().get_task(self._ann_types)
 
     def __iter__(self):
         return iter(self._items)
