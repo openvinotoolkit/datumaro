@@ -1497,7 +1497,7 @@ class AstypeAnnotations(ItemTransform):
         for src_cat in src_tabular_cat:
             if src_cat.dtype == CategoricalDtype():
                 dst_parent = src_cat.name
-                dst_labels = src_cat.labels
+                dst_labels = sorted(src_cat.labels)
                 for dst_label in dst_labels:
                     dst_index = dst_label_cat.add(dst_label, parent=dst_parent, attributes={})
                     self._id_mapping[dst_label] = dst_index
