@@ -58,6 +58,14 @@ A Datumaro dataset directory should have the following structure:
     │       ├── <image_name2.ext>
     │       └── ...
     ├── videos/  # directory to store video files
+    │   ├── <subset_name_1>/
+    │   │   ├── <video_name1.ext>
+    │   │   ├── <video_name2.ext>
+    │   │   └── ...
+    │   └── <subset_name_2> /
+    │       ├── <video_name1.ext>
+    │       ├── <video_name2.ext>
+    │       └── ...
     └── annotations/
         ├── <subset_name_1>.json
         ├── <subset_name_2>.json

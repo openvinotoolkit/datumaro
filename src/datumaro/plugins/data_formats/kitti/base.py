@@ -12,7 +12,7 @@ from datumaro.components.annotation import AnnotationType, Bbox, ExtractedMask, 
 from datumaro.components.dataset_base import DatasetItem, SubsetBase
 from datumaro.components.importer import ImportContext
 from datumaro.components.media import Image
-from datumaro.util.image import find_images, load_image
+from datumaro.util.image import find_images, lazy_image
 from datumaro.util.meta_file_util import has_meta_file, parse_meta_file
 
 from .format import KittiLabelMap, KittiPath, KittiTask, make_kitti_categories, parse_label_map

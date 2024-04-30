@@ -400,12 +400,14 @@ class ExportContextComponent:
         item: DatasetItem,
         *,
         basedir: Optional[str] = None,
+        subdir: Optional[str] = None,
         fname: Optional[str] = None,
     ):
         if not item.media or not isinstance(item.media, VideoFrame):
             log.warning("Item '%s' has no video", item.id)
             return
         basedir = self._video_dir if basedir is None else basedir
+        basedir = osp.join(basedir, subdir) if subdir is not None else basedir
         fname = self.make_video_filename(item) if fname is None else fname
 
         path = osp.join(basedir, fname)

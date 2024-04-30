@@ -190,7 +190,9 @@ class JsonReader:
             if media and video_frame_info:
                 raise MediaTypeError("Dataset cannot contain multiple media types")
             if video_frame_info:
-                video_path = osp.join(self._video_dir, video_frame_info.get("video_path"))
+                video_path = osp.join(
+                    self._video_dir, self._subset, video_frame_info.get("video_path")
+                )
                 if video_path not in self._videos:
                     self._videos[video_path] = Video(video_path)
                 video = self._videos[video_path]

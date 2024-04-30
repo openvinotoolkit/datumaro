@@ -19,7 +19,7 @@ from datumaro.components.errors import MediaTypeError
 from datumaro.components.exporter import Exporter
 from datumaro.components.importer import ImportContext, Importer
 from datumaro.components.media import Image
-from datumaro.util.image import find_images, load_image, save_image
+from datumaro.util.image import find_images, lazy_image, save_image
 from datumaro.util.mask_tools import merge_masks
 from datumaro.util.meta_file_util import has_meta_file, parse_meta_file
 

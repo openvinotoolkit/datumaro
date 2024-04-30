@@ -185,7 +185,7 @@ class _SubsetWriter:
             if context.save_media:
                 fname = context.make_video_filename(item)
                 if not osp.exists(fname):
-                    context.save_video(item, fname=fname)
+                    context.save_video(item, fname=fname, subdir=item.subset)
                 item.media = VideoFrame(Video(fname), video_frame.index)
 
             yield
