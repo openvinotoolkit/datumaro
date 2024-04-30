@@ -1451,7 +1451,19 @@ class Correct(Transform, CliPlugin):
 
 
 class AstypeAnnotations(ItemTransform):
-    """ """
+    """
+    Enables the conversion of annotation types for the categories and individual items within a dataset.|n
+    |n
+    Based on a specified mapping, it transforms the annotation types,|m
+    changing them to 'Label' if they are categorical, and to 'Caption' if they are of type string, float, or integer.|n
+    |n
+    Examples:|n
+        - Convert type of `title` annotation|n
+
+        .. code-block::
+
+        |s|s%(prog)s --mapping 'title:Caption'
+    """
 
     @staticmethod
     def _split_arg(s):
@@ -1468,7 +1480,7 @@ class AstypeAnnotations(ItemTransform):
             action="append",
             type=cls._split_arg,
             dest="mapping",
-            help="Annotations in the form of: '<src>:<dst>' (repeatable)",
+            help="Annotations type in the form of: '<src>:<dst>' (repeatable)",
         )
         return parser
 

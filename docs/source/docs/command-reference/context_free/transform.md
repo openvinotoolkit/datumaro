@@ -101,6 +101,7 @@ Basic dataset item manipulations:
 - [`remove_images`](#remove_images) - Removes specific images
 - [`remove_annotations`](#remove_annotations) - Removes annotations
 - [`remove_attributes`](#remove_attributes) - Removes attributes
+- [`astype_annotations`](#astype_annotations) - Convert annotation type
 
 Subset manipulations:
 - [`random_split`](#random_split) - Splits dataset into subsets
@@ -496,6 +497,29 @@ Examples:
   ```console
   datum transform -t remove_attributes -- \
     --id '2010_001705:train' --attr 'occluded'
+  ```
+
+#### `astype_annotations`
+
+Enables the conversion of annotation types for the categories and individual items within a dataset.
+
+Based on a specified mapping, it transforms the annotation types, changing them to 'Label' if they are categorical,
+and to 'Caption' if they are of type string, float, or integer.
+
+Usage:
+```console
+astype_annotations [-h] [--mapping MAPPING]
+```
+
+Optional arguments:
+- `-h`, `--help` (flag) - Show this help message and exit
+- `--mapping` (str) - Annotations type in the form of: '<src>:<dst>' (repeatable)
+
+Examples:
+- Convert type of `title` and `rating` annotation
+  ```console
+  datum transform -t astype_annotations -- \
+    --mapping 'title:Caption,rating:int'
   ```
 
 #### `random_split`
