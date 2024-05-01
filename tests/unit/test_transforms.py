@@ -13,6 +13,7 @@ import datumaro.util.mask_tools as mask_tools
 from datumaro.components.annotation import (
     AnnotationType,
     Bbox,
+    Caption,
     Ellipse,
     Label,
     LabelCategories,
@@ -1218,6 +1219,8 @@ class ReindexAnnotationsTest:
         )
 
 
+import argparse
+
 from pandas.api.types import CategoricalDtype
 
 
@@ -1248,9 +1251,43 @@ class AstypeAnnotationsTest(TestCase):
             },
             media_type=TableRow,
         )
+        self.table_caption = Table.from_list([{"nswprice": 0.076108}, {"nswprice": 0.060376}])
+        self.dataset_caption = Dataset.from_iterable(
+            [
+                DatasetItem(
+                    id="0",
+                    subset="train",
+                    media=TableRow(table=self.table_caption, index=0),
+                    annotations=[Tabular(values={"nswprice": 0.076108})],
+                ),
+                DatasetItem(
+                    id="1",
+                    subset="train",
+                    media=TableRow(table=self.table_caption, index=1),
+                    annotations=[Tabular(values={"nswprice": 0.060376})],
+                ),
+            ],
+            categories={},
+            media_type=TableRow,
+        )
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
-    def test_transform_annotation_type(self):
+    def test_split_arg_valid(self):
+        # Test valid input with a single colon
+        assert transforms.AstypeAnnotations._split_arg("date:label") == [("date", "label")]
+
+        # Test valid input with multiple colons
+        assert transforms.AstypeAnnotations._split_arg("date:label,title:caption") == [
+            ("date", "label"),
+            ("title", "caption"),
+        ]
+
+        # Test invalid input with no colon
+        with pytest.raises(argparse.ArgumentTypeError):
+            transforms.AstypeAnnotations._split_arg("datelabel")
+
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
+    def test_transform_annotation_type_label(self):
         table = self.table
         expected = Dataset.from_iterable(
             [
@@ -1284,5 +1321,32 @@ class AstypeAnnotationsTest(TestCase):
         # Check label_groups of categories
         assert categories.label_groups[0].name == "class"
         assert sorted(categories.label_groups[0].labels) == ["DOWN", "UP"]
+
+        compare_datasets(self, expected, result)
+
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
+    def test_transform_annotation_type_caption(self):
+        table = self.table_caption
+        expected = Dataset.from_iterable(
+            [
+                DatasetItem(
+                    id="0",
+                    subset="train",
+                    media=TableRow(table=table, index=0),
+                    annotations=[Caption("0.076108")],
+                ),
+                DatasetItem(
+                    id="1",
+                    subset="train",
+                    media=TableRow(table=table, index=1),
+                    annotations=[Caption("0.060376")],
+                ),
+            ],
+            categories={},
+            media_type=TableRow,
+        )
+
+        dataset = self.dataset_caption
+        result = transforms.AstypeAnnotations(dataset)
 
         compare_datasets(self, expected, result)

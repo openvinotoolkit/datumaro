@@ -1467,10 +1467,14 @@ class AstypeAnnotations(ItemTransform):
 
     @staticmethod
     def _split_arg(s):
-        parts = s.split(":")
-        if len(parts) != 2:
-            raise argparse.ArgumentTypeError()
-        return (parts[0], parts[1])
+        columns = s.split(",")
+        results = []
+        for column in columns:
+            parts = column.split(":")
+            if len(parts) != 2:
+                raise argparse.ArgumentTypeError()
+            results.append((parts[0], parts[1]))
+        return results
 
     @classmethod
     def build_cmdline_parser(cls, **kwargs):
@@ -1506,16 +1510,17 @@ class AstypeAnnotations(ItemTransform):
         # Make LabelCategories
         self._id_mapping = {}
         dst_label_cat = LabelCategories()
-        for src_cat in src_tabular_cat:
-            if src_cat.dtype == CategoricalDtype():
-                dst_parent = src_cat.name
-                dst_labels = sorted(src_cat.labels)
-                for dst_label in dst_labels:
-                    dst_index = dst_label_cat.add(dst_label, parent=dst_parent, attributes={})
-                    self._id_mapping[dst_label] = dst_index
-                dst_label_cat.add_label_group(src_cat.name, src_cat.labels, group_type=0)
-            self._tabular_cat_types[src_cat.name] = src_cat.dtype
-        self._categories[AnnotationType.label] = dst_label_cat
+        if src_tabular_cat is not None:
+            for src_cat in src_tabular_cat:
+                if src_cat.dtype == CategoricalDtype():
+                    dst_parent = src_cat.name
+                    dst_labels = sorted(src_cat.labels)
+                    for dst_label in dst_labels:
+                        dst_index = dst_label_cat.add(dst_label, parent=dst_parent, attributes={})
+                        self._id_mapping[dst_label] = dst_index
+                    dst_label_cat.add_label_group(src_cat.name, src_cat.labels, group_type=0)
+                self._tabular_cat_types[src_cat.name] = src_cat.dtype
+            self._categories[AnnotationType.label] = dst_label_cat
 
     def categories(self):
         return self._categories
@@ -1523,7 +1528,7 @@ class AstypeAnnotations(ItemTransform):
     def transform_item(self, item: DatasetItem):
         annotations = []
         for name, value in item.annotations[0].values.items():
-            dtype = self._tabular_cat_types[name]
+            dtype = self._tabular_cat_types.get(name, None)
             if dtype == CategoricalDtype():
                 annotations.append(Label(label=self._id_mapping[value]))
             else:
