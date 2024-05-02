@@ -9,6 +9,7 @@ from unittest.case import skipIf
 
 import pytest
 
+from datumaro.cli.commands.downloaders.kaggle import KAGGLE_API_KEY_EXISTS
 from datumaro.components.dataset import Dataset
 from datumaro.components.extractor_tfds import AVAILABLE_TFDS_DATASETS, TFDS_EXTRACTOR_AVAILABLE
 from datumaro.util import parse_json
@@ -135,6 +136,7 @@ class DownloadGetTest:
             expected_code=1,
         )
 
+    @pytest.mark.skipif(not KAGGLE_API_KEY_EXISTS)
     @pytest.mark.parametrize(
         ("dataset_id", "extra_args"),
         (
@@ -269,6 +271,7 @@ class DownloadDescribeTest:
 
         assert redirected_output == stdout_output
 
+    @pytest.mark.skipif(not KAGGLE_API_KEY_EXISTS)
     def test_kaggle(self):
         run(
             self._helper_tc,

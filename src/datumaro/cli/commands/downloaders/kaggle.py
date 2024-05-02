@@ -29,6 +29,11 @@ def make_all_paths_absolute(d: Dict, root: str = "."):
                 d[k] = str(relpath.resolve())
 
 
+KAGGLE_API_KEY_EXISTS = bool(os.environ["KAGGLE_KEY"]) or os.path.exists(
+    os.path.join(os.path.expanduser("~"), ".kaggle")
+)
+
+
 class KaggleDatasetDownloader(IDatasetDownloader):
     @classmethod
     def download(
