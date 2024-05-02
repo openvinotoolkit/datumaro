@@ -136,7 +136,7 @@ class DownloadGetTest:
             expected_code=1,
         )
 
-    @pytest.mark.skipif(not KAGGLE_API_KEY_EXISTS)
+    @pytest.mark.skipif(not KAGGLE_API_KEY_EXISTS, reason="Kaggle API key missing")
     @pytest.mark.parametrize(
         ("dataset_id", "extra_args"),
         (
@@ -271,7 +271,7 @@ class DownloadDescribeTest:
 
         assert redirected_output == stdout_output
 
-    @pytest.mark.skipif(not KAGGLE_API_KEY_EXISTS)
+    @pytest.mark.skipif(not KAGGLE_API_KEY_EXISTS, reason="Kaggle API key missing")
     def test_kaggle(self):
         run(
             self._helper_tc,
