@@ -31,6 +31,7 @@ class DownloadGetTest:
         run(
             self._helper_tc,
             "download",
+            "tfds",
             "get",
             "--dataset-id=tfds:mnist",
             f"--output-dir={test_dir}",
@@ -49,6 +50,7 @@ class DownloadGetTest:
         run(
             self._helper_tc,
             "download",
+            "tfds",
             "get",
             "--dataset-id=tfds:mnist",
             "--output-format=datumaro",
@@ -68,6 +70,7 @@ class DownloadGetTest:
         run(
             self._helper_tc,
             "download",
+            "tfds",
             "get",
             "--dataset-id=tfds:mnist",
             "--output-format=datumaro",
@@ -84,6 +87,7 @@ class DownloadGetTest:
         run(
             self._helper_tc,
             "download",
+            "tfds",
             "get",
             "--dataset-id=tfds:mnist",
             "--output-format=datumaro",
@@ -103,6 +107,7 @@ class DownloadGetTest:
         run(
             self._helper_tc,
             "download",
+            "tfds",
             "get",
             "--dataset-id=tfds:mnist",
             "--output-format=datumaro",
@@ -121,12 +126,42 @@ class DownloadGetTest:
         run(
             self._helper_tc,
             "download",
+            "tfds",
             "get",
             "--dataset-id=tfds:mnist",
             "--output-format=datumaro",
             f"--output-dir={test_dir}",
             "--subset=test",
             expected_code=1,
+        )
+
+    @pytest.mark.parametrize(
+        ("dataset_id", "extra_args"),
+        (
+            ("andrewmvd/face-mask-detection", {}),  # kaggle_voc
+            ("kmader/skin-cancer-mnist-ham10000", {}),  # kaggle_image_csv
+            ("alexattia/the-simpsons-characters-dataset", {}),  # kaggle_image_txt
+            ("dasmehdixtr/drone-dataset-uav", {"subset": "drone_dataset_yolo"}),  # kaggle_yolo,
+            ("aalborguniversity/aau-rainsnow", {}),  # kaggle_coco,
+            ("kmader/finding-lungs-in-ct-data", {}),  # kaggle_image_mask
+            ("moltean/fruits", {}),  # imagenet
+        ),
+    )
+    def test_kaggle(self, dataset_id, extra_args, test_dir: str):
+        args = [
+            "download",
+            "kaggle",
+            "get",
+            f"--dataset-id={dataset_id}",
+            f"--output-dir={test_dir}",
+        ]
+        if "subset" in extra_args:
+            args += ["--subset", extra_args.pop("subset")]
+        if extra_args:
+            args += ["--", *[f"--{key}={value}" for key, value in extra_args.items()]]
+        run(
+            self._helper_tc,
+            *args,
         )
 
 
@@ -140,7 +175,7 @@ class DownloadDescribeTest:
         output_file = io.StringIO()
 
         with contextlib.redirect_stdout(output_file):
-            run(self._helper_tc, "download", "describe")
+            run(self._helper_tc, "download", "tfds", "describe")
 
         output = output_file.getvalue()
 
@@ -180,7 +215,7 @@ class DownloadDescribeTest:
         output_file = io.StringIO()
 
         with contextlib.redirect_stdout(output_file):
-            run(self._helper_tc, "download", "describe", "--report-format=json")
+            run(self._helper_tc, "download", "tfds", "describe", "--report-format=json")
 
         output = parse_json(output_file.getvalue())
 
@@ -215,7 +250,7 @@ class DownloadDescribeTest:
         stdout_file = io.StringIO()
 
         with contextlib.redirect_stdout(stdout_file):
-            run(self._helper_tc, "download", "describe", f"--report-format={format}")
+            run(self._helper_tc, "download", "tfds", "describe", f"--report-format={format}")
 
         stdout_output = stdout_file.getvalue()
 
@@ -223,6 +258,7 @@ class DownloadDescribeTest:
         run(
             self._helper_tc,
             "download",
+            "tfds",
             "describe",
             f"--report-format={format}",
             f"--report-file={redirect_path}",
@@ -232,3 +268,11 @@ class DownloadDescribeTest:
             redirected_output = redirect_file.read()
 
         assert redirected_output == stdout_output
+
+    def test_kaggle(self):
+        run(
+            self._helper_tc,
+            "download",
+            "kaggle",
+            "describe",
+        )

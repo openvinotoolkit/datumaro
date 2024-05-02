@@ -1,0 +1,1332 @@
+{
+  "moltean/fruits": {
+    "path": "./fruits-360_dataset/fruits-360/Training",
+    "format": "imagenet"
+  },
+  "paultimothymooney/chest-xray-pneumonia": {
+    "path": "./chest_xray",
+    "format": "imagenet_with_subset_dirs"
+  },
+  "zalando-research/fashionmnist": {
+    "path": "./",
+    "format": "mnist_csv"
+  },
+  "alxmamaev/flowers-recognition": {
+    "path": "./flowers",
+    "format": "imagenet"
+  },
+  "muratkokludataset/rice-image-dataset": {
+    "path": "./Rice_Image_Dataset",
+    "format": "imagenet"
+  },
+  "andrewmvd/face-mask-detection": {
+    "path": "./images",
+    "format": "kaggle_voc",
+    "ann_path": "./annotations"
+  },
+  "kmader/skin-cancer-mnist-ham10000": {
+    "path": "./HAM10000_images_part_1",
+    "format": "kaggle_image_csv",
+    "ann_file": "./HAM10000_metadata.csv",
+    "columns": {
+      "media": "image_id",
+      "label": "dx"
+    }
+  },
+  "muratkokludataset/pistachio-image-dataset": {
+    "path": "./Pistachio_Image_Dataset/Pistachio_Image_Dataset",
+    "format": "imagenet"
+  },
+  "muratkokludataset/durum-wheat-dataset": {
+    "path": "./Durum_Wheat_Dataset/Dataset2-Durum Wheat Video Images",
+    "format": "imagenet"
+  },
+  "puneet6060/intel-image-classification": {
+    "path": "./seg_train/seg_train/",
+    "format": "imagenet"
+  },
+  "gpiosenka/100-bird-species": {
+    "path": ".",
+    "format": "kaggle_image_csv",
+    "ann_file": "./birds.csv",
+    "columns": {
+      "media": "filepaths",
+      "label": "labels"
+    }
+  },
+  "meowmeowmeowmeowmeow/gtsrb-german-traffic-sign": {
+    "path": ".",
+    "format": "kaggle_image_csv",
+    "ann_file": "./Train.csv",
+    "columns": {
+      "media": "Path",
+      "bbox": {
+        "x1": "Roi.X1",
+        "y1": "Roi.Y1",
+        "x2": "Roi.X2",
+        "y2": "Roi.Y2"
+      },
+      "label": "ClassId"
+    }
+  },
+  "ikarus777/best-artworks-of-all-time": {
+    "path": "./images/images",
+    "format": "imagenet"
+  },
+  "crowww/a-large-scale-fish-dataset": {
+    "path": "./Fish_Dataset/Fish_Dataset/Shrimp/Shrimp",
+    "format": "kaggle_image_mask",
+    "mask_path": "./Fish_Dataset/Fish_Dataset/Shrimp/Shrimp GT"
+  },
+  "paultimothymooney/breast-histopathology-images": {
+    "path": "./10253/",
+    "format": "imagenet"
+  },
+  "tawsifurrahman/covid19-radiography-database": {
+    "path": "./COVID-19_Radiography_Dataset/COVID/images",
+    "format": "kaggle_image_mask",
+    "mask_path": "./COVID-19_Radiography_Dataset/COVID/masks"
+  },
+  "grassknoted/asl-alphabet": {
+    "path": "./asl_alphabet_train/asl_alphabet_train",
+    "format": "imagenet"
+  },
+  "vipoooool/new-plant-diseases-dataset": {
+    "path": "./new plant diseases dataset(augmented)/New Plant Diseases Dataset(Augmented)",
+    "format": "imagenet_with_subset_dirs"
+  },
+  "paultimothymooney/blood-cells": {
+    "path": "./dataset-master/dataset-master/JPEGImages/",
+    "format": "kaggle_voc",
+    "ann_path": "./dataset-master/dataset-master/Annotations"
+  },
+  "alessiocorrado99/animals10": {
+    "path": "./raw-img",
+    "format": "imagenet"
+  },
+  "oddrationale/mnist-in-csv": {
+    "path": "./",
+    "format": "mnist_csv"
+  },
+  "sachinpatel21/az-handwritten-alphabets-in-csv-format": {
+    "path": "./A_Z Handwritten Data",
+    "format": "tabular"
+  },
+  "gti-upm/leapgestrecog": {
+    "path": "./leapGestRecog/00",
+    "format": "imagenet"
+  },
+  "paramaggarwal/fashion-product-images-dataset": {
+    "path": "./fashion-dataset/images",
+    "format": "kaggle_image_csv",
+    "ann_file": "./fashion-dataset/styles.csv",
+    "columns": {
+      "media": "id",
+      "label": "masterCategory"
+    }
+  },
+  "alexattia/the-simpsons-characters-dataset": {
+    "path": ".",
+    "format": "kaggle_image_txt",
+    "ann_file": "./annotation.txt",
+    "columns": {
+      "media": 0,
+      "bbox": {
+        "x1": 1,
+        "y1": 2,
+        "width": 3,
+        "height": 4
+      },
+      "label": 5
+    }
+  },
+  "paultimothymooney/kermany2018": {
+    "path": "./oct2017/OCT2017 ",
+    "format": "imagenet_with_subset_dirs"
+  },
+  "slothkong/10-monkey-species": {
+    "path": "./training/training",
+    "format": "imagenet"
+  },
+  "tanlikesmath/diabetic-retinopathy-resized": {
+    "path": "./resized_train/resized_train",
+    "format": "kaggle_image_csv",
+    "ann_file": "./tanlikesmath/diabetic-retinopathy-resized/trainLabels.csv",
+    "columns": {
+      "media": "image",
+      "label": "level"
+    }
+  },
+  "jboysen/mri-and-alzheimers": {
+    "path": ".",
+    "format": "tabular"
+  },
+  "asdasdasasdas/garbage-classification": {
+    "path": "./garbage classification/Garbage classification",
+    "format": "imagenet"
+  },
+  "prasunroy/natural-images": {
+    "path": "./natural_images",
+    "format": "imagenet"
+  },
+  "shaunthesheep/microsoft-catsvsdogs-dataset": {
+    "path": "./PetImages",
+    "format": "imagenet"
+  },
+  "kmader/rsna-bone-age": {
+    "path": "./boneage-training-dataset/boneage-training-dataset",
+    "format": "kaggle_image_csv",
+    "ann_file": "./boneage-training-dataset.csv",
+    "columns": {
+      "media": "id",
+      "label": "boneage"
+    }
+  },
+  "techsash/waste-classification-data": {
+    "path": "./dataset/DATASET",
+    "format": "imagenet_with_subset_dirs"
+  },
+  "landlord/handwriting-recognition": {
+    "path": "./train_v2",
+    "format": "kaggle_image_csv",
+    "ann_file": "./written_name_train_v2.csv",
+    "columns": {
+      "media": "FILENAME",
+      "label": "IDENTITY"
+    }
+  },
+  "andrewmvd/ocular-disease-recognition-odir5k": {
+    "path": "./ODIR-5K/Training Images/",
+    "format": "kaggle_image_csv",
+    "ann_file": "./full_df.csv",
+    "columns": {
+      "media": "filename",
+      "label": "labels"
+    }
+  },
+  "xhlulu/140k-real-and-fake-faces": {
+    "path": "./real_vs_fake/real-vs-fake",
+    "format": "imagenet_with_subset_dirs"
+  },
+  "mbkinaci/fruit-images-for-object-detection": {
+    "path": "./train_zip/train",
+    "format": "kaggle_voc",
+    "ann_path": "./train_zip/train"
+  },
+  "masoudnickparvar/brain-tumor-mri-dataset": {
+    "path": ".",
+    "format": "imagenet_with_subset_dirs"
+  },
+  "fournierp/captcha-version-2-images": {
+    "path": "./samples/samples",
+    "format": "image_dir"
+  },
+  "chrisfilo/fruit-recognition": {
+    "path": ".",
+    "format": "imagenet"
+  },
+  "andrewmvd/hard-hat-detection": {
+    "path": "./images",
+    "format": "kaggle_voc",
+    "ann_path": "./annotations"
+  },
+  "nipunarora8/age-gender-and-ethnicity-face-data-csv": {
+    "path": ".",
+    "format": "tabular"
+  },
+  "paramaggarwal/fashion-product-images-small": {
+    "path": "./images",
+    "format": "kaggle_image_csv",
+    "ann_file": "./styles.csv",
+    "columns": {
+      "media": "id",
+      "label": "masterCategory"
+    }
+  },
+  "kvpratama/pokemon-images-dataset": {
+    "path": "./pokemon/pokemon",
+    "format": "image_dir"
+  },
+  "ravirajsinh45/real-life-industrial-dataset-of-casting-product": {
+    "path": "./casting_512x512/casting_512x512",
+    "format": "imagenet"
+  },
+  "mohamedhanyyy/chest-ctscan-images": {
+    "subsets": {
+      "Data": {
+        "path": ".",
+        "format": "imagenet_with_subset_dirs"
+      },
+      "Data/train": {
+        "path": ".",
+        "format": "imagenet"
+      }
+    }
+  },
+  "thedownhill/art-images-drawings-painting-sculpture-engraving": {
+    "path": "./dataset/dataset_updated",
+    "format": "imagenet_with_subset_dirs"
+  },
+  "ihelon/lego-minifigures-classification": {
+    "path": ".",
+    "format": "kaggle_image_csv",
+    "ann_file": "./index.csv",
+    "columns": {
+      "media": "path",
+      "label": "class_id"
+    }
+  },
+  "kmader/finding-lungs-in-ct-data": {
+    "path": "./2d_images/",
+    "format": "kaggle_image_mask",
+    "mask_path": "./2d_masks/"
+  },
+  "aryashah2k/breast-ultrasound-images-dataset": {
+    "path": "./Dataset_BUSI_with_GT/benign",
+    "format": "kaggle_image_mask",
+    "mask_path": "./Dataset_BUSI_with_GT/benign"
+  },
+  "ruizgara/socofing": {
+    "path": "./socofing/SOCOFing/Real",
+    "format": "image_dir"
+  },
+  "kritikseth/fruit-and-vegetable-image-recognition": {
+    "path": "./",
+    "format": "imagenet_with_subset_dirs"
+  },
+  "jenny18/honey-bee-annotated-images": {
+    "path": "./bee_imgs",
+    "format": "kaggle_image_csv",
+    "ann_file": "./bee_data.csv",
+    "columns": {
+      "media": "file",
+      "label": "health"
+    }
+  },
+  "iamsouravbanerjee/animal-image-dataset-90-different-animals": {
+    "path": "./animals/animals",
+    "format": "imagenet"
+  },
+  "nih-chest-xrays/sample": {
+    "path": "./sample/images",
+    "format": "kaggle_image_csv",
+    "ann_file": "./sample/sample_labels.csv",
+    "columns": {
+      "media": "Image Index",
+      "label": "Finding Labels"
+    }
+  },
+  "andrewmvd/animal-faces": {
+    "path": "./afhq",
+    "format": "imagenet_with_subset_dirs"
+  },
+  "awsaf49/coco-2017-dataset": {
+    "path": "./coco2017",
+    "format": "mmdet_coco"
+  },
+  "bulentsiyah/semantic-drone-dataset": {
+    "path": "./dataset/semantic_drone_dataset/original_images",
+    "format": "kaggle_image_mask",
+    "mask_path": "./dataset/semantic_drone_dataset/label_images_semantic",
+    "labelmap_file": "./class_dict_seg.csv"
+  },
+  "plameneduardo/sarscov2-ctscan-dataset": {
+    "path": ".",
+    "format": "imagenet"
+  },
+  "dansbecker/cityscapes-image-pairs": {
+    "path": "./cityscapes_data",
+    "format": "image_dir"
+  },
+  "dasmehdixtr/drone-dataset-uav": {
+    "subsets": {
+      "dataset_xml_format": {
+        "path": "./dataset_xml_format",
+        "format": "kaggle_voc",
+        "ann_path": "./dataset_xml_format/dataset_xml_format"
+      },
+      "drone_dataset_yolo": {
+        "path": "./drone_dataset_yolo/dataset_txt",
+        "format": "kaggle_yolo",
+        "ann_path": "./drone_dataset_yolo/dataset_txt"
+      }
+    }
+  },
+  "minhhuy2810/rice-diseases-image-dataset": {
+    "path": "./LabelledRice/Labelled",
+    "format": "imagenet"
+  },
+  "anokas/kuzushiji": {
+    "path": ".",
+    "format": "mnist"
+  },
+  "olgabelitskaya/classification-of-handwritten-letters": {
+    "path": "./letters",
+    "format": "kaggle_image_csv",
+    "ann_file": "./letters.csv",
+    "columns": {
+      "media": "file",
+      "label": "letter"
+    }
+  },
+  "diyer22/retail-product-checkout-dataset": {
+    "path": ".",
+    "format": "imagenet_with_subset_dirs"
+  },
+  "jangedoo/utkface-new": {
+    "path": "./UTKFace",
+    "format": "image_dir"
+  },
+  "arnaud58/landscape-pictures": {
+    "path": ".",
+    "format": "image_dir"
+  },
+  "joosthazelzet/lego-brick-images": {
+    "path": "./LEGO brick images v1",
+    "format": "imagenet"
+  },
+  "olgabelitskaya/flower-color-images": {
+    "path": "./flower_images/flower_images",
+    "format": "kaggle_image_csv",
+    "ann_file": "./flower_images/flower_images/flower_labels.csv",
+    "columns": {
+      "media": "file",
+      "label": "label"
+    }
+  },
+  "ananthu017/emotion-detection-fer": {
+    "path": ".",
+    "format": "imagenet_with_subset_dirs"
+  },
+  "jessicali9530/caltech256": {
+    "path": "./256_ObjectCategories",
+    "format": "imagenet"
+  },
+  "gpiosenka/sports-classification": {
+    "path": ".",
+    "format": "kaggle_image_csv",
+    "ann_file": "./sports.csv",
+    "columns": {
+      "media": "filepaths",
+      "label": "labels"
+    }
+  },
+  "soumikrakshit/anime-faces": {
+    "path": ".",
+    "format": "image_dir"
+  },
+  "andrewmvd/leukemia-classification": {
+    "path": "./C-NMC_Leukemia/training_data/fold_0",
+    "format": "imagenet"
+  },
+  "andrewmvd/lung-and-colon-cancer-histopathological-images": {
+    "path": "./lung_colon_image_set/lung_image_sets",
+    "format": "imagenet"
+  },
+  "drgfreeman/rockpaperscissors": {
+    "path": "./rps-cv-images",
+    "format": "imagenet"
+  },
+  "pankrzysiu/cifar10-python": {
+    "path": "./cifar-10-batches-py",
+    "format": "cifar"
+  },
+  "koryakinp/chess-positions": {
+    "path": "./",
+    "format": "image_dir"
+  },
+  "nancyalaswad90/breast-cancer-dataset": {
+    "path": ".",
+    "format": "tabular"
+  },
+  "clorichel/boat-types-recognition": {
+    "path": ".",
+    "format": "imagenet"
+  },
+  "smeschke/four-shapes": {
+    "path": "./shapes",
+    "format": "imagenet"
+  },
+  "andyczhao/covidx-cxr2": {
+    "path": "./train",
+    "format": "kaggle_image_txt",
+    "ann_file": "./train.txt",
+    "columns": {
+      "media": 1,
+      "label": 2
+    }
+  },
+  "nodoubttome/skin-cancer9-classesisic": {
+    "path": "./Skin cancer ISIC The International Skin Imaging Collaboration/",
+    "format": "imagenet_with_subset_dirs"
+  },
+  "vencerlanz09/sea-animals-image-dataste": {
+    "path": ".",
+    "format": "imagenet"
+  },
+  "kmkarakaya/logos-bk-kfc-mcdonald-starbucks-subway-none": {
+    "path": "./logos3",
+    "format": "imagenet_with_subset_dirs"
+  },
+  "shubhamgoel27/dermnet": {
+    "path": ".",
+    "format": "imagenet_with_subset_dirs"
+  },
+  "nikhilpandey360/chest-xray-masks-and-labels": {
+    "path": "./data/Lung Segmentation/CXR_png",
+    "format": "kaggle_image_mask",
+    "mask_path": "./data/Lung Segmentation"
+  },
+  "vbookshelf/rice-leaf-diseases": {
+    "path": "./rice_leaf_diseases",
+    "format": "imagenet"
+  },
+  "khoongweihao/covid19-xray-dataset-train-test-sets": {
+    "path": "./xray_dataset_covid19/",
+    "format": "imagenet_with_subset_dirs"
+  },
+  "hojjatk/mnist-dataset": {
+    "path": ".",
+    "format": "mnist"
+  },
+  "fatiimaezzahra/famous-iconic-women": {
+    "path": "./output",
+    "format": "imagenet_with_subset_dirs"
+  },
+  "bryanb/abstract-art-gallery": {
+    "path": "./Abstract_gallery/Abstract_gallery",
+    "format": "image_dir"
+  },
+  "hasibalmuzdadid/shoe-vs-sandal-vs-boot-dataset-15k-images": {
+    "path": "./Shoe vs Sandal vs Boot Dataset",
+    "format": "imagenet"
+  },
+  "ifigotin/imagenetmini-1000": {
+    "path": "./imagenet-mini",
+    "format": "imagenet_with_subset_dirs"
+  },
+  "sshikamaru/glaucoma-detection": {
+    "path": "./Fundus_Train_Val_Data/Fundus_Scanes_Sorted/",
+    "format": "imagenet_with_subset_dirs"
+  },
+  "andrewmvd/retinal-disease-classification": {
+    "path": "./Training_Set/Training_Set/Training/",
+    "format": "kaggle_image_csv",
+    "ann_file": "./Training_Set/Training_Set/RFMiD_Training_Labels.csv",
+    "columns": {
+      "media": "ID",
+      "label": "Disease_Risk"
+    }
+  },
+  "tanlikesmath/the-oxfordiiit-pet-dataset": {
+    "path": "./images",
+    "format": "image_dir"
+  },
+  "BengaliAI/numta": {
+    "path": "./training-a",
+    "format": "kaggle_image_csv",
+    "ann_file": "./training-a.csv",
+    "columns": {
+      "media": "filename",
+      "label": "digit"
+    }
+  },
+  "sayangoswami/reddit-memes-dataset": {
+    "path": "./memes/memes",
+    "format": "image_dir"
+  },
+  "jehanbhathena/weather-dataset": {
+    "path": "./dataset",
+    "format": "imagenet"
+  },
+  "kumaresanmanickavelu/lyft-udacity-challenge": {
+    "path": "./dataa/dataA/CameraRGB",
+    "format": "kaggle_image_mask",
+    "mask_path": "./dataa/dataA/CameraSeg"
+  },
+  "fedesoriano/cifar100": {
+    "path": ".",
+    "format": "cifar"
+  },
+  "andrewmvd/doom-crossing": {
+    "path": "./animal_crossing/",
+    "format": "kaggle_image_csv",
+    "ann_file": "./animal_crossing_dataset.csv",
+    "columns": {
+      "media": "filename",
+      "label": "total_awards_received"
+    }
+  },
+  "cactus3/basicshapes": {
+    "path": "./shapes/",
+    "format": "imagenet"
+  },
+  "agrigorev/clothing-dataset-full": {
+    "path": "./images_compressed",
+    "format": "kaggle_image_csv",
+    "ann_file": "./agrigorev/clothing-dataset-full/images.csv",
+    "columns": {
+      "media": "image",
+      "label": "label"
+    }
+  },
+  "odins0n/ucf-crime-dataset": {
+    "path": ".",
+    "format": "imagenet_with_subset_dirs"
+  },
+  "hgunraj/covidxct": {
+    "path": "./3A_images",
+    "format": "kaggle_image_txt",
+    "ann_file": "./hgunraj/covidxct/val_COVIDx_CT-3A.txt",
+    "columns": {
+      "media": 0,
+      "bbox": {
+        "x1": 2,
+        "y1": 3,
+        "x2": 4,
+        "y2": 5
+      },
+      "label": 1
+    }
+  },
+  "dhruvildave/english-handwritten-characters-dataset": {
+    "path": ".",
+    "format": "kaggle_image_csv",
+    "ann_file": "./english.csv",
+    "columns": {
+      "media": "image",
+      "label": "label"
+    }
+  },
+  "tunguz/deep-solar-dataset": {
+    "path": ".",
+    "format": "tabular"
+  },
+  "maysee/mushrooms-classification-common-genuss-images": {
+    "path": "./Mushrooms",
+    "format": "imagenet"
+  },
+  "sanikamal/horses-or-humans-dataset": {
+    "path": "./horse-or-human/horse-or-human",
+    "format": "imagenet_with_subset_dirs"
+  },
+  "misrakahmed/vegetable-image-dataset": {
+    "path": "./Vegetable Images",
+    "format": "imagenet_with_subset_dirs"
+  },
+  "ambarish/breakhis": {
+    "path": "./",
+    "format": "kaggle_image_csv",
+    "ann_file": "./Folds.csv",
+    "columns": {
+      "media": "filename",
+      "label": "fold"
+    }
+  },
+  "aelchimminut/fruits262": {
+    "path": "./Fruit-262",
+    "format": "imagenet"
+  },
+  "brsdincer/vehicle-detection-image-set": {
+    "path": "./data",
+    "format": "imagenet"
+  },
+  "valentynsichkar/traffic-signs-dataset-in-yolo-format": {
+    "path": "./ts/ts",
+    "format": "kaggle_yolo",
+    "ann_path": "./ts/ts"
+  },
+  "aalborguniversity/aau-rainsnow": {
+    "path": "./",
+    "format": "kaggle_coco",
+    "ann_file": "./aauRainSnow-rgb.json"
+  },
+  "kostastokis/simpsons-faces": {
+    "path": "./cropped",
+    "format": "image_dir"
+  },
+  "sachinkumar413/alzheimer-mri-dataset": {
+    "path": "./Dataset",
+    "format": "imagenet"
+  },
+  "mistag/arthropod-taxonomy-orders-object-detection-dataset": {
+    "path": "./ArTaxOr",
+    "format": "imagenet"
+  },
+  "jessicali9530/stl10": {
+    "path": "./train_images",
+    "format": "image_dir"
+  },
+  "vencerlanz09/pharmaceutical-drugs-and-vitamins-synthetic-images": {
+    "path": "./ImageClassesCombinedWithCOCOAnnotations/images_raw",
+    "format": "kaggle_coco",
+    "ann_file": "./ImageClassesCombinedWithCOCOAnnotations/coco_instances.json"
+  },
+  "anshtanwar/pets-facial-expression-dataset": {
+    "path": ".",
+    "format": "imagenet"
+  },
+  "tunguz/1-million-fake-faces": {
+    "path": "./1m_faces_00_01_02_03/1m_faces_00_01_02_03/1m_faces_00",
+    "format": "image_dir"
+  },
+  "gpiosenka/butterfly-images40-species": {
+    "path": ".",
+    "format": "kaggle_image_csv",
+    "ann_file": "./gpiosenka/butterfly-images40-species/butterflies and moths.csv",
+    "columns": {
+      "media": "filepaths",
+      "label": "labels"
+    }
+  },
+  "meetnagadia/human-action-recognition-har-dataset": {
+    "path": "./Human Action Recognition/train",
+    "format": "kaggle_image_csv",
+    "ann_file": "./Human Action Recognition/Training_set.csv",
+    "columns": {
+      "media": "filename",
+      "label": "label"
+    }
+  },
+  "antoreepjana/animals-detection-images-dataset": {
+    "path": ".",
+    "format": "imagenet_with_subset_dirs"
+  },
+  "mahmoudreda55/satellite-image-classification": {
+    "path": "./data",
+    "format": "imagenet"
+  },
+  "andrewmvd/medical-mnist": {
+    "path": ".",
+    "format": "imagenet"
+  },
+  "frabbisw/facial-age": {
+    "path": "./face_age",
+    "format": "imagenet"
+  },
+  "odins0n/guie-custom-data": {
+    "path": "./images_224",
+    "format": "imagenet"
+  },
+  "zippyz/cats-and-dogs-breeds-classification-oxford-dataset": {
+    "path": "./images/images",
+    "format": "kaggle_voc",
+    "ann_path": "./annotations/annotations/xmls"
+  },
+  "muhammedtausif/best-selling-mobile-phones": {
+    "path": ".",
+    "format": "tabular"
+  },
+  "kneroma/tacotrashdataset": {
+    "path": "./data",
+    "format": "kaggle_image_csv",
+    "ann_file": "./meta_df.csv",
+    "columns": {
+      "media": "img_file",
+      "bbox": {
+        "x1": "x",
+        "y1": "y",
+        "width": "width",
+        "height": "height"
+      },
+      "label": "cat_name"
+    }
+  },
+  "vencerlanz09/bottle-synthetic-images-dataset": {
+    "path": "./ImageClassesCombinedWithCOCOAnnotations/images_raw",
+    "format": "kaggle_coco",
+    "ann_file": "./ImageClassesCombinedWithCOCOAnnotations/coco_instances.json"
+  },
+  "preetviradiya/brian-tumor-dataset": {
+    "path": "./Brain Tumor Data Set/Brain Tumor Data Set/Brain Tumor",
+    "format": "kaggle_image_csv",
+    "ann_file": "./metadata.csv",
+    "columns": {
+      "media": "image",
+      "label": "class"
+    }
+  },
+  "benjaminwarner/resized-2015-2019-blindness-detection-images": {
+    "path": "./resized train 19",
+    "format": "kaggle_image_csv",
+    "ann_file": "./benjaminwarner/resized-2015-2019-blindness-detection-images/labels/trainLabels19.csv",
+    "columns": {
+      "media": "id_code",
+      "label": "diagnosis"
+    }
+  },
+  "luisblanche/covidct": {
+    "path": ".",
+    "format": "imagenet"
+  },
+  "anujms/car-damage-detection": {
+    "path": "./data1a/",
+    "format": "imagenet_with_subset_dirs"
+  },
+  "iamsouravbanerjee/indian-actor-images-dataset": {
+    "path": "./Bollywood Actor Images/Bollywood Actor Images",
+    "format": "imagenet"
+  },
+  "vikramtiwari/pix2pix-dataset": {
+    "path": "./cityscapes/cityscapes/train",
+    "format": "image_dir"
+  },
+  "vencerlanz09/taco-dataset-yolo-format": {
+    "path": ".",
+    "format": "roboflow_yolo"
+  },
+  "balraj98/deepglobe-road-extraction-dataset": {
+    "path": "./train",
+    "format": "kaggle_image_mask",
+    "mask_path": "./train"
+  },
+  "kwentar/blur-dataset": {
+    "path": ".",
+    "format": "imagenet"
+  },
+  "vencerlanz09/plastic-paper-garbage-bag-synthetic-images": {
+    "path": "./ImageClassesCombinedWithCOCOAnnotations/images_raw",
+    "format": "kaggle_coco",
+    "ann_file": "./ImageClassesCombinedWithCOCOAnnotations/coco_instances.json"
+  },
+  "utkarshsaxenadn/fast-food-classification-dataset": {
+    "path": "./Fast Food Classification V2",
+    "format": "imagenet_with_subset_dirs"
+  },
+  "robikscube/textocr-text-extraction-from-images-dataset": {
+    "path": "./train_val_images/train_images",
+    "format": "kaggle_image_csv",
+    "ann_file": "./annot.csv",
+    "columns": {
+      "media": "image_id",
+      "bbox": "bbox"
+    }
+  },
+  "andrewmvd/helmet-detection": {
+    "path": "./images",
+    "format": "kaggle_voc",
+    "ann_path": "./annotations/"
+  },
+  "ashfakyeafi/road-vehicle-images-dataset": {
+    "path": "./trafic_data/train/images",
+    "format": "kaggle_yolo",
+    "ann_path": "./ashfakyeafi/road-vehicle-images-dataset/trafic_data/train/labels"
+  },
+  "mostafaabla/garbage-classification": {
+    "path": "./garbage_classification",
+    "format": "imagenet"
+  },
+  "franciscoescobar/satellite-images-of-water-bodies": {
+    "path": "./Water Bodies Dataset/Images",
+    "format": "kaggle_image_mask",
+    "mask_path": "./Water Bodies Dataset/Masks"
+  },
+  "gavinarmstrong/open-sprayer-images": {
+    "path": "./Docknet",
+    "format": "imagenet_with_subset_dirs"
+  },
+  "aaronyin/oneshotpokemon": {
+    "path": "./kaggle-one-shot-pokemon/pokemon-a",
+    "format": "image_dir"
+  },
+  "arashnic/faces-age-detection-dataset": {
+    "path": ".//Train",
+    "format": "kaggle_image_csv",
+    "ann_file": "./train.csv",
+    "columns": {
+      "media": "ID",
+      "label": "Class"
+    }
+  },
+  "ayuraj/asl-dataset": {
+    "path": "./asl_dataset",
+    "format": "imagenet"
+  },
+  "balabaskar/tom-and-jerry-image-classification": {
+    "path": "./tom_and_jerry/tom_and_jerry",
+    "format": "imagenet"
+  },
+  "nafin59/monkeypox-skin-lesion-dataset": {
+    "path": "./Original Images/Original Images",
+    "format": "imagenet"
+  },
+  "trolukovich/food11-image-dataset": {
+    "path": ".",
+    "format": "imagenet_with_subset_dirs"
+  },
+  "mrgeislinger/asl-rgb-depth-fingerspelling-spelling-it-out": {
+    "path": ".//dataset5/A",
+    "format": "imagenet"
+  },
+  "balraj98/massachusetts-roads-dataset": {
+    "path": "./tiff/test",
+    "format": "kaggle_image_mask",
+    "mask_path": "./balraj98/massachusetts-roads-dataset/tiff/test_labels"
+  },
+  "kutaykutlu/forest-fire": {
+    "path": ".",
+    "format": "imagenet"
+  },
+  "sachinpatel21/pothole-image-dataset": {
+    "path": "./pothole_image_data/Pothole_Image_Data",
+    "format": "image_dir"
+  },
+  "raddar/chest-xrays-indiana-university": {
+    "path": "./images/images_normalized",
+    "format": "kaggle_image_csv",
+    "ann_file": "./raddar/chest-xrays-indiana-university/indiana_projections.csv",
+    "columns": {
+      "media": "filename",
+      "label": "projection"
+    }
+  },
+  "ashfakyeafi/cat-dog-images-for-classification": {
+    "path": "./cat_dog",
+    "format": "kaggle_image_csv",
+    "ann_file": "./cat_dog.csv",
+    "columns": {
+      "media": "image",
+      "label": "labels"
+    }
+  },
+  "meetnaren/goodreads-best-books": {
+    "path": "./images/images",
+    "format": "image_dir"
+  },
+  "kondwani/eye-disease-dataset": {
+    "path": "./Eye_diseases",
+    "format": "imagenet"
+  },
+  "niten19/face-shape-dataset": {
+    "path": "./FaceShape Dataset",
+    "format": "imagenet_with_subset_dirs"
+  },
+  "rishianand/devanagari-character-set": {
+    "path": "./Images/Images",
+    "format": "imagenet"
+  },
+  "pkdarabi/cardetection": {
+    "path": "./",
+    "format": "roboflow_yolo"
+  },
+  "gpiosenka/cards-image-datasetclassification": {
+    "path": "./",
+    "format": "kaggle_image_csv",
+    "ann_file": "./gpiosenka/cards-image-datasetclassification/cards.csv",
+    "columns": {
+      "media": "filepaths",
+      "label": "labels"
+    }
+  },
+  "piterfm/2022-ukraine-russia-war-equipment-losses-oryx": {
+    "path": "./img_russia/img_russia",
+    "format": "imagenet"
+  },
+  "swaroopkml/cifar10-pngs-in-folders": {
+    "path": "./cifar10/cifar10",
+    "format": "imagenet_with_subset_dirs"
+  },
+  "tustunkok/synthetic-turkish-license-plates": {
+    "path": "./license-plates",
+    "format": "image_dir"
+  },
+  "die9origephit/nike-adidas-and-converse-imaged": {
+    "path": ".",
+    "format": "imagenet_with_subset_dirs"
+  },
+  "aniruddhsharma/structural-defects-network-concrete-crack-images": {
+    "path": "./Pavements",
+    "format": "imagenet"
+  },
+  "andrewmvd/dog-and-cat-detection": {
+    "path": "./images",
+    "format": "kaggle_voc",
+    "ann_path": "./annotations"
+  },
+  "arpitjain007/game-of-deep-learning-ship-datasets": {
+    "path": "./train/images",
+    "format": "kaggle_image_csv",
+    "ann_file": "./train/train.csv",
+    "columns": {
+      "media": "image",
+      "label": "category"
+    }
+  },
+  "andrewmvd/tomato-detection": {
+    "path": "./images",
+    "format": "kaggle_voc",
+    "ann_path": "./annotations"
+  },
+  "sanikamal/rock-paper-scissors-dataset": {
+    "path": "./Rock-Paper-Scissors",
+    "format": "imagenet_with_subset_dirs"
+  },
+  "mdwaquarazam/agricultural-crops-image-classification": {
+    "path": "./Agricultural-crops",
+    "format": "imagenet"
+  },
+  "akash2907/bird-species-classification": {
+    "path": "./train_data/train_data",
+    "format": "imagenet"
+  },
+  "niteshfre/chessman-image-dataset": {
+    "path": "./Chessman-image-dataset/Chess",
+    "format": "imagenet"
+  },
+  "anshulmehtakaggl/chess-pieces-detection-images-dataset": {
+    "path": ".",
+    "format": "imagenet"
+  },
+  "usharengaraju/grassclover-dataset": {
+    "path": "./biomass_data/train/images",
+    "format": "kaggle_image_csv",
+    "ann_file": "./usharengaraju/grassclover-dataset/biomass_data/train/biomass_train_data.csv",
+    "columns": {
+      "media": "image_file_name",
+      "label": "label_type"
+    }
+  },
+  "farjanakabirsamanta/skin-cancer-dataset": {
+    "path": "./Skin Cancer/Skin Cancer",
+    "format": "kaggle_image_csv",
+    "ann_file": "./HAM10000_metadata.csv",
+    "columns": {
+      "media": "image_id",
+      "label": "dx"
+    }
+  },
+  "vaishnaviasonawane/indian-sign-language-dataset": {
+    "path": "./data",
+    "format": "imagenet"
+  },
+  "l3llff/flowers": {
+    "path": "./flowers",
+    "format": "imagenet"
+  },
+  "sharansmenon/animals141": {
+    "path": "./dataset/dataset",
+    "format": "imagenet"
+  },
+  "balabaskar/wonders-of-the-world-image-classification": {
+    "path": "./Wonders of World/Wonders of World",
+    "format": "imagenet"
+  },
+  "nancyalaswad90/us-airports": {
+    "path": ".",
+    "format": "tabular"
+  },
+  "wanderdust/skin-lesion-analysis-toward-melanoma-detection": {
+    "path": "./skin-lesions",
+    "format": "imagenet_with_subset_dirs"
+  },
+  "shashwatwork/knee-osteoarthritis-dataset-with-severity": {
+    "path": "./",
+    "format": "imagenet_with_subset_dirs"
+  },
+  "sadhliroomyprime/spatial-vehicle-detection": {
+    "subsets": {
+      "images": {
+        "path": "./images",
+        "format": "kaggle_coco",
+        "ann_file": "./COCO_Tokyo Japan.json"
+      },
+      ".": {
+        "path": ".",
+        "format": "imagenet_with_subset_dirs"
+      }
+    }
+  },
+  "linchundan/fundusimage1000": {
+    "path": "./1000images",
+    "format": "imagenet"
+  },
+  "rashikrahmanpritom/plant-disease-recognition-dataset": {
+    "path": "./Train/Train",
+    "format": "imagenet"
+  },
+  "ahemateja19bec1025/traffic-sign-dataset-classification": {
+    "path": "./traffic_Data/DATA",
+    "format": "imagenet"
+  },
+  "maedemaftouni/large-covid19-ct-slice-dataset": {
+    "path": "./curated_data/curated_data",
+    "format": "imagenet"
+  },
+  "lplenka/coco-car-damage-detection-dataset": {
+    "path": "./train",
+    "format": "kaggle_coco",
+    "ann_file": "./train/COCO_train_annos.json"
+  },
+  "rhtsingh/130k-images-512x512-universal-image-embeddings": {
+    "path": ".",
+    "format": "imagenet"
+  },
+  "anasmohammedtahir/covidqu": {
+    "path": "./Lung Segmentation Data/Lung Segmentation Data/Train/COVID-19/images",
+    "format": "kaggle_image_mask",
+    "mask_path": "./Lung Segmentation Data/Lung Segmentation Data/Train/COVID-19/lung masks"
+  },
+  "d4rklucif3r/cat-and-dogs": {
+    "path": "./dataset/training_set/",
+    "format": "imagenet"
+  },
+  "vencerlanz09/shells-or-pebbles-an-image-classification-dataset": {
+    "path": ".",
+    "format": "imagenet"
+  },
+  "andrewmvd/drive-digital-retinal-images-for-vessel-extraction": {
+    "path": "./DRIVE/training/images",
+    "format": "kaggle_image_mask",
+    "mask_path": "./DRIVE/training/mask"
+  },
+  "williamscott701/memotion-dataset-7k": {
+    "path": "./memotion_dataset_7k/images",
+    "format": "kaggle_image_csv",
+    "ann_file": "./williamscott701/memotion-dataset-7k/memotion_dataset_7k/labels.csv",
+    "columns": {
+      "media": "image_name",
+      "label": "overall_sentiment"
+    }
+  },
+  "gunavenkatdoddi/eye-diseases-classification": {
+    "path": "./dataset",
+    "format": "imagenet"
+  },
+  "soumendraprasad/fifa-2022-all-players-image-dataset": {
+    "path": "./Images/Images/Group B/England Players",
+    "format": "imagenet"
+  },
+  "karimabdulnabi/fruit-classification10-class": {
+    "path": "./MY_data/train",
+    "format": "imagenet"
+  },
+  "akhiljethwa/blood-cancer-image-dataset": {
+    "path": "./Blood_Cancer",
+    "format": "image_dir"
+  },
+  "pkdarabi/the-drug-name-detection-dataset": {
+    "path": "./train/images",
+    "format": "kaggle_yolo",
+    "ann_path": "./train/labels"
+  },
+  "dionisiusdh/indonesian-batik-motifs": {
+    "path": ".",
+    "format": "imagenet"
+  },
+  "subinium/emojiimage-dataset": {
+    "path": "./image",
+    "format": "imagenet"
+  },
+  "sadhliroomyprime/motorcycle-night-ride-semantic-segmentation": {
+    "path": "./www.acmeai.tech ODataset 1 - Motorcycle Night Ride Dataset/images",
+    "format": "kaggle_coco",
+    "ann_file": "./www.acmeai.tech ODataset 1 - Motorcycle Night Ride Dataset/COCO_motorcycle (pixel).json"
+  },
+  "nitishabharathi/scene-classification": {
+    "path": "./train-scene classification/train",
+    "format": "kaggle_image_csv",
+    "ann_file": "./nitishabharathi/scene-classification/train-scene classification/train.csv",
+    "columns": {
+      "media": "image_name",
+      "label": "label"
+    }
+  },
+  "harshalhonde/starbucks-reviews-dataset": {
+    "path": ".",
+    "format": "tabular"
+  },
+  "eliasdabbas/emoji-data-descriptions-codepoints": {
+    "path": ".",
+    "format": "tabular"
+  },
+  "lgmoneda/br-coins": {
+    "path": "./COCO_labelme_classification/classification/coco/JPEGImages",
+    "format": "kaggle_coco",
+    "ann_file": "./COCO_labelme_classification/classification/coco/annotations.json"
+  },
+  "preetviradiya/covid19-radiography-dataset": {
+    "path": "./COVID-19_Radiography_Dataset/COVID-19_Radiography_Dataset",
+    "format": "imagenet"
+  },
+  "tapakah68/yandextoloka-water-meters-dataset": {
+    "path": "./WaterMeters/images",
+    "format": "kaggle_image_mask",
+    "mask_path": "./WaterMeters/masks"
+  },
+  "yusufberksardoan/traffic-detection-project": {
+    "path": ".",
+    "format": "roboflow_yolo"
+  },
+  "jtiptj/chest-xray-pneumoniacovid19tuberculosis": {
+    "path": ".",
+    "format": "imagenet_with_subset_dirs"
+  },
+  "vijaykumar1799/face-mask-detection": {
+    "path": "./Dataset",
+    "format": "imagenet"
+  },
+  "nancyalaswad90/trip-data-ford-go-bike": {
+    "path": ".",
+    "format": "tabular"
+  },
+  "alifrahman/covid19-chest-xray-image-dataset": {
+    "path": "./dataset",
+    "format": "imagenet"
+  },
+  "vitaminc/cigarette-smoker-detection": {
+    "path": "./data/data",
+    "format": "imagenet"
+  },
+  "tapakah68/segmentation-full-body-mads-dataset": {
+    "path": "./segmentation_full_body_mads_dataset_1192_img/segmentation_full_body_mads_dataset_1192_img/images",
+    "format": "kaggle_image_mask",
+    "mask_path": "./segmentation_full_body_mads_dataset_1192_img/segmentation_full_body_mads_dataset_1192_img/masks"
+  },
+  "mpwolke/cusersmarildownloadsdeadjpg": {
+    "path": ".",
+    "format": "image_dir"
+  },
+  "lsind18/gemstones-images": {
+    "path": ".",
+    "format": "imagenet_with_subset_dirs"
+  },
+  "balabaskar/golden-foot-football-players-image-dataset": {
+    "path": "./football_golden_foot/football_golden_foot",
+    "format": "imagenet"
+  },
+  "fantacher/neu-metal-surface-defects-data": {
+    "path": "./NEU Metal Surface Defects Data",
+    "format": "imagenet_with_subset_dirs"
+  },
+  "olgabelitskaya/style-color-images": {
+    "path": "./style",
+    "format": "kaggle_image_csv",
+    "ann_file": "./style/style.csv",
+    "columns": {
+      "media": "file",
+      "label": "brand_name"
+    }
+  },
+  "salmaneunus/rock-classification": {
+    "path": "./Dataset/Metamorphic",
+    "format": "imagenet"
+  },
+  "adhoppin/blood-cell-detection-datatset": {
+    "path": "./",
+    "format": "roboflow_yolo"
+  },
+  "carlosrunner/pizza-not-pizza": {
+    "path": "./pizza_not_pizza",
+    "format": "imagenet"
+  },
+  "maciejgronczynski/biggest-genderface-recognition-dataset": {
+    "path": "./faces",
+    "format": "imagenet"
+  },
+  "balabaskar/cricket-legends-in-world-image-dataset": {
+    "path": "./Cricket Legends/Cricket Legends",
+    "format": "imagenet"
+  },
+  "mksaad/wider-face-a-face-detection-benchmark": {
+    "path": "./WIDER_train/WIDER_train/images",
+    "format": "imagenet"
+  },
+  "vencerlanz09/insect-village-synthetic-dataset": {
+    "path": "./ImageClassesCombinedWithCOCOAnnotations/images_raw",
+    "format": "kaggle_coco",
+    "ann_file": "./ImageClassesCombinedWithCOCOAnnotations/coco_instances.json"
+  },
+  "balraj98/massachusetts-buildings-dataset": {
+    "path": "./png/train",
+    "format": "kaggle_image_mask",
+    "mask_path": "./png/train_labels"
+  },
+  "wwymak/architecture-dataset": {
+    "path": "./arcDataset",
+    "format": "imagenet"
+  },
+  "kmader/parkinsons-drawings": {
+    "path": "./drawings/spiral",
+    "format": "imagenet_with_subset_dirs"
+  },
+  "ivanfel/honey-bee-pollen": {
+    "path": "./PollenDataset/images",
+    "format": "kaggle_image_csv",
+    "ann_file": "./ivanfel/honey-bee-pollen/PollenDataset/pollen_data.csv",
+    "columns": {
+      "media": "filename",
+      "label": "pollen_carrying"
+    }
+  },
+  "birdy654/cifake-real-and-ai-generated-synthetic-images": {
+    "path": ".",
+    "format": "imagenet_with_subset_dirs"
+  },
+  "theoviel/rsna-2023-abdominal-trauma-detection-pngs-18": {
+    "path": ".",
+    "format": "image_dir"
+  },
+  "coloradokb/dandelionimages": {
+    "path": "./Images",
+    "format": "imagenet"
+  },
+  "ayanzadeh93/color-classification": {
+    "path": "./ColorClassification",
+    "format": "imagenet"
+  },
+  "vijaygiitk/multiclass-weather-dataset": {
+    "path": "./dataset",
+    "format": "imagenet"
+  },
+  "ashfakyeafi/glasses-classification-dataset": {
+    "path": ".",
+    "format": "imagenet_with_subset_dirs"
+  },
+  "samuelcortinhas/muffin-vs-chihuahua-image-classification": {
+    "path": ".",
+    "format": "imagenet_with_subset_dirs"
+  },
+  "subinium/highresolution-anime-face-dataset-512x512": {
+    "path": "./portraits",
+    "format": "image_dir"
+  },
+  "edoardoba/fitness-exercises-with-animations": {
+    "path": ".",
+    "format": "tabular"
+  },
+  "vishesh1412/celebrity-face-image-dataset": {
+    "path": "./Celebrity Faces Dataset",
+    "format": "imagenet"
+  },
+  "mcagriaksoy/amateur-unmanned-air-vehicle-detection-dataset": {
+    "path": "./Database1/Database1",
+    "format": "kaggle_yolo",
+    "ann_path": "./Database1/Database1"
+  },
+  "dataclusterlabs/fire-and-smoke-dataset": {
+    "path": "./Datacluster Fire and Smoke Sample/Datacluster Fire and Smoke Sample",
+    "format": "kaggle_voc",
+    "ann_path": "./dataclusterlabs/fire-and-smoke-dataset/Annotations/Annotations"
+  },
+  "vencerlanz09/pharmaceutical-drugs-and-vitamins-dataset-v2": {
+    "path": ".//Capsure Dataset",
+    "format": "imagenet_with_subset_dirs"
+  },
+  "fernando2rad/brain-tumor-mri-images-44c": {
+    "path": "./",
+    "format": "imagenet"
+  },
+  "roydatascience/training-car": {
+    "path": "./data",
+    "format": "kaggle_image_csv",
+    "ann_file": "./data/driving_log.csv",
+    "columns": {
+      "media": "center",
+      "label": "brake"
+    }
+  },
+  "stoicstatic/face-recognition-dataset": {
+    "path": "./Face Data/Face Dataset",
+    "format": "imagenet"
+  }
+}
