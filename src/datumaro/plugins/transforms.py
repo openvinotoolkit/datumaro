@@ -1462,7 +1462,7 @@ class AstypeAnnotations(ItemTransform):
 
         .. code-block::
 
-        |s|s%(prog)s --mapping 'title:Caption'
+        |s|s%(prog)s --mapping 'title:text'
     """
 
     @staticmethod

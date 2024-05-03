@@ -521,7 +521,7 @@ Examples:
 - Convert type of `title` and `rating` annotation
   ```console
   datum transform -t astype_annotations -- \
-    --mapping 'title:text,rating:int'
+    --mapping 'title:text,rating:label'
   ```
 
 #### `random_split`
