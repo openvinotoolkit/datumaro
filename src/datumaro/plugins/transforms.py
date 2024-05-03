@@ -38,8 +38,8 @@ from datumaro.components.annotation import (
 )
 from datumaro.components.cli_plugin import CliPlugin
 from datumaro.components.dataset_base import DEFAULT_SUBSET_NAME, DatasetInfo, DatasetItem, IDataset
-from datumaro.components.errors import DatumaroError
-from datumaro.components.media import Image
+from datumaro.components.errors import DatumaroError, MediaTypeError
+from datumaro.components.media import Image, TableRow
 from datumaro.components.transformer import ItemTransform, Transform
 from datumaro.util import NOTSET, filter_dict, parse_json_file, parse_str_enum_value, take_by
 from datumaro.util.annotation_util import find_group_leader, find_instances
@@ -1495,9 +1495,13 @@ class AstypeAnnotations(ItemTransform):
     ):
         super().__init__(extractor)
 
-        # Turn off for default setting
-        # assert isinstance(mapping, (dict, list))
+        if extractor.media_type() and not issubclass(extractor.media_type(), TableRow):
+            raise MediaTypeError(
+                "Media type is not table. This transform only support tabular media"
+            )
 
+        # Turn off for default setting
+        assert mapping is None or isinstance(mapping, (dict, list)), "Mapping must be dict, or list"
         if isinstance(mapping, list):
             mapping = dict(mapping)
 
@@ -1510,17 +1514,20 @@ class AstypeAnnotations(ItemTransform):
         # Make LabelCategories
         self._id_mapping = {}
         dst_label_cat = LabelCategories()
-        if src_tabular_cat is not None:
-            for src_cat in src_tabular_cat:
-                if src_cat.dtype == CategoricalDtype():
-                    dst_parent = src_cat.name
-                    dst_labels = sorted(src_cat.labels)
-                    for dst_label in dst_labels:
-                        dst_index = dst_label_cat.add(dst_label, parent=dst_parent, attributes={})
-                        self._id_mapping[dst_label] = dst_index
-                    dst_label_cat.add_label_group(src_cat.name, src_cat.labels, group_type=0)
-                self._tabular_cat_types[src_cat.name] = src_cat.dtype
-            self._categories[AnnotationType.label] = dst_label_cat
+
+        if src_tabular_cat is None:
+            return
+
+        for src_cat in src_tabular_cat:
+            if src_cat.dtype == CategoricalDtype():
+                dst_parent = src_cat.name
+                dst_labels = sorted(src_cat.labels)
+                for dst_label in dst_labels:
+                    dst_index = dst_label_cat.add(dst_label, parent=dst_parent, attributes={})
+                    self._id_mapping[dst_label] = dst_index
+                dst_label_cat.add_label_group(src_cat.name, src_cat.labels, group_type=0)
+            self._tabular_cat_types[src_cat.name] = src_cat.dtype
+        self._categories[AnnotationType.label] = dst_label_cat
 
     def categories(self):
         return self._categories

@@ -502,9 +502,11 @@ Examples:
 #### `astype_annotations`
 
 Enables the conversion of annotation types for the categories and individual items within a dataset.
+This transform only supports tabular datasets. If you want to change annotation types in datasets of other types, please use a different transform.
 
-Based on a specified mapping, it transforms the annotation types, changing them to 'Label' if they are categorical,
+Based on default setting it transforms the annotation types, changing them to 'Label' if they are categorical,
 and to 'Caption' if they are of type string, float, or integer.
+If you specifically set mapping, change annotation types based on the mapping.
 
 Usage:
 ```console
@@ -519,7 +521,7 @@ Examples:
 - Convert type of `title` and `rating` annotation
   ```console
   datum transform -t astype_annotations -- \
-    --mapping 'title:Caption,rating:int'
+    --mapping 'title:text,rating:int'
   ```
 
 #### `random_split`
