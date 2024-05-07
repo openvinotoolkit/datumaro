@@ -100,6 +100,8 @@ class ProjectSourceDataset(IDataset):
         rpath = path
         if config.path:
             rpath = osp.join(path, config.path)
+        if "path" in config.options:
+            rpath = osp.join(path, config.options.pop("path"))
 
         dataset = Dataset.import_from(rpath, env=tree.env, format=config.format, **config.options)
 

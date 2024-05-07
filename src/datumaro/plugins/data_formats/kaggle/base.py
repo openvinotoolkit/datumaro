@@ -2,6 +2,7 @@
 #
 # SPDX-License-Identifier: MIT
 
+import json
 import os
 import os.path as osp
 import re
@@ -156,7 +157,7 @@ class KaggleImageCsvBase(DatasetBase):
             item_id = osp.splitext(media_name)[0]
 
             media_path = self._get_media_path(media_name)
-            if not osp.exists(media_path):
+            if not media_path or not osp.exists(media_path):
                 warnings.warn(
                     f"'{media_path}' is not existed in the directory, "
                     f"so we skip to create an dataset item according to {row}."
@@ -181,6 +182,15 @@ class KaggleImageCsvBase(DatasetBase):
 
     def __iter__(self):
         yield from self._items
+
+    @classmethod
+    def build_cmdline_parser(cls, **kwargs):
+        parser = super().build_cmdline_parser(**kwargs)
+        parser.add_argument("--path", required=True)
+        parser.add_argument("--ann_file", required=True)
+        parser.add_argument("--columns", required=True, type=json.loads)
+
+        return parser
 
 
 class KaggleImageTxtBase(KaggleImageCsvBase):
@@ -220,7 +230,7 @@ class KaggleImageTxtBase(KaggleImageCsvBase):
                 item_id = osp.splitext(media_name)[0]
 
                 media_path = self._get_media_path(media_name)
-                if not osp.exists(media_path):
+                if not media_path or not osp.exists(media_path):
                     warnings.warn(
                         f"'{media_path}' is not existed in the directory, "
                         f"so we skip to create an dataset item according to {line}."
@@ -330,6 +340,15 @@ class KaggleImageMaskBase(DatasetBase):
     def __iter__(self):
         yield from self._items
 
+    @classmethod
+    def build_cmdline_parser(cls, **kwargs):
+        parser = super().build_cmdline_parser(**kwargs)
+        parser.add_argument("--path", required=True)
+        parser.add_argument("--mask_path", required=True)
+        parser.add_argument("--labelmap_file")
+
+        return parser
+
 
 class KaggleVocBase(SubsetBase):
     ann_extensions = ".xml"
@@ -424,6 +443,15 @@ class KaggleVocBase(SubsetBase):
             return cls(elem.text)
         except Exception as e:
             raise InvalidFieldError(xpath) from e
+
+    @classmethod
+    def build_cmdline_parser(cls, **kwargs):
+        parser = super().build_cmdline_parser(**kwargs)
+        parser.add_argument("--path", required=True)
+        parser.add_argument("--ann_path", required=True)
+        parser.add_argument("--subset")
+
+        return parser
 
 
 class KaggleYoloBase(KaggleVocBase, SubsetBase):
@@ -524,3 +552,12 @@ class KaggleCocoBase(CocoInstancesBase, SubsetBase):
             )
 
             self._length = None
+
+    @classmethod
+    def build_cmdline_parser(cls, **kwargs):
+        parser = super().build_cmdline_parser(**kwargs)
+        parser.add_argument("--path", required=True)
+        parser.add_argument("--ann_file", required=True)
+        parser.add_argument("--subset")
+
+        return parser

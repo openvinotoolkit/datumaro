@@ -133,6 +133,14 @@ class ImagenetImporter(Importer):
     def get_file_extensions(cls) -> List[str]:
         return list(IMAGE_EXTENSIONS)
 
+    @classmethod
+    def build_cmdline_parser(cls, **kwargs):
+        parser = super().build_cmdline_parser(**kwargs)
+        parser.add_argument("--path", required=True)
+        parser.add_argument("--subset")
+
+        return parser
+
 
 @with_subset_dirs
 class ImagenetWithSubsetDirsImporter(ImagenetImporter):
