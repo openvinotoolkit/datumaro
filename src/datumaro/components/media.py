@@ -1234,7 +1234,7 @@ class Table:
     def dtype(self, column: str) -> Optional[Type[TableDtype]]:
         """Returns native python type for a given column"""
         numpy_type = self.data.dtypes[column]
-        if numpy_type == object and self.data[column].nunique() / self.shape[0] < 0.1:  # TODO
+        if self.data[column].nunique() / self.shape[0] < 0.1:  # TODO
             # Convert to CategoricalDtype for efficient storage and categorical analysis
             return pd.api.types.CategoricalDtype()
         if numpy_type == object:

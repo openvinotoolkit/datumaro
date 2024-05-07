@@ -1,4 +1,4 @@
-# Copyright (C) 2020-2021 Intel Corporation
+# Copyright (C) 2020-2024 Intel Corporation
 #
 # SPDX-License-Identifier: MIT
 
@@ -18,6 +18,7 @@ from typing import Dict, Iterable, List, Optional, Tuple, Union
 import cv2
 import numpy as np
 import pycocotools.mask as mask_utils
+from pandas.api.types import CategoricalDtype
 
 import datumaro.util.mask_tools as mask_tools
 from datumaro.components.annotation import (
@@ -37,8 +38,8 @@ from datumaro.components.annotation import (
 )
 from datumaro.components.cli_plugin import CliPlugin
 from datumaro.components.dataset_base import DEFAULT_SUBSET_NAME, DatasetInfo, DatasetItem, IDataset
-from datumaro.components.errors import DatumaroError
-from datumaro.components.media import Image
+from datumaro.components.errors import DatumaroError, MediaTypeError
+from datumaro.components.media import Image, TableRow
 from datumaro.components.transformer import ItemTransform, Transform
 from datumaro.util import NOTSET, filter_dict, parse_json_file, parse_str_enum_value, take_by
 from datumaro.util.annotation_util import find_group_leader, find_instances
@@ -1447,3 +1448,97 @@ class Correct(Transform, CliPlugin):
                         )
                     updated_anns.append(new_ann)
                 yield item.wrap(annotations=updated_anns)
+
+
+class AstypeAnnotations(ItemTransform):
+    """
+    Enables the conversion of annotation types for the categories and individual items within a dataset.|n
+    |n
+    Based on a specified mapping, it transforms the annotation types,|m
+    changing them to 'Label' if they are categorical, and to 'Caption' if they are of type string, float, or integer.|n
+    |n
+    Examples:|n
+        - Convert type of `title` annotation|n
+
+        .. code-block::
+
+        |s|s%(prog)s --mapping 'title:text'
+    """
+
+    @staticmethod
+    def _split_arg(s):
+        columns = s.split(",")
+        results = []
+        for column in columns:
+            parts = column.split(":")
+            if len(parts) != 2:
+                raise argparse.ArgumentTypeError()
+            results.append((parts[0], parts[1]))
+        return results
+
+    @classmethod
+    def build_cmdline_parser(cls, **kwargs):
+        parser = super().build_cmdline_parser(**kwargs)
+        parser.add_argument(
+            "--mapping",
+            action="append",
+            type=cls._split_arg,
+            dest="mapping",
+            help="Annotations type in the form of: '<src>:<dst>' (repeatable)",
+        )
+        return parser
+
+    def __init__(
+        self,
+        extractor: IDataset,
+        mapping: Optional[Union[Dict[str, str], List[Tuple[str, str]]]] = None,
+    ):
+        super().__init__(extractor)
+
+        if extractor.media_type() and not issubclass(extractor.media_type(), TableRow):
+            raise MediaTypeError(
+                "Media type is not table. This transform only support tabular media"
+            )
+
+        # Turn off for default setting
+        assert mapping is None or isinstance(mapping, (dict, list)), "Mapping must be dict, or list"
+        if isinstance(mapping, list):
+            mapping = dict(mapping)
+
+        self._categories = {}
+
+        src_categories = self._extractor.categories()
+        src_tabular_cat = src_categories.get(AnnotationType.tabular)
+        self._tabular_cat_types = {}
+
+        # Make LabelCategories
+        self._id_mapping = {}
+        dst_label_cat = LabelCategories()
+
+        if src_tabular_cat is None:
+            return
+
+        for src_cat in src_tabular_cat:
+            if src_cat.dtype == CategoricalDtype():
+                dst_parent = src_cat.name
+                dst_labels = sorted(src_cat.labels)
+                for dst_label in dst_labels:
+                    dst_index = dst_label_cat.add(dst_label, parent=dst_parent, attributes={})
+                    self._id_mapping[dst_label] = dst_index
+                dst_label_cat.add_label_group(src_cat.name, src_cat.labels, group_type=0)
+            self._tabular_cat_types[src_cat.name] = src_cat.dtype
+        self._categories[AnnotationType.label] = dst_label_cat
+
+    def categories(self):
+        return self._categories
+
+    def transform_item(self, item: DatasetItem):
+        annotations = []
+        for name, value in item.annotations[0].values.items():
+            dtype = self._tabular_cat_types.get(name, None)
+            if dtype == CategoricalDtype():
+                annotations.append(Label(label=self._id_mapping[value]))
+            else:
+                annotations.append(Caption(value))
+
+        return self.wrap_item(item, annotations=annotations)

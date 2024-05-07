@@ -5,6 +5,7 @@
 from unittest import TestCase
 
 import pytest
+from pandas.api.types import CategoricalDtype
 
 from datumaro.components.annotation import AnnotationType, TabularCategories
 from datumaro.components.dataset import Dataset
@@ -57,7 +58,10 @@ class TabularImporterTest:
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_import_tabular_folder(self, fxt_buddy) -> None:
         dataset: Type[Dataset] = fxt_buddy
-        expected_categories_keys = [("breed_category", float), ("pet_category", int)]
+        expected_categories_keys = [
+            ("breed_category", CategoricalDtype()),
+            ("pet_category", CategoricalDtype()),
+        ]
 
         assert [
             (cat.name, cat.dtype) for cat in dataset.categories()[AnnotationType.tabular].items
@@ -110,18 +114,18 @@ class TabularImporterTest:
             (
                 {"input": "length(m)", "output": "breed_category"},
                 ["length(m)", "breed_category"],
-                [("breed_category", float)],
+                [("breed_category", CategoricalDtype())],
             ),
             (
                 {"input": "length", "output": "breed_category"},
                 ["breed_category"],
-                [("breed_category", float)],
+                [("breed_category", CategoricalDtype())],
             ),
             ({"input": "length(m)", "output": "breed"}, ["length(m)"], []),
             (
                 {"input": ["length(m)", "height(cm)"], "output": "breed_category"},
                 ["length(m)", "height(cm)", "breed_category"],
-                [("breed_category", float)],
+                [("breed_category", CategoricalDtype())],
             ),
         ],
     )
