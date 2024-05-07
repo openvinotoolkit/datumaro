@@ -17,6 +17,7 @@ the dataset reproducible and stable.
 This command provides different options like setting the frame step
 (the `-s/--step` option), file name pattern (`-n/--name-pattern`),
 starting (`-b/--start-frame`) and finishing (`-e/--end-frame`) frame etc.
+Note that starting and finishing frames denote a closed interval [`start-frame`, `end-frame`].
 
 Note that this command is equivalent to the following commands:
 ```bash

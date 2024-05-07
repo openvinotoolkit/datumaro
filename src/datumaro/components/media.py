@@ -580,8 +580,9 @@ class Video(MediaElement, Iterable[VideoFrame]):
         super().__init__()
         self._path = path
 
+        assert 0 <= start_frame
         if end_frame:
-            assert start_frame < end_frame
+            assert start_frame <= end_frame
         assert 0 < step
         self._step = step
         self._start_frame = start_frame
@@ -630,7 +631,7 @@ class Video(MediaElement, Iterable[VideoFrame]):
             # Decoding is not necessary to get frame pointers
             # However, it can be inacurrate
             end_frame = self._get_end_frame()
-            for index in range(self._start_frame, end_frame, self._step):
+            for index in range(self._start_frame, end_frame + 1, self._step):
                 yield VideoFrame(video=self, index=index)
         else:
             # Need to decode to iterate over frames
@@ -657,7 +658,7 @@ class Video(MediaElement, Iterable[VideoFrame]):
 
             length = None
             if end_frame is not None:
-                length = (end_frame - self._start_frame) // self._step
+                length = (end_frame + 1 - self._start_frame) // self._step
                 assert 0 < length
 
             self._length = length
@@ -688,8 +689,12 @@ class Video(MediaElement, Iterable[VideoFrame]):
     def _get_end_frame(self):
         if self._end_frame is not None and self._frame_count is not None:
             end_frame = min(self._end_frame, self._frame_count)
+        elif self._end_frame is not None:
+            end_frame = self._end_frame
+        elif self._frame_count is not None:
+            end_frame = self._frame_count - 1
         else:
-            end_frame = self._end_frame or self._frame_count
+            end_frame = None
 
         return end_frame
 
@@ -697,7 +702,7 @@ class Video(MediaElement, Iterable[VideoFrame]):
         end_frame = self._get_end_frame()
         if self._start_frame <= i:
             if (i - self._start_frame) % self._step == 0:
-                if end_frame is None or i < end_frame:
+                if end_frame is None or i <= end_frame:
                     return True
 
         return False

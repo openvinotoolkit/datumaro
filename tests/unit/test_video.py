@@ -91,8 +91,8 @@ class VideoTest:
         for last_frame in video:
             pass
 
-        assert 2 == video.length
-        assert 1 == last_frame.index
+        assert 3 == video.length
+        assert 2 == last_frame.index
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     @scoped

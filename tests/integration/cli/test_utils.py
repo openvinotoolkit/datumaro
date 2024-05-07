@@ -46,4 +46,4 @@ class VideoSplittingTest:
             "2",
         )
 
-        assert set(os.listdir(output_dir)) == {"%06d.jpg" % n for n in range(2, 8, 2)}
+        assert set(os.listdir(output_dir)) == {"%06d.jpg" % n for n in range(2, 9, 2)}
