@@ -8,7 +8,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>datumaro.cli.commands.download &#8212; Datumaro 1.7.0rc0 documentation</title>
+    <title>datumaro.cli.commands.downloaders.kaggle &#8212; Datumaro 1.7.0rc0 documentation</title>
   
   
   
@@ -46,11 +46,11 @@
     <script src="../../../_static/copybutton.js?v=f281be69"></script>
     <script src="../../../_static/design-tabs.js?v=36754332"></script>
     <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
-    <script>DOCUMENTATION_OPTIONS.pagename = 'docs/reference/_autosummary/datumaro.cli.commands.download';</script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'docs/reference/_autosummary/datumaro.cli.commands.downloaders.kaggle';</script>
     <link rel="index" title="Index" href="../../../genindex.html" />
     <link rel="search" title="Search" href="../../../search.html" />
-    <link rel="next" title="datumaro.cli.commands.downloaders" href="datumaro.cli.commands.downloaders.html" />
-    <link rel="prev" title="datumaro.cli.commands.detect_format" href="datumaro.cli.commands.detect_format.html" />
+    <link rel="next" title="datumaro.cli.commands.downloaders.tfds" href="datumaro.cli.commands.downloaders.tfds.html" />
+    <link rel="prev" title="datumaro.cli.commands.downloaders.downloader" href="datumaro.cli.commands.downloaders.downloader.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
   </head>
@@ -638,7 +638,7 @@ document.write(`
     <li class="breadcrumb-item"><i class="fa-solid fa-ellipsis"></i></li>
     
     
-    <li class="breadcrumb-item"><a href="datumaro.cli.commands.html" class="nav-link">datumaro.cli.commands</a></li>
+    <li class="breadcrumb-item"><a href="datumaro.cli.commands.downloaders.html" class="nav-link">datumaro.cli.commands.downloaders</a></li>
     
     <li class="breadcrumb-item active" aria-current="page">datumaro.cli...</li>
   </ul>
@@ -657,60 +657,54 @@ document.write(`
 <div id="searchbox"></div>
                 <article class="bd-article">
                   
-  <section id="module-datumaro.cli.commands.download">
-<span id="datumaro-cli-commands-download"></span><h1>datumaro.cli.commands.download<a class="headerlink" href="#module-datumaro.cli.commands.download" title="Link to this heading">#</a></h1>
+  <section id="module-datumaro.cli.commands.downloaders.kaggle">
+<span id="datumaro-cli-commands-downloaders-kaggle"></span><h1>datumaro.cli.commands.downloaders.kaggle<a class="headerlink" href="#module-datumaro.cli.commands.downloaders.kaggle" title="Link to this heading">#</a></h1>
 <p class="rubric">Functions</p>
 <table class="autosummary longtable table autosummary">
 <tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="#datumaro.cli.commands.download.build_describe_subparser" title="datumaro.cli.commands.download.build_describe_subparser"><code class="xref py py-obj docutils literal notranslate"><span class="pre">build_describe_subparser</span></code></a>(subparsers, name, ...)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#datumaro.cli.commands.downloaders.kaggle.make_all_paths_absolute" title="datumaro.cli.commands.downloaders.kaggle.make_all_paths_absolute"><code class="xref py py-obj docutils literal notranslate"><span class="pre">make_all_paths_absolute</span></code></a>(d[, root])</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#datumaro.cli.commands.download.build_get_subparser" title="datumaro.cli.commands.download.build_get_subparser"><code class="xref py py-obj docutils literal notranslate"><span class="pre">build_get_subparser</span></code></a>(subparsers, name, downloader)</p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#datumaro.cli.commands.download.build_parser" title="datumaro.cli.commands.download.build_parser"><code class="xref py py-obj docutils literal notranslate"><span class="pre">build_parser</span></code></a>([parser_ctor])</p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#datumaro.cli.commands.download.describe_downloads_command" title="datumaro.cli.commands.download.describe_downloads_command"><code class="xref py py-obj docutils literal notranslate"><span class="pre">describe_downloads_command</span></code></a>(args)</p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#datumaro.cli.commands.download.download_command" title="datumaro.cli.commands.download.download_command"><code class="xref py py-obj docutils literal notranslate"><span class="pre">download_command</span></code></a>(args)</p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#datumaro.cli.commands.download.get_sensitive_args" title="datumaro.cli.commands.download.get_sensitive_args"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_sensitive_args</span></code></a>()</p></td>
+</tbody>
+</table>
+<p class="rubric">Classes</p>
+<table class="autosummary longtable table autosummary">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#datumaro.cli.commands.downloaders.kaggle.KaggleDatasetDownloader" title="datumaro.cli.commands.downloaders.kaggle.KaggleDatasetDownloader"><code class="xref py py-obj docutils literal notranslate"><span class="pre">KaggleDatasetDownloader</span></code></a>()</p></td>
 <td><p></p></td>
 </tr>
 </tbody>
 </table>
 <dl class="py function">
-<dt class="sig sig-object py" id="datumaro.cli.commands.download.build_parser">
-<span class="sig-prename descclassname"><span class="pre">datumaro.cli.commands.download.</span></span><span class="sig-name descname"><span class="pre">build_parser</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">parser_ctor=&lt;class</span> <span class="pre">'argparse.ArgumentParser'&gt;</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/datumaro/cli/commands/download.html#build_parser"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.cli.commands.download.build_parser" title="Link to this definition">#</a></dt>
+<dt class="sig sig-object py" id="datumaro.cli.commands.downloaders.kaggle.make_all_paths_absolute">
+<span class="sig-prename descclassname"><span class="pre">datumaro.cli.commands.downloaders.kaggle.</span></span><span class="sig-name descname"><span class="pre">make_all_paths_absolute</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">d</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Dict" title="(in Python v3.12)"><span class="pre">Dict</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">root</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><span class="pre">str</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'.'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/datumaro/cli/commands/downloaders/kaggle.html#make_all_paths_absolute"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.cli.commands.downloaders.kaggle.make_all_paths_absolute" title="Link to this definition">#</a></dt>
 <dd></dd></dl>
 
-<dl class="py function">
-<dt class="sig sig-object py" id="datumaro.cli.commands.download.build_get_subparser">
-<span class="sig-prename descclassname"><span class="pre">datumaro.cli.commands.download.</span></span><span class="sig-name descname"><span class="pre">build_get_subparser</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">subparsers</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">_SubParsersAction</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">downloader</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="datumaro.cli.commands.downloaders.downloader.html#datumaro.cli.commands.downloaders.downloader.IDatasetDownloader" title="datumaro.cli.commands.downloaders.downloader.IDatasetDownloader"><span class="pre">IDatasetDownloader</span></a></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/datumaro/cli/commands/download.html#build_get_subparser"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.cli.commands.download.build_get_subparser" title="Link to this definition">#</a></dt>
+<dl class="py class">
+<dt class="sig sig-object py" id="datumaro.cli.commands.downloaders.kaggle.KaggleDatasetDownloader">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">datumaro.cli.commands.downloaders.kaggle.</span></span><span class="sig-name descname"><span class="pre">KaggleDatasetDownloader</span></span><a class="reference internal" href="../../../_modules/datumaro/cli/commands/downloaders/kaggle.html#KaggleDatasetDownloader"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.cli.commands.downloaders.kaggle.KaggleDatasetDownloader" title="Link to this definition">#</a></dt>
+<dd><p>Bases: <a class="reference internal" href="datumaro.cli.commands.downloaders.downloader.html#datumaro.cli.commands.downloaders.downloader.IDatasetDownloader" title="datumaro.cli.commands.downloaders.downloader.IDatasetDownloader"><code class="xref py py-class docutils literal notranslate"><span class="pre">IDatasetDownloader</span></code></a></p>
+<dl class="py method">
+<dt class="sig sig-object py" id="datumaro.cli.commands.downloaders.kaggle.KaggleDatasetDownloader.download">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">download</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dataset_id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dst_dir</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">overwrite</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_format</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">subset</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">extra_args</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/datumaro/cli/commands/downloaders/kaggle.html#KaggleDatasetDownloader.download"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.cli.commands.downloaders.kaggle.KaggleDatasetDownloader.download" title="Link to this definition">#</a></dt>
 <dd></dd></dl>
 
-<dl class="py function">
-<dt class="sig sig-object py" id="datumaro.cli.commands.download.build_describe_subparser">
-<span class="sig-prename descclassname"><span class="pre">datumaro.cli.commands.download.</span></span><span class="sig-name descname"><span class="pre">build_describe_subparser</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">subparsers</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">_SubParsersAction</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">downloader</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="datumaro.cli.commands.downloaders.downloader.html#datumaro.cli.commands.downloaders.downloader.IDatasetDownloader" title="datumaro.cli.commands.downloaders.downloader.IDatasetDownloader"><span class="pre">IDatasetDownloader</span></a></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/datumaro/cli/commands/download.html#build_describe_subparser"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.cli.commands.download.build_describe_subparser" title="Link to this definition">#</a></dt>
+<dl class="py method">
+<dt class="sig sig-object py" id="datumaro.cli.commands.downloaders.kaggle.KaggleDatasetDownloader.describe">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">describe</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">report_format</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'txt'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">report_file</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.12)"><span class="pre">None</span></a></span></span><a class="reference internal" href="../../../_modules/datumaro/cli/commands/downloaders/kaggle.html#KaggleDatasetDownloader.describe"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.cli.commands.downloaders.kaggle.KaggleDatasetDownloader.describe" title="Link to this definition">#</a></dt>
 <dd></dd></dl>
 
-<dl class="py function">
-<dt class="sig sig-object py" id="datumaro.cli.commands.download.get_sensitive_args">
-<span class="sig-prename descclassname"><span class="pre">datumaro.cli.commands.download.</span></span><span class="sig-name descname"><span class="pre">get_sensitive_args</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/datumaro/cli/commands/download.html#get_sensitive_args"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.cli.commands.download.get_sensitive_args" title="Link to this definition">#</a></dt>
+<dl class="py method">
+<dt class="sig sig-object py" id="datumaro.cli.commands.downloaders.kaggle.KaggleDatasetDownloader.get_command_description">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">get_command_description</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><span class="pre">str</span></a></span></span><a class="reference internal" href="../../../_modules/datumaro/cli/commands/downloaders/kaggle.html#KaggleDatasetDownloader.get_command_description"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.cli.commands.downloaders.kaggle.KaggleDatasetDownloader.get_command_description" title="Link to this definition">#</a></dt>
 <dd></dd></dl>
 
-<dl class="py function">
-<dt class="sig sig-object py" id="datumaro.cli.commands.download.download_command">
-<span class="sig-prename descclassname"><span class="pre">datumaro.cli.commands.download.</span></span><span class="sig-name descname"><span class="pre">download_command</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">args</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/datumaro/cli/commands/download.html#download_command"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.cli.commands.download.download_command" title="Link to this definition">#</a></dt>
+<dl class="py method">
+<dt class="sig sig-object py" id="datumaro.cli.commands.downloaders.kaggle.KaggleDatasetDownloader.describe_command_description">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">describe_command_description</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/datumaro/cli/commands/downloaders/kaggle.html#KaggleDatasetDownloader.describe_command_description"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.cli.commands.downloaders.kaggle.KaggleDatasetDownloader.describe_command_description" title="Link to this definition">#</a></dt>
 <dd></dd></dl>
 
-<dl class="py function">
-<dt class="sig sig-object py" id="datumaro.cli.commands.download.describe_downloads_command">
-<span class="sig-prename descclassname"><span class="pre">datumaro.cli.commands.download.</span></span><span class="sig-name descname"><span class="pre">describe_downloads_command</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">args</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/datumaro/cli/commands/download.html#describe_downloads_command"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.cli.commands.download.describe_downloads_command" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
+</dd></dl>
 
 </section>
 
@@ -725,20 +719,20 @@ document.write(`
                   
 <div class="prev-next-area">
     <a class="left-prev"
-       href="datumaro.cli.commands.detect_format.html"
+       href="datumaro.cli.commands.downloaders.downloader.html"
        title="previous page">
       <i class="fa-solid fa-angle-left"></i>
       <div class="prev-next-info">
         <p class="prev-next-subtitle">previous</p>
-        <p class="prev-next-title">datumaro.cli.commands.detect_format</p>
+        <p class="prev-next-title">datumaro.cli.commands.downloaders.downloader</p>
       </div>
     </a>
     <a class="right-next"
-       href="datumaro.cli.commands.downloaders.html"
+       href="datumaro.cli.commands.downloaders.tfds.html"
        title="next page">
       <div class="prev-next-info">
         <p class="prev-next-subtitle">next</p>
-        <p class="prev-next-title">datumaro.cli.commands.downloaders</p>
+        <p class="prev-next-title">datumaro.cli.commands.downloaders.tfds</p>
       </div>
       <i class="fa-solid fa-angle-right"></i>
     </a>
@@ -760,19 +754,21 @@ document.write(`
   </div>
   <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
     <ul class="visible nav section-nav flex-column">
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.cli.commands.download.build_parser"><code class="docutils literal notranslate"><span class="pre">build_parser()</span></code></a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.cli.commands.download.build_get_subparser"><code class="docutils literal notranslate"><span class="pre">build_get_subparser()</span></code></a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.cli.commands.download.build_describe_subparser"><code class="docutils literal notranslate"><span class="pre">build_describe_subparser()</span></code></a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.cli.commands.download.get_sensitive_args"><code class="docutils literal notranslate"><span class="pre">get_sensitive_args()</span></code></a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.cli.commands.download.download_command"><code class="docutils literal notranslate"><span class="pre">download_command()</span></code></a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.cli.commands.download.describe_downloads_command"><code class="docutils literal notranslate"><span class="pre">describe_downloads_command()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.cli.commands.downloaders.kaggle.make_all_paths_absolute"><code class="docutils literal notranslate"><span class="pre">make_all_paths_absolute()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.cli.commands.downloaders.kaggle.KaggleDatasetDownloader"><code class="docutils literal notranslate"><span class="pre">KaggleDatasetDownloader</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.cli.commands.downloaders.kaggle.KaggleDatasetDownloader.download"><code class="docutils literal notranslate"><span class="pre">KaggleDatasetDownloader.download()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.cli.commands.downloaders.kaggle.KaggleDatasetDownloader.describe"><code class="docutils literal notranslate"><span class="pre">KaggleDatasetDownloader.describe()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.cli.commands.downloaders.kaggle.KaggleDatasetDownloader.get_command_description"><code class="docutils literal notranslate"><span class="pre">KaggleDatasetDownloader.get_command_description()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.cli.commands.downloaders.kaggle.KaggleDatasetDownloader.describe_command_description"><code class="docutils literal notranslate"><span class="pre">KaggleDatasetDownloader.describe_command_description()</span></code></a></li>
+</ul>
+</li>
 </ul>
   </nav></div>
 
   <div class="sidebar-secondary-item">
 
   <div class="tocsection sourcelink">
-    <a href="../../../_sources/docs/reference/_autosummary/datumaro.cli.commands.download.rst.txt">
+    <a href="../../../_sources/docs/reference/_autosummary/datumaro.cli.commands.downloaders.kaggle.rst.txt">
       <i class="fa-solid fa-file-lines"></i> Show Source
     </a>
   </div>

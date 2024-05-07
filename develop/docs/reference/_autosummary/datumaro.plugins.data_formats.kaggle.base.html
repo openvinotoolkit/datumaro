@@ -692,6 +692,11 @@ document.write(`
 <dd><p>Returns metainfo about dataset labels.</p>
 </dd></dl>
 
+<dl class="py method">
+<dt class="sig sig-object py" id="datumaro.plugins.data_formats.kaggle.base.KaggleImageCsvBase.build_cmdline_parser">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">build_cmdline_parser</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/datumaro/plugins/data_formats/kaggle/base.html#KaggleImageCsvBase.build_cmdline_parser"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.plugins.data_formats.kaggle.base.KaggleImageCsvBase.build_cmdline_parser" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
 </dd></dl>
 
 <dl class="py class">
@@ -710,6 +715,11 @@ document.write(`
 <dd><p>Returns metainfo about dataset labels.</p>
 </dd></dl>
 
+<dl class="py method">
+<dt class="sig sig-object py" id="datumaro.plugins.data_formats.kaggle.base.KaggleImageMaskBase.build_cmdline_parser">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">build_cmdline_parser</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/datumaro/plugins/data_formats/kaggle/base.html#KaggleImageMaskBase.build_cmdline_parser"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.plugins.data_formats.kaggle.base.KaggleImageMaskBase.build_cmdline_parser" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
 </dd></dl>
 
 <dl class="py class">
@@ -719,6 +729,11 @@ document.write(`
 <dl class="py attribute">
 <dt class="sig sig-object py" id="datumaro.plugins.data_formats.kaggle.base.KaggleVocBase.ann_extensions">
 <span class="sig-name descname"><span class="pre">ann_extensions</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'.xml'</span></em><a class="headerlink" href="#datumaro.plugins.data_formats.kaggle.base.KaggleVocBase.ann_extensions" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="datumaro.plugins.data_formats.kaggle.base.KaggleVocBase.build_cmdline_parser">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">build_cmdline_parser</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/datumaro/plugins/data_formats/kaggle/base.html#KaggleVocBase.build_cmdline_parser"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.plugins.data_formats.kaggle.base.KaggleVocBase.build_cmdline_parser" title="Link to this definition">#</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
@@ -738,6 +753,11 @@ document.write(`
 <dt class="sig sig-object py" id="datumaro.plugins.data_formats.kaggle.base.KaggleCocoBase">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">datumaro.plugins.data_formats.kaggle.base.</span></span><span class="sig-name descname"><span class="pre">KaggleCocoBase</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">ann_file</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">subset</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><span class="pre">str</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.12)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ctx</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="datumaro.components.contexts.importer.html#datumaro.components.contexts.importer.ImportContext" title="datumaro.components.contexts.importer.ImportContext"><span class="pre">ImportContext</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.12)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stream</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.12)"><span class="pre">bool</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/datumaro/plugins/data_formats/kaggle/base.html#KaggleCocoBase"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.plugins.data_formats.kaggle.base.KaggleCocoBase" title="Link to this definition">#</a></dt>
 <dd><p>Bases: <a class="reference internal" href="datumaro.plugins.data_formats.coco.base.html#datumaro.plugins.data_formats.coco.base.CocoInstancesBase" title="datumaro.plugins.data_formats.coco.base.CocoInstancesBase"><code class="xref py py-class docutils literal notranslate"><span class="pre">CocoInstancesBase</span></code></a>, <a class="reference internal" href="datumaro.components.dataset_base.html#datumaro.components.dataset_base.SubsetBase" title="datumaro.components.dataset_base.SubsetBase"><code class="xref py py-class docutils literal notranslate"><span class="pre">SubsetBase</span></code></a></p>
+<dl class="py method">
+<dt class="sig sig-object py" id="datumaro.plugins.data_formats.kaggle.base.KaggleCocoBase.build_cmdline_parser">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">build_cmdline_parser</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/datumaro/plugins/data_formats/kaggle/base.html#KaggleCocoBase.build_cmdline_parser"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.plugins.data_formats.kaggle.base.KaggleCocoBase.build_cmdline_parser" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
 </dd></dl>
 
 </section>
@@ -790,22 +810,28 @@ document.write(`
     <ul class="visible nav section-nav flex-column">
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.plugins.data_formats.kaggle.base.KaggleImageCsvBase"><code class="docutils literal notranslate"><span class="pre">KaggleImageCsvBase</span></code></a><ul class="nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.plugins.data_formats.kaggle.base.KaggleImageCsvBase.categories"><code class="docutils literal notranslate"><span class="pre">KaggleImageCsvBase.categories()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.plugins.data_formats.kaggle.base.KaggleImageCsvBase.build_cmdline_parser"><code class="docutils literal notranslate"><span class="pre">KaggleImageCsvBase.build_cmdline_parser()</span></code></a></li>
 </ul>
 </li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.plugins.data_formats.kaggle.base.KaggleImageTxtBase"><code class="docutils literal notranslate"><span class="pre">KaggleImageTxtBase</span></code></a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.plugins.data_formats.kaggle.base.KaggleImageMaskBase"><code class="docutils literal notranslate"><span class="pre">KaggleImageMaskBase</span></code></a><ul class="nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.plugins.data_formats.kaggle.base.KaggleImageMaskBase.categories"><code class="docutils literal notranslate"><span class="pre">KaggleImageMaskBase.categories()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.plugins.data_formats.kaggle.base.KaggleImageMaskBase.build_cmdline_parser"><code class="docutils literal notranslate"><span class="pre">KaggleImageMaskBase.build_cmdline_parser()</span></code></a></li>
 </ul>
 </li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.plugins.data_formats.kaggle.base.KaggleVocBase"><code class="docutils literal notranslate"><span class="pre">KaggleVocBase</span></code></a><ul class="nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.plugins.data_formats.kaggle.base.KaggleVocBase.ann_extensions"><code class="docutils literal notranslate"><span class="pre">KaggleVocBase.ann_extensions</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.plugins.data_formats.kaggle.base.KaggleVocBase.build_cmdline_parser"><code class="docutils literal notranslate"><span class="pre">KaggleVocBase.build_cmdline_parser()</span></code></a></li>
 </ul>
 </li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.plugins.data_formats.kaggle.base.KaggleYoloBase"><code class="docutils literal notranslate"><span class="pre">KaggleYoloBase</span></code></a><ul class="nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.plugins.data_formats.kaggle.base.KaggleYoloBase.ann_extensions"><code class="docutils literal notranslate"><span class="pre">KaggleYoloBase.ann_extensions</span></code></a></li>
 </ul>
 </li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.plugins.data_formats.kaggle.base.KaggleCocoBase"><code class="docutils literal notranslate"><span class="pre">KaggleCocoBase</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.plugins.data_formats.kaggle.base.KaggleCocoBase"><code class="docutils literal notranslate"><span class="pre">KaggleCocoBase</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.plugins.data_formats.kaggle.base.KaggleCocoBase.build_cmdline_parser"><code class="docutils literal notranslate"><span class="pre">KaggleCocoBase.build_cmdline_parser()</span></code></a></li>
+</ul>
+</li>
 </ul>
   </nav></div>
 
