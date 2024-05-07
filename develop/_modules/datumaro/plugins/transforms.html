@@ -340,7 +340,7 @@ document.write(`
                 <article class="bd-article">
                   
   <h1>Source code for datumaro.plugins.transforms</h1><div class="highlight"><pre>
-<span></span><span class="c1"># Copyright (C) 2020-2021 Intel Corporation</span>
+<span></span><span class="c1"># Copyright (C) 2020-2024 Intel Corporation</span>
 <span class="c1">#</span>
 <span class="c1"># SPDX-License-Identifier: MIT</span>
 
@@ -360,6 +360,7 @@ document.write(`
 <span class="kn">import</span> <span class="nn">cv2</span>
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 <span class="kn">import</span> <span class="nn">pycocotools.mask</span> <span class="k">as</span> <span class="nn">mask_utils</span>
+<span class="kn">from</span> <span class="nn">pandas.api.types</span> <span class="kn">import</span> <span class="n">CategoricalDtype</span>
 
 <span class="kn">import</span> <span class="nn">datumaro.util.mask_tools</span> <span class="k">as</span> <span class="nn">mask_tools</span>
 <span class="kn">from</span> <span class="nn">datumaro.components.annotation</span> <span class="kn">import</span> <span class="p">(</span>
@@ -379,8 +380,8 @@ document.write(`
 <span class="p">)</span>
 <span class="kn">from</span> <span class="nn">datumaro.components.cli_plugin</span> <span class="kn">import</span> <span class="n">CliPlugin</span>
 <span class="kn">from</span> <span class="nn">datumaro.components.dataset_base</span> <span class="kn">import</span> <span class="n">DEFAULT_SUBSET_NAME</span><span class="p">,</span> <span class="n">DatasetInfo</span><span class="p">,</span> <span class="n">DatasetItem</span><span class="p">,</span> <span class="n">IDataset</span>
-<span class="kn">from</span> <span class="nn">datumaro.components.errors</span> <span class="kn">import</span> <span class="n">DatumaroError</span>
-<span class="kn">from</span> <span class="nn">datumaro.components.media</span> <span class="kn">import</span> <span class="n">Image</span>
+<span class="kn">from</span> <span class="nn">datumaro.components.errors</span> <span class="kn">import</span> <span class="n">DatumaroError</span><span class="p">,</span> <span class="n">MediaTypeError</span>
+<span class="kn">from</span> <span class="nn">datumaro.components.media</span> <span class="kn">import</span> <span class="n">Image</span><span class="p">,</span> <span class="n">TableRow</span>
 <span class="kn">from</span> <span class="nn">datumaro.components.transformer</span> <span class="kn">import</span> <span class="n">ItemTransform</span><span class="p">,</span> <span class="n">Transform</span>
 <span class="kn">from</span> <span class="nn">datumaro.util</span> <span class="kn">import</span> <span class="n">NOTSET</span><span class="p">,</span> <span class="n">filter_dict</span><span class="p">,</span> <span class="n">parse_json_file</span><span class="p">,</span> <span class="n">parse_str_enum_value</span><span class="p">,</span> <span class="n">take_by</span>
 <span class="kn">from</span> <span class="nn">datumaro.util.annotation_util</span> <span class="kn">import</span> <span class="n">find_group_leader</span><span class="p">,</span> <span class="n">find_instances</span>
@@ -2001,6 +2002,112 @@ document.write(`
                         <span class="p">)</span>
                     <span class="n">updated_anns</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">new_ann</span><span class="p">)</span>
                 <span class="k">yield</span> <span class="n">item</span><span class="o">.</span><span class="n">wrap</span><span class="p">(</span><span class="n">annotations</span><span class="o">=</span><span class="n">updated_anns</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="AstypeAnnotations">
+<a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.plugins.transforms.html#datumaro.plugins.transforms.AstypeAnnotations">[docs]</a>
+<span class="k">class</span> <span class="nc">AstypeAnnotations</span><span class="p">(</span><span class="n">ItemTransform</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Enables the conversion of annotation types for the categories and individual items within a dataset.|n</span>
+<span class="sd">    |n</span>
+<span class="sd">    Based on a specified mapping, it transforms the annotation types,|m</span>
+<span class="sd">    changing them to &#39;Label&#39; if they are categorical, and to &#39;Caption&#39; if they are of type string, float, or integer.|n</span>
+<span class="sd">    |n</span>
+<span class="sd">    Examples:|n</span>
+<span class="sd">        - Convert type of `title` annotation|n</span>
+
+<span class="sd">        .. code-block::</span>
+
+<span class="sd">        |s|s%(prog)s --mapping &#39;title:text&#39;</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">_split_arg</span><span class="p">(</span><span class="n">s</span><span class="p">):</span>
+        <span class="n">columns</span> <span class="o">=</span> <span class="n">s</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;,&quot;</span><span class="p">)</span>
+        <span class="n">results</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">column</span> <span class="ow">in</span> <span class="n">columns</span><span class="p">:</span>
+            <span class="n">parts</span> <span class="o">=</span> <span class="n">column</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;:&quot;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">parts</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">2</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="n">argparse</span><span class="o">.</span><span class="n">ArgumentTypeError</span><span class="p">()</span>
+            <span class="n">results</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">parts</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">parts</span><span class="p">[</span><span class="mi">1</span><span class="p">]))</span>
+        <span class="k">return</span> <span class="n">results</span>
+
+<div class="viewcode-block" id="AstypeAnnotations.build_cmdline_parser">
+<a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.plugins.transforms.html#datumaro.plugins.transforms.AstypeAnnotations.build_cmdline_parser">[docs]</a>
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">build_cmdline_parser</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="n">parser</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">build_cmdline_parser</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+            <span class="s2">&quot;--mapping&quot;</span><span class="p">,</span>
+            <span class="n">action</span><span class="o">=</span><span class="s2">&quot;append&quot;</span><span class="p">,</span>
+            <span class="nb">type</span><span class="o">=</span><span class="bp">cls</span><span class="o">.</span><span class="n">_split_arg</span><span class="p">,</span>
+            <span class="n">dest</span><span class="o">=</span><span class="s2">&quot;mapping&quot;</span><span class="p">,</span>
+            <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Annotations type in the form of: &#39;&lt;src&gt;:&lt;dst&gt;&#39; (repeatable)&quot;</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="k">return</span> <span class="n">parser</span></div>
+
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">extractor</span><span class="p">:</span> <span class="n">IDataset</span><span class="p">,</span>
+        <span class="n">mapping</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Union</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">],</span> <span class="n">List</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]]]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">extractor</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">extractor</span><span class="o">.</span><span class="n">media_type</span><span class="p">()</span> <span class="ow">and</span> <span class="ow">not</span> <span class="nb">issubclass</span><span class="p">(</span><span class="n">extractor</span><span class="o">.</span><span class="n">media_type</span><span class="p">(),</span> <span class="n">TableRow</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="n">MediaTypeError</span><span class="p">(</span>
+                <span class="s2">&quot;Media type is not table. This transform only support tabular media&quot;</span>
+            <span class="p">)</span>
+
+        <span class="c1"># Turn off for default setting</span>
+        <span class="k">assert</span> <span class="n">mapping</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">mapping</span><span class="p">,</span> <span class="p">(</span><span class="nb">dict</span><span class="p">,</span> <span class="nb">list</span><span class="p">)),</span> <span class="s2">&quot;Mapping must be dict, or list&quot;</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">mapping</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
+            <span class="n">mapping</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">mapping</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_categories</span> <span class="o">=</span> <span class="p">{}</span>
+
+        <span class="n">src_categories</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_extractor</span><span class="o">.</span><span class="n">categories</span><span class="p">()</span>
+        <span class="n">src_tabular_cat</span> <span class="o">=</span> <span class="n">src_categories</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">AnnotationType</span><span class="o">.</span><span class="n">tabular</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_tabular_cat_types</span> <span class="o">=</span> <span class="p">{}</span>
+
+        <span class="c1"># Make LabelCategories</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_id_mapping</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="n">dst_label_cat</span> <span class="o">=</span> <span class="n">LabelCategories</span><span class="p">()</span>
+
+        <span class="k">if</span> <span class="n">src_tabular_cat</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span>
+
+        <span class="k">for</span> <span class="n">src_cat</span> <span class="ow">in</span> <span class="n">src_tabular_cat</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">src_cat</span><span class="o">.</span><span class="n">dtype</span> <span class="o">==</span> <span class="n">CategoricalDtype</span><span class="p">():</span>
+                <span class="n">dst_parent</span> <span class="o">=</span> <span class="n">src_cat</span><span class="o">.</span><span class="n">name</span>
+                <span class="n">dst_labels</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">src_cat</span><span class="o">.</span><span class="n">labels</span><span class="p">)</span>
+                <span class="k">for</span> <span class="n">dst_label</span> <span class="ow">in</span> <span class="n">dst_labels</span><span class="p">:</span>
+                    <span class="n">dst_index</span> <span class="o">=</span> <span class="n">dst_label_cat</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">dst_label</span><span class="p">,</span> <span class="n">parent</span><span class="o">=</span><span class="n">dst_parent</span><span class="p">,</span> <span class="n">attributes</span><span class="o">=</span><span class="p">{})</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_id_mapping</span><span class="p">[</span><span class="n">dst_label</span><span class="p">]</span> <span class="o">=</span> <span class="n">dst_index</span>
+                <span class="n">dst_label_cat</span><span class="o">.</span><span class="n">add_label_group</span><span class="p">(</span><span class="n">src_cat</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">src_cat</span><span class="o">.</span><span class="n">labels</span><span class="p">,</span> <span class="n">group_type</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_tabular_cat_types</span><span class="p">[</span><span class="n">src_cat</span><span class="o">.</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">src_cat</span><span class="o">.</span><span class="n">dtype</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_categories</span><span class="p">[</span><span class="n">AnnotationType</span><span class="o">.</span><span class="n">label</span><span class="p">]</span> <span class="o">=</span> <span class="n">dst_label_cat</span>
+
+<div class="viewcode-block" id="AstypeAnnotations.categories">
+<a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.plugins.transforms.html#datumaro.plugins.transforms.AstypeAnnotations.categories">[docs]</a>
+    <span class="k">def</span> <span class="nf">categories</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_categories</span></div>
+
+
+<div class="viewcode-block" id="AstypeAnnotations.transform_item">
+<a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.plugins.transforms.html#datumaro.plugins.transforms.AstypeAnnotations.transform_item">[docs]</a>
+    <span class="k">def</span> <span class="nf">transform_item</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">item</span><span class="p">:</span> <span class="n">DatasetItem</span><span class="p">):</span>
+        <span class="n">annotations</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">item</span><span class="o">.</span><span class="n">annotations</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="n">dtype</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_tabular_cat_types</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">dtype</span> <span class="o">==</span> <span class="n">CategoricalDtype</span><span class="p">():</span>
+                <span class="n">annotations</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">Label</span><span class="p">(</span><span class="n">label</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_id_mapping</span><span class="p">[</span><span class="n">value</span><span class="p">]))</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">annotations</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">Caption</span><span class="p">(</span><span class="n">value</span><span class="p">))</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">wrap_item</span><span class="p">(</span><span class="n">item</span><span class="p">,</span> <span class="n">annotations</span><span class="o">=</span><span class="n">annotations</span><span class="p">)</span></div>
+</div>
 
 </pre></div>
 

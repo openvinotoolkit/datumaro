@@ -750,6 +750,7 @@ k images with annotations per class</p></li>
 <li><p>remove_images - Removes specific images</p></li>
 <li><p>remove_annotations - Removes annotations</p></li>
 <li><p>remove_attributes - Removes attributes</p></li>
+<li><p>astype_annotations - Convert annotation type</p></li>
 </ul>
 <p>Subset manipulations:</p>
 <ul class="simple">
@@ -1170,6 +1171,32 @@ the <code class="docutils literal notranslate"><span class="pre">2010_001705</sp
 </li>
 </ul>
 </section>
+<section id="astype-annotations">
+<h4><code class="docutils literal notranslate"><span class="pre">astype_annotations</span></code><a class="headerlink" href="#astype-annotations" title="Link to this heading">#</a></h4>
+<p>Enables the conversion of annotation types for the categories and individual items within a dataset.
+This transform only supports tabular datasets. If you want to change annotation types in datasets of other types, please use a different transform.</p>
+<p>Based on default setting it transforms the annotation types, changing them to ‘Label’ if they are categorical,
+and to ‘Caption’ if they are of type string, float, or integer.
+If you specifically set mapping, change annotation types based on the mapping.</p>
+<p>Usage:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">astype_annotations [-h] [--mapping MAPPING]</span>
+</pre></div>
+</div>
+<p>Optional arguments:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">-h</span></code>, <code class="docutils literal notranslate"><span class="pre">--help</span></code> (flag) - Show this help message and exit</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">--mapping</span></code> (str) - Annotations type in the form of: ‘<src>:<dst>’ (repeatable)</p></li>
+</ul>
+<p>Examples:</p>
+<ul>
+<li><p>Convert type of <code class="docutils literal notranslate"><span class="pre">title</span></code> and <code class="docutils literal notranslate"><span class="pre">rating</span></code> annotation</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">datum transform -t astype_annotations -- \</span>
+<span class="go">  --mapping &#39;title:text,rating:label&#39;</span>
+</pre></div>
+</div>
+</li>
+</ul>
+</section>
 <section id="random-split">
 <h4><code class="docutils literal notranslate"><span class="pre">random_split</span></code><a class="headerlink" href="#random-split" title="Link to this heading">#</a></h4>
 <p>Joins all subsets into one and splits the result into few parts.
@@ -1548,6 +1575,7 @@ the corresponding number of separate annotations joined into a group.</p>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#remove-images"><code class="docutils literal notranslate"><span class="pre">remove_images</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#remove-annotations"><code class="docutils literal notranslate"><span class="pre">remove_annotations</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#remove-attributes"><code class="docutils literal notranslate"><span class="pre">remove_attributes</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#astype-annotations"><code class="docutils literal notranslate"><span class="pre">astype_annotations</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#random-split"><code class="docutils literal notranslate"><span class="pre">random_split</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#split"><code class="docutils literal notranslate"><span class="pre">split</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#map-subsets"><code class="docutils literal notranslate"><span class="pre">map_subsets</span></code></a></li>

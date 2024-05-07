@@ -18,6 +18,7 @@ datumaro.plugins.transforms
    .. autosummary::
    
       AnnsToLabels
+      AstypeAnnotations
       BboxValuesDecrement
       BoxesToMasks
       BoxesToPolygons
