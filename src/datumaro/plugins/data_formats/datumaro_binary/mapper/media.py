@@ -1,4 +1,4 @@
-# Copyright (C) 2023 Intel Corporation
+# Copyright (C) 2024 Intel Corporation
 #
 # SPDX-License-Identifier: MIT
 
@@ -133,7 +133,7 @@ class ImageMapper(MediaElementMapper):
 
 
 class VideoMapper(MediaElementMapper):
-    MAGIC_END_FRAME_FOR_NONE = 4294967295  # max valud of unsigned int32
+    MAGIC_END_FRAME_FOR_NONE = 4294967295  # max value of unsigned int32
     MEDIA_TYPE = MediaType.VIDEO
 
     @classmethod

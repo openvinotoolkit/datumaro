@@ -1,4 +1,4 @@
-# Copyright (C) 2023 Intel Corporation
+# Copyright (C) 2024 Intel Corporation
 #
 # SPDX-License-Identifier: MIT
 
@@ -125,7 +125,8 @@ class DatumaroBinaryBase(DatumaroBase):
         media_path_prefix = {
             MediaType.IMAGE: osp.join(self._images_dir, self._subset),
             MediaType.POINT_CLOUD: osp.join(self._pcd_dir, self._subset),
-            MediaType.VIDEO_FRAME: self._video_dir,
+            MediaType.VIDEO: osp.join(self._video_dir, self._subset),
+            MediaType.VIDEO_FRAME: osp.join(self._video_dir, self._subset),
         }
 
         if self._num_workers > 0:

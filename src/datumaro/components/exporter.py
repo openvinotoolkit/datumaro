@@ -1,4 +1,4 @@
-# Copyright (C) 2019-2023 Intel Corporation
+# Copyright (C) 2019-2024 Intel Corporation
 #
 # SPDX-License-Identifier: MIT
 
@@ -345,9 +345,9 @@ class ExportContextComponent:
         if isinstance(item.media, VideoFrame):
             video_file_name = osp.basename(item.media.video.path)
         elif isinstance(item.media, Video):
-            video_file_name = item.media.path
+            video_file_name = osp.basename(item.media.path)
         else:
-            assert STR_WRONG_MEDIA_TYPE
+            assert False, STR_WRONG_MEDIA_TYPE
 
         return video_file_name
 

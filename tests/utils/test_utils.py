@@ -1,4 +1,4 @@
-# Copyright (C) 2019-2023 Intel Corporation
+# Copyright (C) 2019-2024 Intel Corporation
 #
 # SPDX-License-Identifier: MIT
 
@@ -21,7 +21,7 @@ from typing_extensions import Literal
 from datumaro.components.annotation import AnnotationType
 from datumaro.components.dataset import Dataset, StreamDataset
 from datumaro.components.dataset_base import IDataset
-from datumaro.components.media import Image, MultiframeImage, PointCloud, VideoFrame
+from datumaro.components.media import Image, MultiframeImage, PointCloud, Video, VideoFrame
 from datumaro.util import filter_dict, find
 from datumaro.util.os_util import rmfile, rmtree
 
@@ -204,6 +204,8 @@ def compare_datasets(
             elif isinstance(item_a.media, PointCloud):
                 test.assertEqual(item_a.media.data, item_b.media.data, item_a.id)
                 test.assertEqual(item_a.media.extra_images, item_b.media.extra_images, item_a.id)
+            elif isinstance(item_a.media, Video):
+                test.assertEqual(item_a.media, item_b.media, item_a.id)
             elif isinstance(item_a.media, VideoFrame):
                 test.assertEqual(item_a.media, item_b.media, item_a.id)
                 test.assertEqual(item_a.index, item_b.index, item_a.id)
@@ -323,27 +325,28 @@ def check_save_and_load(
 
     def _change_path_in_items(dataset, source_path, target_path):
         for item in dataset:
-            if item.media and hasattr(item.media, "path"):
-                path = item.media._path
-                item.media = item.media.from_self(path=path.replace(source_path, target_path))
-            if item.media and isinstance(item.media, PointCloud):
-                new_images = []
-                for image in item.media.extra_images:
-                    if hasattr(image, "path"):
-                        path = image._path
-                        new_images.append(
-                            image.from_self(path=path.replace(source_path, target_path))
-                        )
-                    else:
-                        new_images.append(image)
-                item.media._extra_images = new_images
+            if item.media:
+                if hasattr(item.media, "path") and item.media.path:
+                    path = item.media.path.replace(source_path, target_path)
+                    item.media = item.media.from_self(path=path)
+                if isinstance(item.media, PointCloud):
+                    new_images = []
+                    for image in item.media.extra_images:
+                        if hasattr(image, "path"):
+                            path = image._path
+                            new_images.append(
+                                image.from_self(path=path.replace(source_path, target_path))
+                            )
+                        else:
+                            new_images.append(image)
+                    item.media._extra_images = new_images
 
     with TestDir() as tmp_dir:
         converter(source_dataset, test_dir, stream=stream)
         if move_save_dir:
             save_dir = tmp_dir
             for file in os.listdir(test_dir):
-                shutil.move(osp.join(test_dir, file), save_dir)
+                os.symlink(osp.join(test_dir, file), osp.join(save_dir, file))
         else:
             save_dir = test_dir
 
