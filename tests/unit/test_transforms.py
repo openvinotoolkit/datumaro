@@ -1402,7 +1402,7 @@ class AstypeAnnotationsTest(TestCase):
         compare_datasets(self, expected, result)
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
-    def test_transform_annotation_type_caption_with_nan(self):
+    def test_transform_annotation_type_label_with_nan(self):
         table = self.table_label_nan
         expected = Dataset.from_iterable(
             [
