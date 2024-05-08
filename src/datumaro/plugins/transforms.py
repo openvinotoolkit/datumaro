@@ -1495,6 +1495,8 @@ class AstypeAnnotations(ItemTransform):
     ):
         super().__init__(extractor)
 
+        self._sep_token = ":"
+
         if extractor.media_type() and not issubclass(extractor.media_type(), TableRow):
             raise MediaTypeError(
                 "Media type is not table. This transform only support tabular media"
@@ -1523,6 +1525,7 @@ class AstypeAnnotations(ItemTransform):
                 dst_parent = src_cat.name
                 dst_labels = sorted(src_cat.labels)
                 for dst_label in dst_labels:
+                    dst_label = dst_parent + self._sep_token + str(dst_label)
                     dst_index = dst_label_cat.add(dst_label, parent=dst_parent, attributes={})
                     self._id_mapping[dst_label] = dst_index
                 dst_label_cat.add_label_group(src_cat.name, src_cat.labels, group_type=0)
@@ -1537,6 +1540,7 @@ class AstypeAnnotations(ItemTransform):
         for name, value in item.annotations[0].values.items():
             dtype = self._tabular_cat_types.get(name, None)
             if dtype == CategoricalDtype():
+                value = name + self._sep_token + str(value)
                 annotations.append(Label(label=self._id_mapping[value]))
             else:
                 annotations.append(Caption(value))
