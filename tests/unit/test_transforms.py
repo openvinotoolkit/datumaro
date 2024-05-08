@@ -1271,6 +1271,37 @@ class AstypeAnnotationsTest(TestCase):
             categories={},
             media_type=TableRow,
         )
+        self.table_label_nan = Table.from_list(
+            [{"class": "DOWN"}, {"class": "UP"}, {"class": None}]
+        )
+        self.dataset_label_nan = Dataset.from_iterable(
+            [
+                DatasetItem(
+                    id="0",
+                    subset="train",
+                    media=TableRow(table=self.table_label_nan, index=0),
+                    annotations=[Tabular(values={"class": "DOWN"})],
+                ),
+                DatasetItem(
+                    id="1",
+                    subset="train",
+                    media=TableRow(table=self.table_label_nan, index=1),
+                    annotations=[Tabular(values={"class": "UP"})],
+                ),
+                DatasetItem(
+                    id="2",
+                    subset="train",
+                    media=TableRow(table=self.table_label_nan, index=2),
+                    annotations=[Tabular(values={"class": None})],
+                ),
+            ],
+            categories={
+                AnnotationType.tabular: TabularCategories.from_iterable(
+                    [("class", CategoricalDtype(), {"DOWN", "UP"})]
+                )
+            },
+            media_type=TableRow,
+        )
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_split_arg_valid(self):
@@ -1325,7 +1356,7 @@ class AstypeAnnotationsTest(TestCase):
             ],
             categories={
                 AnnotationType.label: LabelCategories.from_iterable(
-                    [("DOWN", "class"), ("UP", "class")]
+                    [("class:DOWN", "class"), ("class:UP", "class")]
                 )
             },
             media_type=TableRow,
@@ -1367,5 +1398,49 @@ class AstypeAnnotationsTest(TestCase):
 
         dataset = self.dataset_caption
         result = transforms.AstypeAnnotations(dataset)
+
+        compare_datasets(self, expected, result)
+
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
+    def test_transform_annotation_type_caption_with_nan(self):
+        table = self.table_label_nan
+        expected = Dataset.from_iterable(
+            [
+                DatasetItem(
+                    id="0",
+                    subset="train",
+                    media=TableRow(table=table, index=0),
+                    annotations=[Label(label=0)],
+                ),
+                DatasetItem(
+                    id="1",
+                    subset="train",
+                    media=TableRow(table=table, index=1),
+                    annotations=[Label(label=1)],
+                ),
+                DatasetItem(
+                    id="2",
+                    subset="train",
+                    media=TableRow(table=table, index=2),
+                    annotations=[],
+                ),
+            ],
+            categories={
+                AnnotationType.label: LabelCategories.from_iterable(
+                    [("class:DOWN", "class"), ("class:UP", "class")]
+                )
+            },
+            media_type=TableRow,
+        )
+
+        dataset = self.dataset_label_nan
+        result = transforms.AstypeAnnotations(dataset)
+
+        categories = result._categories.get(AnnotationType.label, None)
+        assert categories
+
+        # Check label_groups of categories
+        assert categories.label_groups[0].name == "class"
+        assert sorted(categories.label_groups[0].labels) == ["DOWN", "UP"]
 
         compare_datasets(self, expected, result)
