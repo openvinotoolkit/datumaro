@@ -459,7 +459,13 @@ document.write(`
                 <span class="n">target_dtype</span> <span class="o">=</span> <span class="n">table</span><span class="o">.</span><span class="n">dtype</span><span class="p">(</span><span class="n">target_</span><span class="p">)</span>
                 <span class="k">if</span> <span class="n">target_dtype</span> <span class="ow">in</span> <span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">api</span><span class="o">.</span><span class="n">types</span><span class="o">.</span><span class="n">CategoricalDtype</span><span class="p">()]:</span>
                     <span class="c1"># &#39;int&#39; can be categorical, but we don&#39;t know this unless user gives information.</span>
-                    <span class="n">labels</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">table</span><span class="o">.</span><span class="n">features</span><span class="p">(</span><span class="n">target_</span><span class="p">,</span> <span class="n">unique</span><span class="o">=</span><span class="kc">True</span><span class="p">))</span>
+                    <span class="n">labels</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span>
+                        <span class="p">[</span>
+                            <span class="n">feature</span>
+                            <span class="k">for</span> <span class="n">feature</span> <span class="ow">in</span> <span class="n">table</span><span class="o">.</span><span class="n">features</span><span class="p">(</span><span class="n">target_</span><span class="p">,</span> <span class="n">unique</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+                            <span class="k">if</span> <span class="ow">not</span> <span class="n">pd</span><span class="o">.</span><span class="n">isna</span><span class="p">(</span><span class="n">feature</span><span class="p">)</span>
+                        <span class="p">]</span>
+                    <span class="p">)</span>
                     <span class="k">if</span> <span class="n">category</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
                         <span class="n">categories</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">target_</span><span class="p">,</span> <span class="n">target_dtype</span><span class="p">,</span> <span class="n">labels</span><span class="p">)</span>
                     <span class="k">else</span><span class="p">:</span>  <span class="c1"># update labels if they are different.</span>
