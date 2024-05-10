@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Q2 2024 Release 1.7.0
 ### New features
+- Support 'Video' media type in datumaro format
+  (<https://github.com/openvinotoolkit/datumaro/pull/1491>)
 - Add ann_types property for dataset
   (<https://github.com/openvinotoolkit/datumaro/pull/1422>, <https://github.com/openvinotoolkit/datumaro/pull/1479>)
 - Add AnnotationType.rotated_bbox for oriented object detection

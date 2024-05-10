@@ -1,4 +1,4 @@
-# Copyright (C) 2021-2022 Intel Corporation
+# Copyright (C) 2021-2024 Intel Corporation
 #
 # SPDX-License-Identifier: MIT
 
@@ -94,7 +94,7 @@ class MediaType(IntEnum):
 class MediaElement(Generic[AnyData]):
     _type = MediaType.MEDIA_ELEMENT
 
-    def __init__(self, crypter: Crypter = NULL_CRYPTER) -> None:
+    def __init__(self, crypter: Crypter = NULL_CRYPTER, *args, **kwargs) -> None:
         self._crypter = crypter
 
     def as_dict(self) -> Dict[str, Any]:
@@ -488,6 +488,26 @@ class VideoFrame(ImageFromNumpy):
     def path(self) -> str:
         return self._video.path
 
+    def from_self(self, **kwargs):
+        attrs = deepcopy(self.as_dict())
+        if "path" in kwargs:
+            attrs.update({"video": self.video.from_self(**kwargs)})
+            kwargs.pop("path")
+        attrs.update(kwargs)
+        return self.__class__(**attrs)
+
+    def __getstate__(self):
+        # Return only the picklable parts of the state.
+        state = self.__dict__.copy()
+        del state["_data"]
+        return state
+
+    def __setstate__(self, state):
+        # Restore the objects' state.
+        self.__dict__.update(state)
+        # Reinitialize unpichlable attributes
+        self._data = lambda: self._video.get_frame_data(self._index)
+
 
 class _VideoFrameIterator(Iterator[VideoFrame]):
     """
@@ -527,6 +547,11 @@ class _VideoFrameIterator(Iterator[VideoFrame]):
 
         if self._video._frame_count is None:
             self._video._frame_count = self._pos + 1
+            if self._video._end_frame and self._video._end_frame >= self._video._frame_count:
+                raise ValueError(
+                    f"The end_frame value({self._video._end_frame}) of the video "
+                    f"must be less than the frame count({self._video._frame_count})."
+                )
 
     def _make_frame(self, index) -> VideoFrame:
         return VideoFrame(self._video, index=index)
@@ -575,13 +600,22 @@ class Video(MediaElement, Iterable[VideoFrame]):
     """
 
     def __init__(
-        self, path: str, *, step: int = 1, start_frame: int = 0, end_frame: Optional[int] = None
+        self,
+        path: str,
+        step: int = 1,
+        start_frame: int = 0,
+        end_frame: Optional[int] = None,
+        *args,
+        **kwargs,
     ) -> None:
-        super().__init__()
+        super().__init__(*args, **kwargs)
         self._path = path
 
+        assert 0 <= start_frame
         if end_frame:
-            assert start_frame < end_frame
+            assert start_frame <= end_frame
+            # we can't know the video length here,
+            # so we cannot validate if the end_frame is valid.
         assert 0 < step
         self._step = step
         self._start_frame = start_frame
@@ -630,7 +664,7 @@ class Video(MediaElement, Iterable[VideoFrame]):
             # Decoding is not necessary to get frame pointers
             # However, it can be inacurrate
             end_frame = self._get_end_frame()
-            for index in range(self._start_frame, end_frame, self._step):
+            for index in range(self._start_frame, end_frame + 1, self._step):
                 yield VideoFrame(video=self, index=index)
         else:
             # Need to decode to iterate over frames
@@ -639,7 +673,8 @@ class Video(MediaElement, Iterable[VideoFrame]):
     @property
     def length(self) -> Optional[int]:
         """
-        Returns frame count, if video provides such information.
+        Returns frame count of the closed interval [start_frame, end_frame],
+        if video provides such information.
 
         Note that not all videos provide length / duration metainfo, so the
         result may be undefined.
@@ -655,12 +690,15 @@ class Video(MediaElement, Iterable[VideoFrame]):
         if self._length is None:
             end_frame = self._get_end_frame()
 
-            length = None
             if end_frame is not None:
-                length = (end_frame - self._start_frame) // self._step
-                assert 0 < length
-
-            self._length = length
+                length = (end_frame + 1 - self._start_frame) // self._step
+                if 0 >= length:
+                    raise ValueError(
+                        "There is no valid frame for the closed interval"
+                        f"[start_frame({self._start_frame}),"
+                        f" end_frame({end_frame})] with step({self._step})."
+                    )
+                self._length = length
 
         return self._length
 
@@ -686,18 +724,23 @@ class Video(MediaElement, Iterable[VideoFrame]):
         return frame_size
 
     def _get_end_frame(self):
+        # Note that end_frame could less than the last frame of the video
         if self._end_frame is not None and self._frame_count is not None:
             end_frame = min(self._end_frame, self._frame_count)
+        elif self._end_frame is not None:
+            end_frame = self._end_frame
+        elif self._frame_count is not None:
+            end_frame = self._frame_count - 1
         else:
-            end_frame = self._end_frame or self._frame_count
+            end_frame = None
 
         return end_frame
 
     def _includes_frame(self, i):
-        end_frame = self._get_end_frame()
         if self._start_frame <= i:
             if (i - self._start_frame) % self._step == 0:
-                if end_frame is None or i < end_frame:
+                end_frame = self._get_end_frame()
+                if end_frame is None or i <= end_frame:
                     return True
 
         return False
@@ -719,15 +762,49 @@ class Video(MediaElement, Iterable[VideoFrame]):
         assert self._reader.isOpened()
 
     def __eq__(self, other: object) -> bool:
+        def _get_frame(obj: Video, idx: int):
+            try:
+                return obj[idx]
+            except IndexError:
+                return None
+
         if not isinstance(other, __class__):
             return False
+        if self._start_frame != other._start_frame or self._step != other._step:
+            return False
 
-        return (
-            self.path == other.path
-            and self._start_frame == other._start_frame
-            and self._step == other._step
-            and self._end_frame == other._end_frame
-        )
+        # The video path can vary if a dataset is copied.
+        # So, we need to check if the video data is the same instead of checking paths.
+        if self._end_frame is not None and self._end_frame == other._end_frame:
+            for idx in range(self._start_frame, self._end_frame + 1, self._step):
+                if self[idx] != other[idx]:
+                    return False
+            return True
+
+        end_frame = self._end_frame or other._end_frame
+        if end_frame is None:
+            last_frame = None
+            for idx, frame in enumerate(self):
+                if frame != _get_frame(other, frame.index):
+                    return False
+                last_frame = frame
+            # check if the actual last frames are same
+            try:
+                other[last_frame.index + self._step if last_frame else self._start_frame]
+            except IndexError:
+                return True
+            return False
+
+        # _end_frame values, only one of the two is valid
+        for idx in range(self._start_frame, end_frame + 1, self._step):
+            frame = _get_frame(self, idx)
+            if frame is None:
+                return False
+            if frame != _get_frame(other, idx):
+                return False
+        # check if the actual last frames are same
+        idx_next = end_frame + self._step
+        return None is (_get_frame(self, idx_next) or _get_frame(other, idx_next))
 
     def __hash__(self):
         # Required for caching
