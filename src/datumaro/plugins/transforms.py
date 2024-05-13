@@ -1536,12 +1536,22 @@ class AstypeAnnotations(ItemTransform):
         return self._categories
 
     def transform_item(self, item: DatasetItem):
-        annotations = [
-            Label(label=self._id_mapping[name + self._sep_token + str(value)])
-            if self._tabular_cat_types.get(name) == CategoricalDtype() and value is not None
-            else Caption(value)
-            for name, value in item.annotations[0].values.items()
-            if value is not None
-        ]
+        import pandas as pd
+
+        # annotations = [
+        #     Label(label=self._id_mapping[name + self._sep_token + str(value)])
+        #     if self._tabular_cat_types.get(name) == CategoricalDtype() and value is not None
+        #     else Caption(name + self._sep_token + str(value))
+        #     for name, value in item.annotations[0].values.items()
+        #     if not pd.isna(value)
+        # ]
+        annotations = []
+        for name, value in item.annotations[0].values.items():
+            if not pd.isna(value):
+                if self._tabular_cat_types.get(name) == CategoricalDtype() and value is not None:
+                    ann = Label(label=self._id_mapping[name + self._sep_token + str(value)])
+                else:
+                    ann = Caption(name + self._sep_token + str(value))
+                annotations.append(ann)
 
         return self.wrap_item(item, annotations=annotations)

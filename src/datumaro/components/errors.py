@@ -541,6 +541,32 @@ class MissingAnnotation(DatasetItemValidationError):
 
 
 @define(auto_exc=False)
+class BrokenAnnotation(DatasetItemValidationError):
+    ann_type = field()
+
+    def __str__(self):
+        return f"Item needs whole '{self.ann_type}' annotation(s), " "but missed some."
+
+
+@define(auto_exc=False)
+class EmptyLabel(DatasetItemValidationError):
+    label_name = field()
+
+    def __str__(self):
+        return f"Item should have the label '{self.label_name}' annotation(s), " "but not found."
+
+
+@define(auto_exc=False)
+class EmptyCaption(DatasetItemValidationError):
+    caption_name = field()
+
+    def __str__(self):
+        return (
+            f"Item should have the caption '{self.caption_name}' annotation(s), " "but not found."
+        )
+
+
+@define(auto_exc=False)
 class MultiLabelAnnotations(DatasetItemValidationError):
     def __str__(self):
         return "Item needs a single label but multiple labels are found."
@@ -634,6 +660,31 @@ class FewSamplesInLabel(DatasetValidationError):
 
 
 @define(auto_exc=False)
+class FewSamplesInCaption(DatasetValidationError):
+    caption_name = field()
+    count = field()
+
+    def __str__(self):
+        return (
+            f"The number of samples in the caption '{self.caption_name}'"
+            f" might be too low. Found '{self.count}' samples."
+        )
+
+
+@define(auto_exc=False)
+class RedundanciesInCaption(DatasetValidationError):
+    caption_name = field()
+    redundancy_type = field()
+    count = field()
+
+    def __str__(self):
+        return (
+            f"The number of '{self.redundancy_type}' redundancy in the caption '{self.caption_name}'"
+            f" have found '{self.count}'."
+        )
+
+
+@define(auto_exc=False)
 class FewSamplesInAttribute(DatasetValidationError):
     label_name = field()
     attr_name = field()
@@ -656,6 +707,12 @@ class ImbalancedLabels(DatasetValidationError):
 
 
 @define(auto_exc=False)
+class ImbalancedCaptions(DatasetValidationError):
+    def __str__(self):
+        return "There is an imbalance in the caption distribution."
+
+
+@define(auto_exc=False)
 class ImbalancedAttribute(DatasetValidationError):
     label_name = field()
     attr_name = field()
@@ -675,6 +732,18 @@ class ImbalancedDistInLabel(DatasetValidationError):
     def __str__(self):
         return (
             f"Values of '{self.prop}' are not evenly " f"distributed for '{self.label_name}' label."
+        )
+
+
+@define(auto_exc=False)
+class ImbalancedDistInCaption(DatasetValidationError):
+    caption_name = field()
+    prop = field()
+
+    def __str__(self):
+        return (
+            f"Values of '{self.prop}' are not evenly "
+            f"distributed for '{self.caption_name}' caption."
         )
 
 
@@ -734,6 +803,23 @@ class FarFromLabelMean(DatasetItemValidationError):
             f"the item has a value of '{self.prop}' that "
             "is too far from the label average. (mean of "
             f"'{self.label_name}' label: {self.mean}, got '{self.val}')."
+        )
+
+
+@define(auto_exc=False)
+class FarFromCaptionMean(DatasetItemValidationError):
+    caption_name = field()
+    ann_id = field()
+    prop = field()
+    mean = field()
+    val = field()
+
+    def __str__(self):
+        return (
+            f"Annotation '{self.ann_id}' in "
+            f"the item has a value of '{self.prop}' that "
+            "is too far from the caption average. (mean of "
+            f"'{self.caption_name}' caption: {self.mean}, got '{self.val}')."
         )
 
 

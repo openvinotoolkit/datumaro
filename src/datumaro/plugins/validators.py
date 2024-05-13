@@ -5,17 +5,25 @@
 from copy import deepcopy
 
 import numpy as np
+from pandas.api.types import CategoricalDtype
 
 from datumaro.components.annotation import AnnotationType, GroupType, LabelCategories
 from datumaro.components.cli_plugin import CliPlugin
 from datumaro.components.errors import (
     AttributeDefinedButNotFound,
+    BrokenAnnotation,
+    EmptyCaption,
+    EmptyLabel,
     FarFromAttrMean,
+    FarFromCaptionMean,
     FarFromLabelMean,
     FewSamplesInAttribute,
+    FewSamplesInCaption,
     FewSamplesInLabel,
     ImbalancedAttribute,
+    ImbalancedCaptions,
     ImbalancedDistInAttribute,
+    ImbalancedDistInCaption,
     ImbalancedDistInLabel,
     ImbalancedLabels,
     InvalidValue,
@@ -27,6 +35,7 @@ from datumaro.components.errors import (
     NegativeLength,
     OnlyOneAttributeValue,
     OnlyOneLabel,
+    RedundanciesInCaption,
     UndefinedAttribute,
     UndefinedLabel,
 )
@@ -157,6 +166,9 @@ class _TaskValidator(Validator, CliPlugin):
         elif self.task_type == TaskType.segmentation:
             self.ann_types = {AnnotationType.mask, AnnotationType.polygon, AnnotationType.ellipse}
             self.str_ann_type = "mask or polygon or ellipse"
+        elif self.task_type == TaskType.tabular:
+            self.ann_types = {AnnotationType.label, AnnotationType.caption}
+            self.str_ann_type = "label or caption"
 
         if few_samples_thr is None:
             few_samples_thr = self.DEFAULT_FEW_SAMPLES_THR
@@ -1196,3 +1208,405 @@ class SegmentationValidator(DetectionValidator):
                 )
 
         return reports
+
+
+from nltk.corpus import stopwords
+
+
+class TabularValidator(_TaskValidator):
+    """
+    A specific validator class for tabular dataset.
+    """
+
+    def __init__(
+        self,
+        task_type=TaskType.tabular,
+        few_samples_thr=None,
+        imbalance_ratio_thr=None,
+        far_from_mean_thr=None,
+        dominance_ratio_thr=None,
+        topk_bins=None,
+    ):
+        super().__init__(
+            task_type=task_type,
+            few_samples_thr=few_samples_thr,
+            imbalance_ratio_thr=imbalance_ratio_thr,
+            far_from_mean_thr=far_from_mean_thr,
+            dominance_ratio_thr=dominance_ratio_thr,
+            topk_bins=topk_bins,
+        )
+
+        self.value_template = {
+            "value": deepcopy(self.numerical_stat_template),
+        }
+
+    def _compute_common_statistics(self, dataset):
+        stop_words = stopwords.words("english")  # TODO
+
+        empty_label_template = {
+            "count": 0,
+            "items_with_empty_label": [],
+        }
+        empty_caption_template = {
+            "count": 0,
+            "items_with_empty_caption": [],
+        }
+        redundancies_template = {
+            "stopword": {"count": 0, "items_with_redundancies": []},
+            "url": {"count": 0, "items_with_redundancies": []},
+        }
+
+        stats = {
+            "label_distribution": {
+                "defined_labels": {},
+                "empty_labels": {},
+            },
+            "caption_distribution": {
+                "defined_captions": {},
+                "empty_captions": {},
+                "redundancies": {},
+            },
+        }
+        stats["total_ann_count"] = 0
+        stats["items_missing_annotation"] = []
+        stats["items_broken_annotation"] = []
+
+        label_dist = stats["label_distribution"]
+        defined_label_dist = label_dist["defined_labels"]
+        empty_label_dist = label_dist["empty_labels"]
+
+        caption_dist = stats["caption_distribution"]
+        defined_caption_dist = caption_dist["defined_captions"]
+        empty_caption_dist = caption_dist["empty_captions"]
+        redundancies_in_caption_dist = caption_dist["redundancies"]
+
+        label_categories = dataset.categories().get(AnnotationType.label, LabelCategories())
+        len_categories = len(dataset._tabular_cat_types.items())
+        caption_columns = [
+            cat for cat, type_ in dataset._tabular_cat_types.items() if type_ is str or int
+        ]
+        label_columns = {
+            cat: 0
+            for cat, type_ in dataset._tabular_cat_types.items()
+            if isinstance(type_, CategoricalDtype)
+        }
+
+        for category in label_categories:
+            defined_label_dist[category.name] = 0
+        for category in caption_columns:
+            defined_caption_dist[category] = 0
+
+        filtered_anns = []
+        for item in dataset:
+            item_key = (item.id, item.subset)
+            annotations = []
+            for ann in item.annotations:
+                if ann.type in self.ann_types:
+                    annotations.append(ann)
+            ann_count = len(annotations)
+            filtered_anns.append((item_key, annotations))
+            if ann_count == 0:
+                stats["items_missing_annotation"].append(item_key)
+            if ann_count != len_categories:
+                stats["items_broken_annotation"].append(item_key)
+            stats["total_ann_count"] += ann_count
+
+            for ann in annotations:
+                if ann.type == AnnotationType.caption:
+                    caption_ = ann.caption
+                    for cat in caption_columns:
+                        if cat in caption_:
+                            defined_caption_dist[cat] += 1
+                            pass
+                        else:
+                            caption_stats = empty_caption_dist.setdefault(
+                                cat, deepcopy(empty_caption_template)
+                            )
+                            caption_stats["items_with_empty_caption"].append(item_key)
+                            caption_stats["count"] += 1
+                    redundancies_in_caption_dist[cat] = redundancies_template
+                    if len([c for c in str(caption_) if c in stop_words]):
+                        stop_stats = redundancies_in_caption_dist[cat]["stopword"]
+                        stop_stats["items_with_redundancies"].append(item_key)
+                        stop_stats["count"] += 1
+                    elif len(
+                        [w for w in str(caption_).lower().split() if "http" in w or "https" in w]
+                    ):
+                        url_stats = redundancies_in_caption_dist[cat]["url"]
+                        url_stats["items_with_redundancies"].append(item_key)
+                        url_stats["count"] += 1
+                else:
+                    label_name = label_categories[ann.label].name
+                    defined_label_dist[label_name] += 1
+                    label_name = label_name.split(":")[0]
+                    label_columns[label_name] += 1
+
+            for label_col, v in label_columns.items():
+                if v == 0:
+                    label_stats = empty_label_dist.setdefault(
+                        label_col, deepcopy(empty_label_template)
+                    )
+                    label_stats["items_with_empty_label"].append(item_key)
+                    label_stats["count"] += 1
+
+        return stats, filtered_anns
+
+    def _compute_prop_dist(self, caption_columns, stats, update_stats_by_caption):
+        dist_by_caption = stats["distribution_in_caption"]
+        dist_in_item = stats["distribution_in_dataset_item"]
+
+        for item_key, annotations in self.items:
+            ann_count = len(annotations)
+            dist_in_item[item_key] = ann_count
+
+            for ann in annotations:
+                if ann.type == AnnotationType.caption:
+                    caption_ = ann.caption
+                    for cat_name in caption_columns:
+                        if cat_name in caption_:
+                            caption_value = caption_.split(f"{cat_name}:")[-1]
+                            caption_stats = dist_by_caption.setdefault(
+                                cat_name, deepcopy(self.value_template)
+                            )
+                            caption_info, _has_error = update_stats_by_caption(
+                                item_key, caption_value, caption_stats
+                            )
+
+                    if not _has_error:
+                        self._update_prop_distributions(caption_info, caption_stats)
+
+    def _update_prop_distributions(self, curr_stats, target_stats):
+        for prop, val in curr_stats.items():
+            prop_stats = target_stats[prop]
+            prop_stats["distribution"].append(val)
+
+    def compute_statistics(self, dataset):
+        """
+        Computes statistics of the tabular dataset.
+
+        Parameters
+        ----------
+        dataset : IDataset object
+
+        Returns
+        -------
+        stats (dict): A dict object containing statistics of the dataset.
+        """
+
+        stats, filtered_items = self._compute_common_statistics(dataset)
+
+        self.items = filtered_items
+
+        stats["items_with_invalid_value"] = {}
+        stats["distribution_in_caption"] = {}
+        stats["distribution_in_dataset_item"] = {}
+
+        def _update_stats_by_caption(item_key, caption_, caption_stats):
+            caption_has_error = False
+
+            items_w_invalid_val = stats["items_with_invalid_value"]
+            if caption_ == str("inf"):
+                caption_has_error = True
+                anns_w_invalid_val = items_w_invalid_val.setdefault(item_key, {})
+                invalid_props = anns_w_invalid_val.setdefault(item_key[0], [])
+                invalid_props.append("value")
+
+            if not caption_has_error:
+                caption_info = {"value": caption_}
+                self._update_prop_distributions(caption_info, caption_stats)
+            return caption_info, caption_has_error
+
+        # Collect property distribution
+        num_caption_columns = [
+            cat for cat, type_ in dataset._tabular_cat_types.items() if type_ is int
+        ]
+        self._compute_prop_dist(num_caption_columns, stats, _update_stats_by_caption)
+
+        return stats
+
+    def generate_reports(self, stats):
+        """
+        Validates the dataset for classification tasks based on its statistics.
+
+        Parameters
+        ----------
+        dataset : IDataset object
+        stats: Dict object
+
+        Returns
+        -------
+        reports (list): List of validation reports (DatasetValidationError).
+        """
+        reports = []
+
+        # report for dataset
+        reports += self._check_missing_label_categories(stats)
+
+        # report for item
+        reports += self._check_missing_annotation(stats)
+
+        # report for label
+        reports += self._check_label_defined_but_not_found(stats)
+        reports += self._check_only_one_label(stats)
+        reports += self._check_few_samples_in_label(stats)
+        reports += self._check_imbalanced_labels(stats)
+
+        # report for caption
+        reports += self._check_few_samples_in_caption(stats)
+        reports += self._check_redundancies_in_caption(stats)
+
+        # report for missing value
+        reports += self._check_broken_annotation(stats)
+        reports += self._check_empty_label(stats)
+        reports += self._check_empty_caption(stats)
+
+        defined_captions = stats["caption_distribution"]["defined_captions"].keys()
+        dist_by_caption = stats["distribution_in_caption"]
+        for caption_name in defined_captions:
+            caption_stats = dist_by_caption[caption_name]
+
+            reports += self._check_far_from_caption_mean(caption_name, caption_stats)
+            reports += self._check_imbalanced_dist_in_caption(caption_name, caption_stats)
+
+        return reports
+
+    def _check_broken_annotation(self, stats):
+        validation_reports = []
+
+        items_broken = stats["items_broken_annotation"]
+        for item_id, item_subset in items_broken:
+            validation_reports += self._generate_validation_report(
+                BrokenAnnotation, Severity.warning, item_id, item_subset, self.str_ann_type
+            )
+
+        return validation_reports
+
+    def _check_empty_label(self, stats):
+        validation_reports = []
+
+        empty_label_dist = stats["label_distribution"]["empty_labels"]
+        for label_name, label_stats in empty_label_dist.items():
+            for item_id, item_subset in label_stats["items_with_empty_label"]:
+                details = (item_subset, label_name)
+                validation_reports += self._generate_validation_report(
+                    EmptyLabel, Severity.warning, item_id, *details
+                )
+
+        return validation_reports
+
+    def _check_empty_caption(self, stats):
+        validation_reports = []
+
+        empty_caption_dist = stats["caption_distribution"]["empty_captions"]
+        for caption_name, caption_stats in empty_caption_dist.items():
+            for item_id, item_subset in caption_stats["items_with_empty_caption"]:
+                details = (item_subset, caption_name)
+                validation_reports += self._generate_validation_report(
+                    EmptyCaption, Severity.warning, item_id, *details
+                )
+
+        return validation_reports
+
+    def _check_few_samples_in_caption(self, stats):
+        validation_reports = []
+        thr = self.few_samples_thr
+
+        defined_caption_dist = stats["caption_distribution"]["defined_captions"]
+        captions_with_few_samples = [
+            (caption_name, count)
+            for caption_name, count in defined_caption_dist.items()
+            if 0 < count <= thr
+        ]
+
+        for caption_name, count in captions_with_few_samples:
+            validation_reports += self._generate_validation_report(
+                FewSamplesInCaption, Severity.info, caption_name, count
+            )
+
+        return validation_reports
+
+    def _check_far_from_caption_mean(self, caption_name, caption_stats):
+        validation_reports = []
+
+        for prop, prop_stats in caption_stats.items():
+            items_far_from_mean = prop_stats["items_far_from_mean"]
+            if prop_stats["mean"] is not None:
+                mean = round(prop_stats["mean"], 2)
+
+            for item_dets, anns_far in items_far_from_mean.items():
+                item_id, item_subset = item_dets
+                for ann_id, val in anns_far.items():
+                    val = round(val, 2)
+                    details = (
+                        item_subset,
+                        caption_name,
+                        ann_id,
+                        f"{self.str_ann_type} {prop}",
+                        mean,
+                        val,
+                    )
+                    validation_reports += self._generate_validation_report(
+                        FarFromCaptionMean, Severity.warning, item_id, *details
+                    )
+
+        return validation_reports
+
+    def _check_redundancies_in_caption(self, stats):
+        validation_reports = []
+
+        redundancies_in_caption_dist = stats["caption_distribution"]["redundancies"]
+        captions_with_redundancies = []
+        for cap_column, cap_stats in redundancies_in_caption_dist.items():
+            for redundancy_type, items in cap_stats.items():
+                if 0 < items["count"]:
+                    captions_with_redundancies.append((cap_column, redundancy_type, items["count"]))
+
+        for cap_column, redundancy_type, count in captions_with_redundancies:
+            validation_reports += self._generate_validation_report(
+                RedundanciesInCaption, Severity.warning, cap_column, redundancy_type, count
+            )
+
+        return validation_reports
+
+    def _check_imbalanced_captions(self, stats):
+        validation_reports = []
+        thr = self.imbalance_ratio_thr
+
+        defined_caption_dist = stats["label_distribution"]["defined_captions"]
+        count_by_caption_labels = [count for _, count in defined_caption_dist.items()]
+
+        if len(defined_caption_dist) == 0:
+            return validation_reports
+
+        count_max = np.max(count_by_caption_labels)
+        count_min = np.min(count_by_caption_labels)
+        balance = count_max / count_min if count_min > 0 else float("inf")
+        if balance >= thr:
+            validation_reports += self._generate_validation_report(
+                ImbalancedCaptions, Severity.info
+            )
+
+        return validation_reports
+
+    def _check_imbalanced_dist_in_caption(self, caption_name, caption_stats):
+        validation_reports = []
+        thr = self.dominance_thr
+        topk_ratio = self.topk_bins_ratio
+
+        for prop, prop_stats in caption_stats.items():
+            value_counts = prop_stats["histogram"]["counts"]
+            n_bucket = len(value_counts)
+            if n_bucket < 2:
+                continue
+            topk = max(1, int(np.around(n_bucket * topk_ratio)))
+
+            if topk > 0:
+                topk_values = np.sort(value_counts)[-topk:]
+                ratio = np.sum(topk_values) / np.sum(value_counts)
+                if ratio >= thr:
+                    details = (caption_name, f"{self.str_ann_type} {prop}")
+                    validation_reports += self._generate_validation_report(
+                        ImbalancedDistInCaption, Severity.info, *details
+                    )
+
+        return validation_reports
