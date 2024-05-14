@@ -1360,23 +1360,47 @@ class TabularValidator(_TaskValidator):
             for ann in annotations:
                 if ann.type == AnnotationType.caption:
                     caption_ = ann.caption
-                    for cat_name in caption_columns:
-                        if cat_name in caption_:
-                            caption_value = caption_.split(f"{cat_name}:")[-1]
-                            caption_stats = dist_by_caption.setdefault(
-                                cat_name, deepcopy(self.value_template)
+                    for cat_name, type_ in caption_columns:
+                        if cat_name + ":" in caption_:
+                            caption_value = type_(caption_.split(f"{cat_name}:")[-1])
+                            update_stats_by_caption(
+                                item_key, caption_value, dist_by_caption[cat_name]
                             )
-                            caption_info, _has_error = update_stats_by_caption(
-                                item_key, caption_value, caption_stats
-                            )
-
-                    if not _has_error:
-                        self._update_prop_distributions(caption_info, caption_stats)
 
     def _update_prop_distributions(self, curr_stats, target_stats):
         for prop, val in curr_stats.items():
             prop_stats = target_stats[prop]
             prop_stats["distribution"].append(val)
+
+    def _compute_prop_stats_from_dist(self, dist_by_caption):
+        for stats in dist_by_caption.values():
+            prop_stats_list = list(stats.values())
+
+            for prop_stats in prop_stats_list:
+                prop_dist = prop_stats.pop("distribution", [])
+                if len(prop_dist) > 0:
+                    prop_stats["mean"] = np.mean(prop_dist)
+                    prop_stats["stdev"] = np.std(prop_dist)
+                    prop_stats["min"] = np.min(prop_dist)
+                    prop_stats["max"] = np.max(prop_dist)
+                    prop_stats["median"] = np.median(prop_dist)
+
+                    counts, bins = np.histogram(prop_dist)
+                    prop_stats["histogram"]["bins"] = bins.tolist()
+                    prop_stats["histogram"]["counts"] = counts.tolist()
+
+    def _compute_far_from_mean(self, prop_stats, val, item_key, ann):
+        def _far_from_mean(val, mean, stdev):
+            thr = self.far_from_mean_thr
+            return val > mean + (thr * stdev) or val < mean - (thr * stdev)
+
+        mean = prop_stats["mean"]
+        stdev = prop_stats["stdev"]
+
+        if _far_from_mean(val, mean, stdev):
+            items_far_from_mean = prop_stats["items_far_from_mean"]
+            far_from_mean = items_far_from_mean.setdefault(item_key, {})
+            far_from_mean[ann.id] = val
 
     def compute_statistics(self, dataset):
         """
@@ -1395,8 +1419,16 @@ class TabularValidator(_TaskValidator):
 
         self.items = filtered_items
 
+        num_caption_columns = [
+            (cat, type_)
+            for cat, type_ in dataset._tabular_cat_types.items()
+            if (type_ is int) or (type_ is float)
+        ]
+
         stats["items_with_invalid_value"] = {}
-        stats["distribution_in_caption"] = {}
+        stats["distribution_in_caption"] = {
+            cap: deepcopy(self.value_template) for cap, _ in num_caption_columns
+        }
         stats["distribution_in_dataset_item"] = {}
 
         def _update_stats_by_caption(item_key, caption_, caption_stats):
@@ -1412,13 +1444,26 @@ class TabularValidator(_TaskValidator):
             if not caption_has_error:
                 caption_info = {"value": caption_}
                 self._update_prop_distributions(caption_info, caption_stats)
-            return caption_info, caption_has_error
 
         # Collect property distribution
-        num_caption_columns = [
-            cat for cat, type_ in dataset._tabular_cat_types.items() if type_ is int
-        ]
         self._compute_prop_dist(num_caption_columns, stats, _update_stats_by_caption)
+
+        # Compute property statistics from distribution
+        dist_by_caption = stats["distribution_in_caption"]
+        self._compute_prop_stats_from_dist(dist_by_caption)
+
+        def _update_captions_far_from_mean(caption_columns, item_key, ann):
+            for cap, type_ in caption_columns:
+                prop_stats = dist_by_caption[cap]["value"]
+                if cap + ":" in ann.caption:
+                    val = type_(ann.caption.split(f"{cap}:")[-1])
+                    self._compute_far_from_mean(prop_stats, val, item_key, ann)
+
+        # Compute far_from_mean from property
+        for item_key, annotations in self.items:
+            for ann in annotations:
+                if ann.type == AnnotationType.caption:
+                    _update_captions_far_from_mean(num_caption_columns, item_key, ann)
 
         return stats
 
