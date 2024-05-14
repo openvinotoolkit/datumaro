@@ -1241,7 +1241,7 @@ class TabularValidator(_TaskValidator):
         }
 
     def _compute_common_statistics(self, dataset):
-        stop_words = stopwords.words("english")  # TODO
+        stop_words = set(stopwords.words("english"))  # TODO
 
         empty_label_template = {
             "count": 0,
@@ -1283,7 +1283,9 @@ class TabularValidator(_TaskValidator):
         label_categories = dataset.categories().get(AnnotationType.label, LabelCategories())
         len_categories = len(dataset._tabular_cat_types.items())
         caption_columns = [
-            cat for cat, type_ in dataset._tabular_cat_types.items() if type_ is str or int
+            cat
+            for cat, type_ in dataset._tabular_cat_types.items()
+            if not isinstance(type_, CategoricalDtype)
         ]
         label_columns = {
             cat: 0
@@ -1296,34 +1298,27 @@ class TabularValidator(_TaskValidator):
         for category in caption_columns:
             defined_caption_dist[category] = 0
 
-        filtered_anns = []
+        filtered_items = []
         for item in dataset:
             item_key = (item.id, item.subset)
-            annotations = []
-            for ann in item.annotations:
-                if ann.type in self.ann_types:
-                    annotations.append(ann)
+            annotations = [ann for ann in item.annotations if ann.type in self.ann_types]
             ann_count = len(annotations)
-            filtered_anns.append((item_key, annotations))
+            filtered_items.append((item_key, annotations))
             if ann_count == 0:
                 stats["items_missing_annotation"].append(item_key)
             if ann_count != len_categories:
                 stats["items_broken_annotation"].append(item_key)
             stats["total_ann_count"] += ann_count
 
+            caption_check = deepcopy(caption_columns)
             for ann in annotations:
                 if ann.type == AnnotationType.caption:
                     caption_ = ann.caption
                     for cat in caption_columns:
-                        if cat in caption_:
+                        if cat + ":" in caption_:
                             defined_caption_dist[cat] += 1
-                            pass
-                        else:
-                            caption_stats = empty_caption_dist.setdefault(
-                                cat, deepcopy(empty_caption_template)
-                            )
-                            caption_stats["items_with_empty_caption"].append(item_key)
-                            caption_stats["count"] += 1
+                            caption_ = caption_.split(cat + ":")[-1]
+                            caption_check.remove(cat)
                     redundancies_in_caption_dist[cat] = redundancies_template
                     if len([c for c in str(caption_) if c in stop_words]):
                         stop_stats = redundancies_in_caption_dist[cat]["stopword"]
@@ -1341,6 +1336,14 @@ class TabularValidator(_TaskValidator):
                     label_name = label_name.split(":")[0]
                     label_columns[label_name] += 1
 
+            if caption_check != []:
+                for cap in caption_check:
+                    caption_stats = empty_caption_dist.setdefault(
+                        cap, deepcopy(empty_caption_template)
+                    )
+                    caption_stats["items_with_empty_caption"].append(item_key)
+                    caption_stats["count"] += 1
+
             for label_col, v in label_columns.items():
                 if v == 0:
                     label_stats = empty_label_dist.setdefault(
@@ -1349,7 +1352,7 @@ class TabularValidator(_TaskValidator):
                     label_stats["items_with_empty_label"].append(item_key)
                     label_stats["count"] += 1
 
-        return stats, filtered_anns
+        return stats, filtered_items
 
     def _compute_prop_dist(self, caption_columns, stats, update_stats_by_caption):
         dist_by_caption = stats["distribution_in_caption"]
