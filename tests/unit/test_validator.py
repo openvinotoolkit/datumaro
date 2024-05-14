@@ -21,12 +21,19 @@ from datumaro.components.dataset import Dataset, DatasetItem
 from datumaro.components.environment import Environment
 from datumaro.components.errors import (
     AttributeDefinedButNotFound,
+    BrokenAnnotation,
+    EmptyCaption,
+    EmptyLabel,
     FarFromAttrMean,
+    FarFromCaptionMean,
     FarFromLabelMean,
     FewSamplesInAttribute,
+    FewSamplesInCaption,
     FewSamplesInLabel,
     ImbalancedAttribute,
+    ImbalancedCaptions,
     ImbalancedDistInAttribute,
+    ImbalancedDistInCaption,
     ImbalancedDistInLabel,
     ImbalancedLabels,
     InvalidValue,
@@ -38,6 +45,7 @@ from datumaro.components.errors import (
     NegativeLength,
     OnlyOneAttributeValue,
     OnlyOneLabel,
+    RedundanciesInCaption,
     UndefinedAttribute,
     UndefinedLabel,
 )
@@ -47,6 +55,7 @@ from datumaro.plugins.validators import (
     ClassificationValidator,
     DetectionValidator,
     SegmentationValidator,
+    TabularValidator,
     _TaskValidator,
 )
 
@@ -833,6 +842,156 @@ class TestSegmentationValidator(_TestValidatorBase):
 
         self.assertTrue(len(actual_reports) == 1)
         self.assertIsInstance(actual_reports[0], FarFromAttrMean)
+
+
+class TestTabularValidator(_TestValidatorBase):
+    @classmethod
+    def setUpClass(cls):
+        cls.validator = TabularValidator(
+            few_samples_thr=1,
+            imbalance_ratio_thr=50,
+            far_from_mean_thr=5.0,
+            dominance_ratio_thr=0.8,
+            topk_bins=0.1,
+        )
+
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
+    def test_check_broken_annotation(self):
+        stats = {"items_broken_annotation": [(1, "train")]}
+
+        actual_reports = self.validator._check_broken_annotation(stats)
+
+        self.assertTrue(len(actual_reports) == 1)
+        self.assertIsInstance(actual_reports[0], BrokenAnnotation)
+
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
+    def test_check_empty_label(self):
+        stats = {
+            "label_distribution": {
+                "empty_labels": {"unittest": {"count": 1, "items_with_empty_label": [(1, "train")]}}
+            }
+        }
+
+        actual_reports = self.validator._check_empty_label(stats)
+
+        self.assertTrue(len(actual_reports) == 1)
+        self.assertIsInstance(actual_reports[0], EmptyLabel)
+
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
+    def test_check_empty_caption(self):
+        stats = {
+            "caption_distribution": {
+                "empty_captions": {
+                    "unittest": {"count": 1, "items_with_empty_caption": [(1, "train")]}
+                }
+            }
+        }
+
+        actual_reports = self.validator._check_empty_caption(stats)
+
+        self.assertTrue(len(actual_reports) == 1)
+        self.assertIsInstance(actual_reports[0], EmptyCaption)
+
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
+    def test_check_few_samples_in_caption(self):
+        with self.subTest("Few Samples"):
+            stats = {
+                "caption_distribution": {
+                    "defined_captions": {"unit": self.validator.few_samples_thr}
+                }
+            }
+
+            actual_reports = self.validator._check_few_samples_in_caption(stats)
+
+            self.assertTrue(len(actual_reports) == 1)
+            self.assertIsInstance(actual_reports[0], FewSamplesInCaption)
+
+        with self.subTest("No Few Samples Warning"):
+            stats = {
+                "caption_distribution": {
+                    "defined_captions": {"unit": self.validator.few_samples_thr + 1}
+                }
+            }
+
+            actual_reports = self.validator._check_few_samples_in_caption(stats)
+
+            self.assertTrue(len(actual_reports) == 0)
+
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
+    def test_check_far_from_caption_mean(self):
+        caption_name = "unittest"
+        caption_stats = {
+            "w": {
+                "items_far_from_mean": {("1", "train"): {1: 100}},
+                "mean": 0,
+            }
+        }
+
+        actual_reports = self.validator._check_far_from_caption_mean(caption_name, caption_stats)
+
+        self.assertTrue(len(actual_reports) == 1)
+        self.assertIsInstance(actual_reports[0], FarFromCaptionMean)
+
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
+    def test_check_redundancies_in_caption(self):
+        stats = {
+            "caption_distribution": {
+                "redundancies": {
+                    "unittest": {
+                        "stopword": {"count": 1, "items_with_redundancies": [("1", "train")]}
+                    }
+                }
+            }
+        }
+
+        actual_reports = self.validator._check_redundancies_in_caption(stats)
+
+        self.assertTrue(len(actual_reports) == 1)
+        self.assertIsInstance(actual_reports[0], RedundanciesInCaption)
+
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
+    def test_check_imbalanced_captions(self):
+        with self.subTest("Imbalance"):
+            stats = {
+                "caption_distribution": {
+                    "defined_captions": {"unit": self.validator.imbalance_ratio_thr, "test": 1}
+                }
+            }
+
+            actual_reports = self.validator._check_imbalanced_captions(stats)
+
+            self.assertTrue(len(actual_reports) == 1)
+            self.assertIsInstance(actual_reports[0], ImbalancedCaptions)
+
+        with self.subTest("No Imbalance Warning"):
+            stats = {
+                "caption_distribution": {
+                    "defined_captions": {"unit": self.validator.imbalance_ratio_thr - 1, "test": 1}
+                }
+            }
+
+            actual_reports = self.validator._check_imbalanced_captions(stats)
+
+            self.assertTrue(len(actual_reports) == 0)
+
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
+    def test_check_imbalanced_dist_in_caption(self):
+        caption = "unittest"
+        most = int(self.validator.dominance_thr * 100)
+        rest = 100 - most
+
+        with self.subTest("Imbalanced"):
+            caption_stats = {"value": {"histogram": {"counts": [most, rest]}}}
+            reports = self.validator._check_imbalanced_dist_in_caption(caption, caption_stats)
+
+            self.assertTrue(len(reports) == 1)
+            self.assertIsInstance(reports[0], ImbalancedDistInCaption)
+
+        with self.subTest("No Imbalanced Warning"):
+            caption_stats = {"value": {"histogram": {"counts": [most - 1, rest]}}}
+            reports = self.validator._check_imbalanced_dist_in_caption(caption, caption_stats)
+
+            self.assertTrue(len(reports) == 0)
 
 
 class TestValidateAnnotations(_TestValidatorBase):
