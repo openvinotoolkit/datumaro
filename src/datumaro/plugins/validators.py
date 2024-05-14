@@ -1236,21 +1236,13 @@ class TabularValidator(_TaskValidator):
             topk_bins=topk_bins,
         )
 
-        self.value_template = {
-            "value": deepcopy(self.numerical_stat_template),
-        }
+        self.value_template = {"value": deepcopy(self.numerical_stat_template)}
 
     def _compute_common_statistics(self, dataset):
         stop_words = set(stopwords.words("english"))  # TODO
 
-        empty_label_template = {
-            "count": 0,
-            "items_with_empty_label": [],
-        }
-        empty_caption_template = {
-            "count": 0,
-            "items_with_empty_caption": [],
-        }
+        empty_label_template = {"count": 0, "items_with_empty_label": []}
+        empty_caption_template = {"count": 0, "items_with_empty_caption": []}
         redundancies_template = {
             "stopword": {"count": 0, "items_with_redundancies": []},
             "url": {"count": 0, "items_with_redundancies": []},
@@ -1292,6 +1284,11 @@ class TabularValidator(_TaskValidator):
             for cat, type_ in dataset._tabular_cat_types.items()
             if isinstance(type_, CategoricalDtype)
         }
+        redundancies_in_caption_dist = {
+            cat: deepcopy(redundancies_template)
+            for cat, type_ in dataset._tabular_cat_types.items()
+            if type_ is str
+        }
 
         for category in label_categories:
             defined_label_dist[category.name] = 0
@@ -1319,30 +1316,28 @@ class TabularValidator(_TaskValidator):
                             defined_caption_dist[cat] += 1
                             caption_ = caption_.split(cat + ":")[-1]
                             caption_check.remove(cat)
-                    redundancies_in_caption_dist[cat] = redundancies_template
-                    if len([c for c in str(caption_) if c in stop_words]):
-                        stop_stats = redundancies_in_caption_dist[cat]["stopword"]
-                        stop_stats["items_with_redundancies"].append(item_key)
-                        stop_stats["count"] += 1
-                    elif len(
-                        [w for w in str(caption_).lower().split() if "http" in w or "https" in w]
-                    ):
-                        url_stats = redundancies_in_caption_dist[cat]["url"]
-                        url_stats["items_with_redundancies"].append(item_key)
-                        url_stats["count"] += 1
+                            if any(c in stop_words for c in str(caption_)):
+                                redundancies_in_caption_dist[cat]["stopword"][
+                                    "items_with_redundancies"
+                                ].append(item_key)
+                                redundancies_in_caption_dist[cat]["stopword"]["count"] += 1
+                            elif any(
+                                "http" in w or "https" in w for w in str(caption_).lower().split()
+                            ):
+                                redundancies_in_caption_dist["url"][
+                                    "items_with_redundancies"
+                                ].append(item_key)
+                                redundancies_in_caption_dist["url"]["count"] += 1
                 else:
                     label_name = label_categories[ann.label].name
                     defined_label_dist[label_name] += 1
                     label_name = label_name.split(":")[0]
                     label_columns[label_name] += 1
 
-            if caption_check != []:
-                for cap in caption_check:
-                    caption_stats = empty_caption_dist.setdefault(
-                        cap, deepcopy(empty_caption_template)
-                    )
-                    caption_stats["items_with_empty_caption"].append(item_key)
-                    caption_stats["count"] += 1
+            for cap in caption_check:
+                caption_stats = empty_caption_dist.setdefault(cap, deepcopy(empty_caption_template))
+                caption_stats["items_with_empty_caption"].append(item_key)
+                caption_stats["count"] += 1
 
             for label_col, v in label_columns.items():
                 if v == 0:
