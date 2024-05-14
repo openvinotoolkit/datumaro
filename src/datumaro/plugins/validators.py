@@ -1449,27 +1449,23 @@ class TabularValidator(_TaskValidator):
         reports += self._check_missing_annotation(stats)
 
         # report for label
-        reports += self._check_label_defined_but_not_found(stats)
-        reports += self._check_only_one_label(stats)
         reports += self._check_few_samples_in_label(stats)
         reports += self._check_imbalanced_labels(stats)
 
         # report for caption
         reports += self._check_few_samples_in_caption(stats)
         reports += self._check_redundancies_in_caption(stats)
+        reports += self._check_imbalanced_captions(stats)
 
         # report for missing value
         reports += self._check_broken_annotation(stats)
         reports += self._check_empty_label(stats)
         reports += self._check_empty_caption(stats)
 
-        defined_captions = stats["caption_distribution"]["defined_captions"].keys()
         dist_by_caption = stats["distribution_in_caption"]
-        for caption_name in defined_captions:
-            caption_stats = dist_by_caption[caption_name]
-
-            reports += self._check_far_from_caption_mean(caption_name, caption_stats)
-            reports += self._check_imbalanced_dist_in_caption(caption_name, caption_stats)
+        for caption, caption_stats in dist_by_caption.items():
+            reports += self._check_far_from_caption_mean(caption, caption_stats)
+            reports += self._check_imbalanced_dist_in_caption(caption, caption_stats)
 
         return reports
 
@@ -1575,7 +1571,7 @@ class TabularValidator(_TaskValidator):
         validation_reports = []
         thr = self.imbalance_ratio_thr
 
-        defined_caption_dist = stats["label_distribution"]["defined_captions"]
+        defined_caption_dist = stats["caption_distribution"]["defined_captions"]
         count_by_caption_labels = [count for _, count in defined_caption_dist.items()]
 
         if len(defined_caption_dist) == 0:
