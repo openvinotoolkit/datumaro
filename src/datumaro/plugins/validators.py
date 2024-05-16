@@ -1239,7 +1239,13 @@ class TabularValidator(_TaskValidator):
         self.value_template = {"value": deepcopy(self.numerical_stat_template)}
 
     def _compute_common_statistics(self, dataset):
-        stop_words = set(stopwords.words("english"))  # TODO
+        try:
+            stop_words = set(stopwords.words("english"))  # TODO
+        except LookupError:
+            import nltk
+
+            nltk.download()
+            stop_words = set(stopwords.words("english"))  # TODO
 
         empty_label_template = {"count": 0, "items_with_empty_label": []}
         empty_caption_template = {"count": 0, "items_with_empty_caption": []}
