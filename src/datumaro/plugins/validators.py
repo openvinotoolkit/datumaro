@@ -1279,11 +1279,11 @@ class TabularValidator(_TaskValidator):
             for cat, type_ in dataset._tabular_cat_types.items()
             if not isinstance(type_, CategoricalDtype)
         ]
-        label_columns = {
-            cat: 0
+        label_columns = [
+            cat
             for cat, type_ in dataset._tabular_cat_types.items()
             if isinstance(type_, CategoricalDtype)
-        }
+        ]
         redundancies_in_caption_dist = {
             cat: deepcopy(redundancies_template)
             for cat, type_ in dataset._tabular_cat_types.items()
@@ -1298,6 +1298,7 @@ class TabularValidator(_TaskValidator):
         filtered_items = []
         for item in dataset:
             item_key = (item.id, item.subset)
+            label_check = {cat: 0 for cat in label_columns}
             annotations = [ann for ann in item.annotations if ann.type in self.ann_types]
             ann_count = len(annotations)
             filtered_items.append((item_key, annotations))
@@ -1332,14 +1333,14 @@ class TabularValidator(_TaskValidator):
                     label_name = label_categories[ann.label].name
                     defined_label_dist[label_name] += 1
                     label_name = label_name.split(":")[0]
-                    label_columns[label_name] += 1
+                    label_check[label_name] += 1
 
             for cap in caption_check:
                 caption_stats = empty_caption_dist.setdefault(cap, deepcopy(empty_caption_template))
                 caption_stats["items_with_empty_caption"].append(item_key)
                 caption_stats["count"] += 1
 
-            for label_col, v in label_columns.items():
+            for label_col, v in label_check.items():
                 if v == 0:
                     label_stats = empty_label_dist.setdefault(
                         label_col, deepcopy(empty_label_template)

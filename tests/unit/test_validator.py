@@ -2,12 +2,14 @@
 #
 # SPDX-License-Identifier: MIT
 
+import os.path as osp
 from collections import Counter
 from unittest import TestCase
 
 import numpy as np
 import pytest
 
+import datumaro.plugins.transforms as transforms
 from datumaro.components.annotation import (
     AnnotationType,
     Bbox,
@@ -60,6 +62,8 @@ from datumaro.plugins.validators import (
 )
 
 from ..requirements import Requirements, mark_requirement
+
+from tests.utils.assets import get_test_asset_path
 
 
 class _TestValidatorBase(TestCase):
@@ -376,6 +380,24 @@ class _TestValidatorBase(TestCase):
                 for i in range(2)
             ],
         )
+
+        path = osp.join(get_test_asset_path("tabular_dataset"), "women_clothing.csv")
+        tabular_dataset = Dataset.import_from(
+            path,
+            "tabular",
+            target={
+                "input": ["Review Text"],
+                "output": [
+                    "Age",
+                    "Title",
+                    "Review Text",
+                    "Rating",
+                    "Positive Feedback Count",
+                    "Division Name",
+                ],
+            },
+        )
+        cls.tabular_dataset = transforms.AstypeAnnotations(tabular_dataset)
 
 
 class TestBaseValidator(_TestValidatorBase):
@@ -1255,6 +1277,88 @@ class TestValidateAnnotations(_TestValidatorBase):
         with self.subTest("Test of summary", i=2):
             actual_summary = actual_results["summary"]
             expected_summary = {"errors": 7, "infos": 17, "warnings": 1}
+
+            self.assertEqual(actual_summary, expected_summary)
+
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
+    def test_validate_annotations_tabular(self):
+        validator = TabularValidator(**self.extra_args)
+        actual_results = validator.validate(self.tabular_dataset)
+
+        with self.subTest("Test of statistics", i=0):
+            actual_stats = actual_results["statistics"]
+            self.assertEqual(actual_stats["total_ann_count"], 594)
+            self.assertEqual(len(actual_stats["items_missing_annotation"]), 1)
+            self.assertEqual(len(actual_stats["items_broken_annotation"]), 7)
+            self.assertEqual(actual_stats["items_with_invalid_value"], {})
+
+            label_dist = actual_stats["label_distribution"]
+            self.assertEqual(len(label_dist["defined_labels"]), 8)
+            empty_labels = label_dist["empty_labels"]
+            self.assertEqual(len(empty_labels), 2)
+            self.assertEqual(empty_labels["Rating"]["count"], 2)
+            self.assertEqual(
+                empty_labels["Rating"]["items_with_empty_label"][0][0], "0@women_clothing"
+            )
+            self.assertEqual(empty_labels["Division Name"]["count"], 2)
+            self.assertEqual(
+                empty_labels["Division Name"]["items_with_empty_label"][0][0], "0@women_clothing"
+            )
+
+            caption_dist = actual_stats["caption_distribution"]
+            self.assertEqual(len(caption_dist["defined_captions"]), 4)
+            self.assertEqual(caption_dist["defined_captions"]["Age"], 99)
+            self.assertEqual(caption_dist["defined_captions"]["Title"], 99)
+            self.assertEqual(caption_dist["defined_captions"]["Review Text"], 99)
+            self.assertEqual(caption_dist["defined_captions"]["Positive Feedback Count"], 99)
+            empty_captions = caption_dist["empty_captions"]
+            self.assertEqual(len(empty_captions), 4)
+            self.assertEqual(empty_captions["Age"]["count"], 2)
+            self.assertEqual(
+                empty_captions["Age"]["items_with_empty_caption"][0][0], "0@women_clothing"
+            )
+            self.assertEqual(empty_captions["Title"]["count"], 2)
+            self.assertEqual(
+                empty_captions["Title"]["items_with_empty_caption"][0][0], "0@women_clothing"
+            )
+            self.assertEqual(empty_captions["Review Text"]["count"], 2)
+            self.assertEqual(
+                empty_captions["Review Text"]["items_with_empty_caption"][0][0], "0@women_clothing"
+            )
+            self.assertEqual(empty_captions["Positive Feedback Count"]["count"], 2)
+            self.assertEqual(
+                empty_captions["Positive Feedback Count"]["items_with_empty_caption"][0][0],
+                "0@women_clothing",
+            )
+
+            dist_in_caption = actual_stats["distribution_in_caption"]
+            self.assertEqual(dist_in_caption["Age"]["value"]["items_far_from_mean"], {})
+            pos_dist_in_caption = dist_in_caption["Positive Feedback Count"]["value"]
+            self.assertEqual(pos_dist_in_caption["items_far_from_mean"], {})
+            counts = [i for i in range(1, 101) if i != 5]
+            self.assertEqual(pos_dist_in_caption["mean"], np.mean(counts))
+            self.assertEqual(pos_dist_in_caption["stdev"], np.std(counts))
+            self.assertEqual(pos_dist_in_caption["min"], np.min(counts))
+            self.assertEqual(pos_dist_in_caption["max"], np.max(counts))
+            self.assertEqual(pos_dist_in_caption["median"], np.median(counts))
+
+            dist_item = actual_stats["distribution_in_dataset_item"]
+            self.assertEqual(sum(dist_item.values()), 594)
+
+        with self.subTest("Test of validation reports", i=1):
+            actual_reports = actual_results["validation_reports"]
+            report_types = [r["anomaly_type"] for r in actual_reports]
+            count_by_type = Counter(report_types)
+
+            self.assertEqual(len(actual_reports), 20)
+            self.assertEqual(count_by_type["EmptyCaption"], 8)
+            self.assertEqual(count_by_type["BrokenAnnotation"], 7)
+            self.assertEqual(count_by_type["EmptyLabel"], 4)
+            self.assertEqual(count_by_type["MissingAnnotation"], 1)
+
+        with self.subTest("Test of summary", i=2):
+            actual_summary = actual_results["summary"]
+            expected_summary = {"errors": 0, "infos": 20, "warnings": 0}
 
             self.assertEqual(actual_summary, expected_summary)
 
