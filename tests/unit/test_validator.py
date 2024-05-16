@@ -1358,7 +1358,7 @@ class TestValidateAnnotations(_TestValidatorBase):
 
         with self.subTest("Test of summary", i=2):
             actual_summary = actual_results["summary"]
-            expected_summary = {"errors": 0, "infos": 20, "warnings": 0}
+            expected_summary = {"errors": 0, "infos": 0, "warnings": 20}
 
             self.assertEqual(actual_summary, expected_summary)
 

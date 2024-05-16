@@ -73,7 +73,7 @@ class _TaskValidator(Validator, CliPlugin):
     Attributes
     ----------
     task_type : str or TaskType
-        task type (ie. classification, detection, segmentation)
+        task type (ie. classification, detection, segmentation, tabular)
     """
 
     @classmethod

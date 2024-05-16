@@ -1968,5 +1968,10 @@
     "import_path": "datumaro.plugins.validators.SegmentationValidator",
     "plugin_name": "segmentation",
     "plugin_type": "Validator"
+  },
+  {
+    "import_path": "datumaro.plugins.validators.TabularValidator",
+    "plugin_name": "tabular",
+    "plugin_type": "Validator"
   }
 ]
