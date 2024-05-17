@@ -25,6 +25,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   (<https://github.com/openvinotoolkit/datumaro/pull/1471>)
 - Add ExtractedMask and update importers who can use it to use it
   (<https://github.com/openvinotoolkit/datumaro/pull/1480>)
+- Improve PIL and COLOR_BGR context image decode performance
+  (<https://github.com/openvinotoolkit/datumaro/pull/1501>)
 
 ### Bug fixes
 - Split the video directory into subsets to avoid overwriting
