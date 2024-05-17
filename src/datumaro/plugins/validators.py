@@ -1244,7 +1244,7 @@ class TabularValidator(_TaskValidator):
         except LookupError:
             import nltk
 
-            nltk.download()
+            nltk.download("stopwords")
             stop_words = set(stopwords.words("english"))  # TODO
 
         empty_label_template = {"count": 0, "items_with_empty_label": []}
