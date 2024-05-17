@@ -1350,15 +1350,16 @@ class TestValidateAnnotations(_TestValidatorBase):
             report_types = [r["anomaly_type"] for r in actual_reports]
             count_by_type = Counter(report_types)
 
-            self.assertEqual(len(actual_reports), 20)
-            self.assertEqual(count_by_type["EmptyCaption"], 8)
+            self.assertEqual(len(actual_reports), 22)
+            self.assertEqual(count_by_type["MissingAnnotation"], 1)
+            self.assertEqual(count_by_type["RedundanciesInCaption"], 2)
             self.assertEqual(count_by_type["BrokenAnnotation"], 7)
             self.assertEqual(count_by_type["EmptyLabel"], 4)
-            self.assertEqual(count_by_type["MissingAnnotation"], 1)
+            self.assertEqual(count_by_type["EmptyCaption"], 8)
 
         with self.subTest("Test of summary", i=2):
             actual_summary = actual_results["summary"]
-            expected_summary = {"errors": 0, "infos": 0, "warnings": 20}
+            expected_summary = {"errors": 0, "infos": 0, "warnings": 22}
 
             self.assertEqual(actual_summary, expected_summary)
 
