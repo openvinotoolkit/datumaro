@@ -13,6 +13,7 @@ import datumaro.plugins.transforms as transforms
 from datumaro.components.annotation import (
     AnnotationType,
     Bbox,
+    Caption,
     Ellipse,
     Label,
     LabelCategories,
@@ -877,6 +878,105 @@ class TestTabularValidator(_TestValidatorBase):
             topk_bins=0.1,
         )
 
+    def _update_stats_by_caption(self, caption_, caption_stats):
+        caption_has_error = False
+
+        if not caption_has_error:
+            caption_info = {"value": caption_}
+            self.validator._update_prop_distributions(caption_info, caption_stats)
+
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
+    def test_compute_prop_dist(self):
+        stats = {
+            "distribution_in_caption": {
+                "unittest": {
+                    "value": {
+                        "items_far_from_mean": {},
+                        "mean": None,
+                        "stdev": None,
+                        "min": None,
+                        "max": None,
+                        "median": None,
+                        "histogram": {
+                            "bins": [],
+                            "counts": [],
+                        },
+                        "distribution": [],
+                    }
+                },
+            },
+            "distribution_in_dataset_item": {},
+        }
+        num_caption_columns = [("unittest", int)]
+
+        self.validator.items = [
+            (
+                ("1", "train"),
+                [Caption(id=0, attributes={}, group=0, object_id=-1, caption="unittest:0")],
+            )
+        ]
+
+        self.validator._compute_prop_dist(num_caption_columns, stats, self._update_stats_by_caption)
+        self.assertEqual(stats["distribution_in_caption"]["unittest"]["value"]["distribution"], [0])
+        self.assertEqual(stats["distribution_in_dataset_item"], {("1", "train"): 1})
+
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
+    def test_compute_prop_stats_from_dist(self):
+        dist = range(0, 100)
+        dist_by_caption = {
+            "unittest": {
+                "value": {
+                    "items_far_from_mean": {},
+                    "mean": None,
+                    "stdev": None,
+                    "min": None,
+                    "max": None,
+                    "median": None,
+                    "histogram": {
+                        "bins": [],
+                        "counts": [],
+                    },
+                    "distribution": [dist],
+                }
+            },
+        }
+
+        self.validator._compute_prop_stats_from_dist(dist_by_caption)
+        self.assertEqual(dist_by_caption["unittest"]["value"]["mean"], np.mean(dist))
+        self.assertEqual(dist_by_caption["unittest"]["value"]["stdev"], np.std(dist))
+        self.assertEqual(dist_by_caption["unittest"]["value"]["min"], np.min(dist))
+        self.assertEqual(dist_by_caption["unittest"]["value"]["max"], np.max(dist))
+        self.assertEqual(dist_by_caption["unittest"]["value"]["median"], np.median(dist))
+
+        counts, bins = np.histogram(dist)
+        self.assertEqual(dist_by_caption["unittest"]["value"]["histogram"]["bins"], bins.tolist())
+        self.assertEqual(
+            dist_by_caption["unittest"]["value"]["histogram"]["counts"], counts.tolist()
+        )
+
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
+    def test_compute_far_from_mean(self):
+        dist = range(1, 101)
+        counts, bins = np.histogram(dist)
+        prop_stats = {
+            "items_far_from_mean": {},
+            "mean": 50,
+            "stdev": 28,
+            "min": 1,
+            "max": 100,
+            "median": 50,
+            "histogram": {
+                "bins": bins.tolist(),
+                "counts": counts.tolist(),
+            },
+        }
+        val = 1000
+        item_key = ("1", "train")
+        ann = Caption(id=0, attributes={}, group=0, object_id=-1, caption="unittest:0")
+
+        self.validator._compute_far_from_mean(prop_stats, val, item_key, ann)
+        self.assertEqual(prop_stats["items_far_from_mean"], {item_key: {0: val}})
+
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_check_broken_annotation(self):
         stats = {"items_broken_annotation": [(1, "train")]}
@@ -1290,7 +1390,6 @@ class TestValidateAnnotations(_TestValidatorBase):
             self.assertEqual(actual_stats["total_ann_count"], 594)
             self.assertEqual(len(actual_stats["items_missing_annotation"]), 1)
             self.assertEqual(len(actual_stats["items_broken_annotation"]), 7)
-            self.assertEqual(actual_stats["items_with_invalid_value"], {})
 
             label_dist = actual_stats["label_distribution"]
             self.assertEqual(len(label_dist["defined_labels"]), 8)

@@ -1391,9 +1391,7 @@ class TabularValidator(_TaskValidator):
                     for cat_name, type_ in caption_columns:
                         if cat_name + ":" in caption_:
                             caption_value = type_(caption_.split(f"{cat_name}:")[-1])
-                            update_stats_by_caption(
-                                item_key, caption_value, dist_by_caption[cat_name]
-                            )
+                            update_stats_by_caption(caption_value, dist_by_caption[cat_name])
 
     def _update_prop_distributions(self, curr_stats, target_stats):
         for prop, val in curr_stats.items():
@@ -1453,21 +1451,13 @@ class TabularValidator(_TaskValidator):
             if (type_ is int) or (type_ is float)
         ]
 
-        stats["items_with_invalid_value"] = {}
         stats["distribution_in_caption"] = {
             cap: deepcopy(self.value_template) for cap, _ in num_caption_columns
         }
         stats["distribution_in_dataset_item"] = {}
 
-        def _update_stats_by_caption(item_key, caption_, caption_stats):
+        def _update_stats_by_caption(caption_, caption_stats):
             caption_has_error = False
-
-            items_w_invalid_val = stats["items_with_invalid_value"]
-            if caption_ == str("inf"):
-                caption_has_error = True
-                anns_w_invalid_val = items_w_invalid_val.setdefault(item_key, {})
-                invalid_props = anns_w_invalid_val.setdefault(item_key[0], [])
-                invalid_props.append("value")
 
             if not caption_has_error:
                 caption_info = {"value": caption_}
