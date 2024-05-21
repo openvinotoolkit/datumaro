@@ -17,6 +17,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   (<https://github.com/openvinotoolkit/datumaro/pull/1475>)
 - Add AstypeAnnotations Transform
   (<https://github.com/openvinotoolkit/datumaro/pull/1484>)
+- Enhance DatasetItem annotations for semantic segmentation model training use case
+  (<https://github.com/openvinotoolkit/datumaro/pull/1503>)
 
 ### Enhancements
 - Fix ambiguous COCO format detector
