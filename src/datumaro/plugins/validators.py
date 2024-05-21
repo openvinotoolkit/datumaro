@@ -1210,8 +1210,9 @@ class SegmentationValidator(DetectionValidator):
         return reports
 
 
+from collections import defaultdict
 from dataclasses import dataclass, field
-from typing import Any, Dict, List, Optional
+from typing import Any, List, Optional
 
 from nltk.corpus import stopwords
 
@@ -1220,23 +1221,6 @@ from nltk.corpus import stopwords
 class TabularValidationStats:
     total_ann_count: int = field(default=0)
     items_missing_annotation: List[Any] = field(default_factory=list)
-    items_broken_annotation: List[Any] = field(default_factory=list)
-
-    empty_label: Dict[str, Any] = field(
-        default_factory=lambda: {"count": 0, "items_with_empty_label": []}
-    )
-    empty_caption: Dict[str, Any] = field(
-        default_factory=lambda: {"count": 0, "items_with_empty_caption": []}
-    )
-    redundancies: Dict[str, Dict[str, Any]] = field(
-        default_factory=lambda: {
-            "stopword": {"count": 0, "items_with_redundancies": []},
-            "url": {"count": 0, "items_with_redundancies": []},
-        }
-    )
-
-    label_distribution: Dict[str, Any] = field(default_factory=dict)
-    caption_distribution: Dict[str, Any] = field(default_factory=dict)
 
     @classmethod
     def create_with_dataset(cls, dataset):
@@ -1245,7 +1229,7 @@ class TabularValidationStats:
         return instance
 
     def __post_init__(self, dataset: Optional[Any] = None):
-        if dataset is not None:
+        if dataset:
             self.label_categories = dataset.categories().get(
                 AnnotationType.label, LabelCategories()
             )
@@ -1259,30 +1243,60 @@ class TabularValidationStats:
                 if not isinstance(type_, CategoricalDtype)
             ]
 
-            self.label_distribution = {
-                "defined_labels": {cat.name: 0 for cat in self.label_categories},
-                "empty_labels": {cat: deepcopy(self.empty_label) for cat in self.label_columns},
-            }
-            self.caption_distribution = {
-                "defined_captions": {cat: 0 for cat in self.caption_columns},
-                "empty_captions": {
-                    cat: deepcopy(self.empty_caption) for cat in self.caption_columns
-                },
-                "redundancies": {
-                    cat: deepcopy(self.redundancies)
-                    for cat, type_ in self.tabular_categories
-                    if type_ == str
-                },
+            self.defined_labels = {cat.name: 0 for cat in self.label_categories}
+            self.empty_labels = {cat: [] for cat in self.label_columns}
+
+            self.defined_captions = {cat: 0 for cat in self.caption_columns}
+            self.empty_captions = {cat: [] for cat in self.caption_columns}
+            self.redundancies = {
+                cat: {"stopword": [], "url": []}
+                for cat, type_ in self.tabular_categories
+                if type_ == str
             }
 
     def to_dict(self):
+        empty_labels = self._build_empty_labels_dict(self.empty_labels, "items_with_empty_label")
+        empty_captions = self._build_empty_labels_dict(
+            self.empty_captions, "items_with_empty_caption"
+        )
+        redundancies = self._build_redundancies_dict(self.redundancies)
+
         return {
             "total_ann_count": self.total_ann_count,
             "items_missing_annotation": self.items_missing_annotation,
-            "items_broken_annotation": self.items_broken_annotation,
-            "label_distribution": self.label_distribution,
-            "caption_distribution": self.caption_distribution,
+            "items_broken_annotation": self._collect_broken_annotations(),
+            "label_distribution": {
+                "defined_labels": self.defined_labels,
+                "empty_labels": empty_labels,
+            },
+            "caption_distribution": {
+                "defined_captions": self.defined_captions,
+                "empty_captions": empty_captions,
+                "redundancies": redundancies,
+            },
         }
+
+    def _build_empty_labels_dict(self, empty_dict, key_name):
+        result = defaultdict(dict)
+        for label, items in empty_dict.items():
+            result[label]["count"] = len(items)
+            result[label][key_name] = list(items)
+        return result
+
+    def _build_redundancies_dict(self, redundancies):
+        result = defaultdict(lambda: defaultdict(dict))
+        for caption, items in redundancies.items():
+            for key in ["stopword", "url"]:
+                result[caption][key]["count"] = len(items[key])
+                result[caption][key]["items_with_redundancies"] = list(items[key])
+        return result
+
+    def _collect_broken_annotations(self):
+        broken_annotations = set()
+        for items in [self.empty_labels, self.empty_captions]:
+            for key, value in items.items():
+                broken_annotations.update(value)
+        return list(broken_annotations)
 
 
 class TabularValidator(_TaskValidator):
@@ -1330,8 +1344,6 @@ class TabularValidator(_TaskValidator):
             filtered_items.append((item_key, annotations))
             if ann_count == 0:
                 stats.items_missing_annotation.append(item_key)
-            if ann_count != len(stats.tabular_categories):
-                stats.items_broken_annotation.append(item_key)
             stats.total_ann_count += ann_count
 
             caption_check = deepcopy(stats.caption_columns)
@@ -1340,41 +1352,28 @@ class TabularValidator(_TaskValidator):
                     caption_ = ann.caption
                     for cat in stats.caption_columns:
                         if cat + ":" in caption_:
-                            stats.caption_distribution["defined_captions"][cat] += 1
+                            stats.defined_captions[cat] += 1
                             caption_ = caption_.split(cat + ":")[-1]
                             caption_check.remove(cat)
                             if any(c in stop_words for c in str(caption_)):
-                                stats.caption_distribution["redundancies"][cat]["stopword"][
-                                    "items_with_redundancies"
-                                ].append(item_key)
-                                stats.caption_distribution["redundancies"][cat]["stopword"][
-                                    "count"
-                                ] += 1
+                                stats.redundancies[cat]["stopword"].append(item_key)
                             elif any(
                                 "http" in w or "https" in w for w in str(caption_).lower().split()
                             ):
-                                stats.caption_distribution["redundancies"][cat]["url"][
-                                    "items_with_redundancies"
-                                ].append(item_key)
-                                stats.caption_distribution["redundancies"][cat]["url"]["count"] += 1
+                                stats.redundancies[cat]["url"].append(item_key)
+
                 else:
                     label_name = stats.label_categories[ann.label].name
-                    stats.label_distribution["defined_labels"][label_name] += 1
+                    stats.defined_labels[label_name] += 1
                     label_name = label_name.split(":")[0]
                     label_check[label_name] += 1
 
             for cap in caption_check:
-                stats.caption_distribution["empty_captions"][cap][
-                    "items_with_empty_caption"
-                ].append(item_key)
-                stats.caption_distribution["empty_captions"][cap]["count"] += 1
+                stats.empty_captions[cap].append(item_key)
 
             for label_col, v in label_check.items():
                 if v == 0:
-                    stats.label_distribution["empty_labels"][label_col][
-                        "items_with_empty_label"
-                    ].append(item_key)
-                    stats.label_distribution["empty_labels"][label_col]["count"] += 1
+                    stats.empty_labels[label_col].append(item_key)
 
         return stats.to_dict(), filtered_items
 
