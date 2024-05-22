@@ -658,8 +658,8 @@ document.write(`
 <h2>Validate Dataset<a class="headerlink" href="#validate-dataset" title="Link to this heading">#</a></h2>
 <p>This command inspects annotations with respect to the task type
 and stores the results in JSON file.</p>
-<p>The task types supported are <code class="docutils literal notranslate"><span class="pre">classification</span></code>, <code class="docutils literal notranslate"><span class="pre">detection</span></code>, and
-<code class="docutils literal notranslate"><span class="pre">segmentation</span></code> (the <code class="docutils literal notranslate"><span class="pre">-t/--task-type</span></code> parameter).</p>
+<p>The task types supported are <code class="docutils literal notranslate"><span class="pre">classification</span></code>, <code class="docutils literal notranslate"><span class="pre">detection</span></code>, <code class="docutils literal notranslate"><span class="pre">segmentation</span></code> and
+<code class="docutils literal notranslate"><span class="pre">tabular</span></code> (the <code class="docutils literal notranslate"><span class="pre">-t/--task-type</span></code> parameter).</p>
 <p>The validation result contains</p>
 <ul class="simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">annotation</span> <span class="pre">statistics</span></code> based on the task type</p></li>
@@ -808,6 +808,38 @@ over 40</p>
 <td><p>An annotation has an too small or large value than average for an attribute</p></td>
 <td><p>detection, segmentation</p></td>
 </tr>
+<tr class="row-even"><td><p>BrokenAnnotation</p></td>
+<td><p>Some annotations are not defined for an item</p></td>
+<td><p>tabular</p></td>
+</tr>
+<tr class="row-odd"><td><p>EmptyLabel</p></td>
+<td><p>A value of the label column is not defined for an item</p></td>
+<td><p>tabular</p></td>
+</tr>
+<tr class="row-even"><td><p>EmptyCaption</p></td>
+<td><p>A value of the caption column is not defined for an item</p></td>
+<td><p>tabular</p></td>
+</tr>
+<tr class="row-odd"><td><p>FewSamplesInCaption</p></td>
+<td><p>The number of samples in a caption might be too low</p></td>
+<td><p>tabular</p></td>
+</tr>
+<tr class="row-even"><td><p>RedundanciesInCaption</p></td>
+<td><p>Redundancies of an caption for an item</p></td>
+<td><p>tabular</p></td>
+</tr>
+<tr class="row-odd"><td><p>ImbalancedCaptions</p></td>
+<td><p>There is an imbalance in the caption distribution</p></td>
+<td><p>tabular</p></td>
+</tr>
+<tr class="row-even"><td><p>ImbalancedDistInCaption</p></td>
+<td><p>Values are not evenly distributed for a caption only if caption is number</p></td>
+<td><p>tabular</p></td>
+</tr>
+<tr class="row-odd"><td><p>FarFromCaptionMean</p></td>
+<td><p>An annotation has an too small or large value than average for a caption only if caption is number</p></td>
+<td><p>tabular</p></td>
+</tr>
 </tbody>
 </table>
 <p>Validation Result Format:</p>
@@ -870,6 +902,36 @@ over 40</p>
 <span class="gp">        # </span><span class="o">}</span>
 <span class="go">        &#39;mask_distribution_in_dataset_item&#39;: &lt;dict&gt;,</span>
 <span class="gp">        # </span><span class="s1">&#39;&lt;item_key&gt;&#39;</span>:<span class="w"> </span>&lt;mask/polygon<span class="w"> </span>count:<span class="w"> </span>int&gt;
+
+<span class="gp">        #</span><span class="c1"># statistics for tabular task</span>
+<span class="go">        &#39;items_broken_annotation&#39;: &lt;list&gt;, # [&lt;item_key&gt;, ]</span>
+<span class="go">        &#39;label_distribution&#39;: {</span>
+<span class="go">            &#39;defined_labels&#39;: &lt;dict&gt;,   # &lt;label:str&gt;: &lt;count:int&gt;</span>
+<span class="go">            &#39;empty_labels&#39;: &lt;dict&gt;</span>
+<span class="gp">            # </span>&lt;label:str&gt;:<span class="w"> </span><span class="o">{</span>
+<span class="gp">            #     </span><span class="s1">&#39;count&#39;</span>:<span class="w"> </span>&lt;int&gt;,
+<span class="gp">            #     </span><span class="s1">&#39;items_with_empty_label&#39;</span>:<span class="w"> </span><span class="o">[</span>&lt;item_key&gt;,<span class="w"> </span><span class="o">]</span>
+<span class="gp">            # </span><span class="o">}</span>
+<span class="go">        },</span>
+<span class="go">        &#39;caption_distribution&#39;: {</span>
+<span class="go">            &#39;defined_captions&#39;: &lt;dict&gt;,   # &lt;label:str&gt;: &lt;count:int&gt;</span>
+<span class="go">            &#39;empty_captions&#39;: &lt;dict&gt;</span>
+<span class="gp">            # </span>&lt;label:str&gt;:<span class="w"> </span><span class="o">{</span>
+<span class="gp">            #     </span><span class="s1">&#39;count&#39;</span>:<span class="w"> </span>&lt;int&gt;,
+<span class="gp">            #     </span><span class="s1">&#39;items_with_empty_label&#39;</span>:<span class="w"> </span><span class="o">[</span>&lt;item_key&gt;,<span class="w"> </span><span class="o">]</span>
+<span class="gp">            # </span><span class="o">}</span>
+<span class="go">            &#39;redundancies&#39;: &lt;dict&gt;</span>
+<span class="gp">            # </span>&lt;label:str&gt;:<span class="w"> </span><span class="o">{</span>
+<span class="gp">            #     </span><span class="s1">&#39;stopword&#39;</span>:<span class="w"> </span>&lt;dict&gt;,
+<span class="gp">            #         </span><span class="s1">&#39;count&#39;</span>:<span class="w"> </span>&lt;int&gt;,
+<span class="gp">            #         </span><span class="s1">&#39;items_with_redundancies&#39;</span>:<span class="w"> </span><span class="o">[</span>&lt;item_key&gt;,<span class="w"> </span><span class="o">]</span>
+<span class="gp">            #     </span><span class="s1">&#39;url&#39;</span>:<span class="w"> </span>&lt;dict&gt;,
+<span class="gp">            #         </span><span class="s1">&#39;count&#39;</span>:<span class="w"> </span>&lt;int&gt;,
+<span class="gp">            #         </span><span class="s1">&#39;items_with_redundancies&#39;</span>:<span class="w"> </span><span class="o">[</span>&lt;item_key&gt;,<span class="w"> </span><span class="o">]</span>
+<span class="gp">            #     </span><span class="o">}</span>
+<span class="gp">            # </span><span class="o">}</span>
+<span class="go">        },</span>
+
 <span class="go">    },</span>
 <span class="go">    &#39;validation_reports&#39;: &lt;list&gt;, # [ &lt;validation_error_format&gt;, ]</span>
 <span class="gp">    # </span><span class="nv">validation_error_format</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="o">{</span>

@@ -340,7 +340,7 @@ document.write(`
                 <article class="bd-article">
                   
   <h1>Source code for datumaro.components.errors</h1><div class="highlight"><pre>
-<span></span><span class="c1"># Copyright (C) 2020-2022 Intel Corporation</span>
+<span></span><span class="c1"># Copyright (C) 2020-2024 Intel Corporation</span>
 <span class="c1">#</span>
 <span class="c1"># SPDX-License-Identifier: MIT</span>
 
@@ -1101,6 +1101,41 @@ document.write(`
 
 
 
+<div class="viewcode-block" id="BrokenAnnotation">
+<a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.components.errors.html#datumaro.cli.commands.require_project.modification.add.BrokenAnnotation">[docs]</a>
+<span class="nd">@define</span><span class="p">(</span><span class="n">auto_exc</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+<span class="k">class</span> <span class="nc">BrokenAnnotation</span><span class="p">(</span><span class="n">DatasetItemValidationError</span><span class="p">):</span>
+    <span class="n">ann_type</span> <span class="o">=</span> <span class="n">field</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;Item needs whole &#39;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">ann_type</span><span class="si">}</span><span class="s2">&#39; annotation(s), &quot;</span> <span class="s2">&quot;but missed some.&quot;</span></div>
+
+
+
+<div class="viewcode-block" id="EmptyLabel">
+<a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.components.errors.html#datumaro.cli.commands.require_project.modification.add.EmptyLabel">[docs]</a>
+<span class="nd">@define</span><span class="p">(</span><span class="n">auto_exc</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+<span class="k">class</span> <span class="nc">EmptyLabel</span><span class="p">(</span><span class="n">DatasetItemValidationError</span><span class="p">):</span>
+    <span class="n">label_name</span> <span class="o">=</span> <span class="n">field</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;Item should have the label &#39;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">label_name</span><span class="si">}</span><span class="s2">&#39; annotation(s), &quot;</span> <span class="s2">&quot;but not found.&quot;</span></div>
+
+
+
+<div class="viewcode-block" id="EmptyCaption">
+<a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.components.errors.html#datumaro.cli.commands.require_project.modification.add.EmptyCaption">[docs]</a>
+<span class="nd">@define</span><span class="p">(</span><span class="n">auto_exc</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+<span class="k">class</span> <span class="nc">EmptyCaption</span><span class="p">(</span><span class="n">DatasetItemValidationError</span><span class="p">):</span>
+    <span class="n">caption_name</span> <span class="o">=</span> <span class="n">field</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;Item should have the caption &#39;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">caption_name</span><span class="si">}</span><span class="s2">&#39; annotation(s), &quot;</span> <span class="s2">&quot;but not found.&quot;</span>
+        <span class="p">)</span></div>
+
+
+
 <div class="viewcode-block" id="MultiLabelAnnotations">
 <a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.components.errors.html#datumaro.cli.commands.require_project.modification.add.MultiLabelAnnotations">[docs]</a>
 <span class="nd">@define</span><span class="p">(</span><span class="n">auto_exc</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
@@ -1221,6 +1256,37 @@ document.write(`
 
 
 
+<div class="viewcode-block" id="FewSamplesInCaption">
+<a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.components.errors.html#datumaro.cli.commands.require_project.modification.add.FewSamplesInCaption">[docs]</a>
+<span class="nd">@define</span><span class="p">(</span><span class="n">auto_exc</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+<span class="k">class</span> <span class="nc">FewSamplesInCaption</span><span class="p">(</span><span class="n">DatasetValidationError</span><span class="p">):</span>
+    <span class="n">caption_name</span> <span class="o">=</span> <span class="n">field</span><span class="p">()</span>
+    <span class="n">count</span> <span class="o">=</span> <span class="n">field</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;The number of samples in the caption &#39;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">caption_name</span><span class="si">}</span><span class="s2">&#39;&quot;</span>
+            <span class="sa">f</span><span class="s2">&quot; might be too low. Found &#39;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">count</span><span class="si">}</span><span class="s2">&#39; samples.&quot;</span>
+        <span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="RedundanciesInCaption">
+<a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.components.errors.html#datumaro.cli.commands.require_project.modification.add.RedundanciesInCaption">[docs]</a>
+<span class="nd">@define</span><span class="p">(</span><span class="n">auto_exc</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+<span class="k">class</span> <span class="nc">RedundanciesInCaption</span><span class="p">(</span><span class="n">DatasetValidationError</span><span class="p">):</span>
+    <span class="n">caption_name</span> <span class="o">=</span> <span class="n">field</span><span class="p">()</span>
+    <span class="n">redundancy_type</span> <span class="o">=</span> <span class="n">field</span><span class="p">()</span>
+    <span class="n">count</span> <span class="o">=</span> <span class="n">field</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;The number of &#39;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">redundancy_type</span><span class="si">}</span><span class="s2">&#39; redundancy in the caption &#39;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">caption_name</span><span class="si">}</span><span class="s2">&#39;&quot;</span>
+            <span class="sa">f</span><span class="s2">&quot; have found &#39;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">count</span><span class="si">}</span><span class="s2">&#39;.&quot;</span>
+        <span class="p">)</span></div>
+
+
+
 <div class="viewcode-block" id="FewSamplesInAttribute">
 <a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.components.errors.html#datumaro.cli.commands.require_project.modification.add.FewSamplesInAttribute">[docs]</a>
 <span class="nd">@define</span><span class="p">(</span><span class="n">auto_exc</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
@@ -1246,6 +1312,15 @@ document.write(`
 <span class="k">class</span> <span class="nc">ImbalancedLabels</span><span class="p">(</span><span class="n">DatasetValidationError</span><span class="p">):</span>
     <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="s2">&quot;There is an imbalance in the label distribution.&quot;</span></div>
+
+
+
+<div class="viewcode-block" id="ImbalancedCaptions">
+<a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.components.errors.html#datumaro.cli.commands.require_project.modification.add.ImbalancedCaptions">[docs]</a>
+<span class="nd">@define</span><span class="p">(</span><span class="n">auto_exc</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+<span class="k">class</span> <span class="nc">ImbalancedCaptions</span><span class="p">(</span><span class="n">DatasetValidationError</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="s2">&quot;There is an imbalance in the caption distribution.&quot;</span></div>
 
 
 
@@ -1275,6 +1350,17 @@ document.write(`
         <span class="k">return</span> <span class="p">(</span>
             <span class="sa">f</span><span class="s2">&quot;Values of &#39;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">prop</span><span class="si">}</span><span class="s2">&#39; are not evenly &quot;</span> <span class="sa">f</span><span class="s2">&quot;distributed for &#39;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">label_name</span><span class="si">}</span><span class="s2">&#39; label.&quot;</span>
         <span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="ImbalancedDistInCaption">
+<a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.components.errors.html#datumaro.cli.commands.require_project.modification.add.ImbalancedDistInCaption">[docs]</a>
+<span class="nd">@define</span><span class="p">(</span><span class="n">auto_exc</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+<span class="k">class</span> <span class="nc">ImbalancedDistInCaption</span><span class="p">(</span><span class="n">DatasetValidationError</span><span class="p">):</span>
+    <span class="n">caption_name</span> <span class="o">=</span> <span class="n">field</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;Values are not evenly &quot;</span> <span class="sa">f</span><span class="s2">&quot;distributed for &#39;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">caption_name</span><span class="si">}</span><span class="s2">&#39; caption.&quot;</span></div>
 
 
 
@@ -1345,6 +1431,26 @@ document.write(`
             <span class="sa">f</span><span class="s2">&quot;the item has a value of &#39;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">prop</span><span class="si">}</span><span class="s2">&#39; that &quot;</span>
             <span class="s2">&quot;is too far from the label average. (mean of &quot;</span>
             <span class="sa">f</span><span class="s2">&quot;&#39;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">label_name</span><span class="si">}</span><span class="s2">&#39; label: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">mean</span><span class="si">}</span><span class="s2">, got &#39;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">val</span><span class="si">}</span><span class="s2">&#39;).&quot;</span>
+        <span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="FarFromCaptionMean">
+<a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.components.errors.html#datumaro.cli.commands.require_project.modification.add.FarFromCaptionMean">[docs]</a>
+<span class="nd">@define</span><span class="p">(</span><span class="n">auto_exc</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+<span class="k">class</span> <span class="nc">FarFromCaptionMean</span><span class="p">(</span><span class="n">DatasetItemValidationError</span><span class="p">):</span>
+    <span class="n">caption_name</span> <span class="o">=</span> <span class="n">field</span><span class="p">()</span>
+    <span class="n">ann_id</span> <span class="o">=</span> <span class="n">field</span><span class="p">()</span>
+    <span class="n">prop</span> <span class="o">=</span> <span class="n">field</span><span class="p">()</span>
+    <span class="n">mean</span> <span class="o">=</span> <span class="n">field</span><span class="p">()</span>
+    <span class="n">val</span> <span class="o">=</span> <span class="n">field</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;Annotation &#39;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">ann_id</span><span class="si">}</span><span class="s2">&#39; in &quot;</span>
+            <span class="sa">f</span><span class="s2">&quot;the item has a value of &#39;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">prop</span><span class="si">}</span><span class="s2">&#39; that &quot;</span>
+            <span class="s2">&quot;is too far from the caption average. (mean of &quot;</span>
+            <span class="sa">f</span><span class="s2">&quot;&#39;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">caption_name</span><span class="si">}</span><span class="s2">&#39; caption: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">mean</span><span class="si">}</span><span class="s2">, got &#39;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">val</span><span class="si">}</span><span class="s2">&#39;).&quot;</span>
         <span class="p">)</span></div>
 
 

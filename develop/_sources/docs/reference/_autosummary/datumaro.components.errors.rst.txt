@@ -26,6 +26,7 @@ datumaro.components.errors
       AnnotationTypeError
       AnnotationsTooCloseError
       AttributeDefinedButNotFound
+      BrokenAnnotation
       CategoriesRedefinedError
       ConflictingCategoriesError
       DatasetError
@@ -38,17 +39,23 @@ datumaro.components.errors
       DatasetQualityError
       DatasetValidationError
       DatumaroError
+      EmptyCaption
       EmptyCommitError
+      EmptyLabel
       EmptyPipelineError
       FailedAttrVotingError
       FailedLabelVotingError
       FarFromAttrMean
+      FarFromCaptionMean
       FarFromLabelMean
       FewSamplesInAttribute
+      FewSamplesInCaption
       FewSamplesInLabel
       ForeignChangesError
       ImbalancedAttribute
+      ImbalancedCaptions
       ImbalancedDistInAttribute
+      ImbalancedDistInCaption
       ImbalancedDistInLabel
       ImbalancedLabels
       ImmutableObjectError
@@ -93,6 +100,7 @@ datumaro.components.errors
       ProjectNotFoundError
       ReadonlyDatasetError
       ReadonlyProjectError
+      RedundanciesInCaption
       RepeatedItemError
       SourceExistsError
       SourceUrlInsideProjectError
