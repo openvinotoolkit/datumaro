@@ -1,4 +1,4 @@
-# Copyright (C) 2021 Intel Corporation
+# Copyright (C) 2021-2024 Intel Corporation
 #
 # SPDX-License-Identifier: MIT
 
@@ -1661,9 +1661,8 @@ class TabularValidator(_TaskValidator):
                 topk_values = np.sort(value_counts)[-topk:]
                 ratio = np.sum(topk_values) / np.sum(value_counts)
                 if ratio >= thr:
-                    details = (caption_name, f"{self.str_ann_type} {prop}")
                     validation_reports += self._generate_validation_report(
-                        ImbalancedDistInCaption, Severity.info, *details
+                        ImbalancedDistInCaption, Severity.info, caption_name
                     )
 
         return validation_reports
