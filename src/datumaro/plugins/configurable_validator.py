@@ -70,10 +70,10 @@ class SegStatsData(StatsData):
 @dataclass
 class TblStatsData:
     categories: Dict[str, Dict[str, Set[str]]]
-    empty_label: Set[Tuple[str, str]]
-    empty_caption: Set[Tuple[str, str]]
+    empty_label: Set[Tuple[str, str]]  # item_id, item_subset
+    empty_caption: Set[Tuple[str, str]]  # item_id, item_subset
     missing_annotations: Set[Tuple[str, str]]  # item_id, item_subset
-    broken_annotations: Set[Tuple[str, str]]
+    broken_annotations: Set[Tuple[str, str]]  # item_id, item_subset
 
 
 class _BaseAnnStats:
@@ -847,8 +847,8 @@ class TblStats(_BaseAnnStats):
         for cat, type_ in self.tabular_categories:
             self.stats.categories[cat] = {
                 "cnt": 0,
-                "type": type_,
-                "ann_type": set(),
+                "type": type_,  # Column dtype
+                "ann_type": set(),  # AnnotationType
                 "caption": [],  # (id, subset, ann_id, caption)
             }
 
