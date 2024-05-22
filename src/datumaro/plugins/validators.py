@@ -1603,7 +1603,7 @@ class TabularValidator(_TaskValidator):
                         val,
                     )
                     validation_reports += self._generate_validation_report(
-                        FarFromCaptionMean, Severity.warning, item_id, *details
+                        FarFromCaptionMean, Severity.info, item_id, *details
                     )
 
         return validation_reports
@@ -1620,7 +1620,7 @@ class TabularValidator(_TaskValidator):
 
         for cap_column, redundancy_type, count in captions_with_redundancies:
             validation_reports += self._generate_validation_report(
-                RedundanciesInCaption, Severity.warning, cap_column, redundancy_type, count
+                RedundanciesInCaption, Severity.info, cap_column, redundancy_type, count
             )
 
         return validation_reports

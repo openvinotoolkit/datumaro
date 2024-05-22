@@ -738,13 +738,9 @@ class ImbalancedDistInLabel(DatasetValidationError):
 @define(auto_exc=False)
 class ImbalancedDistInCaption(DatasetValidationError):
     caption_name = field()
-    prop = field()
 
     def __str__(self):
-        return (
-            f"Values of '{self.prop}' are not evenly "
-            f"distributed for '{self.caption_name}' caption."
-        )
+        return f"Values are not evenly " f"distributed for '{self.caption_name}' caption."
 
 
 @define(auto_exc=False)
