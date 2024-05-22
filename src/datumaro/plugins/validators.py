@@ -1515,7 +1515,10 @@ class TabularValidator(_TaskValidator):
         reports += self._check_redundancies_in_caption(stats)
         reports += self._check_imbalanced_captions(stats)
 
+        # report for missing value
         reports += self._check_broken_annotation(stats)
+        reports += self._check_empty_label(stats)
+        reports += self._check_empty_caption(stats)
 
         dist_by_caption = stats["distribution_in_caption"]
         for caption, caption_stats in dist_by_caption.items():
