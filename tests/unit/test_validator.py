@@ -2,15 +2,18 @@
 #
 # SPDX-License-Identifier: MIT
 
+import os.path as osp
 from collections import Counter
 from unittest import TestCase
 
 import numpy as np
 import pytest
 
+import datumaro.plugins.transforms as transforms
 from datumaro.components.annotation import (
     AnnotationType,
     Bbox,
+    Caption,
     Ellipse,
     Label,
     LabelCategories,
@@ -21,12 +24,19 @@ from datumaro.components.dataset import Dataset, DatasetItem
 from datumaro.components.environment import Environment
 from datumaro.components.errors import (
     AttributeDefinedButNotFound,
+    BrokenAnnotation,
+    EmptyCaption,
+    EmptyLabel,
     FarFromAttrMean,
+    FarFromCaptionMean,
     FarFromLabelMean,
     FewSamplesInAttribute,
+    FewSamplesInCaption,
     FewSamplesInLabel,
     ImbalancedAttribute,
+    ImbalancedCaptions,
     ImbalancedDistInAttribute,
+    ImbalancedDistInCaption,
     ImbalancedDistInLabel,
     ImbalancedLabels,
     InvalidValue,
@@ -38,6 +48,7 @@ from datumaro.components.errors import (
     NegativeLength,
     OnlyOneAttributeValue,
     OnlyOneLabel,
+    RedundanciesInCaption,
     UndefinedAttribute,
     UndefinedLabel,
 )
@@ -47,10 +58,13 @@ from datumaro.plugins.validators import (
     ClassificationValidator,
     DetectionValidator,
     SegmentationValidator,
+    TabularValidator,
     _TaskValidator,
 )
 
 from ..requirements import Requirements, mark_requirement
+
+from tests.utils.assets import get_test_asset_path
 
 
 class _TestValidatorBase(TestCase):
@@ -367,6 +381,24 @@ class _TestValidatorBase(TestCase):
                 for i in range(2)
             ],
         )
+
+        path = osp.join(get_test_asset_path("tabular_dataset"), "women_clothing.csv")
+        tabular_dataset = Dataset.import_from(
+            path,
+            "tabular",
+            target={
+                "input": ["Review Text"],
+                "output": [
+                    "Age",
+                    "Title",
+                    "Review Text",
+                    "Rating",
+                    "Positive Feedback Count",
+                    "Division Name",
+                ],
+            },
+        )
+        cls.tabular_dataset = transforms.AstypeAnnotations(tabular_dataset)
 
 
 class TestBaseValidator(_TestValidatorBase):
@@ -835,6 +867,255 @@ class TestSegmentationValidator(_TestValidatorBase):
         self.assertIsInstance(actual_reports[0], FarFromAttrMean)
 
 
+class TestTabularValidator(_TestValidatorBase):
+    @classmethod
+    def setUpClass(cls):
+        cls.validator = TabularValidator(
+            few_samples_thr=1,
+            imbalance_ratio_thr=50,
+            far_from_mean_thr=5.0,
+            dominance_ratio_thr=0.8,
+            topk_bins=0.1,
+        )
+
+    def _update_stats_by_caption(self, caption_, caption_stats):
+        caption_has_error = False
+
+        if not caption_has_error:
+            caption_info = {"value": caption_}
+            self.validator._update_prop_distributions(caption_info, caption_stats)
+
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
+    def test_compute_prop_dist(self):
+        stats = {
+            "distribution_in_caption": {
+                "unittest": {
+                    "value": {
+                        "items_far_from_mean": {},
+                        "mean": None,
+                        "stdev": None,
+                        "min": None,
+                        "max": None,
+                        "median": None,
+                        "histogram": {
+                            "bins": [],
+                            "counts": [],
+                        },
+                        "distribution": [],
+                    }
+                },
+            },
+            "distribution_in_dataset_item": {},
+        }
+        num_caption_columns = [("unittest", int)]
+
+        self.validator.items = [
+            (
+                ("1", "train"),
+                [Caption(id=0, attributes={}, group=0, object_id=-1, caption="unittest:0")],
+            )
+        ]
+
+        self.validator._compute_prop_dist(num_caption_columns, stats, self._update_stats_by_caption)
+        self.assertEqual(stats["distribution_in_caption"]["unittest"]["value"]["distribution"], [0])
+        self.assertEqual(stats["distribution_in_dataset_item"], {("1", "train"): 1})
+
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
+    def test_compute_prop_stats_from_dist(self):
+        dist = range(0, 100)
+        dist_by_caption = {
+            "unittest": {
+                "value": {
+                    "items_far_from_mean": {},
+                    "mean": None,
+                    "stdev": None,
+                    "min": None,
+                    "max": None,
+                    "median": None,
+                    "histogram": {
+                        "bins": [],
+                        "counts": [],
+                    },
+                    "distribution": [dist],
+                }
+            },
+        }
+
+        self.validator._compute_prop_stats_from_dist(dist_by_caption)
+        self.assertEqual(dist_by_caption["unittest"]["value"]["mean"], np.mean(dist))
+        self.assertEqual(dist_by_caption["unittest"]["value"]["stdev"], np.std(dist))
+        self.assertEqual(dist_by_caption["unittest"]["value"]["min"], np.min(dist))
+        self.assertEqual(dist_by_caption["unittest"]["value"]["max"], np.max(dist))
+        self.assertEqual(dist_by_caption["unittest"]["value"]["median"], np.median(dist))
+
+        counts, bins = np.histogram(dist)
+        self.assertEqual(dist_by_caption["unittest"]["value"]["histogram"]["bins"], bins.tolist())
+        self.assertEqual(
+            dist_by_caption["unittest"]["value"]["histogram"]["counts"], counts.tolist()
+        )
+
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
+    def test_compute_far_from_mean(self):
+        dist = range(1, 101)
+        counts, bins = np.histogram(dist)
+        prop_stats = {
+            "items_far_from_mean": {},
+            "mean": 50,
+            "stdev": 28,
+            "min": 1,
+            "max": 100,
+            "median": 50,
+            "histogram": {
+                "bins": bins.tolist(),
+                "counts": counts.tolist(),
+            },
+        }
+        val = 1000
+        item_key = ("1", "train")
+        ann = Caption(id=0, attributes={}, group=0, object_id=-1, caption="unittest:0")
+
+        self.validator._compute_far_from_mean(prop_stats, val, item_key, ann)
+        self.assertEqual(prop_stats["items_far_from_mean"], {item_key: {0: val}})
+
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
+    def test_check_broken_annotation(self):
+        stats = {"items_broken_annotation": [(1, "train")]}
+
+        actual_reports = self.validator._check_broken_annotation(stats)
+
+        self.assertTrue(len(actual_reports) == 1)
+        self.assertIsInstance(actual_reports[0], BrokenAnnotation)
+
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
+    def test_check_empty_label(self):
+        stats = {
+            "label_distribution": {
+                "empty_labels": {"unittest": {"count": 1, "items_with_empty_label": [(1, "train")]}}
+            }
+        }
+
+        actual_reports = self.validator._check_empty_label(stats)
+
+        self.assertTrue(len(actual_reports) == 1)
+        self.assertIsInstance(actual_reports[0], EmptyLabel)
+
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
+    def test_check_empty_caption(self):
+        stats = {
+            "caption_distribution": {
+                "empty_captions": {
+                    "unittest": {"count": 1, "items_with_empty_caption": [(1, "train")]}
+                }
+            }
+        }
+
+        actual_reports = self.validator._check_empty_caption(stats)
+
+        self.assertTrue(len(actual_reports) == 1)
+        self.assertIsInstance(actual_reports[0], EmptyCaption)
+
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
+    def test_check_few_samples_in_caption(self):
+        with self.subTest("Few Samples"):
+            stats = {
+                "caption_distribution": {
+                    "defined_captions": {"unit": self.validator.few_samples_thr}
+                }
+            }
+
+            actual_reports = self.validator._check_few_samples_in_caption(stats)
+
+            self.assertTrue(len(actual_reports) == 1)
+            self.assertIsInstance(actual_reports[0], FewSamplesInCaption)
+
+        with self.subTest("No Few Samples Warning"):
+            stats = {
+                "caption_distribution": {
+                    "defined_captions": {"unit": self.validator.few_samples_thr + 1}
+                }
+            }
+
+            actual_reports = self.validator._check_few_samples_in_caption(stats)
+
+            self.assertTrue(len(actual_reports) == 0)
+
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
+    def test_check_far_from_caption_mean(self):
+        caption_name = "unittest"
+        caption_stats = {
+            "w": {
+                "items_far_from_mean": {("1", "train"): {1: 100}},
+                "mean": 0,
+            }
+        }
+
+        actual_reports = self.validator._check_far_from_caption_mean(caption_name, caption_stats)
+
+        self.assertTrue(len(actual_reports) == 1)
+        self.assertIsInstance(actual_reports[0], FarFromCaptionMean)
+
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
+    def test_check_redundancies_in_caption(self):
+        stats = {
+            "caption_distribution": {
+                "redundancies": {
+                    "unittest": {
+                        "stopword": {"count": 1, "items_with_redundancies": [("1", "train")]}
+                    }
+                }
+            }
+        }
+
+        actual_reports = self.validator._check_redundancies_in_caption(stats)
+
+        self.assertTrue(len(actual_reports) == 1)
+        self.assertIsInstance(actual_reports[0], RedundanciesInCaption)
+
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
+    def test_check_imbalanced_captions(self):
+        with self.subTest("Imbalance"):
+            stats = {
+                "caption_distribution": {
+                    "defined_captions": {"unit": self.validator.imbalance_ratio_thr, "test": 1}
+                }
+            }
+
+            actual_reports = self.validator._check_imbalanced_captions(stats)
+
+            self.assertTrue(len(actual_reports) == 1)
+            self.assertIsInstance(actual_reports[0], ImbalancedCaptions)
+
+        with self.subTest("No Imbalance Warning"):
+            stats = {
+                "caption_distribution": {
+                    "defined_captions": {"unit": self.validator.imbalance_ratio_thr - 1, "test": 1}
+                }
+            }
+
+            actual_reports = self.validator._check_imbalanced_captions(stats)
+
+            self.assertTrue(len(actual_reports) == 0)
+
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
+    def test_check_imbalanced_dist_in_caption(self):
+        caption = "unittest"
+        most = int(self.validator.dominance_thr * 100)
+        rest = 100 - most
+
+        with self.subTest("Imbalanced"):
+            caption_stats = {"value": {"histogram": {"counts": [most, rest]}}}
+            reports = self.validator._check_imbalanced_dist_in_caption(caption, caption_stats)
+
+            self.assertTrue(len(reports) == 1)
+            self.assertIsInstance(reports[0], ImbalancedDistInCaption)
+
+        with self.subTest("No Imbalanced Warning"):
+            caption_stats = {"value": {"histogram": {"counts": [most - 1, rest]}}}
+            reports = self.validator._check_imbalanced_dist_in_caption(caption, caption_stats)
+
+            self.assertTrue(len(reports) == 0)
+
+
 class TestValidateAnnotations(_TestValidatorBase):
     extra_args = {
         "few_samples_thr": 1,
@@ -1096,6 +1377,88 @@ class TestValidateAnnotations(_TestValidatorBase):
         with self.subTest("Test of summary", i=2):
             actual_summary = actual_results["summary"]
             expected_summary = {"errors": 7, "infos": 17, "warnings": 1}
+
+            self.assertEqual(actual_summary, expected_summary)
+
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
+    def test_validate_annotations_tabular(self):
+        validator = TabularValidator(**self.extra_args)
+        actual_results = validator.validate(self.tabular_dataset)
+
+        with self.subTest("Test of statistics", i=0):
+            actual_stats = actual_results["statistics"]
+            self.assertEqual(actual_stats["total_ann_count"], 594)
+            self.assertEqual(len(actual_stats["items_missing_annotation"]), 1)
+            self.assertEqual(len(actual_stats["items_broken_annotation"]), 7)
+
+            label_dist = actual_stats["label_distribution"]
+            self.assertEqual(len(label_dist["defined_labels"]), 8)
+            empty_labels = label_dist["empty_labels"]
+            self.assertEqual(len(empty_labels), 2)
+            self.assertEqual(empty_labels["Rating"]["count"], 2)
+            self.assertEqual(
+                empty_labels["Rating"]["items_with_empty_label"][0][0], "0@women_clothing"
+            )
+            self.assertEqual(empty_labels["Division Name"]["count"], 2)
+            self.assertEqual(
+                empty_labels["Division Name"]["items_with_empty_label"][0][0], "0@women_clothing"
+            )
+
+            caption_dist = actual_stats["caption_distribution"]
+            self.assertEqual(len(caption_dist["defined_captions"]), 4)
+            self.assertEqual(caption_dist["defined_captions"]["Age"], 99)
+            self.assertEqual(caption_dist["defined_captions"]["Title"], 99)
+            self.assertEqual(caption_dist["defined_captions"]["Review Text"], 99)
+            self.assertEqual(caption_dist["defined_captions"]["Positive Feedback Count"], 99)
+            empty_captions = caption_dist["empty_captions"]
+            self.assertEqual(len(empty_captions), 4)
+            self.assertEqual(empty_captions["Age"]["count"], 2)
+            self.assertEqual(
+                empty_captions["Age"]["items_with_empty_caption"][0][0], "0@women_clothing"
+            )
+            self.assertEqual(empty_captions["Title"]["count"], 2)
+            self.assertEqual(
+                empty_captions["Title"]["items_with_empty_caption"][0][0], "0@women_clothing"
+            )
+            self.assertEqual(empty_captions["Review Text"]["count"], 2)
+            self.assertEqual(
+                empty_captions["Review Text"]["items_with_empty_caption"][0][0], "0@women_clothing"
+            )
+            self.assertEqual(empty_captions["Positive Feedback Count"]["count"], 2)
+            self.assertEqual(
+                empty_captions["Positive Feedback Count"]["items_with_empty_caption"][0][0],
+                "0@women_clothing",
+            )
+
+            dist_in_caption = actual_stats["distribution_in_caption"]
+            self.assertEqual(dist_in_caption["Age"]["value"]["items_far_from_mean"], {})
+            pos_dist_in_caption = dist_in_caption["Positive Feedback Count"]["value"]
+            self.assertEqual(pos_dist_in_caption["items_far_from_mean"], {})
+            counts = [i for i in range(1, 101) if i != 5]
+            self.assertEqual(pos_dist_in_caption["mean"], np.mean(counts))
+            self.assertEqual(pos_dist_in_caption["stdev"], np.std(counts))
+            self.assertEqual(pos_dist_in_caption["min"], np.min(counts))
+            self.assertEqual(pos_dist_in_caption["max"], np.max(counts))
+            self.assertEqual(pos_dist_in_caption["median"], np.median(counts))
+
+            dist_item = actual_stats["distribution_in_dataset_item"]
+            self.assertEqual(sum(dist_item.values()), 594)
+
+        with self.subTest("Test of validation reports", i=1):
+            actual_reports = actual_results["validation_reports"]
+            report_types = [r["anomaly_type"] for r in actual_reports]
+            count_by_type = Counter(report_types)
+
+            self.assertEqual(len(actual_reports), 22)
+            self.assertEqual(count_by_type["MissingAnnotation"], 1)
+            self.assertEqual(count_by_type["RedundanciesInCaption"], 2)
+            self.assertEqual(count_by_type["BrokenAnnotation"], 7)
+            self.assertEqual(count_by_type["EmptyLabel"], 4)
+            self.assertEqual(count_by_type["EmptyCaption"], 8)
+
+        with self.subTest("Test of summary", i=2):
+            actual_summary = actual_results["summary"]
+            expected_summary = {"errors": 0, "infos": 2, "warnings": 20}
 
             self.assertEqual(actual_summary, expected_summary)
 

@@ -61,3 +61,6 @@ scikit-learn
 
 # Stream JSON parser
 json-stream
+
+# TabularValidator
+nltk
