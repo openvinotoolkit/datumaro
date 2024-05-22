@@ -1,4 +1,4 @@
-# Copyright (C) 2019-2023 Intel Corporation
+# Copyright (C) 2019-2024 Intel Corporation
 #
 # SPDX-License-Identifier: MIT
 
@@ -14,6 +14,7 @@ import pytest
 
 from datumaro.components.annotation import (
     Annotation,
+    Annotations,
     AnnotationType,
     Bbox,
     Caption,
@@ -2078,25 +2079,41 @@ class DatasetTest(TestCase):
         self.assertRaises(IndexError, lambda: dataset[length])
 
 
-class DatasetItemTest(TestCase):
+class DatasetItemTest:
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_ctor_requires_id(self):
-        with self.assertRaises(Exception):
+        with pytest.raises(Exception):
             # pylint: disable=no-value-for-parameter
             DatasetItem()
             # pylint: enable=no-value-for-parameter
 
-    @staticmethod
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
-    def test_ctors_with_image():
-        for args in [
+    @pytest.mark.parametrize(
+        "kwargs",
+        [
             {"id": 0, "media": None},
-            {"id": 0, "media": Image.from_file(path="path.jpg")},
-            {"id": 0, "media": Image.from_numpy(data=np.array([1, 2, 3]))},
-            {"id": 0, "media": Image.from_numpy(data=lambda f: np.array([1, 2, 3]))},
-            {"id": 0, "media": Image.from_numpy(data=np.array([1, 2, 3]))},
-        ]:
-            DatasetItem(**args)
+            {"id": 0, "media": Image.from_file(path="path.jpg"), "annotations": []},
+            {
+                "id": 0,
+                "media": Image.from_numpy(data=np.array([1, 2, 3])),
+                "annotations": Annotations(),
+            },
+            {
+                "id": 0,
+                "media": Image.from_numpy(data=lambda f: np.array([1, 2, 3])),
+                "annotations": [Label(label=0), Label(label=1)],
+            },
+            {
+                "id": 0,
+                "media": Image.from_numpy(data=np.array([1, 2, 3])),
+                "annotations": [Label(label=0), Label(label=1)],
+            },
+        ],
+    )
+    def test_ctors_with_image(self, kwargs):
+        item = DatasetItem(**kwargs)
+        assert isinstance(item.annotations, Annotations)
+        assert item.annotations == kwargs.get("annotations", [])
 
 
 class DatasetFilterTest(TestCase):
