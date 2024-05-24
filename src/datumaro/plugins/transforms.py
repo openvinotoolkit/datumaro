@@ -1725,7 +1725,6 @@ class Correct(Transform, CliPlugin):
                 for label_id, attr_name in self._add_attrs.get((item.id, item.subset), []):
                     updated_attrs[label_id].append(attr_name)
 
-                updated_anns = []
                 for ann in item.annotations:
                     new_ann = ann.wrap(attributes=deepcopy(ann.attributes))
                     if ann.type == AnnotationType.label and ann.label in updated_attrs:
