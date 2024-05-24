@@ -1597,8 +1597,6 @@ class TabularValidator(_TaskValidator):
                     details = (
                         item_subset,
                         caption_name,
-                        ann_id,
-                        f"{self.str_ann_type} {prop}",
                         mean,
                         val,
                     )

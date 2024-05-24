@@ -805,16 +805,13 @@ class FarFromLabelMean(DatasetItemValidationError):
 @define(auto_exc=False)
 class FarFromCaptionMean(DatasetItemValidationError):
     caption_name = field()
-    ann_id = field()
-    prop = field()
     mean = field()
     val = field()
 
     def __str__(self):
         return (
-            f"Annotation '{self.ann_id}' in "
-            f"the item has a value of '{self.prop}' that "
-            "is too far from the caption average. (mean of "
+            f"Annotation '{self.caption_name}' in "
+            "the item is too far from the caption average. (mean of "
             f"'{self.caption_name}' caption: {self.mean}, got '{self.val}')."
         )
 

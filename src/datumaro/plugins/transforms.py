@@ -1361,7 +1361,17 @@ class Correct(Transform, CliPlugin):
         self._remove_anns = defaultdict(list)
         self._add_attrs = defaultdict(list)
 
+        self._empty_labels = defaultdict(list)
+        self._empty_captions = defaultdict(list)
+        self._unnecessary_char_captions = list()
+
+        self._outlier_captions = defaultdict(list)
+
         self._analyze_reports(report=self._reports)
+
+        self._table = None
+        self._label_value = {}
+        self._caption_value = {}
 
     def categories(self):
         return self._categories
@@ -1425,24 +1435,206 @@ class Correct(Transform, CliPlugin):
                 label_id = self._extractor.categories()[AnnotationType.label].find(label_name)[0]
                 self._add_attrs[(rep["item_id"], rep["subset"])].append((label_id, attr_name))
 
+            if rep["anomaly_type"] == "RedundanciesInCaption":
+                desc = [s for s in str.split(rep["description"], "'")]
+                attr_name, label_name = desc[1], desc[3]
+                self._unnecessary_char_captions.append((label_name, attr_name))
+
+            if rep["anomaly_type"] == "EmptyLabel":
+                label = rep["description"].split("'")[1]
+                self._empty_labels[(rep["item_id"], rep["subset"])].append(label)
+
+            if rep["anomaly_type"] == "EmptyCaption":
+                caption = rep["description"].split("'")[1]
+                self._empty_captions[(rep["item_id"], rep["subset"])].append(caption)
+
+            if rep["anomaly_type"] == "FewSamplesInCaption":
+                caption = rep["description"].split("'")[1]
+
+            if rep["anomaly_type"] in ["FarFromCaptionMean", "ImbalancedDistInCaptions"]:
+                caption = rep["description"].split("'")[1]
+                self._outlier_captions[(rep["item_id"], rep["subset"])].append(caption)
+
+    def remove_unnecessary_char(self, annotations, item_id):
+        if self._table is None:
+            import pandas as pd
+
+            items = [item_.media.data() for item_ in self._extractor]
+            self._table = pd.DataFrame(items)
+
+        import re
+
+        from nltk.corpus import stopwords
+
+        try:
+            stop_words = set(stopwords.words("english"))  # TODO
+        except LookupError:
+            import nltk
+
+            nltk.download("stopwords")
+            stop_words = set(stopwords.words("english"))  # TODO
+
+        def remove_stopwords(text):
+            return " ".join([word for word in text.split() if word not in stop_words])
+
+        def remove_urls(text):
+            return re.sub(r"http\S+|www\S+|https\S+", "", text, flags=re.MULTILINE)
+
+        def remove_html_tags(text):
+            return re.sub(r"<.*?>", "", text)
+
+        def remove_special_characters(text):
+            return re.sub(r"[^A-Za-z\s]+", "", text)
+
+        def remove_extra_whitespace(text):
+            return re.sub(r"\s+", " ", text).strip()
+
+        def remove_emojis(text):
+            emoji_pattern = re.compile(
+                "["
+                "\U0001F600-\U0001F64F"  # emoticons
+                "\U0001F300-\U0001F5FF"  # symbols & pictographs
+                "\U0001F680-\U0001F6FF"  # transport & map symbols
+                "\U0001F1E0-\U0001F1FF"  # flags (iOS)
+                "\U00002702-\U000027B0"
+                "\U000024C2-\U0001F251"
+                "]+",
+                flags=re.UNICODE,
+            )
+            return emoji_pattern.sub(r"", text)
+
+        new_ann = []
+        for col, attr in self._unnecessary_char_captions:
+            table = self._table[col].dropna()
+
+            # Remove HTML
+            if attr == "html":
+                table = table.apply(remove_html_tags)
+
+            # Remove urls
+            if attr == "url":
+                table = table.apply(remove_urls)
+
+            # Remove emojis
+            if attr == "emoji":
+                table = table.apply(remove_emojis)
+
+            # Convert to lowercase
+            table = table.apply(lambda x: x.lower())
+
+            # Remove Special Characters and Punctuations
+            table = table.apply(remove_special_characters)
+
+            # Remove Extra Whitespace
+            table = table.apply(remove_extra_whitespace)
+
+            # Remove stopwords
+            if attr == "attr":
+                table = table.apply(remove_stopwords)
+
+            for ann in annotations:
+                if ann.type == AnnotationType.caption and ann.caption[: len(col)] == col:
+                    new_ann = Caption(f"{col}:{table.loc[int(item_id.split('@')[0])]}")
+                    annotations.remove(ann)
+                    annotations.append(new_ann)
+
+            return annotations
+
+    def impute_annotations(self, annotations, labels, captions):
+        if labels:
+            for label in labels:
+                new_label_id = self._extractor._id_mapping[
+                    label + self._extractor._sep_token + str(self._label_value[label])
+                ]
+                new_ann = Label(new_label_id)
+                annotations.append(new_ann)
+        if captions:
+            for caption in captions:
+                new_ann = Caption(f"{caption}:{self._caption_value[caption]}")
+                annotations.append(new_ann)
+        return annotations
+
+    def update_caption_value(self):
+        if self._table is None:
+            import pandas as pd
+
+            items = [item_.media.data() for item_ in self._extractor]
+            self._table = pd.DataFrame(items)
+
+        empty_cap_cols = list(set([v for value in self._empty_captions.values() for v in value]))
+
+        for caption in empty_cap_cols:
+            table = self._table[caption].dropna()
+            if self._extractor._tabular_cat_types[caption] in [int, float]:
+                from scipy.stats import skew
+
+                skewness = skew(table)
+                if skewness > 1 or skewness < -1:  # TODO
+                    value = table.median()
+                    self._caption_value[caption] = value
+                else:
+                    value = table.mean()
+                    self._caption_value[caption] = value
+            elif self._extractor._tabular_cat_types[caption] is str:
+                for item_key, captions in self._empty_captions.items():
+                    if caption in captions:
+                        self._remove_items.add(item_key)
+
+    def update_label_value(self):
+        if self._table is None:
+            import pandas as pd
+
+            items = [item_.media.data() for item_ in self._extractor]
+            self._table = pd.DataFrame(items)
+
+        empty_lbl_cols = list(set([v for value in self._empty_labels.values() for v in value]))
+
+        for label in empty_lbl_cols:
+            table = self._table[label].dropna()
+            # "most_frequency"
+            value = table.mode().iloc[0]
+            self._label_value[label] = value
+
     def __iter__(self):
+        if len(self._empty_captions) > 0:
+            self.update_caption_value()
+        if len(self._empty_labels) > 0:
+            self.update_label_value()
+
         for item in self._extractor:
-            if (item.id, item.subset) in self._remove_items:
+            item_key = (item.id, item.subset)
+            if item_key in self._remove_items:
                 continue
 
-            ann_ids = self._remove_anns.get((item.id, item.subset), None)
+            ann_ids = self._remove_anns.get(item_key, None)
+            empty_labels = self._empty_labels.get(item_key, None)
+            empty_captions = self._empty_captions.get(item_key, None)
+            outlier_captions = self._outlier_captions.get(item_key, None)
+
             if ann_ids:
                 updated_anns = [ann for ann in item.annotations if ann.id not in ann_ids]
                 yield item.wrap(annotations=updated_anns)
-            else:
+
+            if len(self._unnecessary_char_captions) > 0:
+                item.annotations = self.remove_unnecessary_char(item.annotations, item_id=item.id)
+
+            updated_anns = []
+            if empty_labels or empty_captions:
+                updated_anns.append(
+                    self.impute_annotations(item.annotations, empty_labels, empty_captions)
+                )
+
+            if outlier_captions:
+                pass
+
+            if not ann_ids:
                 updated_attrs = defaultdict(list)
                 for label_id, attr_name in self._add_attrs.get((item.id, item.subset), []):
                     updated_attrs[label_id].append(attr_name)
 
-                updated_anns = []
                 for ann in item.annotations:
                     new_ann = ann.wrap(attributes=deepcopy(ann.attributes))
-                    if ann.label in updated_attrs:
+                    if ann.type == AnnotationType.label and ann.label in updated_attrs:
                         new_ann.attributes.update(
                             {attr_name: "" for attr_name in updated_attrs[ann.label]}
                         )
