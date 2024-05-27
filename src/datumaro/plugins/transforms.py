@@ -1368,6 +1368,9 @@ class Correct(Transform, CliPlugin):
         self._outlier_captions = defaultdict(list)
         self._outlier_value = {}
 
+        self._far_from_mean_caption = defaultdict(list)
+        self._far_from_mean_value = {}
+
         self._analyze_reports(report=self._reports)
 
         self._table = None
@@ -1455,14 +1458,21 @@ class Correct(Transform, CliPlugin):
             if rep["anomaly_type"] in [
                 "OutlierInCaption",
                 "ImbalancedDistInCaption",
-            ]:  # FarFromCaptionMean
+            ]:
                 desc = rep["description"].split("'")
                 caption = desc[1]
-                caption_type = self._extractor._tabular_cat_types[caption]
-                lower_bound = caption_type(desc[5])
-                upper_bound = caption_type(desc[7])
+                lower_bound = float(desc[5])
+                upper_bound = float(desc[7])
                 self._outlier_captions[(rep["item_id"], rep["subset"])].append(caption)
                 self._outlier_value[caption] = (lower_bound, upper_bound)
+
+            if rep["anomaly_type"] == "FarFromCaptionMean":
+                desc = rep["description"].split("'")
+                caption = desc[1]
+                lower_bound = float(desc[9])
+                upper_bound = float(desc[11])
+                self._far_from_mean_caption[(rep["item_id"], rep["subset"])].append(caption)
+                self._far_from_mean_value[caption] = (lower_bound, upper_bound)
 
     def remove_unnecessary_char(self, annotations, item_id):
         if self._table is None:
@@ -1613,7 +1623,7 @@ class Correct(Transform, CliPlugin):
                 annotations.append(new_ann)
         return annotations
 
-    def find_outliers(self, annotations, outliers):
+    def cap_outliers(self, annotations, outliers):
         for ann in annotations:
             for col in outliers:
                 if ann.type == AnnotationType.caption and ann.caption[: len(col)] == col:
@@ -1626,6 +1636,23 @@ class Correct(Transform, CliPlugin):
                         np.where(value < lower_bound, lower_bound, value),
                     ).item()
                     new_ann = Caption(f"{col}:{cap_outlier_val}")
+                    annotations.remove(ann)
+                    annotations.append(new_ann)
+        return annotations
+
+    def cap_far_from_mean(self, annotations, far_from_mean_captions):
+        for ann in annotations:
+            for col in far_from_mean_captions:
+                if ann.type == AnnotationType.caption and ann.caption[: len(col)] == col:
+                    value = self._extractor._tabular_cat_types[col](ann.caption[len(col) + 1 :])
+                    # Cap far from mean
+                    lower_bound, upper_bound = self._far_from_mean_value[col]
+                    cap_far_from_mean_val = np.where(
+                        value > upper_bound,
+                        upper_bound,
+                        np.where(value < lower_bound, lower_bound, value),
+                    ).item()
+                    new_ann = Caption(f"{col}:{cap_far_from_mean_val}")
                     annotations.remove(ann)
                     annotations.append(new_ann)
         return annotations
@@ -1645,6 +1672,7 @@ class Correct(Transform, CliPlugin):
             empty_labels = self._empty_labels.get(item_key, None)
             empty_captions = self._empty_captions.get(item_key, None)
             outlier_captions = self._outlier_captions.get(item_key, None)
+            far_from_mean_captions = self._far_from_mean_caption.get(item_key, None)
 
             if ann_ids:
                 updated_anns = [ann for ann in item.annotations if ann.id not in ann_ids]
@@ -1654,7 +1682,10 @@ class Correct(Transform, CliPlugin):
                 item.annotations = self.remove_unnecessary_char(item.annotations, item_id=item.id)
 
             if outlier_captions:
-                item.annotations = self.find_outliers(item.annotations, outlier_captions)
+                item.annotations = self.cap_outliers(item.annotations, outlier_captions)
+
+            if far_from_mean_captions:
+                item.annotations = self.cap_far_from_mean(item.annotations, far_from_mean_captions)
 
             if empty_labels or empty_captions:
                 item.annotations = self.fill_missing_value(

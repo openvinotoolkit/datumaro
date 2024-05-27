@@ -1019,27 +1019,16 @@ class ValidationCorrectionTest:
         helper_tc = request.getfixturevalue("helper_tc")
         compare_datasets(helper_tc, refined, fxt_refined_dataset)
 
-    @pytest.mark.parametrize(
-        "fxt_original_dataset, fxt_validator, fxt_refined_dataset",
-        [
-            ("fxt_original_tabular_dataset", TabularValidator, "fxt_refined_tabular_dataset"),
-        ],
-        indirect=["fxt_original_dataset", "fxt_refined_dataset"],
-        ids=[
-            "tabular",
-        ],
-    )
     def test_can_correct_tabular_data(
         self,
-        fxt_original_dataset: Dataset,
-        fxt_validator: Validator,
-        fxt_refined_dataset: Dataset,
+        fxt_original_tabular_dataset: Dataset,
+        fxt_refined_tabular_dataset: Dataset,
         request: pytest.FixtureRequest,
     ):
-        validator = fxt_validator()
-        reports = validator.validate(fxt_original_dataset)
+        validator = TabularValidator()
+        reports = validator.validate(fxt_original_tabular_dataset)
 
-        refined = transforms.Correct(fxt_original_dataset, reports=reports)
+        refined = transforms.Correct(fxt_original_tabular_dataset, reports=reports)
 
         helper_tc = request.getfixturevalue("helper_tc")
-        compare_datasets(helper_tc, refined, fxt_refined_dataset)
+        compare_datasets(helper_tc, refined, fxt_refined_tabular_dataset)

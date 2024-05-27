@@ -1049,6 +1049,8 @@ class TblStats(_BaseAnnStats):
                 prop_stats["mean"] = np.mean(captions)
                 prop_stats["stdev"] = np.std(captions)
 
+                upper_bound = prop_stats["mean"] + (self.far_from_mean_thr * prop_stats["stdev"])
+                lower_bound = prop_stats["mean"] - (self.far_from_mean_thr * prop_stats["stdev"])
                 for item_id, item_subset, ann_id, caption in stats.categories[label_name][
                     "caption"
                 ]:
@@ -1056,9 +1058,9 @@ class TblStats(_BaseAnnStats):
                         details = (
                             item_subset,
                             label_name,
-                            ann_id,
-                            "caption mean",
                             prop_stats["mean"],
+                            upper_bound,
+                            lower_bound,
                             type_(caption),
                         )
                         validation_reports += self._generate_validation_report(

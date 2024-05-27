@@ -1470,7 +1470,7 @@ class TabularValidator(_TaskValidator):
                 upper_bound = Q3 + 1.5 * IQR
                 prop_stats["outlier"] = (lower_bound, upper_bound)
 
-    def _compute_far_from_mean_outlier(self, prop_stats, val, item_key, cap):
+    def _compute_far_from_mean_outlier(self, prop_stats, val, item_key):
         def _far_from_mean(val, mean, stdev):
             thr = self.far_from_mean_thr
             return val > mean + (thr * stdev) or val < mean - (thr * stdev)
@@ -1528,7 +1528,7 @@ class TabularValidator(_TaskValidator):
                 prop_stats = dist_by_caption[cap]["value"]
                 if cap + ":" in ann.caption:
                     val = type_(ann.caption.split(f"{cap}:")[-1])
-                    self._compute_far_from_mean_outlier(prop_stats, val, item_key, cap)
+                    self._compute_far_from_mean_outlier(prop_stats, val, item_key)
 
         # Compute far_from_mean and outlier from property
         for item_key, annotations in self.items:
@@ -1643,6 +1643,8 @@ class TabularValidator(_TaskValidator):
         items_far_from_mean = prop_stats["items_far_from_mean"]
         if prop_stats["mean"] is not None:
             mean = round(prop_stats["mean"], 2)
+        upper_bound = mean + (self.far_from_mean_thr * prop_stats["stdev"])
+        lower_bound = mean - (self.far_from_mean_thr * prop_stats["stdev"])
 
         for item_dets, val in items_far_from_mean.items():
             item_id, item_subset = item_dets
@@ -1651,6 +1653,8 @@ class TabularValidator(_TaskValidator):
                 item_subset,
                 caption_name,
                 mean,
+                upper_bound,
+                lower_bound,
                 val,
             )
             validation_reports += self._generate_validation_report(
