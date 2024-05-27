@@ -835,6 +835,21 @@ class OutlierInCaption(DatasetItemValidationError):
 
 
 @define(auto_exc=False)
+class OutlierInCaption(DatasetItemValidationError):
+    caption_name = field()
+    lower_bound = field()
+    upper_bound = field()
+    val = field()
+
+    def __str__(self):
+        return (
+            f"Annotation '{self.caption_name}' in "
+            "the item is estimated as outlier based on IQR. (lower and upper bound of "
+            f"'{self.caption_name}' caption: '{self.lower_bound}' and '{self.upper_bound}', got '{self.val}')."
+        )
+
+
+@define(auto_exc=False)
 class FarFromAttrMean(DatasetItemValidationError):
     label_name = field()
     ann_id = field()

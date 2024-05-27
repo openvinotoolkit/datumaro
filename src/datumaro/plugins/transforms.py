@@ -1387,9 +1387,12 @@ class Correct(Transform, CliPlugin):
 
         self._outlier_captions = defaultdict(list)
         self._outlier_value = {}
+<<<<<<< HEAD
 
         self._far_from_mean_caption = defaultdict(list)
         self._far_from_mean_value = {}
+=======
+>>>>>>> c35a9fc9e (Edit correct function for tabular dataset)
 
         self._analyze_reports(report=self._reports)
 
@@ -1477,6 +1480,7 @@ class Correct(Transform, CliPlugin):
                 caption = rep["description"].split("'")[1]
                 self._empty_captions[(rep["item_id"], rep["subset"])].append(caption)
 
+<<<<<<< HEAD
             if rep["anomaly_type"] == OutlierInCaption.__name__:
                 desc = rep["description"].split("'")
                 caption = desc[1]
@@ -1492,6 +1496,22 @@ class Correct(Transform, CliPlugin):
                 upper_bound = float(desc[11])
                 self._far_from_mean_caption[(rep["item_id"], rep["subset"])].append(caption)
                 self._far_from_mean_value[caption] = (lower_bound, upper_bound)
+=======
+            if rep["anomaly_type"] == "FewSamplesInCaption":
+                caption = rep["description"].split("'")[1]  # TODO
+
+            if rep["anomaly_type"] in [
+                "OutlierInCaption",
+                "ImbalancedDistInCaption",
+            ]:  # FarFromCaptionMean
+                desc = rep["description"].split("'")
+                caption = desc[1]
+                caption_type = self._extractor._tabular_cat_types[caption]
+                lower_bound = caption_type(desc[5])
+                upper_bound = caption_type(desc[7])
+                self._outlier_captions[(rep["item_id"], rep["subset"])].append(caption)
+                self._outlier_value[caption] = (lower_bound, upper_bound)
+>>>>>>> c35a9fc9e (Edit correct function for tabular dataset)
 
     def remove_unnecessary_char(self, annotations, item_id):
         if self._table is None:
@@ -1685,6 +1705,37 @@ class Correct(Transform, CliPlugin):
 
         return annotations
 
+    def fill_missing_value(self, annotations, labels, captions):
+        if labels:
+            for label in labels:
+                new_label_id = self._extractor._id_mapping[
+                    label + self._extractor._sep_token + str(self._label_value[label])
+                ]
+                new_ann = Label(new_label_id)
+                annotations.append(new_ann)
+        if captions:
+            for caption in captions:
+                new_ann = Caption(f"{caption}:{self._caption_value[caption]}")
+                annotations.append(new_ann)
+        return annotations
+
+    def find_outliers(self, annotations, outliers):
+        for ann in annotations:
+            for col in outliers:
+                if ann.type == AnnotationType.caption and ann.caption[: len(col)] == col:
+                    value = self._extractor._tabular_cat_types[col](ann.caption[len(col) + 1 :])
+                    # Cap outliers
+                    lower_bound, upper_bound = self._outlier_value[col]
+                    cap_outlier_val = np.where(
+                        value > upper_bound,
+                        upper_bound,
+                        np.where(value < lower_bound, lower_bound, value),
+                    ).item()
+                    new_ann = Caption(f"{col}:{cap_outlier_val}")
+                    annotations.remove(ann)
+                    annotations.append(new_ann)
+        return annotations
+
     def __iter__(self):
         if self._empty_captions:
             self.update_caption_value()
@@ -1710,10 +1761,14 @@ class Correct(Transform, CliPlugin):
                 item.annotations = self.remove_unnecessary_char(item.annotations, item_id=item.id)
 
             if outlier_captions:
+<<<<<<< HEAD
                 item.annotations = self.cap_outliers(item.annotations, outlier_captions)
 
             if far_from_mean_captions:
                 item.annotations = self.cap_far_from_mean(item.annotations, far_from_mean_captions)
+=======
+                item.annotations = self.find_outliers(item.annotations, outlier_captions)
+>>>>>>> c35a9fc9e (Edit correct function for tabular dataset)
 
             if empty_labels or empty_captions:
                 item.annotations = self.fill_missing_value(
@@ -1725,6 +1780,7 @@ class Correct(Transform, CliPlugin):
                 for label_id, attr_name in self._add_attrs.get((item.id, item.subset), []):
                     updated_attrs[label_id].append(attr_name)
 
+                updated_anns = []
                 for ann in item.annotations:
                     new_ann = ann.wrap(attributes=deepcopy(ann.attributes))
                     if ann.type == AnnotationType.label and ann.label in updated_attrs:
