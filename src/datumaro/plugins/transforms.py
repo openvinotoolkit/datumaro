@@ -1452,13 +1452,7 @@ class Correct(Transform, CliPlugin):
                 caption = rep["description"].split("'")[1]
                 self._empty_captions[(rep["item_id"], rep["subset"])].append(caption)
 
-            if rep["anomaly_type"] == "FewSamplesInCaption":
-                caption = rep["description"].split("'")[1]  # TODO
-
-            if rep["anomaly_type"] in [
-                "OutlierInCaption",
-                "ImbalancedDistInCaption",
-            ]:
+            if rep["anomaly_type"] == "OutlierInCaption":
                 desc = rep["description"].split("'")
                 caption = desc[1]
                 lower_bound = float(desc[5])

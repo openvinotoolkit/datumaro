@@ -846,7 +846,9 @@ from pandas.api.types import CategoricalDtype
 
 @pytest.fixture
 def fxt_original_tabular_dataset():
-    path = osp.join(get_test_asset_path("tabular_dataset"), "women_clothing_short.csv")
+    path = osp.join(
+        get_test_asset_path("tabular_dataset"), "women-clothing", "women_clothing_orig.csv"
+    )
     table = Table.from_csv(path)
     tabular_dataset = Dataset.from_iterable(
         [
@@ -890,7 +892,9 @@ def fxt_original_tabular_dataset():
 
 @pytest.fixture
 def fxt_refined_tabular_dataset():
-    path = osp.join(get_test_asset_path("tabular_dataset"), "women_clothing_refined.csv")
+    path = osp.join(
+        get_test_asset_path("tabular_dataset"), "women-clothing", "women_clothing_refined.csv"
+    )
     table = Table.from_csv(path)
     tabular_dataset = Dataset.from_iterable(
         [
@@ -916,10 +920,7 @@ def fxt_refined_tabular_dataset():
             AnnotationType.tabular: TabularCategories.from_iterable(
                 [
                     ("Age", float, {10.0, 20.0, 30.0, 40.0, 50.0, 60.0, 70.0, 80.0, 90.0, 100.0}),
-                    (
-                        "Review Text",
-                        str,
-                    ),
+                    ("Review Text", str),
                     ("Rating", CategoricalDtype(), {1.0, 2.0, 3.0, 4.0, 5.0}),
                     (
                         "Division Name",
