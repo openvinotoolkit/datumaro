@@ -1366,6 +1366,7 @@ class Correct(Transform, CliPlugin):
         self._unnecessary_char_captions = list()
 
         self._outlier_captions = defaultdict(list)
+        self._outlier_value = {}
 
         self._analyze_reports(report=self._reports)
 
@@ -1449,11 +1450,19 @@ class Correct(Transform, CliPlugin):
                 self._empty_captions[(rep["item_id"], rep["subset"])].append(caption)
 
             if rep["anomaly_type"] == "FewSamplesInCaption":
-                caption = rep["description"].split("'")[1]
+                caption = rep["description"].split("'")[1]  # TODO
 
-            if rep["anomaly_type"] in ["FarFromCaptionMean", "ImbalancedDistInCaptions"]:
-                caption = rep["description"].split("'")[1]
+            if rep["anomaly_type"] in [
+                "OutlierInCaption",
+                "ImbalancedDistInCaption",
+            ]:  # FarFromCaptionMean
+                desc = rep["description"].split("'")
+                caption = desc[1]
+                caption_type = self._extractor._tabular_cat_types[caption]
+                lower_bound = caption_type(desc[5])
+                upper_bound = caption_type(desc[7])
                 self._outlier_captions[(rep["item_id"], rep["subset"])].append(caption)
+                self._outlier_value[caption] = (lower_bound, upper_bound)
 
     def remove_unnecessary_char(self, annotations, item_id):
         if self._table is None:
@@ -1503,20 +1512,29 @@ class Correct(Transform, CliPlugin):
             )
             return emoji_pattern.sub(r"", text)
 
-        new_ann = []
-        for col, attr in self._unnecessary_char_captions:
+        col_redun_dict = {}
+        for key, value in self._unnecessary_char_captions:
+            if key in col_redun_dict:
+                if isinstance(col_redun_dict[key], list):
+                    col_redun_dict[key].append(value)
+                else:
+                    col_redun_dict[key] = [col_redun_dict[key], value]
+            else:
+                col_redun_dict[key] = [value]
+
+        for col, attr in col_redun_dict.items():
             table = self._table[col].dropna()
 
             # Remove HTML
-            if attr == "html":
+            if "html" in attr:
                 table = table.apply(remove_html_tags)
 
             # Remove urls
-            if attr == "url":
+            if "url" in attr:
                 table = table.apply(remove_urls)
 
             # Remove emojis
-            if attr == "emoji":
+            if "emoji" in attr:
                 table = table.apply(remove_emojis)
 
             # Convert to lowercase
@@ -1529,29 +1547,15 @@ class Correct(Transform, CliPlugin):
             table = table.apply(remove_extra_whitespace)
 
             # Remove stopwords
-            if attr == "attr":
+            if "stopword" in attr:
                 table = table.apply(remove_stopwords)
 
-            for ann in annotations:
-                if ann.type == AnnotationType.caption and ann.caption[: len(col)] == col:
-                    new_ann = Caption(f"{col}:{table.loc[int(item_id.split('@')[0])]}")
-                    annotations.remove(ann)
-                    annotations.append(new_ann)
-
-            return annotations
-
-    def impute_annotations(self, annotations, labels, captions):
-        if labels:
-            for label in labels:
-                new_label_id = self._extractor._id_mapping[
-                    label + self._extractor._sep_token + str(self._label_value[label])
-                ]
-                new_ann = Label(new_label_id)
+        for ann in annotations:
+            if ann.type == AnnotationType.caption and ann.caption[: len(col)] == col:
+                new_ann = Caption(f"{col}:{table.loc[int(item_id.split('@')[0])]}")
+                annotations.remove(ann)
                 annotations.append(new_ann)
-        if captions:
-            for caption in captions:
-                new_ann = Caption(f"{caption}:{self._caption_value[caption]}")
-                annotations.append(new_ann)
+
         return annotations
 
     def update_caption_value(self):
@@ -1595,6 +1599,37 @@ class Correct(Transform, CliPlugin):
             value = table.mode().iloc[0]
             self._label_value[label] = value
 
+    def fill_missing_value(self, annotations, labels, captions):
+        if labels:
+            for label in labels:
+                new_label_id = self._extractor._id_mapping[
+                    label + self._extractor._sep_token + str(self._label_value[label])
+                ]
+                new_ann = Label(new_label_id)
+                annotations.append(new_ann)
+        if captions:
+            for caption in captions:
+                new_ann = Caption(f"{caption}:{self._caption_value[caption]}")
+                annotations.append(new_ann)
+        return annotations
+
+    def find_outliers(self, annotations, outliers):
+        for ann in annotations:
+            for col in outliers:
+                if ann.type == AnnotationType.caption and ann.caption[: len(col)] == col:
+                    value = self._extractor._tabular_cat_types[col](ann.caption[len(col) + 1 :])
+                    # Cap outliers
+                    lower_bound, upper_bound = self._outlier_value[col]
+                    cap_outlier_val = np.where(
+                        value > upper_bound,
+                        upper_bound,
+                        np.where(value < lower_bound, lower_bound, value),
+                    ).item()
+                    new_ann = Caption(f"{col}:{cap_outlier_val}")
+                    annotations.remove(ann)
+                    annotations.append(new_ann)
+        return annotations
+
     def __iter__(self):
         if len(self._empty_captions) > 0:
             self.update_caption_value()
@@ -1618,20 +1653,20 @@ class Correct(Transform, CliPlugin):
             if len(self._unnecessary_char_captions) > 0:
                 item.annotations = self.remove_unnecessary_char(item.annotations, item_id=item.id)
 
-            updated_anns = []
-            if empty_labels or empty_captions:
-                updated_anns.append(
-                    self.impute_annotations(item.annotations, empty_labels, empty_captions)
-                )
-
             if outlier_captions:
-                pass
+                item.annotations = self.find_outliers(item.annotations, outlier_captions)
+
+            if empty_labels or empty_captions:
+                item.annotations = self.fill_missing_value(
+                    item.annotations, empty_labels, empty_captions
+                )
 
             if not ann_ids:
                 updated_attrs = defaultdict(list)
                 for label_id, attr_name in self._add_attrs.get((item.id, item.subset), []):
                     updated_attrs[label_id].append(attr_name)
 
+                updated_anns = []
                 for ann in item.annotations:
                     new_ann = ann.wrap(attributes=deepcopy(ann.attributes))
                     if ann.type == AnnotationType.label and ann.label in updated_attrs:
