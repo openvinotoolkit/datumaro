@@ -16,10 +16,10 @@ such options, use the `--` separator after the main command arguments.
 The usage information can be printed with `datum import -f <format> -- --help`.
 
 Common export options:
-- Most formats (where applicable) support the `--save-images` option, which
+- Most formats (where applicable) support the `--save-media` option, which
   allows to export dataset images along with annotations. The option is
   disabled be default.
-- If `--save-images` is used, the `image-ext` option can be passed to
+- If `--save-media` is used, the `image-ext` option can be passed to
   specify the output image file extension (`.jpg`, `.png` etc.). By default,
   tries to Datumaro keep the original image extension. This option
   allows to convert all the images from one format into another.
@@ -63,5 +63,5 @@ datum project export \
   -p test_project \
   -o test_project-export \
   -f voc \
-  -- --save-images --image-ext='.png'
+  -- --save-media --image-ext='.png'
 ```

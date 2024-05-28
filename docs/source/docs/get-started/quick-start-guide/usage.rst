@@ -45,4 +45,4 @@ formats and providing high performance operations:
         print(item.id, item.annotations)
 
     # export the resulting dataset in COCO format
-    dataset.export('dst/dir', 'coco', save_images=True)
+    dataset.export('dst/dir', 'coco', save_media=True)
