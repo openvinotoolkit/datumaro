@@ -927,7 +927,7 @@ class TblStats(_BaseAnnStats):
             for ann in item.annotations:
                 if ann.type == AnnotationType.caption:
                     label = next(
-                        (cat for cat in self.caption_columns if cat + ":" in ann.caption), None
+                        (cat for cat in self.caption_columns if ann.caption.startswith(cat)), None
                     )
                     annotation_check.remove(label)
             for ann in annotation_check:
@@ -941,7 +941,7 @@ class TblStats(_BaseAnnStats):
             self.stats.categories[label_name]["ann_type"].add(annotation.type)
         elif annotation.type == AnnotationType.caption:
             for cat in self.caption_columns:
-                if cat + ":" in annotation.caption:
+                if annotation.caption.startswith(cat):
                     self.stats.categories[cat]["cnt"] += 1
                     self.stats.categories[cat]["ann_type"].add(annotation.type)
                     caption = annotation.caption.split(cat + ":")[-1]
@@ -1101,12 +1101,14 @@ class TblStats(_BaseAnnStats):
     def _check_outlier_in_caption(self, stats: StatsData):
         validation_reports = []
 
-        for label_name in stats.categories:
-            type_ = stats.categories[label_name]["type"]
-            if type_ == float or type_ == int:
-                captions = [
-                    type_(caption[3]) for caption in stats.categories[label_name]["caption"]
-                ]
+        for label_name, category in stats.categories.items():
+            type_ = category["type"]
+            if type_ in [float, int]:
+                captions = np.array([type_(caption[3]) for caption in category["caption"]])
+
+                if captions.size == 0:
+                    continue
+
                 # Calculate Q1 (25th percentile) and Q3 (75th percentile)
                 Q1 = np.quantile(captions, 0.25)
                 Q3 = np.quantile(captions, 0.75)
@@ -1116,9 +1118,7 @@ class TblStats(_BaseAnnStats):
                 lower_bound = Q1 - 1.5 * IQR
                 upper_bound = Q3 + 1.5 * IQR
 
-                for item_id, item_subset, ann_id, caption in stats.categories[label_name][
-                    "caption"
-                ]:
+                for item_id, item_subset, ann_id, caption in category["caption"]:
                     val = type_(caption)
                     if (val < lower_bound) | (val > upper_bound):
                         details = (

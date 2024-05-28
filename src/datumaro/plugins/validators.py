@@ -1359,7 +1359,7 @@ class TabularValidator(_TaskValidator):
                 if ann.type == AnnotationType.caption:
                     caption_ = ann.caption
                     for cat in stats.caption_columns:
-                        if cat + ":" in caption_:
+                        if caption_.startswith(cat):
                             stats.defined_captions[cat] += 1
                             caption_ = caption_.split(cat + ":")[-1]
                             caption_check.remove(cat)
@@ -1400,8 +1400,8 @@ class TabularValidator(_TaskValidator):
                 "\U0001F300-\U0001F5FF"  # symbols & pictographs
                 "\U0001F680-\U0001F6FF"  # transport & map symbols
                 "\U0001F1E0-\U0001F1FF"  # flags (iOS)
-                "\U00002702-\U000027B0"
-                "\U000024C2-\U0001F251"
+                "\u2700-\u27BF"  # Dingbats, including scissors and symbols (corrected range)
+                "\u24C2-\u1F251"  # Enclosed characters
                 "]+",
                 flags=re.UNICODE,
             )
@@ -1440,7 +1440,7 @@ class TabularValidator(_TaskValidator):
                 if ann.type == AnnotationType.caption:
                     caption_ = ann.caption
                     for cat_name, type_ in caption_columns:
-                        if cat_name + ":" in caption_:
+                        if caption_.startswith(cat_name):
                             caption_value = type_(caption_.split(f"{cat_name}:")[-1])
                             dist_by_caption[cat_name]["value"]["distribution"].append(caption_value)
 
@@ -1449,7 +1449,7 @@ class TabularValidator(_TaskValidator):
             prop_stats = list(stats.values())[0]
 
             prop_dist = prop_stats.pop("distribution", [])
-            if len(prop_dist) > 0:
+            if prop_dist:
                 prop_stats["mean"] = np.mean(prop_dist)
                 prop_stats["stdev"] = np.std(prop_dist)
                 prop_stats["min"] = np.min(prop_dist)
@@ -1461,8 +1461,7 @@ class TabularValidator(_TaskValidator):
                 prop_stats["histogram"]["counts"] = counts.tolist()
 
                 # Calculate Q1 (25th percentile) and Q3 (75th percentile)
-                Q1 = np.quantile(prop_dist, 0.25)
-                Q3 = np.quantile(prop_dist, 0.75)
+                Q1, Q3 = np.percentile(prop_dist, [25, 75])
                 IQR = Q3 - Q1
 
                 # Calculate the acceptable range
@@ -1479,15 +1478,13 @@ class TabularValidator(_TaskValidator):
         stdev = prop_stats["stdev"]
 
         if _far_from_mean(val, mean, stdev):
-            items_far_from_mean = prop_stats["items_far_from_mean"]
-            items_far_from_mean[item_key] = val
+            prop_stats["items_far_from_mean"][item_key] = val
 
     def _compute_outlier(self, prop_stats, val, item_key):
         lower_bound, upper_bound = prop_stats["outlier"]
 
         if (val < lower_bound) | (val > upper_bound):
-            items_outlier = prop_stats["items_outlier"]
-            items_outlier[item_key] = val
+            prop_stats["items_outlier"][item_key] = val
 
     def compute_statistics(self, dataset):
         """
@@ -1525,10 +1522,10 @@ class TabularValidator(_TaskValidator):
         self._compute_prop_stats_from_dist(dist_by_caption)
 
         def _update_captions_far_from_mean_outlier(caption_columns, item_key, ann):
-            for cap, type_ in caption_columns:
-                prop_stats = dist_by_caption[cap]["value"]
-                if cap + ":" in ann.caption:
-                    val = type_(ann.caption.split(f"{cap}:")[-1])
+            for col, type_ in caption_columns:
+                prop_stats = dist_by_caption[col]["value"]
+                if ann.caption.startswith(col):
+                    val = type_(ann.caption.split(f"{col}:")[-1])
                     self._compute_far_from_mean(prop_stats, val, item_key)
                     self._compute_outlier(prop_stats, val, item_key)
 
@@ -1639,15 +1636,16 @@ class TabularValidator(_TaskValidator):
         return validation_reports
 
     def _check_far_from_caption_mean(self, caption_name, caption_stats):
-        validation_reports = []
         prop_stats = list(caption_stats.values())[0]
 
-        items_far_from_mean = prop_stats["items_far_from_mean"]
         if prop_stats["mean"] is not None:
             mean = round(prop_stats["mean"], 2)
-        upper_bound = mean + (self.far_from_mean_thr * prop_stats["stdev"])
-        lower_bound = mean - (self.far_from_mean_thr * prop_stats["stdev"])
+        stdev = prop_stats["stdev"]
+        upper_bound = mean + (self.far_from_mean_thr * stdev)
+        lower_bound = mean - (self.far_from_mean_thr * stdev)
 
+        validation_reports = []
+        items_far_from_mean = prop_stats["items_far_from_mean"]
         for item_dets, val in items_far_from_mean.items():
             item_id, item_subset = item_dets
             val = round(val, 2)
@@ -1666,12 +1664,11 @@ class TabularValidator(_TaskValidator):
         return validation_reports
 
     def _check_caption_outliers(self, caption_name, caption_stats):
-        validation_reports = []
         prop_stats = list(caption_stats.values())[0]
-
-        items_outlier = prop_stats["items_outlier"]
         lower_bound, upper_bound = prop_stats["outlier"]
+        items_outlier = prop_stats["items_outlier"]
 
+        validation_reports = []
         for item_dets, val in items_outlier.items():
             item_id, item_subset = item_dets
             val = round(val, 2)

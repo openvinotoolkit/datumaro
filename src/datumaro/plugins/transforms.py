@@ -17,6 +17,7 @@ from typing import Dict, Iterable, List, Optional, Tuple, Union
 
 import cv2
 import numpy as np
+import pandas as pd
 import pycocotools.mask as mask_utils
 from pandas.api.types import CategoricalDtype
 
@@ -1470,8 +1471,6 @@ class Correct(Transform, CliPlugin):
 
     def remove_unnecessary_char(self, annotations, item_id):
         if self._table is None:
-            import pandas as pd
-
             items = [item_.media.data() for item_ in self._extractor]
             self._table = pd.DataFrame(items)
 
@@ -1509,8 +1508,8 @@ class Correct(Transform, CliPlugin):
                 "\U0001F300-\U0001F5FF"  # symbols & pictographs
                 "\U0001F680-\U0001F6FF"  # transport & map symbols
                 "\U0001F1E0-\U0001F1FF"  # flags (iOS)
-                "\U00002702-\U000027B0"
-                "\U000024C2-\U0001F251"
+                "\u2700-\u27BF"  # Dingbats, including scissors and symbols (corrected range)
+                "\u24C2-\u1F251"  # Enclosed characters
                 "]+",
                 flags=re.UNICODE,
             )
@@ -1564,97 +1563,83 @@ class Correct(Transform, CliPlugin):
 
     def update_caption_value(self):
         if self._table is None:
-            import pandas as pd
-
             items = [item_.media.data() for item_ in self._extractor]
             self._table = pd.DataFrame(items)
 
-        empty_cap_cols = list(set([v for value in self._empty_captions.values() for v in value]))
+        empty_cap_cols = set([v for value in self._empty_captions.values() for v in value])
 
         for caption in empty_cap_cols:
             table = self._table[caption].dropna()
-            if self._extractor._tabular_cat_types[caption] in [int, float]:
+            caption_type = self._extractor._tabular_cat_types[caption]
+
+            if caption_type in [int, float]:
                 from scipy.stats import skew
 
                 skewness = skew(table)
-                if skewness > 1 or skewness < -1:  # TODO
-                    value = table.median()
-                    self._caption_value[caption] = value
+                if abs(skewness) > 1:  # TODO
+                    self._caption_value[caption] = table.median()
                 else:
-                    value = table.mean()
-                    self._caption_value[caption] = value
-            elif self._extractor._tabular_cat_types[caption] is str:
-                for item_key, captions in self._empty_captions.items():
-                    if caption in captions:
-                        self._remove_items.add(item_key)
+                    self._caption_value[caption] = table.mean()
+            elif caption_type is str:
+                self._remove_items.update(
+                    item_key
+                    for item_key, captions in self._empty_captions.items()
+                    if caption in captions
+                )
 
     def update_label_value(self):
         if self._table is None:
-            import pandas as pd
-
             items = [item_.media.data() for item_ in self._extractor]
             self._table = pd.DataFrame(items)
 
-        empty_lbl_cols = list(set([v for value in self._empty_labels.values() for v in value]))
+        empty_lbl_cols = set([v for value in self._empty_labels.values() for v in value])
 
         for label in empty_lbl_cols:
             table = self._table[label].dropna()
             # "most_frequency"
-            value = table.mode().iloc[0]
-            self._label_value[label] = value
+            self._label_value[label] = table.mode().iloc[0]
 
     def fill_missing_value(self, annotations, labels, captions):
         if labels:
-            for label in labels:
-                new_label_id = self._extractor._id_mapping[
-                    label + self._extractor._sep_token + str(self._label_value[label])
-                ]
-                new_ann = Label(new_label_id)
-                annotations.append(new_ann)
+            sep_token = self._extractor._sep_token
+            id_mapping = self._extractor._id_mapping
+            label_value = self._label_value
+            annotations.extend(
+                Label(id_mapping[f"{label}{sep_token}{label_value[label]}"]) for label in labels
+            )
         if captions:
-            for caption in captions:
-                new_ann = Caption(f"{caption}:{self._caption_value[caption]}")
+            caption_value = self._caption_value
+            annotations.extend(
+                Caption(f"{caption}:{caption_value[caption]}") for caption in captions
+            )
+        return annotations
+
+    def cap_captions(self, annotations, captions):
+        for ann in annotations:
+            if ann.type != AnnotationType.caption:
+                continue
+
+            for col in captions:
+                if not ann.caption.startswith(col):
+                    continue
+
+                value_str = ann.caption[len(col) + 1 :]
+                value = self._extractor._tabular_cat_types[col](value_str)
+
+                lower_bound, upper_bound = self._far_from_mean_value[col]
+                capped_value = max(min(value, upper_bound), lower_bound)
+
+                new_ann = Caption(f"{col}:{capped_value}")
+                annotations.remove(ann)
                 annotations.append(new_ann)
-        return annotations
+                break
 
-    def cap_outliers(self, annotations, outliers):
-        for ann in annotations:
-            for col in outliers:
-                if ann.type == AnnotationType.caption and ann.caption[: len(col)] == col:
-                    value = self._extractor._tabular_cat_types[col](ann.caption[len(col) + 1 :])
-                    # Cap outliers
-                    lower_bound, upper_bound = self._outlier_value[col]
-                    cap_outlier_val = np.where(
-                        value > upper_bound,
-                        upper_bound,
-                        np.where(value < lower_bound, lower_bound, value),
-                    ).item()
-                    new_ann = Caption(f"{col}:{cap_outlier_val}")
-                    annotations.remove(ann)
-                    annotations.append(new_ann)
-        return annotations
-
-    def cap_far_from_mean(self, annotations, far_from_mean_captions):
-        for ann in annotations:
-            for col in far_from_mean_captions:
-                if ann.type == AnnotationType.caption and ann.caption[: len(col)] == col:
-                    value = self._extractor._tabular_cat_types[col](ann.caption[len(col) + 1 :])
-                    # Cap far from mean
-                    lower_bound, upper_bound = self._far_from_mean_value[col]
-                    cap_far_from_mean_val = np.where(
-                        value > upper_bound,
-                        upper_bound,
-                        np.where(value < lower_bound, lower_bound, value),
-                    ).item()
-                    new_ann = Caption(f"{col}:{cap_far_from_mean_val}")
-                    annotations.remove(ann)
-                    annotations.append(new_ann)
         return annotations
 
     def __iter__(self):
-        if len(self._empty_captions) > 0:
+        if self._empty_captions:
             self.update_caption_value()
-        if len(self._empty_labels) > 0:
+        if self._empty_labels:
             self.update_label_value()
 
         for item in self._extractor:
@@ -1672,14 +1657,14 @@ class Correct(Transform, CliPlugin):
                 updated_anns = [ann for ann in item.annotations if ann.id not in ann_ids]
                 yield item.wrap(annotations=updated_anns)
 
-            if len(self._unnecessary_char_captions) > 0:
+            if self._unnecessary_char_captions:
                 item.annotations = self.remove_unnecessary_char(item.annotations, item_id=item.id)
 
             if outlier_captions:
-                item.annotations = self.cap_outliers(item.annotations, outlier_captions)
+                item.annotations = self.cap_captions(item.annotations, outlier_captions)
 
             if far_from_mean_captions:
-                item.annotations = self.cap_far_from_mean(item.annotations, far_from_mean_captions)
+                item.annotations = self.cap_captions(item.annotations, far_from_mean_captions)
 
             if empty_labels or empty_captions:
                 item.annotations = self.fill_missing_value(
@@ -1788,8 +1773,6 @@ class AstypeAnnotations(ItemTransform):
         return self._categories
 
     def transform_item(self, item: DatasetItem):
-        import pandas as pd
-
         annotations = [
             Label(label=self._id_mapping[name + self._sep_token + str(value)])
             if self._tabular_cat_types.get(name) == CategoricalDtype() and value is not None
