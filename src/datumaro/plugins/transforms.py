@@ -1703,12 +1703,34 @@ class Correct(Transform, CliPlugin):
             )
         return annotations
 
-    def cap_captions(self, annotations, captions):
+    def cap_outliers(self, annotations, outliers):
         for ann in annotations:
             if ann.type != AnnotationType.caption:
                 continue
 
-            for col in captions:
+            for col in outliers:
+                if not ann.caption.startswith(col):
+                    continue
+
+                value_str = ann.caption[len(col) + 1 :]
+                value = self._extractor._tabular_cat_types[col](value_str)
+
+                lower_bound, upper_bound = self._outlier_value[col]
+                capped_value = max(min(value, upper_bound), lower_bound)
+
+                new_ann = Caption(f"{col}:{capped_value}")
+                annotations.remove(ann)
+                annotations.append(new_ann)
+                break
+
+        return annotations
+
+    def cap_far_from_mean(self, annotations, far_from_mean_captions):
+        for ann in annotations:
+            if ann.type != AnnotationType.caption:
+                continue
+
+            for col in far_from_mean_captions:
                 if not ann.caption.startswith(col):
                     continue
 
@@ -1765,10 +1787,10 @@ class Correct(Transform, CliPlugin):
                 item.annotations = self.remove_unnecessary_char(item.annotations, item_id=item.id)
 
             if outlier_captions:
-                item.annotations = self.cap_captions(item.annotations, outlier_captions)
+                item.annotations = self.cap_outliers(item.annotations, outlier_captions)
 
             if far_from_mean_captions:
-                item.annotations = self.cap_captions(item.annotations, far_from_mean_captions)
+                item.annotations = self.cap_far_from_mean(item.annotations, far_from_mean_captions)
 
             if empty_labels or empty_captions:
                 item.annotations = self.fill_missing_value(
