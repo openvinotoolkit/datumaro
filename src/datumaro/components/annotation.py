@@ -845,14 +845,15 @@ class Polygon(_Shape):
 
     def _get_shoelace_area(self):
         points = self.get_points()
-        n = len(points) // 2
+        n = len(points)
         # Not a polygon
         if n < 3:
             return 0
+
         area = 0.0
         for i in range(n):
-            x1, y1 = points[2 * i], points[2 * i + 1]
-            x2, y2 = points[2 * ((i + 1) % n)], points[2 * ((i + 1) % n) + 1]
+            x1, y1 = points[i]
+            x2, y2 = points[(i + 1) % n]  # Next vertex, wrapping around using modulo
             area += x1 * y2 - y1 * x2
 
         return abs(area) / 2.0
