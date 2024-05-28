@@ -812,11 +812,12 @@ class Polygon(_Shape):
         )
 
     def get_area(self):
-        import pycocotools.mask as mask_utils
+        # import pycocotools.mask as mask_utils
 
-        x, y, w, h = self.get_bbox()
-        rle = mask_utils.frPyObjects([self.points], y + h, x + w)
-        area = mask_utils.area(rle)[0]
+        # x, y, w, h = self.get_bbox()
+        # rle = mask_utils.frPyObjects([self.points], y + h, x + w)
+        # area = mask_utils.area(rle)[0]
+        area = self._get_shoelace_area()
         return area
 
     def as_polygon(self) -> List[float]:
@@ -841,6 +842,21 @@ class Polygon(_Shape):
             return self_points == other_points
         inter_area = self_polygon.intersection(other_polygon).area
         return abs(self_polygon.area - inter_area) < CHECK_POLYGON_EQ_EPSILONE
+
+    def _get_shoelace_area(self):
+        points = self.get_points()
+        n = len(points)
+        # Not a polygon
+        if n < 3:
+            return 0
+
+        area = 0.0
+        for i in range(n):
+            x1, y1 = points[i]
+            x2, y2 = points[(i + 1) % n]  # Next vertex, wrapping around using modulo
+            area += x1 * y2 - y1 * x2
+
+        return abs(area) / 2.0
 
 
 @attrs(slots=True, init=False, order=False)
@@ -1370,7 +1386,7 @@ class Tabular(Annotation):
     values: Dict[str, TableDtype] = field(converter=dict)
 
 
-class Annotations(list[Annotation]):
+class Annotations(List[Annotation]):
     """List of `Annotation` equipped with additional utility functions."""
 
     def get_semantic_seg_mask(
