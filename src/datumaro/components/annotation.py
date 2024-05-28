@@ -1385,7 +1385,7 @@ class Tabular(Annotation):
     values: Dict[str, TableDtype] = field(converter=dict)
 
 
-class Annotations(list[Annotation]):
+class Annotations(List[Annotation]):
     """List of `Annotation` equipped with additional utility functions."""
 
     def get_semantic_seg_mask(
