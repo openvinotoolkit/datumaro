@@ -38,6 +38,7 @@ from datumaro.components.errors import (
     NegativeLength,
     OnlyOneAttributeValue,
     OnlyOneLabel,
+    OutlierInCaption,
     UndefinedAttribute,
     UndefinedLabel,
 )
@@ -475,7 +476,7 @@ from tests.utils.assets import get_test_asset_path
 
 @pytest.fixture
 def fxt_tbl_dataset():
-    path = osp.join(get_test_asset_path("tabular_dataset"), "women_clothing.csv")
+    path = osp.join(get_test_asset_path("tabular_dataset"), "women-clothing", "women_clothing.csv")
     tabular_dataset = Dataset.import_from(
         path,
         "tabular",
@@ -497,7 +498,9 @@ def fxt_tbl_dataset():
 
 @pytest.fixture
 def fxt_tbl_imbal_dataset():
-    path = osp.join(get_test_asset_path("tabular_dataset"), "women_clothing_imbalanced.csv")
+    path = osp.join(
+        get_test_asset_path("tabular_dataset"), "women-clothing", "women_clothing_imbalanced.csv"
+    )
     tabular_dataset = Dataset.import_from(
         path,
         "tabular",
@@ -624,7 +627,13 @@ class ConfigurableValidatorTest:
             (
                 "fxt_tbl_imbal_dataset",
                 TaskType.tabular,
-                {EmptyCaption, ImbalancedCaptions, ImbalancedDistInCaption, FarFromCaptionMean},
+                {
+                    EmptyCaption,
+                    ImbalancedCaptions,
+                    ImbalancedDistInCaption,
+                    FarFromCaptionMean,
+                    OutlierInCaption,
+                },
             ),
         ],
         ids=["tbl_annotation", "tbl_label", "tbl_caption"],

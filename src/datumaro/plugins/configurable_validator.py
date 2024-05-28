@@ -36,6 +36,7 @@ from datumaro.components.errors import (
     NegativeLength,
     OnlyOneAttributeValue,
     OnlyOneLabel,
+    OutlierInCaption,
     UndefinedAttribute,
     UndefinedLabel,
 )
@@ -895,6 +896,9 @@ class TblStats(_BaseAnnStats):
         if FarFromCaptionMean in self.warnings:
             self.update_ann_functions.add(self._update_annotation_stats)
             self.update_report_functions.add(self._check_far_from_caption_mean)
+        if OutlierInCaption in self.warnings:
+            self.update_ann_functions.add(self._update_annotation_stats)
+            self.update_report_functions.add(self._check_outlier_in_caption)
 
     def _update_missing_annotation(self, item):
         item_key = (item.id, item.subset)
@@ -1064,7 +1068,7 @@ class TblStats(_BaseAnnStats):
                             type_(caption),
                         )
                         validation_reports += self._generate_validation_report(
-                            FarFromCaptionMean, Severity.warning, item_id, *details
+                            FarFromCaptionMean, Severity.info, item_id, *details
                         )
 
         return validation_reports
@@ -1092,6 +1096,42 @@ class TblStats(_BaseAnnStats):
                     validation_reports += self._generate_validation_report(
                         ImbalancedDistInCaption, Severity.info, label_name
                     )
+        return validation_reports
+
+    def _check_outlier_in_caption(self, stats: StatsData):
+        validation_reports = []
+
+        for label_name in stats.categories:
+            type_ = stats.categories[label_name]["type"]
+            if type_ == float or type_ == int:
+                captions = [
+                    type_(caption[3]) for caption in stats.categories[label_name]["caption"]
+                ]
+                # Calculate Q1 (25th percentile) and Q3 (75th percentile)
+                Q1 = np.quantile(captions, 0.25)
+                Q3 = np.quantile(captions, 0.75)
+                IQR = Q3 - Q1
+
+                # Calculate the acceptable rangepsrc/datumaro/plugins/validators.py
+                lower_bound = Q1 - 1.5 * IQR
+                upper_bound = Q3 + 1.5 * IQR
+
+                for item_id, item_subset, ann_id, caption in stats.categories[label_name][
+                    "caption"
+                ]:
+                    val = type_(caption)
+                    if (val < lower_bound) | (val > upper_bound):
+                        details = (
+                            item_subset,
+                            label_name,
+                            upper_bound,
+                            lower_bound,
+                            val,
+                        )
+                        validation_reports += self._generate_validation_report(
+                            OutlierInCaption, Severity.info, item_id, *details
+                        )
+
         return validation_reports
 
 
