@@ -1690,17 +1690,38 @@ class Correct(Transform, CliPlugin):
 
     def fill_missing_value(self, annotations, labels, captions):
         if labels:
-            for label in labels:
-                new_label_id = self._extractor._id_mapping[
-                    label + self._extractor._sep_token + str(self._label_value[label])
-                ]
-                new_ann = Label(new_label_id)
-                annotations.append(new_ann)
+            sep_token = self._extractor._sep_token
+            id_mapping = self._extractor._id_mapping
+            label_value = self._label_value
+            annotations.extend(
+                Label(id_mapping[f"{label}{sep_token}{label_value[label]}"]) for label in labels
+            )
         if captions:
-            for caption in captions:
-                new_ann = Caption(f"{caption}:{self._caption_value[caption]}")
-                annotations.append(new_ann)
+            caption_value = self._caption_value
+            annotations.extend(
+                Caption(f"{caption}:{caption_value[caption]}") for caption in captions
+            )
         return annotations
+
+    def cap_captions(self, annotations, captions):
+        for ann in annotations:
+            if ann.type != AnnotationType.caption:
+                continue
+
+            for col in captions:
+                if not ann.caption.startswith(col):
+                    continue
+
+                value_str = ann.caption[len(col) + 1 :]
+                value = self._extractor._tabular_cat_types[col](value_str)
+
+                lower_bound, upper_bound = self._far_from_mean_value[col]
+                capped_value = max(min(value, upper_bound), lower_bound)
+
+                new_ann = Caption(f"{col}:{capped_value}")
+                annotations.remove(ann)
+                annotations.append(new_ann)
+                break
 
     def find_outliers(self, annotations, outliers):
         for ann in annotations:
@@ -1744,10 +1765,10 @@ class Correct(Transform, CliPlugin):
                 item.annotations = self.remove_unnecessary_char(item.annotations, item_id=item.id)
 
             if outlier_captions:
-                item.annotations = self.cap_outliers(item.annotations, outlier_captions)
+                item.annotations = self.cap_captions(item.annotations, outlier_captions)
 
             if far_from_mean_captions:
-                item.annotations = self.cap_far_from_mean(item.annotations, far_from_mean_captions)
+                item.annotations = self.cap_captions(item.annotations, far_from_mean_captions)
 
             if empty_labels or empty_captions:
                 item.annotations = self.fill_missing_value(
