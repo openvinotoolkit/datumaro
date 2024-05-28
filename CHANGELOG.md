@@ -17,8 +17,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   (<https://github.com/openvinotoolkit/datumaro/pull/1484>)
 - Add TabularValidator
   (<https://github.com/openvinotoolkit/datumaro/pull/1498>)
-- Add TblStats in Configurable Validator
-  (<https://github.com/openvinotoolkit/datumaro/pull/1504>)
 
 ### Enhancements
 - Fix ambiguous COCO format detector
@@ -33,6 +31,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Bug fixes
 - Split the video directory into subsets to avoid overwriting
   (<https://github.com/openvinotoolkit/datumaro/pull/1485>)
+- Doc update to replace --save-images is replaced with --save-media
+  (<https://github.com/openvinotoolkit/datumaro/pull/1514>)
 
 ## May 2024 Release 1.6.1
 ### Enhancements
