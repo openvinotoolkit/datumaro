@@ -58,12 +58,6 @@ NO_GROUP = 0
 NO_OBJECT_ID = -1
 
 
-def convert_points(x: Union[List[float], np.array]) -> List[float]:
-    if isinstance(x, List):
-        return x
-    return np.round(x, COORDINATE_ROUNDING_DIGITS).tolist()
-
-
 @attrs(slots=True, kw_only=True, order=False)
 class Annotation:
     """
@@ -689,7 +683,9 @@ class CompiledMask:
 
 @attrs(slots=True, order=False)
 class _Shape(Annotation):
-    points: List[float] = field(converter=lambda x: convert_points(x))
+    points: List[float] = field(
+        converter=lambda x: np.array(x).round(COORDINATE_ROUNDING_DIGITS).tolist()
+    )
 
     label: Optional[int] = field(
         converter=attr.converters.optional(int), default=None, kw_only=True
