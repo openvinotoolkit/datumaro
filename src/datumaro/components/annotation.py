@@ -684,7 +684,7 @@ class CompiledMask:
 @attrs(slots=True, order=False)
 class _Shape(Annotation):
     points: List[float] = field(
-        converter=lambda x: np.array(x).round(COORDINATE_ROUNDING_DIGITS).tolist()
+        converter=lambda x: np.array(x, dtype=np.float32).round(COORDINATE_ROUNDING_DIGITS).tolist()
     )
 
     label: Optional[int] = field(
