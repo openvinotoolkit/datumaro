@@ -31,6 +31,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   (<https://github.com/openvinotoolkit/datumaro/pull/1501>)
 - Improve get_area() of Polygon through Shoelace formula
   (<https://github.com/openvinotoolkit/datumaro/pull/1507>)
+- Improve _Shape point converter
+  (<https://github.com/openvinotoolkit/datumaro/pull/1508>)
 
 ### Bug fixes
 - Split the video directory into subsets to avoid overwriting
