@@ -39,7 +39,25 @@ from datumaro.components.annotation import (
 )
 from datumaro.components.cli_plugin import CliPlugin
 from datumaro.components.dataset_base import DEFAULT_SUBSET_NAME, DatasetInfo, DatasetItem, IDataset
-from datumaro.components.errors import DatumaroError, MediaTypeError
+from datumaro.components.errors import (
+    DatumaroError,
+    EmptyCaption,
+    EmptyLabel,
+    FarFromAttrMean,
+    FarFromCaptionMean,
+    FarFromLabelMean,
+    InvalidValue,
+    MediaTypeError,
+    MissingAnnotation,
+    MissingAttribute,
+    MissingLabelCategories,
+    MultiLabelAnnotations,
+    NegativeLength,
+    OutlierInCaption,
+    RedundanciesInCaption,
+    UndefinedAttribute,
+    UndefinedLabel,
+)
 from datumaro.components.media import Image, TableRow
 from datumaro.components.transformer import ItemTransform, Transform
 from datumaro.util import NOTSET, filter_dict, parse_json_file, parse_str_enum_value, take_by
@@ -1386,7 +1404,7 @@ class Correct(Transform, CliPlugin):
 
     def _analyze_reports(self, report):
         for rep in report:
-            if rep["anomaly_type"] == "MissingLabelCategories":
+            if rep["anomaly_type"] == MissingLabelCategories.__name__:
                 unique_labels = sorted(
                     list({ann.label for item in self._extractor for ann in item.annotations})
                 )
@@ -1399,7 +1417,7 @@ class Correct(Transform, CliPlugin):
                         label_categories[ann.label].attributes.update(attrs)
                 self._categories[AnnotationType.label] = label_categories
 
-            if rep["anomaly_type"] == "UndefinedLabel":
+            if rep["anomaly_type"] == UndefinedLabel.__name__:
                 label_categories = self._categories[AnnotationType.label]
                 desc = [s for s in rep["description"].split("'")]
                 add_label_name = desc[1]
@@ -1407,7 +1425,7 @@ class Correct(Transform, CliPlugin):
                 if label_id is None:
                     label_categories.add(name=add_label_name)
 
-            if rep["anomaly_type"] == "UndefinedAttribute":
+            if rep["anomaly_type"] == UndefinedAttribute.__name__:
                 label_categories = self._categories[AnnotationType.label]
                 desc = [s for s in rep["description"].split("'")]
                 attr_name, label_name = desc[1], desc[3]
@@ -1422,38 +1440,38 @@ class Correct(Transform, CliPlugin):
             #     if remove_label_name in [labels.name for labels in label_cat.items]:
             #         label_cat.remove(remove_label_name)
 
-            if rep["anomaly_type"] in ["MissingAnnotation", "MultiLabelAnnotations"]:
+            if rep["anomaly_type"] in [MissingAnnotation.__name__, MultiLabelAnnotations.__name__]:
                 self._remove_items.add((rep["item_id"], rep["subset"]))
 
             if rep["anomaly_type"] in [
-                "NegativeLength",
-                "InvalidValue",
-                "FarFromLabelMean",
-                "FarFromAttrMean",
+                NegativeLength.__name__,
+                InvalidValue.__name__,
+                FarFromLabelMean.__name__,
+                FarFromAttrMean.__name__,
             ]:
                 ann_id = None or self._parse_ann_ids(rep["description"])
                 self._remove_anns[(rep["item_id"], rep["subset"])].append(ann_id)
 
-            if rep["anomaly_type"] == "MissingAttribute":
+            if rep["anomaly_type"] == MissingAttribute.__name__:
                 desc = [s for s in str.split(rep["description"], "'")]
                 attr_name, label_name = desc[1], desc[3]
                 label_id = self._extractor.categories()[AnnotationType.label].find(label_name)[0]
                 self._add_attrs[(rep["item_id"], rep["subset"])].append((label_id, attr_name))
 
-            if rep["anomaly_type"] == "RedundanciesInCaption":
+            if rep["anomaly_type"] == RedundanciesInCaption.__name__:
                 desc = [s for s in str.split(rep["description"], "'")]
                 attr_name, label_name = desc[1], desc[3]
                 self._unnecessary_char_captions.append((label_name, attr_name))
 
-            if rep["anomaly_type"] == "EmptyLabel":
+            if rep["anomaly_type"] == EmptyLabel.__name__:
                 label = rep["description"].split("'")[1]
                 self._empty_labels[(rep["item_id"], rep["subset"])].append(label)
 
-            if rep["anomaly_type"] == "EmptyCaption":
+            if rep["anomaly_type"] == EmptyCaption.__name__:
                 caption = rep["description"].split("'")[1]
                 self._empty_captions[(rep["item_id"], rep["subset"])].append(caption)
 
-            if rep["anomaly_type"] == "OutlierInCaption":
+            if rep["anomaly_type"] == OutlierInCaption.__name__:
                 desc = rep["description"].split("'")
                 caption = desc[1]
                 lower_bound = float(desc[5])
@@ -1461,7 +1479,7 @@ class Correct(Transform, CliPlugin):
                 self._outlier_captions[(rep["item_id"], rep["subset"])].append(caption)
                 self._outlier_value[caption] = (lower_bound, upper_bound)
 
-            if rep["anomaly_type"] == "FarFromCaptionMean":
+            if rep["anomaly_type"] == FarFromCaptionMean.__name__:
                 desc = rep["description"].split("'")
                 caption = desc[1]
                 lower_bound = float(desc[9])
