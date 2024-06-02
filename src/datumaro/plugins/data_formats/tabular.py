@@ -33,6 +33,7 @@ class TabularDataBase(DatasetBase):
         target: Optional[Union[str, List[str]]] = None,
         dtype: Optional[Dict[str, Type[TableDtype]]] = None,
         ctx: Optional[ImportContext] = None,
+        **kwargs,
     ) -> None:
         """
         Read and compose a tabular dataset.
@@ -59,13 +60,14 @@ class TabularDataBase(DatasetBase):
         super().__init__(media_type=TableRow, ctx=ctx)
 
         self._infos = {"path": path}
-        self._items, self._categories = self._parse(paths, target, dtype)
+        self._items, self._categories = self._parse(paths, target, dtype, **kwargs)
 
     def _parse(
         self,
         paths: List[str],
         target: Optional[Dict[str, List[str]]] = None,
         dtype: Optional[Dict[str, Type[TableDtype]]] = None,
+        **kwargs,
     ) -> Tuple[List[DatasetItem], Dict[AnnotationType, Categories]]:
         """
         parse tabular files. Each file is regarded as a subset.
@@ -91,7 +93,7 @@ class TabularDataBase(DatasetBase):
                 raise TypeError('Target should have both "input" and "output"')
 
         for path in paths:
-            table = Table.from_csv(path, dtype=dtype)
+            table = Table.from_csv(path, dtype=dtype, **kwargs)
 
             targets: List[str] = []
             targets_ann: List[str] = []
