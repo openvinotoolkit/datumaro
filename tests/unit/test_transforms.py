@@ -1426,3 +1426,108 @@ class AstypeAnnotationsTest(TestCase):
         assert sorted(categories.label_groups[0].labels) == ["DOWN", "UP"]
 
         compare_datasets(self, expected, result)
+
+
+import os.path as osp
+
+from tests.utils.assets import get_test_asset_path
+
+
+class CleanTest(TestCase):
+    def setUp(self):
+        tabular_orig_path = osp.join(
+            get_test_asset_path("tabular_dataset"), "women-clothing", "women_clothing_orig.csv"
+        )
+        table = Table.from_csv(tabular_orig_path)
+        self.orig_tabular_dataset = Dataset.from_iterable(
+            [
+                DatasetItem(
+                    id=i,
+                    subset="train",
+                    media=TableRow(table=table, index=i),
+                    annotations=[
+                        Tabular(
+                            values={
+                                "Rating": table.data["Rating"][i],
+                                "Age": table.data["Age"][i],
+                                "Title": table.data["Title"][i],
+                                "Review Text": table.data["Review Text"][i],
+                                "Division Name": table.data["Division Name"][i],
+                            }
+                        )
+                    ],
+                )
+                for i in range(0, 10)
+            ],
+            categories={
+                AnnotationType.tabular: TabularCategories.from_iterable(
+                    [
+                        (
+                            "Age",
+                            float,
+                            {10.0, 20.0, 30.0, 40.0, 50.0, 60.0, 70.0, 80.0, 90.0, 100.0},
+                        ),
+                        ("Review Text", str),
+                        ("Rating", CategoricalDtype(), {1.0, 2.0, 3.0, 4.0, 5.0}),
+                        (
+                            "Division Name",
+                            CategoricalDtype(),
+                            {"General", "General Petite", "Initmates"},
+                        ),
+                    ]
+                )
+            },
+            media_type=TableRow,
+        )
+
+        tabular_refined_path = osp.join(
+            get_test_asset_path("tabular_dataset"), "women-clothing", "women_clothing_refined.csv"
+        )
+        table = Table.from_csv(tabular_refined_path)
+        self.refined_tabular_dataset = Dataset.from_iterable(
+            [
+                DatasetItem(
+                    id=i,
+                    subset="train",
+                    media=TableRow(table=table, index=i),
+                    annotations=[
+                        Tabular(
+                            values={
+                                "Rating": table.data["Rating"][i],
+                                "Age": table.data["Age"][i],
+                                "Title": table.data["Title"][i],
+                                "Review Text": table.data["Review Text"][i],
+                                "Division Name": table.data["Division Name"][i],
+                            }
+                        )
+                    ],
+                )
+                for i in range(0, 10)
+            ],
+            categories={
+                AnnotationType.tabular: TabularCategories.from_iterable(
+                    [
+                        (
+                            "Age",
+                            float,
+                            {10.0, 20.0, 30.0, 40.0, 50.0, 60.0, 70.0, 80.0, 90.0, 100.0},
+                        ),
+                        ("Review Text", str),
+                        ("Rating", CategoricalDtype(), {1.0, 2.0, 3.0, 4.0, 5.0}),
+                        (
+                            "Division Name",
+                            CategoricalDtype(),
+                            {"General", "General Petite", "Initmates"},
+                        ),
+                    ]
+                )
+            },
+            media_type=TableRow,
+        )
+
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
+    def test_transform_clean(self):
+        dataset = self.orig_tabular_dataset
+        result = transforms.Clean(dataset)
+
+        compare_datasets(self, self.refined_tabular_dataset, result)

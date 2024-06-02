@@ -1914,3 +1914,141 @@ class AstypeAnnotations(ItemTransform):
         ]
 
         return self.wrap_item(item, annotations=annotations)
+
+
+class Clean(ItemTransform):
+    """ """
+
+    def __init__(
+        self,
+        extractor: IDataset,
+    ):
+        super().__init__(extractor)
+
+        self._outlier_value = {}
+        self._missing_value = {}
+
+    @staticmethod
+    def remove_unneccessary_char(text):
+        if pd.isna(text):
+            return text
+        try:
+            from nltk.corpus import stopwords
+
+            stop_words = set(stopwords.words("english"))  # TODO
+        except LookupError:
+            import nltk
+
+            nltk.download("stopwords")
+            stop_words = set(stopwords.words("english"))  # TODO
+
+        emoji_pattern = re.compile(
+            "["
+            "\U0001F600-\U0001F64F"  # emoticons
+            "\U0001F300-\U0001F5FF"  # symbols & pictographs
+            "\U0001F680-\U0001F6FF"  # transport & map symbols
+            "\U0001F1E0-\U0001F1FF"  # flags (iOS)
+            "\U00002702-\U000027B0"
+            "\U000024C2-\U0001F251"
+            "]+",
+            flags=re.UNICODE,
+        )
+
+        text = re.sub(r"<.*?>", "", text)
+        text = re.sub(r"http\S+|www\S+|https\S+", "", text, flags=re.MULTILINE)
+        text = emoji_pattern.sub(r"", text)
+        text = text.lower()
+        text = re.sub(r"[^A-Za-z\s]+", "", text)
+        text = re.sub(r"\s+", " ", text).strip()
+        text = " ".join([word for word in text.split() if word not in stop_words])
+        return text
+
+    def check_outlier(self, table, numeric_cols):
+        for col in numeric_cols:
+            col_data = table[col].dropna()
+
+            Q1 = np.quantile(col_data, 0.25)
+            Q3 = np.quantile(col_data, 0.75)
+            IQR = Q3 - Q1
+            lower_bound = Q1 - 1.5 * IQR
+            upper_bound = Q3 + 1.5 * IQR
+
+            if table[col].dtype == int:
+                lower_bound = self.find_closest_value(col_data[col], lower_bound)
+                upper_bound = self.find_closest_value(col_data[col], upper_bound)
+            self._outlier_value[col] = (lower_bound, upper_bound)
+
+    def check_missing_value(self, table, float_cols, countable_cols):
+        from scipy.stats import skew
+
+        for col in table.columns:
+            col_data = table[col].dropna()
+            if col in float_cols:
+                skewness = skew(col_data)
+                if abs(skewness) > 1:  # TODO
+                    self._missing_value[col] = col_data.median()
+                else:
+                    self._missing_value[col] = col_data.mean()
+            elif col in countable_cols:
+                self._missing_value[col] = col_data.mode().iloc[0]
+
+    @staticmethod
+    def find_closest_value(series, target_value):
+        abs_diff = np.abs(series - target_value)
+        closest_index = abs_diff.idxmin()
+        return series.iloc[closest_index]
+
+    def cap_outliers(self, table):
+        lower, upper = self._outlier_value[table.name]
+        val = table.iloc[0]
+        if (val < lower) | (val > upper):
+            capped_value = max(min(val, upper), lower)
+            return table.replace(val, capped_value)
+        return val
+
+    def fill_missing_value(self, series):
+        return series.fillna(self._missing_value[series.name])
+
+    def refine_tabular_media(self, item):
+        media = item.media
+        df = pd.DataFrame(media.data(), index=[media.index])
+        str_cols = [col for col in media.data().keys() if item.media.table.dtype(col) is str]
+        float_cols = [col for col in media.data().keys() if item.media.table.dtype(col) is float]
+        int_cols = [col for col in media.data().keys() if item.media.table.dtype(col) is int]
+        countable_cols = [
+            col
+            for col in media.data().keys()
+            if isinstance(item.media.table.dtype(col), CategoricalDtype)
+            or item.media.table.dtype(col) is int
+        ]
+
+        df[str_cols] = df[str_cols].applymap(lambda x: self.remove_unneccessary_char(x))
+
+        if not (self._outlier_value):
+            self.check_outlier(media.table.data[float_cols + int_cols], float_cols + int_cols)
+        df[float_cols + int_cols] = df[float_cols + int_cols].apply(lambda x: self.cap_outliers(x))
+
+        if not (self._missing_value):
+            self.check_missing_value(
+                media.table.data[float_cols + countable_cols], float_cols, countable_cols
+            )
+        df[float_cols + countable_cols] = df[float_cols + countable_cols].apply(
+            lambda x: self.fill_missing_value(x)
+        )
+        # return df.iloc[0].to_dict()
+        return TableRow.from_data(
+            df.iloc[0].to_dict(), table=item.media.table, index=item.media.index
+        )
+
+    def transform_item(self, item):
+        if not isinstance(item.media, TableRow):
+            raise DatumaroError(
+                "Item %s: image info is required for this " "transform" % (item.id,)
+            )
+
+        refined_media = self.refine_tabular_media(item) if item.media.has_data else None
+        refined_annotations = [
+            ann.wrap(values=refined_media.data) if isinstance(ann, Tabular) else ann
+            for ann in item.annotations
+        ]
+        return self.wrap_item(item, media=refined_media, annotations=refined_annotations)
