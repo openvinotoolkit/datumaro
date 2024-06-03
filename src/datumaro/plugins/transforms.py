@@ -36,6 +36,7 @@ from datumaro.components.annotation import (
     Polygon,
     PolyLine,
     RleMask,
+    TabularCategories,
 )
 from datumaro.components.cli_plugin import CliPlugin
 from datumaro.components.dataset_base import DEFAULT_SUBSET_NAME, DatasetInfo, DatasetItem, IDataset
@@ -1396,6 +1397,11 @@ class Correct(Transform, CliPlugin):
         self._label_value = {}
         self._caption_value = {}
 
+        self.caption_type = {
+            cat.name: cat.dtype
+            for cat in self._extractor.categories().get(AnnotationType.caption, TabularCategories())
+        }
+
     def categories(self):
         return self._categories
 
@@ -1588,7 +1594,7 @@ class Correct(Transform, CliPlugin):
 
         for caption in empty_cap_cols:
             table = self._table[caption].dropna()
-            caption_type = self._extractor._tabular_cat_types[caption]
+            caption_type = self.caption_type[caption]
 
             if caption_type in [int, float]:
                 from scipy.stats import skew
@@ -1642,7 +1648,7 @@ class Correct(Transform, CliPlugin):
                     continue
 
                 value_str = ann.caption[len(col) + 1 :]
-                value = self._extractor._tabular_cat_types[col](value_str)
+                value = self.caption_type(value_str)
 
                 lower_bound, upper_bound = self._outlier_value[col]
                 capped_value = max(min(value, upper_bound), lower_bound)
@@ -1664,7 +1670,7 @@ class Correct(Transform, CliPlugin):
                     continue
 
                 value_str = ann.caption[len(col) + 1 :]
-                value = self._extractor._tabular_cat_types[col](value_str)
+                value = self.caption_type[col](value_str)
 
                 lower_bound, upper_bound = self._far_from_mean_value[col]
                 capped_value = max(min(value, upper_bound), lower_bound)
@@ -1788,10 +1794,6 @@ class AstypeAnnotations(ItemTransform):
 
         src_categories = self._extractor.categories()
         src_tabular_cat = src_categories.get(AnnotationType.tabular)
-        self._tabular_cat_types = {}
-
-        # Make LabelCategories
-        self._id_mapping = {}
         dst_label_cat = LabelCategories()
 
         if src_tabular_cat is None:
@@ -1803,22 +1805,29 @@ class AstypeAnnotations(ItemTransform):
                 dst_labels = sorted(src_cat.labels)
                 for dst_label in dst_labels:
                     dst_label = dst_parent + self._sep_token + str(dst_label)
-                    dst_index = dst_label_cat.add(dst_label, parent=dst_parent, attributes={})
-                    self._id_mapping[dst_label] = dst_index
+                    dst_label_cat.add(dst_label, parent=dst_parent, attributes={})
                 dst_label_cat.add_label_group(src_cat.name, src_cat.labels, group_type=0)
-            self._tabular_cat_types[src_cat.name] = src_cat.dtype
+            else:
+                self._categories[AnnotationType.caption] = self._categories.get(
+                    AnnotationType.caption, []
+                ) + [src_cat]
         self._categories[AnnotationType.label] = dst_label_cat
 
     def categories(self):
         return self._categories
 
     def transform_item(self, item: DatasetItem):
+        label_categories = self._categories.get(AnnotationType.label, LabelCategories())
+        labels_set = {item.parent for item in label_categories.items}
+        sep_token = self._sep_token
+        label_indices = label_categories._indices
+
         annotations = [
-            Label(label=self._id_mapping[name + self._sep_token + str(value)])
-            if self._tabular_cat_types.get(name) == CategoricalDtype() and value is not None
-            else Caption(name + self._sep_token + str(value))
+            Label(label=label_indices[f"{name}{sep_token}{value}"])
+            if name in labels_set and value is not None
+            else Caption(f"{name}{sep_token}{value}")
             for name, value in item.annotations[0].values.items()
-            if not pd.isna(value)
+            if pd.notna(value)
         ]
 
         return self.wrap_item(item, annotations=annotations)

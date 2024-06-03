@@ -5,9 +5,13 @@
 from copy import deepcopy
 
 import numpy as np
-from pandas.api.types import CategoricalDtype
 
-from datumaro.components.annotation import AnnotationType, GroupType, LabelCategories
+from datumaro.components.annotation import (
+    AnnotationType,
+    GroupType,
+    LabelCategories,
+    TabularCategories,
+)
 from datumaro.components.cli_plugin import CliPlugin
 from datumaro.components.errors import (
     AttributeDefinedButNotFound,
@@ -1234,15 +1238,11 @@ class TabularValidationStats:
             self.label_categories = dataset.categories().get(
                 AnnotationType.label, LabelCategories()
             )
-            self.tabular_categories = dataset._tabular_cat_types.items()
-            self.label_columns = [
-                cat for cat, type_ in self.tabular_categories if isinstance(type_, CategoricalDtype)
-            ]
-            self.caption_columns = [
-                cat
-                for cat, type_ in self.tabular_categories
-                if not isinstance(type_, CategoricalDtype)
-            ]
+            self.tabular_categories = dataset.categories().get(
+                AnnotationType.caption, TabularCategories()
+            )
+            self.label_columns = list({item.parent for item in self.label_categories.items})
+            self.caption_columns = [cat.name for cat in self.tabular_categories]
 
             self.defined_labels = {cat.name: 0 for cat in self.label_categories}
             self.empty_labels = {cat: [] for cat in self.label_columns}
@@ -1251,8 +1251,7 @@ class TabularValidationStats:
             self.empty_captions = {cat: [] for cat in self.caption_columns}
             self.redundancies = {
                 cat: {"stopword": [], "url": [], "html": [], "emoji": []}
-                for cat, type_ in self.tabular_categories
-                if type_ == str
+                for cat in self.caption_columns
             }
 
     def to_dict(self):
@@ -1504,9 +1503,9 @@ class TabularValidator(_TaskValidator):
         self.items = filtered_items
 
         num_caption_columns = [
-            (cat, type_)
-            for cat, type_ in dataset._tabular_cat_types.items()
-            if type_ in [int, float]
+            (cat.name, cat.dtype)
+            for cat in dataset.categories().get(AnnotationType.caption, TabularCategories())
+            if cat.dtype in [int, float]
         ]
 
         stats["distribution_in_caption"] = {
