@@ -1713,7 +1713,7 @@ class Correct(Transform, CliPlugin):
                     continue
 
                 value_str = ann.caption[len(col) + 1 :]
-                value = self.caption_type(value_str)
+                value = self.caption_type[col](value_str)
 
                 lower_bound, upper_bound = self._outlier_value[col]
                 capped_value = max(min(value, upper_bound), lower_bound)
