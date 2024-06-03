@@ -1626,7 +1626,7 @@ class Correct(Transform, CliPlugin):
     def fill_missing_value(self, annotations, labels, captions):
         if labels:
             sep_token = self._extractor._sep_token
-            id_mapping = self._extractor._id_mapping
+            id_mapping = self._extractor.categories().get(AnnotationType.label)._indices
             label_value = self._label_value
             annotations.extend(
                 Label(id_mapping[f"{label}{sep_token}{label_value[label]}"]) for label in labels
@@ -1648,7 +1648,7 @@ class Correct(Transform, CliPlugin):
                     continue
 
                 value_str = ann.caption[len(col) + 1 :]
-                value = self.caption_type(value_str)
+                value = self.caption_type[col](value_str)
 
                 lower_bound, upper_bound = self._outlier_value[col]
                 capped_value = max(min(value, upper_bound), lower_bound)

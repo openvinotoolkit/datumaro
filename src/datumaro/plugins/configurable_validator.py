@@ -820,7 +820,7 @@ from pandas.api.types import CategoricalDtype
 class TblStats(_BaseAnnStats):
     def __init__(
         self,
-        tabular_categories: dict,
+        categories: dict,
         warnings: set,
         few_samples_thr: None,
         imbalance_ratio_thr: None,
@@ -828,7 +828,9 @@ class TblStats(_BaseAnnStats):
         dominance_thr: None,
         topk_bins_ratio: None,
     ):
-        self.tabular_categories, self.label_categories = tabular_categories
+        self.caption_categories = categories.get(AnnotationType.caption, [])
+        self.label_categories = categories.get(AnnotationType.label, [])
+
         self.warnings = set(warnings)
 
         self.few_samples_thr = few_samples_thr
@@ -845,17 +847,20 @@ class TblStats(_BaseAnnStats):
             broken_annotations=set(),
         )
 
-        for cat, type_ in self.tabular_categories:
-            self.stats.categories[cat] = {
-                "cnt": 0,
-                "type": type_,  # Column dtype
-                "ann_type": set(),  # AnnotationType
-                "caption": [],  # (id, subset, ann_id, caption)
-            }
-
-        self.caption_columns = [
-            cat for cat, type_ in self.tabular_categories if not isinstance(type_, CategoricalDtype)
+        all_categories = [(cat.name, cat.dtype) for cat in self.caption_categories] + [
+            (label_group.name, CategoricalDtype)
+            for label_group in self.label_categories.label_groups
         ]
+        for name, dtype in all_categories:
+            self.stats.categories[name] = {
+                "cnt": 0,
+                "type": dtype,
+                "ann_type": set(),
+                "caption": [],
+            }
+        self.categories_len = len(all_categories)
+
+        self.caption_columns = [cat.name for cat in self.caption_categories]
         self.label_columns = [
             label_group.name for label_group in self.label_categories.label_groups
         ]
@@ -907,11 +912,11 @@ class TblStats(_BaseAnnStats):
 
     def _update_broken_annotation(self, item):
         item_key = (item.id, item.subset)
-        if len(item.annotations) < len(self.tabular_categories):
+        if len(item.annotations) < self.categories_len:
             self.stats.broken_annotations.add(item_key)
 
     def _update_empty_label(self, item):
-        if len(item.annotations) < len(self.tabular_categories):
+        if len(item.annotations) < self.categories_len:
             annotation_check = deepcopy(self.label_columns)
             for ann in item.annotations:
                 if ann.type == AnnotationType.label:
@@ -922,7 +927,7 @@ class TblStats(_BaseAnnStats):
                 self.stats.empty_label.add(item_key)
 
     def _update_empty_caption(self, item):
-        if len(item.annotations) < len(self.tabular_categories):
+        if len(item.annotations) < self.categories_len:
             annotation_check = deepcopy(self.caption_columns)
             for ann in item.annotations:
                 if ann.type == AnnotationType.caption:
@@ -1045,7 +1050,7 @@ class TblStats(_BaseAnnStats):
 
         for label_name in stats.categories:
             type_ = stats.categories[label_name]["type"]
-            if type_ == float or type_ == int:
+            if type_ in [float, int]:
                 captions = [
                     type_(caption[3]) for caption in stats.categories[label_name]["caption"]
                 ]
@@ -1078,7 +1083,7 @@ class TblStats(_BaseAnnStats):
 
         for label_name in stats.categories:
             type_ = stats.categories[label_name]["type"]
-            if type_ == float or type_ == int:
+            if type_ in [float, int]:
                 captions = [
                     type_(caption[3]) for caption in stats.categories[label_name]["caption"]
                 ]
@@ -1269,7 +1274,7 @@ class ConfigurableValidator(Validator, CliPlugin):
                 )
             elif task == TaskType.tabular:
                 self.all_stats[task] = TblStats(
-                    tabular_categories=categories, warnings=self.warnings, **kwargs
+                    categories=categories, warnings=self.warnings, **kwargs
                 )
 
     def _get_stats_collector(self, ann_type, task_type):
@@ -1291,10 +1296,7 @@ class ConfigurableValidator(Validator, CliPlugin):
 
     def compute_statistics(self, dataset):
         if self.tasks == [TaskType.tabular]:
-            categories_input = (
-                dataset._tabular_cat_types.items(),
-                dataset.categories()[AnnotationType.label],
-            )
+            categories_input = dataset.categories()
         else:
             categories_input = dataset.categories()[AnnotationType.label]
         self._init_stats_collector(categories=categories_input)
