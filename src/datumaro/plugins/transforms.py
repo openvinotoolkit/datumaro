@@ -1713,7 +1713,7 @@ class Correct(Transform, CliPlugin):
                     continue
 
                 value_str = ann.caption[len(col) + 1 :]
-                value = self._extractor._tabular_cat_types[col](value_str)
+                value = self.caption_type(value_str)
 
                 lower_bound, upper_bound = self._outlier_value[col]
                 capped_value = max(min(value, upper_bound), lower_bound)
@@ -1735,7 +1735,7 @@ class Correct(Transform, CliPlugin):
                     continue
 
                 value_str = ann.caption[len(col) + 1 :]
-                value = self._extractor._tabular_cat_types[col](value_str)
+                value = self.caption_type[col](value_str)
 
                 lower_bound, upper_bound = self._far_from_mean_value[col]
                 capped_value = max(min(value, upper_bound), lower_bound)
