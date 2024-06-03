@@ -7,7 +7,7 @@ Updates items of the first dataset with items from the second one.
 By default, datasets are updated in-place. The `-o/--output-dir`
 option can be used to specify another output directory. When
 updating in-place, use the `--overwrite` parameter along with the
-`--save-images` export option (in-place updates fail by default
+`--save-media` export option (in-place updates fail by default
 to prevent data loss).
 
 ```{eval-rst}
@@ -23,7 +23,7 @@ patched dataset.
 The command supports passing extra exporting options for the output
 dataset. The extra options should be passed after the main arguments
 and after the `--` separator. Particularly, this is useful to include
-images in the output dataset with `--save-images`.
+images in the output dataset with `--save-media`.
 
 This command can be applied to the current project targets or
 arbitrary datasets outside a project. Note that if the target dataset
@@ -58,7 +58,7 @@ Parameters:
 Examples:
 - Update a VOC-like dataset with COCO-like annotations
   ```console
-  datum patch --overwrite <path/to/dataset1/>:voc <path/to/dataset2/>:coco -- --save-images
+  datum patch --overwrite <path/to/dataset1/>:voc <path/to/dataset2/>:coco -- --save-media
   ```
 
 - Generate a patched dataset, based on a project

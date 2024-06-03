@@ -62,5 +62,5 @@ datum util split_video -i video.avi -o video-frames
 datum project create -o proj
 datum project import -p proj -f image_dir video-frames
 datum project import -p proj -f coco_instances annotations.json
-datum project export -p proj -f yolo -- --save-images
+datum project export -p proj -f yolo -- --save-media
 ```

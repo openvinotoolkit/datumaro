@@ -68,7 +68,7 @@ The command supports passing extra exporting options for the output
 dataset. The format can be specified with the `-f/--format` option.
 Extra options should be passed after the main arguments
 and after the `--` separator. Particularly, this is useful to include
-images in the output dataset with `--save-images`.
+images in the output dataset with `--save-media`.
 
 Usage:
 ```console
@@ -146,5 +146,5 @@ Examples:
 
 - Merge datasets and save in different format
   ```console
-  datum merge -f voc <path/to/dataset1/>:yolo <path/to/dataset2/>:coco -- --save-images
+  datum merge -f voc <path/to/dataset1/>:yolo <path/to/dataset2/>:coco -- --save-media
   ```

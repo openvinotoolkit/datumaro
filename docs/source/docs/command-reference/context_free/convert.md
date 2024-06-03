@@ -35,5 +35,5 @@ Examples:
   ```console
   datum convert --input-format voc --input-path <path/to/voc-like/dataset/> \
                 --output-format coco \
-                -- --save-images
+                -- --save-media
   ```
