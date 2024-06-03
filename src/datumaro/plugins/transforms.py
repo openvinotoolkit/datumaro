@@ -41,6 +41,7 @@ from datumaro.components.annotation import (
 from datumaro.components.cli_plugin import CliPlugin
 from datumaro.components.dataset_base import DEFAULT_SUBSET_NAME, DatasetInfo, DatasetItem, IDataset
 from datumaro.components.errors import (
+    AnnotationTypeError,
     DatumaroError,
     EmptyCaption,
     EmptyLabel,
@@ -48,7 +49,6 @@ from datumaro.components.errors import (
     FarFromCaptionMean,
     FarFromLabelMean,
     InvalidValue,
-    MediaTypeError,
     MissingAnnotation,
     MissingAttribute,
     MissingLabelCategories,
@@ -59,7 +59,7 @@ from datumaro.components.errors import (
     UndefinedAttribute,
     UndefinedLabel,
 )
-from datumaro.components.media import Image, TableRow
+from datumaro.components.media import Image
 from datumaro.components.transformer import ItemTransform, Transform
 from datumaro.util import NOTSET, filter_dict, parse_json_file, parse_str_enum_value, take_by
 from datumaro.util.annotation_util import find_group_leader, find_instances
@@ -1781,9 +1781,9 @@ class AstypeAnnotations(ItemTransform):
 
         self._sep_token = ":"
 
-        if extractor.media_type() and not issubclass(extractor.media_type(), TableRow):
-            raise MediaTypeError(
-                "Media type is not table. This transform only support tabular media"
+        if extractor.ann_types() and AnnotationType.tabular not in extractor.ann_types():
+            raise AnnotationTypeError(
+                "Annotation type is not Tabular. This transform only support tabular annotation"
             )
 
         # Turn off for default setting
@@ -1818,6 +1818,9 @@ class AstypeAnnotations(ItemTransform):
         return self._categories
 
     def transform_item(self, item: DatasetItem):
+        if AnnotationType.tabular not in [ann.type for ann in item.annotations]:
+            return self.wrap_item(item, annotations=item.annotations)
+
         label_categories = self._categories.get(AnnotationType.label, LabelCategories())
         labels_set = {item.parent for item in label_categories.items}
         sep_token = self._sep_token
