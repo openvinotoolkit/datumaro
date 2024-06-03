@@ -710,7 +710,7 @@ datum<span class="w"> </span>project<span class="w"> </span>import<span class="w
 datum<span class="w"> </span>project<span class="w"> </span>import<span class="w"> </span>-f<span class="w"> </span>voc_detection<span class="w"> </span>-r<span class="w"> </span>custom_subset_dir/default.txt<span class="w"> </span>&lt;path/to/voc&gt;
 datum<span class="w"> </span>project<span class="w"> </span>import<span class="w"> </span>-f<span class="w"> </span>datumaro<span class="w"> </span>&lt;path/to/datumaro/default.json&gt;
 datum<span class="w"> </span>project<span class="w"> </span>import<span class="w"> </span>-f<span class="w"> </span>image_dir<span class="w"> </span>&lt;path/to/images/dir&gt;
-datum<span class="w"> </span>project<span class="w"> </span><span class="nb">export</span><span class="w"> </span>-f<span class="w"> </span>tf_detection_api<span class="w"> </span>--<span class="w"> </span>--save-images
+datum<span class="w"> </span>project<span class="w"> </span><span class="nb">export</span><span class="w"> </span>-f<span class="w"> </span>tf_detection_api<span class="w"> </span>--<span class="w"> </span>--save-media
 </pre></div>
 </div>
 </section>
@@ -755,7 +755,7 @@ export in YOLO for model training</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>datum<span class="w"> </span>project<span class="w"> </span>create
 datum<span class="w"> </span>project<span class="w"> </span>add<span class="w"> </span>-f<span class="w"> </span>coco<span class="w"> </span>-r<span class="w"> </span>annotations/instances_train.json<span class="w"> </span>dataset1/
 datum<span class="w"> </span>project<span class="w"> </span>add<span class="w"> </span>-f<span class="w"> </span>cvat<span class="w"> </span>dataset2/train.xml
-datum<span class="w"> </span>project<span class="w"> </span><span class="nb">export</span><span class="w"> </span>-f<span class="w"> </span>yolo<span class="w"> </span>--<span class="w"> </span>--save-images
+datum<span class="w"> </span>project<span class="w"> </span><span class="nb">export</span><span class="w"> </span>-f<span class="w"> </span>yolo<span class="w"> </span>--<span class="w"> </span>--save-media
 </pre></div>
 </div>
 <p>Example: add an existing dataset into a project, avoid data copying</p>

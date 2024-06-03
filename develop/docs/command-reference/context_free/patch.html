@@ -660,7 +660,7 @@ document.write(`
 <p>By default, datasets are updated in-place. The <code class="docutils literal notranslate"><span class="pre">-o/--output-dir</span></code>
 option can be used to specify another output directory. When
 updating in-place, use the <code class="docutils literal notranslate"><span class="pre">--overwrite</span></code> parameter along with the
-<code class="docutils literal notranslate"><span class="pre">--save-images</span></code> export option (in-place updates fail by default
+<code class="docutils literal notranslate"><span class="pre">--save-media</span></code> export option (in-place updates fail by default
 to prevent data loss).</p>
 <p>Unlike the regular project <a class="reference internal" href="../../explanation/architecture.html#dataset-merging"><span class="std std-ref">data source joining</span></a>,
 the datasets are not required to have the same labels. The labels from
@@ -672,7 +672,7 @@ patched dataset.</p>
 <p>The command supports passing extra exporting options for the output
 dataset. The extra options should be passed after the main arguments
 and after the <code class="docutils literal notranslate"><span class="pre">--</span></code> separator. Particularly, this is useful to include
-images in the output dataset with <code class="docutils literal notranslate"><span class="pre">--save-images</span></code>.</p>
+images in the output dataset with <code class="docutils literal notranslate"><span class="pre">--save-media</span></code>.</p>
 <p>This command can be applied to the current project targets or
 arbitrary datasets outside a project. Note that if the target dataset
 is read-only (e.g. if it is a project, stage or a cache entry),
@@ -703,7 +703,7 @@ when it is not empty.</p></li>
 <p>Examples:</p>
 <ul>
 <li><p>Update a VOC-like dataset with COCO-like annotations</p>
-<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">datum patch --overwrite &lt;path/to/dataset1/&gt;:voc &lt;path/to/dataset2/&gt;:coco -- --save-images</span>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">datum patch --overwrite &lt;path/to/dataset1/&gt;:voc &lt;path/to/dataset2/&gt;:coco -- --save-media</span>
 </pre></div>
 </div>
 </li>

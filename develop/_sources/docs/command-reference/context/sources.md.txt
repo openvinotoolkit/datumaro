@@ -65,7 +65,7 @@ datum project import -f cvat <path/to/cvat/default.xml>
 datum project import -f voc_detection -r custom_subset_dir/default.txt <path/to/voc>
 datum project import -f datumaro <path/to/datumaro/default.json>
 datum project import -f image_dir <path/to/images/dir>
-datum project export -f tf_detection_api -- --save-images
+datum project export -f tf_detection_api -- --save-media
 ```
 
 ## Add Dataset
@@ -117,7 +117,7 @@ export in YOLO for model training
 datum project create
 datum project add -f coco -r annotations/instances_train.json dataset1/
 datum project add -f cvat dataset2/train.xml
-datum project export -f yolo -- --save-images
+datum project export -f yolo -- --save-media
 ```
 
 Example: add an existing dataset into a project, avoid data copying

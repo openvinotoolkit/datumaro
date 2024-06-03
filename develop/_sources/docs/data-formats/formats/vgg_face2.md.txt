@@ -77,7 +77,7 @@ There is few examples how to do it:
 ```
 # Using `convert` command
 datum convert -if vgg_face2 -i <path_to_vgg_face2> \
-    -f voc -o <output_dir> -- --save-images
+    -f voc -o <output_dir> -- --save-media
 
 # Using Datumaro project
 datum project create
