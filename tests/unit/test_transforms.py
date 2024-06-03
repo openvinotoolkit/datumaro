@@ -29,7 +29,7 @@ from datumaro.components.annotation import (
 )
 from datumaro.components.dataset import Dataset
 from datumaro.components.dataset_base import DatasetItem
-from datumaro.components.errors import MediaTypeError
+from datumaro.components.errors import AnnotationTypeError
 from datumaro.components.media import Image, Table, TableRow
 
 from ..requirements import Requirements, mark_bug, mark_requirement
@@ -1333,7 +1333,7 @@ class AstypeAnnotationsTest(TestCase):
             categories={},
         )
 
-        with self.assertRaises(MediaTypeError):
+        with self.assertRaises(AnnotationTypeError):
             transforms.AstypeAnnotations(dataset)
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
