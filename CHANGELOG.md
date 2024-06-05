@@ -94,6 +94,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   (<https://github.com/cvat-ai/datumaro/pull/34>)
 - Incorrect computation of binary mask bbox (missed 1 pixel of the size)
   (<https://github.com/cvat-ai/datumaro/pull/41>)
+- `Dataset.get()` could ignore existing transforms in the dataset
+  (<https://github.com/cvat-ai/datumaro/pull/45>)
 
 ### Security
 - TBD

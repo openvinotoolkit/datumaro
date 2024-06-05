@@ -419,8 +419,9 @@ class DatasetStorage(IDataset):
         source = self._source or DatasetItemStorageDatasetView(
             self._storage, categories=self._categories, media_type=media_type
         )
-        transform = None
 
+        transform = None
+        old_ids = None
         if self._transforms:
             transform = _StackedTransform(source, self._transforms)
             if transform.is_local:
@@ -588,7 +589,7 @@ class DatasetStorage(IDataset):
 
         item = self._storage.get(id, subset)
         if item is None and not self.is_cache_initialized():
-            if self._source.get.__func__ == Extractor.get:
+            if self._source.get.__func__ == Extractor.get or self._transforms:
                 # can be improved if IDataset is ABC
                 self.init_cache()
                 item = self._storage.get(id, subset)

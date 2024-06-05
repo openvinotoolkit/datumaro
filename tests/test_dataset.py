@@ -1268,6 +1268,77 @@ class DatasetTest(TestCase):
         self.assertEqual(iter_called, 2)
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
+    def test_can_get_item_after_local_transforms(self):
+        iter_called = 0
+
+        class TestExtractor(Extractor):
+            def __iter__(self):
+                nonlocal iter_called
+                iter_called += 1
+                yield from [
+                    DatasetItem(1),
+                    DatasetItem(2),
+                    DatasetItem(3),
+                    DatasetItem(4),
+                ]
+
+        dataset = Dataset.from_extractors(TestExtractor())
+
+        class TestTransform(ItemTransform):
+            def transform_item(self, item):
+                return self.wrap_item(item, id=int(item.id) + 1)
+
+        dataset.transform(TestTransform)
+        dataset.transform(TestTransform)
+
+        self.assertEqual(iter_called, 0)
+
+        self.assertIsNone(dataset.get(1))
+        self.assertIsNone(dataset.get(2))
+        self.assertIsNotNone(dataset.get(3))
+        self.assertIsNotNone(dataset.get(4))
+        self.assertIsNotNone(dataset.get(5))
+        self.assertIsNotNone(dataset.get(6))
+
+        self.assertEqual(iter_called, 1)
+
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
+    def test_can_get_item_after_nonlocal_transforms(self):
+        iter_called = 0
+
+        class TestExtractor(Extractor):
+            def __iter__(self):
+                nonlocal iter_called
+                iter_called += 1
+                yield from [
+                    DatasetItem(1),
+                    DatasetItem(2),
+                    DatasetItem(3),
+                    DatasetItem(4),
+                ]
+
+        dataset = Dataset.from_extractors(TestExtractor())
+
+        class TestTransform(Transform):
+            def __iter__(self):
+                for item in self._extractor:
+                    yield self.wrap_item(item, id=int(item.id) + 1)
+
+        dataset.transform(TestTransform)
+        dataset.transform(TestTransform)
+
+        self.assertEqual(iter_called, 0)
+
+        self.assertIsNone(dataset.get(1))
+        self.assertIsNone(dataset.get(2))
+        self.assertIsNotNone(dataset.get(3))
+        self.assertIsNotNone(dataset.get(4))
+        self.assertIsNotNone(dataset.get(5))
+        self.assertIsNotNone(dataset.get(6))
+
+        self.assertEqual(iter_called, 2)
+
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_get_subsets_after_local_transforms(self):
         iter_called = 0
 
