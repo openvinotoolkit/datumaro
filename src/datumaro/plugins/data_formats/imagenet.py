@@ -5,8 +5,8 @@
 import errno
 import logging as log
 import os
-import os.path as osp
 import warnings
+from pathlib import Path
 from typing import List, Optional
 
 from datumaro.components.annotation import AnnotationType, Label, LabelCategories
@@ -25,33 +25,38 @@ class ImagenetPath:
     SEP_TOKEN = ":"
 
 
-class ImagenetBase(SubsetBase):
+class NestedImagenetBase(SubsetBase):
     def __init__(
         self,
         path: str,
         *,
-        subset: Optional[str] = None,
-        ctx: Optional[ImportContext] = None,
+        subset: str | None = None,
+        ctx: ImportContext | None = None,
+        min_depth: int | None = None,
+        max_depth: int | None = None,
     ):
-        if not osp.isdir(path):
+        if not Path(path).is_dir():
             raise NotADirectoryError(errno.ENOTDIR, "Can't find dataset directory", path)
-
         super().__init__(subset=subset, ctx=ctx)
-
+        self._max_depth = min_depth
+        self._min_depth = max_depth
         self._categories = self._load_categories(path)
         self._items = list(self._load_items(path).values())
 
     def _load_categories(self, path):
         label_cat = LabelCategories()
-        for dirname in sorted(os.listdir(path)):
-            if not os.path.isdir(os.path.join(path, dirname)):
-                warnings.warn(
-                    f"{dirname} is not a directory in the folder {path}, so this will"
-                    "be skipped when declaring the cateogries of `imagenet` dataset."
-                )
-                continue
-            if dirname != ImagenetPath.IMAGE_DIR_NO_LABEL:
-                label_cat.add(dirname)
+        path = Path(path)
+        for _, dirnames, _ in sorted(path.walk()):
+            for dirname in dirnames:
+                dirname = dirname.relative_to(path)
+                if not dirname.is_dir():
+                    warnings.warn(
+                        f"{dirname} is not a directory in the folder {path}, so this will"
+                        "be skipped when declaring the cateogries of `imagenet` dataset."
+                    )
+                    continue
+                if str(dirname) != ImagenetPath.IMAGE_DIR_NO_LABEL:
+                    label_cat.add(str(dirname))
         return {AnnotationType.label: label_cat}
 
     def _load_items(self, path):
@@ -59,11 +64,12 @@ class ImagenetBase(SubsetBase):
 
         # Images should be in root/label_dir/*.img and root/*.img is not allowed.
         # => max_depth=1, min_depth=1
-        for image_path in find_images(path, recursive=True, max_depth=1, min_depth=1):
-            label = osp.basename(osp.dirname(image_path))
-            image_name = osp.splitext(osp.basename(image_path))[0]
-
-            item_id = label + ImagenetPath.SEP_TOKEN + image_name
+        for image_path in find_images(
+            path, recursive=True, max_depth=self._max_depth, min_depth=self._min_depth
+        ):
+            label = Path(image_path).parent.relative_to(path)
+            image_name = Path(image_path).stem
+            item_id = str(label) + ImagenetPath.SEP_TOKEN + image_name
             item = items.get(item_id)
             try:
                 if item is None:
@@ -88,43 +94,65 @@ class ImagenetBase(SubsetBase):
         return items
 
 
-class ImagenetImporter(Importer):
-    """TorchVision's ImageFolder style importer.
-    For example, it imports the following directory structure.
+class ImagenetBase(NestedImagenetBase):
+    def __init__(
+        self,
+        path: str,
+        *,
+        subset: Optional[str] = None,
+        ctx: Optional[ImportContext] = None,
+    ):
+        super().__init__(path=path, subset=subset, ctx=ctx, min_depth=1, max_depth=1)
+
+
+class NestedImagenetImporter(Importer):
+    """
+        Multi-level version of ImagenetImporter.
+        For example, it imports the following directory structure.
 
     .. code-block:: text
 
         root
         ├── label_0
-        │   ├── label_0_1.jpg
-        │   └── label_0_2.jpg
+        │   ├── label_0_1
+        │   │   └── img1.jpg
+        │   └── label_0_2
+        │       └── img2.jpg
         └── label_1
-            └── label_1_1.jpg
+            └── img3.jpg
 
     """
+
+    _MIN_DEPTH = None
+    _MAX_DEPTH = None
 
     @classmethod
     def detect(cls, context: FormatDetectionContext) -> FormatDetectionConfidence:
         # Images must not be under a directory whose name is blacklisted.
-        for dname in os.listdir(context.root_path):
-            dpath = osp.join(context.root_path, dname)
-            if osp.isdir(dpath) and dname.lower() in SUBSET_NAME_BLACKLIST:
-                context.fail(
-                    f"{dname} is found in {context.root_path}. "
-                    "However, Images must not be under a directory whose name is blacklisted "
-                    f"(SUBSET_NAME_BLACKLIST={SUBSET_NAME_BLACKLIST})."
-                )
+        for dname, *_ in os.walk(context.root_path):
+            rel_dname = Path(dname).relative_to(context.root_path)
+            level = str(rel_dname).count("/")
+            if level > cls._MAX_DEPTH or level < cls._MIN_DEPTH:
+                continue
+            dpath = Path(context.root_path) / dname
+            if dpath.is_dir():
+                if dname.lower() in SUBSET_NAME_BLACKLIST:
+                    context.fail(
+                        f"{dname} is found in {context.root_path}. "
+                        "However, Images must not be under a directory whose name is blacklisted "
+                        f"(SUBSET_NAME_BLACKLIST={SUBSET_NAME_BLACKLIST})."
+                    )
 
         return super().detect(context)
 
     @classmethod
     def find_sources(cls, path):
-        if not osp.isdir(path):
+        if not Path(path).is_dir():
             return []
 
-        # Images should be in root/label_dir/*.img and root/*.img is not allowed.
-        # => max_depth=1, min_depth=1
-        for _ in find_images(path, recursive=True, max_depth=1, min_depth=1):
+        for _ in find_images(
+            path, recursive=True, max_depth=cls._MAX_DEPTH, min_depth=cls._MIN_DEPTH
+        ):
             return [{"url": path, "format": ImagenetBase.NAME}]
 
         return []
@@ -140,6 +168,25 @@ class ImagenetImporter(Importer):
         parser.add_argument("--subset")
 
         return parser
+
+
+class ImagenetImporter(NestedImagenetImporter):
+    """TorchVision's ImageFolder style importer.
+    For example, it imports the following directory structure.
+
+    .. code-block:: text
+
+        root
+        ├── label_0
+        │   ├── label_0_1.jpg
+        │   └── label_0_2.jpg
+        └── label_1
+            └── label_1_1.jpg
+
+    """
+
+    _MIN_DEPTH = 1
+    _MAX_DEPTH = 1
 
 
 @with_subset_dirs
@@ -199,7 +246,7 @@ class ImagenetExporter(Exporter):
                 'For example, dataset.export("<path/to/output>", format="imagenet_with_subset_dirs").'
             )
 
-        root_dir = self._save_dir
+        root_dir = Path(self._save_dir)
         extractor = self._extractor
         labels = {}
         for item in self._extractor:
@@ -210,18 +257,18 @@ class ImagenetExporter(Exporter):
                 label_name = extractor.categories()[AnnotationType.label][label].name
                 self._save_image(
                     item,
-                    subdir=osp.join(root_dir, item.subset, label_name)
+                    subdir=root_dir / item.subset / label_name
                     if self.USE_SUBSET_DIRS
-                    else osp.join(root_dir, label_name),
+                    else root_dir / label_name,
                     name=file_name,
                 )
 
             if not labels:
                 self._save_image(
                     item,
-                    subdir=osp.join(root_dir, item.subset, ImagenetPath.IMAGE_DIR_NO_LABEL)
+                    subdir=root_dir / item.subset / ImagenetPath.IMAGE_DIR_NO_LABEL
                     if self.USE_SUBSET_DIRS
-                    else osp.join(root_dir, ImagenetPath.IMAGE_DIR_NO_LABEL),
+                    else root_dir / ImagenetPath.IMAGE_DIR_NO_LABEL,
                     name=file_name,
                 )
 
