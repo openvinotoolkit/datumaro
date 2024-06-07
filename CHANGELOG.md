@@ -27,6 +27,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   (<https://github.com/openvinotoolkit/datumaro/pull/1480>)
 - Set label name with parents to avoid duplicates for AstypeAnnotations
   (<https://github.com/openvinotoolkit/datumaro/pull/1492>)
+- Pass Keyword Argument to TabularDataBase
+  (<https://github.com/openvinotoolkit/datumaro/pull/1522>)
 
 ### Bug fixes
 - Split the video directory into subsets to avoid overwriting
