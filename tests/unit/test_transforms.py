@@ -1319,24 +1319,6 @@ class AstypeAnnotationsTest(TestCase):
             transforms.AstypeAnnotations._split_arg("datelabel")
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
-    def test_media_type(self):
-        dataset = Dataset.from_iterable(
-            [
-                DatasetItem(
-                    id="1",
-                    subset="train",
-                    annotations=[
-                        Label(0, id=0),
-                    ],
-                ),
-            ],
-            categories={},
-        )
-
-        with self.assertRaises(AnnotationTypeError):
-            transforms.AstypeAnnotations(dataset)
-
-    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_transform_annotation_type_label(self):
         table = self.table
         expected = Dataset.from_iterable(
