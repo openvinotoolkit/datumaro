@@ -1632,28 +1632,6 @@ class Correct(Transform, CliPlugin):
             )
         return annotations
 
-    def cap_outliers(self, annotations, outliers):
-        for ann in annotations:
-            if ann.type != AnnotationType.caption:
-                continue
-
-            for col in outliers:
-                if not ann.caption.startswith(col):
-                    continue
-
-                value_str = ann.caption[len(col) + 1 :]
-                value = self.caption_type[col](value_str)
-
-                lower_bound, upper_bound = self._outlier_value[col]
-                capped_value = max(min(value, upper_bound), lower_bound)
-
-                new_ann = Caption(f"{col}:{capped_value}")
-                annotations.remove(ann)
-                annotations.append(new_ann)
-                break
-
-        return annotations
-
     def cap_far_from_mean(self, annotations, far_from_mean_captions):
         for ann in annotations:
             if ann.type != AnnotationType.caption:
@@ -1674,21 +1652,6 @@ class Correct(Transform, CliPlugin):
                 annotations.append(new_ann)
                 break
 
-        return annotations
-
-    def fill_missing_value(self, annotations, labels, captions):
-        if labels:
-            sep_token = self._extractor._sep_token
-            id_mapping = self._extractor._id_mapping
-            label_value = self._label_value
-            annotations.extend(
-                Label(id_mapping[f"{label}{sep_token}{label_value[label]}"]) for label in labels
-            )
-        if captions:
-            caption_value = self._caption_value
-            annotations.extend(
-                Caption(f"{caption}:{caption_value[caption]}") for caption in captions
-            )
         return annotations
 
     def cap_outliers(self, annotations, outliers):
@@ -1712,26 +1675,6 @@ class Correct(Transform, CliPlugin):
                 break
 
         return annotations
-
-    def cap_far_from_mean(self, annotations, far_from_mean_captions):
-        for ann in annotations:
-            if ann.type != AnnotationType.caption:
-                continue
-
-            for col in far_from_mean_captions:
-                if not ann.caption.startswith(col):
-                    continue
-
-                value_str = ann.caption[len(col) + 1 :]
-                value = self.caption_type[col](value_str)
-
-                lower_bound, upper_bound = self._far_from_mean_value[col]
-                capped_value = max(min(value, upper_bound), lower_bound)
-
-                new_ann = Caption(f"{col}:{capped_value}")
-                annotations.remove(ann)
-                annotations.append(new_ann)
-                break
 
     def find_outliers(self, annotations, outliers):
         for ann in annotations:
