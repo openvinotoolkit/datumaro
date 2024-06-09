@@ -36,6 +36,7 @@ from datumaro.components.annotation import (
     Polygon,
     PolyLine,
     RleMask,
+    Tabular,
     TabularCategories,
 )
 from datumaro.components.cli_plugin import CliPlugin
@@ -59,10 +60,11 @@ from datumaro.components.errors import (
     UndefinedAttribute,
     UndefinedLabel,
 )
-from datumaro.components.media import Image
+from datumaro.components.media import Image, TableRow
 from datumaro.components.transformer import ItemTransform, Transform
 from datumaro.util import NOTSET, filter_dict, parse_json_file, parse_str_enum_value, take_by
 from datumaro.util.annotation_util import find_group_leader, find_instances
+from datumaro.util.tabular_util import emoji_pattern
 
 
 class CropCoveredSegments(ItemTransform, CliPlugin):
@@ -1529,20 +1531,6 @@ class Correct(Transform, CliPlugin):
             return re.sub(r"\s+", " ", text).strip()
 
         def remove_emojis(text):
-            emoji_pattern = re.compile(
-                "|".join(
-                    [
-                        "[\U0001F600-\U0001F64F]",  # emoticons
-                        "[\U0001F300-\U0001F5FF]",  # symbols & pictographs
-                        "[\U0001F680-\U0001F6FF]",  # transport & map symbols
-                        "[\U0001F1E0-\U0001F1FF]",  # flags (iOS)
-                        "[\u2600-\u26FF]",  # Miscellaneous Symbols
-                        "[\u2700-\u27BF]",  # Dingbats
-                        "[\U0001F900-\U0001F9FF]",  # Supplemental Symbols and Pictographs
-                    ]
-                ),
-                flags=re.UNICODE,
-            )
             return emoji_pattern.sub(r"", text)
 
         col_redun_dict = {}
@@ -1941,18 +1929,6 @@ class Clean(ItemTransform):
 
             nltk.download("stopwords")
             stop_words = set(stopwords.words("english"))  # TODO
-
-        emoji_pattern = re.compile(
-            "["
-            "\U0001F600-\U0001F64F"  # emoticons
-            "\U0001F300-\U0001F5FF"  # symbols & pictographs
-            "\U0001F680-\U0001F6FF"  # transport & map symbols
-            "\U0001F1E0-\U0001F1FF"  # flags (iOS)
-            "\U00002702-\U000027B0"
-            "\U000024C2-\U0001F251"
-            "]+",
-            flags=re.UNICODE,
-        )
 
         text = re.sub(r"<.*?>", "", text)
         text = re.sub(r"http\S+|www\S+|https\S+", "", text, flags=re.MULTILINE)
