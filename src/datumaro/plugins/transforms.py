@@ -1968,8 +1968,11 @@ class Clean(ItemTransform):
             )
 
         refined_media = self.refine_tabular_media(item) if item.media.has_data else None
+        annotation_values = {
+            key: refined_media.data[key] for key in item.annotations[0].values.keys()
+        }  # only for tabular
         refined_annotations = [
-            ann.wrap(values=refined_media.data) if isinstance(ann, Tabular) else ann
+            ann.wrap(values=annotation_values) if isinstance(ann, Tabular) else ann
             for ann in item.annotations
         ]
         return self.wrap_item(item, media=refined_media, annotations=refined_annotations)

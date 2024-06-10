@@ -1430,10 +1430,10 @@ class AstypeAnnotationsTest(TestCase):
 
 class CleanTest(TestCase):
     def setUp(self):
-        tabular_orig_path = osp.join(
+        self.tabular_orig_path = osp.join(
             get_test_asset_path("tabular_dataset"), "women-clothing", "women_clothing_orig.csv"
         )
-        table = Table.from_csv(tabular_orig_path)
+        table = Table.from_csv(self.tabular_orig_path)
         self.orig_tabular_dataset = Dataset.from_iterable(
             [
                 DatasetItem(
@@ -1475,10 +1475,10 @@ class CleanTest(TestCase):
             media_type=TableRow,
         )
 
-        tabular_refined_path = osp.join(
+        self.tabular_refined_path = osp.join(
             get_test_asset_path("tabular_dataset"), "women-clothing", "women_clothing_refined.csv"
         )
-        table = Table.from_csv(tabular_refined_path)
+        table = Table.from_csv(self.tabular_refined_path)
         self.refined_tabular_dataset = Dataset.from_iterable(
             [
                 DatasetItem(
@@ -1566,3 +1566,17 @@ class CleanTest(TestCase):
         result = dataset.transform("clean")
 
         compare_datasets(self, self.refined_tabular_dataset, result)
+
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
+    def test_transform_clean_with_target(self):
+        target = {"input": ["Title", "Review Text", "Age"], "output": ["Rating"]}
+        dataset = Dataset.import_from(self.tabular_orig_path, "tabular", target=target)
+        result = dataset.transform("clean")
+
+        expected = Dataset.import_from(self.tabular_refined_path, "tabular", target=target)
+
+        self.assertEqual(len(expected), len(result))
+        for i, expected_item in enumerate(expected):
+            result_item = result.__getitem__(i)
+            self.assertEqual(expected_item.annotations, result_item.annotations)
+            self.assertEqual(expected_item.media, result_item.media)
