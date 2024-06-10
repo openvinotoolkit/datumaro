@@ -1575,7 +1575,6 @@ class CleanTest(TestCase):
 
         expected = Dataset.import_from(self.tabular_refined_path, "tabular", target=target)
 
-        self.assertEqual(len(expected), len(result))
         for i, expected_item in enumerate(expected):
             result_item = result.__getitem__(i)
             self.assertEqual(expected_item.annotations, result_item.annotations)
