@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import argparse
 import logging as log
 import os.path as osp
 import random
@@ -9,6 +10,7 @@ import numpy as np
 import pandas as pd
 import pycocotools.mask as mask_utils
 import pytest
+from pandas.api.types import CategoricalDtype
 
 import datumaro.plugins.transforms as transforms
 import datumaro.util.mask_tools as mask_tools
@@ -1223,11 +1225,6 @@ class ReindexAnnotationsTest:
         )
 
 
-import argparse
-
-from pandas.api.types import CategoricalDtype
-
-
 class AstypeAnnotationsTest(TestCase):
     def setUp(self):
         self.table = Table.from_list(
@@ -1348,7 +1345,7 @@ class AstypeAnnotationsTest(TestCase):
         )
 
         dataset = self.dataset
-        result = transforms.AstypeAnnotations(dataset)
+        result = dataset.transform("astype_annotations")
 
         categories = result._categories.get(AnnotationType.label, None)
         assert categories
@@ -1382,7 +1379,7 @@ class AstypeAnnotationsTest(TestCase):
         )
 
         dataset = self.dataset_caption
-        result = transforms.AstypeAnnotations(dataset)
+        result = dataset.transform("astype_annotations")
 
         compare_datasets(self, expected, result)
 
@@ -1419,7 +1416,7 @@ class AstypeAnnotationsTest(TestCase):
         )
 
         dataset = self.dataset_label_nan
-        result = transforms.AstypeAnnotations(dataset)
+        result = dataset.transform("astype_annotations")
 
         categories = result._categories.get(AnnotationType.label, None)
         assert categories
@@ -1566,6 +1563,6 @@ class CleanTest(TestCase):
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_transform_clean(self):
         dataset = self.orig_tabular_dataset
-        result = transforms.Clean(dataset)
+        result = dataset.transform("clean")
 
         compare_datasets(self, self.refined_tabular_dataset, result)
