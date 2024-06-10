@@ -1855,7 +1855,7 @@
     "plugin_type": "Transform"
   },
   {
-    "import_path": "datumaro.plugins.transforms.Correct",
+    "import_path": "datumaro.plugins.transforms.Clean",
     "plugin_name": "clean",
     "plugin_type": "Transform"
   },
