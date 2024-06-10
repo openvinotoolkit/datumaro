@@ -1,10 +1,12 @@
 from __future__ import annotations
 
 import logging as log
+import os.path as osp
 import random
 from unittest import TestCase
 
 import numpy as np
+import pandas as pd
 import pycocotools.mask as mask_utils
 import pytest
 
@@ -34,6 +36,7 @@ from datumaro.components.media import Image, Table, TableRow
 
 from ..requirements import Requirements, mark_bug, mark_requirement
 
+from tests.utils.assets import get_test_asset_path
 from tests.utils.test_utils import compare_datasets, compare_datasets_strict
 
 
@@ -1428,11 +1431,6 @@ class AstypeAnnotationsTest(TestCase):
         compare_datasets(self, expected, result)
 
 
-import os.path as osp
-
-from tests.utils.assets import get_test_asset_path
-
-
 class CleanTest(TestCase):
     def setUp(self):
         tabular_orig_path = osp.join(
@@ -1524,6 +1522,46 @@ class CleanTest(TestCase):
             },
             media_type=TableRow,
         )
+
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
+    def test_remove_unneccessary_char(self):
+        example_text = "This is a test 😊! Check out https://example.com for more <b>details</b> about this text. Enjoy!!!"
+        cleaned_text = "test check details text enjoy"
+
+        with self.subTest("with None"):
+            self.assertIsNone(transforms.Clean.remove_unneccessary_char(None))
+        with self.subTest("with normal text"):
+            self.assertEqual(transforms.Clean.remove_unneccessary_char(example_text), cleaned_text)
+
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
+    def test_find_closest_value(self):
+        series = pd.Series([1, 3, 7, 8, 10, 15])
+        single_element_series = pd.Series([5])
+        empty_series = pd.Series([])
+
+        with self.subTest("with typical case"):
+            target_value = 9
+            expected_result = 8
+            result = transforms.Clean.find_closest_value(series, target_value)
+            self.assertEqual(result, expected_result)
+
+        with self.subTest("with single element series"):
+            target_value = 3
+            expected_result = 5
+            result = transforms.Clean.find_closest_value(single_element_series, target_value)
+            self.assertEqual(result, expected_result)
+
+        with self.subTest("with empty series"):
+            target_value = 3
+            with self.assertRaises(ValueError):
+                transforms.Clean.find_closest_value(empty_series, target_value)
+
+        with self.subTest("with multiple cloest"):
+            series = pd.Series([1, 4, 6, 7, 9])
+            target_value = 5
+            expected_result = 4  # Closest value in case of tie is implementation-dependent
+            result = transforms.Clean.find_closest_value(series, target_value)
+            self.assertIn(result, [4, 6])  # Accept either 4 or 6 as both are equally close to 5
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_transform_clean(self):
