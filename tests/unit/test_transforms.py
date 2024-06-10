@@ -1347,7 +1347,7 @@ class AstypeAnnotationsTest(TestCase):
         dataset = self.dataset
         result = dataset.transform("astype_annotations")
 
-        categories = result._categories.get(AnnotationType.label, None)
+        categories = result.categories().get(AnnotationType.label, None)
         assert categories
 
         # Check label_groups of categories
@@ -1418,7 +1418,7 @@ class AstypeAnnotationsTest(TestCase):
         dataset = self.dataset_label_nan
         result = dataset.transform("astype_annotations")
 
-        categories = result._categories.get(AnnotationType.label, None)
+        categories = result.categories().get(AnnotationType.label, None)
         assert categories
 
         # Check label_groups of categories
