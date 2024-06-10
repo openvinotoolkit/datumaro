@@ -1873,13 +1873,15 @@ class Clean(ItemTransform):
             nltk.download("stopwords")
             stop_words = set(stopwords.words("english"))  # TODO
 
-        text = re.sub(r"<.*?>", "", text)
-        text = re.sub(r"http\S+|www\S+|https\S+", "", text, flags=re.MULTILINE)
-        text = emoji_pattern.sub(r"", text)
-        text = text.lower()
-        text = re.sub(r"[^A-Za-z\s]+", "", text)
-        text = re.sub(r"\s+", " ", text).strip()
-        text = " ".join([word for word in text.split() if word not in stop_words])
+        text = re.sub(r"<.*?>", "", text)  # Remove HTML tags
+        text = re.sub(r"http\S+|www\S+|https\S+", "", text, flags=re.MULTILINE)  # remove URLs
+        text = emoji_pattern.sub(r"", text)  # Remove emojis
+        text = text.lower()  # Convert to lowercase
+        text = re.sub(r"[^A-Za-z\s]+", "", text)  # Remove special characters and punctuation
+        text = re.sub(r"\s+", " ", text).strip()  # Remove extra whitespaces
+        text = " ".join(
+            [word for word in text.split() if word not in stop_words]
+        )  # Remove stopwords
         return text
 
     def check_outlier(self, table, numeric_cols):
@@ -1954,7 +1956,7 @@ class Clean(ItemTransform):
         df[float_cols + countable_cols] = df[float_cols + countable_cols].apply(
             lambda x: self.fill_missing_value(x)
         )
-        # return df.iloc[0].to_dict()
+
         return TableRow.from_data(
             df.iloc[0].to_dict(), table=item.media.table, index=item.media.index
         )
@@ -1962,7 +1964,7 @@ class Clean(ItemTransform):
     def transform_item(self, item):
         if not isinstance(item.media, TableRow):
             raise DatumaroError(
-                "Item %s: image info is required for this " "transform" % (item.id,)
+                "Item %s: TableRow info is required for this " "transform" % (item.id,)
             )
 
         refined_media = self.refine_tabular_media(item) if item.media.has_data else None
