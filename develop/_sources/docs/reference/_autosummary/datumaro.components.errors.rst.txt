@@ -94,6 +94,7 @@ datumaro.components.errors
       OldProjectError
       OnlyOneAttributeValue
       OnlyOneLabel
+      OutlierInCaption
       PathOutsideSourceError
       PipelineError
       ProjectAlreadyExists

@@ -630,8 +630,6 @@ document.write(`
       <ul>
         <li><a href="docs/reference/_autosummary/datumaro.components.errors.html#datumaro.components.errors.FarFromAttrMean.ann_id">(datumaro.components.errors.FarFromAttrMean attribute)</a>
 </li>
-        <li><a href="docs/reference/_autosummary/datumaro.components.errors.html#datumaro.components.errors.FarFromCaptionMean.ann_id">(datumaro.components.errors.FarFromCaptionMean attribute)</a>
-</li>
         <li><a href="docs/reference/_autosummary/datumaro.components.errors.html#datumaro.components.errors.FarFromLabelMean.ann_id">(datumaro.components.errors.FarFromLabelMean attribute)</a>
 </li>
         <li><a href="docs/reference/_autosummary/datumaro.components.errors.html#datumaro.components.errors.InvalidValue.ann_id">(datumaro.components.errors.InvalidValue attribute)</a>
@@ -2011,6 +2009,10 @@ document.write(`
         <li><a href="docs/reference/_autosummary/datumaro.plugins.data_formats.yolo.exporter.html#datumaro.plugins.data_formats.yolo.exporter.YoloExporter.can_stream">(datumaro.plugins.data_formats.yolo.exporter.YoloExporter property)</a>
 </li>
       </ul></li>
+      <li><a href="docs/reference/_autosummary/datumaro.plugins.transforms.html#datumaro.plugins.transforms.Correct.cap_far_from_mean">cap_far_from_mean() (datumaro.plugins.transforms.Correct method)</a>
+</li>
+      <li><a href="docs/reference/_autosummary/datumaro.plugins.transforms.html#datumaro.plugins.transforms.Correct.cap_outliers">cap_outliers() (datumaro.plugins.transforms.Correct method)</a>
+</li>
       <li><a href="docs/reference/_autosummary/datumaro.components.annotation.html#datumaro.components.annotation.Caption">Caption (class in datumaro.components.annotation)</a>
 
       <ul>
@@ -2063,6 +2065,8 @@ document.write(`
         <li><a href="docs/reference/_autosummary/datumaro.components.errors.html#datumaro.components.errors.FewSamplesInCaption.caption_name">(datumaro.components.errors.FewSamplesInCaption attribute)</a>
 </li>
         <li><a href="docs/reference/_autosummary/datumaro.components.errors.html#datumaro.components.errors.ImbalancedDistInCaption.caption_name">(datumaro.components.errors.ImbalancedDistInCaption attribute)</a>
+</li>
+        <li><a href="docs/reference/_autosummary/datumaro.components.errors.html#datumaro.components.errors.OutlierInCaption.caption_name">(datumaro.components.errors.OutlierInCaption attribute)</a>
 </li>
         <li><a href="docs/reference/_autosummary/datumaro.components.errors.html#datumaro.components.errors.RedundanciesInCaption.caption_name">(datumaro.components.errors.RedundanciesInCaption attribute)</a>
 </li>
@@ -6268,6 +6272,8 @@ document.write(`
 </li>
       <li><a href="docs/reference/_autosummary/datumaro.plugins.synthetic_data.utils.html#datumaro.plugins.synthetic_data.utils.fill_background">fill_background() (in module datumaro.plugins.synthetic_data.utils)</a>
 </li>
+      <li><a href="docs/reference/_autosummary/datumaro.plugins.transforms.html#datumaro.plugins.transforms.Correct.fill_missing_value">fill_missing_value() (datumaro.plugins.transforms.Correct method)</a>
+</li>
       <li><a href="docs/reference/_autosummary/datumaro.components.project.html#datumaro.components.project.BuildStageType.filter">filter (datumaro.components.project.BuildStageType attribute)</a>
 </li>
       <li><a href="docs/reference/_autosummary/datumaro.components.algorithms.rise.html#datumaro.components.algorithms.rise.Dataset.filter">filter() (datumaro.components.algorithms.rise.Dataset method)</a>
@@ -9876,10 +9882,10 @@ document.write(`
 </li>
       <li><a href="docs/reference/_autosummary/datumaro.plugins.data_formats.labelme.html#datumaro.plugins.data_formats.labelme.LabelMeExporter">LabelMeExporter (class in datumaro.plugins.data_formats.labelme)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="docs/reference/_autosummary/datumaro.plugins.data_formats.labelme.html#datumaro.plugins.data_formats.labelme.LabelMeImporter">LabelMeImporter (class in datumaro.plugins.data_formats.labelme)</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="docs/reference/_autosummary/datumaro.plugins.data_formats.labelme.html#datumaro.plugins.data_formats.labelme.LabelMePath">LabelMePath (class in datumaro.plugins.data_formats.labelme)</a>
 </li>
       <li><a href="docs/reference/_autosummary/datumaro.components.annotations.merger.html#datumaro.components.annotations.merger.LabelMerger">LabelMerger (class in datumaro.components.annotations.merger)</a>
@@ -10126,6 +10132,12 @@ document.write(`
         <li><a href="docs/reference/_autosummary/datumaro.components.importer.html#datumaro.components.importer.FormatDetectionConfidence.LOW">(datumaro.components.importer.FormatDetectionConfidence attribute)</a>
 </li>
         <li><a href="docs/reference/_autosummary/datumaro.plugins.data_formats.arrow.importer.html#datumaro.plugins.data_formats.arrow.importer.FormatDetectionConfidence.LOW">(datumaro.plugins.data_formats.arrow.importer.FormatDetectionConfidence attribute)</a>
+</li>
+      </ul></li>
+      <li><a href="docs/reference/_autosummary/datumaro.components.errors.html#datumaro.components.errors.FarFromCaptionMean.lower_bound">lower_bound (datumaro.components.errors.FarFromCaptionMean attribute)</a>
+
+      <ul>
+        <li><a href="docs/reference/_autosummary/datumaro.components.errors.html#datumaro.components.errors.OutlierInCaption.lower_bound">(datumaro.components.errors.OutlierInCaption attribute)</a>
 </li>
       </ul></li>
       <li><a href="docs/reference/_autosummary/datumaro.plugins.sampler.algorithm.algorithm.html#datumaro.plugins.sampler.algorithm.algorithm.SamplingMethod.lowk">lowk (datumaro.plugins.sampler.algorithm.algorithm.SamplingMethod attribute)</a>
@@ -12223,6 +12235,8 @@ document.write(`
 </li>
       <li><a href="docs/reference/_autosummary/datumaro.plugins.data_formats.kitti_raw.format.html#datumaro.plugins.data_formats.kitti_raw.format.TruncationStates.OUT_IMAGE">OUT_IMAGE (datumaro.plugins.data_formats.kitti_raw.format.TruncationStates attribute)</a>
 </li>
+      <li><a href="docs/reference/_autosummary/datumaro.components.errors.html#datumaro.components.errors.OutlierInCaption">OutlierInCaption</a>
+</li>
       <li><a href="docs/reference/_autosummary/datumaro.plugins.openvino_plugin.launcher.html#datumaro.plugins.openvino_plugin.launcher.OpenvinoLauncher.outputs">outputs (datumaro.plugins.openvino_plugin.launcher.OpenvinoLauncher property)</a>
 </li>
       <li><a href="docs/reference/_autosummary/datumaro.components.dataset.html#datumaro.components.dataset.overload">overload() (in module datumaro.components.dataset)</a>
@@ -12659,14 +12673,14 @@ document.write(`
         <li><a href="docs/reference/_autosummary/datumaro.plugins.data_formats.datumaro_binary.mapper.html#datumaro.plugins.data_formats.datumaro_binary.mapper.Points.Visibility">(class in datumaro.plugins.data_formats.datumaro_binary.mapper)</a>
 </li>
       </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="docs/reference/_autosummary/datumaro.plugins.sam_transforms.automatic_mask_gen.html#datumaro.plugins.sam_transforms.automatic_mask_gen.SAMAutomaticMaskGeneration.points_per_side">points_per_side (datumaro.plugins.sam_transforms.automatic_mask_gen.SAMAutomaticMaskGeneration property)</a>
 
       <ul>
         <li><a href="docs/reference/_autosummary/datumaro.plugins.sam_transforms.html#datumaro.plugins.sam_transforms.SAMAutomaticMaskGeneration.points_per_side">(datumaro.plugins.sam_transforms.SAMAutomaticMaskGeneration property)</a>
 </li>
       </ul></li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="docs/reference/_autosummary/datumaro.components.annotation.html#datumaro.components.annotation.PointsCategories">PointsCategories (class in datumaro.components.annotation)</a>
 
       <ul>
@@ -12978,8 +12992,6 @@ document.write(`
       <li><a href="docs/reference/_autosummary/datumaro.components.errors.html#datumaro.components.errors.FarFromAttrMean.prop">prop (datumaro.components.errors.FarFromAttrMean attribute)</a>
 
       <ul>
-        <li><a href="docs/reference/_autosummary/datumaro.components.errors.html#datumaro.components.errors.FarFromCaptionMean.prop">(datumaro.components.errors.FarFromCaptionMean attribute)</a>
-</li>
         <li><a href="docs/reference/_autosummary/datumaro.components.errors.html#datumaro.components.errors.FarFromLabelMean.prop">(datumaro.components.errors.FarFromLabelMean attribute)</a>
 </li>
         <li><a href="docs/reference/_autosummary/datumaro.components.errors.html#datumaro.components.errors.ImbalancedDistInAttribute.prop">(datumaro.components.errors.ImbalancedDistInAttribute attribute)</a>
@@ -13266,6 +13278,8 @@ document.write(`
         <li><a href="docs/reference/_autosummary/datumaro.components.project.html#datumaro.components.project.ProjectBuildTargets.remove_target">(datumaro.components.project.ProjectBuildTargets method)</a>
 </li>
       </ul></li>
+      <li><a href="docs/reference/_autosummary/datumaro.plugins.transforms.html#datumaro.plugins.transforms.Correct.remove_unnecessary_char">remove_unnecessary_char() (datumaro.plugins.transforms.Correct method)</a>
+</li>
       <li><a href="docs/reference/_autosummary/datumaro.plugins.transforms.html#datumaro.plugins.transforms.RemoveAnnotations">RemoveAnnotations (class in datumaro.plugins.transforms)</a>
 </li>
       <li><a href="docs/reference/_autosummary/datumaro.plugins.transforms.html#datumaro.plugins.transforms.RemoveAttributes">RemoveAttributes (class in datumaro.plugins.transforms)</a>
@@ -15066,12 +15080,12 @@ document.write(`
 </li>
       <li><a href="docs/reference/_autosummary/datumaro.plugins.data_formats.kitti_raw.format.html#datumaro.plugins.data_formats.kitti_raw.format.PoseStates.UNSET">UNSET (datumaro.plugins.data_formats.kitti_raw.format.PoseStates attribute)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="docs/reference/_autosummary/datumaro.plugins.data_formats.voc.format.html#datumaro.plugins.data_formats.voc.format.VocPose.Unspecified">Unspecified (datumaro.plugins.data_formats.voc.format.VocPose attribute)</a>
 </li>
       <li><a href="docs/reference/_autosummary/datumaro.plugins.data_formats.open_images.html#datumaro.plugins.data_formats.open_images.UnsupportedBoxIdError">UnsupportedBoxIdError</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="docs/reference/_autosummary/datumaro.plugins.data_formats.open_images.html#datumaro.plugins.data_formats.open_images.UnsupportedMaskPathError">UnsupportedMaskPathError</a>
 </li>
       <li><a href="docs/reference/_autosummary/datumaro.plugins.data_formats.open_images.html#datumaro.plugins.data_formats.open_images.UnsupportedSubsetNameError">UnsupportedSubsetNameError</a>
@@ -15104,12 +15118,16 @@ document.write(`
         <li><a href="docs/reference/_autosummary/datumaro.components.hl_ops.html#datumaro.components.hl_ops.DistanceCompareVisualizer.update_bbox_confusion">(datumaro.components.hl_ops.DistanceCompareVisualizer method)</a>
 </li>
       </ul></li>
+      <li><a href="docs/reference/_autosummary/datumaro.plugins.transforms.html#datumaro.plugins.transforms.Correct.update_caption_value">update_caption_value() (datumaro.plugins.transforms.Correct method)</a>
+</li>
       <li><a href="docs/reference/_autosummary/datumaro.cli.util.compare.html#datumaro.cli.util.compare.DistanceCompareVisualizer.update_label_confusion">update_label_confusion() (datumaro.cli.util.compare.DistanceCompareVisualizer method)</a>
 
       <ul>
         <li><a href="docs/reference/_autosummary/datumaro.components.hl_ops.html#datumaro.components.hl_ops.DistanceCompareVisualizer.update_label_confusion">(datumaro.components.hl_ops.DistanceCompareVisualizer method)</a>
 </li>
       </ul></li>
+      <li><a href="docs/reference/_autosummary/datumaro.plugins.transforms.html#datumaro.plugins.transforms.Correct.update_label_value">update_label_value() (datumaro.plugins.transforms.Correct method)</a>
+</li>
       <li><a href="docs/reference/_autosummary/datumaro.cli.util.compare.html#datumaro.cli.util.compare.DistanceCompareVisualizer.update_mask_confusion">update_mask_confusion() (datumaro.cli.util.compare.DistanceCompareVisualizer method)</a>
 
       <ul>
@@ -15126,6 +15144,12 @@ document.write(`
 
       <ul>
         <li><a href="docs/reference/_autosummary/datumaro.components.dataset_storage.html#datumaro.components.dataset_storage.DatasetPatch.updated_subsets">(datumaro.components.dataset_storage.DatasetPatch property)</a>
+</li>
+      </ul></li>
+      <li><a href="docs/reference/_autosummary/datumaro.components.errors.html#datumaro.components.errors.FarFromCaptionMean.upper_bound">upper_bound (datumaro.components.errors.FarFromCaptionMean attribute)</a>
+
+      <ul>
+        <li><a href="docs/reference/_autosummary/datumaro.components.errors.html#datumaro.components.errors.OutlierInCaption.upper_bound">(datumaro.components.errors.OutlierInCaption attribute)</a>
 </li>
       </ul></li>
       <li><a href="docs/reference/_autosummary/datumaro.plugins.data_formats.common_super_resolution.html#datumaro.plugins.data_formats.common_super_resolution.CommonSuperResolutionPath.UPSAMPLED_IMAGES_DIR">UPSAMPLED_IMAGES_DIR (datumaro.plugins.data_formats.common_super_resolution.CommonSuperResolutionPath attribute)</a>
@@ -15174,6 +15198,8 @@ document.write(`
         <li><a href="docs/reference/_autosummary/datumaro.components.errors.html#datumaro.components.errors.FarFromLabelMean.val">(datumaro.components.errors.FarFromLabelMean attribute)</a>
 </li>
         <li><a href="docs/reference/_autosummary/datumaro.components.errors.html#datumaro.components.errors.NegativeLength.val">(datumaro.components.errors.NegativeLength attribute)</a>
+</li>
+        <li><a href="docs/reference/_autosummary/datumaro.components.errors.html#datumaro.components.errors.OutlierInCaption.val">(datumaro.components.errors.OutlierInCaption attribute)</a>
 </li>
       </ul></li>
       <li><a href="docs/reference/_autosummary/datumaro.components.hl_ops.html#datumaro.components.hl_ops.HLOps.validate">validate() (datumaro.components.hl_ops.HLOps static method)</a>
@@ -15322,10 +15348,10 @@ document.write(`
 </li>
       <li><a href="docs/reference/_autosummary/datumaro.plugins.data_formats.video.html#datumaro.plugins.data_formats.video.VideoKeyframesImporter">VideoKeyframesImporter (class in datumaro.plugins.data_formats.video)</a>
 </li>
-      <li><a href="docs/reference/_autosummary/datumaro.components.errors.html#datumaro.components.errors.VideoMergeError">VideoMergeError</a>, <a href="docs/reference/_autosummary/datumaro.components.merge.exact_merge.html#datumaro.components.merge.exact_merge.VideoMergeError">[1]</a>
-</li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="docs/reference/_autosummary/datumaro.components.errors.html#datumaro.components.errors.VideoMergeError">VideoMergeError</a>, <a href="docs/reference/_autosummary/datumaro.components.merge.exact_merge.html#datumaro.components.merge.exact_merge.VideoMergeError">[1]</a>
+</li>
       <li><a href="docs/reference/_autosummary/datumaro.components.visualizer.html#datumaro.components.visualizer.Visualizer.vis_gallery">vis_gallery() (datumaro.components.visualizer.Visualizer method)</a>
 </li>
       <li><a href="docs/reference/_autosummary/datumaro.components.visualizer.html#datumaro.components.visualizer.Visualizer.vis_one_sample">vis_one_sample() (datumaro.components.visualizer.Visualizer method)</a>

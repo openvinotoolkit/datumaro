@@ -1440,17 +1440,35 @@ document.write(`
 <span class="nd">@define</span><span class="p">(</span><span class="n">auto_exc</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
 <span class="k">class</span> <span class="nc">FarFromCaptionMean</span><span class="p">(</span><span class="n">DatasetItemValidationError</span><span class="p">):</span>
     <span class="n">caption_name</span> <span class="o">=</span> <span class="n">field</span><span class="p">()</span>
-    <span class="n">ann_id</span> <span class="o">=</span> <span class="n">field</span><span class="p">()</span>
-    <span class="n">prop</span> <span class="o">=</span> <span class="n">field</span><span class="p">()</span>
     <span class="n">mean</span> <span class="o">=</span> <span class="n">field</span><span class="p">()</span>
+    <span class="n">upper_bound</span> <span class="o">=</span> <span class="n">field</span><span class="p">()</span>
+    <span class="n">lower_bound</span> <span class="o">=</span> <span class="n">field</span><span class="p">()</span>
     <span class="n">val</span> <span class="o">=</span> <span class="n">field</span><span class="p">()</span>
 
     <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="p">(</span>
-            <span class="sa">f</span><span class="s2">&quot;Annotation &#39;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">ann_id</span><span class="si">}</span><span class="s2">&#39; in &quot;</span>
-            <span class="sa">f</span><span class="s2">&quot;the item has a value of &#39;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">prop</span><span class="si">}</span><span class="s2">&#39; that &quot;</span>
-            <span class="s2">&quot;is too far from the caption average. (mean of &quot;</span>
-            <span class="sa">f</span><span class="s2">&quot;&#39;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">caption_name</span><span class="si">}</span><span class="s2">&#39; caption: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">mean</span><span class="si">}</span><span class="s2">, got &#39;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">val</span><span class="si">}</span><span class="s2">&#39;).&quot;</span>
+            <span class="sa">f</span><span class="s2">&quot;Annotation &#39;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">caption_name</span><span class="si">}</span><span class="s2">&#39; in &quot;</span>
+            <span class="s2">&quot;the item is too far from the caption average. (mean of &quot;</span>
+            <span class="sa">f</span><span class="s2">&quot;&#39;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">caption_name</span><span class="si">}</span><span class="s2">&#39; caption: &#39;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">mean</span><span class="si">}</span><span class="s2">&#39;, got &#39;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">val</span><span class="si">}</span><span class="s2">&#39;).&quot;</span>
+            <span class="sa">f</span><span class="s2">&quot;It should be between &#39;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">lower_bound</span><span class="si">}</span><span class="s2">&#39; and &#39;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">upper_bound</span><span class="si">}</span><span class="s2">&#39;.&quot;</span>
+        <span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="OutlierInCaption">
+<a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.components.errors.html#datumaro.cli.commands.require_project.modification.add.OutlierInCaption">[docs]</a>
+<span class="nd">@define</span><span class="p">(</span><span class="n">auto_exc</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+<span class="k">class</span> <span class="nc">OutlierInCaption</span><span class="p">(</span><span class="n">DatasetItemValidationError</span><span class="p">):</span>
+    <span class="n">caption_name</span> <span class="o">=</span> <span class="n">field</span><span class="p">()</span>
+    <span class="n">lower_bound</span> <span class="o">=</span> <span class="n">field</span><span class="p">()</span>
+    <span class="n">upper_bound</span> <span class="o">=</span> <span class="n">field</span><span class="p">()</span>
+    <span class="n">val</span> <span class="o">=</span> <span class="n">field</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;Annotation &#39;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">caption_name</span><span class="si">}</span><span class="s2">&#39; in &quot;</span>
+            <span class="s2">&quot;the item is estimated as outlier based on IQR. (lower and upper bound of &quot;</span>
+            <span class="sa">f</span><span class="s2">&quot;&#39;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">caption_name</span><span class="si">}</span><span class="s2">&#39; caption: &#39;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">lower_bound</span><span class="si">}</span><span class="s2">&#39; and &#39;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">upper_bound</span><span class="si">}</span><span class="s2">&#39;, got &#39;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">val</span><span class="si">}</span><span class="s2">&#39;).&quot;</span>
         <span class="p">)</span></div>
 
 

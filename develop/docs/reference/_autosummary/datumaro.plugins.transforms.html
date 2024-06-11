@@ -1361,6 +1361,36 @@ This helps to refine the dataset by rejecting undefined labels, missing annotati
 <dd><p>Returns metainfo about dataset labels.</p>
 </dd></dl>
 
+<dl class="py method">
+<dt class="sig sig-object py" id="datumaro.plugins.transforms.Correct.remove_unnecessary_char">
+<span class="sig-name descname"><span class="pre">remove_unnecessary_char</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">annotations</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">item_id</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/datumaro/plugins/transforms.html#Correct.remove_unnecessary_char"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.plugins.transforms.Correct.remove_unnecessary_char" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="datumaro.plugins.transforms.Correct.update_caption_value">
+<span class="sig-name descname"><span class="pre">update_caption_value</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/datumaro/plugins/transforms.html#Correct.update_caption_value"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.plugins.transforms.Correct.update_caption_value" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="datumaro.plugins.transforms.Correct.update_label_value">
+<span class="sig-name descname"><span class="pre">update_label_value</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/datumaro/plugins/transforms.html#Correct.update_label_value"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.plugins.transforms.Correct.update_label_value" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="datumaro.plugins.transforms.Correct.fill_missing_value">
+<span class="sig-name descname"><span class="pre">fill_missing_value</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">annotations</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">labels</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">captions</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/datumaro/plugins/transforms.html#Correct.fill_missing_value"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.plugins.transforms.Correct.fill_missing_value" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="datumaro.plugins.transforms.Correct.cap_outliers">
+<span class="sig-name descname"><span class="pre">cap_outliers</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">annotations</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">outliers</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/datumaro/plugins/transforms.html#Correct.cap_outliers"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.plugins.transforms.Correct.cap_outliers" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="datumaro.plugins.transforms.Correct.cap_far_from_mean">
+<span class="sig-name descname"><span class="pre">cap_far_from_mean</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">annotations</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">far_from_mean_captions</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/datumaro/plugins/transforms.html#Correct.cap_far_from_mean"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.plugins.transforms.Correct.cap_far_from_mean" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
 </dd></dl>
 
 <dl class="py class">
@@ -1570,6 +1600,12 @@ unexpected problems. Use wrap_item() or item.wrap() to simplify copying.</p>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.plugins.transforms.Correct"><code class="docutils literal notranslate"><span class="pre">Correct</span></code></a><ul class="nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.plugins.transforms.Correct.build_cmdline_parser"><code class="docutils literal notranslate"><span class="pre">Correct.build_cmdline_parser()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.plugins.transforms.Correct.categories"><code class="docutils literal notranslate"><span class="pre">Correct.categories()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.plugins.transforms.Correct.remove_unnecessary_char"><code class="docutils literal notranslate"><span class="pre">Correct.remove_unnecessary_char()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.plugins.transforms.Correct.update_caption_value"><code class="docutils literal notranslate"><span class="pre">Correct.update_caption_value()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.plugins.transforms.Correct.update_label_value"><code class="docutils literal notranslate"><span class="pre">Correct.update_label_value()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.plugins.transforms.Correct.fill_missing_value"><code class="docutils literal notranslate"><span class="pre">Correct.fill_missing_value()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.plugins.transforms.Correct.cap_outliers"><code class="docutils literal notranslate"><span class="pre">Correct.cap_outliers()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.plugins.transforms.Correct.cap_far_from_mean"><code class="docutils literal notranslate"><span class="pre">Correct.cap_far_from_mean()</span></code></a></li>
 </ul>
 </li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.plugins.transforms.AstypeAnnotations"><code class="docutils literal notranslate"><span class="pre">AstypeAnnotations</span></code></a><ul class="nav section-nav flex-column">
