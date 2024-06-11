@@ -190,12 +190,12 @@ class SuperviselyPointCloudBase(SubsetBase):
 
 class SuperviselyPointCloudImporter(Importer):
     NAME = "sly_pointcloud"
-    _ANNO_EXT = ".json"
+    _FILE_EXTS = [".json", ".pcd"]
 
     @classmethod
     def find_sources(cls, path):
-        return cls._find_sources_recursive(path, cls._ANNO_EXT, "sly_pointcloud", filename="meta")
+        return cls._find_sources_recursive(path, ".json", "sly_pointcloud", filename="meta")
 
     @classmethod
     def get_file_extensions(cls) -> List[str]:
-        return [cls._ANNO_EXT]
+        return cls._FILE_EXTS

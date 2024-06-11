@@ -5,7 +5,6 @@
 import errno
 import logging as log
 import os
-import warnings
 from pathlib import Path
 from typing import List, Optional
 
@@ -18,6 +17,7 @@ from datumaro.components.importer import ImportContext, Importer, with_subset_di
 from datumaro.components.media import Image
 from datumaro.util.definitions import SUBSET_NAME_BLACKLIST
 from datumaro.util.image import IMAGE_EXTENSIONS, find_images
+from datumaro.util.os_util import walk
 
 
 class ImagenetPath:
@@ -46,28 +46,21 @@ class NestedImagenetBase(SubsetBase):
     def _load_categories(self, path):
         label_cat = LabelCategories()
         path = Path(path)
-        for _, dirnames, _ in sorted(path.walk()):
-            for dirname in dirnames:
-                dirname = dirname.relative_to(path)
-                if not dirname.is_dir():
-                    warnings.warn(
-                        f"{dirname} is not a directory in the folder {path}, so this will"
-                        "be skipped when declaring the cateogries of `imagenet` dataset."
-                    )
-                    continue
-                if str(dirname) != ImagenetPath.IMAGE_DIR_NO_LABEL:
-                    label_cat.add(str(dirname))
+        for dirname in sorted(d for d in path.rglob("*") if d.is_dir()):
+            dirname = dirname.relative_to(path)
+            if str(dirname) != ImagenetPath.IMAGE_DIR_NO_LABEL:
+                label_cat.add(str(dirname))
         return {AnnotationType.label: label_cat}
 
     def _load_items(self, path):
         items = {}
 
-        # Images should be in root/label_dir/*.img and root/*.img is not allowed.
-        # => max_depth=1, min_depth=1
         for image_path in find_images(
             path, recursive=True, max_depth=self._max_depth, min_depth=self._min_depth
         ):
-            label = Path(image_path).parent.relative_to(path)
+            label = str(Path(image_path).parent.relative_to(path))
+            if label == ".":  # image is located in the root directory
+                label = ImagenetPath.IMAGE_DIR_NO_LABEL
             image_name = Path(image_path).stem
             item_id = str(label) + ImagenetPath.SEP_TOKEN + image_name
             item = items.get(item_id)
@@ -125,18 +118,27 @@ class NestedImagenetImporter(Importer):
 
     _MIN_DEPTH = None
     _MAX_DEPTH = None
+    _FORMAT = NestedImagenetBase.NAME
+    DETECT_CONFIDENCE = FormatDetectionConfidence.EXTREME_LOW
+    CATEGORIES_BLACKLIST = ("train", "val", "test")
 
     @classmethod
     def detect(cls, context: FormatDetectionContext) -> FormatDetectionConfidence:
         # Images must not be under a directory whose name is blacklisted.
-        for dname, *_ in os.walk(context.root_path):
+        for dname, dirnames, filenames in os.walk(context.root_path):
+            if dname in cls.CATEGORIES_BLACKLIST:
+                context.fail(
+                    f"Following directory names are not permitted: {cls.CATEGORIES_BLACKLIST}"
+                )
             rel_dname = Path(dname).relative_to(context.root_path)
-            level = str(rel_dname).count("/")
-            if level > cls._MAX_DEPTH or level < cls._MIN_DEPTH:
-                continue
-            dpath = Path(context.root_path) / dname
+            level = len(rel_dname.parts)
+            if cls._MIN_DEPTH is not None and level < cls._MIN_DEPTH and filenames:
+                context.fail("Found files out of the directory level bounds.")
+            if cls._MAX_DEPTH is not None and level > cls._MAX_DEPTH and filenames:
+                context.fail("Found files out of the directory level bounds.")
+            dpath = Path(context.root_path) / rel_dname
             if dpath.is_dir():
-                if dname.lower() in SUBSET_NAME_BLACKLIST:
+                if str(rel_dname).lower() in SUBSET_NAME_BLACKLIST:
                     context.fail(
                         f"{dname} is found in {context.root_path}. "
                         "However, Images must not be under a directory whose name is blacklisted "
@@ -146,16 +148,22 @@ class NestedImagenetImporter(Importer):
         return super().detect(context)
 
     @classmethod
+    def contains_only_images(cls, path: str | Path):
+        for _, dirnames, filenames in walk(path, cls._MAX_DEPTH, cls._MIN_DEPTH):
+            if filenames:
+                for filename in filenames:
+                    if Path(filename).suffix.lower() not in IMAGE_EXTENSIONS:
+                        return False
+            elif not dirnames:
+                return False
+        return True
+
+    @classmethod
     def find_sources(cls, path):
         if not Path(path).is_dir():
             return []
 
-        for _ in find_images(
-            path, recursive=True, max_depth=cls._MAX_DEPTH, min_depth=cls._MIN_DEPTH
-        ):
-            return [{"url": path, "format": ImagenetBase.NAME}]
-
-        return []
+        return [{"url": path, "format": cls._FORMAT}] if cls.contains_only_images(path) else []
 
     @classmethod
     def get_file_extensions(cls) -> List[str]:
@@ -187,6 +195,43 @@ class ImagenetImporter(NestedImagenetImporter):
 
     _MIN_DEPTH = 1
     _MAX_DEPTH = 1
+    _FORMAT = ImagenetBase.NAME
+    DETECT_CONFIDENCE = FormatDetectionConfidence.LOW
+
+
+@with_subset_dirs
+class NestedImagenetWithSubsetDirsImporter(NestedImagenetImporter):
+    """Multi-level image directory structure importer.
+    Example:
+
+    .. code-block::
+
+        root
+        ├── train
+        │   ├── label_0
+        │   │   ├── label_0_1
+        │   │   │   └── img1.jpg
+        │   │   └── label_0_2
+        │   │       └── img2.jpg
+        │   └── label_1
+        │       └── img3.jpg
+        ├── val
+        │   ├── label_0
+        │   │   ├── label_0_1
+        │   │   │   └── img1.jpg
+        │   │   └── label_0_2
+        │   │       └── img2.jpg
+        │   └── label_1
+        │       └── img3.jpg
+        └── test
+            │   ├── label_0
+            │   ├── label_0_1
+            │   │   └── img1.jpg
+            │   └── label_0_2
+            │       └── img2.jpg
+            └── label_1
+                └── img3.jpg
+    """
 
 
 @with_subset_dirs
