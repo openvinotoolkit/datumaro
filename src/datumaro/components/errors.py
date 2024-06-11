@@ -805,17 +805,32 @@ class FarFromLabelMean(DatasetItemValidationError):
 @define(auto_exc=False)
 class FarFromCaptionMean(DatasetItemValidationError):
     caption_name = field()
-    ann_id = field()
-    prop = field()
     mean = field()
+    upper_bound = field()
+    lower_bound = field()
     val = field()
 
     def __str__(self):
         return (
-            f"Annotation '{self.ann_id}' in "
-            f"the item has a value of '{self.prop}' that "
-            "is too far from the caption average. (mean of "
-            f"'{self.caption_name}' caption: {self.mean}, got '{self.val}')."
+            f"Annotation '{self.caption_name}' in "
+            "the item is too far from the caption average. (mean of "
+            f"'{self.caption_name}' caption: '{self.mean}', got '{self.val}')."
+            f"It should be between '{self.lower_bound}' and '{self.upper_bound}'."
+        )
+
+
+@define(auto_exc=False)
+class OutlierInCaption(DatasetItemValidationError):
+    caption_name = field()
+    lower_bound = field()
+    upper_bound = field()
+    val = field()
+
+    def __str__(self):
+        return (
+            f"Annotation '{self.caption_name}' in "
+            "the item is estimated as outlier based on IQR. (lower and upper bound of "
+            f"'{self.caption_name}' caption: '{self.lower_bound}' and '{self.upper_bound}', got '{self.val}')."
         )
 
 

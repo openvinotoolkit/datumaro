@@ -382,7 +382,9 @@ class _TestValidatorBase(TestCase):
             ],
         )
 
-        path = osp.join(get_test_asset_path("tabular_dataset"), "women_clothing.csv")
+        path = osp.join(
+            get_test_asset_path("tabular_dataset"), "women-clothing", "women_clothing.csv"
+        )
         tabular_dataset = Dataset.import_from(
             path,
             "tabular",
@@ -916,7 +918,7 @@ class TestTabularValidator(_TestValidatorBase):
             )
         ]
 
-        self.validator._compute_prop_dist(num_caption_columns, stats, self._update_stats_by_caption)
+        self.validator._compute_prop_dist(num_caption_columns, stats)
         self.assertEqual(stats["distribution_in_caption"]["unittest"]["value"]["distribution"], [0])
         self.assertEqual(stats["distribution_in_dataset_item"], {("1", "train"): 1})
 
@@ -972,10 +974,21 @@ class TestTabularValidator(_TestValidatorBase):
         }
         val = 1000
         item_key = ("1", "train")
-        ann = Caption(id=0, attributes={}, group=0, object_id=-1, caption="unittest:0")
 
-        self.validator._compute_far_from_mean(prop_stats, val, item_key, ann)
-        self.assertEqual(prop_stats["items_far_from_mean"], {item_key: {0: val}})
+        self.validator._compute_far_from_mean(prop_stats, val, item_key)
+        self.assertEqual(prop_stats["items_far_from_mean"], {item_key: val})
+
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
+    def test_compute_outliers(self):
+        prop_stats = {
+            "items_outlier": {},
+            "outlier": (10, 90),
+        }
+        val = 100
+        item_key = ("1", "train")
+
+        self.validator._compute_outlier(prop_stats, val, item_key)
+        self.assertEqual(prop_stats["items_outlier"], {item_key: val})
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_check_broken_annotation(self):
@@ -1044,8 +1057,9 @@ class TestTabularValidator(_TestValidatorBase):
         caption_name = "unittest"
         caption_stats = {
             "w": {
-                "items_far_from_mean": {("1", "train"): {1: 100}},
+                "items_far_from_mean": {("1", "train"): 100},
                 "mean": 0,
+                "stdev": 0.1,
             }
         }
 

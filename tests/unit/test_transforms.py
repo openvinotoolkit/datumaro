@@ -29,7 +29,7 @@ from datumaro.components.annotation import (
 )
 from datumaro.components.dataset import Dataset
 from datumaro.components.dataset_base import DatasetItem
-from datumaro.components.errors import MediaTypeError
+from datumaro.components.errors import AnnotationTypeError
 from datumaro.components.media import Image, Table, TableRow
 
 from ..requirements import Requirements, mark_bug, mark_requirement
@@ -1317,24 +1317,6 @@ class AstypeAnnotationsTest(TestCase):
         # Test invalid input with no colon
         with pytest.raises(argparse.ArgumentTypeError):
             transforms.AstypeAnnotations._split_arg("datelabel")
-
-    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
-    def test_media_type(self):
-        dataset = Dataset.from_iterable(
-            [
-                DatasetItem(
-                    id="1",
-                    subset="train",
-                    annotations=[
-                        Label(0, id=0),
-                    ],
-                ),
-            ],
-            categories={},
-        )
-
-        with self.assertRaises(MediaTypeError):
-            transforms.AstypeAnnotations(dataset)
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_transform_annotation_type_label(self):
