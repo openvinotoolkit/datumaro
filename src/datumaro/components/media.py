@@ -1383,6 +1383,14 @@ class TableRow(MediaElement):
         """Row index"""
         return self._index
 
+    @property
+    def path(self) -> str:
+        return self._table.data.path
+
+    @property
+    def has_data(self) -> bool:
+        return self.data() is not None
+
     def data(self, targets: Optional[List[str]] = None) -> Dict:
         """
         Row data in dict format.
@@ -1399,3 +1407,17 @@ class TableRow(MediaElement):
 
     def __repr__(self):
         return f"TableRow(row_idx:{self.index}, data:{self.data()})"
+
+    @classmethod
+    def from_data(cls, data: Dict, *args, **kwargs):
+        return TableRowFromData(data, *args, **kwargs)
+
+
+class TableRowFromData(FromDataMixin, TableRow):
+    def __init__(self, data: Dict, *args, **kwargs):
+        super().__init__(data=data, *args, **kwargs)
+
+    @property
+    def data(self) -> Dict:
+        data = super().data
+        return data

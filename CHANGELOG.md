@@ -17,6 +17,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   (<https://github.com/openvinotoolkit/datumaro/pull/1484>)
 - Add TabularValidator
   (<https://github.com/openvinotoolkit/datumaro/pull/1498>)
+- Add Clean Transform for tabular data type
+  (<https://github.com/openvinotoolkit/datumaro/pull/1520>)
 
 ### Enhancements
 - Fix ambiguous COCO format detector

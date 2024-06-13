@@ -1,12 +1,16 @@
 from __future__ import annotations
 
+import argparse
 import logging as log
+import os.path as osp
 import random
 from unittest import TestCase
 
 import numpy as np
+import pandas as pd
 import pycocotools.mask as mask_utils
 import pytest
+from pandas.api.types import CategoricalDtype
 
 import datumaro.plugins.transforms as transforms
 import datumaro.util.mask_tools as mask_tools
@@ -34,6 +38,7 @@ from datumaro.components.media import Image, Table, TableRow
 
 from ..requirements import Requirements, mark_bug, mark_requirement
 
+from tests.utils.assets import get_test_asset_path
 from tests.utils.test_utils import compare_datasets, compare_datasets_strict
 
 
@@ -1220,11 +1225,6 @@ class ReindexAnnotationsTest:
         )
 
 
-import argparse
-
-from pandas.api.types import CategoricalDtype
-
-
 class AstypeAnnotationsTest(TestCase):
     def setUp(self):
         self.table = Table.from_list(
@@ -1345,9 +1345,9 @@ class AstypeAnnotationsTest(TestCase):
         )
 
         dataset = self.dataset
-        result = transforms.AstypeAnnotations(dataset)
+        result = dataset.transform("astype_annotations")
 
-        categories = result._categories.get(AnnotationType.label, None)
+        categories = result.categories().get(AnnotationType.label, None)
         assert categories
 
         # Check label_groups of categories
@@ -1379,7 +1379,7 @@ class AstypeAnnotationsTest(TestCase):
         )
 
         dataset = self.dataset_caption
-        result = transforms.AstypeAnnotations(dataset)
+        result = dataset.transform("astype_annotations")
 
         compare_datasets(self, expected, result)
 
@@ -1416,9 +1416,9 @@ class AstypeAnnotationsTest(TestCase):
         )
 
         dataset = self.dataset_label_nan
-        result = transforms.AstypeAnnotations(dataset)
+        result = dataset.transform("astype_annotations")
 
-        categories = result._categories.get(AnnotationType.label, None)
+        categories = result.categories().get(AnnotationType.label, None)
         assert categories
 
         # Check label_groups of categories
@@ -1426,3 +1426,156 @@ class AstypeAnnotationsTest(TestCase):
         assert sorted(categories.label_groups[0].labels) == ["DOWN", "UP"]
 
         compare_datasets(self, expected, result)
+
+
+class CleanTest(TestCase):
+    def setUp(self):
+        self.tabular_orig_path = osp.join(
+            get_test_asset_path("tabular_dataset"), "women-clothing", "women_clothing_orig.csv"
+        )
+        table = Table.from_csv(self.tabular_orig_path)
+        self.orig_tabular_dataset = Dataset.from_iterable(
+            [
+                DatasetItem(
+                    id=i,
+                    subset="train",
+                    media=TableRow(table=table, index=i),
+                    annotations=[
+                        Tabular(
+                            values={
+                                "Rating": table.data["Rating"][i],
+                                "Age": table.data["Age"][i],
+                                "Title": table.data["Title"][i],
+                                "Review Text": table.data["Review Text"][i],
+                                "Division Name": table.data["Division Name"][i],
+                            }
+                        )
+                    ],
+                )
+                for i in range(0, 10)
+            ],
+            categories={
+                AnnotationType.tabular: TabularCategories.from_iterable(
+                    [
+                        (
+                            "Age",
+                            float,
+                            {10.0, 20.0, 30.0, 40.0, 50.0, 60.0, 70.0, 80.0, 90.0, 100.0},
+                        ),
+                        ("Review Text", str),
+                        ("Rating", CategoricalDtype(), {1.0, 2.0, 3.0, 4.0, 5.0}),
+                        (
+                            "Division Name",
+                            CategoricalDtype(),
+                            {"General", "General Petite", "Initmates"},
+                        ),
+                    ]
+                )
+            },
+            media_type=TableRow,
+        )
+
+        self.tabular_refined_path = osp.join(
+            get_test_asset_path("tabular_dataset"), "women-clothing", "women_clothing_refined.csv"
+        )
+        table = Table.from_csv(self.tabular_refined_path)
+        self.refined_tabular_dataset = Dataset.from_iterable(
+            [
+                DatasetItem(
+                    id=i,
+                    subset="train",
+                    media=TableRow(table=table, index=i),
+                    annotations=[
+                        Tabular(
+                            values={
+                                "Rating": table.data["Rating"][i],
+                                "Age": table.data["Age"][i],
+                                "Title": table.data["Title"][i],
+                                "Review Text": table.data["Review Text"][i],
+                                "Division Name": table.data["Division Name"][i],
+                            }
+                        )
+                    ],
+                )
+                for i in range(0, 10)
+            ],
+            categories={
+                AnnotationType.tabular: TabularCategories.from_iterable(
+                    [
+                        (
+                            "Age",
+                            float,
+                            {10.0, 20.0, 30.0, 40.0, 50.0, 60.0, 70.0, 80.0, 90.0, 100.0},
+                        ),
+                        ("Review Text", str),
+                        ("Rating", CategoricalDtype(), {1.0, 2.0, 3.0, 4.0, 5.0}),
+                        (
+                            "Division Name",
+                            CategoricalDtype(),
+                            {"General", "General Petite", "Initmates"},
+                        ),
+                    ]
+                )
+            },
+            media_type=TableRow,
+        )
+
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
+    def test_remove_unneccessary_char(self):
+        example_text = "This is a test 😊! Check out https://example.com for more <b>details</b> about this text. Enjoy!!!"
+        cleaned_text = "test check details text enjoy"
+
+        with self.subTest("with None"):
+            self.assertIsNone(transforms.Clean.remove_unneccessary_char(None))
+        with self.subTest("with normal text"):
+            self.assertEqual(transforms.Clean.remove_unneccessary_char(example_text), cleaned_text)
+
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
+    def test_find_closest_value(self):
+        series = pd.Series([1, 3, 7, 8, 10, 15])
+        single_element_series = pd.Series([5])
+        empty_series = pd.Series([])
+
+        with self.subTest("with typical case"):
+            target_value = 9
+            expected_result = 8
+            result = transforms.Clean.find_closest_value(series, target_value)
+            self.assertEqual(result, expected_result)
+
+        with self.subTest("with single element series"):
+            target_value = 3
+            expected_result = 5
+            result = transforms.Clean.find_closest_value(single_element_series, target_value)
+            self.assertEqual(result, expected_result)
+
+        with self.subTest("with empty series"):
+            target_value = 3
+            with self.assertRaises(ValueError):
+                transforms.Clean.find_closest_value(empty_series, target_value)
+
+        with self.subTest("with multiple cloest"):
+            series = pd.Series([1, 4, 6, 7, 9])
+            target_value = 5
+            expected_result = 4  # Closest value in case of tie is implementation-dependent
+            result = transforms.Clean.find_closest_value(series, target_value)
+            self.assertIn(result, [4, 6])  # Accept either 4 or 6 as both are equally close to 5
+
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
+    def test_transform_clean(self):
+        dataset = self.orig_tabular_dataset
+        result = dataset.transform("clean")
+
+        compare_datasets(self, self.refined_tabular_dataset, result)
+
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
+    def test_transform_clean_with_target(self):
+        target = {"input": ["Title", "Review Text", "Age"], "output": ["Rating"]}
+        dataset = Dataset.import_from(self.tabular_orig_path, "tabular", target=target)
+        result = dataset.transform("clean")
+
+        expected = Dataset.import_from(self.tabular_refined_path, "tabular", target=target)
+
+        for i, expected_item in enumerate(expected):
+            result_item = result.__getitem__(i)
+            self.assertEqual(expected_item.annotations, result_item.annotations)
+            self.assertEqual(expected_item.media, result_item.media)

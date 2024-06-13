@@ -46,6 +46,7 @@ from datumaro.components.errors import (
 )
 from datumaro.components.validator import Severity, TaskType, Validator
 from datumaro.util import parse_str_enum_value
+from datumaro.util.tabular_util import emoji_pattern
 
 DEFAULT_LABEL_GROUP = "default"
 
@@ -1393,20 +1394,6 @@ class TabularValidator(_TaskValidator):
             stop_words = set(stopwords.words("english"))  # TODO
 
         def contains_emoji(text):
-            emoji_pattern = re.compile(
-                "|".join(
-                    [
-                        "[\U0001F600-\U0001F64F]",  # emoticons
-                        "[\U0001F300-\U0001F5FF]",  # symbols & pictographs
-                        "[\U0001F680-\U0001F6FF]",  # transport & map symbols
-                        "[\U0001F1E0-\U0001F1FF]",  # flags (iOS)
-                        "[\u2600-\u26FF]",  # Miscellaneous Symbols
-                        "[\u2700-\u27BF]",  # Dingbats
-                        "[\U0001F900-\U0001F9FF]",  # Supplemental Symbols and Pictographs
-                    ]
-                ),
-                flags=re.UNICODE,
-            )
             return bool(emoji_pattern.search(text))
 
         def contains_html_tags(text):
