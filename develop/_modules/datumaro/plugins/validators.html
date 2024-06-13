@@ -388,6 +388,7 @@ document.write(`
 <span class="p">)</span>
 <span class="kn">from</span> <span class="nn">datumaro.components.validator</span> <span class="kn">import</span> <span class="n">Severity</span><span class="p">,</span> <span class="n">TaskType</span><span class="p">,</span> <span class="n">Validator</span>
 <span class="kn">from</span> <span class="nn">datumaro.util</span> <span class="kn">import</span> <span class="n">parse_str_enum_value</span>
+<span class="kn">from</span> <span class="nn">datumaro.util.tabular_util</span> <span class="kn">import</span> <span class="n">emoji_pattern</span>
 
 <span class="n">DEFAULT_LABEL_GROUP</span> <span class="o">=</span> <span class="s2">&quot;default&quot;</span>
 
@@ -1773,20 +1774,6 @@ document.write(`
             <span class="n">stop_words</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">stopwords</span><span class="o">.</span><span class="n">words</span><span class="p">(</span><span class="s2">&quot;english&quot;</span><span class="p">))</span>  <span class="c1"># TODO</span>
 
         <span class="k">def</span> <span class="nf">contains_emoji</span><span class="p">(</span><span class="n">text</span><span class="p">):</span>
-            <span class="n">emoji_pattern</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span>
-                <span class="s2">&quot;|&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
-                    <span class="p">[</span>
-                        <span class="s2">&quot;[</span><span class="se">\U0001F600</span><span class="s2">-</span><span class="se">\U0001F64F</span><span class="s2">]&quot;</span><span class="p">,</span>  <span class="c1"># emoticons</span>
-                        <span class="s2">&quot;[</span><span class="se">\U0001F300</span><span class="s2">-</span><span class="se">\U0001F5FF</span><span class="s2">]&quot;</span><span class="p">,</span>  <span class="c1"># symbols &amp; pictographs</span>
-                        <span class="s2">&quot;[</span><span class="se">\U0001F680</span><span class="s2">-</span><span class="se">\U0001F6FF</span><span class="s2">]&quot;</span><span class="p">,</span>  <span class="c1"># transport &amp; map symbols</span>
-                        <span class="s2">&quot;[</span><span class="se">\U0001F1E0</span><span class="s2">-</span><span class="se">\U0001F1FF</span><span class="s2">]&quot;</span><span class="p">,</span>  <span class="c1"># flags (iOS)</span>
-                        <span class="s2">&quot;[</span><span class="se">\u2600</span><span class="s2">-</span><span class="se">\u26FF</span><span class="s2">]&quot;</span><span class="p">,</span>  <span class="c1"># Miscellaneous Symbols</span>
-                        <span class="s2">&quot;[</span><span class="se">\u2700</span><span class="s2">-</span><span class="se">\u27BF</span><span class="s2">]&quot;</span><span class="p">,</span>  <span class="c1"># Dingbats</span>
-                        <span class="s2">&quot;[</span><span class="se">\U0001F900</span><span class="s2">-</span><span class="se">\U0001F9FF</span><span class="s2">]&quot;</span><span class="p">,</span>  <span class="c1"># Supplemental Symbols and Pictographs</span>
-                    <span class="p">]</span>
-                <span class="p">),</span>
-                <span class="n">flags</span><span class="o">=</span><span class="n">re</span><span class="o">.</span><span class="n">UNICODE</span><span class="p">,</span>
-            <span class="p">)</span>
             <span class="k">return</span> <span class="nb">bool</span><span class="p">(</span><span class="n">emoji_pattern</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">text</span><span class="p">))</span>
 
         <span class="k">def</span> <span class="nf">contains_html_tags</span><span class="p">(</span><span class="n">text</span><span class="p">):</span>

@@ -22,6 +22,7 @@ datumaro.plugins.transforms
       BboxValuesDecrement
       BoxesToMasks
       BoxesToPolygons
+      Clean
       Correct
       CropCoveredSegments
       IdFromImageName

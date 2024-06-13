@@ -558,6 +558,7 @@ document.write(`
 <li class="toctree-l4"><a class="reference internal" href="datumaro.util.pickle_util.html">datumaro.util.pickle_util</a></li>
 <li class="toctree-l4"><a class="reference internal" href="datumaro.util.samples.html">datumaro.util.samples</a></li>
 <li class="toctree-l4"><a class="reference internal" href="datumaro.util.scope.html">datumaro.util.scope</a></li>
+<li class="toctree-l4"><a class="reference internal" href="datumaro.util.tabular_util.html">datumaro.util.tabular_util</a></li>
 <li class="toctree-l4"><a class="reference internal" href="datumaro.util.telemetry_stub.html">datumaro.util.telemetry_stub</a></li>
 <li class="toctree-l4"><a class="reference internal" href="datumaro.util.telemetry_utils.html">datumaro.util.telemetry_utils</a></li>
 <li class="toctree-l4"><a class="reference internal" href="datumaro.util.tf_util.html">datumaro.util.tf_util</a></li>
@@ -743,10 +744,13 @@ document.write(`
 <tr class="row-odd"><td><p><a class="reference internal" href="#datumaro.components.media.TableRow" title="datumaro.components.media.TableRow"><code class="xref py py-obj docutils literal notranslate"><span class="pre">TableRow</span></code></a>(table, index)</p></td>
 <td><p>TableRow media refers to a Table instance and its row index.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#datumaro.components.media.Video" title="datumaro.components.media.Video"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Video</span></code></a>(path, *[, step, start_frame, end_frame])</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#datumaro.components.media.TableRowFromData" title="datumaro.components.media.TableRowFromData"><code class="xref py py-obj docutils literal notranslate"><span class="pre">TableRowFromData</span></code></a>(data, *args, **kwargs)</p></td>
+<td><p>TableRow media refers to a Table instance and its row index.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#datumaro.components.media.Video" title="datumaro.components.media.Video"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Video</span></code></a>(path, *[, step, start_frame, end_frame])</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#datumaro.components.media.VideoFrame" title="datumaro.components.media.VideoFrame"><code class="xref py py-obj docutils literal notranslate"><span class="pre">VideoFrame</span></code></a>(video, index)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#datumaro.components.media.VideoFrame" title="datumaro.components.media.VideoFrame"><code class="xref py py-obj docutils literal notranslate"><span class="pre">VideoFrame</span></code></a>(video, index)</p></td>
 <td><p></p></td>
 </tr>
 </tbody>
@@ -1483,9 +1487,52 @@ The table row data is in dictionary format.</p>
 <dd><p>Row index</p>
 </dd></dl>
 
+<dl class="py property">
+<dt class="sig sig-object py" id="datumaro.components.media.TableRow.path">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">path</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><span class="pre">str</span></a></em><a class="headerlink" href="#datumaro.components.media.TableRow.path" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="datumaro.components.media.TableRow.has_data">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">has_data</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.12)"><span class="pre">bool</span></a></em><a class="headerlink" href="#datumaro.components.media.TableRow.has_data" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
 <dl class="py method">
 <dt class="sig sig-object py" id="datumaro.components.media.TableRow.data">
 <span class="sig-name descname"><span class="pre">data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">targets</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.List" title="(in Python v3.12)"><span class="pre">List</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.12)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Dict" title="(in Python v3.12)"><span class="pre">Dict</span></a></span></span><a class="reference internal" href="../../../_modules/datumaro/components/media.html#TableRow.data"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.components.media.TableRow.data" title="Link to this definition">#</a></dt>
+<dd><p>Row data in dict format.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>targets</strong> (<em>optional</em><em>, </em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.12)"><em>list</em></a><em>(</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><em>str</em></a><em>)</em>) – If this is specified,
+the values corresponding to target colums will be returned.
+Otherwise, whole row data will be returned.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="datumaro.components.media.TableRow.from_data">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Dict" title="(in Python v3.12)"><span class="pre">Dict</span></a></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/datumaro/components/media.html#TableRow.from_data"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.components.media.TableRow.from_data" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="datumaro.components.media.TableRowFromData">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">datumaro.components.media.</span></span><span class="sig-name descname"><span class="pre">TableRowFromData</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Dict" title="(in Python v3.12)"><span class="pre">Dict</span></a></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/datumaro/components/media.html#TableRowFromData"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.components.media.TableRowFromData" title="Link to this definition">#</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#datumaro.components.media.FromDataMixin" title="datumaro.components.media.FromDataMixin"><code class="xref py py-class docutils literal notranslate"><span class="pre">FromDataMixin</span></code></a>, <a class="reference internal" href="#datumaro.components.media.TableRow" title="datumaro.components.media.TableRow"><code class="xref py py-class docutils literal notranslate"><span class="pre">TableRow</span></code></a></p>
+<p>TableRow media refers to a Table instance and its row index.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>table</strong> (<a class="reference internal" href="#datumaro.components.media.Table" title="datumaro.components.media.Table"><em>Table</em></a>) – Table instance.</p></li>
+<li><p><strong>index</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.12)"><em>int</em></a>) – Row index.</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py property">
+<dt class="sig sig-object py" id="datumaro.components.media.TableRowFromData.data">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">data</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Dict" title="(in Python v3.12)"><span class="pre">Dict</span></a></em><a class="headerlink" href="#datumaro.components.media.TableRowFromData.data" title="Link to this definition">#</a></dt>
 <dd><p>Row data in dict format.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -1720,7 +1767,14 @@ Otherwise, whole row data will be returned.</p>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.media.TableRow"><code class="docutils literal notranslate"><span class="pre">TableRow</span></code></a><ul class="nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.media.TableRow.table"><code class="docutils literal notranslate"><span class="pre">TableRow.table</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.media.TableRow.index"><code class="docutils literal notranslate"><span class="pre">TableRow.index</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.media.TableRow.path"><code class="docutils literal notranslate"><span class="pre">TableRow.path</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.media.TableRow.has_data"><code class="docutils literal notranslate"><span class="pre">TableRow.has_data</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.media.TableRow.data"><code class="docutils literal notranslate"><span class="pre">TableRow.data()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.media.TableRow.from_data"><code class="docutils literal notranslate"><span class="pre">TableRow.from_data()</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.media.TableRowFromData"><code class="docutils literal notranslate"><span class="pre">TableRowFromData</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.media.TableRowFromData.data"><code class="docutils literal notranslate"><span class="pre">TableRowFromData.data</span></code></a></li>
 </ul>
 </li>
 </ul>

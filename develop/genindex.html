@@ -2011,8 +2011,12 @@ document.write(`
       </ul></li>
       <li><a href="docs/reference/_autosummary/datumaro.plugins.transforms.html#datumaro.plugins.transforms.Correct.cap_far_from_mean">cap_far_from_mean() (datumaro.plugins.transforms.Correct method)</a>
 </li>
-      <li><a href="docs/reference/_autosummary/datumaro.plugins.transforms.html#datumaro.plugins.transforms.Correct.cap_outliers">cap_outliers() (datumaro.plugins.transforms.Correct method)</a>
+      <li><a href="docs/reference/_autosummary/datumaro.plugins.transforms.html#datumaro.plugins.transforms.Clean.cap_outliers">cap_outliers() (datumaro.plugins.transforms.Clean method)</a>
+
+      <ul>
+        <li><a href="docs/reference/_autosummary/datumaro.plugins.transforms.html#datumaro.plugins.transforms.Correct.cap_outliers">(datumaro.plugins.transforms.Correct method)</a>
 </li>
+      </ul></li>
       <li><a href="docs/reference/_autosummary/datumaro.components.annotation.html#datumaro.components.annotation.Caption">Caption (class in datumaro.components.annotation)</a>
 
       <ul>
@@ -2293,6 +2297,10 @@ document.write(`
 </li>
       <li><a href="docs/reference/_autosummary/datumaro.util.mask_tools.html#datumaro.util.mask_tools.check_is_mask">check_is_mask() (in module datumaro.util.mask_tools)</a>
 </li>
+      <li><a href="docs/reference/_autosummary/datumaro.plugins.transforms.html#datumaro.plugins.transforms.Clean.check_missing_value">check_missing_value() (datumaro.plugins.transforms.Clean method)</a>
+</li>
+      <li><a href="docs/reference/_autosummary/datumaro.plugins.transforms.html#datumaro.plugins.transforms.Clean.check_outlier">check_outlier() (datumaro.plugins.transforms.Clean method)</a>
+</li>
       <li><a href="docs/reference/_autosummary/datumaro.plugins.data_formats.arrow.format.html#datumaro.plugins.data_formats.arrow.format.DatumaroArrow.check_schema">check_schema() (datumaro.plugins.data_formats.arrow.format.DatumaroArrow class method)</a>
 
       <ul>
@@ -2361,6 +2369,8 @@ document.write(`
       </ul></li>
       <li><a href="docs/reference/_autosummary/datumaro.plugins.validators.html#datumaro.plugins.validators.ClassificationValidator">ClassificationValidator (class in datumaro.plugins.validators)</a>
 </li>
+      <li><a href="docs/reference/_autosummary/datumaro.plugins.transforms.html#datumaro.plugins.transforms.Clean">Clean (class in datumaro.plugins.transforms)</a>
+</li>
       <li><a href="docs/reference/_autosummary/datumaro.components.merge.intersect_merge.html#datumaro.components.merge.intersect_merge.OrderedDict.clear">clear() (datumaro.components.merge.intersect_merge.OrderedDict method)</a>
 
       <ul>
@@ -2379,6 +2389,8 @@ document.write(`
         <li><a href="docs/reference/_autosummary/datumaro.plugins.sam_transforms.bbox_to_inst_mask.html#datumaro.plugins.sam_transforms.bbox_to_inst_mask.TLSConfig.client_cert_path">(datumaro.plugins.sam_transforms.bbox_to_inst_mask.TLSConfig attribute)</a>
 </li>
       </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="docs/reference/_autosummary/datumaro.plugins.inference_server_plugin.base.html#datumaro.plugins.inference_server_plugin.base.TLSConfig.client_key_path">client_key_path (datumaro.plugins.inference_server_plugin.base.TLSConfig attribute)</a>
 
       <ul>
@@ -2387,8 +2399,6 @@ document.write(`
         <li><a href="docs/reference/_autosummary/datumaro.plugins.sam_transforms.bbox_to_inst_mask.html#datumaro.plugins.sam_transforms.bbox_to_inst_mask.TLSConfig.client_key_path">(datumaro.plugins.sam_transforms.bbox_to_inst_mask.TLSConfig attribute)</a>
 </li>
       </ul></li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="docs/reference/_autosummary/datumaro.cli.commands.require_project.modification.add.html#datumaro.cli.commands.require_project.modification.add.CliException">CliException</a>, <a href="docs/reference/_autosummary/datumaro.cli.commands.require_project.modification.export.html#datumaro.cli.commands.require_project.modification.export.CliException">[1]</a>, <a href="docs/reference/_autosummary/datumaro.cli.commands.require_project.modification.import_.html#datumaro.cli.commands.require_project.modification.import_.CliException">[2]</a>, <a href="docs/reference/_autosummary/datumaro.cli.commands.require_project.modification.remove.html#datumaro.cli.commands.require_project.modification.remove.CliException">[3]</a>, <a href="docs/reference/_autosummary/datumaro.cli.commands.stats.html#datumaro.cli.commands.stats.CliException">[4]</a>, <a href="docs/reference/_autosummary/datumaro.cli.util.errors.html#datumaro.cli.util.errors.CliException">[5]</a>
 </li>
       <li><a href="docs/reference/_autosummary/datumaro.plugins.tiling.util.html#datumaro.plugins.tiling.util.clip_x1y1x2y2">clip_x1y1x2y2() (in module datumaro.plugins.tiling.util)</a>
@@ -2873,6 +2883,8 @@ document.write(`
         <li><a href="docs/reference/_autosummary/datumaro.components.media.html#datumaro.components.media.TableFromCSV.data">(datumaro.components.media.TableFromCSV property)</a>
 </li>
         <li><a href="docs/reference/_autosummary/datumaro.components.media.html#datumaro.components.media.TableFromDataFrame.data">(datumaro.components.media.TableFromDataFrame property)</a>
+</li>
+        <li><a href="docs/reference/_autosummary/datumaro.components.media.html#datumaro.components.media.TableRowFromData.data">(datumaro.components.media.TableRowFromData property)</a>
 </li>
         <li><a href="docs/reference/_autosummary/datumaro.components.merge.exact_merge.html#datumaro.components.merge.exact_merge.MediaElement.data">(datumaro.components.merge.exact_merge.MediaElement property)</a>
 </li>
@@ -4432,8 +4444,6 @@ document.write(`
         <li><a href="docs/reference/_autosummary/datumaro.plugins.data_formats.mvtec.exporter.html#module-datumaro.plugins.data_formats.mvtec.exporter">module</a>
 </li>
       </ul></li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li>
     datumaro.plugins.data_formats.mvtec.format
 
@@ -4441,6 +4451,8 @@ document.write(`
         <li><a href="docs/reference/_autosummary/datumaro.plugins.data_formats.mvtec.format.html#module-datumaro.plugins.data_formats.mvtec.format">module</a>
 </li>
       </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li>
     datumaro.plugins.data_formats.mvtec.importer
 
@@ -5132,6 +5144,13 @@ document.write(`
 
       <ul>
         <li><a href="docs/reference/_autosummary/datumaro.util.scope.html#module-datumaro.util.scope">module</a>
+</li>
+      </ul></li>
+      <li>
+    datumaro.util.tabular_util
+
+      <ul>
+        <li><a href="docs/reference/_autosummary/datumaro.util.tabular_util.html#module-datumaro.util.tabular_util">module</a>
 </li>
       </ul></li>
       <li>
@@ -6272,8 +6291,12 @@ document.write(`
 </li>
       <li><a href="docs/reference/_autosummary/datumaro.plugins.synthetic_data.utils.html#datumaro.plugins.synthetic_data.utils.fill_background">fill_background() (in module datumaro.plugins.synthetic_data.utils)</a>
 </li>
-      <li><a href="docs/reference/_autosummary/datumaro.plugins.transforms.html#datumaro.plugins.transforms.Correct.fill_missing_value">fill_missing_value() (datumaro.plugins.transforms.Correct method)</a>
+      <li><a href="docs/reference/_autosummary/datumaro.plugins.transforms.html#datumaro.plugins.transforms.Clean.fill_missing_value">fill_missing_value() (datumaro.plugins.transforms.Clean method)</a>
+
+      <ul>
+        <li><a href="docs/reference/_autosummary/datumaro.plugins.transforms.html#datumaro.plugins.transforms.Correct.fill_missing_value">(datumaro.plugins.transforms.Correct method)</a>
 </li>
+      </ul></li>
       <li><a href="docs/reference/_autosummary/datumaro.components.project.html#datumaro.components.project.BuildStageType.filter">filter (datumaro.components.project.BuildStageType attribute)</a>
 </li>
       <li><a href="docs/reference/_autosummary/datumaro.components.algorithms.rise.html#datumaro.components.algorithms.rise.Dataset.filter">filter() (datumaro.components.algorithms.rise.Dataset method)</a>
@@ -6322,6 +6345,8 @@ document.write(`
       </ul></li>
       <li><a href="docs/reference/_autosummary/datumaro.util.pickle_util.html#datumaro.util.pickle_util.RestrictedUnpickler.find_class">find_class() (datumaro.util.pickle_util.RestrictedUnpickler method)</a>
 </li>
+      <li><a href="docs/reference/_autosummary/datumaro.plugins.transforms.html#datumaro.plugins.transforms.Clean.find_closest_value">find_closest_value() (datumaro.plugins.transforms.Clean static method)</a>
+</li>
       <li><a href="docs/reference/_autosummary/datumaro.plugins.data_formats.yolo.base.html#datumaro.plugins.data_formats.yolo.base.find_files">find_files() (in module datumaro.plugins.data_formats.yolo.base)</a>
 
       <ul>
@@ -6361,6 +6386,8 @@ document.write(`
 </li>
       </ul></li>
       <li><a href="docs/reference/_autosummary/datumaro.util.mask_tools.html#datumaro.util.mask_tools.find_mask_bbox">find_mask_bbox() (in module datumaro.util.mask_tools)</a>
+</li>
+      <li><a href="docs/reference/_autosummary/datumaro.plugins.transforms.html#datumaro.plugins.transforms.Correct.find_outliers">find_outliers() (datumaro.plugins.transforms.Correct method)</a>
 </li>
       <li><a href="docs/reference/_autosummary/datumaro.components.project.html#datumaro.components.project.Project.find_project_dir">find_project_dir() (datumaro.components.project.Project static method)</a>
 </li>
@@ -6803,6 +6830,8 @@ document.write(`
 </li>
       </ul></li>
       <li><a href="docs/reference/_autosummary/datumaro.components.media.html#datumaro.components.media.Table.from_csv">from_csv() (datumaro.components.media.Table class method)</a>
+</li>
+      <li><a href="docs/reference/_autosummary/datumaro.components.media.html#datumaro.components.media.TableRow.from_data">from_data() (datumaro.components.media.TableRow class method)</a>
 </li>
       <li><a href="docs/reference/_autosummary/datumaro.components.media.html#datumaro.components.media.Table.from_dataframe">from_dataframe() (datumaro.components.media.Table class method)</a>
 </li>
@@ -8105,6 +8134,8 @@ document.write(`
 </li>
         <li><a href="docs/reference/_autosummary/datumaro.components.media.html#datumaro.components.media.MediaElement.has_data">(datumaro.components.media.MediaElement property)</a>
 </li>
+        <li><a href="docs/reference/_autosummary/datumaro.components.media.html#datumaro.components.media.TableRow.has_data">(datumaro.components.media.TableRow property)</a>
+</li>
         <li><a href="docs/reference/_autosummary/datumaro.components.merge.exact_merge.html#datumaro.components.merge.exact_merge.MediaElement.has_data">(datumaro.components.merge.exact_merge.MediaElement property)</a>
 </li>
         <li><a href="docs/reference/_autosummary/datumaro.plugins.data_formats.arrow.mapper.html#datumaro.plugins.data_formats.arrow.mapper.MediaElement.has_data">(datumaro.plugins.data_formats.arrow.mapper.MediaElement property)</a>
@@ -8154,10 +8185,10 @@ document.write(`
         <li><a href="docs/reference/_autosummary/datumaro.plugins.openvino_plugin.samples.otx_custom_object_detection_yolox_interp.html#datumaro.plugins.openvino_plugin.samples.otx_custom_object_detection_yolox_interp.Image.has_size">(datumaro.plugins.openvino_plugin.samples.otx_custom_object_detection_yolox_interp.Image property)</a>
 </li>
       </ul></li>
-      <li><a href="docs/reference/_autosummary/datumaro.components.config_model.html#datumaro.components.config_model.BuildTarget.has_stages">has_stages (datumaro.components.config_model.BuildTarget property)</a>
-</li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="docs/reference/_autosummary/datumaro.components.config_model.html#datumaro.components.config_model.BuildTarget.has_stages">has_stages (datumaro.components.config_model.BuildTarget property)</a>
+</li>
       <li><a href="docs/reference/_autosummary/datumaro.components.dataset.html#datumaro.components.dataset.DatasetStorage.has_updated_items">has_updated_items() (datumaro.components.dataset.DatasetStorage method)</a>
 
       <ul>
@@ -11746,6 +11777,8 @@ document.write(`
 </li>
         <li><a href="docs/reference/_autosummary/datumaro.util.scope.html#module-datumaro.util.scope">datumaro.util.scope</a>
 </li>
+        <li><a href="docs/reference/_autosummary/datumaro.util.tabular_util.html#module-datumaro.util.tabular_util">datumaro.util.tabular_util</a>
+</li>
         <li><a href="docs/reference/_autosummary/datumaro.util.telemetry_stub.html#module-datumaro.util.telemetry_stub">datumaro.util.telemetry_stub</a>
 </li>
         <li><a href="docs/reference/_autosummary/datumaro.util.telemetry_utils.html#module-datumaro.util.telemetry_utils">datumaro.util.telemetry_utils</a>
@@ -12462,6 +12495,8 @@ document.write(`
 </li>
         <li><a href="docs/reference/_autosummary/datumaro.components.media.html#datumaro.components.media.MultiframeImage.path">(datumaro.components.media.MultiframeImage property)</a>
 </li>
+        <li><a href="docs/reference/_autosummary/datumaro.components.media.html#datumaro.components.media.TableRow.path">(datumaro.components.media.TableRow property)</a>
+</li>
         <li><a href="docs/reference/_autosummary/datumaro.components.media.html#datumaro.components.media.Video.path">(datumaro.components.media.Video property)</a>
 </li>
         <li><a href="docs/reference/_autosummary/datumaro.components.media.html#datumaro.components.media.VideoFrame.path">(datumaro.components.media.VideoFrame property)</a>
@@ -13154,6 +13189,8 @@ document.write(`
 </li>
       <li><a href="docs/reference/_autosummary/datumaro.components.errors.html#datumaro.components.errors.UnknownRefError.ref">ref (datumaro.components.errors.UnknownRefError attribute)</a>
 </li>
+      <li><a href="docs/reference/_autosummary/datumaro.plugins.transforms.html#datumaro.plugins.transforms.Clean.refine_tabular_media">refine_tabular_media() (datumaro.plugins.transforms.Clean method)</a>
+</li>
       <li><a href="docs/reference/_autosummary/datumaro.plugins.data_formats.mot.html#datumaro.plugins.data_formats.mot.MotLabel.reflection">reflection (datumaro.plugins.data_formats.mot.MotLabel attribute)</a>
 </li>
       <li><a href="docs/reference/_autosummary/datumaro.components.project.html#datumaro.components.project.Project.refresh_source_hash">refresh_source_hash() (datumaro.components.project.Project method)</a>
@@ -13278,6 +13315,8 @@ document.write(`
         <li><a href="docs/reference/_autosummary/datumaro.components.project.html#datumaro.components.project.ProjectBuildTargets.remove_target">(datumaro.components.project.ProjectBuildTargets method)</a>
 </li>
       </ul></li>
+      <li><a href="docs/reference/_autosummary/datumaro.plugins.transforms.html#datumaro.plugins.transforms.Clean.remove_unneccessary_char">remove_unneccessary_char() (datumaro.plugins.transforms.Clean static method)</a>
+</li>
       <li><a href="docs/reference/_autosummary/datumaro.plugins.transforms.html#datumaro.plugins.transforms.Correct.remove_unnecessary_char">remove_unnecessary_char() (datumaro.plugins.transforms.Correct method)</a>
 </li>
       <li><a href="docs/reference/_autosummary/datumaro.plugins.transforms.html#datumaro.plugins.transforms.RemoveAnnotations">RemoveAnnotations (class in datumaro.plugins.transforms)</a>
@@ -14590,6 +14629,8 @@ document.write(`
 </li>
       <li><a href="docs/reference/_autosummary/datumaro.components.media.html#datumaro.components.media.TableRow">TableRow (class in datumaro.components.media)</a>
 </li>
+      <li><a href="docs/reference/_autosummary/datumaro.components.media.html#datumaro.components.media.TableRowFromData">TableRowFromData (class in datumaro.components.media)</a>
+</li>
       <li><a href="docs/reference/_autosummary/datumaro.components.annotation.html#datumaro.components.annotation.Tabular">Tabular (class in datumaro.components.annotation)</a>
 </li>
       <li><a href="docs/reference/_autosummary/datumaro.components.algorithms.noisy_label_detection.loss_dynamics_analyzer.html#datumaro.components.algorithms.noisy_label_detection.loss_dynamics_analyzer.AnnotationType.tabular">tabular (datumaro.components.algorithms.noisy_label_detection.loss_dynamics_analyzer.AnnotationType attribute)</a>
@@ -14856,6 +14897,8 @@ document.write(`
         <li><a href="docs/reference/_autosummary/datumaro.plugins.transforms.html#datumaro.plugins.transforms.BoxesToMasks.transform_item">(datumaro.plugins.transforms.BoxesToMasks method)</a>
 </li>
         <li><a href="docs/reference/_autosummary/datumaro.plugins.transforms.html#datumaro.plugins.transforms.BoxesToPolygons.transform_item">(datumaro.plugins.transforms.BoxesToPolygons method)</a>
+</li>
+        <li><a href="docs/reference/_autosummary/datumaro.plugins.transforms.html#datumaro.plugins.transforms.Clean.transform_item">(datumaro.plugins.transforms.Clean method)</a>
 </li>
         <li><a href="docs/reference/_autosummary/datumaro.plugins.transforms.html#datumaro.plugins.transforms.CropCoveredSegments.transform_item">(datumaro.plugins.transforms.CropCoveredSegments method)</a>
 </li>

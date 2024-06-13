@@ -63,6 +63,7 @@ datumaro.util
    datumaro.util.pickle_util
    datumaro.util.samples
    datumaro.util.scope
+   datumaro.util.tabular_util
    datumaro.util.telemetry_stub
    datumaro.util.telemetry_utils
    datumaro.util.tf_util
