@@ -1748,7 +1748,7 @@ class AstypeAnnotations(ItemTransform):
     """
     Enables the conversion of annotation types for the categories and individual items within a dataset.|n
     |n
-    Based on a specified mapping, it transforms the annotation types,|m
+    Based on a specified mapping, it transforms the annotation types,|n
     changing them to 'Label' if they are categorical, and to 'Caption' if they are of type string, float, or integer.|n
     |n
     Examples:|n
@@ -1848,7 +1848,22 @@ class AstypeAnnotations(ItemTransform):
 
 
 class Clean(ItemTransform):
-    """ """
+    """
+    A class used to refine the media items in a dataset.|n
+    |n
+    This class provides methods to clean and preprocess media data within a dataset.
+    The media data can be of various types such as strings, numeric values, or categorical values.
+    The cleaning process for each type of data is handled differently:|n
+    |n
+    - **String Media**: For string data, the class employs natural language processing (NLP)
+    techniques to remove unnecessary characters. This involves cleaning tasks such as removing special
+    characters, punctuation, and other irrelevant elements to refine the textual data.|n
+    - **Numeric Media**: For numeric data, the class identifies and handles outliers and missing values.
+    Outliers are either removed or replaced based on a defined strategy,
+    and missing values are filled using appropriate methods such as mean, median, or a predefined value.|n
+    - **Categorical Media**: For categorical data, the class addresses missing values.
+    Missing values in categorical columns are filled with the mode or a specified placeholder.|n
+    """
 
     def __init__(
         self,
@@ -1860,7 +1875,7 @@ class Clean(ItemTransform):
         self._missing_value = {}
 
     @staticmethod
-    def remove_unneccessary_char(text):
+    def remove_unnecessary_char(text):
         if pd.isna(text):
             return text
         try:
@@ -1943,7 +1958,7 @@ class Clean(ItemTransform):
             or item.media.table.dtype(col) is int
         ]
 
-        df[str_cols] = df[str_cols].applymap(lambda x: self.remove_unneccessary_char(x))
+        df[str_cols] = df[str_cols].applymap(lambda x: self.remove_unnecessary_char(x))
 
         if not (self._outlier_value):
             self.check_outlier(media.table.data[float_cols + int_cols], float_cols + int_cols)
@@ -1968,11 +1983,13 @@ class Clean(ItemTransform):
             )
 
         refined_media = self.refine_tabular_media(item) if item.media.has_data else None
-        annotation_values = {
-            key: refined_media.data[key] for key in item.annotations[0].values.keys()
-        }  # only for tabular
-        refined_annotations = [
-            ann.wrap(values=annotation_values) if isinstance(ann, Tabular) else ann
-            for ann in item.annotations
-        ]
+        refined_annotations = []
+        for ann in item.annotations:
+            if isinstance(ann, Tabular):
+                annotation_values = {
+                    key: refined_media.data[key] for key in item.annotations[0].values.keys()
+                }  # only for tabular
+                ann.wrap(values=annotation_values)
+            refined_annotations.append(ann)
+
         return self.wrap_item(item, media=refined_media, annotations=refined_annotations)
