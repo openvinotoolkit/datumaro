@@ -1861,8 +1861,6 @@ class Clean(ItemTransform):
     - **Numeric Media**: For numeric data, the class identifies and handles outliers and missing values.
     Outliers are either removed or replaced based on a defined strategy,
     and missing values are filled using appropriate methods such as mean, median, or a predefined value.|n
-    - **Categorical Media**: For categorical data, the class addresses missing values.
-    Missing values in categorical columns are filled with the mode or a specified placeholder.|n
     """
 
     def __init__(
@@ -1873,6 +1871,7 @@ class Clean(ItemTransform):
 
         self._outlier_value = {}
         self._missing_value = {}
+        self._sep_token = ":"
 
     @staticmethod
     def remove_unnecessary_char(text):
@@ -1982,6 +1981,7 @@ class Clean(ItemTransform):
                 "Item %s: TableRow info is required for this " "transform" % (item.id,)
             )
 
+        sep_token = self._sep_token
         refined_media = self.refine_tabular_media(item) if item.media.has_data else None
         refined_annotations = []
         for ann in item.annotations:
@@ -1989,7 +1989,14 @@ class Clean(ItemTransform):
                 annotation_values = {
                     key: refined_media.data[key] for key in item.annotations[0].values.keys()
                 }  # only for tabular
-                ann.wrap(values=annotation_values)
+                ann = ann.wrap(values=annotation_values)
+            elif isinstance(ann, Caption):
+                value = [
+                    f"{key}{sep_token}{refined_media.data[key]}"
+                    for key in refined_media.data.keys()
+                    if ann.caption.startswith(key)
+                ]
+                ann = ann.wrap(caption=value[0])
             refined_annotations.append(ann)
 
         return self.wrap_item(item, media=refined_media, annotations=refined_annotations)
