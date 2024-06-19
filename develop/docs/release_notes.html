@@ -8,7 +8,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>Release Notes &#8212; Datumaro 1.7.0rc0 documentation</title>
+    <title>Release Notes &#8212; Datumaro 1.7.0 documentation</title>
   
   
   
@@ -39,7 +39,7 @@
 <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=8d27b9dea8ad943066ae" />
   <script src="../_static/vendor/fontawesome/6.5.1/js/all.min.js?digest=8d27b9dea8ad943066ae"></script>
 
-    <script src="../_static/documentation_options.js?v=b996a231"></script>
+    <script src="../_static/documentation_options.js?v=030dc6f6"></script>
     <script src="../_static/doctools.js?v=888ff710"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -126,8 +126,8 @@
       
     
     
-    <img src="../_static/datumaro-logo.png" class="logo__image only-light" alt="Datumaro 1.7.0rc0 documentation - Home"/>
-    <script>document.write(`<img src="../_static/datumaro-logo.png" class="logo__image only-dark" alt="Datumaro 1.7.0rc0 documentation - Home"/>`);</script>
+    <img src="../_static/datumaro-logo.png" class="logo__image only-light" alt="Datumaro 1.7.0 documentation - Home"/>
+    <script>document.write(`<img src="../_static/datumaro-logo.png" class="logo__image only-dark" alt="Datumaro 1.7.0 documentation - Home"/>`);</script>
   
   
 </a></div>
@@ -653,10 +653,49 @@ document.write(`
 <h1>Release Notes<a class="headerlink" href="#release-notes" title="Link to this heading">#</a></h1>
 <div class="toctree-wrapper compound">
 </div>
-<section id="v1-6-0-2024-04">
-<h2>v1.6.0 (2024.04)<a class="headerlink" href="#v1-6-0-2024-04" title="Link to this heading">#</a></h2>
+<section id="v1-7-0-2024-q2">
+<h2>v1.7.0 (2024 Q2)<a class="headerlink" href="#v1-7-0-2024-q2" title="Link to this heading">#</a></h2>
 <section id="new-features">
 <h3>New features<a class="headerlink" href="#new-features" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p>Add ann_types property for dataset</p></li>
+<li><p>Add AnnotationType.rotated_bbox for oriented object detection</p></li>
+<li><p>Add DOTA data format for oriented object detection task</p></li>
+<li><p>Add AstypeAnnotations Transform</p></li>
+</ul>
+</section>
+<section id="enhancements">
+<h3>Enhancements<a class="headerlink" href="#enhancements" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p>Fix ambiguous COCO format detector</p></li>
+<li><p>Get target information for tabular dataset</p></li>
+<li><p>Add ExtractedMask and update importers who can use it to use it</p></li>
+</ul>
+</section>
+</section>
+<section id="v1-6-1-2024-05">
+<h2>v1.6.1 (2024.05)<a class="headerlink" href="#v1-6-1-2024-05" title="Link to this heading">#</a></h2>
+<section id="id1">
+<h3>Enhancements<a class="headerlink" href="#id1" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p>Prevent AcLauncher for OpenVINO 2024.0</p></li>
+</ul>
+</section>
+<section id="bug-fixes">
+<h3>Bug fixes<a class="headerlink" href="#bug-fixes" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p>Modify lxml dependency constraint</p></li>
+<li><p>Fix CLI error occurring when installed with default option only</p></li>
+<li><p>Relax Pillow dependency constraint</p></li>
+<li><p>Modify Numpy dependency constraint</p></li>
+<li><p>Relax old pandas version constraint</p></li>
+</ul>
+</section>
+</section>
+<section id="v1-6-0-2024-04">
+<h2>v1.6.0 (2024.04)<a class="headerlink" href="#v1-6-0-2024-04" title="Link to this heading">#</a></h2>
+<section id="id2">
+<h3>New features<a class="headerlink" href="#id2" title="Link to this heading">#</a></h3>
 <ul class="simple">
 <li><p>Changed supported Python version range (&gt;=3.9, &lt;=3.11)</p></li>
 <li><p>Support MMDetection COCO format</p></li>
@@ -669,8 +708,8 @@ document.write(`
 <li><p>Support bounding box import within Kaggle extractors and add <cite>KaggleCocoBase</cite></p></li>
 </ul>
 </section>
-<section id="enhancements">
-<h3>Enhancements<a class="headerlink" href="#enhancements" title="Link to this heading">#</a></h3>
+<section id="id3">
+<h3>Enhancements<a class="headerlink" href="#id3" title="Link to this heading">#</a></h3>
 <ul class="simple">
 <li><p>Optimize Python import to make CLI entrypoint faster</p></li>
 <li><p>Add ImageColorScale context manager</p></li>
@@ -684,8 +723,8 @@ document.write(`
 <li><p>Fix each method of the comparator to be used separately</p></li>
 </ul>
 </section>
-<section id="bug-fixes">
-<h3>Bug fixes<a class="headerlink" href="#bug-fixes" title="Link to this heading">#</a></h3>
+<section id="id4">
+<h3>Bug fixes<a class="headerlink" href="#id4" title="Link to this heading">#</a></h3>
 <ul class="simple">
 <li><p>Fix wrong example of Datumaro dataset creation in document</p></li>
 <li><p>Fix wrong command to install datumaro from github</p></li>
@@ -707,8 +746,8 @@ document.write(`
 </section>
 <section id="v1-5-2-2024-01">
 <h2>v1.5.2 (2024.01)<a class="headerlink" href="#v1-5-2-2024-01" title="Link to this heading">#</a></h2>
-<section id="id1">
-<h3>Enhancements<a class="headerlink" href="#id1" title="Link to this heading">#</a></h3>
+<section id="id5">
+<h3>Enhancements<a class="headerlink" href="#id5" title="Link to this heading">#</a></h3>
 <ul class="simple">
 <li><p>Add memory bounded datumaro data format detect</p></li>
 <li><p>Remove Protobuf version limitation (&lt;4)</p></li>
@@ -717,8 +756,8 @@ document.write(`
 </section>
 <section id="v1-5-1-2023-11">
 <h2>v1.5.1 (2023.11)<a class="headerlink" href="#v1-5-1-2023-11" title="Link to this heading">#</a></h2>
-<section id="id2">
-<h3>Enhancements<a class="headerlink" href="#id2" title="Link to this heading">#</a></h3>
+<section id="id6">
+<h3>Enhancements<a class="headerlink" href="#id6" title="Link to this heading">#</a></h3>
 <ul class="simple">
 <li><p>Enhance Datumaro data format stream importer performance</p></li>
 <li><p>Change image default dtype from float32 to uint8</p></li>
@@ -726,8 +765,8 @@ document.write(`
 <li><p>Add ImportError to catch GitPython import error</p></li>
 </ul>
 </section>
-<section id="id3">
-<h3>Bug fixes<a class="headerlink" href="#id3" title="Link to this heading">#</a></h3>
+<section id="id7">
+<h3>Bug fixes<a class="headerlink" href="#id7" title="Link to this heading">#</a></h3>
 <ul class="simple">
 <li><p>Modify the draw function in the visualizer not to raise an error for unsupported annotation types.</p></li>
 <li><p>Correct explore path in the related document.</p></li>
@@ -740,8 +779,8 @@ document.write(`
 </section>
 <section id="v1-5-0-2023-09">
 <h2>v1.5.0 (2023.09)<a class="headerlink" href="#v1-5-0-2023-09" title="Link to this heading">#</a></h2>
-<section id="id4">
-<h3>New features<a class="headerlink" href="#id4" title="Link to this heading">#</a></h3>
+<section id="id8">
+<h3>New features<a class="headerlink" href="#id8" title="Link to this heading">#</a></h3>
 <ul class="simple">
 <li><p>Add tabular data import/export</p></li>
 <li><p>Support video annotation import/export</p></li>
@@ -751,8 +790,8 @@ document.write(`
 <li><p>Add ConfigurableValidator</p></li>
 </ul>
 </section>
-<section id="id5">
-<h3>Enhancements<a class="headerlink" href="#id5" title="Link to this heading">#</a></h3>
+<section id="id9">
+<h3>Enhancements<a class="headerlink" href="#id9" title="Link to this heading">#</a></h3>
 <ul class="simple">
 <li><p>Enhance <cite>ClassificationValidator</cite> for multi-label classification datasets with <cite>label_groups</cite></p></li>
 <li><p>Replace Roboflow <cite>xml.etree</cite> with <cite>defusedxml</cite></p></li>
@@ -763,8 +802,8 @@ document.write(`
 <li><p>Add multi-threading option to ModelTransform and SAMBboxToInstanceMask</p></li>
 </ul>
 </section>
-<section id="id6">
-<h3>Bug fixes<a class="headerlink" href="#id6" title="Link to this heading">#</a></h3>
+<section id="id10">
+<h3>Bug fixes<a class="headerlink" href="#id10" title="Link to this heading">#</a></h3>
 <ul class="simple">
 <li><p>Fix bugs for Tile transform</p></li>
 <li><p>Disable Roboflow Tfrecord format when Tensorflow is not installed</p></li>
@@ -774,8 +813,8 @@ document.write(`
 </section>
 <section id="v1-4-1-2023-07">
 <h2>v1.4.1 (2023.07)<a class="headerlink" href="#v1-4-1-2023-07" title="Link to this heading">#</a></h2>
-<section id="id7">
-<h3>Bug fixes<a class="headerlink" href="#id7" title="Link to this heading">#</a></h3>
+<section id="id11">
+<h3>Bug fixes<a class="headerlink" href="#id11" title="Link to this heading">#</a></h3>
 <ul class="simple">
 <li><p>Report errors for COCO (stream) and Datumaro importers</p></li>
 </ul>
@@ -783,8 +822,8 @@ document.write(`
 </section>
 <section id="v1-4-0-2023-07">
 <h2>v1.4.0 (2023.07)<a class="headerlink" href="#v1-4-0-2023-07" title="Link to this heading">#</a></h2>
-<section id="id8">
-<h3>New features<a class="headerlink" href="#id8" title="Link to this heading">#</a></h3>
+<section id="id12">
+<h3>New features<a class="headerlink" href="#id12" title="Link to this heading">#</a></h3>
 <ul class="simple">
 <li><p>Add documentation and notebook example for Prune API</p></li>
 <li><p>Changed supported Python version range (&gt;=3.8, &lt;=3.11)</p></li>
@@ -799,8 +838,8 @@ document.write(`
 <li><p>Support mask annotations for CVAT data format</p></li>
 </ul>
 </section>
-<section id="id9">
-<h3>Enhancements<a class="headerlink" href="#id9" title="Link to this heading">#</a></h3>
+<section id="id13">
+<h3>Enhancements<a class="headerlink" href="#id13" title="Link to this heading">#</a></h3>
 <ul class="simple">
 <li><p>Support list query for explorer</p></li>
 <li><p>update contributing.md</p></li>
@@ -817,8 +856,8 @@ document.write(`
 <li><p>Refactor dataset.py to seperate DatasetStorage</p></li>
 </ul>
 </section>
-<section id="id10">
-<h3>Bug fixes<a class="headerlink" href="#id10" title="Link to this heading">#</a></h3>
+<section id="id14">
+<h3>Bug fixes<a class="headerlink" href="#id14" title="Link to this heading">#</a></h3>
 <ul class="simple">
 <li><p>Create cache dir under only writable filesystem</p></li>
 <li><p>Fix: Dataset infos() can be broken if a transform not redefining infos() is stacked on the top</p></li>
@@ -831,14 +870,14 @@ document.write(`
 </section>
 <section id="v1-3-2-2023-06">
 <h2>v1.3.2 (2023.06)<a class="headerlink" href="#v1-3-2-2023-06" title="Link to this heading">#</a></h2>
-<section id="id11">
-<h3>Enhancements<a class="headerlink" href="#id11" title="Link to this heading">#</a></h3>
+<section id="id15">
+<h3>Enhancements<a class="headerlink" href="#id15" title="Link to this heading">#</a></h3>
 <ul class="simple">
 <li><p>Let CocoBase continue even if an InvalidAnnotationError is raised</p></li>
 </ul>
 </section>
-<section id="id12">
-<h3>Bug fixes<a class="headerlink" href="#id12" title="Link to this heading">#</a></h3>
+<section id="id16">
+<h3>Bug fixes<a class="headerlink" href="#id16" title="Link to this heading">#</a></h3>
 <ul class="simple">
 <li><p>Install dvc version to 2.x</p></li>
 <li><p>Replace np.append() in Validator</p></li>
@@ -847,8 +886,8 @@ document.write(`
 </section>
 <section id="v1-3-1-2023-05">
 <h2>v1.3.1 (2023.05)<a class="headerlink" href="#v1-3-1-2023-05" title="Link to this heading">#</a></h2>
-<section id="id13">
-<h3>Bug fixes<a class="headerlink" href="#id13" title="Link to this heading">#</a></h3>
+<section id="id17">
+<h3>Bug fixes<a class="headerlink" href="#id17" title="Link to this heading">#</a></h3>
 <ul class="simple">
 <li><p>Fix <cite>Cityscapes</cite> format mis-detection problem</p></li>
 </ul>
@@ -856,8 +895,8 @@ document.write(`
 </section>
 <section id="v1-3-0-2023-05">
 <h2>v1.3.0 (2023.05)<a class="headerlink" href="#v1-3-0-2023-05" title="Link to this heading">#</a></h2>
-<section id="id14">
-<h3>New features<a class="headerlink" href="#id14" title="Link to this heading">#</a></h3>
+<section id="id18">
+<h3>New features<a class="headerlink" href="#id18" title="Link to this heading">#</a></h3>
 <ul class="simple">
 <li><p>Add <cite>CocoRoboflowImporter</cite></p></li>
 <li><p>Add <cite>SynthiaSfImporter</cite> and <cite>SynthiaAlImporter</cite></p></li>
@@ -868,8 +907,8 @@ document.write(`
 <li><p>Add <cite>ReindexAnnotations</cite> transform</p></li>
 </ul>
 </section>
-<section id="id15">
-<h3>Enhancements<a class="headerlink" href="#id15" title="Link to this heading">#</a></h3>
+<section id="id19">
+<h3>Enhancements<a class="headerlink" href="#id19" title="Link to this heading">#</a></h3>
 <ul class="simple">
 <li><p>Use autosummary for fully-automatic Python module docs generation</p></li>
 <li><p>Enrich stack trace for better user experience when importing</p></li>
@@ -880,8 +919,8 @@ document.write(`
 <li><p>Add Juypter notebook examples for importing/exporting detection and segmentation data</p></li>
 </ul>
 </section>
-<section id="id16">
-<h3>Bug fixes<a class="headerlink" href="#id16" title="Link to this heading">#</a></h3>
+<section id="id20">
+<h3>Bug fixes<a class="headerlink" href="#id20" title="Link to this heading">#</a></h3>
 <ul class="simple">
 <li><p>Fix <cite>Mapillary Vistas</cite> data format</p></li>
 <li><p>Fix <cite>bytes</cite> property returning None if function is given to data</p></li>
@@ -894,8 +933,8 @@ document.write(`
 </section>
 <section id="v1-2-1-2023-05">
 <h2>v1.2.1 (2023.05)<a class="headerlink" href="#v1-2-1-2023-05" title="Link to this heading">#</a></h2>
-<section id="id17">
-<h3>Bug fixes<a class="headerlink" href="#id17" title="Link to this heading">#</a></h3>
+<section id="id21">
+<h3>Bug fixes<a class="headerlink" href="#id21" title="Link to this heading">#</a></h3>
 <ul class="simple">
 <li><p>Fix project level CVAT for images format import</p></li>
 <li><p>Fix an info message when using the convert CLI command with no args.input_format</p></li>
@@ -905,8 +944,8 @@ document.write(`
 </section>
 <section id="v1-2-0-2023-04">
 <h2>v1.2.0 (2023.04)<a class="headerlink" href="#v1-2-0-2023-04" title="Link to this heading">#</a></h2>
-<section id="id18">
-<h3>New features<a class="headerlink" href="#id18" title="Link to this heading">#</a></h3>
+<section id="id22">
+<h3>New features<a class="headerlink" href="#id22" title="Link to this heading">#</a></h3>
 <ul class="simple">
 <li><p>Add Skill Up section to documentation</p></li>
 <li><p>Add LossDynamicsAnalyzer for noisy label detection</p></li>
@@ -914,8 +953,8 @@ document.write(`
 <li><p>Add sort transform</p></li>
 </ul>
 </section>
-<section id="id19">
-<h3>Enhancements<a class="headerlink" href="#id19" title="Link to this heading">#</a></h3>
+<section id="id23">
+<h3>Enhancements<a class="headerlink" href="#id23" title="Link to this heading">#</a></h3>
 <ul class="simple">
 <li><p>Add multiprocessing to DatumaroBinaryBase</p></li>
 <li><p>Refactor merge code</p></li>
@@ -929,8 +968,8 @@ document.write(`
 <li><p>Abbreviate “detect-format” to “detect” for prettifying</p></li>
 </ul>
 </section>
-<section id="id20">
-<h3>Bug fixes<a class="headerlink" href="#id20" title="Link to this heading">#</a></h3>
+<section id="id24">
+<h3>Bug fixes<a class="headerlink" href="#id24" title="Link to this heading">#</a></h3>
 <ul class="simple">
 <li><p>Add UserWarning if an invalid media_type comes to image statistics computation</p></li>
 <li><p>Fix negated <cite>is_encrypted</cite></p></li>
@@ -941,8 +980,8 @@ document.write(`
 </section>
 <section id="v1-1-0-2023-03">
 <h2>v1.1.0 (2023.03)<a class="headerlink" href="#v1-1-0-2023-03" title="Link to this heading">#</a></h2>
-<section id="id21">
-<h3>New features<a class="headerlink" href="#id21" title="Link to this heading">#</a></h3>
+<section id="id25">
+<h3>New features<a class="headerlink" href="#id25" title="Link to this heading">#</a></h3>
 <ul class="simple">
 <li><p>Add with_subset_dirs decorator (Add ImagenetWithSubsetDirsImporter)</p></li>
 <li><p>Add CommonSemanticSegmentationWithSubsetDirsImporter</p></li>
@@ -955,14 +994,14 @@ document.write(`
 <li><p>Add Ultralytics YOLO format</p></li>
 </ul>
 </section>
-<section id="id22">
-<h3>Enhancements<a class="headerlink" href="#id22" title="Link to this heading">#</a></h3>
+<section id="id26">
+<h3>Enhancements<a class="headerlink" href="#id26" title="Link to this heading">#</a></h3>
 <ul class="simple">
 <li><p>Refactor Datumaro format code and test code</p></li>
 </ul>
 </section>
-<section id="id23">
-<h3>Bug fixes<a class="headerlink" href="#id23" title="Link to this heading">#</a></h3>
+<section id="id27">
+<h3>Bug fixes<a class="headerlink" href="#id27" title="Link to this heading">#</a></h3>
 <ul class="simple">
 <li><p>Fix image filenames and anomaly mask appearance in MVTec exporter</p></li>
 <li><p>Fix CIFAR10 and 100 detect function</p></li>
@@ -976,24 +1015,24 @@ document.write(`
 </section>
 <section id="v1-0-0-2023-02">
 <h2>v1.0.0 (2023.02)<a class="headerlink" href="#v1-0-0-2023-02" title="Link to this heading">#</a></h2>
-<section id="id24">
-<h3>New features<a class="headerlink" href="#id24" title="Link to this heading">#</a></h3>
+<section id="id28">
+<h3>New features<a class="headerlink" href="#id28" title="Link to this heading">#</a></h3>
 <ul class="simple">
 <li><p>Add Data Explorer</p></li>
 <li><p>Add Ellipse annotation type</p></li>
 <li><p>Add MVTec anomaly data support</p></li>
 </ul>
 </section>
-<section id="id25">
-<h3>Enhancements<a class="headerlink" href="#id25" title="Link to this heading">#</a></h3>
+<section id="id29">
+<h3>Enhancements<a class="headerlink" href="#id29" title="Link to this heading">#</a></h3>
 <ul class="simple">
 <li><p>Refactor existing tests</p></li>
 <li><p>Raise ImportError on importing malformed COCO directory</p></li>
 <li><p>Remove the duplicated and cyclical category context in documentation</p></li>
 </ul>
 </section>
-<section id="id26">
-<h3>Bug fixes<a class="headerlink" href="#id26" title="Link to this heading">#</a></h3>
+<section id="id30">
+<h3>Bug fixes<a class="headerlink" href="#id30" title="Link to this heading">#</a></h3>
 <ul class="simple">
 <li><p>Fix for importing CVAT image 1.1 data format exported to project level</p></li>
 <li><p>Fix a problem on setting log-level via CLI</p></li>
@@ -1046,72 +1085,82 @@ document.write(`
   </div>
   <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
     <ul class="visible nav section-nav flex-column">
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#v1-6-0-2024-04">v1.6.0 (2024.04)</a><ul class="nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#v1-7-0-2024-q2">v1.7.0 (2024 Q2)</a><ul class="nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#new-features">New features</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#enhancements">Enhancements</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#v1-6-1-2024-05">v1.6.1 (2024.05)</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id1">Enhancements</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bug-fixes">Bug fixes</a></li>
 </ul>
 </li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#v1-6-0-2024-04">v1.6.0 (2024.04)</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id2">New features</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id3">Enhancements</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id4">Bug fixes</a></li>
+</ul>
+</li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#v1-5-2-2024-01">v1.5.2 (2024.01)</a><ul class="nav section-nav flex-column">
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id1">Enhancements</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id5">Enhancements</a></li>
 </ul>
 </li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#v1-5-1-2023-11">v1.5.1 (2023.11)</a><ul class="nav section-nav flex-column">
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id2">Enhancements</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id3">Bug fixes</a></li>
-</ul>
-</li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#v1-5-0-2023-09">v1.5.0 (2023.09)</a><ul class="nav section-nav flex-column">
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id4">New features</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id5">Enhancements</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id6">Bug fixes</a></li>
-</ul>
-</li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#v1-4-1-2023-07">v1.4.1 (2023.07)</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id6">Enhancements</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id7">Bug fixes</a></li>
 </ul>
 </li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#v1-4-0-2023-07">v1.4.0 (2023.07)</a><ul class="nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#v1-5-0-2023-09">v1.5.0 (2023.09)</a><ul class="nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id8">New features</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id9">Enhancements</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id10">Bug fixes</a></li>
 </ul>
 </li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#v1-4-1-2023-07">v1.4.1 (2023.07)</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id11">Bug fixes</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#v1-4-0-2023-07">v1.4.0 (2023.07)</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id12">New features</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id13">Enhancements</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id14">Bug fixes</a></li>
+</ul>
+</li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#v1-3-2-2023-06">v1.3.2 (2023.06)</a><ul class="nav section-nav flex-column">
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id11">Enhancements</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id12">Bug fixes</a></li>
-</ul>
-</li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#v1-3-1-2023-05">v1.3.1 (2023.05)</a><ul class="nav section-nav flex-column">
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id13">Bug fixes</a></li>
-</ul>
-</li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#v1-3-0-2023-05">v1.3.0 (2023.05)</a><ul class="nav section-nav flex-column">
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id14">New features</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id15">Enhancements</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id16">Bug fixes</a></li>
 </ul>
 </li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#v1-2-1-2023-05">v1.2.1 (2023.05)</a><ul class="nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#v1-3-1-2023-05">v1.3.1 (2023.05)</a><ul class="nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id17">Bug fixes</a></li>
 </ul>
 </li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#v1-2-0-2023-04">v1.2.0 (2023.04)</a><ul class="nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#v1-3-0-2023-05">v1.3.0 (2023.05)</a><ul class="nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id18">New features</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id19">Enhancements</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id20">Bug fixes</a></li>
 </ul>
 </li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#v1-2-1-2023-05">v1.2.1 (2023.05)</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id21">Bug fixes</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#v1-2-0-2023-04">v1.2.0 (2023.04)</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id22">New features</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id23">Enhancements</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id24">Bug fixes</a></li>
+</ul>
+</li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#v1-1-0-2023-03">v1.1.0 (2023.03)</a><ul class="nav section-nav flex-column">
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id21">New features</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id22">Enhancements</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id23">Bug fixes</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id25">New features</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id26">Enhancements</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id27">Bug fixes</a></li>
 </ul>
 </li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#v1-0-0-2023-02">v1.0.0 (2023.02)</a><ul class="nav section-nav flex-column">
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id24">New features</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id25">Enhancements</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id26">Bug fixes</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id28">New features</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id29">Enhancements</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id30">Bug fixes</a></li>
 </ul>
 </li>
 </ul>

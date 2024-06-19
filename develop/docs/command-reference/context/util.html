@@ -8,7 +8,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>Util &#8212; Datumaro 1.7.0rc0 documentation</title>
+    <title>Util &#8212; Datumaro 1.7.0 documentation</title>
   
   
   
@@ -39,7 +39,7 @@
 <link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=8d27b9dea8ad943066ae" />
   <script src="../../../_static/vendor/fontawesome/6.5.1/js/all.min.js?digest=8d27b9dea8ad943066ae"></script>
 
-    <script src="../../../_static/documentation_options.js?v=b996a231"></script>
+    <script src="../../../_static/documentation_options.js?v=030dc6f6"></script>
     <script src="../../../_static/doctools.js?v=888ff710"></script>
     <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -127,8 +127,8 @@
       
     
     
-    <img src="../../../_static/datumaro-logo.png" class="logo__image only-light" alt="Datumaro 1.7.0rc0 documentation - Home"/>
-    <script>document.write(`<img src="../../../_static/datumaro-logo.png" class="logo__image only-dark" alt="Datumaro 1.7.0rc0 documentation - Home"/>`);</script>
+    <img src="../../../_static/datumaro-logo.png" class="logo__image only-light" alt="Datumaro 1.7.0 documentation - Home"/>
+    <script>document.write(`<img src="../../../_static/datumaro-logo.png" class="logo__image only-dark" alt="Datumaro 1.7.0 documentation - Home"/>`);</script>
   
   
 </a></div>
@@ -669,7 +669,8 @@ allows to split the video into frames and use them instead, making
 the dataset reproducible and stable.</p>
 <p>This command provides different options like setting the frame step
 (the <code class="docutils literal notranslate"><span class="pre">-s/--step</span></code> option), file name pattern (<code class="docutils literal notranslate"><span class="pre">-n/--name-pattern</span></code>),
-starting (<code class="docutils literal notranslate"><span class="pre">-b/--start-frame</span></code>) and finishing (<code class="docutils literal notranslate"><span class="pre">-e/--end-frame</span></code>) frame etc.</p>
+starting (<code class="docutils literal notranslate"><span class="pre">-b/--start-frame</span></code>) and finishing (<code class="docutils literal notranslate"><span class="pre">-e/--end-frame</span></code>) frame etc.
+Note that starting and finishing frames denote a closed interval [<code class="docutils literal notranslate"><span class="pre">start-frame</span></code>, <code class="docutils literal notranslate"><span class="pre">end-frame</span></code>].</p>
 <p>Note that this command is equivalent to the following commands:</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>datum<span class="w"> </span>project<span class="w"> </span>create<span class="w"> </span>-o<span class="w"> </span>proj
 datum<span class="w"> </span>project<span class="w"> </span>import<span class="w"> </span>-p<span class="w"> </span>proj<span class="w"> </span>-f<span class="w"> </span>video_frames<span class="w"> </span>video.mp4<span class="w"> </span>--<span class="w"> </span>&lt;params&gt;

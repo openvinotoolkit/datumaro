@@ -7,7 +7,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>datumaro.plugins.data_formats.datumaro.base &#8212; Datumaro 1.7.0rc0 documentation</title>
+    <title>datumaro.plugins.data_formats.datumaro.base &#8212; Datumaro 1.7.0 documentation</title>
   
   
   
@@ -38,7 +38,7 @@
 <link rel="preload" as="script" href="../../../../../_static/scripts/pydata-sphinx-theme.js?digest=8d27b9dea8ad943066ae" />
   <script src="../../../../../_static/vendor/fontawesome/6.5.1/js/all.min.js?digest=8d27b9dea8ad943066ae"></script>
 
-    <script src="../../../../../_static/documentation_options.js?v=b996a231"></script>
+    <script src="../../../../../_static/documentation_options.js?v=030dc6f6"></script>
     <script src="../../../../../_static/doctools.js?v=888ff710"></script>
     <script src="../../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../../../../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -124,8 +124,8 @@
       
     
     
-    <img src="../../../../../_static/datumaro-logo.png" class="logo__image only-light" alt="Datumaro 1.7.0rc0 documentation - Home"/>
-    <script>document.write(`<img src="../../../../../_static/datumaro-logo.png" class="logo__image only-dark" alt="Datumaro 1.7.0rc0 documentation - Home"/>`);</script>
+    <img src="../../../../../_static/datumaro-logo.png" class="logo__image only-light" alt="Datumaro 1.7.0 documentation - Home"/>
+    <script>document.write(`<img src="../../../../../_static/datumaro-logo.png" class="logo__image only-dark" alt="Datumaro 1.7.0 documentation - Home"/>`);</script>
   
   
 </a></div>
@@ -340,7 +340,7 @@ document.write(`
                 <article class="bd-article">
                   
   <h1>Source code for datumaro.plugins.data_formats.datumaro.base</h1><div class="highlight"><pre>
-<span></span><span class="c1"># Copyright (C) 2023 Intel Corporation</span>
+<span></span><span class="c1"># Copyright (C) 2024 Intel Corporation</span>
 <span class="c1">#</span>
 <span class="c1"># SPDX-License-Identifier: MIT</span>
 
@@ -476,6 +476,7 @@ document.write(`
 
         <span class="n">items</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="n">ann_types</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
+        <span class="n">actual_media_types</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
         <span class="k">for</span> <span class="n">item_desc</span> <span class="ow">in</span> <span class="n">pbar</span><span class="o">.</span><span class="n">iter</span><span class="p">(</span>
             <span class="n">_gen</span><span class="p">(),</span> <span class="n">desc</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;Importing &#39;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_subset</span><span class="si">}</span><span class="s2">&#39;&quot;</span><span class="p">,</span> <span class="n">total</span><span class="o">=</span><span class="nb">len</span><span class="p">(</span><span class="n">item_descs</span><span class="p">)</span>
         <span class="p">):</span>
@@ -484,12 +485,28 @@ document.write(`
                 <span class="n">items</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">item</span><span class="p">)</span>
                 <span class="k">for</span> <span class="n">ann</span> <span class="ow">in</span> <span class="n">item</span><span class="o">.</span><span class="n">annotations</span><span class="p">:</span>
                     <span class="n">ann_types</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">ann</span><span class="o">.</span><span class="n">type</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">item</span><span class="o">.</span><span class="n">media</span><span class="p">:</span>
+                    <span class="n">actual_media_types</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">item</span><span class="o">.</span><span class="n">media</span><span class="o">.</span><span class="n">type</span><span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">ann_types</span> <span class="o">=</span> <span class="n">ann_types</span>
+
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">actual_media_types</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="n">actual_media_type</span> <span class="o">=</span> <span class="n">actual_media_types</span><span class="o">.</span><span class="n">pop</span><span class="p">()</span>
+        <span class="k">elif</span> <span class="nb">len</span><span class="p">(</span><span class="n">actual_media_types</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="n">actual_media_type</span> <span class="o">=</span> <span class="n">MediaType</span><span class="o">.</span><span class="n">MEDIA_ELEMENT</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">actual_media_type</span> <span class="o">=</span> <span class="kc">None</span>
+
+        <span class="k">if</span> <span class="n">actual_media_type</span> <span class="ow">and</span> <span class="ow">not</span> <span class="nb">issubclass</span><span class="p">(</span><span class="n">actual_media_type</span><span class="o">.</span><span class="n">media</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">media_type</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="n">MediaTypeError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;Unexpected media type of a dataset &#39;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">media_type</span><span class="si">}</span><span class="s2">&#39;. &quot;</span>
+                <span class="sa">f</span><span class="s2">&quot;Expected media type is &#39;</span><span class="si">{</span><span class="n">actual_media_type</span><span class="o">.</span><span class="n">media</span><span class="si">}</span><span class="s2">.&quot;</span>
+            <span class="p">)</span>
 
         <span class="k">return</span> <span class="n">items</span>
 
     <span class="k">def</span> <span class="nf">_parse_item</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">item_desc</span><span class="p">:</span> <span class="n">Dict</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">DatasetItem</span><span class="p">]:</span>
+        <span class="n">STR_MULTIPLE_MEDIA</span> <span class="o">=</span> <span class="s2">&quot;DatasetItem cannot contain multiple media types&quot;</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="n">item_id</span> <span class="o">=</span> <span class="n">item_desc</span><span class="p">[</span><span class="s2">&quot;id&quot;</span><span class="p">]</span>
 
@@ -505,12 +522,10 @@ document.write(`
                         <span class="n">image_path</span> <span class="o">=</span> <span class="n">old_image_path</span>
 
                 <span class="n">media</span> <span class="o">=</span> <span class="n">Image</span><span class="o">.</span><span class="n">from_file</span><span class="p">(</span><span class="n">path</span><span class="o">=</span><span class="n">image_path</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="n">image_info</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;size&quot;</span><span class="p">))</span>
-                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">media_type</span> <span class="o">==</span> <span class="n">MediaElement</span><span class="p">:</span>
-                    <span class="bp">self</span><span class="o">.</span><span class="n">media_type</span> <span class="o">=</span> <span class="n">Image</span>
 
             <span class="n">pcd_info</span> <span class="o">=</span> <span class="n">item_desc</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;point_cloud&quot;</span><span class="p">)</span>
             <span class="k">if</span> <span class="n">media</span> <span class="ow">and</span> <span class="n">pcd_info</span><span class="p">:</span>
-                <span class="k">raise</span> <span class="n">MediaTypeError</span><span class="p">(</span><span class="s2">&quot;Dataset cannot contain multiple media types&quot;</span><span class="p">)</span>
+                <span class="k">raise</span> <span class="n">MediaTypeError</span><span class="p">(</span><span class="n">STR_MULTIPLE_MEDIA</span><span class="p">)</span>
             <span class="k">if</span> <span class="n">pcd_info</span><span class="p">:</span>
                 <span class="n">pcd_path</span> <span class="o">=</span> <span class="n">pcd_info</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;path&quot;</span><span class="p">)</span>
                 <span class="n">point_cloud</span> <span class="o">=</span> <span class="n">osp</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_pcd_dir</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_subset</span><span class="p">,</span> <span class="n">pcd_path</span><span class="p">)</span>
@@ -527,12 +542,10 @@ document.write(`
                     <span class="p">]</span>
 
                 <span class="n">media</span> <span class="o">=</span> <span class="n">PointCloud</span><span class="o">.</span><span class="n">from_file</span><span class="p">(</span><span class="n">path</span><span class="o">=</span><span class="n">point_cloud</span><span class="p">,</span> <span class="n">extra_images</span><span class="o">=</span><span class="n">related_images</span><span class="p">)</span>
-                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">media_type</span> <span class="o">==</span> <span class="n">MediaElement</span><span class="p">:</span>
-                    <span class="bp">self</span><span class="o">.</span><span class="n">media_type</span> <span class="o">=</span> <span class="n">PointCloud</span>
 
             <span class="n">video_frame_info</span> <span class="o">=</span> <span class="n">item_desc</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;video_frame&quot;</span><span class="p">)</span>
             <span class="k">if</span> <span class="n">media</span> <span class="ow">and</span> <span class="n">video_frame_info</span><span class="p">:</span>
-                <span class="k">raise</span> <span class="n">MediaTypeError</span><span class="p">(</span><span class="s2">&quot;Dataset cannot contain multiple media types&quot;</span><span class="p">)</span>
+                <span class="k">raise</span> <span class="n">MediaTypeError</span><span class="p">(</span><span class="n">STR_MULTIPLE_MEDIA</span><span class="p">)</span>
             <span class="k">if</span> <span class="n">video_frame_info</span><span class="p">:</span>
                 <span class="n">video_path</span> <span class="o">=</span> <span class="n">osp</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
                     <span class="bp">self</span><span class="o">.</span><span class="n">_video_dir</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_subset</span><span class="p">,</span> <span class="n">video_frame_info</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;video_path&quot;</span><span class="p">)</span>
@@ -544,6 +557,20 @@ document.write(`
                 <span class="n">frame_index</span> <span class="o">=</span> <span class="n">video_frame_info</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;frame_index&quot;</span><span class="p">)</span>
 
                 <span class="n">media</span> <span class="o">=</span> <span class="n">VideoFrame</span><span class="p">(</span><span class="n">video</span><span class="p">,</span> <span class="n">frame_index</span><span class="p">)</span>
+
+            <span class="n">video_info</span> <span class="o">=</span> <span class="n">item_desc</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;video&quot;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">media</span> <span class="ow">and</span> <span class="n">video_info</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="n">MediaTypeError</span><span class="p">(</span><span class="n">STR_MULTIPLE_MEDIA</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">video_info</span><span class="p">:</span>
+                <span class="n">video_path</span> <span class="o">=</span> <span class="n">osp</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_video_dir</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_subset</span><span class="p">,</span> <span class="n">video_info</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;path&quot;</span><span class="p">))</span>
+                <span class="k">if</span> <span class="n">video_path</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_videos</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_videos</span><span class="p">[</span><span class="n">video_path</span><span class="p">]</span> <span class="o">=</span> <span class="n">Video</span><span class="p">(</span><span class="n">video_path</span><span class="p">)</span>
+                <span class="n">step</span> <span class="o">=</span> <span class="n">video_info</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;step&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+                <span class="n">start_frame</span> <span class="o">=</span> <span class="n">video_info</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;start_frame&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+                <span class="n">end_frame</span> <span class="o">=</span> <span class="n">video_info</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;end_frame&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+                <span class="n">media</span> <span class="o">=</span> <span class="n">Video</span><span class="p">(</span>
+                    <span class="n">path</span><span class="o">=</span><span class="n">video_path</span><span class="p">,</span> <span class="n">step</span><span class="o">=</span><span class="n">step</span><span class="p">,</span> <span class="n">start_frame</span><span class="o">=</span><span class="n">start_frame</span><span class="p">,</span> <span class="n">end_frame</span><span class="o">=</span><span class="n">end_frame</span>
+                <span class="p">)</span>
 
             <span class="n">media_desc</span> <span class="o">=</span> <span class="n">item_desc</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;media&quot;</span><span class="p">)</span>
             <span class="k">if</span> <span class="ow">not</span> <span class="n">media</span> <span class="ow">and</span> <span class="n">media_desc</span> <span class="ow">and</span> <span class="n">media_desc</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;path&quot;</span><span class="p">):</span>
