@@ -25,7 +25,6 @@ datumaro.components.annotation
    
       Annotation
       AnnotationType
-      Annotations
       Bbox
       Caption
       Categories

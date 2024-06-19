@@ -8,7 +8,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>datumaro.plugins.data_formats.datumaro.base &#8212; Datumaro 1.7.0 documentation</title>
+    <title>datumaro.plugins.data_formats.datumaro.base &#8212; Datumaro 1.7.0rc0 documentation</title>
   
   
   
@@ -39,7 +39,7 @@
 <link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=8d27b9dea8ad943066ae" />
   <script src="../../../_static/vendor/fontawesome/6.5.1/js/all.min.js?digest=8d27b9dea8ad943066ae"></script>
 
-    <script src="../../../_static/documentation_options.js?v=030dc6f6"></script>
+    <script src="../../../_static/documentation_options.js?v=b996a231"></script>
     <script src="../../../_static/doctools.js?v=888ff710"></script>
     <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -127,8 +127,8 @@
       
     
     
-    <img src="../../../_static/datumaro-logo.png" class="logo__image only-light" alt="Datumaro 1.7.0 documentation - Home"/>
-    <script>document.write(`<img src="../../../_static/datumaro-logo.png" class="logo__image only-dark" alt="Datumaro 1.7.0 documentation - Home"/>`);</script>
+    <img src="../../../_static/datumaro-logo.png" class="logo__image only-light" alt="Datumaro 1.7.0rc0 documentation - Home"/>
+    <script>document.write(`<img src="../../../_static/datumaro-logo.png" class="logo__image only-dark" alt="Datumaro 1.7.0rc0 documentation - Home"/>`);</script>
   
   
 </a></div>
@@ -940,7 +940,7 @@ object construction (i.e. doesn’t require dataset iteration).</p>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="datumaro.plugins.data_formats.datumaro.base.DatasetItem.annotations">
-<span class="sig-name descname"><span class="pre">annotations</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="datumaro.components.annotation.html#datumaro.components.annotation.Annotations" title="datumaro.components.annotation.Annotations"><span class="pre">Annotations</span></a></em><a class="headerlink" href="#datumaro.plugins.data_formats.datumaro.base.DatasetItem.annotations" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">annotations</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.List" title="(in Python v3.12)"><span class="pre">List</span></a><span class="p"><span class="pre">[</span></span><a class="reference internal" href="datumaro.components.annotation.html#datumaro.components.annotation.Annotation" title="datumaro.components.annotation.Annotation"><span class="pre">Annotation</span></a><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#datumaro.plugins.data_formats.datumaro.base.DatasetItem.annotations" title="Link to this definition">#</a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
@@ -1399,7 +1399,7 @@ with these arguments</p></li>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="datumaro.plugins.data_formats.datumaro.base.MediaElement">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">datumaro.plugins.data_formats.datumaro.base.</span></span><span class="sig-name descname"><span class="pre">MediaElement</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">crypter:</span> <span class="pre">~datumaro.components.crypter.Crypter</span> <span class="pre">=</span> <span class="pre">&lt;datumaro.components.crypter.NullCrypter</span> <span class="pre">object&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">*args</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">**kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/datumaro/components/media.html#MediaElement"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.plugins.data_formats.datumaro.base.MediaElement" title="Link to this definition">#</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">datumaro.plugins.data_formats.datumaro.base.</span></span><span class="sig-name descname"><span class="pre">MediaElement</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">crypter:</span> <span class="pre">~datumaro.components.crypter.Crypter</span> <span class="pre">=</span> <span class="pre">&lt;datumaro.components.crypter.NullCrypter</span> <span class="pre">object&gt;</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/datumaro/components/media.html#MediaElement"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.plugins.data_formats.datumaro.base.MediaElement" title="Link to this definition">#</a></dt>
 <dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Generic" title="(in Python v3.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Generic</span></code></a>[<code class="xref py py-obj docutils literal notranslate"><span class="pre">AnyData</span></code>]</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="datumaro.plugins.data_formats.datumaro.base.MediaElement.as_dict">
@@ -1749,7 +1749,7 @@ Should be used by default for user-defined extractors.</p>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="datumaro.plugins.data_formats.datumaro.base.Video">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">datumaro.plugins.data_formats.datumaro.base.</span></span><span class="sig-name descname"><span class="pre">Video</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">step</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.12)"><span class="pre">int</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">start_frame</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.12)"><span class="pre">int</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">end_frame</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.12)"><span class="pre">int</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.12)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/datumaro/components/media.html#Video"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.plugins.data_formats.datumaro.base.Video" title="Link to this definition">#</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">datumaro.plugins.data_formats.datumaro.base.</span></span><span class="sig-name descname"><span class="pre">Video</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">step</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.12)"><span class="pre">int</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">start_frame</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.12)"><span class="pre">int</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">end_frame</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.12)"><span class="pre">int</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.12)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/datumaro/components/media.html#Video"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.plugins.data_formats.datumaro.base.Video" title="Link to this definition">#</a></dt>
 <dd><p>Bases: <a class="reference internal" href="datumaro.components.media.html#datumaro.components.media.MediaElement" title="datumaro.components.media.MediaElement"><code class="xref py py-class docutils literal notranslate"><span class="pre">MediaElement</span></code></a>, <a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Iterable" title="(in Python v3.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Iterable</span></code></a>[<a class="reference internal" href="datumaro.components.media.html#datumaro.components.media.VideoFrame" title="datumaro.components.media.VideoFrame"><code class="xref py py-class docutils literal notranslate"><span class="pre">VideoFrame</span></code></a>]</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="datumaro.plugins.data_formats.datumaro.base.Video.close">
@@ -1764,8 +1764,7 @@ Should be used by default for user-defined extractors.</p>
 <dl class="py property">
 <dt class="sig sig-object py" id="datumaro.plugins.data_formats.datumaro.base.Video.length">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">length</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.12)"><span class="pre">int</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.12)"><span class="pre">None</span></a></em><a class="headerlink" href="#datumaro.plugins.data_formats.datumaro.base.Video.length" title="Link to this definition">#</a></dt>
-<dd><p>Returns frame count of the closed interval [start_frame, end_frame],
-if video provides such information.</p>
+<dd><p>Returns frame count, if video provides such information.</p>
 <p>Note that not all videos provide length / duration metainfo, so the
 result may be undefined.</p>
 <p>Also note, that information may be inaccurate because of variable
@@ -1828,11 +1827,6 @@ i.e. start frame, end frame and frame step.</p>
 <dl class="py property">
 <dt class="sig sig-object py" id="datumaro.plugins.data_formats.datumaro.base.VideoFrame.path">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">path</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><span class="pre">str</span></a></em><a class="headerlink" href="#datumaro.plugins.data_formats.datumaro.base.VideoFrame.path" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="datumaro.plugins.data_formats.datumaro.base.VideoFrame.from_self">
-<span class="sig-name descname"><span class="pre">from_self</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/datumaro/components/media.html#VideoFrame.from_self"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.plugins.data_formats.datumaro.base.VideoFrame.from_self" title="Link to this definition">#</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
@@ -2145,7 +2139,6 @@ i.e. start frame, end frame and frame step.</p>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.plugins.data_formats.datumaro.base.VideoFrame.index"><code class="docutils literal notranslate"><span class="pre">VideoFrame.index</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.plugins.data_formats.datumaro.base.VideoFrame.video"><code class="docutils literal notranslate"><span class="pre">VideoFrame.video</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.plugins.data_formats.datumaro.base.VideoFrame.path"><code class="docutils literal notranslate"><span class="pre">VideoFrame.path</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.plugins.data_formats.datumaro.base.VideoFrame.from_self"><code class="docutils literal notranslate"><span class="pre">VideoFrame.from_self()</span></code></a></li>
 </ul>
 </li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.plugins.data_formats.datumaro.base.parse_json_file"><code class="docutils literal notranslate"><span class="pre">parse_json_file()</span></code></a></li>

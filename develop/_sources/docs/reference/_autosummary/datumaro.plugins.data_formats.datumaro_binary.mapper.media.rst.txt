@@ -22,7 +22,6 @@ datumaro.plugins.data\_formats.datumaro\_binary.mapper.media
       MediaMapper
       PointCloudMapper
       VideoFrameMapper
-      VideoMapper
    
    
 

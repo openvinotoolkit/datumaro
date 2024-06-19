@@ -7,7 +7,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>datumaro.components.dataset_base &#8212; Datumaro 1.7.0 documentation</title>
+    <title>datumaro.components.dataset_base &#8212; Datumaro 1.7.0rc0 documentation</title>
   
   
   
@@ -38,7 +38,7 @@
 <link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=8d27b9dea8ad943066ae" />
   <script src="../../../_static/vendor/fontawesome/6.5.1/js/all.min.js?digest=8d27b9dea8ad943066ae"></script>
 
-    <script src="../../../_static/documentation_options.js?v=030dc6f6"></script>
+    <script src="../../../_static/documentation_options.js?v=b996a231"></script>
     <script src="../../../_static/doctools.js?v=888ff710"></script>
     <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -124,8 +124,8 @@
       
     
     
-    <img src="../../../_static/datumaro-logo.png" class="logo__image only-light" alt="Datumaro 1.7.0 documentation - Home"/>
-    <script>document.write(`<img src="../../../_static/datumaro-logo.png" class="logo__image only-dark" alt="Datumaro 1.7.0 documentation - Home"/>`);</script>
+    <img src="../../../_static/datumaro-logo.png" class="logo__image only-light" alt="Datumaro 1.7.0rc0 documentation - Home"/>
+    <script>document.write(`<img src="../../../_static/datumaro-logo.png" class="logo__image only-dark" alt="Datumaro 1.7.0rc0 documentation - Home"/>`);</script>
   
   
 </a></div>
@@ -351,7 +351,7 @@ document.write(`
 <span class="kn">import</span> <span class="nn">attr</span>
 <span class="kn">from</span> <span class="nn">attr</span> <span class="kn">import</span> <span class="n">attrs</span><span class="p">,</span> <span class="n">field</span>
 
-<span class="kn">from</span> <span class="nn">datumaro.components.annotation</span> <span class="kn">import</span> <span class="n">Annotation</span><span class="p">,</span> <span class="n">Annotations</span><span class="p">,</span> <span class="n">AnnotationType</span><span class="p">,</span> <span class="n">Categories</span>
+<span class="kn">from</span> <span class="nn">datumaro.components.annotation</span> <span class="kn">import</span> <span class="n">Annotation</span><span class="p">,</span> <span class="n">AnnotationType</span><span class="p">,</span> <span class="n">Categories</span>
 <span class="kn">from</span> <span class="nn">datumaro.components.cli_plugin</span> <span class="kn">import</span> <span class="n">CliPlugin</span>
 <span class="kn">from</span> <span class="nn">datumaro.components.contexts.importer</span> <span class="kn">import</span> <span class="n">ImportContext</span><span class="p">,</span> <span class="n">NullImportContext</span>
 <span class="kn">from</span> <span class="nn">datumaro.components.media</span> <span class="kn">import</span> <span class="n">Image</span><span class="p">,</span> <span class="n">MediaElement</span>
@@ -373,7 +373,7 @@ document.write(`
         <span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">validator</span><span class="o">=</span><span class="n">attr</span><span class="o">.</span><span class="n">validators</span><span class="o">.</span><span class="n">optional</span><span class="p">(</span><span class="n">attr</span><span class="o">.</span><span class="n">validators</span><span class="o">.</span><span class="n">instance_of</span><span class="p">(</span><span class="n">MediaElement</span><span class="p">))</span>
     <span class="p">)</span>
 
-    <span class="n">annotations</span><span class="p">:</span> <span class="n">Annotations</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">factory</span><span class="o">=</span><span class="n">Annotations</span><span class="p">,</span> <span class="n">validator</span><span class="o">=</span><span class="n">default_if_none</span><span class="p">(</span><span class="n">Annotations</span><span class="p">))</span>
+    <span class="n">annotations</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">Annotation</span><span class="p">]</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">factory</span><span class="o">=</span><span class="nb">list</span><span class="p">,</span> <span class="n">validator</span><span class="o">=</span><span class="n">default_if_none</span><span class="p">(</span><span class="nb">list</span><span class="p">))</span>
 
     <span class="n">attributes</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">factory</span><span class="o">=</span><span class="nb">dict</span><span class="p">,</span> <span class="n">validator</span><span class="o">=</span><span class="n">default_if_none</span><span class="p">(</span><span class="nb">dict</span><span class="p">))</span>
 

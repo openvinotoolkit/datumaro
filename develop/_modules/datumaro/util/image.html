@@ -7,7 +7,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>datumaro.util.image &#8212; Datumaro 1.7.0 documentation</title>
+    <title>datumaro.util.image &#8212; Datumaro 1.7.0rc0 documentation</title>
   
   
   
@@ -38,7 +38,7 @@
 <link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=8d27b9dea8ad943066ae" />
   <script src="../../../_static/vendor/fontawesome/6.5.1/js/all.min.js?digest=8d27b9dea8ad943066ae"></script>
 
-    <script src="../../../_static/documentation_options.js?v=030dc6f6"></script>
+    <script src="../../../_static/documentation_options.js?v=b996a231"></script>
     <script src="../../../_static/doctools.js?v=888ff710"></script>
     <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -124,8 +124,8 @@
       
     
     
-    <img src="../../../_static/datumaro-logo.png" class="logo__image only-light" alt="Datumaro 1.7.0 documentation - Home"/>
-    <script>document.write(`<img src="../../../_static/datumaro-logo.png" class="logo__image only-dark" alt="Datumaro 1.7.0 documentation - Home"/>`);</script>
+    <img src="../../../_static/datumaro-logo.png" class="logo__image only-light" alt="Datumaro 1.7.0rc0 documentation - Home"/>
+    <script>document.write(`<img src="../../../_static/datumaro-logo.png" class="logo__image only-dark" alt="Datumaro 1.7.0rc0 documentation - Home"/>`);</script>
   
   
 </a></div>
@@ -364,12 +364,11 @@ document.write(`
 <span class="kn">from</span> <span class="nn">datumaro.components.crypter</span> <span class="kn">import</span> <span class="n">NULL_CRYPTER</span><span class="p">,</span> <span class="n">Crypter</span>
 <span class="kn">from</span> <span class="nn">datumaro.components.errors</span> <span class="kn">import</span> <span class="n">DatumaroError</span>
 
-<span class="k">if</span> <span class="n">TYPE_CHECKING</span><span class="p">:</span>
-    <span class="k">try</span><span class="p">:</span>
-        <span class="c1"># Introduced in 1.20</span>
-        <span class="kn">from</span> <span class="nn">numpy.typing</span> <span class="kn">import</span> <span class="n">DTypeLike</span>
-    <span class="k">except</span> <span class="ne">ImportError</span><span class="p">:</span>
-        <span class="n">DTypeLike</span> <span class="o">=</span> <span class="n">Any</span>
+<span class="k">try</span><span class="p">:</span>
+    <span class="c1"># Introduced in 1.20</span>
+    <span class="kn">from</span> <span class="nn">numpy.typing</span> <span class="kn">import</span> <span class="n">DTypeLike</span>
+<span class="k">except</span> <span class="ne">ImportError</span><span class="p">:</span>
+    <span class="n">DTypeLike</span> <span class="o">=</span> <span class="n">Any</span>
 
 
 <div class="viewcode-block" id="ImageBackend">
@@ -394,6 +393,9 @@ document.write(`
 
 <span class="kn">from</span> <span class="nn">datumaro.util.image_cache</span> <span class="kn">import</span> <span class="n">ImageCache</span>
 <span class="kn">from</span> <span class="nn">datumaro.util.os_util</span> <span class="kn">import</span> <span class="n">find_files</span>
+
+<span class="k">if</span> <span class="n">TYPE_CHECKING</span><span class="p">:</span>
+    <span class="kn">from</span> <span class="nn">PIL.Image</span> <span class="kn">import</span> <span class="n">Image</span> <span class="k">as</span> <span class="n">PILImage</span>
 
 
 <div class="viewcode-block" id="ImageColorChannel">
@@ -432,21 +434,20 @@ document.write(`
 
 <div class="viewcode-block" id="ImageColorChannel.decode_by_pil">
 <a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.util.image.html#datumaro.plugins.data_formats.arrow.mapper.ImageColorChannel.decode_by_pil">[docs]</a>
-    <span class="k">def</span> <span class="nf">decode_by_pil</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">image_bytes</span><span class="p">:</span> <span class="nb">bytes</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">decode_by_pil</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">image_bytes</span><span class="p">:</span> <span class="nb">bytes</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">PILImage</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Convert image color channel for PIL Image.&quot;&quot;&quot;</span>
         <span class="kn">from</span> <span class="nn">PIL</span> <span class="kn">import</span> <span class="n">Image</span>
 
         <span class="n">img</span> <span class="o">=</span> <span class="n">Image</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="n">BytesIO</span><span class="p">(</span><span class="n">image_bytes</span><span class="p">))</span>
 
         <span class="k">if</span> <span class="bp">self</span> <span class="o">==</span> <span class="n">ImageColorChannel</span><span class="o">.</span><span class="n">UNCHANGED</span><span class="p">:</span>
-            <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">img</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">img</span>
 
         <span class="k">if</span> <span class="bp">self</span> <span class="o">==</span> <span class="n">ImageColorChannel</span><span class="o">.</span><span class="n">COLOR_BGR</span><span class="p">:</span>
-            <span class="n">img</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">img</span><span class="o">.</span><span class="n">convert</span><span class="p">(</span><span class="s2">&quot;RGB&quot;</span><span class="p">))</span>
-            <span class="k">return</span> <span class="n">cv2</span><span class="o">.</span><span class="n">cvtColor</span><span class="p">(</span><span class="n">img</span><span class="p">,</span> <span class="n">cv2</span><span class="o">.</span><span class="n">COLOR_RGB2BGR</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">Image</span><span class="o">.</span><span class="n">fromarray</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">flip</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">img</span><span class="o">.</span><span class="n">convert</span><span class="p">(</span><span class="s2">&quot;RGB&quot;</span><span class="p">)),</span> <span class="o">-</span><span class="mi">1</span><span class="p">))</span>
 
         <span class="k">if</span> <span class="bp">self</span> <span class="o">==</span> <span class="n">ImageColorChannel</span><span class="o">.</span><span class="n">COLOR_RGB</span><span class="p">:</span>
-            <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">img</span><span class="o">.</span><span class="n">convert</span><span class="p">(</span><span class="s2">&quot;RGB&quot;</span><span class="p">))</span>
+            <span class="k">return</span> <span class="n">img</span><span class="o">.</span><span class="n">convert</span><span class="p">(</span><span class="s2">&quot;RGB&quot;</span><span class="p">)</span>
 
         <span class="k">raise</span> <span class="ne">ValueError</span></div>
 </div>
@@ -662,12 +663,12 @@ document.write(`
 
     <span class="k">if</span> <span class="n">IMAGE_BACKEND</span><span class="o">.</span><span class="n">get</span><span class="p">()</span> <span class="o">==</span> <span class="n">ImageBackend</span><span class="o">.</span><span class="n">cv2</span><span class="p">:</span>
         <span class="n">image</span> <span class="o">=</span> <span class="n">ctx_color_scale</span><span class="o">.</span><span class="n">decode_by_cv2</span><span class="p">(</span><span class="n">image_bytes</span><span class="p">)</span>
+        <span class="n">image</span> <span class="o">=</span> <span class="n">image</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">dtype</span><span class="p">)</span>
     <span class="k">elif</span> <span class="n">IMAGE_BACKEND</span><span class="o">.</span><span class="n">get</span><span class="p">()</span> <span class="o">==</span> <span class="n">ImageBackend</span><span class="o">.</span><span class="n">PIL</span><span class="p">:</span>
         <span class="n">image</span> <span class="o">=</span> <span class="n">ctx_color_scale</span><span class="o">.</span><span class="n">decode_by_pil</span><span class="p">(</span><span class="n">image_bytes</span><span class="p">)</span>
+        <span class="n">image</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">image</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">dtype</span><span class="p">)</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">()</span>
-
-    <span class="n">image</span> <span class="o">=</span> <span class="n">image</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">dtype</span><span class="p">)</span>
 
     <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">image</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span> <span class="ow">in</span> <span class="p">{</span><span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">}</span>
     <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">image</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span> <span class="o">==</span> <span class="mi">3</span><span class="p">:</span>
