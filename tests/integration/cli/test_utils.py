@@ -1,3 +1,7 @@
+# Copyright (C) 2024 Intel Corporation
+#
+# SPDX-License-Identifier: MIT
+
 import os
 import os.path as osp
 from unittest.case import TestCase
@@ -46,4 +50,4 @@ class VideoSplittingTest:
             "2",
         )
 
-        assert set(os.listdir(output_dir)) == {"%06d.jpg" % n for n in range(2, 8, 2)}
+        assert set(os.listdir(output_dir)) == {"%06d.jpg" % n for n in range(2, 9, 2)}

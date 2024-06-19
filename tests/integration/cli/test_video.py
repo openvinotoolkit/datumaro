@@ -1,12 +1,17 @@
+# Copyright (C) 2024 Intel Corporation
+#
+# SPDX-License-Identifier: MIT
+
 import os
 import os.path as osp
 from unittest import TestCase
 
 import pytest
 
-from datumaro.components.annotation import Bbox
+from datumaro.components.annotation import Bbox, Label
 from datumaro.components.dataset import Dataset, DatasetItem
-from datumaro.components.media import Video, VideoFrame
+from datumaro.components.errors import DatasetImportError
+from datumaro.components.media import MediaElement, Video, VideoFrame
 
 from ...requirements import Requirements, mark_requirement
 
@@ -93,7 +98,7 @@ class VideoTest(TestCase):
                 "--start-frame",
                 "0",
                 "--end-frame",
-                "4",
+                "3",
                 "--step",
                 "2",
             )
@@ -140,27 +145,61 @@ class VideoTest(TestCase):
 
             compare_datasets(self, expected, parsed_dataset)
 
+    @staticmethod
+    def _make_sample_video_dataset(test_dir: str, media_type=None) -> Dataset:
+        video_path = osp.join(test_dir, "video.avi")
+        make_sample_video(video_path, frame_size=(4, 6), frames=4)
+        video = Video(video_path)
+
+        kwargs = {
+            "iterable": [
+                DatasetItem(
+                    "0",
+                    media=VideoFrame(video, 0),
+                    annotations=[
+                        Bbox(1, 1, 1, 1, label=0, object_id=0),
+                        Bbox(2, 2, 2, 2, label=1, object_id=1),
+                    ],
+                ),
+                DatasetItem(
+                    "1",
+                    media=Video(video_path, step=1, start_frame=0, end_frame=1),
+                    annotations=[
+                        Label(0),
+                    ],
+                ),
+                DatasetItem(
+                    "2",
+                    media=Video(video_path, step=1, start_frame=2, end_frame=2),
+                    annotations=[
+                        Label(1),
+                    ],
+                ),
+            ],
+            "categories": ["a", "b"],
+        }
+        if media_type:
+            kwargs["media_type"] = media_type
+        dataset = Dataset.from_iterable(**kwargs)
+
+        return dataset
+
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
+    def test_cannot_create_video_and_videoframe_dataset_with_wrong_media_type(self):
+        with TestDir() as test_dir:
+            dataset = self._make_sample_video_dataset(test_dir)
+            project_dir = osp.join(test_dir, "proj")
+            run(self, "project", "create", "-o", project_dir)
+            with self.assertRaises(DatasetImportError):
+                dataset_dir = osp.join(test_dir, "test_video")
+                dataset.save(dataset_dir, save_media=True)
+                run(self, "project", "import", "-p", project_dir, "-f", "datumaro", dataset_dir)
+
     @pytest.mark.new
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_export_video_dataset(self):
         with TestDir() as test_dir:
-            video_path = osp.join(test_dir, "video.avi")
-            make_sample_video(video_path, frame_size=(4, 6), frames=4)
-            video = Video(video_path)
-
-            expected = Dataset.from_iterable(
-                [
-                    DatasetItem(
-                        0,
-                        media=VideoFrame(video, 0),
-                        annotations=[
-                            Bbox(1, 1, 1, 1, label=0, object_id=0),
-                            Bbox(2, 2, 2, 2, label=1, object_id=1),
-                        ],
-                    )
-                ],
-                categories=["a", "b"],
-            )
+            expected = self._make_sample_video_dataset(test_dir, media_type=MediaElement)
 
             project_dir = osp.join(test_dir, "proj")
             run(self, "project", "create", "-o", project_dir)

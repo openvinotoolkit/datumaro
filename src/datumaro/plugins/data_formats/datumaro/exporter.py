@@ -1,4 +1,4 @@
-# Copyright (C) 2023 Intel Corporation
+# Copyright (C) 2024 Intel Corporation
 #
 # SPDX-License-Identifier: MIT
 
@@ -179,6 +179,24 @@ class _SubsetWriter:
         """
         if item.media is None:
             yield
+        elif isinstance(item.media, Video):
+            video = item.media_as(Video)
+
+            if context.save_media:
+                fname = context.make_video_filename(item)
+                # To prevent the video from being overwritten
+                # (A video can have same path but different start/end frames)
+                if not osp.exists(fname):
+                    context.save_video(item, fname=fname, subdir=item.subset)
+                item.media = Video(
+                    path=video.path,
+                    step=video._step,
+                    start_frame=video._start_frame,
+                    end_frame=video._end_frame,
+                )
+
+            yield
+            item.media = video
         elif isinstance(item.media, VideoFrame):
             video_frame = item.media_as(VideoFrame)
 
@@ -245,6 +263,15 @@ class _SubsetWriter:
                     "video_path": getattr(video_frame.video, "path", None),
                     "frame_index": getattr(video_frame, "index", -1),
                 }
+            elif isinstance(item.media, Video):
+                video = item.media_as(Video)
+                item_desc["video"] = {
+                    "path": getattr(video, "path", None),
+                    "step": video._step,
+                    "start_frame": video._start_frame,
+                }
+                if video._end_frame is not None:
+                    item_desc["video"]["end_frame"] = video._end_frame
             elif isinstance(item.media, Image):
                 image = item.media_as(Image)
                 item_desc["image"] = {"path": getattr(image, "path", None)}
