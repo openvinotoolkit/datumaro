@@ -1,4 +1,4 @@
-# Copyright (C) 2024 Intel Corporation
+# Copyright (C) 2023 Intel Corporation
 #
 # SPDX-License-Identifier: MIT
 
@@ -28,12 +28,10 @@ from datumaro.components.annotation import (
     RleMask,
 )
 from datumaro.components.dataset_base import DatasetItem
-from datumaro.components.media import Image, MediaElement, PointCloud, Video, VideoFrame
+from datumaro.components.media import Image, PointCloud
 from datumaro.components.project import Dataset
 from datumaro.plugins.data_formats.datumaro.format import DatumaroPath
 from datumaro.util.mask_tools import generate_colormap
-
-from tests.utils.video import make_sample_video
 
 
 @pytest.fixture
@@ -198,54 +196,6 @@ def fxt_test_datumaro_format_dataset():
             "int_list": [0, 1, 2],
             "float_list": [0.0, 0.1, 0.2],
         },
-    )
-
-
-@pytest.fixture
-def fxt_test_datumaro_format_video_dataset(test_dir) -> Dataset:
-    video_path = osp.join(test_dir, "video.avi")
-    make_sample_video(video_path, frame_size=(4, 6), frames=4)
-    video = Video(video_path)
-
-    return Dataset.from_iterable(
-        iterable=[
-            DatasetItem(
-                "f0",
-                subset="train",
-                media=VideoFrame(video, 0),
-                annotations=[
-                    Bbox(1, 1, 1, 1, label=0, object_id=0),
-                    Bbox(2, 2, 2, 2, label=1, object_id=1),
-                ],
-            ),
-            DatasetItem(
-                "f1",
-                subset="test",
-                media=VideoFrame(video, 0),
-                annotations=[
-                    Bbox(0, 0, 2, 2, label=1, object_id=1),
-                    Bbox(3, 3, 1, 1, label=0, object_id=0),
-                ],
-            ),
-            DatasetItem(
-                "v0",
-                subset="train",
-                media=Video(video_path, step=1, start_frame=0, end_frame=1),
-                annotations=[
-                    Label(0),
-                ],
-            ),
-            DatasetItem(
-                "v1",
-                subset="test",
-                media=Video(video_path, step=1, start_frame=2, end_frame=2),
-                annotations=[
-                    Bbox(1, 1, 3, 3, label=1, object_id=1),
-                ],
-            ),
-        ],
-        media_type=MediaElement,
-        categories=["a", "b"],
     )
 
 

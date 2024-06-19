@@ -1,4 +1,4 @@
-# Copyright (C) 2024 Intel Corporation
+# Copyright (C) 2023 Intel Corporation
 #
 # SPDX-License-Identifier: MIT
 
@@ -132,7 +132,6 @@ class JsonReader:
 
         items = []
         ann_types = set()
-        actual_media_types = set()
         for item_desc in pbar.iter(
             _gen(), desc=f"Importing '{self._subset}'", total=len(item_descs)
         ):
@@ -141,28 +140,12 @@ class JsonReader:
                 items.append(item)
                 for ann in item.annotations:
                     ann_types.add(ann.type)
-                if item.media:
-                    actual_media_types.add(item.media.type)
 
         self.ann_types = ann_types
-
-        if len(actual_media_types) == 1:
-            actual_media_type = actual_media_types.pop()
-        elif len(actual_media_types) > 1:
-            actual_media_type = MediaType.MEDIA_ELEMENT
-        else:
-            actual_media_type = None
-
-        if actual_media_type and not issubclass(actual_media_type.media, self.media_type):
-            raise MediaTypeError(
-                f"Unexpected media type of a dataset '{self.media_type}'. "
-                f"Expected media type is '{actual_media_type.media}."
-            )
 
         return items
 
     def _parse_item(self, item_desc: Dict) -> Optional[DatasetItem]:
-        STR_MULTIPLE_MEDIA = "DatasetItem cannot contain multiple media types"
         try:
             item_id = item_desc["id"]
 
@@ -178,10 +161,12 @@ class JsonReader:
                         image_path = old_image_path
 
                 media = Image.from_file(path=image_path, size=image_info.get("size"))
+                if self.media_type == MediaElement:
+                    self.media_type = Image
 
             pcd_info = item_desc.get("point_cloud")
             if media and pcd_info:
-                raise MediaTypeError(STR_MULTIPLE_MEDIA)
+                raise MediaTypeError("Dataset cannot contain multiple media types")
             if pcd_info:
                 pcd_path = pcd_info.get("path")
                 point_cloud = osp.join(self._pcd_dir, self._subset, pcd_path)
@@ -198,10 +183,12 @@ class JsonReader:
                     ]
 
                 media = PointCloud.from_file(path=point_cloud, extra_images=related_images)
+                if self.media_type == MediaElement:
+                    self.media_type = PointCloud
 
             video_frame_info = item_desc.get("video_frame")
             if media and video_frame_info:
-                raise MediaTypeError(STR_MULTIPLE_MEDIA)
+                raise MediaTypeError("Dataset cannot contain multiple media types")
             if video_frame_info:
                 video_path = osp.join(
                     self._video_dir, self._subset, video_frame_info.get("video_path")
@@ -213,20 +200,6 @@ class JsonReader:
                 frame_index = video_frame_info.get("frame_index")
 
                 media = VideoFrame(video, frame_index)
-
-            video_info = item_desc.get("video")
-            if media and video_info:
-                raise MediaTypeError(STR_MULTIPLE_MEDIA)
-            if video_info:
-                video_path = osp.join(self._video_dir, self._subset, video_info.get("path"))
-                if video_path not in self._videos:
-                    self._videos[video_path] = Video(video_path)
-                step = video_info.get("step", 1)
-                start_frame = video_info.get("start_frame", 0)
-                end_frame = video_info.get("end_frame", None)
-                media = Video(
-                    path=video_path, step=step, start_frame=start_frame, end_frame=end_frame
-                )
 
             media_desc = item_desc.get("media")
             if not media and media_desc and media_desc.get("path"):

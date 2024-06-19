@@ -7,21 +7,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## \[unreleased\]
 ### New features
-- Add TabularValidator
-  (<https://github.com/openvinotoolkit/datumaro/pull/1498>)
-- Add Clean Transform for tabular data type
-  (<https://github.com/openvinotoolkit/datumaro/pull/1520>)
-
-### Enhancements
-- Set label name with parents to avoid duplicates for AstypeAnnotations
-  (<https://github.com/openvinotoolkit/datumaro/pull/1492>)
-- Pass Keyword Argument to TabularDataBase
-  (<https://github.com/openvinotoolkit/datumaro/pull/1522>)
-
-## Q2 2024 Release 1.7.0
-### New features
-- Support 'Video' media type in datumaro format
-  (<https://github.com/openvinotoolkit/datumaro/pull/1491>)
 - Add ann_types property for dataset
   (<https://github.com/openvinotoolkit/datumaro/pull/1422>, <https://github.com/openvinotoolkit/datumaro/pull/1479>)
 - Add AnnotationType.rotated_bbox for oriented object detection
@@ -30,8 +15,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   (<https://github.com/openvinotoolkit/datumaro/pull/1475>)
 - Add AstypeAnnotations Transform
   (<https://github.com/openvinotoolkit/datumaro/pull/1484>)
-- Enhance DatasetItem annotations for semantic segmentation model training use case
-  (<https://github.com/openvinotoolkit/datumaro/pull/1503>)
+- Add TabularValidator
+  (<https://github.com/openvinotoolkit/datumaro/pull/1498>)
+- Add Clean Transform for tabular data type
+  (<https://github.com/openvinotoolkit/datumaro/pull/1520>)
 
 ### Enhancements
 - Fix ambiguous COCO format detector
@@ -40,12 +27,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   (<https://github.com/openvinotoolkit/datumaro/pull/1471>)
 - Add ExtractedMask and update importers who can use it to use it
   (<https://github.com/openvinotoolkit/datumaro/pull/1480>)
-- Improve PIL and COLOR_BGR context image decode performance
-  (<https://github.com/openvinotoolkit/datumaro/pull/1501>)
-- Improve get_area() of Polygon through Shoelace formula
-  (<https://github.com/openvinotoolkit/datumaro/pull/1507>)
-- Improve _Shape point converter
-  (<https://github.com/openvinotoolkit/datumaro/pull/1508>)
+- Set label name with parents to avoid duplicates for AstypeAnnotations
+  (<https://github.com/openvinotoolkit/datumaro/pull/1492>)
+- Pass Keyword Argument to TabularDataBase
+  (<https://github.com/openvinotoolkit/datumaro/pull/1522>)
 
 ### Bug fixes
 - Split the video directory into subsets to avoid overwriting

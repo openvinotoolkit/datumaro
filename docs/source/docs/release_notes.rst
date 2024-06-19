@@ -3,38 +3,6 @@ Release Notes
 
 .. toctree::
    :maxdepth: 1
-
-v1.7.0 (2024 Q2)
-----------------
-
-New features
-^^^^^^^^^^^^
-- Add ann_types property for dataset
-- Add AnnotationType.rotated_bbox for oriented object detection
-- Add DOTA data format for oriented object detection task
-- Add AstypeAnnotations Transform
-
-Enhancements
-^^^^^^^^^^^^
-- Fix ambiguous COCO format detector
-- Get target information for tabular dataset
-- Add ExtractedMask and update importers who can use it to use it
-
-v1.6.1 (2024.05)
-----------------
-
-Enhancements
-^^^^^^^^^^^^
-- Prevent AcLauncher for OpenVINO 2024.0
-
-Bug fixes
-^^^^^^^^^
-- Modify lxml dependency constraint
-- Fix CLI error occurring when installed with default option only
-- Relax Pillow dependency constraint
-- Modify Numpy dependency constraint
-- Relax old pandas version constraint
-
 v1.6.0 (2024.04)
 ----------------
 

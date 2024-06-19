@@ -1,5 +1,5 @@
 # pylint: disable=arguments-differ
-# Copyright (C) 2024 Intel Corporation
+# Copyright (C) 2023 Intel Corporation
 #
 # SPDX-License-Identifier: MIT
 
@@ -39,13 +39,10 @@ class DatumaroBinaryFormatTest(TestBase):
     ann_ext = DatumaroBinaryPath.ANNOTATION_EXT
 
     @pytest.mark.parametrize(
-        "fxt_dataset",
-        ("fxt_test_datumaro_format_dataset", "fxt_test_datumaro_format_video_dataset"),
-    )
-    @pytest.mark.parametrize(
-        ["compare", "require_media", "fxt_import_kwargs", "fxt_export_kwargs"],
+        ["fxt_dataset", "compare", "require_media", "fxt_import_kwargs", "fxt_export_kwargs"],
         [
             pytest.param(
+                "fxt_test_datumaro_format_dataset",
                 compare_datasets_strict,
                 True,
                 {},
@@ -53,6 +50,7 @@ class DatumaroBinaryFormatTest(TestBase):
                 id="test_no_encryption",
             ),
             pytest.param(
+                "fxt_test_datumaro_format_dataset",
                 compare_datasets_strict,
                 True,
                 {"encryption_key": ENCRYPTION_KEY},
@@ -60,6 +58,7 @@ class DatumaroBinaryFormatTest(TestBase):
                 id="test_with_encryption",
             ),
             pytest.param(
+                "fxt_test_datumaro_format_dataset",
                 compare_datasets_strict,
                 True,
                 {"encryption_key": ENCRYPTION_KEY},
@@ -67,6 +66,7 @@ class DatumaroBinaryFormatTest(TestBase):
                 id="test_no_media_encryption",
             ),
             pytest.param(
+                "fxt_test_datumaro_format_dataset",
                 compare_datasets_strict,
                 True,
                 {"encryption_key": ENCRYPTION_KEY},
@@ -74,6 +74,7 @@ class DatumaroBinaryFormatTest(TestBase):
                 id="test_multi_blobs",
             ),
             pytest.param(
+                "fxt_test_datumaro_format_dataset",
                 compare_datasets_strict,
                 True,
                 {"encryption_key": ENCRYPTION_KEY, "num_workers": 2},
@@ -166,15 +167,10 @@ class MapperTest:
     def test_common_mapper(self, mapper: Mapper, expected: Any):
         self._test(mapper, expected)
 
-    @pytest.mark.parametrize(
-        "fxt_dataset",
-        ("fxt_test_datumaro_format_dataset", "fxt_test_datumaro_format_video_dataset"),
-    )
-    def test_annotations_mapper(self, fxt_dataset, request):
-        """Test all annotations in fxt_dataset"""
+    def test_annotations_mapper(self, fxt_test_datumaro_format_dataset):
+        """Test all annotations in fxt_test_datumaro_format_dataset"""
         mapper = DatasetItemMapper
-        fxt_dataset = request.getfixturevalue(fxt_dataset)
-        for item in fxt_dataset:
+        for item in fxt_test_datumaro_format_dataset:
             for ann in item.annotations:
                 mapper = self._get_ann_mapper(ann)
                 self._test(mapper, ann)
