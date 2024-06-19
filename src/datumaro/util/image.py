@@ -19,11 +19,12 @@ import numpy as np
 from datumaro.components.crypter import NULL_CRYPTER, Crypter
 from datumaro.components.errors import DatumaroError
 
-try:
-    # Introduced in 1.20
-    from numpy.typing import DTypeLike
-except ImportError:
-    DTypeLike = Any
+if TYPE_CHECKING:
+    try:
+        # Introduced in 1.20
+        from numpy.typing import DTypeLike
+    except ImportError:
+        DTypeLike = Any
 
 
 class ImageBackend(Enum):
@@ -45,9 +46,6 @@ except ModuleNotFoundError:
 
 from datumaro.util.image_cache import ImageCache
 from datumaro.util.os_util import find_files
-
-if TYPE_CHECKING:
-    from PIL.Image import Image as PILImage
 
 
 class ImageColorChannel(Enum):
@@ -79,20 +77,21 @@ class ImageColorChannel(Enum):
 
         raise ValueError
 
-    def decode_by_pil(self, image_bytes: bytes) -> PILImage:
+    def decode_by_pil(self, image_bytes: bytes) -> np.ndarray:
         """Convert image color channel for PIL Image."""
         from PIL import Image
 
         img = Image.open(BytesIO(image_bytes))
 
         if self == ImageColorChannel.UNCHANGED:
-            return img
+            return np.asarray(img)
 
         if self == ImageColorChannel.COLOR_BGR:
-            return Image.fromarray(np.flip(np.asarray(img.convert("RGB")), -1))
+            img = np.asarray(img.convert("RGB"))
+            return cv2.cvtColor(img, cv2.COLOR_RGB2BGR)
 
         if self == ImageColorChannel.COLOR_RGB:
-            return img.convert("RGB")
+            return np.asarray(img.convert("RGB"))
 
         raise ValueError
 
@@ -289,12 +288,12 @@ def decode_image(image_bytes: bytes, dtype: DTypeLike = np.uint8) -> np.ndarray:
 
     if IMAGE_BACKEND.get() == ImageBackend.cv2:
         image = ctx_color_scale.decode_by_cv2(image_bytes)
-        image = image.astype(dtype)
     elif IMAGE_BACKEND.get() == ImageBackend.PIL:
         image = ctx_color_scale.decode_by_pil(image_bytes)
-        image = np.asarray(image, dtype=dtype)
     else:
         raise NotImplementedError()
+
+    image = image.astype(dtype)
 
     assert len(image.shape) in {2, 3}
     if len(image.shape) == 3:
