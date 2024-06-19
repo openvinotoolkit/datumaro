@@ -1025,14 +1025,14 @@ document.write(`
         <span class="bp">self</span><span class="o">.</span><span class="n">_path</span> <span class="o">=</span> <span class="n">path</span>
 
         <span class="k">assert</span> <span class="mi">0</span> <span class="o">&lt;=</span> <span class="n">start_frame</span>
-        <span class="k">if</span> <span class="n">end_frame</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">end_frame</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">assert</span> <span class="n">start_frame</span> <span class="o">&lt;=</span> <span class="n">end_frame</span>
             <span class="c1"># we can&#39;t know the video length here,</span>
             <span class="c1"># so we cannot validate if the end_frame is valid.</span>
         <span class="k">assert</span> <span class="mi">0</span> <span class="o">&lt;</span> <span class="n">step</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_step</span> <span class="o">=</span> <span class="n">step</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_start_frame</span> <span class="o">=</span> <span class="n">start_frame</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_end_frame</span> <span class="o">=</span> <span class="n">end_frame</span> <span class="ow">or</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_end_frame</span> <span class="o">=</span> <span class="n">end_frame</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">_reader</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_iterator</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">_VideoFrameIterator</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
