@@ -1,7 +1,3 @@
-# Copyright (C) 2019-2024 Intel Corporation
-#
-# SPDX-License-Identifier: MIT
-
 import os
 import os.path as osp
 from unittest import TestCase

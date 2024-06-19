@@ -9,7 +9,7 @@ from typing import Any, Dict, Iterator, List, Optional, Sequence, Type, TypeVar,
 import attr
 from attr import attrs, field
 
-from datumaro.components.annotation import Annotation, Annotations, AnnotationType, Categories
+from datumaro.components.annotation import Annotation, AnnotationType, Categories
 from datumaro.components.cli_plugin import CliPlugin
 from datumaro.components.contexts.importer import ImportContext, NullImportContext
 from datumaro.components.media import Image, MediaElement
@@ -29,7 +29,7 @@ class DatasetItem:
         default=None, validator=attr.validators.optional(attr.validators.instance_of(MediaElement))
     )
 
-    annotations: Annotations = field(factory=Annotations, validator=default_if_none(Annotations))
+    annotations: List[Annotation] = field(factory=list, validator=default_if_none(list))
 
     attributes: Dict[str, Any] = field(factory=dict, validator=default_if_none(dict))
 

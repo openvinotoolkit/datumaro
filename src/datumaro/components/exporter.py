@@ -1,4 +1,4 @@
-# Copyright (C) 2019-2024 Intel Corporation
+# Copyright (C) 2019-2023 Intel Corporation
 #
 # SPDX-License-Identifier: MIT
 
@@ -22,7 +22,7 @@ from datumaro.components.errors import (
     DatumaroError,
     ItemExportError,
 )
-from datumaro.components.media import Image, PointCloud, Video, VideoFrame
+from datumaro.components.media import Image, PointCloud, VideoFrame
 from datumaro.components.progress_reporting import NullProgressReporter, ProgressReporter
 from datumaro.util.meta_file_util import save_hashkey_file, save_meta_file
 from datumaro.util.os_util import rmtree
@@ -339,15 +339,10 @@ class ExportContextComponent:
         ) + self.find_image_ext(image)
 
     def make_video_filename(self, item, *, name=None):
-        STR_WRONG_MEDIA_TYPE = "Video item's media type should be Video or VideoFrame"
-        assert isinstance(item, DatasetItem), STR_WRONG_MEDIA_TYPE
-
-        if isinstance(item.media, VideoFrame):
+        if isinstance(item, DatasetItem) and isinstance(item.media, VideoFrame):
             video_file_name = osp.basename(item.media.video.path)
-        elif isinstance(item.media, Video):
-            video_file_name = osp.basename(item.media.path)
         else:
-            assert False, STR_WRONG_MEDIA_TYPE
+            assert "Video item type should be VideoFrame"
 
         return video_file_name
 
@@ -408,7 +403,7 @@ class ExportContextComponent:
         subdir: Optional[str] = None,
         fname: Optional[str] = None,
     ):
-        if not item.media or not isinstance(item.media, (Video, VideoFrame)):
+        if not item.media or not isinstance(item.media, VideoFrame):
             log.warning("Item '%s' has no video", item.id)
             return
         basedir = self._video_dir if basedir is None else basedir
@@ -420,10 +415,7 @@ class ExportContextComponent:
 
         os.makedirs(osp.dirname(path), exist_ok=True)
 
-        if isinstance(item.media, VideoFrame):
-            item.media.video.save(path, crypter=NULL_CRYPTER)
-        else:  # Video
-            item.media.save(path, crypter=NULL_CRYPTER)
+        item.media.video.save(path, crypter=NULL_CRYPTER)
 
     @property
     def images_dir(self) -> str:

@@ -1,24 +1,16 @@
-# Copyright (C) 2020-2024 Intel Corporation
+# Copyright (C) 2020-2021 Intel Corporation
 #
 # SPDX-License-Identifier: MIT
 
 from pathlib import Path
 from typing import List
-from unittest.mock import patch
 
 import cv2
 import numpy as np
 import pytest
 import shapely.geometry as sg
 
-from datumaro.components.annotation import (
-    Annotations,
-    Ellipse,
-    ExtractedMask,
-    HashKey,
-    Mask,
-    RotatedBbox,
-)
+from datumaro.components.annotation import Ellipse, ExtractedMask, HashKey, RotatedBbox
 from datumaro.util.image import lazy_image
 
 
@@ -78,67 +70,19 @@ class RotatedBboxTest:
         assert fxt_rot_bbox == expected
 
 
-@pytest.fixture
-def fxt_index_mask():
-    return np.random.randint(0, 10, size=(10, 10))
-
-
-@pytest.fixture
-def fxt_index_mask_file(fxt_index_mask, tmpdir):
-    fpath = Path(tmpdir, "mask.png")
-    cv2.imwrite(str(fpath), fxt_index_mask)
-    yield fpath
-
-
 class ExtractedMaskTest:
+    @pytest.fixture
+    def fxt_index_mask(self):
+        return np.random.randint(0, 10, size=(10, 10))
+
+    @pytest.fixture
+    def fxt_index_mask_file(self, fxt_index_mask, tmpdir):
+        fpath = Path(tmpdir, "mask.png")
+        cv2.imwrite(str(fpath), fxt_index_mask)
+        yield fpath
+
     def test_extracted_mask(self, fxt_index_mask, fxt_index_mask_file):
         index_mask = lazy_image(path=str(fxt_index_mask_file), dtype=np.uint8)
         for index in range(10):
             mask = ExtractedMask(index_mask=index_mask, index=index)
             assert np.allclose(mask.image, (fxt_index_mask == index))
-
-
-class AnnotationsTest:
-    @pytest.mark.parametrize("dtype", [np.uint8, np.int32])
-    def test_get_semantic_seg_mask_extracted_mask(self, fxt_index_mask_file, fxt_index_mask, dtype):
-        index_mask = lazy_image(path=str(fxt_index_mask_file), dtype=np.uint8)
-        annotations = Annotations(
-            ExtractedMask(index_mask=index_mask, index=index, label=index) for index in range(10)
-        )
-        with patch("datumaro.components.annotation.Mask.as_class_mask") as mock_as_class_mask:
-            semantic_seg_mask = annotations.get_semantic_seg_mask(ignore_index=255, dtype=dtype)
-
-        assert np.allclose(semantic_seg_mask, fxt_index_mask)
-        # It should directly look up index_mask and there is no calling as_class_mask()
-        mock_as_class_mask.assert_not_called()
-
-    @pytest.mark.parametrize("dtype", [np.uint8, np.int32])
-    def test_get_semantic_seg_mask_extracted_mask_remapping_label(
-        self, fxt_index_mask_file, fxt_index_mask, dtype
-    ):
-        index_mask = lazy_image(path=str(fxt_index_mask_file), dtype=np.uint8)
-        annotations = Annotations(
-            ExtractedMask(
-                index_mask=index_mask,
-                index=index,
-                label=index % 5,  # Remapping label
-            )
-            for index in range(10)
-        )
-        semantic_seg_mask = annotations.get_semantic_seg_mask(ignore_index=255, dtype=dtype)
-
-        # fxt_index_mask % 5 is label-remapped ground truth
-        assert np.allclose(semantic_seg_mask, fxt_index_mask % 5)
-
-    @pytest.mark.parametrize("dtype", [np.uint8, np.int32])
-    def test_get_semantic_seg_mask_binary_mask(self, fxt_index_mask, dtype):
-        annotations = Annotations(
-            Mask(
-                image=fxt_index_mask == index,
-                label=index,
-            )
-            for index in range(10)
-        )
-        semantic_seg_mask = annotations.get_semantic_seg_mask(ignore_index=255, dtype=dtype)
-
-        assert np.allclose(semantic_seg_mask, fxt_index_mask)

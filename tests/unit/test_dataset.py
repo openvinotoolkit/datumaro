@@ -1,4 +1,4 @@
-# Copyright (C) 2019-2024 Intel Corporation
+# Copyright (C) 2019-2023 Intel Corporation
 #
 # SPDX-License-Identifier: MIT
 
@@ -14,7 +14,6 @@ import pytest
 
 from datumaro.components.annotation import (
     Annotation,
-    Annotations,
     AnnotationType,
     Bbox,
     Caption,
@@ -2079,41 +2078,25 @@ class DatasetTest(TestCase):
         self.assertRaises(IndexError, lambda: dataset[length])
 
 
-class DatasetItemTest:
+class DatasetItemTest(TestCase):
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_ctor_requires_id(self):
-        with pytest.raises(Exception):
+        with self.assertRaises(Exception):
             # pylint: disable=no-value-for-parameter
             DatasetItem()
             # pylint: enable=no-value-for-parameter
 
+    @staticmethod
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
-    @pytest.mark.parametrize(
-        "kwargs",
-        [
+    def test_ctors_with_image():
+        for args in [
             {"id": 0, "media": None},
-            {"id": 0, "media": Image.from_file(path="path.jpg"), "annotations": []},
-            {
-                "id": 0,
-                "media": Image.from_numpy(data=np.array([1, 2, 3])),
-                "annotations": Annotations(),
-            },
-            {
-                "id": 0,
-                "media": Image.from_numpy(data=lambda f: np.array([1, 2, 3])),
-                "annotations": [Label(label=0), Label(label=1)],
-            },
-            {
-                "id": 0,
-                "media": Image.from_numpy(data=np.array([1, 2, 3])),
-                "annotations": [Label(label=0), Label(label=1)],
-            },
-        ],
-    )
-    def test_ctors_with_image(self, kwargs):
-        item = DatasetItem(**kwargs)
-        assert isinstance(item.annotations, Annotations)
-        assert item.annotations == kwargs.get("annotations", [])
+            {"id": 0, "media": Image.from_file(path="path.jpg")},
+            {"id": 0, "media": Image.from_numpy(data=np.array([1, 2, 3]))},
+            {"id": 0, "media": Image.from_numpy(data=lambda f: np.array([1, 2, 3]))},
+            {"id": 0, "media": Image.from_numpy(data=np.array([1, 2, 3]))},
+        ]:
+            DatasetItem(**args)
 
 
 class DatasetFilterTest(TestCase):

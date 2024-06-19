@@ -59,7 +59,6 @@ Supported media types:
 
 - `Image`
 - `PointCloud`
-- `Video`
 - `VideoFrame`
 
 Supported annotation types:

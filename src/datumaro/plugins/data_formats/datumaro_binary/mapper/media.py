@@ -1,4 +1,4 @@
-# Copyright (C) 2024 Intel Corporation
+# Copyright (C) 2023 Intel Corporation
 #
 # SPDX-License-Identifier: MIT
 
@@ -21,8 +21,6 @@ class MediaMapper(Mapper):
             return ImageMapper.forward(obj)
         elif obj._type == MediaType.POINT_CLOUD:
             return PointCloudMapper.forward(obj)
-        elif obj._type == MediaType.VIDEO:
-            return VideoMapper.forward(obj)
         elif obj._type == MediaType.VIDEO_FRAME:
             return VideoFrameMapper.forward(obj)
         elif obj._type == MediaType.MEDIA_ELEMENT:
@@ -45,8 +43,6 @@ class MediaMapper(Mapper):
             return ImageMapper.backward(_bytes, offset, media_path_prefix)
         elif media_type == MediaType.POINT_CLOUD:
             return PointCloudMapper.backward(_bytes, offset, media_path_prefix)
-        elif media_type == MediaType.VIDEO:
-            return VideoMapper.backward(_bytes, offset, media_path_prefix)
         elif media_type == MediaType.VIDEO_FRAME:
             return VideoFrameMapper.backward(_bytes, offset, media_path_prefix)
         elif media_type == MediaType.MEDIA_ELEMENT:
@@ -130,39 +126,6 @@ class ImageMapper(MediaElementMapper):
             ),
             offset,
         )
-
-
-class VideoMapper(MediaElementMapper):
-    MAGIC_END_FRAME_FOR_NONE = 4294967295  # max value of unsigned int32
-    MEDIA_TYPE = MediaType.VIDEO
-
-    @classmethod
-    def forward(cls, obj: Video) -> bytes:
-        end_frame = obj._end_frame if obj._end_frame else cls.MAGIC_END_FRAME_FOR_NONE
-
-        bytes_arr = bytearray()
-        bytes_arr.extend(super().forward(obj))
-        bytes_arr.extend(struct.pack("<III", obj._step, obj._start_frame, end_frame))
-
-        return bytes(bytes_arr)
-
-    @classmethod
-    def backward(
-        cls,
-        _bytes: bytes,
-        offset: int = 0,
-        media_path_prefix: Optional[Dict[MediaType, str]] = None,
-    ) -> Tuple[Video, int]:
-        media_dict, offset = cls.backward_dict(_bytes, offset, media_path_prefix)
-        step, start_frame, end_frame = struct.unpack_from("<III", _bytes, offset)
-        offset += 12
-        video = Video(
-            path=media_dict["path"],
-            step=step,
-            start_frame=start_frame,
-            end_frame=end_frame if end_frame != cls.MAGIC_END_FRAME_FOR_NONE else None,
-        )
-        return (video, offset)
 
 
 class VideoFrameMapper(MediaElementMapper):

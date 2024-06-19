@@ -1,4 +1,4 @@
-# Copyright (C) 2024 Intel Corporation
+# Copyright (C) 2023 Intel Corporation
 #
 # SPDX-License-Identifier: MIT
 
@@ -75,18 +75,6 @@ class DatumaroFormatTest:
                 None,
                 False,
                 id="test_can_save_and_load_with_no_save_media",
-            ),
-            pytest.param(
-                "fxt_test_datumaro_format_video_dataset",
-                compare_datasets,
-                True,
-                id="test_can_save_and_load_video_dataset",
-            ),
-            pytest.param(
-                "fxt_test_datumaro_format_video_dataset",
-                None,
-                False,
-                id="test_can_save_and_load_video_dataset_with_no_save_media",
             ),
             pytest.param(
                 "fxt_relative_paths",
@@ -188,13 +176,8 @@ class DatumaroFormatTest:
         )
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
-    @pytest.mark.parametrize(
-        "fxt_dataset",
-        ("fxt_test_datumaro_format_dataset", "fxt_test_datumaro_format_video_dataset"),
-    )
-    def test_can_detect(self, fxt_dataset, test_dir, request):
-        fxt_dataset = request.getfixturevalue(fxt_dataset)
-        self.exporter.convert(fxt_dataset, save_dir=test_dir)
+    def test_can_detect(self, fxt_test_datumaro_format_dataset, test_dir):
+        self.exporter.convert(fxt_test_datumaro_format_dataset, save_dir=test_dir)
 
         detected_formats = Environment().detect_dataset(test_dir)
         assert [self.importer.NAME] == detected_formats
