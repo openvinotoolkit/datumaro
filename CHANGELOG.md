@@ -18,6 +18,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Pass Keyword Argument to TabularDataBase
   (<https://github.com/openvinotoolkit/datumaro/pull/1522>)
 
+### Bug fixes
+- Preserve end_frame information of a video when it is zero.
+  (<https://github.com/openvinotoolkit/datumaro/pull/1541>)
+
 ## Q2 2024 Release 1.7.0
 ### New features
 - Support 'Video' media type in datumaro format

@@ -199,16 +199,16 @@ def compare_datasets(
             test.assertEqual(item_a.attributes, item_b.attributes, item_a.id)
 
         if require_media and item_a.media and item_b.media:
-            if isinstance(item_a.media, Image):
+            if isinstance(item_a.media, VideoFrame):
+                test.assertEqual(item_a.media, item_b.media, item_a.id)
+                test.assertEqual(item_a.media.index, item_b.media.index, item_a.id)
+            elif isinstance(item_a.media, Image):
                 test.assertEqual(item_a.media, item_b.media, item_a.id)
             elif isinstance(item_a.media, PointCloud):
                 test.assertEqual(item_a.media.data, item_b.media.data, item_a.id)
                 test.assertEqual(item_a.media.extra_images, item_b.media.extra_images, item_a.id)
             elif isinstance(item_a.media, Video):
                 test.assertEqual(item_a.media, item_b.media, item_a.id)
-            elif isinstance(item_a.media, VideoFrame):
-                test.assertEqual(item_a.media, item_b.media, item_a.id)
-                test.assertEqual(item_a.index, item_b.index, item_a.id)
             elif isinstance(item_a.media, MultiframeImage):
                 test.assertEqual(item_a.media.data, item_b.media.data, item_a.id)
         test.assertEqual(len(item_a.annotations), len(item_b.annotations), item_a.id)

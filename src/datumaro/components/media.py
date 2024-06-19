@@ -612,14 +612,14 @@ class Video(MediaElement, Iterable[VideoFrame]):
         self._path = path
 
         assert 0 <= start_frame
-        if end_frame:
+        if end_frame is not None:
             assert start_frame <= end_frame
             # we can't know the video length here,
             # so we cannot validate if the end_frame is valid.
         assert 0 < step
         self._step = step
         self._start_frame = start_frame
-        self._end_frame = end_frame or None
+        self._end_frame = end_frame
 
         self._reader = None
         self._iterator: Optional[_VideoFrameIterator] = None
