@@ -157,7 +157,7 @@ class WiderFaceBase(SubsetBase):
                                     attributes[attr] = bbox_list[i]
                             i += 1
 
-                    annotations.append(
+                    items[item_id].annotations.append(
                         Bbox(
                             float(bbox_list[0]),
                             float(bbox_list[1]),
