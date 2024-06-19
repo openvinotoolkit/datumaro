@@ -2,19 +2,33 @@
 #
 # SPDX-License-Identifier: MIT
 
+import os.path as osp
 from copy import deepcopy
 
 import numpy as np
 import pytest
 
 import datumaro.plugins.transforms as transforms
-from datumaro.components.annotation import AnnotationType, Bbox, Label, LabelCategories
+from datumaro.components.annotation import (
+    AnnotationType,
+    Bbox,
+    Caption,
+    Label,
+    LabelCategories,
+    Tabular,
+    TabularCategories,
+)
 from datumaro.components.dataset import Dataset, DatasetItem
-from datumaro.components.media import Image
+from datumaro.components.media import Image, Table, TableRow
 from datumaro.components.validator import Validator
-from datumaro.plugins.validators import ClassificationValidator, DetectionValidator
+from datumaro.plugins.validators import (
+    ClassificationValidator,
+    DetectionValidator,
+    TabularValidator,
+)
 
-from tests.utils.test_utils import compare_datasets
+from tests.utils.assets import get_test_asset_path
+from tests.utils.test_utils import _compare_annotations, compare_datasets
 
 
 @pytest.fixture
@@ -827,6 +841,101 @@ def fxt_refined_det_dataset(fxt_original_det_dataset):
     return refined
 
 
+from pandas.api.types import CategoricalDtype
+
+
+@pytest.fixture
+def fxt_original_tabular_dataset():
+    path = osp.join(
+        get_test_asset_path("tabular_dataset"), "women-clothing", "women_clothing_orig.csv"
+    )
+    table = Table.from_csv(path)
+    tabular_dataset = Dataset.from_iterable(
+        [
+            DatasetItem(
+                id=i,
+                subset="train",
+                media=TableRow(table=table, index=i),
+                annotations=[
+                    Tabular(
+                        values={
+                            "Rating": table.data["Rating"][i],
+                            "Age": table.data["Age"][i],
+                            "Title": table.data["Title"][i],
+                            "Review Text": table.data["Review Text"][i],
+                            "Division Name": table.data["Division Name"][i],
+                        }
+                    )
+                ],
+            )
+            for i in range(0, 53)
+        ],
+        categories={
+            AnnotationType.tabular: TabularCategories.from_iterable(
+                [
+                    ("Age", float, {10.0, 20.0, 30.0, 40.0, 50.0, 60.0, 70.0, 80.0, 90.0, 100.0}),
+                    ("Review Text", str),
+                    ("Rating", CategoricalDtype(), {1.0, 2.0, 3.0, 4.0, 5.0}),
+                    (
+                        "Division Name",
+                        CategoricalDtype(),
+                        {"General", "General Petite", "Initmates"},
+                    ),
+                ]
+            )
+        },
+        media_type=TableRow,
+    )
+    tabular_dataset = transforms.AstypeAnnotations(tabular_dataset)
+    return tabular_dataset
+
+
+@pytest.fixture
+def fxt_refined_tabular_dataset():
+    path = osp.join(
+        get_test_asset_path("tabular_dataset"), "women-clothing", "women_clothing_refined.csv"
+    )
+    table = Table.from_csv(path)
+    tabular_dataset = Dataset.from_iterable(
+        [
+            DatasetItem(
+                id=i,
+                subset="train",
+                media=TableRow(table=table, index=i),
+                annotations=[
+                    Tabular(
+                        values={
+                            "Rating": table.data["Rating"][i],
+                            "Age": table.data["Age"][i],
+                            "Title": table.data["Title"][i],
+                            "Review Text": table.data["Review Text"][i],
+                            "Division Name": table.data["Division Name"][i],
+                        }
+                    )
+                ],
+            )
+            for i in range(0, 51)
+        ],
+        categories={
+            AnnotationType.tabular: TabularCategories.from_iterable(
+                [
+                    ("Age", float, {10.0, 20.0, 30.0, 40.0, 50.0, 60.0, 70.0, 80.0, 90.0, 100.0}),
+                    ("Review Text", str),
+                    ("Rating", CategoricalDtype(), {1.0, 2.0, 3.0, 4.0, 5.0}),
+                    (
+                        "Division Name",
+                        CategoricalDtype(),
+                        {"General", "General Petite", "Initmates"},
+                    ),
+                ]
+            )
+        },
+        media_type=TableRow,
+    )
+    tabular_dataset = transforms.AstypeAnnotations(tabular_dataset)
+    return tabular_dataset
+
+
 class ValidationCorrectionTest:
     @pytest.mark.parametrize(
         "fxt_original_dataset, fxt_validator, fxt_refined_dataset",
@@ -910,3 +1019,17 @@ class ValidationCorrectionTest:
 
         helper_tc = request.getfixturevalue("helper_tc")
         compare_datasets(helper_tc, refined, fxt_refined_dataset)
+
+    def test_can_correct_tabular_data(
+        self,
+        fxt_original_tabular_dataset: Dataset,
+        fxt_refined_tabular_dataset: Dataset,
+        request: pytest.FixtureRequest,
+    ):
+        validator = TabularValidator()
+        reports = validator.validate(fxt_original_tabular_dataset)
+
+        refined = transforms.Correct(fxt_original_tabular_dataset, reports=reports)
+
+        helper_tc = request.getfixturevalue("helper_tc")
+        compare_datasets(helper_tc, refined, fxt_refined_tabular_dataset)

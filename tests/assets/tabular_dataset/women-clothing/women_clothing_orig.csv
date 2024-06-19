@@ -1,0 +1,54 @@
+Rating,Age,Title,Review Text,Division Name
+,10,title,"Check out this link: https://example.com! It's amazing :) #fun",General
+4,30,title,Text with emoji 🤔 and special characters!!!,Initmates
+5,40,title,Normal text with some common words,General
+1,50,title,Another example with a <div>HTML tag</div> and numbers 12345,General Petite
+2,60,title,Short text,Initmates
+3,70,title,This text includes some <html> tags and a URL: http://example.org,General
+4,80,title,This text is an example of a longer text that could be truncated to fit the model's requirements,General Petite
+5,90,title,Another very lengthy review that might be considered an outlier because of its excessive length and the amount of detail it goes into,Initmates
+1,100,title,Short.,General
+2,10,title,Another text that will be processed in this example!,General Petite
+3,20,title,Final text to complete the example set.,Initmates
+4,30,title,A very brief text.,General
+5,40,title,"Yet another example, this one is quite short.",General Petite
+1,50,title,The quick brown fox jumps over the lazy dog.,Initmates
+2,60,title,This is another example text that includes numbers like 987654.,General
+3,70,title,Here is some text with <b>bold</b> HTML tags.,General Petite
+4,80,title,Short text with numbers 123 and symbols @#!,Initmates
+5,90,title,Simple text with some punctuation.,General
+1,100,title,Normal text with some more details.,General Petite
+2,10,title,Here's a text with some hashtags #example #text,Initmates
+3,20,title,Some text that includes a mention @user and more!,General
+4,30,title,This one has both emojis 😂 and a link: https://example.com,General Petite
+5,40,title,An example text with various special characters %$#@!,Initmates
+1,50,title,A short sentence.,General
+2,60,title,Another long text example that is meant to test how the text cleaning handles sentences of varying lengths and complexities.,General Petite
+3,70,title,Random words scattered throughout the text without much meaning or coherence.,Initmates
+4,80,title,HTML content <div>should</div> be removed!,General
+5,90,title,Here's a tricky one: containing quotes and special characters like “ and ”!,General Petite
+1,100,title,Final sentence to demonstrate the expanded DataFrame.,Initmates
+2,10,title,An example with numbers like 12345 and 67890,General
+3,20,title,A simple sentence for testing purposes.,General Petite
+4,30,title,"Text with mixed content: numbers 123, symbols @#%, and words.",Initmates
+5,40,title,"A very long text that goes on and on, exceeding typical length expectations to test the model's truncation capabilities and how it handles lengthy inputs.",General
+1,50,title,Short and sweet.,General Petite
+2,10,title,Example text to test.,Initmates
+3,20,title,This is another example.,General
+4,30,title,Let's include some HTML tags <p>paragraph</p> and see what happens.,General Petite
+5,40,title,Random text with no significant meaning.,Initmates
+1,50,title,Emoji text 😊👍 needs to be cleaned.,General
+2,60,title,A simple text with basic content.,General Petite
+3,70,title,Checking how punctuation! affects: text-cleaning.,General
+4,80,title,Another one with #hashtags and @mentions.,General Petite
+5,90,title,Short text again.,Initmates
+1,100,title,Just another example.,General
+2,10,title,Text with a URL http://example.com and some tags <div>div</div>.,General Petite
+3,20,title,Final example text to see the output.,Initmates
+4,30,title,Here's a sentence with special characters *&^%$#@!,General
+5,40,title,Checking how emojis 😂😊 are removed.,General Petite
+1,50,title,Text with mixed content including numbers 4567 and symbols $#@!,Initmates
+2,60,title,Example to test stop words removal and cleaning process.,General
+3,250,title,Another sentence with HTML content <span>span</span>,General Petite
+3,20,title,,General Petite
+,,,,,

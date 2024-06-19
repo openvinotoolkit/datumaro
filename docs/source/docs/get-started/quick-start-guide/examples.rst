@@ -20,7 +20,7 @@ Examples
 
     # export Datumaro dataset in CVAT UI, extract somewhere, go to the project dir
     datum filter -e '/item/annotation[occluded="False"]' --mode items+anno
-    datum project export --format tf_detection_api -- --save-images
+    datum project export --format tf_detection_api -- --save-media
 
 - Annotate MS COCO dataset, extract image subset, re-annotate it in
   `CVAT <https://github.com/opencv/cvat>`_, update old dataset:

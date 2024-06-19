@@ -90,6 +90,7 @@ Examples:
 | ImbalancedCaptions  | There is an imbalance in the caption distribution | tabular |
 | ImbalancedDistInCaption  | Values are not evenly distributed for a caption only if caption is number | tabular |
 | FarFromCaptionMean | An annotation has an too small or large value than average for a caption only if caption is number | tabular |
+| OutlierInCaption | An annotation has an outlier value based on Interquartile Range Method only if caption is number | tabular |
 
 Validation Result Format:
 

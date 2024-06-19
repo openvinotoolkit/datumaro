@@ -5,9 +5,13 @@
 from copy import deepcopy
 
 import numpy as np
-from pandas.api.types import CategoricalDtype
 
-from datumaro.components.annotation import AnnotationType, GroupType, LabelCategories
+from datumaro.components.annotation import (
+    AnnotationType,
+    GroupType,
+    LabelCategories,
+    TabularCategories,
+)
 from datumaro.components.cli_plugin import CliPlugin
 from datumaro.components.errors import (
     AttributeDefinedButNotFound,
@@ -35,12 +39,14 @@ from datumaro.components.errors import (
     NegativeLength,
     OnlyOneAttributeValue,
     OnlyOneLabel,
+    OutlierInCaption,
     RedundanciesInCaption,
     UndefinedAttribute,
     UndefinedLabel,
 )
 from datumaro.components.validator import Severity, TaskType, Validator
 from datumaro.util import parse_str_enum_value
+from datumaro.util.tabular_util import emoji_pattern
 
 DEFAULT_LABEL_GROUP = "default"
 
@@ -1233,15 +1239,11 @@ class TabularValidationStats:
             self.label_categories = dataset.categories().get(
                 AnnotationType.label, LabelCategories()
             )
-            self.tabular_categories = dataset._tabular_cat_types.items()
-            self.label_columns = [
-                cat for cat, type_ in self.tabular_categories if isinstance(type_, CategoricalDtype)
-            ]
-            self.caption_columns = [
-                cat
-                for cat, type_ in self.tabular_categories
-                if not isinstance(type_, CategoricalDtype)
-            ]
+            self.tabular_categories = dataset.categories().get(
+                AnnotationType.caption, TabularCategories()
+            )
+            self.label_columns = list({item.parent for item in self.label_categories.items})
+            self.caption_columns = [cat.name for cat in self.tabular_categories]
 
             self.defined_labels = {cat.name: 0 for cat in self.label_categories}
             self.empty_labels = {cat: [] for cat in self.label_columns}
@@ -1249,9 +1251,8 @@ class TabularValidationStats:
             self.defined_captions = {cat: 0 for cat in self.caption_columns}
             self.empty_captions = {cat: [] for cat in self.caption_columns}
             self.redundancies = {
-                cat: {"stopword": [], "url": []}
-                for cat, type_ in self.tabular_categories
-                if type_ == str
+                cat: {"stopword": [], "url": [], "html": [], "emoji": []}
+                for cat in self.caption_columns
             }
 
     def to_dict(self):
@@ -1286,7 +1287,7 @@ class TabularValidationStats:
     def _build_redundancies_dict(self, redundancies):
         result = defaultdict(lambda: defaultdict(dict))
         for caption, items in redundancies.items():
-            for key in ["stopword", "url"]:
+            for key in ["stopword", "url", "html", "emoji"]:
                 result[caption][key]["count"] = len(items[key])
                 result[caption][key]["items_with_redundancies"] = list(items[key])
         return result
@@ -1322,17 +1323,24 @@ class TabularValidator(_TaskValidator):
             topk_bins=topk_bins,
         )
 
+        self.numerical_stat_template = {
+            "items_far_from_mean": {},
+            "mean": None,
+            "stdev": None,
+            "min": None,
+            "max": None,
+            "median": None,
+            "histogram": {
+                "bins": [],
+                "counts": [],
+            },
+            "distribution": [],
+            "items_outlier": {},
+            "outlier": None,
+        }
         self.value_template = {"value": deepcopy(self.numerical_stat_template)}
 
     def _compute_common_statistics(self, dataset):
-        try:
-            stop_words = set(stopwords.words("english"))  # TODO
-        except LookupError:
-            import nltk
-
-            nltk.download("stopwords")
-            stop_words = set(stopwords.words("english"))  # TODO
-
         stats = TabularValidationStats.create_with_dataset(dataset=dataset)
 
         filtered_items = []
@@ -1351,17 +1359,11 @@ class TabularValidator(_TaskValidator):
                 if ann.type == AnnotationType.caption:
                     caption_ = ann.caption
                     for cat in stats.caption_columns:
-                        if cat + ":" in caption_:
+                        if caption_.startswith(cat):
                             stats.defined_captions[cat] += 1
                             caption_ = caption_.split(cat + ":")[-1]
                             caption_check.remove(cat)
-                            if any(c in stop_words for c in str(caption_)):
-                                stats.redundancies[cat]["stopword"].append(item_key)
-                            elif any(
-                                "http" in w or "https" in w for w in str(caption_).lower().split()
-                            ):
-                                stats.redundancies[cat]["url"].append(item_key)
-
+                            self._check_contain_redundancies(caption_, stats, cat, item_key)
                 else:
                     label_name = stats.label_categories[ann.label].name
                     stats.defined_labels[label_name] += 1
@@ -1377,7 +1379,45 @@ class TabularValidator(_TaskValidator):
 
         return stats.to_dict(), filtered_items
 
-    def _compute_prop_dist(self, caption_columns, stats, update_stats_by_caption):
+    def _check_contain_redundancies(self, text, stats, column, item_key):
+        if column not in stats.redundancies.keys():
+            return
+
+        import re
+
+        try:
+            stop_words = set(stopwords.words("english"))  # TODO
+        except LookupError:
+            import nltk
+
+            nltk.download("stopwords")
+            stop_words = set(stopwords.words("english"))  # TODO
+
+        def contains_emoji(text):
+            return bool(emoji_pattern.search(text))
+
+        def contains_html_tags(text):
+            html_pattern = re.compile(r"<.*?>")
+            return bool(html_pattern.search(text))
+
+        def contains_url(text):
+            url_pattern = re.compile(r"http\S+|www\S+|https\S+")
+            return bool(url_pattern.search(text))
+
+        def contains_stopword(text):
+            return any(c in stop_words for c in str(text).lower())
+
+        redun_stats = stats.redundancies[column]
+        if contains_emoji(text):
+            redun_stats["emoji"].append(item_key)
+        if contains_html_tags(text):
+            redun_stats["html"].append(item_key)
+        if contains_url(text):
+            redun_stats["url"].append(item_key)
+        if contains_stopword(text):
+            redun_stats["stopword"].append(item_key)
+
+    def _compute_prop_dist(self, caption_columns, stats):
         dist_by_caption = stats["distribution_in_caption"]
         dist_in_item = stats["distribution_in_dataset_item"]
 
@@ -1389,33 +1429,36 @@ class TabularValidator(_TaskValidator):
                 if ann.type == AnnotationType.caption:
                     caption_ = ann.caption
                     for cat_name, type_ in caption_columns:
-                        if cat_name + ":" in caption_:
+                        if caption_.startswith(cat_name):
                             caption_value = type_(caption_.split(f"{cat_name}:")[-1])
-                            update_stats_by_caption(caption_value, dist_by_caption[cat_name])
-
-    def _update_prop_distributions(self, curr_stats, target_stats):
-        for prop, val in curr_stats.items():
-            prop_stats = target_stats[prop]
-            prop_stats["distribution"].append(val)
+                            dist_by_caption[cat_name]["value"]["distribution"].append(caption_value)
 
     def _compute_prop_stats_from_dist(self, dist_by_caption):
         for stats in dist_by_caption.values():
-            prop_stats_list = list(stats.values())
+            prop_stats = list(stats.values())[0]
 
-            for prop_stats in prop_stats_list:
-                prop_dist = prop_stats.pop("distribution", [])
-                if len(prop_dist) > 0:
-                    prop_stats["mean"] = np.mean(prop_dist)
-                    prop_stats["stdev"] = np.std(prop_dist)
-                    prop_stats["min"] = np.min(prop_dist)
-                    prop_stats["max"] = np.max(prop_dist)
-                    prop_stats["median"] = np.median(prop_dist)
+            prop_dist = prop_stats.pop("distribution", [])
+            if prop_dist:
+                prop_stats["mean"] = np.mean(prop_dist)
+                prop_stats["stdev"] = np.std(prop_dist)
+                prop_stats["min"] = np.min(prop_dist)
+                prop_stats["max"] = np.max(prop_dist)
+                prop_stats["median"] = np.median(prop_dist)
 
-                    counts, bins = np.histogram(prop_dist)
-                    prop_stats["histogram"]["bins"] = bins.tolist()
-                    prop_stats["histogram"]["counts"] = counts.tolist()
+                counts, bins = np.histogram(prop_dist)
+                prop_stats["histogram"]["bins"] = bins.tolist()
+                prop_stats["histogram"]["counts"] = counts.tolist()
 
-    def _compute_far_from_mean(self, prop_stats, val, item_key, ann):
+                # Calculate Q1 (25th percentile) and Q3 (75th percentile)
+                Q1, Q3 = np.percentile(prop_dist, [25, 75])
+                IQR = Q3 - Q1
+
+                # Calculate the acceptable range
+                lower_bound = Q1 - 1.5 * IQR
+                upper_bound = Q3 + 1.5 * IQR
+                prop_stats["outlier"] = (lower_bound, upper_bound)
+
+    def _compute_far_from_mean(self, prop_stats, val, item_key):
         def _far_from_mean(val, mean, stdev):
             thr = self.far_from_mean_thr
             return val > mean + (thr * stdev) or val < mean - (thr * stdev)
@@ -1424,9 +1467,13 @@ class TabularValidator(_TaskValidator):
         stdev = prop_stats["stdev"]
 
         if _far_from_mean(val, mean, stdev):
-            items_far_from_mean = prop_stats["items_far_from_mean"]
-            far_from_mean = items_far_from_mean.setdefault(item_key, {})
-            far_from_mean[ann.id] = val
+            prop_stats["items_far_from_mean"][item_key] = val
+
+    def _compute_outlier(self, prop_stats, val, item_key):
+        lower_bound, upper_bound = prop_stats["outlier"]
+
+        if (val < lower_bound) | (val > upper_bound):
+            prop_stats["items_outlier"][item_key] = val
 
     def compute_statistics(self, dataset):
         """
@@ -1446,9 +1493,9 @@ class TabularValidator(_TaskValidator):
         self.items = filtered_items
 
         num_caption_columns = [
-            (cat, type_)
-            for cat, type_ in dataset._tabular_cat_types.items()
-            if (type_ is int) or (type_ is float)
+            (cat.name, cat.dtype)
+            for cat in dataset.categories().get(AnnotationType.caption, TabularCategories())
+            if cat.dtype in [int, float]
         ]
 
         stats["distribution_in_caption"] = {
@@ -1456,32 +1503,26 @@ class TabularValidator(_TaskValidator):
         }
         stats["distribution_in_dataset_item"] = {}
 
-        def _update_stats_by_caption(caption_, caption_stats):
-            caption_has_error = False
-
-            if not caption_has_error:
-                caption_info = {"value": caption_}
-                self._update_prop_distributions(caption_info, caption_stats)
-
         # Collect property distribution
-        self._compute_prop_dist(num_caption_columns, stats, _update_stats_by_caption)
+        self._compute_prop_dist(num_caption_columns, stats)
 
         # Compute property statistics from distribution
         dist_by_caption = stats["distribution_in_caption"]
         self._compute_prop_stats_from_dist(dist_by_caption)
 
-        def _update_captions_far_from_mean(caption_columns, item_key, ann):
-            for cap, type_ in caption_columns:
-                prop_stats = dist_by_caption[cap]["value"]
-                if cap + ":" in ann.caption:
-                    val = type_(ann.caption.split(f"{cap}:")[-1])
-                    self._compute_far_from_mean(prop_stats, val, item_key, ann)
+        def _update_captions_far_from_mean_outlier(caption_columns, item_key, ann):
+            for col, type_ in caption_columns:
+                prop_stats = dist_by_caption[col]["value"]
+                if ann.caption.startswith(col):
+                    val = type_(ann.caption.split(f"{col}:")[-1])
+                    self._compute_far_from_mean(prop_stats, val, item_key)
+                    self._compute_outlier(prop_stats, val, item_key)
 
-        # Compute far_from_mean from property
+        # Compute far_from_mean and outlier from property
         for item_key, annotations in self.items:
             for ann in annotations:
                 if ann.type == AnnotationType.caption:
-                    _update_captions_far_from_mean(num_caption_columns, item_key, ann)
+                    _update_captions_far_from_mean_outlier(num_caption_columns, item_key, ann)
 
         return stats
 
@@ -1523,6 +1564,7 @@ class TabularValidator(_TaskValidator):
         dist_by_caption = stats["distribution_in_caption"]
         for caption, caption_stats in dist_by_caption.items():
             reports += self._check_far_from_caption_mean(caption, caption_stats)
+            reports += self._check_caption_outliers(caption, caption_stats)
             reports += self._check_imbalanced_dist_in_caption(caption, caption_stats)
 
         return reports
@@ -1583,28 +1625,52 @@ class TabularValidator(_TaskValidator):
         return validation_reports
 
     def _check_far_from_caption_mean(self, caption_name, caption_stats):
+        prop_stats = list(caption_stats.values())[0]
+
+        if prop_stats["mean"] is not None:
+            mean = round(prop_stats["mean"], 2)
+        stdev = prop_stats["stdev"]
+        upper_bound = mean + (self.far_from_mean_thr * stdev)
+        lower_bound = mean - (self.far_from_mean_thr * stdev)
+
         validation_reports = []
+        items_far_from_mean = prop_stats["items_far_from_mean"]
+        for item_dets, val in items_far_from_mean.items():
+            item_id, item_subset = item_dets
+            val = round(val, 2)
+            details = (
+                item_subset,
+                caption_name,
+                mean,
+                upper_bound,
+                lower_bound,
+                val,
+            )
+            validation_reports += self._generate_validation_report(
+                FarFromCaptionMean, Severity.info, item_id, *details
+            )
 
-        for prop, prop_stats in caption_stats.items():
-            items_far_from_mean = prop_stats["items_far_from_mean"]
-            if prop_stats["mean"] is not None:
-                mean = round(prop_stats["mean"], 2)
+        return validation_reports
 
-            for item_dets, anns_far in items_far_from_mean.items():
-                item_id, item_subset = item_dets
-                for ann_id, val in anns_far.items():
-                    val = round(val, 2)
-                    details = (
-                        item_subset,
-                        caption_name,
-                        ann_id,
-                        f"{self.str_ann_type} {prop}",
-                        mean,
-                        val,
-                    )
-                    validation_reports += self._generate_validation_report(
-                        FarFromCaptionMean, Severity.info, item_id, *details
-                    )
+    def _check_caption_outliers(self, caption_name, caption_stats):
+        prop_stats = list(caption_stats.values())[0]
+        lower_bound, upper_bound = prop_stats["outlier"]
+        items_outlier = prop_stats["items_outlier"]
+
+        validation_reports = []
+        for item_dets, val in items_outlier.items():
+            item_id, item_subset = item_dets
+            val = round(val, 2)
+            details = (
+                item_subset,
+                caption_name,
+                lower_bound,
+                upper_bound,
+                val,
+            )
+            validation_reports += self._generate_validation_report(
+                OutlierInCaption, Severity.info, item_id, *details
+            )
 
         return validation_reports
 
