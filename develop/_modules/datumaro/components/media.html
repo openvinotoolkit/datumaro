@@ -7,7 +7,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>datumaro.components.media &#8212; Datumaro 1.7.0rc0 documentation</title>
+    <title>datumaro.components.media &#8212; Datumaro 1.7.0 documentation</title>
   
   
   
@@ -38,7 +38,7 @@
 <link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=8d27b9dea8ad943066ae" />
   <script src="../../../_static/vendor/fontawesome/6.5.1/js/all.min.js?digest=8d27b9dea8ad943066ae"></script>
 
-    <script src="../../../_static/documentation_options.js?v=b996a231"></script>
+    <script src="../../../_static/documentation_options.js?v=030dc6f6"></script>
     <script src="../../../_static/doctools.js?v=888ff710"></script>
     <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -124,8 +124,8 @@
       
     
     
-    <img src="../../../_static/datumaro-logo.png" class="logo__image only-light" alt="Datumaro 1.7.0rc0 documentation - Home"/>
-    <script>document.write(`<img src="../../../_static/datumaro-logo.png" class="logo__image only-dark" alt="Datumaro 1.7.0rc0 documentation - Home"/>`);</script>
+    <img src="../../../_static/datumaro-logo.png" class="logo__image only-light" alt="Datumaro 1.7.0 documentation - Home"/>
+    <script>document.write(`<img src="../../../_static/datumaro-logo.png" class="logo__image only-dark" alt="Datumaro 1.7.0 documentation - Home"/>`);</script>
   
   
 </a></div>
@@ -340,7 +340,7 @@ document.write(`
                 <article class="bd-article">
                   
   <h1>Source code for datumaro.components.media</h1><div class="highlight"><pre>
-<span></span><span class="c1"># Copyright (C) 2021-2022 Intel Corporation</span>
+<span></span><span class="c1"># Copyright (C) 2021-2024 Intel Corporation</span>
 <span class="c1">#</span>
 <span class="c1"># SPDX-License-Identifier: MIT</span>
 
@@ -441,7 +441,7 @@ document.write(`
 <span class="k">class</span> <span class="nc">MediaElement</span><span class="p">(</span><span class="n">Generic</span><span class="p">[</span><span class="n">AnyData</span><span class="p">]):</span>
     <span class="n">_type</span> <span class="o">=</span> <span class="n">MediaType</span><span class="o">.</span><span class="n">MEDIA_ELEMENT</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">crypter</span><span class="p">:</span> <span class="n">Crypter</span> <span class="o">=</span> <span class="n">NULL_CRYPTER</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">crypter</span><span class="p">:</span> <span class="n">Crypter</span> <span class="o">=</span> <span class="n">NULL_CRYPTER</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_crypter</span> <span class="o">=</span> <span class="n">crypter</span>
 
 <div class="viewcode-block" id="MediaElement.as_dict">
@@ -893,7 +893,30 @@ document.write(`
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">path</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_video</span><span class="o">.</span><span class="n">path</span></div>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_video</span><span class="o">.</span><span class="n">path</span>
+
+<div class="viewcode-block" id="VideoFrame.from_self">
+<a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.plugins.data_formats.datumaro_binary.mapper.html#datumaro.components.abstracts.merger.VideoFrame.from_self">[docs]</a>
+    <span class="k">def</span> <span class="nf">from_self</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="n">attrs</span> <span class="o">=</span> <span class="n">deepcopy</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">as_dict</span><span class="p">())</span>
+        <span class="k">if</span> <span class="s2">&quot;path&quot;</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="p">:</span>
+            <span class="n">attrs</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="s2">&quot;video&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">video</span><span class="o">.</span><span class="n">from_self</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)})</span>
+            <span class="n">kwargs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;path&quot;</span><span class="p">)</span>
+        <span class="n">attrs</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="p">(</span><span class="o">**</span><span class="n">attrs</span><span class="p">)</span></div>
+
+
+    <span class="k">def</span> <span class="nf">__getstate__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1"># Return only the picklable parts of the state.</span>
+        <span class="n">state</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__dict__</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        <span class="k">del</span> <span class="n">state</span><span class="p">[</span><span class="s2">&quot;_data&quot;</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">state</span>
+
+    <span class="k">def</span> <span class="nf">__setstate__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">state</span><span class="p">):</span>
+        <span class="c1"># Restore the objects&#39; state.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="vm">__dict__</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">state</span><span class="p">)</span>
+        <span class="c1"># Reinitialize unpichlable attributes</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_data</span> <span class="o">=</span> <span class="k">lambda</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_video</span><span class="o">.</span><span class="n">get_frame_data</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_index</span><span class="p">)</span></div>
 
 
 
@@ -935,6 +958,11 @@ document.write(`
 
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_video</span><span class="o">.</span><span class="n">_frame_count</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_video</span><span class="o">.</span><span class="n">_frame_count</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_pos</span> <span class="o">+</span> <span class="mi">1</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_video</span><span class="o">.</span><span class="n">_end_frame</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">_video</span><span class="o">.</span><span class="n">_end_frame</span> <span class="o">&gt;=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_video</span><span class="o">.</span><span class="n">_frame_count</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                    <span class="sa">f</span><span class="s2">&quot;The end_frame value(</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_video</span><span class="o">.</span><span class="n">_end_frame</span><span class="si">}</span><span class="s2">) of the video &quot;</span>
+                    <span class="sa">f</span><span class="s2">&quot;must be less than the frame count(</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_video</span><span class="o">.</span><span class="n">_frame_count</span><span class="si">}</span><span class="s2">).&quot;</span>
+                <span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">_make_frame</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">index</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">VideoFrame</span><span class="p">:</span>
         <span class="k">return</span> <span class="n">VideoFrame</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_video</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="n">index</span><span class="p">)</span>
@@ -985,13 +1013,22 @@ document.write(`
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
-        <span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">step</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span> <span class="n">start_frame</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="n">end_frame</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">path</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="n">step</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span>
+        <span class="n">start_frame</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
+        <span class="n">end_frame</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="o">*</span><span class="n">args</span><span class="p">,</span>
+        <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_path</span> <span class="o">=</span> <span class="n">path</span>
 
+        <span class="k">assert</span> <span class="mi">0</span> <span class="o">&lt;=</span> <span class="n">start_frame</span>
         <span class="k">if</span> <span class="n">end_frame</span><span class="p">:</span>
-            <span class="k">assert</span> <span class="n">start_frame</span> <span class="o">&lt;</span> <span class="n">end_frame</span>
+            <span class="k">assert</span> <span class="n">start_frame</span> <span class="o">&lt;=</span> <span class="n">end_frame</span>
+            <span class="c1"># we can&#39;t know the video length here,</span>
+            <span class="c1"># so we cannot validate if the end_frame is valid.</span>
         <span class="k">assert</span> <span class="mi">0</span> <span class="o">&lt;</span> <span class="n">step</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_step</span> <span class="o">=</span> <span class="n">step</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_start_frame</span> <span class="o">=</span> <span class="n">start_frame</span>
@@ -1046,7 +1083,7 @@ document.write(`
             <span class="c1"># Decoding is not necessary to get frame pointers</span>
             <span class="c1"># However, it can be inacurrate</span>
             <span class="n">end_frame</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_end_frame</span><span class="p">()</span>
-            <span class="k">for</span> <span class="n">index</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_start_frame</span><span class="p">,</span> <span class="n">end_frame</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_step</span><span class="p">):</span>
+            <span class="k">for</span> <span class="n">index</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_start_frame</span><span class="p">,</span> <span class="n">end_frame</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_step</span><span class="p">):</span>
                 <span class="k">yield</span> <span class="n">VideoFrame</span><span class="p">(</span><span class="n">video</span><span class="o">=</span><span class="bp">self</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="n">index</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="c1"># Need to decode to iterate over frames</span>
@@ -1055,7 +1092,8 @@ document.write(`
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">length</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Returns frame count, if video provides such information.</span>
+<span class="sd">        Returns frame count of the closed interval [start_frame, end_frame],</span>
+<span class="sd">        if video provides such information.</span>
 
 <span class="sd">        Note that not all videos provide length / duration metainfo, so the</span>
 <span class="sd">        result may be undefined.</span>
@@ -1071,12 +1109,15 @@ document.write(`
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_length</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">end_frame</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_end_frame</span><span class="p">()</span>
 
-            <span class="n">length</span> <span class="o">=</span> <span class="kc">None</span>
             <span class="k">if</span> <span class="n">end_frame</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-                <span class="n">length</span> <span class="o">=</span> <span class="p">(</span><span class="n">end_frame</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">_start_frame</span><span class="p">)</span> <span class="o">//</span> <span class="bp">self</span><span class="o">.</span><span class="n">_step</span>
-                <span class="k">assert</span> <span class="mi">0</span> <span class="o">&lt;</span> <span class="n">length</span>
-
-            <span class="bp">self</span><span class="o">.</span><span class="n">_length</span> <span class="o">=</span> <span class="n">length</span>
+                <span class="n">length</span> <span class="o">=</span> <span class="p">(</span><span class="n">end_frame</span> <span class="o">+</span> <span class="mi">1</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">_start_frame</span><span class="p">)</span> <span class="o">//</span> <span class="bp">self</span><span class="o">.</span><span class="n">_step</span>
+                <span class="k">if</span> <span class="mi">0</span> <span class="o">&gt;=</span> <span class="n">length</span><span class="p">:</span>
+                    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                        <span class="s2">&quot;There is no valid frame for the closed interval&quot;</span>
+                        <span class="sa">f</span><span class="s2">&quot;[start_frame(</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_start_frame</span><span class="si">}</span><span class="s2">),&quot;</span>
+                        <span class="sa">f</span><span class="s2">&quot; end_frame(</span><span class="si">{</span><span class="n">end_frame</span><span class="si">}</span><span class="s2">)] with step(</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_step</span><span class="si">}</span><span class="s2">).&quot;</span>
+                    <span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_length</span> <span class="o">=</span> <span class="n">length</span>
 
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_length</span>
 
@@ -1102,18 +1143,23 @@ document.write(`
         <span class="k">return</span> <span class="n">frame_size</span>
 
     <span class="k">def</span> <span class="nf">_get_end_frame</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1"># Note that end_frame could less than the last frame of the video</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_end_frame</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">_frame_count</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">end_frame</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_end_frame</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_frame_count</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">_end_frame</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">end_frame</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_end_frame</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">_frame_count</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">end_frame</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_frame_count</span> <span class="o">-</span> <span class="mi">1</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="n">end_frame</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_end_frame</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">_frame_count</span>
+            <span class="n">end_frame</span> <span class="o">=</span> <span class="kc">None</span>
 
         <span class="k">return</span> <span class="n">end_frame</span>
 
     <span class="k">def</span> <span class="nf">_includes_frame</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">i</span><span class="p">):</span>
-        <span class="n">end_frame</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_end_frame</span><span class="p">()</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_start_frame</span> <span class="o">&lt;=</span> <span class="n">i</span><span class="p">:</span>
             <span class="k">if</span> <span class="p">(</span><span class="n">i</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">_start_frame</span><span class="p">)</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">_step</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
-                <span class="k">if</span> <span class="n">end_frame</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">end_frame</span><span class="p">:</span>
+                <span class="n">end_frame</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_end_frame</span><span class="p">()</span>
+                <span class="k">if</span> <span class="n">end_frame</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">i</span> <span class="o">&lt;=</span> <span class="n">end_frame</span><span class="p">:</span>
                     <span class="k">return</span> <span class="kc">True</span>
 
         <span class="k">return</span> <span class="kc">False</span>
@@ -1135,15 +1181,49 @@ document.write(`
         <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">_reader</span><span class="o">.</span><span class="n">isOpened</span><span class="p">()</span>
 
     <span class="k">def</span> <span class="fm">__eq__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">:</span> <span class="nb">object</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+        <span class="k">def</span> <span class="nf">_get_frame</span><span class="p">(</span><span class="n">obj</span><span class="p">:</span> <span class="n">Video</span><span class="p">,</span> <span class="n">idx</span><span class="p">:</span> <span class="nb">int</span><span class="p">):</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">obj</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span>
+            <span class="k">except</span> <span class="ne">IndexError</span><span class="p">:</span>
+                <span class="k">return</span> <span class="kc">None</span>
+
         <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">other</span><span class="p">,</span> <span class="vm">__class__</span><span class="p">):</span>
             <span class="k">return</span> <span class="kc">False</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_start_frame</span> <span class="o">!=</span> <span class="n">other</span><span class="o">.</span><span class="n">_start_frame</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">_step</span> <span class="o">!=</span> <span class="n">other</span><span class="o">.</span><span class="n">_step</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">False</span>
 
-        <span class="k">return</span> <span class="p">(</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">path</span> <span class="o">==</span> <span class="n">other</span><span class="o">.</span><span class="n">path</span>
-            <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">_start_frame</span> <span class="o">==</span> <span class="n">other</span><span class="o">.</span><span class="n">_start_frame</span>
-            <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">_step</span> <span class="o">==</span> <span class="n">other</span><span class="o">.</span><span class="n">_step</span>
-            <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">_end_frame</span> <span class="o">==</span> <span class="n">other</span><span class="o">.</span><span class="n">_end_frame</span>
-        <span class="p">)</span>
+        <span class="c1"># The video path can vary if a dataset is copied.</span>
+        <span class="c1"># So, we need to check if the video data is the same instead of checking paths.</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_end_frame</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">_end_frame</span> <span class="o">==</span> <span class="n">other</span><span class="o">.</span><span class="n">_end_frame</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">idx</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_start_frame</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_end_frame</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_step</span><span class="p">):</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span> <span class="o">!=</span> <span class="n">other</span><span class="p">[</span><span class="n">idx</span><span class="p">]:</span>
+                    <span class="k">return</span> <span class="kc">False</span>
+            <span class="k">return</span> <span class="kc">True</span>
+
+        <span class="n">end_frame</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_end_frame</span> <span class="ow">or</span> <span class="n">other</span><span class="o">.</span><span class="n">_end_frame</span>
+        <span class="k">if</span> <span class="n">end_frame</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">last_frame</span> <span class="o">=</span> <span class="kc">None</span>
+            <span class="k">for</span> <span class="n">idx</span><span class="p">,</span> <span class="n">frame</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+                <span class="k">if</span> <span class="n">frame</span> <span class="o">!=</span> <span class="n">_get_frame</span><span class="p">(</span><span class="n">other</span><span class="p">,</span> <span class="n">frame</span><span class="o">.</span><span class="n">index</span><span class="p">):</span>
+                    <span class="k">return</span> <span class="kc">False</span>
+                <span class="n">last_frame</span> <span class="o">=</span> <span class="n">frame</span>
+            <span class="c1"># check if the actual last frames are same</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">other</span><span class="p">[</span><span class="n">last_frame</span><span class="o">.</span><span class="n">index</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">_step</span> <span class="k">if</span> <span class="n">last_frame</span> <span class="k">else</span> <span class="bp">self</span><span class="o">.</span><span class="n">_start_frame</span><span class="p">]</span>
+            <span class="k">except</span> <span class="ne">IndexError</span><span class="p">:</span>
+                <span class="k">return</span> <span class="kc">True</span>
+            <span class="k">return</span> <span class="kc">False</span>
+
+        <span class="c1"># _end_frame values, only one of the two is valid</span>
+        <span class="k">for</span> <span class="n">idx</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_start_frame</span><span class="p">,</span> <span class="n">end_frame</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_step</span><span class="p">):</span>
+            <span class="n">frame</span> <span class="o">=</span> <span class="n">_get_frame</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">idx</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">frame</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="k">return</span> <span class="kc">False</span>
+            <span class="k">if</span> <span class="n">frame</span> <span class="o">!=</span> <span class="n">_get_frame</span><span class="p">(</span><span class="n">other</span><span class="p">,</span> <span class="n">idx</span><span class="p">):</span>
+                <span class="k">return</span> <span class="kc">False</span>
+        <span class="c1"># check if the actual last frames are same</span>
+        <span class="n">idx_next</span> <span class="o">=</span> <span class="n">end_frame</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">_step</span>
+        <span class="k">return</span> <span class="kc">None</span> <span class="ow">is</span> <span class="p">(</span><span class="n">_get_frame</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">idx_next</span><span class="p">)</span> <span class="ow">or</span> <span class="n">_get_frame</span><span class="p">(</span><span class="n">other</span><span class="p">,</span> <span class="n">idx_next</span><span class="p">))</span>
 
     <span class="k">def</span> <span class="fm">__hash__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="c1"># Required for caching</span>

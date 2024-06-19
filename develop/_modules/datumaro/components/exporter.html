@@ -7,7 +7,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>datumaro.components.exporter &#8212; Datumaro 1.7.0rc0 documentation</title>
+    <title>datumaro.components.exporter &#8212; Datumaro 1.7.0 documentation</title>
   
   
   
@@ -38,7 +38,7 @@
 <link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=8d27b9dea8ad943066ae" />
   <script src="../../../_static/vendor/fontawesome/6.5.1/js/all.min.js?digest=8d27b9dea8ad943066ae"></script>
 
-    <script src="../../../_static/documentation_options.js?v=b996a231"></script>
+    <script src="../../../_static/documentation_options.js?v=030dc6f6"></script>
     <script src="../../../_static/doctools.js?v=888ff710"></script>
     <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -124,8 +124,8 @@
       
     
     
-    <img src="../../../_static/datumaro-logo.png" class="logo__image only-light" alt="Datumaro 1.7.0rc0 documentation - Home"/>
-    <script>document.write(`<img src="../../../_static/datumaro-logo.png" class="logo__image only-dark" alt="Datumaro 1.7.0rc0 documentation - Home"/>`);</script>
+    <img src="../../../_static/datumaro-logo.png" class="logo__image only-light" alt="Datumaro 1.7.0 documentation - Home"/>
+    <script>document.write(`<img src="../../../_static/datumaro-logo.png" class="logo__image only-dark" alt="Datumaro 1.7.0 documentation - Home"/>`);</script>
   
   
 </a></div>
@@ -340,7 +340,7 @@ document.write(`
                 <article class="bd-article">
                   
   <h1>Source code for datumaro.components.exporter</h1><div class="highlight"><pre>
-<span></span><span class="c1"># Copyright (C) 2019-2023 Intel Corporation</span>
+<span></span><span class="c1"># Copyright (C) 2019-2024 Intel Corporation</span>
 <span class="c1">#</span>
 <span class="c1"># SPDX-License-Identifier: MIT</span>
 
@@ -364,7 +364,7 @@ document.write(`
     <span class="n">DatumaroError</span><span class="p">,</span>
     <span class="n">ItemExportError</span><span class="p">,</span>
 <span class="p">)</span>
-<span class="kn">from</span> <span class="nn">datumaro.components.media</span> <span class="kn">import</span> <span class="n">Image</span><span class="p">,</span> <span class="n">PointCloud</span><span class="p">,</span> <span class="n">VideoFrame</span>
+<span class="kn">from</span> <span class="nn">datumaro.components.media</span> <span class="kn">import</span> <span class="n">Image</span><span class="p">,</span> <span class="n">PointCloud</span><span class="p">,</span> <span class="n">Video</span><span class="p">,</span> <span class="n">VideoFrame</span>
 <span class="kn">from</span> <span class="nn">datumaro.components.progress_reporting</span> <span class="kn">import</span> <span class="n">NullProgressReporter</span><span class="p">,</span> <span class="n">ProgressReporter</span>
 <span class="kn">from</span> <span class="nn">datumaro.util.meta_file_util</span> <span class="kn">import</span> <span class="n">save_hashkey_file</span><span class="p">,</span> <span class="n">save_meta_file</span>
 <span class="kn">from</span> <span class="nn">datumaro.util.os_util</span> <span class="kn">import</span> <span class="n">rmtree</span>
@@ -733,10 +733,15 @@ document.write(`
 <div class="viewcode-block" id="ExportContextComponent.make_video_filename">
 <a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.components.exporter.html#datumaro.components.dataset.ExportContextComponent.make_video_filename">[docs]</a>
     <span class="k">def</span> <span class="nf">make_video_filename</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">item</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">item</span><span class="p">,</span> <span class="n">DatasetItem</span><span class="p">)</span> <span class="ow">and</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">item</span><span class="o">.</span><span class="n">media</span><span class="p">,</span> <span class="n">VideoFrame</span><span class="p">):</span>
+        <span class="n">STR_WRONG_MEDIA_TYPE</span> <span class="o">=</span> <span class="s2">&quot;Video item&#39;s media type should be Video or VideoFrame&quot;</span>
+        <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">item</span><span class="p">,</span> <span class="n">DatasetItem</span><span class="p">),</span> <span class="n">STR_WRONG_MEDIA_TYPE</span>
+
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">item</span><span class="o">.</span><span class="n">media</span><span class="p">,</span> <span class="n">VideoFrame</span><span class="p">):</span>
             <span class="n">video_file_name</span> <span class="o">=</span> <span class="n">osp</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">item</span><span class="o">.</span><span class="n">media</span><span class="o">.</span><span class="n">video</span><span class="o">.</span><span class="n">path</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">item</span><span class="o">.</span><span class="n">media</span><span class="p">,</span> <span class="n">Video</span><span class="p">):</span>
+            <span class="n">video_file_name</span> <span class="o">=</span> <span class="n">osp</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">item</span><span class="o">.</span><span class="n">media</span><span class="o">.</span><span class="n">path</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="k">assert</span> <span class="s2">&quot;Video item type should be VideoFrame&quot;</span>
+            <span class="k">assert</span> <span class="kc">False</span><span class="p">,</span> <span class="n">STR_WRONG_MEDIA_TYPE</span>
 
         <span class="k">return</span> <span class="n">video_file_name</span></div>
 
@@ -806,7 +811,7 @@ document.write(`
         <span class="n">subdir</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">fname</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">):</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="n">item</span><span class="o">.</span><span class="n">media</span> <span class="ow">or</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">item</span><span class="o">.</span><span class="n">media</span><span class="p">,</span> <span class="n">VideoFrame</span><span class="p">):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">item</span><span class="o">.</span><span class="n">media</span> <span class="ow">or</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">item</span><span class="o">.</span><span class="n">media</span><span class="p">,</span> <span class="p">(</span><span class="n">Video</span><span class="p">,</span> <span class="n">VideoFrame</span><span class="p">)):</span>
             <span class="n">log</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;Item &#39;</span><span class="si">%s</span><span class="s2">&#39; has no video&quot;</span><span class="p">,</span> <span class="n">item</span><span class="o">.</span><span class="n">id</span><span class="p">)</span>
             <span class="k">return</span>
         <span class="n">basedir</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_video_dir</span> <span class="k">if</span> <span class="n">basedir</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">basedir</span>
@@ -818,7 +823,10 @@ document.write(`
 
         <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">osp</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">path</span><span class="p">),</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
-        <span class="n">item</span><span class="o">.</span><span class="n">media</span><span class="o">.</span><span class="n">video</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">crypter</span><span class="o">=</span><span class="n">NULL_CRYPTER</span><span class="p">)</span></div>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">item</span><span class="o">.</span><span class="n">media</span><span class="p">,</span> <span class="n">VideoFrame</span><span class="p">):</span>
+            <span class="n">item</span><span class="o">.</span><span class="n">media</span><span class="o">.</span><span class="n">video</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">crypter</span><span class="o">=</span><span class="n">NULL_CRYPTER</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>  <span class="c1"># Video</span>
+            <span class="n">item</span><span class="o">.</span><span class="n">media</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">crypter</span><span class="o">=</span><span class="n">NULL_CRYPTER</span><span class="p">)</span></div>
 
 
     <span class="nd">@property</span>

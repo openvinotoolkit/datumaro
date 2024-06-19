@@ -31,6 +31,7 @@ dataset = dm.Dataset.import_from('<path_to_video>', format='video_frames')
 
 Datumaro has few import options for `video_frames` format, to apply them
 use the `--` after the main command argument.
+Note that a video has a closed interval of [`start-frame`, `end-frame`].
 
 `video_frames` import options:
 - `--subset` (string) - The name of the subset for the produced

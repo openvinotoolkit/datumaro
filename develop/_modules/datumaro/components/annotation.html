@@ -7,7 +7,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>datumaro.components.annotation &#8212; Datumaro 1.7.0rc0 documentation</title>
+    <title>datumaro.components.annotation &#8212; Datumaro 1.7.0 documentation</title>
   
   
   
@@ -38,7 +38,7 @@
 <link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=8d27b9dea8ad943066ae" />
   <script src="../../../_static/vendor/fontawesome/6.5.1/js/all.min.js?digest=8d27b9dea8ad943066ae"></script>
 
-    <script src="../../../_static/documentation_options.js?v=b996a231"></script>
+    <script src="../../../_static/documentation_options.js?v=030dc6f6"></script>
     <script src="../../../_static/doctools.js?v=888ff710"></script>
     <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -124,8 +124,8 @@
       
     
     
-    <img src="../../../_static/datumaro-logo.png" class="logo__image only-light" alt="Datumaro 1.7.0rc0 documentation - Home"/>
-    <script>document.write(`<img src="../../../_static/datumaro-logo.png" class="logo__image only-dark" alt="Datumaro 1.7.0rc0 documentation - Home"/>`);</script>
+    <img src="../../../_static/datumaro-logo.png" class="logo__image only-light" alt="Datumaro 1.7.0 documentation - Home"/>
+    <script>document.write(`<img src="../../../_static/datumaro-logo.png" class="logo__image only-dark" alt="Datumaro 1.7.0 documentation - Home"/>`);</script>
   
   
 </a></div>
@@ -1130,11 +1130,8 @@ document.write(`
 
 <span class="nd">@attrs</span><span class="p">(</span><span class="n">slots</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">order</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
 <span class="k">class</span> <span class="nc">_Shape</span><span class="p">(</span><span class="n">Annotation</span><span class="p">):</span>
-    <span class="c1"># Flattened list of point coordinates</span>
     <span class="n">points</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span>
-        <span class="n">converter</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">around</span><span class="p">(</span>
-            <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">),</span> <span class="n">COORDINATE_ROUNDING_DIGITS</span>
-        <span class="p">)</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
+        <span class="n">converter</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="n">COORDINATE_ROUNDING_DIGITS</span><span class="p">)</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
     <span class="p">)</span>
 
     <span class="n">label</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span>
@@ -1275,11 +1272,12 @@ document.write(`
 <div class="viewcode-block" id="Polygon.get_area">
 <a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.plugins.sam_transforms.bbox_to_inst_mask.html#datumaro.components.abstracts.merger.Polygon.get_area">[docs]</a>
     <span class="k">def</span> <span class="nf">get_area</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="kn">import</span> <span class="nn">pycocotools.mask</span> <span class="k">as</span> <span class="nn">mask_utils</span>
+        <span class="c1"># import pycocotools.mask as mask_utils</span>
 
-        <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">w</span><span class="p">,</span> <span class="n">h</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_bbox</span><span class="p">()</span>
-        <span class="n">rle</span> <span class="o">=</span> <span class="n">mask_utils</span><span class="o">.</span><span class="n">frPyObjects</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">points</span><span class="p">],</span> <span class="n">y</span> <span class="o">+</span> <span class="n">h</span><span class="p">,</span> <span class="n">x</span> <span class="o">+</span> <span class="n">w</span><span class="p">)</span>
-        <span class="n">area</span> <span class="o">=</span> <span class="n">mask_utils</span><span class="o">.</span><span class="n">area</span><span class="p">(</span><span class="n">rle</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="c1"># x, y, w, h = self.get_bbox()</span>
+        <span class="c1"># rle = mask_utils.frPyObjects([self.points], y + h, x + w)</span>
+        <span class="c1"># area = mask_utils.area(rle)[0]</span>
+        <span class="n">area</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_shoelace_area</span><span class="p">()</span>
         <span class="k">return</span> <span class="n">area</span></div>
 
 
@@ -1307,7 +1305,22 @@ document.write(`
         <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="n">self_polygon</span><span class="o">.</span><span class="n">is_valid</span> <span class="ow">and</span> <span class="n">other_polygon</span><span class="o">.</span><span class="n">is_valid</span><span class="p">):</span>
             <span class="k">return</span> <span class="n">self_points</span> <span class="o">==</span> <span class="n">other_points</span>
         <span class="n">inter_area</span> <span class="o">=</span> <span class="n">self_polygon</span><span class="o">.</span><span class="n">intersection</span><span class="p">(</span><span class="n">other_polygon</span><span class="p">)</span><span class="o">.</span><span class="n">area</span>
-        <span class="k">return</span> <span class="nb">abs</span><span class="p">(</span><span class="n">self_polygon</span><span class="o">.</span><span class="n">area</span> <span class="o">-</span> <span class="n">inter_area</span><span class="p">)</span> <span class="o">&lt;</span> <span class="n">CHECK_POLYGON_EQ_EPSILONE</span></div>
+        <span class="k">return</span> <span class="nb">abs</span><span class="p">(</span><span class="n">self_polygon</span><span class="o">.</span><span class="n">area</span> <span class="o">-</span> <span class="n">inter_area</span><span class="p">)</span> <span class="o">&lt;</span> <span class="n">CHECK_POLYGON_EQ_EPSILONE</span>
+
+    <span class="k">def</span> <span class="nf">_get_shoelace_area</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">points</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_points</span><span class="p">()</span>
+        <span class="n">n</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">points</span><span class="p">)</span>
+        <span class="c1"># Not a polygon</span>
+        <span class="k">if</span> <span class="n">n</span> <span class="o">&lt;</span> <span class="mi">3</span><span class="p">:</span>
+            <span class="k">return</span> <span class="mi">0</span>
+
+        <span class="n">area</span> <span class="o">=</span> <span class="mf">0.0</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n</span><span class="p">):</span>
+            <span class="n">x1</span><span class="p">,</span> <span class="n">y1</span> <span class="o">=</span> <span class="n">points</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+            <span class="n">x2</span><span class="p">,</span> <span class="n">y2</span> <span class="o">=</span> <span class="n">points</span><span class="p">[(</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">%</span> <span class="n">n</span><span class="p">]</span>  <span class="c1"># Next vertex, wrapping around using modulo</span>
+            <span class="n">area</span> <span class="o">+=</span> <span class="n">x1</span> <span class="o">*</span> <span class="n">y2</span> <span class="o">-</span> <span class="n">y1</span> <span class="o">*</span> <span class="n">x2</span>
+
+        <span class="k">return</span> <span class="nb">abs</span><span class="p">(</span><span class="n">area</span><span class="p">)</span> <span class="o">/</span> <span class="mf">2.0</span></div>
 
 
 
@@ -1949,6 +1962,78 @@ document.write(`
 
     <span class="n">_type</span> <span class="o">=</span> <span class="n">AnnotationType</span><span class="o">.</span><span class="n">tabular</span>
     <span class="n">values</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">TableDtype</span><span class="p">]</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">converter</span><span class="o">=</span><span class="nb">dict</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="Annotations">
+<a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.components.annotation.html#datumaro.components.abstracts.merger.Annotations">[docs]</a>
+<span class="k">class</span> <span class="nc">Annotations</span><span class="p">(</span><span class="n">List</span><span class="p">[</span><span class="n">Annotation</span><span class="p">]):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;List of `Annotation` equipped with additional utility functions.&quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="Annotations.get_semantic_seg_mask">
+<a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.components.annotation.html#datumaro.components.abstracts.merger.Annotations.get_semantic_seg_mask">[docs]</a>
+    <span class="k">def</span> <span class="nf">get_semantic_seg_mask</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">ignore_index</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="n">dtype</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">dtype</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">uint8</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Extract semantic segmentation mask from a collection of Datumaro `Mask`s.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            ignore_index: Scalar value to fill in the zeros in each binary mask</span>
+<span class="sd">                before merging into a semantic segmentation mask. This value is usually used</span>
+<span class="sd">                to represent a pixel denoting a not-interested region. Defaults to 0.</span>
+<span class="sd">            dtype: Data type for the resulting mask. Defaults to np.uint8.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            Semantic segmentation mask generated by merging Datumaro `Mask`s.</span>
+
+<span class="sd">        Raises:</span>
+<span class="sd">            ValueError: If there are no mask annotations or if there is an inconsistency in mask sizes.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">masks</span> <span class="o">=</span> <span class="p">[</span><span class="n">ann</span> <span class="k">for</span> <span class="n">ann</span> <span class="ow">in</span> <span class="bp">self</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">ann</span><span class="p">,</span> <span class="n">Mask</span><span class="p">)]</span>
+        <span class="c1"># Mask with a lower z_order value will come first</span>
+        <span class="n">masks</span><span class="o">.</span><span class="n">sort</span><span class="p">(</span><span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">mask</span><span class="p">:</span> <span class="n">mask</span><span class="o">.</span><span class="n">z_order</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">masks</span><span class="p">:</span>
+            <span class="n">msg</span> <span class="o">=</span> <span class="s2">&quot;There is no mask annotations.&quot;</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+
+        <span class="c1"># Dispatching for better performance</span>
+        <span class="c1"># If all masks are `ExtractedMask`, share a same source `index_mask`, and</span>
+        <span class="c1"># there is no label remapping.</span>
+        <span class="k">if</span> <span class="p">(</span>
+            <span class="nb">all</span><span class="p">(</span><span class="nb">isinstance</span><span class="p">(</span><span class="n">mask</span><span class="p">,</span> <span class="n">ExtractedMask</span><span class="p">)</span> <span class="k">for</span> <span class="n">mask</span> <span class="ow">in</span> <span class="n">masks</span><span class="p">)</span>
+            <span class="c1"># and set(id(mask.index_mask) for mask in masks) == 1</span>
+            <span class="ow">and</span> <span class="nb">all</span><span class="p">(</span><span class="n">mask</span><span class="o">.</span><span class="n">index_mask</span> <span class="o">==</span> <span class="nb">next</span><span class="p">(</span><span class="nb">iter</span><span class="p">(</span><span class="n">masks</span><span class="p">))</span><span class="o">.</span><span class="n">index_mask</span> <span class="k">for</span> <span class="n">mask</span> <span class="ow">in</span> <span class="n">masks</span><span class="p">)</span>
+            <span class="ow">and</span> <span class="nb">all</span><span class="p">(</span><span class="n">mask</span><span class="o">.</span><span class="n">index</span> <span class="o">==</span> <span class="n">mask</span><span class="o">.</span><span class="n">label</span> <span class="k">for</span> <span class="n">mask</span> <span class="ow">in</span> <span class="n">masks</span><span class="p">)</span>
+        <span class="p">):</span>
+            <span class="n">index_mask</span> <span class="o">=</span> <span class="nb">next</span><span class="p">(</span><span class="nb">iter</span><span class="p">(</span><span class="n">masks</span><span class="p">))</span><span class="o">.</span><span class="n">index_mask</span>
+            <span class="n">semantic_seg_mask</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">=</span> <span class="n">index_mask</span><span class="p">()</span> <span class="k">if</span> <span class="nb">callable</span><span class="p">(</span><span class="n">index_mask</span><span class="p">)</span> <span class="k">else</span> <span class="n">index_mask</span>
+            <span class="k">if</span> <span class="n">semantic_seg_mask</span><span class="o">.</span><span class="n">dtype</span> <span class="o">!=</span> <span class="n">dtype</span><span class="p">:</span>
+                <span class="n">semantic_seg_mask</span> <span class="o">=</span> <span class="n">semantic_seg_mask</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">dtype</span><span class="p">)</span>
+
+            <span class="n">labels</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">mask</span><span class="o">.</span><span class="n">label</span> <span class="k">for</span> <span class="n">mask</span> <span class="ow">in</span> <span class="n">masks</span><span class="p">]))</span>
+            <span class="n">ignore_index_mask</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span><span class="n">semantic_seg_mask</span><span class="p">,</span> <span class="n">labels</span><span class="p">,</span> <span class="n">invert</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+            <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">ignore_index_mask</span><span class="p">,</span> <span class="n">ignore_index</span><span class="p">,</span> <span class="n">semantic_seg_mask</span><span class="p">)</span>
+
+        <span class="n">class_masks</span> <span class="o">=</span> <span class="p">[</span><span class="n">mask</span><span class="o">.</span><span class="n">as_class_mask</span><span class="p">(</span><span class="n">ignore_index</span><span class="o">=</span><span class="n">ignore_index</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">dtype</span><span class="p">)</span> <span class="k">for</span> <span class="n">mask</span> <span class="ow">in</span> <span class="n">masks</span><span class="p">]</span>
+
+        <span class="n">max_h</span> <span class="o">=</span> <span class="nb">max</span><span class="p">([</span><span class="n">mask</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">mask</span> <span class="ow">in</span> <span class="n">class_masks</span><span class="p">])</span>
+        <span class="n">max_w</span> <span class="o">=</span> <span class="nb">max</span><span class="p">([</span><span class="n">mask</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="k">for</span> <span class="n">mask</span> <span class="ow">in</span> <span class="n">class_masks</span><span class="p">])</span>
+
+        <span class="n">semantic_seg_mask</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">full</span><span class="p">(</span><span class="n">shape</span><span class="o">=</span><span class="p">(</span><span class="n">max_h</span><span class="p">,</span> <span class="n">max_w</span><span class="p">),</span> <span class="n">fill_value</span><span class="o">=</span><span class="n">ignore_index</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">dtype</span><span class="p">)</span>
+
+        <span class="k">for</span> <span class="n">class_mask</span> <span class="ow">in</span> <span class="n">class_masks</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">class_mask</span><span class="o">.</span><span class="n">shape</span> <span class="o">!=</span> <span class="n">semantic_seg_mask</span><span class="o">.</span><span class="n">shape</span><span class="p">:</span>
+                <span class="n">msg</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;There is inconsistency in mask size: </span><span class="si">{</span><span class="n">class_mask</span><span class="o">.</span><span class="n">shape</span><span class="si">}</span><span class="s2">!=</span><span class="si">{</span><span class="n">semantic_seg_mask</span><span class="o">.</span><span class="n">shape</span><span class="si">}</span><span class="s2">.&quot;</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">msg</span><span class="p">,</span> <span class="n">class_mask</span><span class="o">.</span><span class="n">shape</span><span class="p">,</span> <span class="n">semantic_seg_mask</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
+
+            <span class="n">ignore_index_mask</span> <span class="o">=</span> <span class="n">class_mask</span> <span class="o">==</span> <span class="n">ignore_index</span>
+            <span class="n">semantic_seg_mask</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">ignore_index_mask</span><span class="p">,</span> <span class="n">semantic_seg_mask</span><span class="p">,</span> <span class="n">class_mask</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">semantic_seg_mask</span></div>
+</div>
 
 </pre></div>
 
