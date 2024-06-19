@@ -678,73 +678,6 @@
     }
   },
   {
-    "import_path": "datumaro.plugins.data_formats.imagenet.NestedImagenetBase",
-    "plugin_name": "nested_imagenet",
-    "plugin_type": "DatasetBase"
-  },
-  {
-    "import_path": "datumaro.plugins.data_formats.imagenet.NestedImagenetImporter",
-    "plugin_name": "nested_imagenet",
-    "plugin_type": "Importer",
-    "metadata": {
-      "file_extensions": [
-        ".bmp",
-        ".dib",
-        ".exr",
-        ".hdr",
-        ".jp2",
-        ".jpe",
-        ".jpeg",
-        ".jpg",
-        ".pbm",
-        ".pfm",
-        ".pgm",
-        ".pic",
-        ".png",
-        ".pnm",
-        ".ppm",
-        ".pxm",
-        ".ras",
-        ".sr",
-        ".tga",
-        ".tif",
-        ".tiff",
-        ".webp"
-      ]
-    }
-  },
-  {
-    "import_path": "datumaro.plugins.data_formats.imagenet.NestedImagenetWithSubsetDirsImporter",
-    "plugin_name": "nested_imagenet_with_subset_dirs",
-    "plugin_type": "Importer",
-    "metadata": {
-      "file_extensions": [
-        ".bmp",
-        ".dib",
-        ".exr",
-        ".hdr",
-        ".jp2",
-        ".jpe",
-        ".jpeg",
-        ".jpg",
-        ".pbm",
-        ".pfm",
-        ".pgm",
-        ".pic",
-        ".png",
-        ".pnm",
-        ".ppm",
-        ".pxm",
-        ".ras",
-        ".sr",
-        ".tga",
-        ".tif",
-        ".tiff",
-        ".webp"
-      ]
-    }
-  },
-  {
     "import_path": "datumaro.plugins.data_formats.imagenet_txt.ImagenetTxtBase",
     "plugin_name": "imagenet_txt",
     "plugin_type": "DatasetBase"
@@ -1385,8 +1318,7 @@
     "plugin_type": "Importer",
     "metadata": {
       "file_extensions": [
-        ".json",
-        ".pcd"
+        ".json"
       ]
     }
   },

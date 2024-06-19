@@ -6,7 +6,7 @@ import errno
 import logging as log
 import os
 from pathlib import Path
-from typing import List, Optional
+from typing import List
 
 from datumaro.components.annotation import AnnotationType, Label, LabelCategories
 from datumaro.components.dataset_base import DatasetItem, SubsetBase
@@ -15,7 +15,7 @@ from datumaro.components.exporter import Exporter
 from datumaro.components.format_detection import FormatDetectionConfidence, FormatDetectionContext
 from datumaro.components.importer import ImportContext, Importer, with_subset_dirs
 from datumaro.components.media import Image
-from datumaro.util.definitions import SUBSET_NAME_BLACKLIST
+from datumaro.util.definitions import SUBSET_NAME_BLACKLIST, SUBSET_NAME_WHITELIST
 from datumaro.util.image import IMAGE_EXTENSIONS, find_images
 from datumaro.util.os_util import walk
 
@@ -25,7 +25,7 @@ class ImagenetPath:
     SEP_TOKEN = ":"
 
 
-class NestedImagenetBase(SubsetBase):
+class ImagenetBase(SubsetBase):
     def __init__(
         self,
         path: str,
@@ -87,18 +87,7 @@ class NestedImagenetBase(SubsetBase):
         return items
 
 
-class ImagenetBase(NestedImagenetBase):
-    def __init__(
-        self,
-        path: str,
-        *,
-        subset: Optional[str] = None,
-        ctx: Optional[ImportContext] = None,
-    ):
-        super().__init__(path=path, subset=subset, ctx=ctx, min_depth=1, max_depth=1)
-
-
-class NestedImagenetImporter(Importer):
+class ImagenetImporter(Importer):
     """
         Multi-level version of ImagenetImporter.
         For example, it imports the following directory structure.
@@ -118,17 +107,16 @@ class NestedImagenetImporter(Importer):
 
     _MIN_DEPTH = None
     _MAX_DEPTH = None
-    _FORMAT = NestedImagenetBase.NAME
+    _FORMAT = ImagenetBase.NAME
     DETECT_CONFIDENCE = FormatDetectionConfidence.EXTREME_LOW
-    CATEGORIES_BLACKLIST = ("train", "val", "test")
 
     @classmethod
     def detect(cls, context: FormatDetectionContext) -> FormatDetectionConfidence:
         # Images must not be under a directory whose name is blacklisted.
         for dname, dirnames, filenames in os.walk(context.root_path):
-            if dname in cls.CATEGORIES_BLACKLIST:
+            if dname in SUBSET_NAME_WHITELIST:
                 context.fail(
-                    f"Following directory names are not permitted: {cls.CATEGORIES_BLACKLIST}"
+                    f"Following directory names are not permitted: {SUBSET_NAME_WHITELIST}"
                 )
             rel_dname = Path(dname).relative_to(context.root_path)
             level = len(rel_dname.parts)
@@ -178,29 +166,8 @@ class NestedImagenetImporter(Importer):
         return parser
 
 
-class ImagenetImporter(NestedImagenetImporter):
-    """TorchVision's ImageFolder style importer.
-    For example, it imports the following directory structure.
-
-    .. code-block:: text
-
-        root
-        ├── label_0
-        │   ├── label_0_1.jpg
-        │   └── label_0_2.jpg
-        └── label_1
-            └── label_1_1.jpg
-
-    """
-
-    _MIN_DEPTH = 1
-    _MAX_DEPTH = 1
-    _FORMAT = ImagenetBase.NAME
-    DETECT_CONFIDENCE = FormatDetectionConfidence.LOW
-
-
 @with_subset_dirs
-class NestedImagenetWithSubsetDirsImporter(NestedImagenetImporter):
+class ImagenetWithSubsetDirsImporter(ImagenetImporter):
     """Multi-level image directory structure importer.
     Example:
 
@@ -231,37 +198,6 @@ class NestedImagenetWithSubsetDirsImporter(NestedImagenetImporter):
             │       └── img2.jpg
             └── label_1
                 └── img3.jpg
-    """
-
-
-@with_subset_dirs
-class ImagenetWithSubsetDirsImporter(ImagenetImporter):
-    """TorchVision ImageFolder style importer.
-    For example, it imports the following directory structure.
-
-    .. code-block::
-
-        root
-        ├── train
-        │   ├── label_0
-        │   │   ├── label_0_1.jpg
-        │   │   └── label_0_2.jpg
-        │   └── label_1
-        │       └── label_1_1.jpg
-        ├── val
-        │   ├── label_0
-        │   │   ├── label_0_1.jpg
-        │   │   └── label_0_2.jpg
-        │   └── label_1
-        │       └── label_1_1.jpg
-        └── test
-            ├── label_0
-            │   ├── label_0_1.jpg
-            │   └── label_0_2.jpg
-            └── label_1
-                └── label_1_1.jpg
-
-    Then, it will have three subsets: train, val, and test and they have label_0 and label_1 labels.
     """
 
 

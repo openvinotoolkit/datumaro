@@ -16,8 +16,6 @@ from datumaro.plugins.data_formats.imagenet import (
     ImagenetImporter,
     ImagenetWithSubsetDirsExporter,
     ImagenetWithSubsetDirsImporter,
-    NestedImagenetImporter,
-    NestedImagenetWithSubsetDirsImporter,
 )
 
 from ..requirements import Requirements, mark_requirement
@@ -192,74 +190,6 @@ class ImagenetImporterTest(TestCase):
                     annotations=[Label(0)],
                 ),
                 DatasetItem(
-                    id="label_0:label_0_2",
-                    media=Image.from_numpy(data=np.ones((10, 10, 3))),
-                    annotations=[Label(0)],
-                ),
-                DatasetItem(
-                    id="label_1:label_1_1",
-                    media=Image.from_numpy(data=np.ones((8, 8, 3))),
-                    annotations=[Label(1)],
-                ),
-            ],
-            categories={
-                AnnotationType.label: LabelCategories.from_iterable(
-                    "label_" + str(label) for label in range(2)
-                ),
-            },
-        )
-
-    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
-    def test_can_import(self):
-        expected_dataset = self._create_expected_dataset()
-        dataset = Dataset.import_from(self.DUMMY_DATASET_DIR, self.FORMAT_NAME)
-
-        compare_datasets(self, expected_dataset, dataset, require_media=True)
-
-    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
-    def test_can_detect_imagenet(self):
-        detected_formats = Environment().detect_dataset(self.DUMMY_DATASET_DIR)
-        self.assertEqual([self.IMPORTER_NAME], detected_formats)
-
-    @mark_requirement(Requirements.DATUM_673)
-    def test_can_pickle(self):
-        source = Dataset.import_from(self.DUMMY_DATASET_DIR, format=self.FORMAT_NAME)
-
-        parsed = pickle.loads(pickle.dumps(source))  # nosec
-
-        compare_datasets_strict(self, source, parsed)
-
-
-class ImagenetWithSubsetDirsImporterTest(ImagenetImporterTest):
-    DUMMY_DATASET_DIR = get_test_asset_path("imagenet_subsets_dataset")
-    FORMAT_NAME = "imagenet_with_subset_dirs"
-    IMPORTER_NAME = ImagenetWithSubsetDirsImporter.NAME
-
-    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
-    def test_can_import(self):
-        dataset = Dataset.import_from(self.DUMMY_DATASET_DIR, "imagenet_with_subset_dirs")
-
-        for subset_name, subset in dataset.subsets().items():
-            expected_dataset = self._create_expected_dataset().transform(
-                "map_subsets", mapping={"default": subset_name}
-            )
-            compare_datasets(self, expected_dataset, subset, require_media=True)
-
-
-class NestedImagenetImporterTest(TestCase):
-    DUMMY_DATASET_DIR = get_test_asset_path("nested_imagenet_dataset")
-    FORMAT_NAME = "nested_imagenet"
-    IMPORTER_NAME = NestedImagenetImporter.NAME
-
-    def _create_expected_dataset(self):
-        return Dataset.from_iterable(
-            [
-                DatasetItem(
-                    id="label_0:label_0_1",
-                    media=Image.from_numpy(data=np.ones((8, 8, 3))),
-                    annotations=[Label(0)],
-                ),
-                DatasetItem(
                     id="no_label:label_0_2",
                     media=Image.from_numpy(data=np.ones((10, 10, 3))),
                 ),
@@ -302,10 +232,10 @@ class NestedImagenetImporterTest(TestCase):
         compare_datasets_strict(self, source, parsed)
 
 
-class NestedImagenetWithSubsetDirsImporterTest(NestedImagenetImporterTest):
-    DUMMY_DATASET_DIR = get_test_asset_path("nested_imagenet_with_subset_dirs_dataset")
-    FORMAT_NAME = "nested_imagenet_with_subset_dirs"
-    IMPORTER_NAME = NestedImagenetWithSubsetDirsImporter.NAME
+class ImagenetWithSubsetDirsImporterTest(ImagenetImporterTest):
+    DUMMY_DATASET_DIR = get_test_asset_path("imagenet_subsets_dataset")
+    FORMAT_NAME = "imagenet_with_subset_dirs"
+    IMPORTER_NAME = ImagenetWithSubsetDirsImporter.NAME
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_import(self):
