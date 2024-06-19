@@ -1,4 +1,4 @@
-# Copyright (C) 2021 Intel Corporation
+# Copyright (C) 2023-2024 Intel Corporation
 #
 # SPDX-License-Identifier: MIT
 
@@ -14,13 +14,19 @@ from datumaro.components.dataset import Dataset, DatasetItem
 from datumaro.components.environment import Environment
 from datumaro.components.errors import (
     AttributeDefinedButNotFound,
+    BrokenAnnotation,
     DatasetValidationError,
+    EmptyCaption,
+    EmptyLabel,
     FarFromAttrMean,
+    FarFromCaptionMean,
     FarFromLabelMean,
     FewSamplesInAttribute,
     FewSamplesInLabel,
     ImbalancedAttribute,
+    ImbalancedCaptions,
     ImbalancedDistInAttribute,
+    ImbalancedDistInCaption,
     ImbalancedDistInLabel,
     ImbalancedLabels,
     InvalidValue,
@@ -32,6 +38,7 @@ from datumaro.components.errors import (
     NegativeLength,
     OnlyOneAttributeValue,
     OnlyOneLabel,
+    OutlierInCaption,
     UndefinedAttribute,
     UndefinedLabel,
 )
@@ -460,12 +467,70 @@ def fxt_dataset():
     )
 
 
+import os.path as osp
+
+import datumaro.plugins.transforms as transforms
+
+from tests.utils.assets import get_test_asset_path
+
+
+@pytest.fixture
+def fxt_tbl_dataset():
+    path = osp.join(get_test_asset_path("tabular_dataset"), "women-clothing", "women_clothing.csv")
+    tabular_dataset = Dataset.import_from(
+        path,
+        "tabular",
+        target={
+            "input": ["Review Text"],
+            "output": [
+                "Age",
+                "Title",
+                "Review Text",
+                "Rating",
+                "Positive Feedback Count",
+                "Division Name",
+            ],
+        },
+    )
+    tabular_dataset = transforms.AstypeAnnotations(tabular_dataset)
+    return tabular_dataset
+
+
+@pytest.fixture
+def fxt_tbl_imbal_dataset():
+    path = osp.join(
+        get_test_asset_path("tabular_dataset"), "women-clothing", "women_clothing_imbalanced.csv"
+    )
+    tabular_dataset = Dataset.import_from(
+        path,
+        "tabular",
+        target={
+            "input": ["Review Text"],
+            "output": [
+                "Age",
+                "Title",
+                "Review Text",
+                "Rating",
+                "Positive Feedback Count",
+                "Division Name",
+            ],
+        },
+    )
+    tabular_dataset = transforms.AstypeAnnotations(tabular_dataset)
+    return tabular_dataset
+
+
 ANN_TASK_MAPPING = {
     AnnotationType.label: TaskType.classification,
     AnnotationType.bbox: TaskType.detection,
     AnnotationType.polygon: TaskType.segmentation,
     AnnotationType.mask: TaskType.segmentation,
     AnnotationType.ellipse: TaskType.segmentation,
+}
+
+ANN_TASK_MAPPING_TBL = {
+    AnnotationType.label: TaskType.tabular,
+    AnnotationType.caption: TaskType.tabular,
 }
 
 
@@ -549,3 +614,56 @@ class ConfigurableValidatorTest:
             expected = set([s.__name__ for s in fxt_warnings])
 
             assert actual.intersection(expected)
+
+    @pytest.mark.parametrize(
+        "fxt_dataset,fxt_task,fxt_warnings",
+        [
+            ("fxt_tbl_dataset", TaskType.tabular, {MissingAnnotation, BrokenAnnotation}),
+            (
+                "fxt_tbl_imbal_dataset",
+                TaskType.tabular,
+                {FewSamplesInLabel, ImbalancedLabels, EmptyLabel},
+            ),
+            (
+                "fxt_tbl_imbal_dataset",
+                TaskType.tabular,
+                {
+                    EmptyCaption,
+                    ImbalancedCaptions,
+                    ImbalancedDistInCaption,
+                    FarFromCaptionMean,
+                    OutlierInCaption,
+                },
+            ),
+        ],
+        ids=["tbl_annotation", "tbl_label", "tbl_caption"],
+    )
+    def test_can_validate_configuration_tabular(
+        self,
+        fxt_dataset,
+        fxt_task: TaskType,
+        fxt_warnings: Set[DatasetValidationError],
+        request,
+    ):
+        validator = ConfigurableValidator(
+            tasks=[fxt_task],
+            warnings=fxt_warnings,
+            few_samples_thr=50,
+            dominance_ratio_thr=0.3,
+            imbalance_ratio_thr=1.5,
+        )
+        dataset = request.getfixturevalue(fxt_dataset)
+        all_stats = validator.compute_statistics(dataset)
+        all_reports = validator.generate_reports(all_stats)
+
+        for label_name in all_stats[fxt_task].stats.categories:
+            for ann_type in all_stats[fxt_task].stats.categories[label_name]["ann_type"]:
+                assert ANN_TASK_MAPPING_TBL[ann_type] == fxt_task
+
+        reports = all_reports[fxt_task]
+        reports = list(map(lambda r: r.to_dict(), reports))
+
+        actual = set([r["anomaly_type"] for r in reports])
+        expected = set([s.__name__ for s in fxt_warnings])
+
+        assert actual.intersection(expected)

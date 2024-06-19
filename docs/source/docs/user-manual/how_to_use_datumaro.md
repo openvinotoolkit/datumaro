@@ -35,5 +35,5 @@ datum project commit -m "Transformed"
 datum project checkout HEAD~1 -- source1 # restore a previous revision
 datum project status # prints "modified source1"
 datum project checkout source1 # restore the last revision
-datum project export -f voc -- --save-images
+datum project export -f voc -- --save-media
 ```

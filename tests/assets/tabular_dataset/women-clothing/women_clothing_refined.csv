@@ -1,0 +1,52 @@
+Rating,Age,Title,Review Text,Division Name
+3.0,10.0,title,check link amazing fun,General
+4,30,title,text emoji special characters,Initmates
+5,40,title,normal text common words,General
+1,50,title,another example html tag numbers,General Petite
+2,60,title,short text,Initmates
+3,70,title,text includes tags url,General
+4,80,title,text example longer text could truncated fit models requirements,General Petite
+5,90,title,another lengthy review might considered outlier excessive length amount detail goes,Initmates
+1,100,title,short,General
+2,10,title,another text processed example,General Petite
+3,20,title,final text complete example set,Initmates
+4,30,title,brief text,General
+5,40,title,yet another example one quite short,General Petite
+1,50,title,quick brown fox jumps lazy dog,Initmates
+2,60,title,another example text includes numbers like,General
+3,70,title,text bold html tags,General Petite
+4,80,title,short text numbers symbols,Initmates
+5,90,title,simple text punctuation,General
+1,100,title,normal text details,General Petite
+2,10,title,heres text hashtags example text,Initmates
+3,20,title,text includes mention user,General
+4,30,title,one emojis link,General Petite
+5,40,title,example text various special characters,Initmates
+1,50,title,short sentence,General
+2,60,title,another long text example meant test text cleaning handles sentences varying lengths complexities,General Petite
+3,70,title,random words scattered throughout text without much meaning coherence,Initmates
+4,80,title,html content removed,General
+5,90,title,heres tricky one containing quotes special characters like,General Petite
+1,100,title,final sentence demonstrate expanded dataframe,Initmates
+2,10,title,example numbers like,General
+3,20,title,simple sentence testing purposes,General Petite
+4,30,title,text mixed content numbers symbols words,Initmates
+5,40,title,long text goes exceeding typical length expectations test models truncation capabilities handles lengthy inputs,General
+1,50,title,short sweet,General Petite
+2,10,title,example text test,Initmates
+3,20,title,another example,General
+4,30,title,lets include html tags paragraph see happens,General Petite
+5,40,title,random text significant meaning,Initmates
+1,50,title,emoji text needs cleaned,General
+2,60,title,simple text basic content,General Petite
+3,70,title,checking punctuation affects textcleaning,General
+4,80,title,another one hashtags mentions,General Petite
+5,90,title,short text,Initmates
+1,100,title,another example,General
+2,10,title,text url tags div,General Petite
+3,20,title,final example text see output,Initmates
+4,30,title,heres sentence special characters,General
+5,40,title,checking emojis removed,General Petite
+1,50,title,text mixed content including numbers symbols,Initmates
+2,60,title,example test stop words removal cleaning process,General
+3,136.25,title,another sentence html content span,General Petite

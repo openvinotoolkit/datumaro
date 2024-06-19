@@ -19,6 +19,7 @@ class TaskType(Enum):
     classification = auto()
     detection = auto()
     segmentation = auto()
+    tabular = auto()
 
 
 class Validator(CliPlugin):

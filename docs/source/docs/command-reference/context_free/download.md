@@ -101,5 +101,5 @@ Parameters:
 Examples:
 - Download the MNIST dataset, saving it in the ImageNet text format
   ```console
-  datum download get -i tfds:mnist -f imagenet_txt -- --save-images
+  datum download get -i tfds:mnist -f imagenet_txt -- --save-media
   ```

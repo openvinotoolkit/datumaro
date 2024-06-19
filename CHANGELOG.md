@@ -5,6 +5,19 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## \[unreleased\]
+### New features
+- Add TabularValidator
+  (<https://github.com/openvinotoolkit/datumaro/pull/1498>)
+- Add Clean Transform for tabular data type
+  (<https://github.com/openvinotoolkit/datumaro/pull/1520>)
+
+### Enhancements
+- Set label name with parents to avoid duplicates for AstypeAnnotations
+  (<https://github.com/openvinotoolkit/datumaro/pull/1492>)
+- Pass Keyword Argument to TabularDataBase
+  (<https://github.com/openvinotoolkit/datumaro/pull/1522>)
+
 ## Q2 2024 Release 1.7.0
 ### New features
 - Support 'Video' media type in datumaro format
@@ -37,6 +50,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Bug fixes
 - Split the video directory into subsets to avoid overwriting
   (<https://github.com/openvinotoolkit/datumaro/pull/1485>)
+- Doc update to replace --save-images is replaced with --save-media
+  (<https://github.com/openvinotoolkit/datumaro/pull/1514>)
 
 ## May 2024 Release 1.6.1
 ### Enhancements

@@ -1,6 +1,7 @@
-# Copyright (C) 2023 Intel Corporation
+# Copyright (C) 2023-2024 Intel Corporation
 #
 # SPDX-License-Identifier: MIT
+from copy import deepcopy
 from dataclasses import dataclass
 from typing import Dict, List, Set, Tuple
 
@@ -11,13 +12,19 @@ from datumaro.components.cli_plugin import CliPlugin
 from datumaro.components.dataset_base import DatasetItem
 from datumaro.components.errors import (
     AttributeDefinedButNotFound,
+    BrokenAnnotation,
     DatasetValidationError,
+    EmptyCaption,
+    EmptyLabel,
     FarFromAttrMean,
+    FarFromCaptionMean,
     FarFromLabelMean,
     FewSamplesInAttribute,
     FewSamplesInLabel,
     ImbalancedAttribute,
+    ImbalancedCaptions,
     ImbalancedDistInAttribute,
+    ImbalancedDistInCaption,
     ImbalancedDistInLabel,
     ImbalancedLabels,
     InvalidValue,
@@ -29,6 +36,7 @@ from datumaro.components.errors import (
     NegativeLength,
     OnlyOneAttributeValue,
     OnlyOneLabel,
+    OutlierInCaption,
     UndefinedAttribute,
     UndefinedLabel,
 )
@@ -58,6 +66,15 @@ class DetStatsData(StatsData):
 @dataclass
 class SegStatsData(StatsData):
     invalid_value: Set[Tuple[str, str]]  # item_id, item_subset
+
+
+@dataclass
+class TblStatsData:
+    categories: Dict[str, Dict[str, Set[str]]]
+    empty_label: Set[Tuple[str, str]]  # item_id, item_subset
+    empty_caption: Set[Tuple[str, str]]  # item_id, item_subset
+    missing_annotations: Set[Tuple[str, str]]  # item_id, item_subset
+    broken_annotations: Set[Tuple[str, str]]  # item_id, item_subset
 
 
 class _BaseAnnStats:
@@ -797,6 +814,332 @@ class SegStats(_BaseAnnStats):
         return validation_reports
 
 
+from pandas.api.types import CategoricalDtype
+
+
+class TblStats(_BaseAnnStats):
+    def __init__(
+        self,
+        categories: dict,
+        warnings: set,
+        few_samples_thr: None,
+        imbalance_ratio_thr: None,
+        far_from_mean_thr: None,
+        dominance_thr: None,
+        topk_bins_ratio: None,
+    ):
+        self.caption_categories = categories.get(AnnotationType.caption, [])
+        self.label_categories = categories.get(AnnotationType.label, [])
+
+        self.warnings = set(warnings)
+
+        self.few_samples_thr = few_samples_thr
+        self.imbalance_ratio_thr = imbalance_ratio_thr
+        self.far_from_mean_thr = far_from_mean_thr
+        self.dominance_thr = dominance_thr
+        self.topk_bins_ratio = topk_bins_ratio
+
+        self.stats = TblStatsData(
+            categories={},
+            empty_label=set(),
+            empty_caption=set(),
+            missing_annotations=set(),
+            broken_annotations=set(),
+        )
+
+        all_categories = [(cat.name, cat.dtype) for cat in self.caption_categories] + [
+            (label_group.name, CategoricalDtype)
+            for label_group in self.label_categories.label_groups
+        ]
+        for name, dtype in all_categories:
+            self.stats.categories[name] = {
+                "cnt": 0,
+                "type": dtype,
+                "ann_type": set(),
+                "caption": [],
+            }
+        self.categories_len = len(all_categories)
+
+        self.caption_columns = [cat.name for cat in self.caption_categories]
+        self.label_columns = [
+            label_group.name for label_group in self.label_categories.label_groups
+        ]
+
+        # Create a dictionary that maps warning types to their corresponding update functions
+        self.update_item_functions = set()
+        self.update_ann_functions = set()
+        self.update_report_functions = set()
+
+        if MissingAnnotation in self.warnings:
+            self.update_ann_functions.add(self._update_annotation_stats)
+            self.update_item_functions.add(self._update_missing_annotation)
+            self.update_report_functions.add(self._check_missing_annotation)
+        if BrokenAnnotation in self.warnings:
+            self.update_ann_functions.add(self._update_annotation_stats)
+            self.update_item_functions.add(self._update_broken_annotation)
+            self.update_report_functions.add(self._check_broken_annotation)
+
+        if FewSamplesInLabel in self.warnings:
+            self.update_ann_functions.add(self._update_annotation_stats)
+            self.update_report_functions.add(self._check_few_samples_in_label)
+        if ImbalancedLabels in self.warnings:
+            self.update_ann_functions.add(self._update_annotation_stats)
+            self.update_report_functions.add(self._check_imbalanced_labels)
+        if EmptyLabel in self.warnings:
+            self.update_item_functions.add(self._update_empty_label)
+            self.update_report_functions.add(self._check_empty_label)
+
+        if EmptyCaption in self.warnings:
+            self.update_item_functions.add(self._update_empty_caption)
+            self.update_report_functions.add(self._check_empty_caption)
+        if ImbalancedCaptions in self.warnings:
+            self.update_ann_functions.add(self._update_annotation_stats)
+            self.update_report_functions.add(self._check_imbalanced_captions)
+        if ImbalancedDistInCaption in self.warnings:
+            self.update_ann_functions.add(self._update_annotation_stats)
+            self.update_report_functions.add(self._check_imbalanced_dist_in_caption)
+        if FarFromCaptionMean in self.warnings:
+            self.update_ann_functions.add(self._update_annotation_stats)
+            self.update_report_functions.add(self._check_far_from_caption_mean)
+        if OutlierInCaption in self.warnings:
+            self.update_ann_functions.add(self._update_annotation_stats)
+            self.update_report_functions.add(self._check_outlier_in_caption)
+
+    def _update_missing_annotation(self, item):
+        item_key = (item.id, item.subset)
+        if len(item.annotations) == 0:
+            self.stats.missing_annotations.add(item_key)
+
+    def _update_broken_annotation(self, item):
+        item_key = (item.id, item.subset)
+        if len(item.annotations) < self.categories_len:
+            self.stats.broken_annotations.add(item_key)
+
+    def _update_empty_label(self, item):
+        if len(item.annotations) < self.categories_len:
+            annotation_check = deepcopy(self.label_columns)
+            for ann in item.annotations:
+                if ann.type == AnnotationType.label:
+                    label = self.label_categories[ann.label].name.split(":")[0]
+                    annotation_check.remove(label)
+            for ann in annotation_check:
+                item_key = (item.id, item.subset, ann)
+                self.stats.empty_label.add(item_key)
+
+    def _update_empty_caption(self, item):
+        if len(item.annotations) < self.categories_len:
+            annotation_check = deepcopy(self.caption_columns)
+            for ann in item.annotations:
+                if ann.type == AnnotationType.caption:
+                    label = next(
+                        (cat for cat in self.caption_columns if ann.caption.startswith(cat)), None
+                    )
+                    annotation_check.remove(label)
+            for ann in annotation_check:
+                item_key = (item.id, item.subset, ann)
+                self.stats.empty_caption.add(item_key)
+
+    def _update_annotation_stats(self, item_key, annotation: Annotation):
+        if annotation.type == AnnotationType.label:
+            label_name = self.label_categories[annotation.label].name.split(":")[0]
+            self.stats.categories[label_name]["cnt"] += 1
+            self.stats.categories[label_name]["ann_type"].add(annotation.type)
+        elif annotation.type == AnnotationType.caption:
+            for cat in self.caption_columns:
+                if annotation.caption.startswith(cat):
+                    self.stats.categories[cat]["cnt"] += 1
+                    self.stats.categories[cat]["ann_type"].add(annotation.type)
+                    caption = annotation.caption.split(cat + ":")[-1]
+                    self.stats.categories[cat]["caption"].append(
+                        item_key + (annotation.id, caption)
+                    )
+                    break
+
+    def _check_missing_annotation(self, stats: StatsData):
+        validation_reports = []
+
+        items_missing_annotations = stats.missing_annotations
+        for item_id, item_subset in items_missing_annotations:
+            validation_reports += self._generate_validation_report(
+                MissingAnnotation, Severity.warning, item_id, item_subset, "label or caption"
+            )
+
+        return validation_reports
+
+    def _check_broken_annotation(self, stats: StatsData):
+        validation_reports = []
+
+        items_broken_annotations = stats.broken_annotations
+        for item_id, item_subset in items_broken_annotations:
+            validation_reports += self._generate_validation_report(
+                BrokenAnnotation, Severity.warning, item_id, item_subset, "label or caption"
+            )
+
+        return validation_reports
+
+    def _check_empty_label(self, stats: StatsData):
+        validation_reports = []
+
+        items_empty_label = stats.empty_label
+        for item_id, item_subset, col in items_empty_label:
+            validation_reports += self._generate_validation_report(
+                EmptyLabel, Severity.warning, item_id, item_subset, col
+            )
+
+        return validation_reports
+
+    def _check_empty_caption(self, stats: StatsData):
+        validation_reports = []
+
+        items_empty_caption = stats.empty_caption
+        for item_id, item_subset, col in items_empty_caption:
+            validation_reports += self._generate_validation_report(
+                EmptyCaption, Severity.warning, item_id, item_subset, col
+            )
+
+        return validation_reports
+
+    def _check_imbalanced_labels(self, stats: StatsData):
+        validation_reports = []
+
+        counts = [
+            stats.categories[label_name]["cnt"]
+            for label_name in stats.categories.keys()
+            if list(stats.categories[label_name]["ann_type"])[0] == AnnotationType.label
+        ]
+
+        if len(counts) == 0:
+            return validation_reports
+
+        count_max = np.max(counts)
+        count_min = np.min(counts)
+        balance = count_max / count_min if count_min > 0 else float("inf")
+        if balance >= self.imbalance_ratio_thr:
+            validation_reports += self._generate_validation_report(ImbalancedLabels, Severity.info)
+
+        return validation_reports
+
+    def _check_imbalanced_captions(self, stats: StatsData):
+        validation_reports = []
+
+        counts = [
+            stats.categories[label_name]["cnt"]
+            for label_name in stats.categories.keys()
+            if list(stats.categories[label_name]["ann_type"])[0] == AnnotationType.caption
+        ]
+
+        if len(counts) == 0:
+            return validation_reports
+
+        count_max = np.max(counts)
+        count_min = np.min(counts)
+        balance = count_max / count_min if count_min > 0 else float("inf")
+        if balance >= self.imbalance_ratio_thr:
+            validation_reports += self._generate_validation_report(
+                ImbalancedCaptions, Severity.info
+            )
+
+        return validation_reports
+
+    def _check_far_from_caption_mean(self, stats: StatsData):
+        def _far_from_mean(val, mean, stdev):
+            thr = self.far_from_mean_thr
+            return val > mean + (thr * stdev) or val < mean - (thr * stdev)
+
+        validation_reports = []
+
+        for label_name in stats.categories:
+            type_ = stats.categories[label_name]["type"]
+            if type_ in [float, int]:
+                captions = [
+                    type_(caption[3]) for caption in stats.categories[label_name]["caption"]
+                ]
+                prop_stats = {}
+                prop_stats["mean"] = np.mean(captions)
+                prop_stats["stdev"] = np.std(captions)
+
+                upper_bound = prop_stats["mean"] + (self.far_from_mean_thr * prop_stats["stdev"])
+                lower_bound = prop_stats["mean"] - (self.far_from_mean_thr * prop_stats["stdev"])
+                for item_id, item_subset, ann_id, caption in stats.categories[label_name][
+                    "caption"
+                ]:
+                    if _far_from_mean(type_(caption), prop_stats["mean"], prop_stats["stdev"]):
+                        details = (
+                            item_subset,
+                            label_name,
+                            prop_stats["mean"],
+                            upper_bound,
+                            lower_bound,
+                            type_(caption),
+                        )
+                        validation_reports += self._generate_validation_report(
+                            FarFromCaptionMean, Severity.info, item_id, *details
+                        )
+
+        return validation_reports
+
+    def _check_imbalanced_dist_in_caption(self, stats: StatsData):
+        validation_reports = []
+
+        for label_name in stats.categories:
+            type_ = stats.categories[label_name]["type"]
+            if type_ in [float, int]:
+                captions = [
+                    type_(caption[3]) for caption in stats.categories[label_name]["caption"]
+                ]
+                counts, _ = np.histogram(captions)
+
+                n_bucket = len(counts)
+                if n_bucket < 2:
+                    continue
+
+                topk = max(1, int(np.around(n_bucket * self.topk_bins_ratio)))
+
+                topk_values = np.sort(counts)[-topk:]
+                ratio = np.sum(topk_values) / np.sum(counts)
+                if ratio >= self.dominance_thr:
+                    validation_reports += self._generate_validation_report(
+                        ImbalancedDistInCaption, Severity.info, label_name
+                    )
+        return validation_reports
+
+    def _check_outlier_in_caption(self, stats: StatsData):
+        validation_reports = []
+
+        for label_name, category in stats.categories.items():
+            type_ = category["type"]
+            if type_ in [float, int]:
+                captions = np.array([type_(caption[3]) for caption in category["caption"]])
+
+                if captions.size == 0:
+                    continue
+
+                # Calculate Q1 (25th percentile) and Q3 (75th percentile)
+                Q1 = np.quantile(captions, 0.25)
+                Q3 = np.quantile(captions, 0.75)
+                IQR = Q3 - Q1
+
+                # Calculate the acceptable rangepsrc/datumaro/plugins/validators.py
+                lower_bound = Q1 - 1.5 * IQR
+                upper_bound = Q3 + 1.5 * IQR
+
+                for item_id, item_subset, ann_id, caption in category["caption"]:
+                    val = type_(caption)
+                    if (val < lower_bound) | (val > upper_bound):
+                        details = (
+                            item_subset,
+                            label_name,
+                            upper_bound,
+                            lower_bound,
+                            val,
+                        )
+                        validation_reports += self._generate_validation_report(
+                            OutlierInCaption, Severity.info, item_id, *details
+                        )
+
+        return validation_reports
+
+
 class ConfigurableValidator(Validator, CliPlugin):
     DEFAULT_FEW_SAMPLES_THR = 1
     DEFAULT_IMBALANCE_RATIO_THR = 50
@@ -882,6 +1225,7 @@ class ConfigurableValidator(Validator, CliPlugin):
             TaskType.classification,
             TaskType.detection,
             TaskType.segmentation,
+            TaskType.tabular,
         ],
         warnings: Set[DatasetValidationError] = ALL_WARNINGS,
         few_samples_thr=None,
@@ -907,7 +1251,7 @@ class ConfigurableValidator(Validator, CliPlugin):
         )
         self.topk_bins_ratio = topk_bins if topk_bins else self.DEFAULT_TOPK_BINS
 
-    def _init_stats_collector(self, label_categories):
+    def _init_stats_collector(self, categories):
         for task in self.tasks:
             kwargs = {
                 "few_samples_thr": self.few_samples_thr,
@@ -918,33 +1262,44 @@ class ConfigurableValidator(Validator, CliPlugin):
             }
             if task == TaskType.classification:
                 self.all_stats[task] = ClsStats(
-                    label_categories=label_categories, warnings=self.warnings, **kwargs
+                    label_categories=categories, warnings=self.warnings, **kwargs
                 )
             elif task == TaskType.detection:
                 self.all_stats[task] = DetStats(
-                    label_categories=label_categories, warnings=self.warnings, **kwargs
+                    label_categories=categories, warnings=self.warnings, **kwargs
                 )
             elif task == TaskType.segmentation:
                 self.all_stats[task] = SegStats(
-                    label_categories=label_categories, warnings=self.warnings, **kwargs
+                    label_categories=categories, warnings=self.warnings, **kwargs
+                )
+            elif task == TaskType.tabular:
+                self.all_stats[task] = TblStats(
+                    categories=categories, warnings=self.warnings, **kwargs
                 )
 
-    def _get_stats_collector(self, ann_type):
-        if ann_type == AnnotationType.label:
-            return self.all_stats.get(TaskType.classification, None)
-        elif ann_type == AnnotationType.bbox:
-            return self.all_stats.get(TaskType.detection, None)
-        elif ann_type in [
-            AnnotationType.mask,
-            AnnotationType.polygon,
-            AnnotationType.ellipse,
-        ]:
-            return self.all_stats.get(TaskType.segmentation, None)
+    def _get_stats_collector(self, ann_type, task_type):
+        if task_type == [TaskType.tabular]:
+            return self.all_stats.get(TaskType.tabular, None)
         else:
-            return None
+            if ann_type == AnnotationType.label:
+                return self.all_stats.get(TaskType.classification, None)
+            elif ann_type == AnnotationType.bbox:
+                return self.all_stats.get(TaskType.detection, None)
+            elif ann_type in [
+                AnnotationType.mask,
+                AnnotationType.polygon,
+                AnnotationType.ellipse,
+            ]:
+                return self.all_stats.get(TaskType.segmentation, None)
+            else:
+                return None
 
     def compute_statistics(self, dataset):
-        self._init_stats_collector(label_categories=dataset.categories()[AnnotationType.label])
+        if self.tasks == [TaskType.tabular]:
+            categories_input = dataset.categories()
+        else:
+            categories_input = dataset.categories()[AnnotationType.label]
+        self._init_stats_collector(categories=categories_input)
 
         for item in dataset:
             for stats_collector in self.all_stats.values():
@@ -952,7 +1307,9 @@ class ConfigurableValidator(Validator, CliPlugin):
 
             item_key = (item.id, item.subset)
             for annotation in item.annotations:
-                stats_collector = self._get_stats_collector(ann_type=annotation.type)
+                stats_collector = self._get_stats_collector(
+                    ann_type=annotation.type, task_type=self.tasks
+                )
                 if stats_collector:
                     stats_collector.update_ann(item_key, annotation)
 

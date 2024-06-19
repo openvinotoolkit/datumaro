@@ -825,3 +825,16 @@ bbox_values_decrement [-h]
 
 Optional arguments:
 - `-h`, `--help` (flag) - Show this help message and exit
+
+#### `correct`
+
+Correct the dataset from a validation report
+
+Usage:
+```console
+correct [-h] [-r REPORT_PATH]
+```
+
+Optional arguments:
+- `-h`, `--help` (flag) - Show this help message and exit
+- `-r`, `--reports` (str) - A validation report from a 'validate' CLI (default=validation_reports.json)

@@ -1855,6 +1855,11 @@
     "plugin_type": "Transform"
   },
   {
+    "import_path": "datumaro.plugins.transforms.Clean",
+    "plugin_name": "clean",
+    "plugin_type": "Transform"
+  },
+  {
     "import_path": "datumaro.plugins.transforms.CropCoveredSegments",
     "plugin_name": "crop_covered_segments",
     "plugin_type": "Transform"
@@ -1967,6 +1972,11 @@
   {
     "import_path": "datumaro.plugins.validators.SegmentationValidator",
     "plugin_name": "segmentation",
+    "plugin_type": "Validator"
+  },
+  {
+    "import_path": "datumaro.plugins.validators.TabularValidator",
+    "plugin_name": "tabular",
     "plugin_type": "Validator"
   }
 ]

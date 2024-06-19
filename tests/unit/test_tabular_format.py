@@ -29,6 +29,12 @@ def fxt_electricity(fxt_tabular_root):
 
 
 @pytest.fixture()
+def fxt_electricity_missing(fxt_tabular_root):
+    path = osp.join(fxt_tabular_root, "electricity_missing.csv")
+    yield Dataset.import_from(path, "tabular", target={"input": "nswprice", "output": "class"})
+
+
+@pytest.fixture()
 def fxt_buddy_target():
     yield {"input": "length(m)", "output": ["breed_category", "pet_category"]}
 
@@ -178,3 +184,23 @@ class TabularImporterTest:
     )
     def test_string_to_dict(self, input_string, expected_result):
         assert string_to_dict(input_string) == expected_result
+
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
+    def test_can_import_tabular_file_with_missing_value(self, fxt_electricity_missing) -> None:
+        import math
+
+        dataset: Type[Dataset] = fxt_electricity_missing
+        expected_categories_keys = [("class", CategoricalDtype())]
+        expected_category_labels = {"UP", "DOWN"}
+
+        result_categories = dataset.categories()[AnnotationType.tabular].items[0]
+        assert [(result_categories.name, result_categories.dtype)] == expected_categories_keys
+        assert len(dataset) == 24
+        assert result_categories.labels == expected_category_labels
+
+        num_nan_annotations = sum(
+            math.isnan(item.annotations[0].values["class"])
+            for item in dataset
+            if isinstance(item.annotations[0].values["class"], float)
+        )
+        assert num_nan_annotations == 4
