@@ -172,6 +172,13 @@ class VideoTest:
         assert video1 != Video(video_path3)
         assert Video(video_path3, end_frame=3) == video1
 
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
+    @scoped
+    def test_can_preserve_zero_end_frame(self):
+        video = Video("video.avi", start_frame=0, end_frame=0)
+
+        assert video._end_frame != None
+
 
 class VideoExtractorTest:
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)

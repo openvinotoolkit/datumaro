@@ -163,14 +163,14 @@ class VideoTest(TestCase):
                 ),
                 DatasetItem(
                     "1",
-                    media=Video(video_path, step=1, start_frame=0, end_frame=1),
+                    media=Video(video_path, step=1, start_frame=0, end_frame=0),
                     annotations=[
                         Label(0),
                     ],
                 ),
                 DatasetItem(
                     "2",
-                    media=Video(video_path, step=1, start_frame=2, end_frame=2),
+                    media=Video(video_path, step=1, start_frame=1, end_frame=2),
                     annotations=[
                         Label(1),
                     ],
@@ -206,6 +206,7 @@ class VideoTest(TestCase):
 
             dataset_dir = osp.join(test_dir, "test_video")
             expected.save(dataset_dir, save_media=True)
+
             run(self, "project", "import", "-p", project_dir, "-f", "datumaro", dataset_dir)
 
             result_dir = osp.join(test_dir, "test_video_result")
