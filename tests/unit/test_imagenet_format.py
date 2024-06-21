@@ -1,5 +1,6 @@
 import pickle  # nosec B403
 from copy import deepcopy
+from pathlib import Path
 from unittest import TestCase
 
 import numpy as np
@@ -189,9 +190,13 @@ class ImagenetImporterTest(TestCase):
                     annotations=[Label(0)],
                 ),
                 DatasetItem(
-                    id="label_0:label_0_2",
+                    id="no_label:label_0_2",
                     media=Image.from_numpy(data=np.ones((10, 10, 3))),
-                    annotations=[Label(0)],
+                ),
+                DatasetItem(
+                    id=f"{Path('label_1', 'label_1_1')}:label_1_1",
+                    media=Image.from_numpy(data=np.ones((8, 8, 3))),
+                    annotations=[Label(2)],
                 ),
                 DatasetItem(
                     id="label_1:label_1_1",
@@ -201,7 +206,7 @@ class ImagenetImporterTest(TestCase):
             ],
             categories={
                 AnnotationType.label: LabelCategories.from_iterable(
-                    "label_" + str(label) for label in range(2)
+                    ("label_0", "label_1", f"{Path('label_1', 'label_1_1')}")
                 ),
             },
         )
@@ -234,7 +239,7 @@ class ImagenetWithSubsetDirsImporterTest(ImagenetImporterTest):
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_import(self):
-        dataset = Dataset.import_from(self.DUMMY_DATASET_DIR, "imagenet_with_subset_dirs")
+        dataset = Dataset.import_from(self.DUMMY_DATASET_DIR, self.FORMAT_NAME)
 
         for subset_name, subset in dataset.subsets().items():
             expected_dataset = self._create_expected_dataset().transform(
