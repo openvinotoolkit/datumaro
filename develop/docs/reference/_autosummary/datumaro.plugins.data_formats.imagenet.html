@@ -663,14 +663,14 @@ document.write(`
 <p class="rubric">Classes</p>
 <table class="autosummary longtable table autosummary">
 <tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="#datumaro.plugins.data_formats.imagenet.ImagenetBase" title="datumaro.plugins.data_formats.imagenet.ImagenetBase"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ImagenetBase</span></code></a>(path, *[, subset, ctx])</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#datumaro.plugins.data_formats.imagenet.ImagenetBase" title="datumaro.plugins.data_formats.imagenet.ImagenetBase"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ImagenetBase</span></code></a>(path, *[, subset, ctx, ...])</p></td>
 <td><p></p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#datumaro.plugins.data_formats.imagenet.ImagenetExporter" title="datumaro.plugins.data_formats.imagenet.ImagenetExporter"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ImagenetExporter</span></code></a>(extractor, save_dir, *[, ...])</p></td>
 <td><p></p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#datumaro.plugins.data_formats.imagenet.ImagenetImporter" title="datumaro.plugins.data_formats.imagenet.ImagenetImporter"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ImagenetImporter</span></code></a>()</p></td>
-<td><p>TorchVision's ImageFolder style importer.</p></td>
+<td><p>Multi-level version of ImagenetImporter.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#datumaro.plugins.data_formats.imagenet.ImagenetPath" title="datumaro.plugins.data_formats.imagenet.ImagenetPath"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ImagenetPath</span></code></a>()</p></td>
 <td><p></p></td>
@@ -679,7 +679,7 @@ document.write(`
 <td><p></p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#datumaro.plugins.data_formats.imagenet.ImagenetWithSubsetDirsImporter" title="datumaro.plugins.data_formats.imagenet.ImagenetWithSubsetDirsImporter"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ImagenetWithSubsetDirsImporter</span></code></a>()</p></td>
-<td><p>TorchVision ImageFolder style importer.</p></td>
+<td><p>Multi-level image directory structure importer.</p></td>
 </tr>
 </tbody>
 </table>
@@ -701,7 +701,7 @@ document.write(`
 
 <dl class="py class">
 <dt class="sig sig-object py" id="datumaro.plugins.data_formats.imagenet.ImagenetBase">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">datumaro.plugins.data_formats.imagenet.</span></span><span class="sig-name descname"><span class="pre">ImagenetBase</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">subset</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><span class="pre">str</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.12)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ctx</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="datumaro.components.contexts.importer.html#datumaro.components.contexts.importer.ImportContext" title="datumaro.components.contexts.importer.ImportContext"><span class="pre">ImportContext</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.12)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/datumaro/plugins/data_formats/imagenet.html#ImagenetBase"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.plugins.data_formats.imagenet.ImagenetBase" title="Link to this definition">#</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">datumaro.plugins.data_formats.imagenet.</span></span><span class="sig-name descname"><span class="pre">ImagenetBase</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">subset</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><span class="pre">str</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.12)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ctx</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="datumaro.components.contexts.importer.html#datumaro.components.contexts.importer.ImportContext" title="datumaro.components.contexts.importer.ImportContext"><span class="pre">ImportContext</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.12)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">min_depth</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.12)"><span class="pre">int</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.12)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_depth</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.12)"><span class="pre">int</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.12)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/datumaro/plugins/data_formats/imagenet.html#ImagenetBase"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.plugins.data_formats.imagenet.ImagenetBase" title="Link to this definition">#</a></dt>
 <dd><p>Bases: <a class="reference internal" href="datumaro.components.dataset_base.html#datumaro.components.dataset_base.SubsetBase" title="datumaro.components.dataset_base.SubsetBase"><code class="xref py py-class docutils literal notranslate"><span class="pre">SubsetBase</span></code></a></p>
 </dd></dl>
 
@@ -709,19 +709,33 @@ document.write(`
 <dt class="sig sig-object py" id="datumaro.plugins.data_formats.imagenet.ImagenetImporter">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">datumaro.plugins.data_formats.imagenet.</span></span><span class="sig-name descname"><span class="pre">ImagenetImporter</span></span><a class="reference internal" href="../../../_modules/datumaro/plugins/data_formats/imagenet.html#ImagenetImporter"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.plugins.data_formats.imagenet.ImagenetImporter" title="Link to this definition">#</a></dt>
 <dd><p>Bases: <a class="reference internal" href="datumaro.components.importer.html#datumaro.components.importer.Importer" title="datumaro.components.importer.Importer"><code class="xref py py-class docutils literal notranslate"><span class="pre">Importer</span></code></a></p>
-<p>TorchVision’s ImageFolder style importer.
+<blockquote>
+<div><p>Multi-level version of ImagenetImporter.
 For example, it imports the following directory structure.</p>
+</div></blockquote>
 <div class="highlight-text notranslate"><div class="highlight"><pre><span></span>root
 ├── label_0
-│   ├── label_0_1.jpg
-│   └── label_0_2.jpg
+│   ├── label_0_1
+│   │   └── img1.jpg
+│   └── label_0_2
+│       └── img2.jpg
 └── label_1
-    └── label_1_1.jpg
+    └── img3.jpg
 </pre></div>
 </div>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="datumaro.plugins.data_formats.imagenet.ImagenetImporter.DETECT_CONFIDENCE">
+<span class="sig-name descname"><span class="pre">DETECT_CONFIDENCE</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">5</span></em><a class="headerlink" href="#datumaro.plugins.data_formats.imagenet.ImagenetImporter.DETECT_CONFIDENCE" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
 <dl class="py method">
 <dt class="sig sig-object py" id="datumaro.plugins.data_formats.imagenet.ImagenetImporter.detect">
 <em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">detect</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">context</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="datumaro.components.format_detection.html#datumaro.components.format_detection.FormatDetectionContext" title="datumaro.components.format_detection.FormatDetectionContext"><span class="pre">FormatDetectionContext</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="datumaro.components.format_detection.html#datumaro.components.format_detection.FormatDetectionConfidence" title="datumaro.components.format_detection.FormatDetectionConfidence"><span class="pre">FormatDetectionConfidence</span></a></span></span><a class="reference internal" href="../../../_modules/datumaro/plugins/data_formats/imagenet.html#ImagenetImporter.detect"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.plugins.data_formats.imagenet.ImagenetImporter.detect" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="datumaro.plugins.data_formats.imagenet.ImagenetImporter.contains_only_images">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">contains_only_images</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><span class="pre">str</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/pathlib.html#pathlib.Path" title="(in Python v3.12)"><span class="pre">Path</span></a></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/datumaro/plugins/data_formats/imagenet.html#ImagenetImporter.contains_only_images"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.plugins.data_formats.imagenet.ImagenetImporter.contains_only_images" title="Link to this definition">#</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
@@ -745,30 +759,35 @@ For example, it imports the following directory structure.</p>
 <dt class="sig sig-object py" id="datumaro.plugins.data_formats.imagenet.ImagenetWithSubsetDirsImporter">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">datumaro.plugins.data_formats.imagenet.</span></span><span class="sig-name descname"><span class="pre">ImagenetWithSubsetDirsImporter</span></span><a class="reference internal" href="../../../_modules/datumaro/plugins/data_formats/imagenet.html#ImagenetWithSubsetDirsImporter"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.plugins.data_formats.imagenet.ImagenetWithSubsetDirsImporter" title="Link to this definition">#</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#datumaro.plugins.data_formats.imagenet.ImagenetWithSubsetDirsImporter" title="datumaro.plugins.data_formats.imagenet.ImagenetWithSubsetDirsImporter"><code class="xref py py-class docutils literal notranslate"><span class="pre">ImagenetWithSubsetDirsImporter</span></code></a></p>
-<p>TorchVision ImageFolder style importer.
-For example, it imports the following directory structure.</p>
+<p>Multi-level image directory structure importer.
+Example:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span>root
 ├── train
 │   ├── label_0
-│   │   ├── label_0_1.jpg
-│   │   └── label_0_2.jpg
+│   │   ├── label_0_1
+│   │   │   └── img1.jpg
+│   │   └── label_0_2
+│   │       └── img2.jpg
 │   └── label_1
-│       └── label_1_1.jpg
+│       └── img3.jpg
 ├── val
 │   ├── label_0
-│   │   ├── label_0_1.jpg
-│   │   └── label_0_2.jpg
+│   │   ├── label_0_1
+│   │   │   └── img1.jpg
+│   │   └── label_0_2
+│   │       └── img2.jpg
 │   └── label_1
-│       └── label_1_1.jpg
+│       └── img3.jpg
 └── test
-    ├── label_0
-    │   ├── label_0_1.jpg
-    │   └── label_0_2.jpg
+    │   ├── label_0
+    │   ├── label_0_1
+    │   │   └── img1.jpg
+    │   └── label_0_2
+    │       └── img2.jpg
     └── label_1
-        └── label_1_1.jpg
+        └── img3.jpg
 </pre></div>
 </div>
-<p>Then, it will have three subsets: train, val, and test and they have label_0 and label_1 labels.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="datumaro.plugins.data_formats.imagenet.ImagenetWithSubsetDirsImporter.NAME">
 <span class="sig-name descname"><span class="pre">NAME</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'imagenet_with_subset_dirs'</span></em><a class="headerlink" href="#datumaro.plugins.data_formats.imagenet.ImagenetWithSubsetDirsImporter.NAME" title="Link to this definition">#</a></dt>
@@ -863,7 +882,9 @@ For example, it imports the following directory structure.</p>
 </li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.plugins.data_formats.imagenet.ImagenetBase"><code class="docutils literal notranslate"><span class="pre">ImagenetBase</span></code></a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.plugins.data_formats.imagenet.ImagenetImporter"><code class="docutils literal notranslate"><span class="pre">ImagenetImporter</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.plugins.data_formats.imagenet.ImagenetImporter.DETECT_CONFIDENCE"><code class="docutils literal notranslate"><span class="pre">ImagenetImporter.DETECT_CONFIDENCE</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.plugins.data_formats.imagenet.ImagenetImporter.detect"><code class="docutils literal notranslate"><span class="pre">ImagenetImporter.detect()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.plugins.data_formats.imagenet.ImagenetImporter.contains_only_images"><code class="docutils literal notranslate"><span class="pre">ImagenetImporter.contains_only_images()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.plugins.data_formats.imagenet.ImagenetImporter.find_sources"><code class="docutils literal notranslate"><span class="pre">ImagenetImporter.find_sources()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.plugins.data_formats.imagenet.ImagenetImporter.get_file_extensions"><code class="docutils literal notranslate"><span class="pre">ImagenetImporter.get_file_extensions()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.plugins.data_formats.imagenet.ImagenetImporter.build_cmdline_parser"><code class="docutils literal notranslate"><span class="pre">ImagenetImporter.build_cmdline_parser()</span></code></a></li>
