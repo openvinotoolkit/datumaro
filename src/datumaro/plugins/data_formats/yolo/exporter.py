@@ -15,7 +15,6 @@ from datumaro.components.errors import DatasetExportError, DatumaroError, MediaT
 from datumaro.components.exporter import Exporter
 from datumaro.components.media import Image
 from datumaro.util import str_to_bool
-from datumaro.util.definitions import SUBSET_NAME_WHITELIST
 
 from .format import YoloPath
 
@@ -196,6 +195,7 @@ class YoloExporter(Exporter):
 
 
 class YoloUltralyticsExporter(YoloExporter):
+    allowed_subset_names = {"train", "val", "test"}
     must_subset_names = {"train", "val"}
 
     def __init__(self, extractor: IDataset, save_dir: str, **kwargs) -> None:
@@ -214,9 +214,9 @@ class YoloUltralyticsExporter(YoloExporter):
         subset_names = set(self._extractor.subsets().keys())
 
         for subset in subset_names:
-            if subset not in SUBSET_NAME_WHITELIST:
+            if subset not in self.allowed_subset_names:
                 raise DatasetExportError(
-                    f"The allowed subset name should be in {SUBSET_NAME_WHITELIST}, "
+                    f"The allowed subset name is in {self.allowed_subset_names}, "
                     f'so that subset "{subset}" is not allowed.'
                 )
 

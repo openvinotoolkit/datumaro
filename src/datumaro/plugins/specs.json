@@ -1835,11 +1835,6 @@
     "plugin_type": "Transform"
   },
   {
-    "import_path": "datumaro.plugins.transforms.AstypeAnnotations",
-    "plugin_name": "astype_annotations",
-    "plugin_type": "Transform"
-  },
-  {
     "import_path": "datumaro.plugins.transforms.BboxValuesDecrement",
     "plugin_name": "bbox_values_decrement",
     "plugin_type": "Transform"
@@ -1957,6 +1952,11 @@
   {
     "import_path": "datumaro.plugins.transforms.Sort",
     "plugin_name": "sort",
+    "plugin_type": "Transform"
+  },
+  {
+    "import_path": "datumaro.plugins.transforms.AstypeAnnotations",
+    "plugin_name": "astype_annotations",
     "plugin_type": "Transform"
   },
   {

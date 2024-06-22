@@ -22,7 +22,7 @@ from datumaro.components.contexts.importer import (
 from datumaro.components.errors import DatasetImportError, DatasetNotFoundError
 from datumaro.components.format_detection import FormatDetectionConfidence, FormatDetectionContext
 from datumaro.components.merge.extractor_merger import ExtractorMerger
-from datumaro.util.definitions import SUBSET_NAME_WHITELIST
+from datumaro.util.definitions import SUBSET_NAME_BLACKLIST
 
 T = TypeVar("T")
 
@@ -197,7 +197,7 @@ def with_subset_dirs(input_cls: Importer):
                 )
 
             for sub_dir in os.listdir(path):
-                if sub_dir.lower() not in SUBSET_NAME_WHITELIST:
+                if sub_dir.lower() in SUBSET_NAME_BLACKLIST:
                     continue
 
                 sub_path = osp.join(path, sub_dir)

@@ -5,8 +5,9 @@
 import errno
 import logging as log
 import os
-from pathlib import Path
-from typing import List
+import os.path as osp
+import warnings
+from typing import List, Optional
 
 from datumaro.components.annotation import AnnotationType, Label, LabelCategories
 from datumaro.components.dataset_base import DatasetItem, SubsetBase
@@ -15,9 +16,8 @@ from datumaro.components.exporter import Exporter
 from datumaro.components.format_detection import FormatDetectionConfidence, FormatDetectionContext
 from datumaro.components.importer import ImportContext, Importer, with_subset_dirs
 from datumaro.components.media import Image
-from datumaro.util.definitions import SUBSET_NAME_BLACKLIST, SUBSET_NAME_WHITELIST
+from datumaro.util.definitions import SUBSET_NAME_BLACKLIST
 from datumaro.util.image import IMAGE_EXTENSIONS, find_images
-from datumaro.util.os_util import walk
 
 
 class ImagenetPath:
@@ -30,39 +30,40 @@ class ImagenetBase(SubsetBase):
         self,
         path: str,
         *,
-        subset: str | None = None,
-        ctx: ImportContext | None = None,
-        min_depth: int | None = None,
-        max_depth: int | None = None,
+        subset: Optional[str] = None,
+        ctx: Optional[ImportContext] = None,
     ):
-        if not Path(path).is_dir():
+        if not osp.isdir(path):
             raise NotADirectoryError(errno.ENOTDIR, "Can't find dataset directory", path)
+
         super().__init__(subset=subset, ctx=ctx)
-        self._max_depth = min_depth
-        self._min_depth = max_depth
+
         self._categories = self._load_categories(path)
         self._items = list(self._load_items(path).values())
 
     def _load_categories(self, path):
         label_cat = LabelCategories()
-        path = Path(path)
-        for dirname in sorted(d for d in path.rglob("*") if d.is_dir()):
-            dirname = dirname.relative_to(path)
-            if str(dirname) != ImagenetPath.IMAGE_DIR_NO_LABEL:
-                label_cat.add(str(dirname))
+        for dirname in sorted(os.listdir(path)):
+            if not os.path.isdir(os.path.join(path, dirname)):
+                warnings.warn(
+                    f"{dirname} is not a directory in the folder {path}, so this will"
+                    "be skipped when declaring the cateogries of `imagenet` dataset."
+                )
+                continue
+            if dirname != ImagenetPath.IMAGE_DIR_NO_LABEL:
+                label_cat.add(dirname)
         return {AnnotationType.label: label_cat}
 
     def _load_items(self, path):
         items = {}
 
-        for image_path in find_images(
-            path, recursive=True, max_depth=self._max_depth, min_depth=self._min_depth
-        ):
-            label = str(Path(image_path).parent.relative_to(path))
-            if label == ".":  # image is located in the root directory
-                label = ImagenetPath.IMAGE_DIR_NO_LABEL
-            image_name = Path(image_path).stem
-            item_id = str(label) + ImagenetPath.SEP_TOKEN + image_name
+        # Images should be in root/label_dir/*.img and root/*.img is not allowed.
+        # => max_depth=1, min_depth=1
+        for image_path in find_images(path, recursive=True, max_depth=1, min_depth=1):
+            label = osp.basename(osp.dirname(image_path))
+            image_name = osp.splitext(osp.basename(image_path))[0]
+
+            item_id = label + ImagenetPath.SEP_TOKEN + image_name
             item = items.get(item_id)
             try:
                 if item is None:
@@ -88,70 +89,45 @@ class ImagenetBase(SubsetBase):
 
 
 class ImagenetImporter(Importer):
-    """
-        Multi-level version of ImagenetImporter.
-        For example, it imports the following directory structure.
+    """TorchVision's ImageFolder style importer.
+    For example, it imports the following directory structure.
 
     .. code-block:: text
 
         root
         ├── label_0
-        │   ├── label_0_1
-        │   │   └── img1.jpg
-        │   └── label_0_2
-        │       └── img2.jpg
+        │   ├── label_0_1.jpg
+        │   └── label_0_2.jpg
         └── label_1
-            └── img3.jpg
+            └── label_1_1.jpg
 
     """
-
-    _MIN_DEPTH = None
-    _MAX_DEPTH = None
-    _FORMAT = ImagenetBase.NAME
-    DETECT_CONFIDENCE = FormatDetectionConfidence.EXTREME_LOW
 
     @classmethod
     def detect(cls, context: FormatDetectionContext) -> FormatDetectionConfidence:
         # Images must not be under a directory whose name is blacklisted.
-        for dname, dirnames, filenames in os.walk(context.root_path):
-            if dname in SUBSET_NAME_WHITELIST:
+        for dname in os.listdir(context.root_path):
+            dpath = osp.join(context.root_path, dname)
+            if osp.isdir(dpath) and dname.lower() in SUBSET_NAME_BLACKLIST:
                 context.fail(
-                    f"Following directory names are not permitted: {SUBSET_NAME_WHITELIST}"
+                    f"{dname} is found in {context.root_path}. "
+                    "However, Images must not be under a directory whose name is blacklisted "
+                    f"(SUBSET_NAME_BLACKLIST={SUBSET_NAME_BLACKLIST})."
                 )
-            rel_dname = Path(dname).relative_to(context.root_path)
-            level = len(rel_dname.parts)
-            if cls._MIN_DEPTH is not None and level < cls._MIN_DEPTH and filenames:
-                context.fail("Found files out of the directory level bounds.")
-            if cls._MAX_DEPTH is not None and level > cls._MAX_DEPTH and filenames:
-                context.fail("Found files out of the directory level bounds.")
-            dpath = Path(context.root_path) / rel_dname
-            if dpath.is_dir():
-                if str(rel_dname).lower() in SUBSET_NAME_BLACKLIST:
-                    context.fail(
-                        f"{dname} is found in {context.root_path}. "
-                        "However, Images must not be under a directory whose name is blacklisted "
-                        f"(SUBSET_NAME_BLACKLIST={SUBSET_NAME_BLACKLIST})."
-                    )
 
         return super().detect(context)
 
     @classmethod
-    def contains_only_images(cls, path: str | Path):
-        for _, dirnames, filenames in walk(path, cls._MAX_DEPTH, cls._MIN_DEPTH):
-            if filenames:
-                for filename in filenames:
-                    if Path(filename).suffix.lower() not in IMAGE_EXTENSIONS:
-                        return False
-            elif not dirnames:
-                return False
-        return True
-
-    @classmethod
     def find_sources(cls, path):
-        if not Path(path).is_dir():
+        if not osp.isdir(path):
             return []
 
-        return [{"url": path, "format": cls._FORMAT}] if cls.contains_only_images(path) else []
+        # Images should be in root/label_dir/*.img and root/*.img is not allowed.
+        # => max_depth=1, min_depth=1
+        for _ in find_images(path, recursive=True, max_depth=1, min_depth=1):
+            return [{"url": path, "format": ImagenetBase.NAME}]
+
+        return []
 
     @classmethod
     def get_file_extensions(cls) -> List[str]:
@@ -168,36 +144,32 @@ class ImagenetImporter(Importer):
 
 @with_subset_dirs
 class ImagenetWithSubsetDirsImporter(ImagenetImporter):
-    """Multi-level image directory structure importer.
-    Example:
+    """TorchVision ImageFolder style importer.
+    For example, it imports the following directory structure.
 
     .. code-block::
 
         root
         ├── train
         │   ├── label_0
-        │   │   ├── label_0_1
-        │   │   │   └── img1.jpg
-        │   │   └── label_0_2
-        │   │       └── img2.jpg
+        │   │   ├── label_0_1.jpg
+        │   │   └── label_0_2.jpg
         │   └── label_1
-        │       └── img3.jpg
+        │       └── label_1_1.jpg
         ├── val
         │   ├── label_0
-        │   │   ├── label_0_1
-        │   │   │   └── img1.jpg
-        │   │   └── label_0_2
-        │   │       └── img2.jpg
+        │   │   ├── label_0_1.jpg
+        │   │   └── label_0_2.jpg
         │   └── label_1
-        │       └── img3.jpg
+        │       └── label_1_1.jpg
         └── test
-            │   ├── label_0
-            │   ├── label_0_1
-            │   │   └── img1.jpg
-            │   └── label_0_2
-            │       └── img2.jpg
+            ├── label_0
+            │   ├── label_0_1.jpg
+            │   └── label_0_2.jpg
             └── label_1
-                └── img3.jpg
+                └── label_1_1.jpg
+
+    Then, it will have three subsets: train, val, and test and they have label_0 and label_1 labels.
     """
 
 
@@ -227,7 +199,7 @@ class ImagenetExporter(Exporter):
                 'For example, dataset.export("<path/to/output>", format="imagenet_with_subset_dirs").'
             )
 
-        root_dir = Path(self._save_dir)
+        root_dir = self._save_dir
         extractor = self._extractor
         labels = {}
         for item in self._extractor:
@@ -238,18 +210,18 @@ class ImagenetExporter(Exporter):
                 label_name = extractor.categories()[AnnotationType.label][label].name
                 self._save_image(
                     item,
-                    subdir=root_dir / item.subset / label_name
+                    subdir=osp.join(root_dir, item.subset, label_name)
                     if self.USE_SUBSET_DIRS
-                    else root_dir / label_name,
+                    else osp.join(root_dir, label_name),
                     name=file_name,
                 )
 
             if not labels:
                 self._save_image(
                     item,
-                    subdir=root_dir / item.subset / ImagenetPath.IMAGE_DIR_NO_LABEL
+                    subdir=osp.join(root_dir, item.subset, ImagenetPath.IMAGE_DIR_NO_LABEL)
                     if self.USE_SUBSET_DIRS
-                    else root_dir / ImagenetPath.IMAGE_DIR_NO_LABEL,
+                    else osp.join(root_dir, ImagenetPath.IMAGE_DIR_NO_LABEL),
                     name=file_name,
                 )
 

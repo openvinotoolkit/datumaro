@@ -4,12 +4,12 @@
 
 import logging as log
 import os
-from pathlib import Path
+import os.path as osp
 from typing import List, Optional
 
 from datumaro.components.dataset_base import DatasetItem, SubsetBase
 from datumaro.components.exporter import Exporter
-from datumaro.components.format_detection import FormatDetectionConfidence, FormatDetectionContext
+from datumaro.components.format_detection import FormatDetectionConfidence
 from datumaro.components.importer import ImportContext, Importer
 from datumaro.components.media import Image
 from datumaro.util.image import IMAGE_EXTENSIONS, find_images
@@ -32,22 +32,10 @@ class ImageDirImporter(Importer):
         return parser
 
     @classmethod
-    def detect(cls, context: FormatDetectionContext) -> FormatDetectionConfidence:
-        path = Path(context.root_path)
-        for item in path.iterdir():
-            if item.is_dir():
-                context.fail("Only flat image directories are supported")
-            elif item.suffix.lower() not in IMAGE_EXTENSIONS:
-                context.fail(f"File {item} is not an image.")
-        return super().detect(context)
-
-    @classmethod
     def find_sources(cls, path):
-        path = Path(path)
-        if not path.is_dir():
+        if not osp.isdir(path):
             return []
-
-        return [{"url": str(path), "format": ImageDirBase.NAME}]
+        return [{"url": path, "format": ImageDirBase.NAME}]
 
     @classmethod
     def get_file_extensions(cls) -> List[str]:
@@ -63,11 +51,11 @@ class ImageDirBase(SubsetBase):
         ctx: Optional[ImportContext] = None,
     ):
         super().__init__(subset=subset, ctx=ctx)
-        url = Path(url)
-        assert url.is_dir(), url
 
-        for path in find_images(str(url)):
-            item_id = Path(path).stem
+        assert osp.isdir(url), url
+
+        for path in find_images(url, recursive=True):
+            item_id = osp.relpath(osp.splitext(path)[0], url)
             self._items.append(
                 DatasetItem(id=item_id, subset=self._subset, media=Image.from_file(path=path))
             )
