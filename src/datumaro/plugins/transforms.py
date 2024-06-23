@@ -1986,7 +1986,7 @@ class Clean(ItemTransform):
         refined_annotations = []
         for ann in item.annotations:
             if isinstance(ann, Tabular):
-                if len(item.annotaitons) != 1:
+                if len(item.annotations) != 1:
                     raise ValueError(
                         "If the item has a tabular annotation, it should have one annotation."
                     )
