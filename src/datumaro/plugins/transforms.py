@@ -1986,6 +1986,10 @@ class Clean(ItemTransform):
         refined_annotations = []
         for ann in item.annotations:
             if isinstance(ann, Tabular):
+                if len(item.annotaitons) != 1:
+                    raise ValueError(
+                        "If the item has a tabular annotation, it should have one annotation."
+                    )
                 annotation_values = {
                     key: refined_media.data[key] for key in item.annotations[0].values.keys()
                 }  # only for tabular
