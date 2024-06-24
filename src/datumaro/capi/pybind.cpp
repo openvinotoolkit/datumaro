@@ -50,7 +50,12 @@ struct RLE
 
 RLE rleEncode(const byte *M, siz h, siz w)
 {
+
     siz j, k, a = w * h;
+
+    if (a / w != h)
+        throw std::runtime_error("result overflow. input size is too big.");
+
     uint c;
     byte p;
     auto cnts = std::make_unique<std::vector<uint>>(a + 1);
@@ -82,6 +87,7 @@ py::dict pyRleEncode(py::array_t<std::uint8_t, py::array::f_style | py::array::f
 
     const siz h = buf.shape[0];
     const siz w = buf.shape[1];
+
     const auto rle = rleEncode(static_cast<const byte *>(buf.ptr), h, w);
 
     py::array_t<uint> cnts(rle.m);
