@@ -26,7 +26,12 @@ from typing import (
     overload,
 )
 
-from datumaro.components.annotation import Annotation, AnnotationType, LabelCategories
+from datumaro.components.annotation import (
+    Annotation,
+    AnnotationType,
+    LabelCategories,
+    TabularCategories,
+)
 from datumaro.components.config_model import Source
 from datumaro.components.dataset_base import (
     DEFAULT_SUBSET_NAME,
@@ -368,6 +373,9 @@ class Dataset(IDataset):
         for annotation_type, category in self.categories().items():
             if isinstance(category, LabelCategories):
                 category_names = list(category._indices.keys())
+                category_dict[annotation_type] = category_names
+            if isinstance(category, TabularCategories):
+                category_names = list(category._indices_by_name.keys())
                 category_dict[annotation_type] = category_names
         return (
             f"{str(annotation_type).split('.')[-1]}: {list(category_dict.get(annotation_type, []))}\n"
