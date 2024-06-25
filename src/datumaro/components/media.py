@@ -49,6 +49,12 @@ else:
 
     pd = lazy_import("pandas")
 
+if TYPE_CHECKING:
+    try:
+        # Introduced in 1.20
+        from numpy.typing import DTypeLike
+    except ImportError:
+        DTypeLike = Any
 
 AnyData = TypeVar("AnyData", bytes, np.ndarray)
 
@@ -316,13 +322,13 @@ class ImageFromFile(FromFileMixin, Image):
         self._ext = self._ext if self._ext else osp.splitext(osp.basename(path))[1]
 
     @property
-    def data(self) -> Optional[np.ndarray]:
+    def data(self, dtype: Optional[DTypeLike] = np.uint8) -> Optional[np.ndarray]:
         """Image data in BGRA HWC [0; 255] (uint8) format"""
 
         if not self.has_data:
             return None
 
-        data = self.__data()
+        data = self.__data(dtype)
 
         if self._size is None and data is not None:
             if not 2 <= data.ndim <= 3:
@@ -395,13 +401,13 @@ class ImageFromNumpy(ImageFromData):
         super().__init__(data=data, *args, **kwargs)
 
     @property
-    def data(self) -> Optional[np.ndarray]:
+    def data(self, dtype: Optional[DTypeLike] = np.uint8) -> Optional[np.ndarray]:
         """Image data in BGRA HWC [0; 255] (uint8) format"""
 
         data = super().data
 
-        if isinstance(data, np.ndarray) and data.dtype != np.uint8:
-            data = np.clip(data, 0.0, 255.0).astype(np.uint8)
+        if isinstance(data, np.ndarray) and data.dtype != dtype:
+            data = np.clip(data, 0.0, 255.0).astype(dtype)
         if self._size is None and data is not None:
             if not 2 <= data.ndim <= 3:
                 raise MediaShapeError("An image should have 2 (gray) or 3 (bgra) dims.")
@@ -424,10 +430,11 @@ class ImageFromBytes(ImageFromData):
     def __init__(
         self,
         data: Union[Callable[[], bytes], bytes],
+        dtype: Optional[DTypeLike] = np.uint8,
         *args,
         **kwargs,
     ):
-        super().__init__(data=data, *args, **kwargs)
+        super().__init__(data=data, dtype=dtype, *args, **kwargs)
 
         if self._ext is None and isinstance(data, bytes):
             self._ext = self._guess_ext(data)
@@ -446,7 +453,7 @@ class ImageFromBytes(ImageFromData):
         data = super().data
 
         if isinstance(data, bytes):
-            data = decode_image(data, dtype=np.uint8)
+            data = decode_image(data, dtype=self.dtype)
         if self._size is None and data is not None:
             if not 2 <= data.ndim <= 3:
                 raise MediaShapeError("An image should have 2 (gray) or 3 (bgra) dims.")
