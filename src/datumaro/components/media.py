@@ -11,6 +11,7 @@ import os.path as osp
 import shutil
 from copy import deepcopy
 from enum import IntEnum
+from functools import partial
 from typing import (
     TYPE_CHECKING,
     Any,
@@ -39,6 +40,7 @@ from datumaro.util.image import (
     copyto_image,
     decode_image,
     lazy_image,
+    load_image,
     save_image,
 )
 
@@ -328,7 +330,9 @@ class ImageFromFile(FromFileMixin, Image):
         if not self.has_data:
             return None
 
-        data = self.__data(dtype)
+        if self.__data._dtype != dtype:
+            self.__data._loader = partial(load_image, dtype=dtype)
+        data = self.__data()
 
         if self._size is None and data is not None:
             if not 2 <= data.ndim <= 3:
@@ -430,11 +434,10 @@ class ImageFromBytes(ImageFromData):
     def __init__(
         self,
         data: Union[Callable[[], bytes], bytes],
-        dtype: Optional[DTypeLike] = np.uint8,
         *args,
         **kwargs,
     ):
-        super().__init__(data=data, dtype=dtype, *args, **kwargs)
+        super().__init__(data=data, *args, **kwargs)
 
         if self._ext is None and isinstance(data, bytes):
             self._ext = self._guess_ext(data)
@@ -447,13 +450,13 @@ class ImageFromBytes(ImageFromData):
         )
 
     @property
-    def data(self) -> Optional[np.ndarray]:
+    def data(self, dtype: Optional[DTypeLike] = np.uint8) -> Optional[np.ndarray]:
         """Image data in BGRA HWC [0; 255] (uint8) format"""
 
         data = super().data
 
         if isinstance(data, bytes):
-            data = decode_image(data, dtype=self.dtype)
+            data = decode_image(data, dtype=dtype)
         if self._size is None and data is not None:
             if not 2 <= data.ndim <= 3:
                 raise MediaShapeError("An image should have 2 (gray) or 3 (bgra) dims.")

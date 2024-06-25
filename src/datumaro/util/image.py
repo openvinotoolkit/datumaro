@@ -372,6 +372,7 @@ class lazy_image:
 
         self._path = path
         self._loader = loader
+        self._dtype = dtype
 
         assert isinstance(cache, (ImageCache, bool))
         self._cache = cache
