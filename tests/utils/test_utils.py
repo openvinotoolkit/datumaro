@@ -346,7 +346,8 @@ def check_save_and_load(
         if move_save_dir:
             save_dir = tmp_dir
             for file in os.listdir(test_dir):
-                os.symlink(osp.join(test_dir, file), osp.join(save_dir, file))
+                shutil.move(osp.join(test_dir, file), save_dir)
+                # os.symlink(osp.join(test_dir, file), osp.join(save_dir, file))
         else:
             save_dir = test_dir
 

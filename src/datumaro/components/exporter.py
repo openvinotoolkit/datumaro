@@ -418,12 +418,15 @@ class ExportContextComponent:
         path = osp.join(basedir, fname)
         path = osp.abspath(path)
 
-        os.makedirs(osp.dirname(path), exist_ok=True)
+        # To prevent the video from being overwritten
+        # (A video can have same path but different start/end frames)
+        if not osp.exists(path):
+            os.makedirs(osp.dirname(path), exist_ok=True)
 
-        if isinstance(item.media, VideoFrame):
-            item.media.video.save(path, crypter=NULL_CRYPTER)
-        else:  # Video
-            item.media.save(path, crypter=NULL_CRYPTER)
+            if isinstance(item.media, VideoFrame):
+                item.media.video.save(path, crypter=NULL_CRYPTER)
+            else:  # Video
+                item.media.save(path, crypter=NULL_CRYPTER)
 
     @property
     def images_dir(self) -> str:

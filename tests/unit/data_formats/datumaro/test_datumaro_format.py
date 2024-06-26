@@ -152,6 +152,51 @@ class DatumaroFormatTest:
             stream=stream,
         )
 
+    # @mark_requirement(Requirements.DATUM_GENERAL_REQ)
+    # @pytest.mark.parametrize(
+    #     "fxt_dataset, compare, require_media",
+    #     [
+    #         pytest.param(
+    #             "fxt_test_datumaro_format_video_dataset",
+    #             compare_datasets,
+    #             True,
+    #             id="test_can_save_and_load_video_dataset",
+    #         ),
+    #     ],
+    # )
+    # @pytest.mark.parametrize("stream", [True, False])
+    # def test_video_and_videoframe_should_have_relative_path(
+    #     self,
+    #     fxt_test_datumaro_format_video_dataset,
+    #     test_dir,
+    #     fxt_import_kwargs,
+    #     fxt_export_kwargs,
+    #     stream,
+    #     helper_tc,
+    #     request,
+    # ):
+    #     if stream and type(self) != DatumaroFormatTest:
+    #         # TODO: Remove this skip in the future
+    #         pytest.skip(
+    #             "stream=True is only available for DatumaroFormatTest for now "
+    #             "(It is impossible for test_datumaro_binary_format.py)."
+    #         )
+
+    #     fxt_dataset: Dataset = fxt_test_datumaro_format_video_dataset
+    #     # export
+    #     partial(self.exporter.convert, save_media=True, stream=stream, **fxt_export_kwargs)
+
+    #     self._test_save_and_load(
+    #         helper_tc,
+    #         fxt_dataset,
+    #         partial(self.exporter.convert, save_media=True, stream=stream, **fxt_export_kwargs),
+    #         test_dir,
+    #         compare=compare,
+    #         require_media=require_media,
+    #         importer_args=fxt_import_kwargs,
+    #         stream=stream,
+    #     )
+
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     @pytest.mark.parametrize(
         "fxt_dataset_pair, compare, require_media, dimension",
