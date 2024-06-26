@@ -4,7 +4,9 @@
 
 import os
 import os.path as osp
+import shutil
 from functools import partial
+from unittest.mock import patch
 
 import numpy as np
 import pytest
@@ -12,7 +14,7 @@ import pytest
 from datumaro.components.dataset_base import DatasetItem
 from datumaro.components.environment import Environment
 from datumaro.components.importer import DatasetImportError
-from datumaro.components.media import Image
+from datumaro.components.media import Image, Video
 from datumaro.components.project import Dataset
 from datumaro.plugins.data_formats.datumaro.exporter import DatumaroExporter
 from datumaro.plugins.data_formats.datumaro.format import DatumaroPath
@@ -152,50 +154,17 @@ class DatumaroFormatTest:
             stream=stream,
         )
 
-    # @mark_requirement(Requirements.DATUM_GENERAL_REQ)
-    # @pytest.mark.parametrize(
-    #     "fxt_dataset, compare, require_media",
-    #     [
-    #         pytest.param(
-    #             "fxt_test_datumaro_format_video_dataset",
-    #             compare_datasets,
-    #             True,
-    #             id="test_can_save_and_load_video_dataset",
-    #         ),
-    #     ],
-    # )
-    # @pytest.mark.parametrize("stream", [True, False])
-    # def test_video_and_videoframe_should_have_relative_path(
-    #     self,
-    #     fxt_test_datumaro_format_video_dataset,
-    #     test_dir,
-    #     fxt_import_kwargs,
-    #     fxt_export_kwargs,
-    #     stream,
-    #     helper_tc,
-    #     request,
-    # ):
-    #     if stream and type(self) != DatumaroFormatTest:
-    #         # TODO: Remove this skip in the future
-    #         pytest.skip(
-    #             "stream=True is only available for DatumaroFormatTest for now "
-    #             "(It is impossible for test_datumaro_binary_format.py)."
-    #         )
-
-    #     fxt_dataset: Dataset = fxt_test_datumaro_format_video_dataset
-    #     # export
-    #     partial(self.exporter.convert, save_media=True, stream=stream, **fxt_export_kwargs)
-
-    #     self._test_save_and_load(
-    #         helper_tc,
-    #         fxt_dataset,
-    #         partial(self.exporter.convert, save_media=True, stream=stream, **fxt_export_kwargs),
-    #         test_dir,
-    #         compare=compare,
-    #         require_media=require_media,
-    #         importer_args=fxt_import_kwargs,
-    #         stream=stream,
-    #     )
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
+    def test_export_video_only_once(
+        self,
+        fxt_test_datumaro_format_video_dataset: Dataset,
+        test_dir,
+    ):
+        with patch(
+            "datumaro.components.media.shutil.copyfile", wraps=shutil.copyfile
+        ) as mocked_save:
+            fxt_test_datumaro_format_video_dataset.export(test_dir, "datumaro", save_media=True)
+            assert mocked_save.call_count == 2  # train/video.avi, test/video.avi
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     @pytest.mark.parametrize(

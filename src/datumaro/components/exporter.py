@@ -422,7 +422,6 @@ class ExportContextComponent:
         # (A video can have same path but different start/end frames)
         if not osp.exists(path):
             os.makedirs(osp.dirname(path), exist_ok=True)
-
             if isinstance(item.media, VideoFrame):
                 item.media.video.save(path, crypter=NULL_CRYPTER)
             else:  # Video
