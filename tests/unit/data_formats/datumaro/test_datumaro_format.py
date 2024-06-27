@@ -14,7 +14,7 @@ import pytest
 from datumaro.components.dataset_base import DatasetItem
 from datumaro.components.environment import Environment
 from datumaro.components.importer import DatasetImportError
-from datumaro.components.media import Image, Video
+from datumaro.components.media import Image
 from datumaro.components.project import Dataset
 from datumaro.plugins.data_formats.datumaro.exporter import DatumaroExporter
 from datumaro.plugins.data_formats.datumaro.format import DatumaroPath
