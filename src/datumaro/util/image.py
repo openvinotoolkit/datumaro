@@ -261,7 +261,7 @@ def encode_image(image: np.ndarray, ext: str, dtype: DTypeLike = np.uint8, **kwa
         if not success:
             raise Exception("Failed to encode image to '%s' format" % (ext))
         return result.tobytes()
-    elif IMAGE_BACKEND.get() == ImageBackend.PIL or dtype != np.uint8:
+    elif IMAGE_BACKEND.get() == ImageBackend.PIL:
         from PIL import Image
 
         if ext.startswith("."):
@@ -383,7 +383,6 @@ class lazy_image:
 
         self._path = path
         self._loader = loader
-        self._dtype = dtype
 
         assert isinstance(cache, (ImageCache, bool))
         self._cache = cache
