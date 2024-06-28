@@ -387,6 +387,7 @@ class lazy_image:
         assert isinstance(cache, (ImageCache, bool))
         self._cache = cache
         self._crypter = crypter
+        self._dtype = dtype
 
     def __call__(self) -> np.ndarray:
         image = None
