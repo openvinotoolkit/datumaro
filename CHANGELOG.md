@@ -38,6 +38,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   (<https://github.com/openvinotoolkit/datumaro/pull/1484>)
 - Enhance DatasetItem annotations for semantic segmentation model training use case
   (<https://github.com/openvinotoolkit/datumaro/pull/1503>)
+- Add TabularValidator
+  (<https://github.com/openvinotoolkit/datumaro/pull/1498>)
+- Add Clean Transform for tabular data type
+  (<https://github.com/openvinotoolkit/datumaro/pull/1520>)
+- Add notebook for data handling of kaggle dataset
+  (<https://github.com/openvinotoolkit/datumaro/pull/1534>)
 
 ### Enhancements
 - Fix ambiguous COCO format detector
