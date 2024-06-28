@@ -353,6 +353,7 @@ document.write(`
 <span class="kn">import</span> <span class="nn">shutil</span>
 <span class="kn">from</span> <span class="nn">copy</span> <span class="kn">import</span> <span class="n">deepcopy</span>
 <span class="kn">from</span> <span class="nn">enum</span> <span class="kn">import</span> <span class="n">IntEnum</span>
+<span class="kn">from</span> <span class="nn">functools</span> <span class="kn">import</span> <span class="n">partial</span>
 <span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="p">(</span>
     <span class="n">TYPE_CHECKING</span><span class="p">,</span>
     <span class="n">Any</span><span class="p">,</span>
@@ -381,6 +382,7 @@ document.write(`
     <span class="n">copyto_image</span><span class="p">,</span>
     <span class="n">decode_image</span><span class="p">,</span>
     <span class="n">lazy_image</span><span class="p">,</span>
+    <span class="n">load_image</span><span class="p">,</span>
     <span class="n">save_image</span><span class="p">,</span>
 <span class="p">)</span>
 
@@ -592,6 +594,7 @@ document.write(`
             <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2">.from_numpy(), </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2">.from_bytes()).&quot;</span>
         <span class="p">)</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_dtype</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">uint8</span>
 
         <span class="k">if</span> <span class="n">ext</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">if</span> <span class="ow">not</span> <span class="n">ext</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;.&quot;</span><span class="p">):</span>
@@ -705,6 +708,8 @@ document.write(`
         <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">has_data</span><span class="p">:</span>
             <span class="k">return</span> <span class="kc">None</span>
 
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">__data</span><span class="o">.</span><span class="n">_dtype</span> <span class="o">!=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_dtype</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">__data</span><span class="o">.</span><span class="n">_loader</span> <span class="o">=</span> <span class="n">partial</span><span class="p">(</span><span class="n">load_image</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_dtype</span><span class="p">)</span>
         <span class="n">data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__data</span><span class="p">()</span>
 
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_size</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">data</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
@@ -755,6 +760,14 @@ document.write(`
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">set_crypter</span><span class="p">(</span><span class="n">crypter</span><span class="p">)</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__data</span><span class="p">,</span> <span class="n">lazy_image</span><span class="p">):</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">__data</span><span class="o">.</span><span class="n">_crypter</span> <span class="o">=</span> <span class="n">crypter</span></div>
+
+
+<div class="viewcode-block" id="ImageFromFile.get_data_as_dtype">
+<a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.plugins.data_formats.yolo.base.html#datumaro.components.abstracts.merger.ImageFromFile.get_data_as_dtype">[docs]</a>
+    <span class="k">def</span> <span class="nf">get_data_as_dtype</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dtype</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">dtype</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">uint8</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Get image data with a specific data type&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_dtype</span> <span class="o">=</span> <span class="n">dtype</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span></div>
 </div>
 
 
@@ -798,8 +811,8 @@ document.write(`
 
         <span class="n">data</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">data</span>
 
-        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="ow">and</span> <span class="n">data</span><span class="o">.</span><span class="n">dtype</span> <span class="o">!=</span> <span class="n">np</span><span class="o">.</span><span class="n">uint8</span><span class="p">:</span>
-            <span class="n">data</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">clip</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">255.0</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">uint8</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="ow">and</span> <span class="n">data</span><span class="o">.</span><span class="n">dtype</span> <span class="o">!=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_dtype</span><span class="p">:</span>
+            <span class="n">data</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">clip</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">255.0</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_dtype</span><span class="p">)</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_size</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">data</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">if</span> <span class="ow">not</span> <span class="mi">2</span> <span class="o">&lt;=</span> <span class="n">data</span><span class="o">.</span><span class="n">ndim</span> <span class="o">&lt;=</span> <span class="mi">3</span><span class="p">:</span>
                 <span class="k">raise</span> <span class="n">MediaShapeError</span><span class="p">(</span><span class="s2">&quot;An image should have 2 (gray) or 3 (bgra) dims.&quot;</span><span class="p">)</span>
@@ -809,7 +822,15 @@ document.write(`
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">has_size</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Indicates that size info is cached and won&#39;t require image loading&quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_size</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">or</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_data</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span></div>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_size</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">or</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_data</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span>
+
+<div class="viewcode-block" id="ImageFromNumpy.get_data_as_dtype">
+<a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.components.media.html#datumaro.components.abstracts.merger.ImageFromNumpy.get_data_as_dtype">[docs]</a>
+    <span class="k">def</span> <span class="nf">get_data_as_dtype</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dtype</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">dtype</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">uint8</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Get image data with a specific data type&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_dtype</span> <span class="o">=</span> <span class="n">dtype</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span></div>
+</div>
 
 
 
@@ -847,12 +868,23 @@ document.write(`
         <span class="n">data</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">data</span>
 
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="nb">bytes</span><span class="p">):</span>
-            <span class="n">data</span> <span class="o">=</span> <span class="n">decode_image</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">uint8</span><span class="p">)</span>
+            <span class="n">data</span> <span class="o">=</span> <span class="n">decode_image</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_dtype</span><span class="p">)</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_size</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">data</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">if</span> <span class="ow">not</span> <span class="mi">2</span> <span class="o">&lt;=</span> <span class="n">data</span><span class="o">.</span><span class="n">ndim</span> <span class="o">&lt;=</span> <span class="mi">3</span><span class="p">:</span>
                 <span class="k">raise</span> <span class="n">MediaShapeError</span><span class="p">(</span><span class="s2">&quot;An image should have 2 (gray) or 3 (bgra) dims.&quot;</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_size</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="n">data</span><span class="o">.</span><span class="n">shape</span><span class="p">[:</span><span class="mi">2</span><span class="p">]))</span>
-        <span class="k">return</span> <span class="n">data</span></div>
+        <span class="k">return</span> <span class="n">data</span>
+
+<div class="viewcode-block" id="ImageFromBytes.get_data_as_dtype">
+<a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.components.media.html#datumaro.components.abstracts.merger.ImageFromBytes.get_data_as_dtype">[docs]</a>
+    <span class="k">def</span> <span class="nf">get_data_as_dtype</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dtype</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">dtype</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">uint8</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Get image data with a specific data type&quot;&quot;&quot;</span>
+
+        <span class="k">if</span> <span class="n">dtype</span> <span class="o">!=</span> <span class="n">np</span><span class="o">.</span><span class="n">uint8</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;ImageFromBytes only support `dtype=np.uint8`.&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_dtype</span> <span class="o">=</span> <span class="n">dtype</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span></div>
+</div>
 
 
 
