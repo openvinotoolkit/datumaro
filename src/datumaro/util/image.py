@@ -60,9 +60,9 @@ class ImageColorChannel(Enum):
     COLOR_BGR = 1
     COLOR_RGB = 2
 
-    def decode_by_cv2(self, image_bytes: bytes) -> np.ndarray:
+    def decode_by_cv2(self, image_bytes: bytes, dtype: DTypeLike = np.uint8) -> np.ndarray:
         """Convert image color channel for OpenCV image (np.ndarray)."""
-        image_buffer = np.frombuffer(image_bytes, dtype=np.uint8)
+        image_buffer = np.frombuffer(image_bytes, dtype=dtype)
 
         if self == ImageColorChannel.UNCHANGED:
             return cv2.imdecode(image_buffer, cv2.IMREAD_UNCHANGED)
@@ -261,7 +261,7 @@ def encode_image(image: np.ndarray, ext: str, dtype: DTypeLike = np.uint8, **kwa
         if not success:
             raise Exception("Failed to encode image to '%s' format" % (ext))
         return result.tobytes()
-    elif IMAGE_BACKEND.get() == ImageBackend.PIL:
+    elif IMAGE_BACKEND.get() == ImageBackend.PIL or dtype != np.uint8:
         from PIL import Image
 
         if ext.startswith("."):
@@ -283,15 +283,26 @@ def encode_image(image: np.ndarray, ext: str, dtype: DTypeLike = np.uint8, **kwa
         raise NotImplementedError()
 
 
-def decode_image(image_bytes: bytes, dtype: DTypeLike = np.uint8) -> np.ndarray:
+def decode_image(image_bytes: bytes, dtype: np.dtype = np.uint8) -> np.ndarray:
     ctx_color_scale = IMAGE_COLOR_CHANNEL.get()
 
-    if IMAGE_BACKEND.get() == ImageBackend.cv2:
-        image = ctx_color_scale.decode_by_cv2(image_bytes)
-    elif IMAGE_BACKEND.get() == ImageBackend.PIL:
-        image = ctx_color_scale.decode_by_pil(image_bytes)
+    if dtype != np.uint8:
+        # PIL doesn't support floating point image loading
+        # CV doesn't support floating point image with color channel setting (IMREAD_COLOR)
+        with decode_image_context(
+            image_backend=ImageBackend.cv2, image_color_channel=ImageColorChannel.UNCHANGED
+        ):
+            image = ctx_color_scale.decode_by_cv2(image_bytes, dtype=dtype)
+            image = image[..., ::-1]
+        if ctx_color_scale == ImageColorChannel.COLOR_BGR:
+            image = image[..., ::-1]
     else:
-        raise NotImplementedError()
+        if IMAGE_BACKEND.get() == ImageBackend.cv2:
+            image = ctx_color_scale.decode_by_cv2(image_bytes)
+        elif IMAGE_BACKEND.get() == ImageBackend.PIL:
+            image = ctx_color_scale.decode_by_pil(image_bytes)
+        else:
+            raise NotImplementedError()
 
     image = image.astype(dtype)
 
