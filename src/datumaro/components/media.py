@@ -11,6 +11,7 @@ import os.path as osp
 import shutil
 from copy import deepcopy
 from enum import IntEnum
+from functools import partial
 from typing import (
     TYPE_CHECKING,
     Any,
@@ -39,6 +40,7 @@ from datumaro.util.image import (
     copyto_image,
     decode_image,
     lazy_image,
+    load_image,
     save_image,
 )
 
@@ -224,6 +226,7 @@ class Image(MediaElement[np.ndarray]):
             f"{self.__class__.__name__}.from_numpy(), {self.__class__.__name__}.from_bytes())."
         )
         super().__init__(*args, **kwargs)
+        self._dtype = np.uint8
 
         if ext is not None:
             if not ext.startswith("."):
@@ -322,6 +325,8 @@ class ImageFromFile(FromFileMixin, Image):
         if not self.has_data:
             return None
 
+        if self.__data._dtype != self._dtype:
+            self.__data._loader = partial(load_image, dtype=self._dtype)
         data = self.__data()
 
         if self._size is None and data is not None:
@@ -368,6 +373,11 @@ class ImageFromFile(FromFileMixin, Image):
         if isinstance(self.__data, lazy_image):
             self.__data._crypter = crypter
 
+    def get_data_as_dtype(self, dtype: Optional[np.dtype] = np.uint8) -> Optional[np.ndarray]:
+        """Get image data with a specific data type"""
+        self._dtype = dtype
+        return self.data
+
 
 class ImageFromData(FromDataMixin, Image):
     def save(
@@ -400,8 +410,8 @@ class ImageFromNumpy(ImageFromData):
 
         data = super().data
 
-        if isinstance(data, np.ndarray) and data.dtype != np.uint8:
-            data = np.clip(data, 0.0, 255.0).astype(np.uint8)
+        if isinstance(data, np.ndarray) and data.dtype != self._dtype:
+            data = np.clip(data, 0.0, 255.0).astype(self._dtype)
         if self._size is None and data is not None:
             if not 2 <= data.ndim <= 3:
                 raise MediaShapeError("An image should have 2 (gray) or 3 (bgra) dims.")
@@ -412,6 +422,11 @@ class ImageFromNumpy(ImageFromData):
     def has_size(self) -> bool:
         """Indicates that size info is cached and won't require image loading"""
         return self._size is not None or isinstance(self._data, np.ndarray)
+
+    def get_data_as_dtype(self, dtype: Optional[np.dtype] = np.uint8) -> Optional[np.ndarray]:
+        """Get image data with a specific data type"""
+        self._dtype = dtype
+        return self.data
 
 
 class ImageFromBytes(ImageFromData):
@@ -446,12 +461,20 @@ class ImageFromBytes(ImageFromData):
         data = super().data
 
         if isinstance(data, bytes):
-            data = decode_image(data, dtype=np.uint8)
+            data = decode_image(data, dtype=self._dtype)
         if self._size is None and data is not None:
             if not 2 <= data.ndim <= 3:
                 raise MediaShapeError("An image should have 2 (gray) or 3 (bgra) dims.")
             self._size = tuple(map(int, data.shape[:2]))
         return data
+
+    def get_data_as_dtype(self, dtype: Optional[np.dtype] = np.uint8) -> Optional[np.ndarray]:
+        """Get image data with a specific data type"""
+
+        if dtype != np.uint8:
+            raise ValueError("ImageFromBytes only support `dtype=np.uint8`.")
+        self._dtype = dtype
+        return self.data
 
 
 class VideoFrame(ImageFromNumpy):
