@@ -286,7 +286,7 @@ def encode_image(image: np.ndarray, ext: str, dtype: DTypeLike = np.uint8, **kwa
 def decode_image(image_bytes: bytes, dtype: np.dtype = np.uint8) -> np.ndarray:
     ctx_color_scale = IMAGE_COLOR_CHANNEL.get()
 
-    if dtype != np.uint8:
+    if np.issubdtype(dtype, np.floating):
         # PIL doesn't support floating point image loading
         # CV doesn't support floating point image with color channel setting (IMREAD_COLOR)
         with decode_image_context(
