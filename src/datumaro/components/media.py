@@ -1314,7 +1314,7 @@ class Table:
         if self.data[column].nunique() / self.shape[0] < 0.1:  # TODO
             # Convert to CategoricalDtype for efficient storage and categorical analysis
             return pd.api.types.CategoricalDtype()
-        if numpy_type == object:
+        if isinstance(numpy_type, object):
             return str
         else:
             return type(np.zeros(1, numpy_type).tolist()[0])
