@@ -4,7 +4,10 @@
 
 import os
 import os.path as osp
+import shutil
+import sys
 from functools import partial
+from unittest.mock import patch
 
 import numpy as np
 import pytest
@@ -151,6 +154,18 @@ class DatumaroFormatTest:
             importer_args=fxt_import_kwargs,
             stream=stream,
         )
+
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
+    def test_export_video_only_once(
+        self,
+        fxt_test_datumaro_format_video_dataset: Dataset,
+        test_dir,
+    ):
+        with patch(
+            "datumaro.components.media.shutil.copyfile", wraps=shutil.copyfile
+        ) as mocked_save:
+            fxt_test_datumaro_format_video_dataset.export(test_dir, "datumaro", save_media=True)
+            assert mocked_save.call_count == 2  # train/video.avi, test/video.avi
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     @pytest.mark.parametrize(
