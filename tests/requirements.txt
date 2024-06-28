@@ -7,3 +7,5 @@ pytest-stress
 pytest-html
 coverage
 pytest-csv
+
+tifffile
