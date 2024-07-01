@@ -19,6 +19,7 @@ from datumaro.components.annotation import (
     PointsCategories,
     Polygon,
     PolyLine,
+    RleMask,
 )
 from datumaro.components.dataset import Dataset
 from datumaro.components.errors import DatumaroError
@@ -797,7 +798,7 @@ class TransformsTest(TestCase):
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     @mark_bug(Requirements.DATUM_BUG_618)
     def test_can_resize(self):
-        small_dataset = Dataset.from_iterable(
+        small_frame_dataset = Dataset.from_iterable(
             [
                 DatasetItem(
                     id=i,
@@ -816,7 +817,25 @@ class TransformsTest(TestCase):
                                     [0, 1, 1, 0],
                                     [1, 1, 0, 0],
                                 ]
-                            )
+                            ),
+                            label=1,
+                        ),
+                        RleMask(
+                            rle=mask_tools.to_uncompressed_rle(
+                                mask_tools.mask_to_rle(
+                                    np.array(
+                                        [
+                                            [1, 1, 1, 0],
+                                            [1, 1, 0, 1],
+                                            [0, 1, 0, 1],
+                                            [1, 0, 0, 1],
+                                        ]
+                                    )
+                                ),
+                                width=4,
+                                height=4,
+                            ),
+                            label=2,
                         ),
                     ],
                 )
@@ -825,7 +844,7 @@ class TransformsTest(TestCase):
             categories=["a", "b", "c"],
         )
 
-        big_dataset = Dataset.from_iterable(
+        big_frame_dataset = Dataset.from_iterable(
             [
                 DatasetItem(
                     id=i,
@@ -848,7 +867,23 @@ class TransformsTest(TestCase):
                                     [1, 1, 1, 1, 0, 0, 0, 0],
                                     [1, 1, 1, 1, 0, 0, 0, 0],
                                 ]
-                            )
+                            ),
+                            label=1,
+                        ),
+                        Mask(
+                            np.array(
+                                [
+                                    [1, 1, 1, 1, 1, 1, 0, 0],
+                                    [1, 1, 1, 1, 1, 1, 0, 0],
+                                    [1, 1, 1, 1, 0, 0, 1, 1],
+                                    [1, 1, 1, 1, 0, 0, 1, 1],
+                                    [0, 0, 1, 1, 0, 0, 1, 1],
+                                    [0, 0, 1, 1, 0, 0, 1, 1],
+                                    [1, 1, 0, 0, 0, 0, 1, 1],
+                                    [1, 1, 0, 0, 0, 0, 1, 1],
+                                ]
+                            ),
+                            label=2,
                         ),
                     ],
                 )
@@ -858,12 +893,36 @@ class TransformsTest(TestCase):
         )
 
         with self.subTest("upscale"):
-            actual = transforms.ResizeTransform(small_dataset, width=8, height=8)
-            compare_datasets(self, big_dataset, actual)
+            for params in [{"width": 8, "height": 8}, {"scale_x": 2, "scale_y": 2}]:
+                with self.subTest(params=params):
+                    actual = transforms.ResizeTransform(small_frame_dataset, **params)
+                    compare_datasets(self, big_frame_dataset, actual)
 
         with self.subTest("downscale"):
-            actual = transforms.ResizeTransform(big_dataset, width=4, height=4)
-            compare_datasets(self, small_dataset, actual)
+            for params in [{"width": 4, "height": 4}, {"scale_x": 0.5, "scale_y": 0.5}]:
+                with self.subTest(params=params):
+                    actual = transforms.ResizeTransform(big_frame_dataset, **params)
+                    compare_datasets(self, small_frame_dataset, actual)
+
+    def test_can_use_only_1_set_of_resize_parameters(self):
+        absolute_params = {"width": 6, "height": 2}
+        relative_params = {"scale_x": 3, "scale_y": 0.2}
+
+        input_dataset = Dataset.from_iterable([DatasetItem(id=1, media=Image(np.ones((10, 2))))])
+        expected = Dataset.from_iterable([DatasetItem(id=1, media=Image(np.ones((2, 6))))])
+
+        with self.subTest(params=absolute_params):
+            actual = transforms.ResizeTransform(input_dataset, **absolute_params)
+            compare_datasets(self, expected, actual)
+
+        with self.subTest(params=relative_params):
+            actual = transforms.ResizeTransform(input_dataset, **relative_params)
+            compare_datasets(self, expected, actual)
+
+        params = dict(**absolute_params, **relative_params)
+        with self.subTest(params=params):
+            with self.assertRaisesRegex(Exception, "cannot be used together"):
+                transforms.ResizeTransform(input_dataset, **params)
 
     @mark_bug(Requirements.DATUM_BUG_606)
     def test_can_keep_image_ext_on_resize(self):

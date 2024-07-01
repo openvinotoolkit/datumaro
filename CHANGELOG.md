@@ -41,6 +41,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   (<https://github.com/cvat-ai/datumaro/pull/8>)
 - Functions to work with plain polygons (COCO-style) - `close_polygon`, `simplify_polygon`
   (<https://github.com/cvat-ai/datumaro/pull/39>)
+- An option to specify scale factor in `resize` transform
+  (<https://github.com/cvat-ai/datumaro/pull/46>)
 
 ### Changed
 - `env.detect_dataset()` now returns a list of detected formats at all recursion levels
@@ -96,6 +98,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   (<https://github.com/cvat-ai/datumaro/pull/41>)
 - `Dataset.get()` could ignore existing transforms in the dataset
   (<https://github.com/cvat-ai/datumaro/pull/45>)
+- Failing `resize` transform for RLE masks
+  (<https://github.com/cvat-ai/datumaro/pull/46>)
 
 ### Security
 - TBD

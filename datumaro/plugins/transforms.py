@@ -1,5 +1,5 @@
 # Copyright (C) 2020-2022 Intel Corporation
-# Copyright (C) 2022 CVAT.ai Corporation
+# Copyright (C) 2022-2024 CVAT.ai Corporation
 #
 # SPDX-License-Identifier: MIT
 
@@ -14,7 +14,7 @@ from collections import Counter
 from copy import deepcopy
 from enum import Enum, auto
 from itertools import chain
-from typing import Dict, Iterable, List, Optional, Tuple, Union
+from typing import Callable, Dict, Iterable, List, Optional, Tuple, Union
 
 import cv2
 import numpy as np
@@ -922,7 +922,7 @@ class BboxValuesDecrement(ItemTransform, CliPlugin):
 
 class ResizeTransform(ItemTransform):
     """
-    Resizes images and annotations in the dataset to the specified size.
+    Resizes images and annotations in the dataset to the specified size or by the specified factor.
     Supports upscaling, downscaling and mixed variants.|n
     |n
     Examples:|n
@@ -930,7 +930,13 @@ class ResizeTransform(ItemTransform):
 
         .. code-block::
 
-        |s|s%(prog)s -dw 256 -dh 256
+        |s|s%(prog)s -dw 256 -dh 256|n
+        |n
+        - Scale all images 2x by each side|n
+
+        .. code-block::
+
+        |s|s%(prog)s -sx 2 -sy 2
     """
 
     @classmethod
@@ -938,14 +944,33 @@ class ResizeTransform(ItemTransform):
         parser = super().build_cmdline_parser(**kwargs)
         parser.add_argument("-dw", "--width", type=int, help="Destination image width")
         parser.add_argument("-dh", "--height", type=int, help="Destination image height")
+        parser.add_argument("-sx", "--scale-x", type=float, help="Scale factor for the x axis")
+        parser.add_argument("-sy", "--scale-y", type=float, help="Scale factor for the y axis")
         return parser
 
-    def __init__(self, extractor: IExtractor, width: int, height: int) -> None:
+    def __init__(
+        self,
+        extractor: IExtractor,
+        *,
+        width: Optional[int] = None,
+        height: Optional[int] = None,
+        scale_x: Optional[float] = None,
+        scale_y: Optional[float] = None,
+    ) -> None:
         super().__init__(extractor)
 
-        assert width > 0 and height > 0
+        width = width or 0
+        height = height or 0
+        scale_x = scale_x or 0
+        scale_y = scale_y or 0
+        assert (width > 0 and height > 0) ^ (
+            scale_x > 0 and scale_y > 0
+        ), "width, height, scale_x, scale_y cannot be used together"
+
         self._width = width
         self._height = height
+        self._scale_x = scale_x
+        self._scale_y = scale_y
 
     @staticmethod
     def _lazy_resize_image(image, new_size):
@@ -975,17 +1000,34 @@ class ResizeTransform(ItemTransform):
 
         return _resize_image
 
+    @staticmethod
+    def _lazy_rle_encode(
+        lazy_mask: Callable[[], mask_tools.BinaryMask]
+    ) -> Callable[[], mask_tools.CompressedRle]:
+        def _lazy_encode():
+            mask = lazy_mask()
+            h, w = mask.shape[:2]
+            return mask_tools.to_uncompressed_rle(mask_tools.mask_to_rle(mask), width=w, height=h)
+
+        return _lazy_encode
+
     def transform_item(self, item):
         if not isinstance(item.media, Image):
-            raise DatumaroError(
-                "Item %s: image info is required for this " "transform" % (item.id,)
-            )
+            raise DatumaroError("Item %s: image info is required for this transform" % (item.id,))
 
         h, w = item.media.size
-        xscale = self._width / float(w)
-        yscale = self._height / float(h)
+        if self._width and self._height:
+            xscale = self._width / float(w)
+            yscale = self._height / float(h)
+            new_size = (self._height, self._width)
+        elif self._scale_x and self._scale_y:
+            xscale = self._scale_x
+            yscale = self._scale_y
+            new_size = (round(h * self._scale_y), round(w * self._scale_x))
+        else:
+            assert False, "Unexpected scale configuration"
 
-        new_size = (self._height, self._width)
+        new_size = tuple(map(int, new_size))
 
         resized_image = None
         if item.media.has_data:
@@ -1013,8 +1055,11 @@ class ResizeTransform(ItemTransform):
                     )
                 )
             elif isinstance(ann, Mask):
-                rescaled_mask = self._lazy_resize_mask(ann, new_size)
-                resized_annotations.append(ann.wrap(image=rescaled_mask))
+                lazy_mask = self._lazy_resize_mask(ann, new_size)
+                if isinstance(ann, RleMask):
+                    resized_annotations.append(ann.wrap(rle=self._lazy_rle_encode(lazy_mask)))
+                else:
+                    resized_annotations.append(ann.wrap(image=lazy_mask))
             elif isinstance(ann, (Caption, Label)):
                 resized_annotations.append(ann)
             else:
