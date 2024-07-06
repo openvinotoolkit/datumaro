@@ -31,7 +31,7 @@ from typing_extensions import Literal
 
 from datumaro.components.media import Image
 from datumaro.util.attrs_util import default_if_none, not_empty
-
+from datumaro.rust_api import get_shoelace_area
 
 class AnnotationType(IntEnum):
     unknown = 0
@@ -840,21 +840,23 @@ class Polygon(_Shape):
         inter_area = self_polygon.intersection(other_polygon).area
         return abs(self_polygon.area - inter_area) < CHECK_POLYGON_EQ_EPSILONE
 
+    # def _get_shoelace_area(self):
+    #     points = self.get_points()
+    #     n = len(points)
+    #     # Not a polygon
+    #     if n < 3:
+    #         return 0
+
+    #     area = 0.0
+    #     for i in range(n):
+    #         x1, y1 = points[i]
+    #         x2, y2 = points[(i + 1) % n]  # Next vertex, wrapping around using modulo
+    #         area += x1 * y2 - y1 * x2
+
+    #     return abs(area) / 2.0
     def _get_shoelace_area(self):
         points = self.get_points()
-        n = len(points)
-        # Not a polygon
-        if n < 3:
-            return 0
-
-        area = 0.0
-        for i in range(n):
-            x1, y1 = points[i]
-            x2, y2 = points[(i + 1) % n]  # Next vertex, wrapping around using modulo
-            area += x1 * y2 - y1 * x2
-
-        return abs(area) / 2.0
-
+        return get_shoelace_area(points)
 
 @attrs(slots=True, init=False, order=False)
 class Bbox(_Shape):
