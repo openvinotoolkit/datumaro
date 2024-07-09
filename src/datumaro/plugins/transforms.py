@@ -1947,9 +1947,9 @@ class Clean(ItemTransform):
     def refine_tabular_media(self, item):
         media = item.media
         df = pd.DataFrame(media.data(), index=[media.index])
-        str_cols = [col for col in media.data().keys() if item.media.table.dtype(col) is str]
-        float_cols = [col for col in media.data().keys() if item.media.table.dtype(col) is float]
-        int_cols = [col for col in media.data().keys() if item.media.table.dtype(col) is int]
+        str_cols = [col for col in media.data().keys() if media.table.dtype(col) is str]
+        float_cols = [col for col in media.data().keys() if media.table.dtype(col) is float]
+        int_cols = [col for col in media.data().keys() if media.table.dtype(col) is int]
         countable_cols = [
             col
             for col in media.data().keys()
