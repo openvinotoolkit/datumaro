@@ -6,7 +6,7 @@ import errno
 import logging as log
 import os
 from pathlib import Path
-from typing import List
+from typing import List, Optional, Union
 
 from datumaro.components.annotation import AnnotationType, Label, LabelCategories
 from datumaro.components.dataset_base import DatasetItem, SubsetBase
@@ -30,10 +30,10 @@ class ImagenetBase(SubsetBase):
         self,
         path: str,
         *,
-        subset: str | None = None,
-        ctx: ImportContext | None = None,
-        min_depth: int | None = None,
-        max_depth: int | None = None,
+        subset: Optional[str] = None,
+        ctx: Optional[ImportContext] = None,
+        min_depth: Optional[int] = None,
+        max_depth: Optional[int] = None,
     ):
         if not Path(path).is_dir():
             raise NotADirectoryError(errno.ENOTDIR, "Can't find dataset directory", path)
@@ -136,7 +136,7 @@ class ImagenetImporter(Importer):
         return super().detect(context)
 
     @classmethod
-    def contains_only_images(cls, path: str | Path):
+    def contains_only_images(cls, path: Union[str, Path]):
         for _, dirnames, filenames in walk(path, cls._MAX_DEPTH, cls._MIN_DEPTH):
             if filenames:
                 for filename in filenames:
