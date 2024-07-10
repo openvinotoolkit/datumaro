@@ -30,7 +30,7 @@ def make_all_paths_absolute(d: Dict, root: str = "."):
 
 
 KAGGLE_API_KEY_EXISTS = bool(os.environ.get("KAGGLE_KEY")) or os.path.exists(
-    os.path.join(os.path.expanduser("~"), ".kaggle")
+    os.path.join(os.path.expanduser("~"), ".kaggle", "kaggle.json")
 )
 
 
