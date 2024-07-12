@@ -1,6 +1,0 @@
-# linters
-bandit>=1.7.0
-isort==5.13.2
-black==24.4.2
-nbqa[toolchain]==1.8.5
-ruff==0.4.10

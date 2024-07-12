@@ -327,8 +327,13 @@ def check_save_and_load(
         for item in dataset:
             if item.media:
                 if hasattr(item.media, "path") and item.media.path:
-                    path = item.media.path.replace(source_path, target_path)
-                    item.media = item.media.from_self(path=path)
+                    if isinstance(item.media, VideoFrame):
+                        path = (
+                            item.media.video._path
+                        )  # _path includes the OS-specific directory separator
+                    else:
+                        path = item.media._path
+                    item.media = item.media.from_self(path=path.replace(source_path, target_path))
                 if isinstance(item.media, PointCloud):
                     new_images = []
                     for image in item.media.extra_images:
@@ -346,7 +351,7 @@ def check_save_and_load(
         if move_save_dir:
             save_dir = tmp_dir
             for file in os.listdir(test_dir):
-                os.symlink(osp.join(test_dir, file), osp.join(save_dir, file))
+                shutil.move(osp.join(test_dir, file), save_dir)
         else:
             save_dir = test_dir
 
