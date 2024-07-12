@@ -5,6 +5,13 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## \[unreleased\]
+### New features
+
+### Enhancements
+
+### Bug fixes
+
 ## Q3 2024 Release 1.8.0
 ### New features
 - Add TabularValidator
@@ -19,6 +26,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   (<https://github.com/openvinotoolkit/datumaro/pull/1522>)
 - Support hierarchical structure for ImageNet dataset format
   (<https://github.com/openvinotoolkit/datumaro/pull/1528>)
+- Enable dtype argument when calling media.data
+  (<https://github.com/openvinotoolkit/datumaro/pull/1546>)
 
 ### Bug fixes
 - Preserve end_frame information of a video when it is zero.

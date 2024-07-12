@@ -193,6 +193,26 @@ class ImageTest(TestCase):
         image = Image.from_bytes(data=image_bytes)
         self.assertEqual(image.ext, None)
 
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
+    def test_floating_image_from_numpy(self):
+        image_float = np.random.rand(32, 32, 3).astype(np.float16) * 255.0
+        media = Image.from_numpy(image_float)
+        data = media.get_data_as_dtype(dtype=np.float16)
+        self.assertTrue(np.all(image_float == data))
+
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
+    def test_floating_image_from_file(self):
+        import tifffile
+
+        with TestDir() as test_dir:
+            image_float = np.random.rand(32, 32, 3).astype(np.float32) * 255.0
+            image_path = osp.join(test_dir, "floating_image.tiff")
+            tifffile.imwrite(image_path, image_float)
+
+            media = Image.from_file(image_path)
+            data = media.get_data_as_dtype(dtype=np.float32)
+            self.assertTrue(np.all(image_float == data))
+
 
 class RoIImageTest(TestCase):
     def _test_ctors(self, img_ctor, args_list, test_dir, is_bytes=False):

@@ -6,3 +6,4 @@ pytest-html
 coverage
 pytest-csv
 dill
+tifffile
