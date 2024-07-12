@@ -16,6 +16,7 @@ import pycocotools.mask as mask_utils
 
 from datumaro.components.annotation import (
     Annotation,
+    AnnotationType,
     Bbox,
     Caption,
     Cuboid3d,
@@ -28,11 +29,12 @@ from datumaro.components.annotation import (
     Polygon,
     PolyLine,
     RleMask,
+    Skeleton,
     _Shape,
 )
 from datumaro.components.converter import Converter
 from datumaro.components.dataset import ItemStatus
-from datumaro.components.extractor import DEFAULT_SUBSET_NAME, DatasetItem
+from datumaro.components.extractor import DEFAULT_SUBSET_NAME, CategoriesInfo, DatasetItem
 from datumaro.components.media import Image, MediaElement, PointCloud
 from datumaro.util import cast, dump_json_file
 
@@ -143,11 +145,13 @@ class _SubsetWriter:
                 converted_ann = self._convert_caption_object(ann)
             elif isinstance(ann, Cuboid3d):
                 converted_ann = self._convert_cuboid_3d_object(ann)
+            elif isinstance(ann, Skeleton):
+                converted_ann = self._convert_skeleton_object(ann)
             else:
                 raise NotImplementedError()
             annotations.append(converted_ann)
 
-    def add_categories(self, categories):
+    def add_categories(self, categories: CategoriesInfo):
         for ann_type, desc in categories.items():
             if isinstance(desc, LabelCategories):
                 converted_desc = self._convert_label_categories(desc)
@@ -162,7 +166,7 @@ class _SubsetWriter:
     def write(self, ann_file):
         dump_json_file(ann_file, self._data)
 
-    def _convert_annotation(self, obj):
+    def _convert_annotation(self, obj: Annotation) -> dict:
         assert isinstance(obj, Annotation)
 
         ann_json = {
@@ -265,6 +269,37 @@ class _SubsetWriter:
             }
         )
         return converted
+
+    def _convert_skeleton_object(self, obj: Skeleton) -> dict:
+        label_ordering = [
+            item["labels"]
+            for item in self.categories[AnnotationType.points.name]["items"]
+            if item["label_id"] == obj.label
+        ][0]
+
+        def get_label_position(label_id):
+            return label_ordering.index(
+                self.categories[AnnotationType.label.name]["labels"][label_id]["name"]
+            )
+
+        points = [0.0, 0.0, Points.Visibility.absent.value] * len(label_ordering)
+        points_attributes = [{}] * len(label_ordering)
+        for element in obj.elements:
+            assert len(element.points) == 2 and len(element.visibility) == 1
+            position = get_label_position(element.label)
+            points[position * 3 : position * 3 + 3] = [
+                element.points[0],
+                element.points[1],
+                element.visibility[0].value,
+            ]
+            points_attributes[position] = element.attributes
+
+        return dict(
+            self._convert_annotation(obj),
+            label_id=cast(obj.label, int),
+            points=points,
+            points_attributes=points_attributes,
+        )
 
     def _convert_attribute_categories(self, attributes):
         return sorted(attributes)

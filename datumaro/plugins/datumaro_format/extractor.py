@@ -3,6 +3,7 @@
 # SPDX-License-Identifier: MIT
 
 import os.path as osp
+from typing import List, Union
 
 from datumaro.components.annotation import (
     AnnotationType,
@@ -17,12 +18,13 @@ from datumaro.components.annotation import (
     Polygon,
     PolyLine,
     RleMask,
+    Skeleton,
 )
-from datumaro.components.errors import DatasetImportError
+from datumaro.components.errors import DatasetImportError, InvalidAnnotationError
 from datumaro.components.extractor import DatasetItem, Importer, SourceExtractor
 from datumaro.components.format_detection import FormatDetectionContext
 from datumaro.components.media import Image, MediaElement, PointCloud
-from datumaro.util import parse_json, parse_json_file
+from datumaro.util import parse_json, parse_json_file, take_by
 
 from .format import DatumaroPath
 
@@ -150,8 +152,7 @@ class DatumaroExtractor(SourceExtractor):
 
         return items
 
-    @staticmethod
-    def _load_annotations(item):
+    def _load_annotations(self, item: dict):
         parsed = item["annotations"]
         loaded = []
 
@@ -251,10 +252,53 @@ class DatumaroExtractor(SourceExtractor):
                     )
                 )
 
+            elif ann_type == AnnotationType.skeleton:
+                loaded.append(
+                    Skeleton(
+                        elements=self._load_skeleton_elements_annotations(ann, label_id, points),
+                        label=label_id,
+                        id=ann_id,
+                        attributes=attributes,
+                        group=group,
+                        z_order=z_order,
+                    )
+                )
+
             else:
                 raise NotImplementedError()
 
         return loaded
+
+    def _load_skeleton_elements_annotations(
+        self, ann: dict, label_id: int, points: List[Union[float, int]]
+    ) -> List[Points]:
+        if len(points) % 3 != 0:
+            raise InvalidAnnotationError(
+                f"Points have invalid value count {len(points)}, "
+                "which is not divisible by 3. Expected (x, y, visibility) triplets."
+            )
+        points_attributes = ann.get("points_attributes")
+        if len(points) != len(points_attributes) * 3:
+            raise InvalidAnnotationError(
+                f"Points and Points_attributes lengths ({len(points)}, {len(points_attributes)}) do not match, "
+                "for each triplet (x, y, visibility) in points there should be one dict in points_attributes."
+            )
+
+        label_category = self._categories[AnnotationType.label]
+        sub_labels = self._categories[AnnotationType.points].items[label_id].labels
+        return [
+            Points(
+                points=[x, y],
+                visibility=[v],
+                label=label_category.find(
+                    name=sub_label, parent=label_category.items[label_id].name
+                )[0],
+                attributes=attrs,
+            )
+            for (x, y, v), sub_label, attrs in zip(
+                take_by(points, 3), sub_labels, points_attributes
+            )
+        ]
 
 
 class DatumaroImporter(Importer):

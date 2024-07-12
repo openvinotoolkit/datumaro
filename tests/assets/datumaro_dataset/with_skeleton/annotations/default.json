@@ -1,0 +1,100 @@
+{
+  "info": {},
+  "categories": {
+    "label": {
+      "labels": [
+        {
+          "name": "skeleton-label",
+          "parent": "",
+          "attributes": []
+        },
+        {
+          "name": "point1-label",
+          "parent": "skeleton-label",
+          "attributes": []
+        },
+        {
+          "name": "point3-label",
+          "parent": "skeleton-label",
+          "attributes": []
+        },
+        {
+          "name": "point2-label",
+          "parent": "skeleton-label",
+          "attributes": []
+        }
+      ],
+      "attributes": [
+        "occluded",
+        "point2-attribute-text",
+        "point3-attribute-checkbox"
+      ]
+    },
+    "points": {
+      "items": [
+        {
+          "label_id": 0,
+          "labels": [
+            "point1-label",
+            "point3-label",
+            "point2-label"
+          ],
+          "joints": [
+            [
+              2,
+              3
+            ],
+            [
+              1,
+              2
+            ]
+          ]
+        }
+      ]
+    }
+  },
+  "items": [
+    {
+      "id": "100",
+      "annotations": [
+        {
+          "id": 0,
+          "type": "skeleton",
+          "attributes": {
+            "occluded": false,
+            "keyframe": false
+          },
+          "group": 0,
+          "label_id": 0,
+          "points": [
+            0.9,
+            3.53,
+            2,
+            2.45,
+            7.6,
+            2,
+            5.2,
+            2.5,
+            2
+          ],
+          "points_attributes": [
+            {},
+            {
+              "point3-attribute-checkbox": true
+            },
+            {
+              "point2-attribute-text": "some text"
+            }
+          ]
+        }
+      ],
+      "image": {
+        "path": "100.jpg",
+        "size": [
+          10,
+          6
+        ]
+      }
+    }
+  ]
+}

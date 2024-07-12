@@ -19,6 +19,7 @@ from datumaro.components.annotation import (
     PointsCategories,
     Polygon,
     PolyLine,
+    Skeleton,
 )
 from datumaro.components.environment import Environment
 from datumaro.components.extractor import DatasetItem
@@ -248,6 +249,67 @@ class DatumaroConverterTest(TestCase):
             media_type=PointCloud,
         )
 
+        compare_datasets_strict(self, expected, Dataset.load(dataset_path))
+
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
+    def test_can_import_skeleton_dataset(self):
+        dataset_path = str(Path(__file__).parent / "assets" / "datumaro_dataset" / "with_skeleton")
+
+        label_categories = LabelCategories.from_iterable(
+            [
+                ("skeleton-label",),
+                ("point1-label", "skeleton-label"),
+                ("point3-label", "skeleton-label"),
+                ("point2-label", "skeleton-label"),
+            ]
+        )
+        label_categories.attributes = {
+            "point3-attribute-checkbox",
+            "occluded",
+            "point2-attribute-text",
+        }
+        points_categories = PointsCategories.from_iterable(
+            [
+                (0, ["point1-label", "point3-label", "point2-label"], {(2, 3), (1, 2)}),
+            ]
+        )
+
+        expected = Dataset.from_iterable(
+            [
+                DatasetItem(
+                    id="100",
+                    subset="default",
+                    media=Image(data=np.ones((10, 6, 3))),
+                    annotations=[
+                        Skeleton(
+                            [
+                                Points(
+                                    [0.9, 3.53],
+                                    label=1,
+                                    attributes={},
+                                ),
+                                Points(
+                                    [2.45, 7.6],
+                                    label=2,
+                                    attributes={"point3-attribute-checkbox": True},
+                                ),
+                                Points(
+                                    [5.2, 2.5],
+                                    label=3,
+                                    attributes={"point2-attribute-text": "some text"},
+                                ),
+                            ],
+                            label=0,
+                            attributes={"occluded": False, "keyframe": False},
+                        ),
+                    ],
+                ),
+            ],
+            categories={
+                AnnotationType.label: label_categories,
+                AnnotationType.points: points_categories,
+            },
+        )
         compare_datasets_strict(self, expected, Dataset.load(dataset_path))
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
@@ -518,4 +580,80 @@ class DatumaroConverterTest(TestCase):
                 target_dataset,
                 compare=None,
                 dimension=Dimensions.dim_3d,
+            )
+
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
+    def test_can_save_and_load_with_skeleton(self):
+        categories = {
+            AnnotationType.label: LabelCategories.from_iterable(
+                [
+                    ("point2", "skeleton"),
+                    ("point1", "skeleton"),
+                    ("skeleton",),
+                    ("point3", "skeleton"),
+                    ("point4", "skeleton"),
+                ]
+            ),
+            AnnotationType.points: PointsCategories.from_iterable(
+                [
+                    (2, ["point2", "point1", "point3", "point4"], {(2, 1), (0, 3)}),
+                ]
+            ),
+        }
+        source_elements = [
+            Points([1, 1], label=0, attributes={"occluded": False, "outside": True}),
+            Points(
+                [2, 2],
+                label=1,
+                attributes={"occluded": False, "outside": False, "custom": "value"},
+            ),
+            Points([4, 4], label=4, attributes={"occluded": False, "outside": False}),
+        ]
+        source_dataset = Dataset.from_iterable(
+            [
+                DatasetItem(
+                    id="img1",
+                    subset="train",
+                    media=Image(data=np.ones((10, 10, 3))),
+                    annotations=[
+                        Skeleton(
+                            source_elements,
+                            label=2,
+                            attributes={"occluded": False},
+                        )
+                    ],
+                ),
+            ],
+            categories=categories,
+        )
+        target_elements = [
+            source_elements[0],
+            source_elements[1],
+            Points([0, 0], label=3, visibility=[Points.Visibility.absent.value]),
+            source_elements[2],
+        ]
+        target_dataset = Dataset.from_iterable(
+            [
+                DatasetItem(
+                    id="img1",
+                    subset="train",
+                    media=Image(data=np.ones((10, 10, 3))),
+                    annotations=[
+                        Skeleton(
+                            target_elements,
+                            label=2,
+                            attributes={"occluded": False},
+                        )
+                    ],
+                ),
+            ],
+            categories=categories,
+        )
+
+        with TestDir() as test_dir:
+            self._test_save_and_load(
+                source_dataset,
+                partial(DatumaroConverter.convert, save_media=True),
+                test_dir,
+                target_dataset=target_dataset,
             )

@@ -708,9 +708,11 @@ class PointsCategories(Categories):
     @classmethod
     def from_iterable(
         cls,
-        iterable: Union[
-            Tuple[int, List[str]],
-            Tuple[int, List[str], Set[Tuple[int, int]]],
+        iterable: Iterable[
+            Union[
+                Tuple[int, List[str]],
+                Tuple[int, List[str], Set[Tuple[int, int]]],
+            ],
         ],
     ) -> PointsCategories:
         """

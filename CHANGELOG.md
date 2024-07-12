@@ -43,6 +43,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   (<https://github.com/cvat-ai/datumaro/pull/39>)
 - An option to specify scale factor in `resize` transform
   (<https://github.com/cvat-ai/datumaro/pull/46>)
+- Skeleton support in datumaro format
+  (<https://github.com/cvat-ai/datumaro/pull/47>)
 
 ### Changed
 - `env.detect_dataset()` now returns a list of detected formats at all recursion levels
