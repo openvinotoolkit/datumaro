@@ -1474,6 +1474,46 @@ class CleanTest(TestCase):
             },
             media_type=TableRow,
         )
+        self.orig_astyped_dataset = Dataset.from_iterable(
+            [
+                DatasetItem(
+                    id=i,
+                    subset="train",
+                    media=TableRow(table=table, index=i),
+                    annotations=[
+                        Tabular(
+                            values={
+                                "Rating": table.data["Rating"][i],
+                                "Age": table.data["Age"][i],
+                                "Title": table.data["Title"][i],
+                                "Review Text": table.data["Review Text"][i],
+                                "Division Name": table.data["Division Name"][i],
+                            }
+                        )
+                    ],
+                )
+                for i in range(1, 6)
+            ],
+            categories={
+                AnnotationType.tabular: TabularCategories.from_iterable(
+                    [
+                        (
+                            "Age",
+                            float,
+                            {10.0, 20.0, 30.0, 40.0, 50.0, 60.0, 70.0, 80.0, 90.0, 100.0},
+                        ),
+                        ("Review Text", str),
+                        ("Rating", CategoricalDtype(), {1.0, 2.0, 3.0, 4.0, 5.0}),
+                        (
+                            "Division Name",
+                            CategoricalDtype(),
+                            {"General", "General Petite", "Initmates"},
+                        ),
+                    ]
+                )
+            },
+            media_type=TableRow,
+        )
 
         self.tabular_refined_path = osp.join(
             get_test_asset_path("tabular_dataset"), "women-clothing", "women_clothing_refined.csv"
@@ -1519,6 +1559,46 @@ class CleanTest(TestCase):
             },
             media_type=TableRow,
         )
+        self.refined_astyped_dataset = Dataset.from_iterable(
+            [
+                DatasetItem(
+                    id=i,
+                    subset="train",
+                    media=TableRow(table=table, index=i),
+                    annotations=[
+                        Tabular(
+                            values={
+                                "Rating": table.data["Rating"][i],
+                                "Age": table.data["Age"][i],
+                                "Title": table.data["Title"][i],
+                                "Review Text": table.data["Review Text"][i],
+                                "Division Name": table.data["Division Name"][i],
+                            }
+                        )
+                    ],
+                )
+                for i in range(1, 6)
+            ],
+            categories={
+                AnnotationType.tabular: TabularCategories.from_iterable(
+                    [
+                        (
+                            "Age",
+                            float,
+                            {10.0, 20.0, 30.0, 40.0, 50.0, 60.0, 70.0, 80.0, 90.0, 100.0},
+                        ),
+                        ("Review Text", str),
+                        ("Rating", CategoricalDtype(), {1.0, 2.0, 3.0, 4.0, 5.0}),
+                        (
+                            "Division Name",
+                            CategoricalDtype(),
+                            {"General", "General Petite", "Initmates"},
+                        ),
+                    ]
+                )
+            },
+            media_type=TableRow,
+        )
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_remove_unneccessary_char(self):
@@ -1526,9 +1606,9 @@ class CleanTest(TestCase):
         cleaned_text = "test check details text enjoy"
 
         with self.subTest("with None"):
-            self.assertIsNone(transforms.Clean.remove_unneccessary_char(None))
+            self.assertIsNone(transforms.Clean.remove_unnecessary_char(None))
         with self.subTest("with normal text"):
-            self.assertEqual(transforms.Clean.remove_unneccessary_char(example_text), cleaned_text)
+            self.assertEqual(transforms.Clean.remove_unnecessary_char(example_text), cleaned_text)
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_find_closest_value(self):
@@ -1574,6 +1654,20 @@ class CleanTest(TestCase):
         result = dataset.transform("clean")
 
         expected = Dataset.import_from(self.tabular_refined_path, "tabular", target=target)
+
+        for i, expected_item in enumerate(expected):
+            result_item = result.__getitem__(i)
+            self.assertEqual(expected_item.annotations, result_item.annotations)
+            self.assertEqual(expected_item.media, result_item.media)
+
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
+    def test_transform_clean_after_astype_ann(self):
+        dataset = self.orig_astyped_dataset
+        dataset = dataset.transform("astype_annotations")
+        result = dataset.transform("clean")
+
+        expected = self.refined_astyped_dataset
+        expected = expected.transform("astype_annotations")
 
         for i, expected_item in enumerate(expected):
             result_item = result.__getitem__(i)

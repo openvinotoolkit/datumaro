@@ -7,6 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## \[unreleased\]
 ### New features
+
+### Enhancements
+
+### Bug fixes
+
+## Q3 2024 Release 1.8.0
+### New features
 - Add TabularValidator
   (<https://github.com/openvinotoolkit/datumaro/pull/1498>)
 - Add Clean Transform for tabular data type
@@ -17,12 +24,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   (<https://github.com/openvinotoolkit/datumaro/pull/1492>)
 - Pass Keyword Argument to TabularDataBase
   (<https://github.com/openvinotoolkit/datumaro/pull/1522>)
+- Support hierarchical structure for ImageNet dataset format
+  (<https://github.com/openvinotoolkit/datumaro/pull/1528>)
 - Enable dtype argument when calling media.data
   (<https://github.com/openvinotoolkit/datumaro/pull/1546>)
 
 ### Bug fixes
 - Preserve end_frame information of a video when it is zero.
   (<https://github.com/openvinotoolkit/datumaro/pull/1541>)
+- Changed the Datumaro format to ensure exported videos have relative paths and to prevent the same video from being overwritten.
+  (<https://github.com/openvinotoolkit/datumaro/pull/1547>)
 
 ## Q2 2024 Release 1.7.0
 ### New features
@@ -38,6 +49,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   (<https://github.com/openvinotoolkit/datumaro/pull/1484>)
 - Enhance DatasetItem annotations for semantic segmentation model training use case
   (<https://github.com/openvinotoolkit/datumaro/pull/1503>)
+- Add TabularValidator
+  (<https://github.com/openvinotoolkit/datumaro/pull/1498>)
+- Add Clean Transform for tabular data type
+  (<https://github.com/openvinotoolkit/datumaro/pull/1520>)
+- Add notebook for data handling of kaggle dataset
+  (<https://github.com/openvinotoolkit/datumaro/pull/1534>)
 
 ### Enhancements
 - Fix ambiguous COCO format detector
