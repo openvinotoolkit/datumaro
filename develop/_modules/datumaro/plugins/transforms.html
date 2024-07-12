@@ -7,7 +7,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>datumaro.plugins.transforms &#8212; Datumaro 1.7.0 documentation</title>
+    <title>datumaro.plugins.transforms &#8212; Datumaro 1.9.0rc0 documentation</title>
   
   
   
@@ -38,7 +38,7 @@
 <link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=8d27b9dea8ad943066ae" />
   <script src="../../../_static/vendor/fontawesome/6.5.1/js/all.min.js?digest=8d27b9dea8ad943066ae"></script>
 
-    <script src="../../../_static/documentation_options.js?v=030dc6f6"></script>
+    <script src="../../../_static/documentation_options.js?v=6dc964b9"></script>
     <script src="../../../_static/doctools.js?v=888ff710"></script>
     <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -124,8 +124,8 @@
       
     
     
-    <img src="../../../_static/datumaro-logo.png" class="logo__image only-light" alt="Datumaro 1.7.0 documentation - Home"/>
-    <script>document.write(`<img src="../../../_static/datumaro-logo.png" class="logo__image only-dark" alt="Datumaro 1.7.0 documentation - Home"/>`);</script>
+    <img src="../../../_static/datumaro-logo.png" class="logo__image only-light" alt="Datumaro 1.9.0rc0 documentation - Home"/>
+    <script>document.write(`<img src="../../../_static/datumaro-logo.png" class="logo__image only-dark" alt="Datumaro 1.9.0rc0 documentation - Home"/>`);</script>
   
   
 </a></div>
@@ -2326,7 +2326,7 @@ document.write(`
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Enables the conversion of annotation types for the categories and individual items within a dataset.|n</span>
 <span class="sd">    |n</span>
-<span class="sd">    Based on a specified mapping, it transforms the annotation types,|m</span>
+<span class="sd">    Based on a specified mapping, it transforms the annotation types,|n</span>
 <span class="sd">    changing them to &#39;Label&#39; if they are categorical, and to &#39;Caption&#39; if they are of type string, float, or integer.|n</span>
 <span class="sd">    |n</span>
 <span class="sd">    Examples:|n</span>
@@ -2438,7 +2438,20 @@ document.write(`
 <div class="viewcode-block" id="Clean">
 <a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.plugins.transforms.html#datumaro.plugins.transforms.Clean">[docs]</a>
 <span class="k">class</span> <span class="nc">Clean</span><span class="p">(</span><span class="n">ItemTransform</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot; &quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    A class used to refine the media items in a dataset.|n</span>
+<span class="sd">    |n</span>
+<span class="sd">    This class provides methods to clean and preprocess media data within a dataset.</span>
+<span class="sd">    The media data can be of various types such as strings, numeric values, or categorical values.</span>
+<span class="sd">    The cleaning process for each type of data is handled differently:|n</span>
+<span class="sd">    |n</span>
+<span class="sd">    - **String Media**: For string data, the class employs natural language processing (NLP)</span>
+<span class="sd">    techniques to remove unnecessary characters. This involves cleaning tasks such as removing special</span>
+<span class="sd">    characters, punctuation, and other irrelevant elements to refine the textual data.|n</span>
+<span class="sd">    - **Numeric Media**: For numeric data, the class identifies and handles outliers and missing values.</span>
+<span class="sd">    Outliers are either removed or replaced based on a defined strategy,</span>
+<span class="sd">    and missing values are filled using appropriate methods such as mean, median, or a predefined value.|n</span>
+<span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
@@ -2448,11 +2461,12 @@ document.write(`
 
         <span class="bp">self</span><span class="o">.</span><span class="n">_outlier_value</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_missing_value</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_sep_token</span> <span class="o">=</span> <span class="s2">&quot;:&quot;</span>
 
-<div class="viewcode-block" id="Clean.remove_unneccessary_char">
-<a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.plugins.transforms.html#datumaro.plugins.transforms.Clean.remove_unneccessary_char">[docs]</a>
+<div class="viewcode-block" id="Clean.remove_unnecessary_char">
+<a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.plugins.transforms.html#datumaro.plugins.transforms.Clean.remove_unnecessary_char">[docs]</a>
     <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">remove_unneccessary_char</span><span class="p">(</span><span class="n">text</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">remove_unnecessary_char</span><span class="p">(</span><span class="n">text</span><span class="p">):</span>
         <span class="k">if</span> <span class="n">pd</span><span class="o">.</span><span class="n">isna</span><span class="p">(</span><span class="n">text</span><span class="p">):</span>
             <span class="k">return</span> <span class="n">text</span>
         <span class="k">try</span><span class="p">:</span>
@@ -2543,9 +2557,9 @@ document.write(`
     <span class="k">def</span> <span class="nf">refine_tabular_media</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">item</span><span class="p">):</span>
         <span class="n">media</span> <span class="o">=</span> <span class="n">item</span><span class="o">.</span><span class="n">media</span>
         <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">media</span><span class="o">.</span><span class="n">data</span><span class="p">(),</span> <span class="n">index</span><span class="o">=</span><span class="p">[</span><span class="n">media</span><span class="o">.</span><span class="n">index</span><span class="p">])</span>
-        <span class="n">str_cols</span> <span class="o">=</span> <span class="p">[</span><span class="n">col</span> <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="n">media</span><span class="o">.</span><span class="n">data</span><span class="p">()</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span> <span class="k">if</span> <span class="n">item</span><span class="o">.</span><span class="n">media</span><span class="o">.</span><span class="n">table</span><span class="o">.</span><span class="n">dtype</span><span class="p">(</span><span class="n">col</span><span class="p">)</span> <span class="ow">is</span> <span class="nb">str</span><span class="p">]</span>
-        <span class="n">float_cols</span> <span class="o">=</span> <span class="p">[</span><span class="n">col</span> <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="n">media</span><span class="o">.</span><span class="n">data</span><span class="p">()</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span> <span class="k">if</span> <span class="n">item</span><span class="o">.</span><span class="n">media</span><span class="o">.</span><span class="n">table</span><span class="o">.</span><span class="n">dtype</span><span class="p">(</span><span class="n">col</span><span class="p">)</span> <span class="ow">is</span> <span class="nb">float</span><span class="p">]</span>
-        <span class="n">int_cols</span> <span class="o">=</span> <span class="p">[</span><span class="n">col</span> <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="n">media</span><span class="o">.</span><span class="n">data</span><span class="p">()</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span> <span class="k">if</span> <span class="n">item</span><span class="o">.</span><span class="n">media</span><span class="o">.</span><span class="n">table</span><span class="o">.</span><span class="n">dtype</span><span class="p">(</span><span class="n">col</span><span class="p">)</span> <span class="ow">is</span> <span class="nb">int</span><span class="p">]</span>
+        <span class="n">str_cols</span> <span class="o">=</span> <span class="p">[</span><span class="n">col</span> <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="n">media</span><span class="o">.</span><span class="n">data</span><span class="p">()</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span> <span class="k">if</span> <span class="n">media</span><span class="o">.</span><span class="n">table</span><span class="o">.</span><span class="n">dtype</span><span class="p">(</span><span class="n">col</span><span class="p">)</span> <span class="ow">is</span> <span class="nb">str</span><span class="p">]</span>
+        <span class="n">float_cols</span> <span class="o">=</span> <span class="p">[</span><span class="n">col</span> <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="n">media</span><span class="o">.</span><span class="n">data</span><span class="p">()</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span> <span class="k">if</span> <span class="n">media</span><span class="o">.</span><span class="n">table</span><span class="o">.</span><span class="n">dtype</span><span class="p">(</span><span class="n">col</span><span class="p">)</span> <span class="ow">is</span> <span class="nb">float</span><span class="p">]</span>
+        <span class="n">int_cols</span> <span class="o">=</span> <span class="p">[</span><span class="n">col</span> <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="n">media</span><span class="o">.</span><span class="n">data</span><span class="p">()</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span> <span class="k">if</span> <span class="n">media</span><span class="o">.</span><span class="n">table</span><span class="o">.</span><span class="n">dtype</span><span class="p">(</span><span class="n">col</span><span class="p">)</span> <span class="ow">is</span> <span class="nb">int</span><span class="p">]</span>
         <span class="n">countable_cols</span> <span class="o">=</span> <span class="p">[</span>
             <span class="n">col</span>
             <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="n">media</span><span class="o">.</span><span class="n">data</span><span class="p">()</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span>
@@ -2553,7 +2567,7 @@ document.write(`
             <span class="ow">or</span> <span class="n">item</span><span class="o">.</span><span class="n">media</span><span class="o">.</span><span class="n">table</span><span class="o">.</span><span class="n">dtype</span><span class="p">(</span><span class="n">col</span><span class="p">)</span> <span class="ow">is</span> <span class="nb">int</span>
         <span class="p">]</span>
 
-        <span class="n">df</span><span class="p">[</span><span class="n">str_cols</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="n">str_cols</span><span class="p">]</span><span class="o">.</span><span class="n">applymap</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">remove_unneccessary_char</span><span class="p">(</span><span class="n">x</span><span class="p">))</span>
+        <span class="n">df</span><span class="p">[</span><span class="n">str_cols</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="n">str_cols</span><span class="p">]</span><span class="o">.</span><span class="n">applymap</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">remove_unnecessary_char</span><span class="p">(</span><span class="n">x</span><span class="p">))</span>
 
         <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_outlier_value</span><span class="p">):</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">check_outlier</span><span class="p">(</span><span class="n">media</span><span class="o">.</span><span class="n">table</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="n">float_cols</span> <span class="o">+</span> <span class="n">int_cols</span><span class="p">],</span> <span class="n">float_cols</span> <span class="o">+</span> <span class="n">int_cols</span><span class="p">)</span>
@@ -2580,14 +2594,28 @@ document.write(`
                 <span class="s2">&quot;Item </span><span class="si">%s</span><span class="s2">: TableRow info is required for this &quot;</span> <span class="s2">&quot;transform&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">item</span><span class="o">.</span><span class="n">id</span><span class="p">,)</span>
             <span class="p">)</span>
 
+        <span class="n">sep_token</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_sep_token</span>
         <span class="n">refined_media</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">refine_tabular_media</span><span class="p">(</span><span class="n">item</span><span class="p">)</span> <span class="k">if</span> <span class="n">item</span><span class="o">.</span><span class="n">media</span><span class="o">.</span><span class="n">has_data</span> <span class="k">else</span> <span class="kc">None</span>
-        <span class="n">annotation_values</span> <span class="o">=</span> <span class="p">{</span>
-            <span class="n">key</span><span class="p">:</span> <span class="n">refined_media</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">item</span><span class="o">.</span><span class="n">annotations</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span>
-        <span class="p">}</span>  <span class="c1"># only for tabular</span>
-        <span class="n">refined_annotations</span> <span class="o">=</span> <span class="p">[</span>
-            <span class="n">ann</span><span class="o">.</span><span class="n">wrap</span><span class="p">(</span><span class="n">values</span><span class="o">=</span><span class="n">annotation_values</span><span class="p">)</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">ann</span><span class="p">,</span> <span class="n">Tabular</span><span class="p">)</span> <span class="k">else</span> <span class="n">ann</span>
-            <span class="k">for</span> <span class="n">ann</span> <span class="ow">in</span> <span class="n">item</span><span class="o">.</span><span class="n">annotations</span>
-        <span class="p">]</span>
+        <span class="n">refined_annotations</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">ann</span> <span class="ow">in</span> <span class="n">item</span><span class="o">.</span><span class="n">annotations</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">ann</span><span class="p">,</span> <span class="n">Tabular</span><span class="p">):</span>
+                <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">item</span><span class="o">.</span><span class="n">annotations</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">1</span><span class="p">:</span>
+                    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                        <span class="s2">&quot;If the item has a tabular annotation, it should have one annotation.&quot;</span>
+                    <span class="p">)</span>
+                <span class="n">annotation_values</span> <span class="o">=</span> <span class="p">{</span>
+                    <span class="n">key</span><span class="p">:</span> <span class="n">refined_media</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">item</span><span class="o">.</span><span class="n">annotations</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span>
+                <span class="p">}</span>  <span class="c1"># only for tabular</span>
+                <span class="n">ann</span> <span class="o">=</span> <span class="n">ann</span><span class="o">.</span><span class="n">wrap</span><span class="p">(</span><span class="n">values</span><span class="o">=</span><span class="n">annotation_values</span><span class="p">)</span>
+            <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">ann</span><span class="p">,</span> <span class="n">Caption</span><span class="p">):</span>
+                <span class="n">value</span> <span class="o">=</span> <span class="p">[</span>
+                    <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">key</span><span class="si">}{</span><span class="n">sep_token</span><span class="si">}{</span><span class="n">refined_media</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="n">key</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span>
+                    <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">refined_media</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span>
+                    <span class="k">if</span> <span class="n">ann</span><span class="o">.</span><span class="n">caption</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="n">key</span><span class="p">)</span>
+                <span class="p">]</span>
+                <span class="n">ann</span> <span class="o">=</span> <span class="n">ann</span><span class="o">.</span><span class="n">wrap</span><span class="p">(</span><span class="n">caption</span><span class="o">=</span><span class="n">value</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+            <span class="n">refined_annotations</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">ann</span><span class="p">)</span>
+
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">wrap_item</span><span class="p">(</span><span class="n">item</span><span class="p">,</span> <span class="n">media</span><span class="o">=</span><span class="n">refined_media</span><span class="p">,</span> <span class="n">annotations</span><span class="o">=</span><span class="n">refined_annotations</span><span class="p">)</span></div>
 </div>
 

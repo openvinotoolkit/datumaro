@@ -1,0 +1,642 @@
+{
+ "cells": [
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "# Data preparation with Datumaro\n",
+    "\n",
+    "Datumaro is the open-source data management framework for computer vision and , making easy to import and export along with desired formats. Specifically, Datumaro provides more than 50 public data formats, e.g., MS-COCO, Pascal-VOC, YOLO-Ultralytics, Roboflow, CVAT, Cityscapes, etc. Please refer here for the details.\n",
+    "\n",
+    "Moreover, Datumaro provides data manipulation functionalities such as filtration, transformation, subset appregation/split. Plus, data visualization and exploration are possible with Datumaro! Please enjoy basic/intermediate/advanced skills at here.\n",
+    "\n",
+    "We here provide an example to import Corona NLP dataset and convert this to PyTorch dataset directly. After that, we can easily run training and validation for conventional text classification task on PyTorch framework."
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "## Install Datumaro package"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "<!-- !pip install datumaro==1.7.0 -->"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "## Import a dataset"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "The dataset is organized in the following directory structure:\n",
+    "\n",
+    "```\n",
+    ".\n",
+    "├── Corona_NLP_test.csv\n",
+    "└── Corona_NLP_train.csv\n",
+    "```\n",
+    "\n",
+    "In our `corona_nlp` folder, we've got two CSV files: `Corona_NLP_train.csv` and `Corona_NLP_test.csv`. These files hold the training and testing data for our Corona NLP dataset. I used `datumaro` to inspect the dataset directory structure, and it appears that the dataset is in tabular format."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 3,
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/plain": [
+       "['tabular']"
+      ]
+     },
+     "execution_count": 3,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "import datumaro as dm\n",
+    "from datumaro.components.environment import DEFAULT_ENVIRONMENT\n",
+    "\n",
+    "data_path = \"/home/sooah/data/corona_nlp\"\n",
+    "detected_formats = DEFAULT_ENVIRONMENT.detect_dataset(data_path)\n",
+    "detected_formats"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "To load our dataset using Datumaro, we'll need to specify the encoding as 'latin1' since the dataset is encoded in that format. We'll need to include `import_kwargs` to handle this:"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 4,
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/plain": [
+       "Dataset\n",
+       "\tsize=44955\n",
+       "\tsource_path=/home/sooah/data/corona_nlp\n",
+       "\tmedia_type=<class 'datumaro.components.media.TableRow'>\n",
+       "\tann_types=set()\n",
+       "\tannotated_items_count=0\n",
+       "\tannotations_count=0\n",
+       "subsets\n",
+       "\tCorona_NLP_test: # of items=3798, # of annotated items=0, # of annotations=0\n",
+       "\tCorona_NLP_train: # of items=41157, # of annotated items=0, # of annotations=0\n",
+       "infos\n",
+       "\tcategories\n",
+       "\ttabular: []"
+      ]
+     },
+     "execution_count": 4,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "import_kwargs = {\"encoding\": \"latin1\"}\n",
+    "dm_dataset = dm.Dataset.import_from(data_path, detected_formats[0], **import_kwargs)\n",
+    "dm_dataset"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "Based on the information provided,\n",
+    "- The total size of the dataset is 44955 items.\n",
+    "- The dataset is divided into two subsets:\n",
+    "  - The 'Corona_NLP_test' subset contains 3798 items.\n",
+    "  - The 'Corona_NLP_train' subset contains 41157 items.\n",
+    "\n",
+    "This breakdown gives us insight into the scale of our dataset and the distribution of items across its subsets."
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "### Setting Input and Output Targets for Sentiment Analysis\n",
+    "\n",
+    "Moreover, we tried to take sentiment analysis for this dataset, so we have to set input and output targets for the dataset.\n",
+    "\n",
+    "**For Input (Features)**:\n",
+    "- **Original Tweet**: This field contains the content of each tweet. When performing sentiment analysis, text data is used as the input for the model. Each tweet's content is tokenized, preprocessed, and then provided to the model.\n",
+    "- **Location (Optional)**: This field represents the location of the user who posted the tweet. Some models can utilize location information as additional features to enhance performance. However, the use of this field is optional and depends on the model.\n",
+    "\n",
+    "**For Output (Target)**:\n",
+    "- **Sentiment**: This field indicates the sentiment of each tweet. The goal of sentiment analysis is to classify the sentiment of text, making this field the output target for the model. Sentiments are typically classified as positive, negative, or neutral, and the model aims to predict them.\n",
+    "\n",
+    "Therefore, for the input of the sentiment analysis model, we will use the 'OriginalTweet' field to represent the content of each tweet. For the output, we will use the 'Sentiment' field to represent the sentiment of each tweet. The 'Location' field is optional and may or may not be used, depending on the model.\n"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 5,
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/plain": [
+       "Dataset\n",
+       "\tsize=44955\n",
+       "\tsource_path=/home/sooah/data/corona_nlp\n",
+       "\tmedia_type=<class 'datumaro.components.media.TableRow'>\n",
+       "\tann_types={<AnnotationType.tabular: 14>}\n",
+       "\tannotated_items_count=44955\n",
+       "\tannotations_count=44955\n",
+       "subsets\n",
+       "\tCorona_NLP_test: # of items=3798, # of annotated items=3798, # of annotations=3798\n",
+       "\tCorona_NLP_train: # of items=41157, # of annotated items=41157, # of annotations=41157\n",
+       "infos\n",
+       "\tcategories\n",
+       "\ttabular: ['Sentiment']"
+      ]
+     },
+     "execution_count": 5,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "corona_nlp_target = {\"input\": [\"OriginalTweet\", \"Location\"], \"output\": \"Sentiment\"}\n",
+    "dm_dataset = dm.Dataset.import_from(\n",
+    "    data_path, detected_formats[0], target=corona_nlp_target, **import_kwargs\n",
+    ")\n",
+    "dm_dataset"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "It's worth noting that each item in the dataset now includes annotations for the output target we've defined. This means that the dataset has been updated to include annotations corresponding to the target output we've set.\n",
+    "\n",
+    "By having annotations for the output target, we can track and utilize the labeled sentiment information associated with each data item. This update enhances the dataset's utility for sentiment analysis tasks, allowing for more effective model training and evaluation.\n"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "Now, let's take a peek at the first item in our dataset."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 7,
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/plain": [
+       "DatasetItem(id='0@Corona_NLP_train', subset='Corona_NLP_train', media=TableRow(row_idx:0, data:{'OriginalTweet': '@MeNyrbie @Phil_Gahan @Chrisitv https://t.co/iFz9FAn2Pa and https://t.co/xX6ghGFzCC and https://t.co/I2NlzdxNo8', 'Location': 'London', 'Sentiment': 'Neutral'}), annotations=[Tabular(id=0, attributes={}, group=0, object_id=-1, values={'Sentiment': 'Neutral'})], attributes={})"
+      ]
+     },
+     "execution_count": 7,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "dm_dataset[0]"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "To check the media of the DatasetItem, we can check like below:"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 8,
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "media :  {'OriginalTweet': '@MeNyrbie @Phil_Gahan @Chrisitv https://t.co/iFz9FAn2Pa and https://t.co/xX6ghGFzCC and https://t.co/I2NlzdxNo8', 'Location': 'London', 'Sentiment': 'Neutral'}\n",
+      "annotations :  [Tabular(id=0, attributes={}, group=0, object_id=-1, values={'Sentiment': 'Neutral'})]\n"
+     ]
+    }
+   ],
+   "source": [
+    "print(\"media : \", dm_dataset[0].media.data())\n",
+    "print(\"annotations : \", dm_dataset[0].annotations)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "We can confirm that the columns we've designated as output targets are present in the dataset's media. Furthermore, the output targets are stored as annotations within the data.\n",
+    "\n",
+    "This indicates that the dataset has been structured to include the designated `target` columns in the `media`, and the `output` target information is available as `annotations` associated with each data item.\n"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "### Transforming Dataset Annotations for Sentiment Analysis Task\n",
+    "\n",
+    "Our objective is to prepare the dataset for sentiment analysis, where sentiment serves as the label. To achieve this, we'll update the annotation type of the dataset items. The current annotation type of 'Tabular' is not ideal for sentiment analysis. Hence, we'll transform the dataset to better suit our task.\n",
+    "\n",
+    "This transformation step is crucial to ensure that our dataset is properly formatted and ready for sentiment analysis model training and evaluation.\n"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 9,
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/plain": [
+       "Dataset\n",
+       "\tsize=44955\n",
+       "\tsource_path=/home/sooah/data/corona_nlp\n",
+       "\tmedia_type=<class 'datumaro.components.media.TableRow'>\n",
+       "\tann_types={<AnnotationType.label: 1>}\n",
+       "\tannotated_items_count=44955\n",
+       "\tannotations_count=44955\n",
+       "subsets\n",
+       "\tCorona_NLP_test: # of items=3798, # of annotated items=3798, # of annotations=3798\n",
+       "\tCorona_NLP_train: # of items=41157, # of annotated items=41157, # of annotations=41157\n",
+       "infos\n",
+       "\tcategories\n",
+       "\tlabel: ['Sentiment:Extremely Negative', 'Sentiment:Extremely Positive', 'Sentiment:Negative', 'Sentiment:Neutral', 'Sentiment:Positive']"
+      ]
+     },
+     "execution_count": 9,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "dm_dataset = dm_dataset.transform(\"astype_annotations\")\n",
+    "dm_dataset"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 10,
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "annotations :  [Label(id=0, attributes={}, group=0, object_id=-1, label=3)]\n"
+     ]
+    }
+   ],
+   "source": [
+    "print(\"annotations : \", dm_dataset[0].annotations)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "We can observe that the sentiment labels have been included in the dataset categories, indicating the presence of sentiment-related labels. This inclusion is crucial as it allows us to understand the categories or classes that the dataset encompasses, particularly in terms of sentiment analysis.\n",
+    "\n",
+    "Furthermore, we can confirm that these sentiment labels are reflected in the annotations of each dataset item. This ensures that the sentiment information associated with each item has been appropriately integrated into the dataset, laying the groundwork for sentiment analysis tasks.\n"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "### Exploring Dataset Characteristics\n",
+    "\n",
+    "Having transformed the data as described above, we'll now explore the characteristics of the dataset. To begin, we'll use Datumaro's Validator to understand various features and attributes of the dataset.\n",
+    "\n",
+    "Using the Validator, we can:\n",
+    "- Determine the number of columns included in the dataset and identify the type of each feature.\n",
+    "- Check for missing values or outliers, thereby understanding the dataset's structure.\n",
+    "- Analyze the distribution of the target variable to identify any class imbalance issues.\n",
+    "- Calculate basic statistical measures to understand the central tendency and dispersion of the data.\n",
+    "\n",
+    "If you want to learn more about the conditions set in the Validator, please check [this link](https://openvinotoolkit.github.io/datumaro/latest/docs/level-up/intermediate_skills/08_data_validate.html).\n",
+    "\n",
+    "This step will help us gain insights into the structure and properties of our data, setting the stage for effective analysis and modeling."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 11,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "from datumaro.plugins.validators import TabularValidator\n",
+    "\n",
+    "validator = TabularValidator(\n",
+    "    few_samples_thr=1,\n",
+    "    imbalance_ratio_thr=50,\n",
+    "    far_from_mean_thr=5.0,\n",
+    "    dominance_ratio_thr=0.8,\n",
+    "    topk_bins=0.1,\n",
+    ")\n",
+    "stats = validator.compute_statistics(dm_dataset)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "### Dataset Statistics\n",
+    "\n",
+    "The dataset statistics are as follows:\n",
+    "\n",
+    "- **Total number of annotations**: This represents the total number of annotations present in the dataset.\n",
+    "- **Number of items with no annotations**: This indicates the number of items that do not have any annotations.\n",
+    "- **Number of items with some missing annotations**: This shows the number of items that are missing some of their annotations.\n",
+    "\n",
+    "In Datumaro, annotations are categorized based on their characteristics, such as labels or captions, and their distribution can be analyzed accordingly. For this dataset, since we have set sentiment as the target, only label annotations are present.\n"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 12,
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "Statistics summary\n",
+      "Total number of annotation :  44955\n",
+      "The number of items without any annotation :  0\n",
+      "The number of items with missing annotation :  0\n",
+      "\n",
+      "\n",
+      "Result of label distribution\n",
+      "   Sentiment:Extremely Negative  Sentiment:Extremely Positive  \\\n",
+      "0                          6073                          7223   \n",
+      "\n",
+      "   Sentiment:Negative  Sentiment:Neutral  Sentiment:Positive  \n",
+      "0               10958               8332               12369  \n",
+      "The number of empty label for Sentiment is 0\n",
+      "\n",
+      "\n"
+     ]
+    },
+    {
+     "data": {
+      "image/png": "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QA0AAAAAAACwgUANAAAAAAAAsIFADQAAAAAAALCBQA0AAAAAAACwoUgCtT///FNPPvmkypUrJ39/f9WrV08bN260lhtjNGLECFWqVEn+/v6KjIzUjh07XMY4dOiQunbtKofDocDAQMXGxurYsWMufX788Ue1aNFCfn5+qlKlihISEopidwAAAAAAAACL2wO1w4cP6+6771aJEiW0ZMkSbd26Va+++qrKli1r9UlISNCUKVM0ffp0rVu3TqVKlVJUVJQyMzOtPl27dlVqaqqSkpK0cOFCJScnq2/fvtZyp9Opdu3aKSwsTCkpKRo/frxGjRqlN9980927BAAAAAAAAFi83T3g//73P1WpUkUzZ8602qpXr2792xijSZMmafjw4erQoYMk6f3331dwcLDmz5+vzp076+eff1ZiYqI2bNigRo0aSZKmTp2q+++/X6+88opCQ0M1e/ZsnTp1Su+++658fHx02223afPmzZowYYJL8HajqTZ0UXGXAFyWXS9HF3cJAAAAAABckNvPUFuwYIEaNWqkxx57TBUrVtQdd9yht956y1q+c+dOpaWlKTIy0moLCAhQ06ZNtXbtWknS2rVrFRgYaIVpkhQZGSlPT0+tW7fO6tOyZUv5+PhYfaKiorR9+3YdPny4wNqysrLkdDpdHgAAAAAAAIAdbg/Ufv/9d73xxhuqWbOmli5dqqefflrPPvus3nvvPUlSWlqaJCk4ONhlveDgYGtZWlqaKlas6LLc29tbQUFBLn0KGuPsbZxr3LhxCggIsB5VqlS5zL0FAAAAAADAjcbtgVpubq7uvPNO/fe//9Udd9yhvn37qk+fPpo+fbq7N2XbsGHDlJGRYT327t1b3CUBAAAAAADgGuP2QK1SpUqqU6eOS1t4eLj27NkjSQoJCZEkpaenu/RJT0+3loWEhGj//v0uy0+fPq1Dhw659ClojLO3cS5fX185HA6XBwAAAAAAAGCH2wO1u+++W9u3b3dp++WXXxQWFibpzA0KQkJCtGLFCmu50+nUunXrFBERIUmKiIjQkSNHlJKSYvVZuXKlcnNz1bRpU6tPcnKysrOzrT5JSUmqXbu2yx1FAQAAAAAAAHdye6A2YMAAfffdd/rvf/+rX3/9VXPmzNGbb76puLg4SZKHh4f69++vsWPHasGCBdqyZYu6deum0NBQxcTESDpzRlv79u3V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We644w7l5ORo//79atGixSWP4876Tp06pSeffFKPP/64ateurd69e2vLli2qWLGi7W3deeed2r59+0UDBLsuZdx69eqpUaNGeuuttzRnzhy99tprtrbZr18/TZkyRZMnT85Xy9y5c1WxYkU5HI4C1w0ODtaGDRvUsmVLSWf+8rFp0yY1aNBAknTw4EFt375db731lvU6+Oabb1zG8PHxsda9ED8/Pz3yyCOaPXu2fv31V9WuXVt33nmnS71F8TPJw/y7PMy//+d84aPD4VBoaKjWrFmjVq1aWe1r1qxxOYPH4XDo8ccf1+OPP65HH31U7du316FDhxQUFOQy3rUyt65mefOeOX9hvI+gKDEPC+dy5mGFChX0119/Wc9zcnL0008/udw51E5da9as0euvv677779fkrR37179/fffdncJVxhz7fz47IbCIFC7Shw8eFCPPfaYevXqpfr166tMmTLauHGjEhIS1KFDB0lSZGSkIiIiFBMTo4SEBNWqVUv79u3TokWL9PDDD+f7itT5VKtWTevWrdOuXbtUunTpfJP6UtWqVUtdu3ZVt27d9Oqrr+qOO+7QgQMHtGLFCtWvX1/R0dGFrm/p0qXavn27ypUrp4CAAJUoUULdunXTTTfdpHHjxll9jTFKS0vLN0bFihXl6empF154QRkZGZoyZYpKly6txYsXq1evXlq4cKG1rZ07d2rz5s2qXLmyypQpc96vpI0YMUIPPPCAqlatqkcffVSenp764Ycf9NNPP2ns2LGXcMQub9zevXsrPj5epUqV0sMPP2xrm35+fho9erTi4uJc2rt27arx48erQ4cOGjNmjCpXrqzdu3frs88+05AhQ1S5cmX169dP48aN0y233KJbb71VU6dO1eHDh62/VJYtW1blypXTm2++qUqVKmnPnj0aOnSoy3YqVqwof39/JSYmqnLlyvLz8zvvraG7du2qBx54QKmpqXryySfdcuzOxfxzrY/5V7Tz71yDBw/WyJEjVaNGDTVo0EAzZ87U5s2brTMLJkyYoEqVKumOO+6Qp6en5s2bp5CQEJe/GOe52ubW1exi8545n3/On433EbgD8/D/1Xel52Hbtm01cOBALVq0SDVq1NCECRN05MiRfHUlJyerc+fO8vX1Vfny5c+7DzVr1tQHH3ygRo0ayel0avDgwfkuA4Hiw1z7f/Vdylw7F5/dkMezuAvAGaVLl1bTpk01ceJEtWzZUnXr1tWLL76oPn36WGc/eHh4aPHixWrZsqV69uypWrVqqXPnztq9e7d1raDC+Ne//iUvLy/VqVNHFSpUcOu1DWbOnKlu3bpp0KBBql27tmJiYrRhwwZVrVq10GP06dNHtWvXVqNGjVShQgWtWbNG0pnrppz9lzTpzCm3lSpVyvfYv3+/Vq9erUmTJumDDz6Qw+GQp6enPvjgA3399dd64403JJ25lkD79u3Vpk0bVahQQR999NF564qKitLChQu1bNkyNW7cWM2aNdPEiRML/VVLd4/7xBNPyNvbW0888cQlncbbvXt33XzzzS5tJUuWVHJysqpWrapHHnlE4eHhio2NVWZmpvUXzueff15PPPGEunXrpoiICJUuXVpRUVFWDZ6envr444+VkpKiunXrasCAARo/frzLdry9vTVlyhTNmDFDoaGhVmhVkLZt2yooKEjbt29Xly5dXJa562fC/Pt/mH9XZv6d7dlnn9XAgQM1aNAg1atXT4mJiVqwYIFq1qwp6cxXDhISEtSoUSM1btxYu3bt0uLFi61rZpztaptbV7OLzXvmfP45fy7eR3C5mIdnFMc87NWrl7p3765u3bqpVatWuvnmm13OTpOkMWPGaNeuXapRo8ZFv7L9zjvv6PDhw7rzzjv11FNP6dlnn7XOSEfxY66dcTlz7Wx8dkMeD3O5X+AHUCzyPuBs2LDB5XTfKy03N1fh4eHq1KmT/vOf/xRbHcCVdLXMP+B6wPsIAAC4FvGVT+Aak52drYMHD2r48OFq1qzZFf+f+d27d2vZsmVq1aqVsrKy9Nprr2nnzp35/koCXI+Ke/4B1wPeRwAAwPWAr3wC15g1a9aoUqVK2rBhg6ZPn37Ft+/p6alZs2apcePGuvvuu7VlyxYtX75c4eHhV7wW4Eor7vkHXA94HwEAANcDvvIJAAAAAAAA2MAZagAAAAAAAIANBGoAAAAAAACADQRqAAAAAAAAgA0EagAAAAAAAIANBGoAAAAAAACADQRqAAAAAAAAgA0EagAAAAAAAIANBGoAAAAAAACADQRqAAAAAAAAgA3/H4V5aDsatZDjAAAAAElFTkSuQmCC",
+      "text/plain": [
+       "<Figure size 1500x400 with 1 Axes>"
+      ]
+     },
+     "metadata": {},
+     "output_type": "display_data"
+    }
+   ],
+   "source": [
+    "import pandas as pd\n",
+    "import matplotlib.pyplot as plt\n",
+    "\n",
+    "\n",
+    "def show_stats(stats):\n",
+    "    print(\"Statistics summary\")\n",
+    "\n",
+    "    total_ann_count = stats[\"total_ann_count\"]\n",
+    "    len_missing_ann_items = len(stats[\"items_missing_annotation\"])\n",
+    "    len_broken_ann_items = len(stats[\"items_broken_annotation\"])\n",
+    "    print(\"Total number of annotation : \", total_ann_count)\n",
+    "    print(\"The number of items without any annotation : \", len_missing_ann_items)\n",
+    "    print(\"The number of items with missing annotation : \", len_broken_ann_items)\n",
+    "    print(\"\\n\")\n",
+    "\n",
+    "    defined_labels = stats[\"label_distribution\"][\"defined_labels\"]\n",
+    "    if len(defined_labels) != 0:\n",
+    "        print(\"Result of label distribution\")\n",
+    "        df_defined_labels = pd.DataFrame.from_dict([defined_labels])\n",
+    "        print(df_defined_labels)\n",
+    "        for key, value in stats[\"label_distribution\"][\"empty_labels\"].items():\n",
+    "            print(f\"The number of empty label for {key} is {value['count']}\")\n",
+    "    plt.figure(figsize=(15, 4))\n",
+    "    plt.title(\"Histogram for label distribution\")\n",
+    "    plt.bar(defined_labels.keys(), defined_labels.values())\n",
+    "\n",
+    "    print(\"\\n\")\n",
+    "    defined_captions = stats[\"caption_distribution\"][\"defined_captions\"]\n",
+    "    if len(defined_captions) != 0:\n",
+    "        print(\"Result of caption distribution\")\n",
+    "        df_defined_captions = pd.DataFrame.from_dict([defined_captions])\n",
+    "        print(df_defined_captions)\n",
+    "        for key, value in stats[\"caption_distribution\"][\"empty_captions\"].items():\n",
+    "            print(f\"The number of empty caption for {key} is {value['count']}\")\n",
+    "    return\n",
+    "\n",
+    "\n",
+    "show_stats(stats)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "We can observe that the distribution among classes is uneven, with the 'positive' class having the largest proportion. This detailed statistical overview helps us understand the composition and completeness of the dataset, guiding further analysis and preprocessing steps.\n",
+    "\n",
+    "Since this dataset has no empty labels, items with missing annotations, or items with broken annotations, the focus should be on cleaning the input data rather than the labels."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 13,
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/plain": [
+       "{'OriginalTweet': '@MeNyrbie @Phil_Gahan @Chrisitv https://t.co/iFz9FAn2Pa and https://t.co/xX6ghGFzCC and https://t.co/I2NlzdxNo8',\n",
+       " 'Location': 'London',\n",
+       " 'Sentiment': 'Neutral'}"
+      ]
+     },
+     "execution_count": 13,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "dm_dataset[0].media.data()"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 14,
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/plain": [
+       "{'OriginalTweet': 'I hate grocery shopping in general but I swear IÂ\\x92m doing it online next shop, can not deal with the swathes of panic buyers at all! #COVID?19 #coronavirus #coronavirusuk #anxiety #panicbuyinguk #morons',\n",
+       " 'Location': 'Portsmouth, England',\n",
+       " 'Sentiment': 'Extremely Negative'}"
+      ]
+     },
+     "execution_count": 14,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "before = dm_dataset[100].media.data()\n",
+    "before"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "Datumaro provides a transform called `clean` that can be used for data cleaning. This transform helps in preparing the dataset for analysis by addressing various data quality issues. The `clean` transform modifies the media of items without validation and simultaneously cleans the annotations. If you want to clean the input media, it is recommended to use the `clean` function.\n",
+    "\n",
+    "In our case, since the dataset does not have any empty labels, items with missing annotations, or items with broken annotations, we will focus on cleaning the input data. Using the `clean` transform, we can ensure that the input information is properly formatted and free from inconsistencies.\n",
+    "\n",
+    "This step is crucial to maintain the quality and integrity of the data, which in turn, enhances the performance of the sentiment analysis model."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 15,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "result = dm_dataset.transform(\"clean\")"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 16,
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/plain": [
+       "{'OriginalTweet': 'menyrbie philgahan chrisitv',\n",
+       " 'Location': 'london',\n",
+       " 'Sentiment': 'Neutral'}"
+      ]
+     },
+     "execution_count": 16,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "result[0].media.data"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 17,
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/plain": [
+       "{'OriginalTweet': 'hate grocery shopping general swear im online next shop deal swathes panic buyers covid coronavirus coronavirusuk anxiety panicbuyinguk morons',\n",
+       " 'Location': 'portsmouth england',\n",
+       " 'Sentiment': 'Extremely Negative'}"
+      ]
+     },
+     "execution_count": 17,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "after = result[100].media.data\n",
+    "after"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "After applying the `clean` transform, we can observe that the existing input media have been refined. If the same target is included in both the input and the output, the annotations will also be updated accordingly."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 18,
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "Before Clean :  I hate grocery shopping in general but I swear IÂm doing it online next shop, can not deal with the swathes of panic buyers at all! #COVID?19 #coronavirus #coronavirusuk #anxiety #panicbuyinguk #morons\n",
+      "After Clean :  hate grocery shopping general swear im online next shop deal swathes panic buyers covid coronavirus coronavirusuk anxiety panicbuyinguk morons\n"
+     ]
+    }
+   ],
+   "source": [
+    "print(\"Before Clean : \", before[\"OriginalTweet\"])\n",
+    "print(\"After Clean : \", after[\"OriginalTweet\"])"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "### Export refiend data into Datumaro format\n",
+    "\n",
+    "We can export the refined data in the Datumaro format. Additionally, it is possible to export the data in various other formats. For more details, please refer to this [link](https://openvinotoolkit.github.io/datumaro/latest/docs/command-reference/context/export.html#export).\n"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "save_path = \"/home/sooah/data/refined_corona_nlp\"\n",
+    "result.export(save_path, \"datumaro\", save_media=True)"
+   ]
+  }
+ ],
+ "metadata": {
+  "kernelspec": {
+   "display_name": "datum",
+   "language": "python",
+   "name": "python3"
+  },
+  "language_info": {
+   "codemirror_mode": {
+    "name": "ipython",
+    "version": 3
+   },
+   "file_extension": ".py",
+   "mimetype": "text/x-python",
+   "name": "python",
+   "nbconvert_exporter": "python",
+   "pygments_lexer": "ipython3",
+   "version": "3.10.13"
+  }
+ },
+ "nbformat": 4,
+ "nbformat_minor": 2
+}

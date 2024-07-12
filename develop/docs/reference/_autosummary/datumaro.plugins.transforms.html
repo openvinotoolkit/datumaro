@@ -8,7 +8,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>datumaro.plugins.transforms &#8212; Datumaro 1.7.0 documentation</title>
+    <title>datumaro.plugins.transforms &#8212; Datumaro 1.9.0rc0 documentation</title>
   
   
   
@@ -39,7 +39,7 @@
 <link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=8d27b9dea8ad943066ae" />
   <script src="../../../_static/vendor/fontawesome/6.5.1/js/all.min.js?digest=8d27b9dea8ad943066ae"></script>
 
-    <script src="../../../_static/documentation_options.js?v=030dc6f6"></script>
+    <script src="../../../_static/documentation_options.js?v=6dc964b9"></script>
     <script src="../../../_static/doctools.js?v=888ff710"></script>
     <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -127,8 +127,8 @@
       
     
     
-    <img src="../../../_static/datumaro-logo.png" class="logo__image only-light" alt="Datumaro 1.7.0 documentation - Home"/>
-    <script>document.write(`<img src="../../../_static/datumaro-logo.png" class="logo__image only-dark" alt="Datumaro 1.7.0 documentation - Home"/>`);</script>
+    <img src="../../../_static/datumaro-logo.png" class="logo__image only-light" alt="Datumaro 1.9.0rc0 documentation - Home"/>
+    <script>document.write(`<img src="../../../_static/datumaro-logo.png" class="logo__image only-dark" alt="Datumaro 1.9.0rc0 documentation - Home"/>`);</script>
   
   
 </a></div>
@@ -679,7 +679,7 @@ document.write(`
 <td><p></p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#datumaro.plugins.transforms.Clean" title="datumaro.plugins.transforms.Clean"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Clean</span></code></a>(extractor)</p></td>
-<td><p></p></td>
+<td><p>A class used to refine the media items in a dataset.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#datumaro.plugins.transforms.Correct" title="datumaro.plugins.transforms.Correct"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Correct</span></code></a>(extractor, reports)</p></td>
 <td><p>Correct the dataset from a validation report.</p></td>
@@ -1407,7 +1407,8 @@ This helps to refine the dataset by rejecting undefined labels, missing annotati
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">datumaro.plugins.transforms.</span></span><span class="sig-name descname"><span class="pre">AstypeAnnotations</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">extractor</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="datumaro.components.dataset_base.html#datumaro.components.dataset_base.IDataset" title="datumaro.components.dataset_base.IDataset"><span class="pre">IDataset</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">mapping</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Dict" title="(in Python v3.12)"><span class="pre">Dict</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.List" title="(in Python v3.12)"><span class="pre">List</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Tuple" title="(in Python v3.12)"><span class="pre">Tuple</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.12)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/datumaro/plugins/transforms.html#AstypeAnnotations"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.plugins.transforms.AstypeAnnotations" title="Link to this definition">#</a></dt>
 <dd><p>Bases: <a class="reference internal" href="datumaro.components.transformer.html#datumaro.components.transformer.ItemTransform" title="datumaro.components.transformer.ItemTransform"><code class="xref py py-class docutils literal notranslate"><span class="pre">ItemTransform</span></code></a></p>
 <p>Enables the conversion of annotation types for the categories and individual items within a dataset.</p>
-<p>Based on a specified mapping, it transforms the annotation types,|m
+<p>Based on a specified mapping, it transforms the annotation types,
+
 changing them to ‘Label’ if they are categorical, and to ‘Caption’ if they are of type string, float, or integer.</p>
 <dl>
 <dt>Examples:
@@ -1444,9 +1445,22 @@ unexpected problems. Use wrap_item() or item.wrap() to simplify copying.</p>
 <dt class="sig sig-object py" id="datumaro.plugins.transforms.Clean">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">datumaro.plugins.transforms.</span></span><span class="sig-name descname"><span class="pre">Clean</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">extractor</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="datumaro.components.dataset_base.html#datumaro.components.dataset_base.IDataset" title="datumaro.components.dataset_base.IDataset"><span class="pre">IDataset</span></a></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/datumaro/plugins/transforms.html#Clean"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.plugins.transforms.Clean" title="Link to this definition">#</a></dt>
 <dd><p>Bases: <a class="reference internal" href="datumaro.components.transformer.html#datumaro.components.transformer.ItemTransform" title="datumaro.components.transformer.ItemTransform"><code class="xref py py-class docutils literal notranslate"><span class="pre">ItemTransform</span></code></a></p>
+<p>A class used to refine the media items in a dataset.</p>
+<p>This class provides methods to clean and preprocess media data within a dataset.
+The media data can be of various types such as strings, numeric values, or categorical values.
+The cleaning process for each type of data is handled differently:</p>
+<ul class="simple">
+<li><p><strong>String Media</strong>: For string data, the class employs natural language processing (NLP)</p></li>
+</ul>
+<p>techniques to remove unnecessary characters. This involves cleaning tasks such as removing special
+characters, punctuation, and other irrelevant elements to refine the textual data.
+
+- <strong>Numeric Media</strong>: For numeric data, the class identifies and handles outliers and missing values.
+Outliers are either removed or replaced based on a defined strategy,
+and missing values are filled using appropriate methods such as mean, median, or a predefined value.</p>
 <dl class="py method">
-<dt class="sig sig-object py" id="datumaro.plugins.transforms.Clean.remove_unneccessary_char">
-<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">remove_unneccessary_char</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">text</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/datumaro/plugins/transforms.html#Clean.remove_unneccessary_char"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.plugins.transforms.Clean.remove_unneccessary_char" title="Link to this definition">#</a></dt>
+<dt class="sig sig-object py" id="datumaro.plugins.transforms.Clean.remove_unnecessary_char">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">remove_unnecessary_char</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">text</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/datumaro/plugins/transforms.html#Clean.remove_unnecessary_char"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.plugins.transforms.Clean.remove_unnecessary_char" title="Link to this definition">#</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
@@ -1674,7 +1688,7 @@ unexpected problems. Use wrap_item() or item.wrap() to simplify copying.</p>
 </ul>
 </li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.plugins.transforms.Clean"><code class="docutils literal notranslate"><span class="pre">Clean</span></code></a><ul class="nav section-nav flex-column">
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.plugins.transforms.Clean.remove_unneccessary_char"><code class="docutils literal notranslate"><span class="pre">Clean.remove_unneccessary_char()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.plugins.transforms.Clean.remove_unnecessary_char"><code class="docutils literal notranslate"><span class="pre">Clean.remove_unnecessary_char()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.plugins.transforms.Clean.check_outlier"><code class="docutils literal notranslate"><span class="pre">Clean.check_outlier()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.plugins.transforms.Clean.check_missing_value"><code class="docutils literal notranslate"><span class="pre">Clean.check_missing_value()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.plugins.transforms.Clean.find_closest_value"><code class="docutils literal notranslate"><span class="pre">Clean.find_closest_value()</span></code></a></li>
