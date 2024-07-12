@@ -4,6 +4,24 @@ Release Notes
 .. toctree::
    :maxdepth: 1
 
+v1.8.0 (2024 Q3)
+----------------
+
+New features
+^^^^^^^^^^^^
+- Add TabularValidator
+- Add Clean Transform for tabular data type
+
+Enhancements
+^^^^^^^^^^^^
+- Set label name with parents to avoid duplicates for AstypeAnnotations
+- Pass Keyword Argument to TabularDataBase
+
+Bug fixes
+^^^^^^^^^
+- Preserve end_frame information of a video when it is zero.
+- Changed the Datumaro format to ensure exported videos have relative paths and to prevent the same video from being overwritten.
+
 v1.7.0 (2024 Q2)
 ----------------
 

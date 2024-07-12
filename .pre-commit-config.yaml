@@ -15,7 +15,7 @@ repos:
 
   # Ruff
   - repo: https://github.com/charliermarsh/ruff-pre-commit
-    rev: "v0.0.258"
+    rev: "v0.5.0"
     hooks:
       - id: ruff
         exclude: "tests"
@@ -57,7 +57,8 @@ repos:
 
   # notebooks
   - repo: https://github.com/nbQA-dev/nbQA
-    rev: 1.6.3
+    rev: 1.8.5
     hooks:
       - id: nbqa-black
       - id: nbqa-ruff
+        additional_dependencies: [ruff==0.4.10]
