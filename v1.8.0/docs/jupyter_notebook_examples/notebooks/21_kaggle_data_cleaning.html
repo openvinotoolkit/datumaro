@@ -1,0 +1,884 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../../../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Data preparation with Datumaro &#8212; Datumaro 1.8.0 documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "light";
+  </script>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../../_static/styles/theme.css?digest=8d27b9dea8ad943066ae" rel="stylesheet" />
+<link href="../../../_static/styles/bootstrap.css?digest=8d27b9dea8ad943066ae" rel="stylesheet" />
+<link href="../../../_static/styles/pydata-sphinx-theme.css?digest=8d27b9dea8ad943066ae" rel="stylesheet" />
+
+  
+  <link href="../../../_static/vendor/fontawesome/6.5.1/css/all.min.css?digest=8d27b9dea8ad943066ae" rel="stylesheet" />
+  <link rel="preload" as="font" type="font/woff2" crossorigin href="../../../_static/vendor/fontawesome/6.5.1/webfonts/fa-solid-900.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../_static/vendor/fontawesome/6.5.1/webfonts/fa-brands-400.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../_static/vendor/fontawesome/6.5.1/webfonts/fa-regular-400.woff2" />
+
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=a746c00c" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css?v=eafc0fe6" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/sphinx-design.min.css?v=87e54e7c" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/nbsphinx-code-cells.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/css/custom.css?v=8b7c274f" />
+  
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=8d27b9dea8ad943066ae" />
+<link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=8d27b9dea8ad943066ae" />
+  <script src="../../../_static/vendor/fontawesome/6.5.1/js/all.min.js?digest=8d27b9dea8ad943066ae"></script>
+
+    <script src="../../../_static/documentation_options.js?v=b51e6972"></script>
+    <script src="../../../_static/doctools.js?v=888ff710"></script>
+    <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../../../_static/copybutton.js?v=f281be69"></script>
+    <script src="../../../_static/design-tabs.js?v=f930bc37"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+    <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'docs/jupyter_notebook_examples/notebooks/21_kaggle_data_cleaning';</script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <a id="pst-skip-link" class="skip-link" href="#main-content">Skip to main content</a>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>
+    Back to top
+  </button>
+
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          name="__primary"
+          id="__primary"/>
+  <label class="overlay overlay-primary" for="__primary"></label>
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          name="__secondary"
+          id="__secondary"/>
+  <label class="overlay overlay-secondary" for="__secondary"></label>
+  
+  <div class="search-button__wrapper">
+    <div class="search-button__overlay"></div>
+    <div class="search-button__search-container">
+<form class="bd-search d-flex align-items-center"
+      action="../../../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         id="search-input"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form></div>
+  </div>
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar">
+<div class="bd-header__inner bd-page-width">
+  <label class="sidebar-toggle primary-toggle" for="__primary">
+    <span class="fa-solid fa-bars"></span>
+  </label>
+  
+  
+  <div class="col-lg-3 navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+
+<a class="navbar-brand logo" href="../../../index.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="../../../_static/datumaro-logo.png" class="logo__image only-light" alt="Datumaro 1.8.0 documentation - Home"/>
+    <script>document.write(`<img src="../../../_static/datumaro-logo.png" class="logo__image only-dark" alt="Datumaro 1.8.0 documentation - Home"/>`);</script>
+  
+  
+</a></div>
+    
+  </div>
+  
+  <div class="col-lg-9 navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav class="navbar-nav">
+  <ul class="bd-navbar-elements navbar-nav">
+    
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="../../index.html">
+                        Docs
+                      </a>
+                    </li>
+                
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+ <script>
+ document.write(`
+   <button class="btn navbar-btn search-button-field search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass"></i>
+    <span class="search-button__default-text">Search</span>
+    <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+   </button>
+ `);
+ </script>
+        </div>
+      
+      
+        <div class="navbar-item">
+
+<script>
+document.write(`
+  <button class="btn btn-sm navbar-btn theme-switch-button" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="theme-switch nav-link" data-mode="light"><i class="fa-solid fa-sun fa-lg"></i></span>
+    <span class="theme-switch nav-link" data-mode="dark"><i class="fa-solid fa-moon fa-lg"></i></span>
+    <span class="theme-switch nav-link" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg"></i></span>
+  </button>
+`);
+</script></div>
+      
+        <div class="navbar-item"><ul class="navbar-icon-links navbar-nav"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/openvinotoolkit/datumaro" title="GitHub" class="nav-link" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><img src="../../../_static/github_icon.png" class="icon-link-image" alt="GitHub"/></a>
+        </li>
+</ul></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+ <script>
+ document.write(`
+   <button class="btn navbar-btn search-button-field search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass"></i>
+    <span class="search-button__default-text">Search</span>
+    <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+   </button>
+ `);
+ </script>
+    </div>
+  
+
+  
+    <label class="sidebar-toggle secondary-toggle" for="__secondary" tabindex="0">
+      <span class="fa-solid fa-outdent"></span>
+    </label>
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+        
+      
+      <div class="bd-sidebar-primary bd-sidebar hide-on-wide">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          <div class="navbar-item">
+<nav class="navbar-nav">
+  <ul class="bd-navbar-elements navbar-nav">
+    
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="../../index.html">
+                        Docs
+                      </a>
+                    </li>
+                
+  </ul>
+</nav></div>
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+
+<script>
+document.write(`
+  <button class="btn btn-sm navbar-btn theme-switch-button" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="theme-switch nav-link" data-mode="light"><i class="fa-solid fa-sun fa-lg"></i></span>
+    <span class="theme-switch nav-link" data-mode="dark"><i class="fa-solid fa-moon fa-lg"></i></span>
+    <span class="theme-switch nav-link" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg"></i></span>
+  </button>
+`);
+</script></div>
+        
+          <div class="navbar-item"><ul class="navbar-icon-links navbar-nav"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/openvinotoolkit/datumaro" title="GitHub" class="nav-link" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><img src="../../../_static/github_icon.png" class="icon-link-image" alt="GitHub"/></a>
+        </li>
+</ul></div>
+        
+      </div>
+    
+  </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+  </div>
+  
+  <div id="rtd-footer-container"></div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+
+
+<nav aria-label="Breadcrumb">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../../../index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+    <li class="breadcrumb-item active" aria-current="page">Data...</li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section id="Data-preparation-with-Datumaro">
+<h1>Data preparation with Datumaro<a class="headerlink" href="#Data-preparation-with-Datumaro" title="Link to this heading">#</a></h1>
+<p>Datumaro is the open-source data management framework for computer vision and , making easy to import and export along with desired formats. Specifically, Datumaro provides more than 50 public data formats, e.g., MS-COCO, Pascal-VOC, YOLO-Ultralytics, Roboflow, CVAT, Cityscapes, etc. Please refer here for the details.</p>
+<p>Moreover, Datumaro provides data manipulation functionalities such as filtration, transformation, subset appregation/split. Plus, data visualization and exploration are possible with Datumaro! Please enjoy basic/intermediate/advanced skills at here.</p>
+<p>We here provide an example to import Corona NLP dataset and convert this to PyTorch dataset directly. After that, we can easily run training and validation for conventional text classification task on PyTorch framework.</p>
+<section id="Install-Datumaro-package">
+<h2>Install Datumaro package<a class="headerlink" href="#Install-Datumaro-package" title="Link to this heading">#</a></h2>
+<!-- !pip install datumaro==1.7.0 --></section>
+<section id="Import-a-dataset">
+<h2>Import a dataset<a class="headerlink" href="#Import-a-dataset" title="Link to this heading">#</a></h2>
+<p>The dataset is organized in the following directory structure:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>.
+├── Corona_NLP_test.csv
+└── Corona_NLP_train.csv
+</pre></div>
+</div>
+<p>In our <code class="docutils literal notranslate"><span class="pre">corona_nlp</span></code> folder, we’ve got two CSV files: <code class="docutils literal notranslate"><span class="pre">Corona_NLP_train.csv</span></code> and <code class="docutils literal notranslate"><span class="pre">Corona_NLP_test.csv</span></code>. These files hold the training and testing data for our Corona NLP dataset. I used <code class="docutils literal notranslate"><span class="pre">datumaro</span></code> to inspect the dataset directory structure, and it appears that the dataset is in tabular format.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">datumaro</span> <span class="k">as</span> <span class="nn">dm</span>
+<span class="kn">from</span> <span class="nn">datumaro.components.environment</span> <span class="kn">import</span> <span class="n">DEFAULT_ENVIRONMENT</span>
+
+<span class="n">data_path</span> <span class="o">=</span> <span class="s2">&quot;/home/sooah/data/corona_nlp&quot;</span>
+<span class="n">detected_formats</span> <span class="o">=</span> <span class="n">DEFAULT_ENVIRONMENT</span><span class="o">.</span><span class="n">detect_dataset</span><span class="p">(</span><span class="n">data_path</span><span class="p">)</span>
+<span class="n">detected_formats</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+[&#39;tabular&#39;]
+</pre></div></div>
+</div>
+<p>To load our dataset using Datumaro, we’ll need to specify the encoding as ‘latin1’ since the dataset is encoded in that format. We’ll need to include <code class="docutils literal notranslate"><span class="pre">import_kwargs</span></code> to handle this:</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">import_kwargs</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;encoding&quot;</span><span class="p">:</span> <span class="s2">&quot;latin1&quot;</span><span class="p">}</span>
+<span class="n">dm_dataset</span> <span class="o">=</span> <span class="n">dm</span><span class="o">.</span><span class="n">Dataset</span><span class="o">.</span><span class="n">import_from</span><span class="p">(</span><span class="n">data_path</span><span class="p">,</span> <span class="n">detected_formats</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="o">**</span><span class="n">import_kwargs</span><span class="p">)</span>
+<span class="n">dm_dataset</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Dataset
+        size=44955
+        source_path=/home/sooah/data/corona_nlp
+        media_type=&lt;class &#39;datumaro.components.media.TableRow&#39;&gt;
+        ann_types=set()
+        annotated_items_count=0
+        annotations_count=0
+subsets
+        Corona_NLP_test: # of items=3798, # of annotated items=0, # of annotations=0
+        Corona_NLP_train: # of items=41157, # of annotated items=0, # of annotations=0
+infos
+        categories
+        tabular: []
+</pre></div></div>
+</div>
+<p>Based on the information provided, - The total size of the dataset is 44955 items. - The dataset is divided into two subsets: - The ‘Corona_NLP_test’ subset contains 3798 items. - The ‘Corona_NLP_train’ subset contains 41157 items.</p>
+<p>This breakdown gives us insight into the scale of our dataset and the distribution of items across its subsets.</p>
+<section id="Setting-Input-and-Output-Targets-for-Sentiment-Analysis">
+<h3>Setting Input and Output Targets for Sentiment Analysis<a class="headerlink" href="#Setting-Input-and-Output-Targets-for-Sentiment-Analysis" title="Link to this heading">#</a></h3>
+<p>Moreover, we tried to take sentiment analysis for this dataset, so we have to set input and output targets for the dataset.</p>
+<p><strong>For Input (Features)</strong>: - <strong>Original Tweet</strong>: This field contains the content of each tweet. When performing sentiment analysis, text data is used as the input for the model. Each tweet’s content is tokenized, preprocessed, and then provided to the model. - <strong>Location (Optional)</strong>: This field represents the location of the user who posted the tweet. Some models can utilize location information as additional features to enhance performance. However, the use of this field is optional and depends
+on the model.</p>
+<p><strong>For Output (Target)</strong>: - <strong>Sentiment</strong>: This field indicates the sentiment of each tweet. The goal of sentiment analysis is to classify the sentiment of text, making this field the output target for the model. Sentiments are typically classified as positive, negative, or neutral, and the model aims to predict them.</p>
+<p>Therefore, for the input of the sentiment analysis model, we will use the ‘OriginalTweet’ field to represent the content of each tweet. For the output, we will use the ‘Sentiment’ field to represent the sentiment of each tweet. The ‘Location’ field is optional and may or may not be used, depending on the model.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[5]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">corona_nlp_target</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;input&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;OriginalTweet&quot;</span><span class="p">,</span> <span class="s2">&quot;Location&quot;</span><span class="p">],</span> <span class="s2">&quot;output&quot;</span><span class="p">:</span> <span class="s2">&quot;Sentiment&quot;</span><span class="p">}</span>
+<span class="n">dm_dataset</span> <span class="o">=</span> <span class="n">dm</span><span class="o">.</span><span class="n">Dataset</span><span class="o">.</span><span class="n">import_from</span><span class="p">(</span>
+    <span class="n">data_path</span><span class="p">,</span> <span class="n">detected_formats</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">target</span><span class="o">=</span><span class="n">corona_nlp_target</span><span class="p">,</span> <span class="o">**</span><span class="n">import_kwargs</span>
+<span class="p">)</span>
+<span class="n">dm_dataset</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[5]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Dataset
+        size=44955
+        source_path=/home/sooah/data/corona_nlp
+        media_type=&lt;class &#39;datumaro.components.media.TableRow&#39;&gt;
+        ann_types={&lt;AnnotationType.tabular: 14&gt;}
+        annotated_items_count=44955
+        annotations_count=44955
+subsets
+        Corona_NLP_test: # of items=3798, # of annotated items=3798, # of annotations=3798
+        Corona_NLP_train: # of items=41157, # of annotated items=41157, # of annotations=41157
+infos
+        categories
+        tabular: [&#39;Sentiment&#39;]
+</pre></div></div>
+</div>
+<p>It’s worth noting that each item in the dataset now includes annotations for the output target we’ve defined. This means that the dataset has been updated to include annotations corresponding to the target output we’ve set.</p>
+<p>By having annotations for the output target, we can track and utilize the labeled sentiment information associated with each data item. This update enhances the dataset’s utility for sentiment analysis tasks, allowing for more effective model training and evaluation.</p>
+<p>Now, let’s take a peek at the first item in our dataset.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[7]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">dm_dataset</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[7]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+DatasetItem(id=&#39;0@Corona_NLP_train&#39;, subset=&#39;Corona_NLP_train&#39;, media=TableRow(row_idx:0, data:{&#39;OriginalTweet&#39;: &#39;@MeNyrbie @Phil_Gahan @Chrisitv https://t.co/iFz9FAn2Pa and https://t.co/xX6ghGFzCC and https://t.co/I2NlzdxNo8&#39;, &#39;Location&#39;: &#39;London&#39;, &#39;Sentiment&#39;: &#39;Neutral&#39;}), annotations=[Tabular(id=0, attributes={}, group=0, object_id=-1, values={&#39;Sentiment&#39;: &#39;Neutral&#39;})], attributes={})
+</pre></div></div>
+</div>
+<p>To check the media of the DatasetItem, we can check like below:</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[8]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="nb">print</span><span class="p">(</span><span class="s2">&quot;media : &quot;</span><span class="p">,</span> <span class="n">dm_dataset</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">media</span><span class="o">.</span><span class="n">data</span><span class="p">())</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;annotations : &quot;</span><span class="p">,</span> <span class="n">dm_dataset</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">annotations</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+media :  {&#39;OriginalTweet&#39;: &#39;@MeNyrbie @Phil_Gahan @Chrisitv https://t.co/iFz9FAn2Pa and https://t.co/xX6ghGFzCC and https://t.co/I2NlzdxNo8&#39;, &#39;Location&#39;: &#39;London&#39;, &#39;Sentiment&#39;: &#39;Neutral&#39;}
+annotations :  [Tabular(id=0, attributes={}, group=0, object_id=-1, values={&#39;Sentiment&#39;: &#39;Neutral&#39;})]
+</pre></div></div>
+</div>
+<p>We can confirm that the columns we’ve designated as output targets are present in the dataset’s media. Furthermore, the output targets are stored as annotations within the data.</p>
+<p>This indicates that the dataset has been structured to include the designated <code class="docutils literal notranslate"><span class="pre">target</span></code> columns in the <code class="docutils literal notranslate"><span class="pre">media</span></code>, and the <code class="docutils literal notranslate"><span class="pre">output</span></code> target information is available as <code class="docutils literal notranslate"><span class="pre">annotations</span></code> associated with each data item.</p>
+</section>
+<section id="Transforming-Dataset-Annotations-for-Sentiment-Analysis-Task">
+<h3>Transforming Dataset Annotations for Sentiment Analysis Task<a class="headerlink" href="#Transforming-Dataset-Annotations-for-Sentiment-Analysis-Task" title="Link to this heading">#</a></h3>
+<p>Our objective is to prepare the dataset for sentiment analysis, where sentiment serves as the label. To achieve this, we’ll update the annotation type of the dataset items. The current annotation type of ‘Tabular’ is not ideal for sentiment analysis. Hence, we’ll transform the dataset to better suit our task.</p>
+<p>This transformation step is crucial to ensure that our dataset is properly formatted and ready for sentiment analysis model training and evaluation.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[9]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">dm_dataset</span> <span class="o">=</span> <span class="n">dm_dataset</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="s2">&quot;astype_annotations&quot;</span><span class="p">)</span>
+<span class="n">dm_dataset</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[9]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Dataset
+        size=44955
+        source_path=/home/sooah/data/corona_nlp
+        media_type=&lt;class &#39;datumaro.components.media.TableRow&#39;&gt;
+        ann_types={&lt;AnnotationType.label: 1&gt;}
+        annotated_items_count=44955
+        annotations_count=44955
+subsets
+        Corona_NLP_test: # of items=3798, # of annotated items=3798, # of annotations=3798
+        Corona_NLP_train: # of items=41157, # of annotated items=41157, # of annotations=41157
+infos
+        categories
+        label: [&#39;Sentiment:Extremely Negative&#39;, &#39;Sentiment:Extremely Positive&#39;, &#39;Sentiment:Negative&#39;, &#39;Sentiment:Neutral&#39;, &#39;Sentiment:Positive&#39;]
+</pre></div></div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[10]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="nb">print</span><span class="p">(</span><span class="s2">&quot;annotations : &quot;</span><span class="p">,</span> <span class="n">dm_dataset</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">annotations</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+annotations :  [Label(id=0, attributes={}, group=0, object_id=-1, label=3)]
+</pre></div></div>
+</div>
+<p>We can observe that the sentiment labels have been included in the dataset categories, indicating the presence of sentiment-related labels. This inclusion is crucial as it allows us to understand the categories or classes that the dataset encompasses, particularly in terms of sentiment analysis.</p>
+<p>Furthermore, we can confirm that these sentiment labels are reflected in the annotations of each dataset item. This ensures that the sentiment information associated with each item has been appropriately integrated into the dataset, laying the groundwork for sentiment analysis tasks.</p>
+</section>
+<section id="Exploring-Dataset-Characteristics">
+<h3>Exploring Dataset Characteristics<a class="headerlink" href="#Exploring-Dataset-Characteristics" title="Link to this heading">#</a></h3>
+<p>Having transformed the data as described above, we’ll now explore the characteristics of the dataset. To begin, we’ll use Datumaro’s Validator to understand various features and attributes of the dataset.</p>
+<p>Using the Validator, we can: - Determine the number of columns included in the dataset and identify the type of each feature. - Check for missing values or outliers, thereby understanding the dataset’s structure. - Analyze the distribution of the target variable to identify any class imbalance issues. - Calculate basic statistical measures to understand the central tendency and dispersion of the data.</p>
+<p>If you want to learn more about the conditions set in the Validator, please check <a class="reference external" href="https://openvinotoolkit.github.io/datumaro/latest/docs/level-up/intermediate_skills/08_data_validate.html">this link</a>.</p>
+<p>This step will help us gain insights into the structure and properties of our data, setting the stage for effective analysis and modeling.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[11]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">datumaro.plugins.validators</span> <span class="kn">import</span> <span class="n">TabularValidator</span>
+
+<span class="n">validator</span> <span class="o">=</span> <span class="n">TabularValidator</span><span class="p">(</span>
+    <span class="n">few_samples_thr</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+    <span class="n">imbalance_ratio_thr</span><span class="o">=</span><span class="mi">50</span><span class="p">,</span>
+    <span class="n">far_from_mean_thr</span><span class="o">=</span><span class="mf">5.0</span><span class="p">,</span>
+    <span class="n">dominance_ratio_thr</span><span class="o">=</span><span class="mf">0.8</span><span class="p">,</span>
+    <span class="n">topk_bins</span><span class="o">=</span><span class="mf">0.1</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="n">stats</span> <span class="o">=</span> <span class="n">validator</span><span class="o">.</span><span class="n">compute_statistics</span><span class="p">(</span><span class="n">dm_dataset</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</section>
+<section id="Dataset-Statistics">
+<h3>Dataset Statistics<a class="headerlink" href="#Dataset-Statistics" title="Link to this heading">#</a></h3>
+<p>The dataset statistics are as follows:</p>
+<ul class="simple">
+<li><p><strong>Total number of annotations</strong>: This represents the total number of annotations present in the dataset.</p></li>
+<li><p><strong>Number of items with no annotations</strong>: This indicates the number of items that do not have any annotations.</p></li>
+<li><p><strong>Number of items with some missing annotations</strong>: This shows the number of items that are missing some of their annotations.</p></li>
+</ul>
+<p>In Datumaro, annotations are categorized based on their characteristics, such as labels or captions, and their distribution can be analyzed accordingly. For this dataset, since we have set sentiment as the target, only label annotations are present.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[12]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+
+
+<span class="k">def</span> <span class="nf">show_stats</span><span class="p">(</span><span class="n">stats</span><span class="p">):</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Statistics summary&quot;</span><span class="p">)</span>
+
+    <span class="n">total_ann_count</span> <span class="o">=</span> <span class="n">stats</span><span class="p">[</span><span class="s2">&quot;total_ann_count&quot;</span><span class="p">]</span>
+    <span class="n">len_missing_ann_items</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">stats</span><span class="p">[</span><span class="s2">&quot;items_missing_annotation&quot;</span><span class="p">])</span>
+    <span class="n">len_broken_ann_items</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">stats</span><span class="p">[</span><span class="s2">&quot;items_broken_annotation&quot;</span><span class="p">])</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Total number of annotation : &quot;</span><span class="p">,</span> <span class="n">total_ann_count</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;The number of items without any annotation : &quot;</span><span class="p">,</span> <span class="n">len_missing_ann_items</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;The number of items with missing annotation : &quot;</span><span class="p">,</span> <span class="n">len_broken_ann_items</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+
+    <span class="n">defined_labels</span> <span class="o">=</span> <span class="n">stats</span><span class="p">[</span><span class="s2">&quot;label_distribution&quot;</span><span class="p">][</span><span class="s2">&quot;defined_labels&quot;</span><span class="p">]</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">defined_labels</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Result of label distribution&quot;</span><span class="p">)</span>
+        <span class="n">df_defined_labels</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="o">.</span><span class="n">from_dict</span><span class="p">([</span><span class="n">defined_labels</span><span class="p">])</span>
+        <span class="nb">print</span><span class="p">(</span><span class="n">df_defined_labels</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">stats</span><span class="p">[</span><span class="s2">&quot;label_distribution&quot;</span><span class="p">][</span><span class="s2">&quot;empty_labels&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;The number of empty label for </span><span class="si">{</span><span class="n">key</span><span class="si">}</span><span class="s2"> is </span><span class="si">{</span><span class="n">value</span><span class="p">[</span><span class="s1">&#39;count&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">15</span><span class="p">,</span> <span class="mi">4</span><span class="p">))</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s2">&quot;Histogram for label distribution&quot;</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">bar</span><span class="p">(</span><span class="n">defined_labels</span><span class="o">.</span><span class="n">keys</span><span class="p">(),</span> <span class="n">defined_labels</span><span class="o">.</span><span class="n">values</span><span class="p">())</span>
+
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="n">defined_captions</span> <span class="o">=</span> <span class="n">stats</span><span class="p">[</span><span class="s2">&quot;caption_distribution&quot;</span><span class="p">][</span><span class="s2">&quot;defined_captions&quot;</span><span class="p">]</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">defined_captions</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Result of caption distribution&quot;</span><span class="p">)</span>
+        <span class="n">df_defined_captions</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="o">.</span><span class="n">from_dict</span><span class="p">([</span><span class="n">defined_captions</span><span class="p">])</span>
+        <span class="nb">print</span><span class="p">(</span><span class="n">df_defined_captions</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">stats</span><span class="p">[</span><span class="s2">&quot;caption_distribution&quot;</span><span class="p">][</span><span class="s2">&quot;empty_captions&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;The number of empty caption for </span><span class="si">{</span><span class="n">key</span><span class="si">}</span><span class="s2"> is </span><span class="si">{</span><span class="n">value</span><span class="p">[</span><span class="s1">&#39;count&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="k">return</span>
+
+
+<span class="n">show_stats</span><span class="p">(</span><span class="n">stats</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Statistics summary
+Total number of annotation :  44955
+The number of items without any annotation :  0
+The number of items with missing annotation :  0
+
+
+Result of label distribution
+   Sentiment:Extremely Negative  Sentiment:Extremely Positive  \
+0                          6073                          7223
+
+   Sentiment:Negative  Sentiment:Neutral  Sentiment:Positive
+0               10958               8332               12369
+The number of empty label for Sentiment is 0
+
+
+</pre></div></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../../../_images/docs_jupyter_notebook_examples_notebooks_21_kaggle_data_cleaning_24_1.png" src="../../../_images/docs_jupyter_notebook_examples_notebooks_21_kaggle_data_cleaning_24_1.png" />
+</div>
+</div>
+<p>We can observe that the distribution among classes is uneven, with the ‘positive’ class having the largest proportion. This detailed statistical overview helps us understand the composition and completeness of the dataset, guiding further analysis and preprocessing steps.</p>
+<p>Since this dataset has no empty labels, items with missing annotations, or items with broken annotations, the focus should be on cleaning the input data rather than the labels.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[13]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">dm_dataset</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">media</span><span class="o">.</span><span class="n">data</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[13]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+{&#39;OriginalTweet&#39;: &#39;@MeNyrbie @Phil_Gahan @Chrisitv https://t.co/iFz9FAn2Pa and https://t.co/xX6ghGFzCC and https://t.co/I2NlzdxNo8&#39;,
+ &#39;Location&#39;: &#39;London&#39;,
+ &#39;Sentiment&#39;: &#39;Neutral&#39;}
+</pre></div></div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[14]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">before</span> <span class="o">=</span> <span class="n">dm_dataset</span><span class="p">[</span><span class="mi">100</span><span class="p">]</span><span class="o">.</span><span class="n">media</span><span class="o">.</span><span class="n">data</span><span class="p">()</span>
+<span class="n">before</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[14]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+{&#39;OriginalTweet&#39;: &#39;I hate grocery shopping in general but I swear IÂ\x92m doing it online next shop, can not deal with the swathes of panic buyers at all! #COVID?19 #coronavirus #coronavirusuk #anxiety #panicbuyinguk #morons&#39;,
+ &#39;Location&#39;: &#39;Portsmouth, England&#39;,
+ &#39;Sentiment&#39;: &#39;Extremely Negative&#39;}
+</pre></div></div>
+</div>
+<p>Datumaro provides a transform called <code class="docutils literal notranslate"><span class="pre">clean</span></code> that can be used for data cleaning. This transform helps in preparing the dataset for analysis by addressing various data quality issues. The <code class="docutils literal notranslate"><span class="pre">clean</span></code> transform modifies the media of items without validation and simultaneously cleans the annotations. If you want to clean the input media, it is recommended to use the <code class="docutils literal notranslate"><span class="pre">clean</span></code> function.</p>
+<p>In our case, since the dataset does not have any empty labels, items with missing annotations, or items with broken annotations, we will focus on cleaning the input data. Using the <code class="docutils literal notranslate"><span class="pre">clean</span></code> transform, we can ensure that the input information is properly formatted and free from inconsistencies.</p>
+<p>This step is crucial to maintain the quality and integrity of the data, which in turn, enhances the performance of the sentiment analysis model.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[15]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">result</span> <span class="o">=</span> <span class="n">dm_dataset</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="s2">&quot;clean&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[16]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">result</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">media</span><span class="o">.</span><span class="n">data</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[16]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+{&#39;OriginalTweet&#39;: &#39;menyrbie philgahan chrisitv&#39;,
+ &#39;Location&#39;: &#39;london&#39;,
+ &#39;Sentiment&#39;: &#39;Neutral&#39;}
+</pre></div></div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[17]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">after</span> <span class="o">=</span> <span class="n">result</span><span class="p">[</span><span class="mi">100</span><span class="p">]</span><span class="o">.</span><span class="n">media</span><span class="o">.</span><span class="n">data</span>
+<span class="n">after</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[17]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+{&#39;OriginalTweet&#39;: &#39;hate grocery shopping general swear im online next shop deal swathes panic buyers covid coronavirus coronavirusuk anxiety panicbuyinguk morons&#39;,
+ &#39;Location&#39;: &#39;portsmouth england&#39;,
+ &#39;Sentiment&#39;: &#39;Extremely Negative&#39;}
+</pre></div></div>
+</div>
+<p>After applying the <code class="docutils literal notranslate"><span class="pre">clean</span></code> transform, we can observe that the existing input media have been refined. If the same target is included in both the input and the output, the annotations will also be updated accordingly.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[18]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Before Clean : &quot;</span><span class="p">,</span> <span class="n">before</span><span class="p">[</span><span class="s2">&quot;OriginalTweet&quot;</span><span class="p">])</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;After Clean : &quot;</span><span class="p">,</span> <span class="n">after</span><span class="p">[</span><span class="s2">&quot;OriginalTweet&quot;</span><span class="p">])</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Before Clean :  I hate grocery shopping in general but I swear IÂm doing it online next shop, can not deal with the swathes of panic buyers at all! #COVID?19 #coronavirus #coronavirusuk #anxiety #panicbuyinguk #morons
+After Clean :  hate grocery shopping general swear im online next shop deal swathes panic buyers covid coronavirus coronavirusuk anxiety panicbuyinguk morons
+</pre></div></div>
+</div>
+</section>
+<section id="Export-refiend-data-into-Datumaro-format">
+<h3>Export refiend data into Datumaro format<a class="headerlink" href="#Export-refiend-data-into-Datumaro-format" title="Link to this heading">#</a></h3>
+<p>We can export the refined data in the Datumaro format. Additionally, it is possible to export the data in various other formats. For more details, please refer to this <a class="reference external" href="https://openvinotoolkit.github.io/datumaro/latest/docs/command-reference/context/export.html#export">link</a>.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">save_path</span> <span class="o">=</span> <span class="s2">&quot;/home/sooah/data/refined_corona_nlp&quot;</span>
+<span class="n">result</span><span class="o">.</span><span class="n">export</span><span class="p">(</span><span class="n">save_path</span><span class="p">,</span> <span class="s2">&quot;datumaro&quot;</span><span class="p">,</span> <span class="n">save_media</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</section>
+</section>
+</section>
+
+
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer">
+                  
+<div class="prev-next-area">
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <div class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+<div
+    id="pst-page-navigation-heading-2"
+    class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> On this page
+  </div>
+  <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#Install-Datumaro-package">Install Datumaro package</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#Import-a-dataset">Import a dataset</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#Setting-Input-and-Output-Targets-for-Sentiment-Analysis">Setting Input and Output Targets for Sentiment Analysis</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#Transforming-Dataset-Annotations-for-Sentiment-Analysis-Task">Transforming Dataset Annotations for Sentiment Analysis Task</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#Exploring-Dataset-Characteristics">Exploring Dataset Characteristics</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#Dataset-Statistics">Dataset Statistics</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#Export-refiend-data-into-Datumaro-format">Export refiend data into Datumaro format</a></li>
+</ul>
+</li>
+</ul>
+  </nav></div>
+
+  <div class="sidebar-secondary-item">
+
+  <div class="tocsection sourcelink">
+    <a href="../../../_sources/docs/jupyter_notebook_examples/notebooks/21_kaggle_data_cleaning.ipynb.txt">
+      <i class="fa-solid fa-file-lines"></i> Show Source
+    </a>
+  </div>
+</div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="../../../_static/scripts/bootstrap.js?digest=8d27b9dea8ad943066ae"></script>
+<script src="../../../_static/scripts/pydata-sphinx-theme.js?digest=8d27b9dea8ad943066ae"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="sphinx-version">
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 7.2.6.
+    <br/>
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+<p class="theme-version">
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.15.2.
+</p></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>
