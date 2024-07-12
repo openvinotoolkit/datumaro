@@ -184,12 +184,9 @@ class _SubsetWriter:
 
             if context.save_media:
                 fname = context.make_video_filename(item)
-                # To prevent the video from being overwritten
-                # (A video can have same path but different start/end frames)
-                if not osp.exists(fname):
-                    context.save_video(item, fname=fname, subdir=item.subset)
+                context.save_video(item, fname=fname, subdir=item.subset)
                 item.media = Video(
-                    path=video.path,
+                    path=fname,
                     step=video._step,
                     start_frame=video._start_frame,
                     end_frame=video._end_frame,
@@ -202,8 +199,7 @@ class _SubsetWriter:
 
             if context.save_media:
                 fname = context.make_video_filename(item)
-                if not osp.exists(fname):
-                    context.save_video(item, fname=fname, subdir=item.subset)
+                context.save_video(item, fname=fname, subdir=item.subset)
                 item.media = VideoFrame(Video(fname), video_frame.index)
 
             yield
