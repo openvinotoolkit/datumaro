@@ -29,8 +29,8 @@ def find_group_leader(group):
 
 
 BboxCoords = Tuple[float, float, float, float]
-Shape = NewType("Shape", Shape)
-SpatialAnnotation = Union[Shape, Mask]
+_Shape = NewType("_Shape", Shape)
+SpatialAnnotation = Union[_Shape, Mask]
 
 
 def _get_bbox(ann: Union[Sequence, SpatialAnnotation]) -> BboxCoords:
