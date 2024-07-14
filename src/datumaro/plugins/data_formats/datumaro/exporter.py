@@ -32,7 +32,7 @@ from datumaro.components.annotation import (
     Polygon,
     PolyLine,
     RleMask,
-    _Shape,
+    Shape,
 )
 from datumaro.components.crypter import NULL_CRYPTER
 from datumaro.components.dataset_base import DatasetItem
@@ -376,7 +376,7 @@ class _SubsetWriter:
         return converted
 
     def _convert_shape_object(self, obj):
-        assert isinstance(obj, _Shape)
+        assert isinstance(obj, Shape)
         converted = self._convert_annotation(obj)
 
         converted.update(
