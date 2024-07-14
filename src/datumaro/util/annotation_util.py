@@ -8,7 +8,7 @@ from typing import Callable, Dict, Iterable, NewType, Optional, Sequence, Tuple,
 import numpy as np
 from typing_extensions import Literal
 
-from datumaro.components.annotation import AnnotationType, LabelCategories, Mask, RleMask, _Shape
+from datumaro.components.annotation import AnnotationType, LabelCategories, Mask, RleMask, Shape
 from datumaro.util.mask_tools import mask_to_rle
 
 
@@ -29,12 +29,12 @@ def find_group_leader(group):
 
 
 BboxCoords = Tuple[float, float, float, float]
-Shape = NewType("Shape", _Shape)
+Shape = NewType("Shape", Shape)
 SpatialAnnotation = Union[Shape, Mask]
 
 
 def _get_bbox(ann: Union[Sequence, SpatialAnnotation]) -> BboxCoords:
-    if isinstance(ann, (_Shape, Mask)):
+    if isinstance(ann, (Shape, Mask)):
         return ann.get_bbox()
     elif hasattr(ann, "__len__") and len(ann) == 4:
         return ann

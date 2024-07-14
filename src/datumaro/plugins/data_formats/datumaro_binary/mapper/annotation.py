@@ -20,7 +20,7 @@ from datumaro.components.annotation import (
     Polygon,
     PolyLine,
     RleMask,
-    _Shape,
+    Shape,
 )
 
 from .common import DictMapper, FloatListMapper, IntListMapper, Mapper, StringMapper
@@ -127,7 +127,7 @@ class RleMaskMapper(MaskMapper):
 
 class _ShapeMapper(AnnotationMapper):
     @classmethod
-    def forward(cls, ann: _Shape) -> bytes:
+    def forward(cls, ann: Shape) -> bytes:
         _bytearray = bytearray()
         _bytearray.extend(super().forward(ann))
         _bytearray.extend(struct.pack("<ii", cls.forward_optional_label(ann.label), ann.z_order))
@@ -148,9 +148,9 @@ class _ShapeMapper(AnnotationMapper):
         }, offset
 
     @classmethod
-    def backward(cls, _bytes: bytes, offset: int = 0) -> Tuple[_Shape, int]:
+    def backward(cls, _bytes: bytes, offset: int = 0) -> Tuple[Shape, int]:
         ann_dict, offset = cls.backward_dict(_bytes, offset)
-        return _Shape(**ann_dict), offset
+        return Shape(**ann_dict), offset
 
 
 class PointsMapper(_ShapeMapper):

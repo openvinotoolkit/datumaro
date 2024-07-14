@@ -682,7 +682,23 @@ class CompiledMask:
 
 
 @attrs(slots=True, order=False)
-class _Shape(Annotation):
+class Shape(Annotation):
+    """
+    Base class for shape annotations. This class defines the common attributes and methods
+    for different types of shape annotations.
+
+    Attributes:
+        points (List[float]): List of float values representing the coordinates of the shape.
+        label (Optional[int]): Optional label ID for the shape. Default is None.
+        z_order (int): Z-order of the shape, used to determine the rendering order. Default is 0.
+
+    Methods:
+        get_area: Abstract method to calculate the area of the shape.
+        as_polygon: Abstract method to convert the shape into a polygon representation.
+        get_bbox: Returns the bounding box of the shape as [x, y, w, h].
+        get_points: Returns the points of the shape as a list of (x, y) tuples.
+    """
+
     points: List[float] = field(
         converter=lambda x: np.array(x, dtype=np.float32).round(COORDINATE_ROUNDING_DIGITS).tolist()
     )
@@ -694,13 +710,24 @@ class _Shape(Annotation):
     z_order: int = field(default=0, validator=default_if_none(int), kw_only=True)
 
     def get_area(self):
+        """
+        Calculate the area of the shape.
+        """
         raise NotImplementedError()
 
     def as_polygon(self) -> List[float]:
+        """
+        Convert the shape into a polygon representation.
+        """
         raise NotImplementedError()
 
     def get_bbox(self) -> Tuple[float, float, float, float]:
-        "Returns [x, y, w, h]"
+        """
+        Calculate and return the bounding box of the shape.
+
+        Returns:
+            Tuple[float, float, float, float]: The bounding box as [x, y, w, h].
+        """
 
         points = self.points
         if not points:
@@ -716,7 +743,10 @@ class _Shape(Annotation):
 
     def get_points(self) -> Optional[List[Tuple[float, float]]]:
         """
-        Return points as a list of tuples, e.g. [(x0, y0), (x1, y1), ...]
+        Convert and return the points of the shape as a list of (x, y) tuples.
+
+        Returns:
+            Optional[List[Tuple[float, float]]]: List of points as (x, y) tuples, or None if no points.
         """
         points = self.points
         if not points:
@@ -731,7 +761,18 @@ class _Shape(Annotation):
 
 
 @attrs(slots=True, order=False)
-class PolyLine(_Shape):
+class PolyLine(Shape):
+    """
+    PolyLine annotation class. This class represents a polyline shape, which is a series of connected line segments.
+
+    Attributes:
+        _type (AnnotationType): The type of annotation, set to `AnnotationType.polyline`.
+
+    Methods:
+        as_polygon: Returns the points of the polyline as a polygon.
+        get_area: Returns the area of the polyline, which is always 0.
+    """
+
     _type = AnnotationType.polyline
 
     def as_polygon(self):
@@ -743,6 +784,21 @@ class PolyLine(_Shape):
 
 @attrs(slots=True, init=False, order=False)
 class Cuboid3d(Annotation):
+    """
+    Cuboid3d annotation class. This class represents a 3D cuboid annotation with position, rotation, and scale.
+
+    Attributes:
+        _type (AnnotationType): The type of annotation, set to `AnnotationType.cuboid_3d`.
+        _points (List[float]): List of float values representing the position, rotation, and scale of the cuboid.
+        label (Optional[int]): Optional label ID for the cuboid. Default is None.
+
+    Methods:
+        __init__: Initializes the Cuboid3d with position, rotation, and scale.
+        position: Property to get and set the position of the cuboid.
+        rotation: Property to get and set the rotation of the cuboid.
+        scale: Property to get and set the scale of the cuboid.
+    """
+
     _type = AnnotationType.cuboid_3d
     _points: List[float] = field(default=None)
     label: Optional[int] = field(
@@ -751,6 +807,13 @@ class Cuboid3d(Annotation):
 
     @_points.validator
     def _points_validator(self, attribute, points):
+        """
+        Validate and round the points representing the cuboid's position, rotation, and scale.
+
+        Args:
+            attribute: The attribute being validated.
+            points: The list of float values to validate.
+        """
         if points is None:
             points = [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 1.0, 1.0]
         else:
@@ -759,6 +822,14 @@ class Cuboid3d(Annotation):
         self._points = points
 
     def __init__(self, position, rotation=None, scale=None, **kwargs):
+        """
+        Initialize the Cuboid3d with position, rotation, and scale.
+
+        Args:
+            position (List[float]): List of 3 float values representing the position [x, y, z].
+            rotation (List[float], optional): List of 3 float values representing the rotation [rx, ry, rz].
+            scale (List[float], optional): List of 3 float values representing the scale [sx, sy, sz].
+        """
         assert len(position) == 3, position
         if not rotation:
             rotation = [0] * 3
@@ -769,11 +840,22 @@ class Cuboid3d(Annotation):
 
     @property
     def position(self):
-        """[x, y, z]"""
+        """
+        Get the position of the cuboid.
+
+        Returns:
+            List[float]: The position [x, y, z] of the cuboid.
+        """
         return self._points[0:3]
 
     @position.setter
     def _set_poistion(self, value):
+        """
+        Set the position of the cuboid.
+
+        Args:
+            value (List[float]): The new position [x, y, z] of the cuboid.
+        """
         # TODO: fix the issue with separate coordinate rounding:
         # self.position[0] = 12.345676
         # - the number assigned won't be rounded.
@@ -781,34 +863,82 @@ class Cuboid3d(Annotation):
 
     @property
     def rotation(self):
-        """[rx, ry, rz]"""
+        """
+        Get the rotation of the cuboid.
+
+        Returns:
+            List[float]: The rotation [rx, ry, rz] of the cuboid.
+        """
         return self._points[3:6]
 
     @rotation.setter
     def _set_rotation(self, value):
+        """
+        Set the rotation of the cuboid.
+
+        Args:
+            value (List[float]): The new rotation [rx, ry, rz] of the cuboid.
+        """
         self.rotation[:] = np.around(value, COORDINATE_ROUNDING_DIGITS).tolist()
 
     @property
     def scale(self):
-        """[sx, sy, sz]"""
+        """
+        Get the scale of the cuboid.
+
+        Returns:
+            List[float]: The scale [sx, sy, sz] of the cuboid.
+        """
         return self._points[6:9]
 
     @scale.setter
     def _set_scale(self, value):
+        """
+        Set the scale of the cuboid.
+
+        Args:
+            value (List[float]): The new scale [sx, sy, sz] of the cuboid.
+        """
         self.scale[:] = np.around(value, COORDINATE_ROUNDING_DIGITS).tolist()
 
 
 @attrs(slots=True, order=False, eq=False)
-class Polygon(_Shape):
+class Polygon(Shape):
+    """
+    Polygon annotation class. This class represents a polygon shape defined by a series of points.
+
+    Attributes:
+        _type (AnnotationType): The type of annotation, set to `AnnotationType.polygon`.
+
+    Methods:
+        __attrs_post_init__: Validates the points to ensure they form a valid polygon.
+        get_area: Calculates the area of the polygon using the shoelace formula.
+        as_polygon: Returns the points of the polygon.
+        __eq__: Compares this polygon with another for equality.
+        _get_shoelace_area: Helper method to calculate the area of the polygon using the shoelace formula.
+    """
+
     _type = AnnotationType.polygon
 
     def __attrs_post_init__(self):
+        """
+        Validate the points to ensure they form a valid polygon.
+
+        Raises:
+            AssertionError: If the number of points is not even or less than 3 pairs of coordinates.
+        """
         # keep the message on a single line to produce informative output
         assert len(self.points) % 2 == 0 and 3 <= len(self.points) // 2, (
             "Wrong polygon points: %s" % self.points
         )
 
     def get_area(self):
+        """
+        Calculate the area of the polygon using the shoelace formula.
+
+        Returns:
+            float: The area of the polygon.
+        """
         # import pycocotools.mask as mask_utils
 
         # x, y, w, h = self.get_bbox()
@@ -818,9 +948,24 @@ class Polygon(_Shape):
         return area
 
     def as_polygon(self) -> List[float]:
+        """
+        Return the points of the polygon.
+
+        Returns:
+            List[float]: The points of the polygon.
+        """
         return self.points
 
     def __eq__(self, other):
+        """
+        Compare this polygon with another for equality.
+
+        Args:
+            other: The other polygon to compare with.
+
+        Returns:
+            bool: True if the polygons are equal, False otherwise.
+        """
         if not isinstance(other, __class__):
             return False
         if (
@@ -841,6 +986,12 @@ class Polygon(_Shape):
         return abs(self_polygon.area - inter_area) < CHECK_POLYGON_EQ_EPSILONE
 
     def _get_shoelace_area(self):
+        """
+        Calculate the area of the polygon using the shoelace formula.
+
+        Returns:
+            float: The area of the polygon.
+        """
         points = self.get_points()
         n = len(points)
         # Not a polygon
@@ -857,60 +1008,194 @@ class Polygon(_Shape):
 
 
 @attrs(slots=True, init=False, order=False)
-class Bbox(_Shape):
+class Bbox(Shape):
+    """
+    Bbox annotation class. This class represents a bounding box defined by its top-left corner (x, y)
+    and its width and height (w, h).
+
+    Attributes:
+        _type (AnnotationType): The type of annotation, set to `AnnotationType.bbox`.
+
+    Methods:
+        __init__: Initializes the Bbox with its coordinates and dimensions.
+        x: Property to get the x-coordinate of the bounding box.
+        y: Property to get the y-coordinate of the bounding box.
+        w: Property to get the width of the bounding box.
+        h: Property to get the height of the bounding box.
+        get_area: Calculates the area of the bounding box.
+        get_bbox: Returns the bounding box coordinates and dimensions.
+        as_polygon: Returns the bounding box as a list of points forming a polygon.
+        iou: Calculates the Intersection over Union (IoU) with another shape.
+        wrap: Creates a new Bbox instance with updated attributes.
+    """
+
     _type = AnnotationType.bbox
 
     def __init__(self, x, y, w, h, *args, **kwargs):
+        """
+        Initialize the Bbox with its top-left corner (x, y) and its width and height (w, h).
+
+        Args:
+            x (float): The x-coordinate of the top-left corner.
+            y (float): The y-coordinate of the top-left corner.
+            w (float): The width of the bounding box.
+            h (float): The height of the bounding box.
+        """
         kwargs.pop("points", None)  # comes from wrap()
         self.__attrs_init__([x, y, x + w, y + h], *args, **kwargs)
 
     @property
     def x(self):
+        """
+        Get the x-coordinate of the top-left corner of the bounding box.
+
+        Returns:
+            float: The x-coordinate of the bounding box.
+        """
         return self.points[0]
 
     @property
     def y(self):
+        """
+        Get the y-coordinate of the top-left corner of the bounding box.
+
+        Returns:
+            float: The y-coordinate of the bounding box.
+        """
         return self.points[1]
 
     @property
     def w(self):
+        """
+        Get the width of the bounding box.
+
+        Returns:
+            float: The width of the bounding box.
+        """
         return self.points[2] - self.points[0]
 
     @property
     def h(self):
+        """
+        Get the height of the bounding box.
+
+        Returns:
+            float: The height of the bounding box.
+        """
         return self.points[3] - self.points[1]
 
     def get_area(self):
+        """
+        Calculate the area of the bounding box.
+
+        Returns:
+            float: The area of the bounding box.
+        """
         return self.w * self.h
 
     def get_bbox(self):
+        """
+        Get the bounding box coordinates and dimensions.
+
+        Returns:
+            List[float]: The bounding box as [x, y, w, h].
+        """
         return [self.x, self.y, self.w, self.h]
 
     def as_polygon(self) -> List[float]:
+        """
+        Convert the bounding box into a polygon representation.
+
+        Returns:
+            List[float]: The bounding box as a polygon.
+        """
         x, y, w, h = self.get_bbox()
         return [x, y, x + w, y, x + w, y + h, x, y + h]
 
-    def iou(self, other: _Shape) -> Union[float, Literal[-1]]:
+    def iou(self, other: Shape) -> Union[float, Literal[-1]]:
+        """
+        Calculate the Intersection over Union (IoU) with another shape.
+
+        Args:
+            other (Shape): The other shape to compare with.
+
+        Returns:
+            Union[float, Literal[-1]]: The IoU value or -1 if not applicable.
+        """
         from datumaro.util.annotation_util import bbox_iou
 
         return bbox_iou(self.get_bbox(), other.get_bbox())
 
     def wrap(item, **kwargs):
+        """
+        Create a new Bbox instance with updated attributes.
+
+        Args:
+            item (Bbox): The original Bbox instance.
+            kwargs: Additional attributes to update.
+
+        Returns:
+            Bbox: A new Bbox instance with updated attributes.
+        """
         d = {"x": item.x, "y": item.y, "w": item.w, "h": item.h}
         d.update(kwargs)
         return attr.evolve(item, **d)
 
 
 @attrs(slots=True, init=False, order=False)
-class RotatedBbox(_Shape):
+class RotatedBbox(Shape):
+    """
+    RotatedBbox annotation class. This class represents a rotated bounding box defined
+    by its center (cx, cy), width (w), height (h), and rotation angle (r).
+
+    Attributes:
+        _type (AnnotationType): The type of annotation, set to `AnnotationType.rotated_bbox`.
+
+    Methods:
+        __init__: Initializes the RotatedBbox with its center, dimensions, and rotation angle.
+        from_rectangle: Creates a RotatedBbox from a list of four corner points.
+        cx: Property to get the x-coordinate of the center of the bounding box.
+        cy: Property to get the y-coordinate of the center of the bounding box.
+        w: Property to get the width of the bounding box.
+        h: Property to get the height of the bounding box.
+        r: Property to get the rotation angle of the bounding box.
+        get_area: Calculates the area of the bounding box.
+        get_bbox: Returns the bounding box coordinates and dimensions.
+        get_rotated_bbox: Returns the rotated bounding box parameters.
+        as_polygon: Converts the rotated bounding box into a list of corner points.
+        iou: Calculates the Intersection over Union (IoU) with another shape.
+        wrap: Creates a new RotatedBbox instance with updated attributes.
+    """
+
     _type = AnnotationType.rotated_bbox
 
     def __init__(self, cx, cy, w, h, r, *args, **kwargs):
+        """
+        Initialize the RotatedBbox with its center (cx, cy), width (w), height (h), and rotation angle (r).
+
+        Args:
+            cx (float): The x-coordinate of the center.
+            cy (float): The y-coordinate of the center.
+            w (float): The width of the bounding box.
+            h (float): The height of the bounding box.
+            r (float): The rotation angle of the bounding box in degrees.
+        """
         kwargs.pop("points", None)  # comes from wrap()
         self.__attrs_init__([cx, cy, w, h, r], *args, **kwargs)
 
     @classmethod
     def from_rectangle(cls, points: List[Tuple[float, float]], *args, **kwargs):
+        """
+        Create a RotatedBbox from a list of four corner points.
+
+        Args:
+            points (List[Tuple[float, float]]): A list of four points defining the rectangle.
+            args: Additional arguments.
+            kwargs: Additional keyword arguments.
+
+        Returns:
+            RotatedBbox: A new RotatedBbox instance.
+        """
         assert len(points) == 4, "polygon for a rotated bbox should have only 4 coordinates."
 
         # Calculate rotation angle
@@ -928,28 +1213,70 @@ class RotatedBbox(_Shape):
 
     @property
     def cx(self):
+        """
+        Get the x-coordinate of the center of the bounding box.
+
+        Returns:
+            float: The x-coordinate of the center.
+        """
         return self.points[0]
 
     @property
     def cy(self):
+        """
+        Get the y-coordinate of the center of the bounding box.
+
+        Returns:
+            float: The y-coordinate of the center.
+        """
         return self.points[1]
 
     @property
     def w(self):
+        """
+        Get the width of the bounding box.
+
+        Returns:
+            float: The width of the bounding box.
+        """
         return self.points[2]
 
     @property
     def h(self):
+        """
+        Get the height of the bounding box.
+
+        Returns:
+            float: The height of the bounding box.
+        """
         return self.points[3]
 
     @property
     def r(self):
+        """
+        Get the rotation angle of the bounding box in degrees.
+
+        Returns:
+            float: The rotation angle of the bounding box.
+        """
         return self.points[4]
 
     def get_area(self):
+        """
+        Calculate the area of the bounding box.
+
+        Returns:
+            float: The area of the bounding box.
+        """
         return self.w * self.h
 
     def get_bbox(self):
+        """
+        Get the bounding box coordinates and dimensions.
+
+        Returns:
+            List[float]: The bounding box as [x, y, w, h].
+        """
         polygon = self.as_polygon()
         xs = [pt[0] for pt in polygon]
         ys = [pt[1] for pt in polygon]
@@ -957,13 +1284,34 @@ class RotatedBbox(_Shape):
         return [min(xs), min(ys), max(xs) - min(xs), max(ys) - min(ys)]
 
     def get_rotated_bbox(self):
+        """
+        Get the rotated bounding box parameters.
+
+        Returns:
+            List[float]: The rotated bounding box as [cx, cy, w, h, r].
+        """
         return [self.cx, self.cy, self.w, self.h, self.r]
 
     def as_polygon(self) -> List[Tuple[float, float]]:
-        """Convert [center_x, center_y, width, height, rotation] to 4 coordinates for a rotated bounding box."""
+        """
+        Convert the rotated bounding box into a list of corner points.
+
+        Returns:
+            List[Tuple[float, float]]: The bounding box as a list of four corner points.
+        """
 
         def _rotate_point(x, y, angle):
-            """Rotate a point around another point."""
+            """
+            Rotate a point around another point.
+
+            Args:
+                x (float): The x-coordinate of the point.
+                y (float): The y-coordinate of the point.
+                angle (float): The rotation angle in degrees.
+
+            Returns:
+                Tuple[float, float]: The rotated point coordinates.
+            """
             angle_rad = math.radians(angle)
             cos_theta = math.cos(angle_rad)
             sin_theta = math.sin(angle_rad)
@@ -985,12 +1333,31 @@ class RotatedBbox(_Shape):
         # Translate the rotated points to the original position
         return [(p[0] + self.cx, p[1] + self.cy) for p in rotated_corners]
 
-    def iou(self, other: _Shape) -> Union[float, Literal[-1]]:
+    def iou(self, other: Shape) -> Union[float, Literal[-1]]:
+        """
+        Calculate the Intersection over Union (IoU) with another shape.
+
+        Args:
+            other (Shape): The other shape to compare with.
+
+        Returns:
+            Union[float, Literal[-1]]: The IoU value or -1 if not applicable.
+        """
         from datumaro.util.annotation_util import bbox_iou
 
         return bbox_iou(self.get_bbox(), other.get_bbox())
 
     def wrap(item, **kwargs):
+        """
+        Create a new RotatedBbox instance with updated attributes.
+
+        Args:
+            item (RotatedBbox): The original RotatedBbox instance.
+            kwargs: Additional attributes to update.
+
+        Returns:
+            RotatedBbox: A new RotatedBbox instance with updated attributes.
+        """
         d = {"x": item.x, "y": item.y, "w": item.w, "h": item.h, "r": item.r}
         d.update(kwargs)
         return attr.evolve(item, **d)
@@ -1061,12 +1428,36 @@ class PointsCategories(Categories):
 
 
 @attrs(slots=True, order=False)
-class Points(_Shape):
+class Points(Shape):
     """
     Represents an ordered set of points.
+
+    Attributes:
+        _type (AnnotationType): The type of annotation, set to `AnnotationType.points`.
+        visibility (List[IntEnum]): A list indicating the visibility status of each point.
+
+    Nested Class:
+        Visibility (IntEnum): Enum representing the visibility state of points. It has three states:
+            - absent: Point is absent (0).
+            - hidden: Point is hidden (1).
+            - visible: Point is visible (2).
+
+    Methods:
+        __attrs_post_init__: Validates that the number of points is even.
+        get_area: Returns the area covered by the points, always zero.
+        get_bbox: Returns the bounding box containing all visible or hidden points.
     """
 
     class Visibility(IntEnum):
+        """
+        Enum representing the visibility state of points.
+
+        Attributes:
+            absent (int): Point is absent (0).
+            hidden (int): Point is hidden (1).
+            visible (int): Point is visible (2).
+        """
+
         absent = 0
         hidden = 1
         visible = 2
@@ -1077,6 +1468,16 @@ class Points(_Shape):
 
     @visibility.validator
     def _visibility_validator(self, attribute, visibility):
+        """
+        Validates and initializes the visibility list.
+
+        Args:
+            attribute: The attribute being validated.
+            visibility (List[IntEnum]): A list indicating the visibility status of each point.
+
+        Raises:
+            AssertionError: If the length of the visibility list does not match half the length of the points list.
+        """
         if visibility is None:
             visibility = [self.Visibility.visible] * (len(self.points) // 2)
         else:
@@ -1087,12 +1488,30 @@ class Points(_Shape):
         self.visibility = visibility
 
     def __attrs_post_init__(self):
+        """
+        Validates that the number of points is even after initialization.
+
+        Raises:
+            AssertionError: If the number of points is not even.
+        """
         assert len(self.points) % 2 == 0, self.points
 
     def get_area(self):
+        """
+        Returns the area covered by the points.
+
+        Returns:
+            int: Always returns 0.
+        """
         return 0
 
     def get_bbox(self):
+        """
+        Returns the bounding box containing all visible or hidden points.
+
+        Returns:
+            List[float]: The bounding box as [x0, y0, width, height].
+        """
         xs = [
             p
             for p, v in zip(self.points[0::2], self.visibility)
@@ -1151,7 +1570,7 @@ class DepthAnnotation(_ImageAnnotation):
 
 
 @attrs(slots=True, init=False, order=False)
-class Ellipse(_Shape):
+class Ellipse(Shape):
     """
     Ellipse represents an ellipse that is encapsulated by a rectangle.
 
@@ -1252,7 +1671,7 @@ class Ellipse(_Shape):
 
         return points
 
-    def iou(self, other: _Shape) -> Union[float, Literal[-1]]:
+    def iou(self, other: Shape) -> Union[float, Literal[-1]]:
         from datumaro.util.annotation_util import bbox_iou
 
         return bbox_iou(self.get_bbox(), other.get_bbox())
