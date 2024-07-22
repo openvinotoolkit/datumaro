@@ -16,7 +16,7 @@ from ..util.telemetry_utils import (
     send_command_success_info,
 )
 from ..version import __version__
-from . import contexts
+from . import contexts, helpers
 from .commands import get_non_project_commands, get_project_commands
 from .util import add_subparser, make_subcommands_help
 from .util.errors import CliException
@@ -80,9 +80,19 @@ def _get_known_contexts():
     ]
 
 
+def _get_helper_commands():
+    return [
+        (
+            "format",
+            helpers.format,
+            "List and show information about supported import/export data formats",
+        ),
+    ]
+
+
 def _get_sensitive_args():
     known_contexts = _get_known_contexts()
-    known_commands = get_project_commands() + get_non_project_commands()
+    known_commands = get_project_commands() + get_non_project_commands() + _get_helper_commands()
 
     res = {}
     for _, command, _ in known_contexts + known_commands:
@@ -104,6 +114,7 @@ def make_parser():
 
     known_contexts = _get_known_contexts()
     known_commands = get_non_project_commands()
+    known_helpers = _get_helper_commands()
 
     # Argparse doesn't support subparser groups:
     # https://stackoverflow.com/questions/32017020/grouping-argparse-subparser-arguments
@@ -118,6 +129,11 @@ def make_parser():
             subcommands_desc += "\n"
         subcommands_desc += "Context-free Commands:\n"
         subcommands_desc += make_subcommands_help(known_commands, help_line_start)
+    if known_helpers:
+        if subcommands_desc:
+            subcommands_desc += "\n"
+        subcommands_desc += "Helper Commands:\n"
+        subcommands_desc += make_subcommands_help(known_helpers, help_line_start)
     if subcommands_desc:
         subcommands_desc += (
             "\nRun '%s COMMAND --help' for more information on a command." % parser.prog
@@ -126,7 +142,7 @@ def make_parser():
     subcommands = parser.add_subparsers(
         title=subcommands_desc, description="", help=argparse.SUPPRESS
     )
-    for command_name, command, _ in known_contexts + known_commands:
+    for command_name, command, _ in known_contexts + known_commands + known_helpers:
         if command is not None:
             add_subparser(subcommands, command_name, command.build_parser)
 
