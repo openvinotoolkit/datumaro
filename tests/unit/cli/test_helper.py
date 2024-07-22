@@ -31,6 +31,6 @@ class FormatTest:
     def test_format_command(
         self, list_import: bool, list_export: bool, capsys: pytest.CaptureFixture
     ):
-        format_command(Namespace(delimiter="\n", list_import=v1, list_export=v2))
+        format_command(Namespace(delimiter="\n", list_import=list_import, list_export=list_export))
         out, _ = capsys.readouterr()
         assert "coco" in out
