@@ -48,6 +48,7 @@ Docs
   command-reference/overview
   command-reference/context_free/index
   command-reference/context/index
+  command-reference/helper/index
 
 .. toctree::
   :maxdepth: 1

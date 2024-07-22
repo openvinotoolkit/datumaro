@@ -2,8 +2,8 @@
 Overview
 ========
 
-The command line is split into the separate ``commands`` (:ref:`Context Commands`)
-and command ``contexts`` (:ref:`Context-free Commands`).
+The command line is split into three groups:
+``commands`` (:ref:`Context Commands`), command ``contexts`` (:ref:`Context-free Commands`), and ``helpers`` (:ref:`Helper Commands`).
 Contexts group multiple commands related to a specific topic, e.g.
 project operations, data source operations etc. Almost all the commands
 operate on projects, so the ``project`` context and commands without a context
