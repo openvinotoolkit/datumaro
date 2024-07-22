@@ -1,7 +1,9 @@
 # Format
 
+## List Supported Data Formats
+
 This command shows a list of supported import/export data formats in Datumaro.
-It is useful on a quick reference of data format name used for other CLI command such as [convert](../context_free/convert.md), [import](../context/sources.md#import-dataset), or [export](../context/export.md#export-datasets). For more detailed guides on each data format, please visit [our Data Formats section](../../data-formats).
+It is useful on a quick reference of data format name used for other CLI command such as [convert](../context_free/convert.md), [import](../context/sources.md#import-dataset), or [export](../context/export.md#export-datasets). For more detailed guides on each data format, please visit [our Data Formats section](../../data-formats/formats/index.rst).
 
 Usage:
 
