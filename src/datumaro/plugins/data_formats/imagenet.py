@@ -41,7 +41,7 @@ class ImagenetBase(SubsetBase):
         self._max_depth = min_depth
         self._min_depth = max_depth
         self._categories = self._load_categories(path)
-        self._items = list(self._load_items(path).values())
+        self.path = path
 
     def _load_categories(self, path):
         label_cat = LabelCategories()
@@ -52,39 +52,39 @@ class ImagenetBase(SubsetBase):
                 label_cat.add(str(dirname))
         return {AnnotationType.label: label_cat}
 
-    def _load_items(self, path):
-        items = {}
-
+    def __iter__(self):
+        cache = {}
         for image_path in find_images(
-            path, recursive=True, max_depth=self._max_depth, min_depth=self._min_depth
+            self.path, recursive=True, max_depth=self._max_depth, min_depth=self._min_depth
         ):
-            label = str(Path(image_path).parent.relative_to(path))
+            label = str(Path(image_path).parent.relative_to(self.path))
             if label == ".":  # image is located in the root directory
                 label = ImagenetPath.IMAGE_DIR_NO_LABEL
             image_name = Path(image_path).stem
             item_id = str(label) + ImagenetPath.SEP_TOKEN + image_name
-            item = items.get(item_id)
-            try:
-                if item is None:
+            item = cache.get(item_id)
+            if item is None:
+                try:
                     item = DatasetItem(
                         id=item_id, subset=self._subset, media=Image.from_file(path=image_path)
                     )
-                    items[item_id] = item
-            except Exception as e:
-                self._ctx.error_policy.report_item_error(e, item_id=(item_id, self._subset))
-            annotations = item.annotations
-
+                    cache[item_id] = item
+                except Exception as e:
+                    self._ctx.error_policy.report_item_error(e, item_id=(item_id, self._subset))
             if label != ImagenetPath.IMAGE_DIR_NO_LABEL:
                 try:
                     label = self._categories[AnnotationType.label].find(label)[0]
-                    annotations.append(Label(label=label))
+                    item.annotations.append(Label(label=label))
                     self._ann_types.add(AnnotationType.label)
                 except Exception as e:
                     self._ctx.error_policy.report_annotation_error(
                         e, item_id=(item_id, self._subset)
                     )
+            yield item
 
-        return items
+    @property
+    def is_stream(self) -> bool:
+        return True
 
 
 class ImagenetImporter(Importer):
