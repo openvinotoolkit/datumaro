@@ -163,11 +163,10 @@ class CommonSemanticSegmentationImporter(Importer):
 
     @classmethod
     def detect(cls, context: FormatDetectionContext) -> FormatDetectionConfidence:
-        path = context.require_file(f"**/{DATASET_META_FILE}")
-        path = osp.dirname(path)
+        context.require_file(DATASET_META_FILE)
 
-        context.require_file(osp.join(path, CommonSemanticSegmentationPath.IMAGES_DIR, "**", "*"))
-        context.require_file(osp.join(path, CommonSemanticSegmentationPath.MASKS_DIR, "**", "*"))
+        context.require_file(osp.join(CommonSemanticSegmentationPath.IMAGES_DIR, "**", "*"))
+        context.require_file(osp.join(CommonSemanticSegmentationPath.MASKS_DIR, "**", "*"))
 
         return FormatDetectionConfidence.MEDIUM
 
