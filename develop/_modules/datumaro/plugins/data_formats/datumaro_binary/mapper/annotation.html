@@ -362,7 +362,7 @@ document.write(`
     <span class="n">Polygon</span><span class="p">,</span>
     <span class="n">PolyLine</span><span class="p">,</span>
     <span class="n">RleMask</span><span class="p">,</span>
-    <span class="n">_Shape</span><span class="p">,</span>
+    <span class="n">Shape</span><span class="p">,</span>
 <span class="p">)</span>
 
 <span class="kn">from</span> <span class="nn">.common</span> <span class="kn">import</span> <span class="n">DictMapper</span><span class="p">,</span> <span class="n">FloatListMapper</span><span class="p">,</span> <span class="n">IntListMapper</span><span class="p">,</span> <span class="n">Mapper</span><span class="p">,</span> <span class="n">StringMapper</span>
@@ -511,7 +511,7 @@ document.write(`
 
 <span class="k">class</span> <span class="nc">_ShapeMapper</span><span class="p">(</span><span class="n">AnnotationMapper</span><span class="p">):</span>
     <span class="nd">@classmethod</span>
-    <span class="k">def</span> <span class="nf">forward</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">ann</span><span class="p">:</span> <span class="n">_Shape</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bytes</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">forward</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">ann</span><span class="p">:</span> <span class="n">Shape</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bytes</span><span class="p">:</span>
         <span class="n">_bytearray</span> <span class="o">=</span> <span class="nb">bytearray</span><span class="p">()</span>
         <span class="n">_bytearray</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">forward</span><span class="p">(</span><span class="n">ann</span><span class="p">))</span>
         <span class="n">_bytearray</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">struct</span><span class="o">.</span><span class="n">pack</span><span class="p">(</span><span class="s2">&quot;&lt;ii&quot;</span><span class="p">,</span> <span class="bp">cls</span><span class="o">.</span><span class="n">forward_optional_label</span><span class="p">(</span><span class="n">ann</span><span class="o">.</span><span class="n">label</span><span class="p">),</span> <span class="n">ann</span><span class="o">.</span><span class="n">z_order</span><span class="p">))</span>
@@ -532,9 +532,9 @@ document.write(`
         <span class="p">},</span> <span class="n">offset</span>
 
     <span class="nd">@classmethod</span>
-    <span class="k">def</span> <span class="nf">backward</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">_bytes</span><span class="p">:</span> <span class="nb">bytes</span><span class="p">,</span> <span class="n">offset</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">_Shape</span><span class="p">,</span> <span class="nb">int</span><span class="p">]:</span>
+    <span class="k">def</span> <span class="nf">backward</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">_bytes</span><span class="p">:</span> <span class="nb">bytes</span><span class="p">,</span> <span class="n">offset</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">Shape</span><span class="p">,</span> <span class="nb">int</span><span class="p">]:</span>
         <span class="n">ann_dict</span><span class="p">,</span> <span class="n">offset</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="n">backward_dict</span><span class="p">(</span><span class="n">_bytes</span><span class="p">,</span> <span class="n">offset</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">_Shape</span><span class="p">(</span><span class="o">**</span><span class="n">ann_dict</span><span class="p">),</span> <span class="n">offset</span>
+        <span class="k">return</span> <span class="n">Shape</span><span class="p">(</span><span class="o">**</span><span class="n">ann_dict</span><span class="p">),</span> <span class="n">offset</span>
 
 
 <div class="viewcode-block" id="PointsMapper">

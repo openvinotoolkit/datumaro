@@ -374,7 +374,7 @@ document.write(`
     <span class="n">Polygon</span><span class="p">,</span>
     <span class="n">PolyLine</span><span class="p">,</span>
     <span class="n">RleMask</span><span class="p">,</span>
-    <span class="n">_Shape</span><span class="p">,</span>
+    <span class="n">Shape</span><span class="p">,</span>
 <span class="p">)</span>
 <span class="kn">from</span> <span class="nn">datumaro.components.crypter</span> <span class="kn">import</span> <span class="n">NULL_CRYPTER</span>
 <span class="kn">from</span> <span class="nn">datumaro.components.dataset_base</span> <span class="kn">import</span> <span class="n">DatasetItem</span>
@@ -724,7 +724,7 @@ document.write(`
         <span class="k">return</span> <span class="n">converted</span>
 
     <span class="k">def</span> <span class="nf">_convert_shape_object</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obj</span><span class="p">):</span>
-        <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="n">_Shape</span><span class="p">)</span>
+        <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="n">Shape</span><span class="p">)</span>
         <span class="n">converted</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_convert_annotation</span><span class="p">(</span><span class="n">obj</span><span class="p">)</span>
 
         <span class="n">converted</span><span class="o">.</span><span class="n">update</span><span class="p">(</span>

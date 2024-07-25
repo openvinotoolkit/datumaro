@@ -1128,8 +1128,26 @@ document.write(`
 
 
 
+<div class="viewcode-block" id="Shape">
+<a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.plugins.data_formats.datumaro_binary.mapper.html#datumaro.components.abstracts.merger.Shape">[docs]</a>
 <span class="nd">@attrs</span><span class="p">(</span><span class="n">slots</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">order</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
-<span class="k">class</span> <span class="nc">_Shape</span><span class="p">(</span><span class="n">Annotation</span><span class="p">):</span>
+<span class="k">class</span> <span class="nc">Shape</span><span class="p">(</span><span class="n">Annotation</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Base class for shape annotations. This class defines the common attributes and methods</span>
+<span class="sd">    for different types of shape annotations.</span>
+
+<span class="sd">    Attributes:</span>
+<span class="sd">        points (List[float]): List of float values representing the coordinates of the shape.</span>
+<span class="sd">        label (Optional[int]): Optional label ID for the shape. Default is None.</span>
+<span class="sd">        z_order (int): Z-order of the shape, used to determine the rendering order. Default is 0.</span>
+
+<span class="sd">    Methods:</span>
+<span class="sd">        get_area: Abstract method to calculate the area of the shape.</span>
+<span class="sd">        as_polygon: Abstract method to convert the shape into a polygon representation.</span>
+<span class="sd">        get_bbox: Returns the bounding box of the shape as [x, y, w, h].</span>
+<span class="sd">        get_points: Returns the points of the shape as a list of (x, y) tuples.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
     <span class="n">points</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span>
         <span class="n">converter</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="n">COORDINATE_ROUNDING_DIGITS</span><span class="p">)</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
     <span class="p">)</span>
@@ -1140,14 +1158,33 @@ document.write(`
 
     <span class="n">z_order</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">validator</span><span class="o">=</span><span class="n">default_if_none</span><span class="p">(</span><span class="nb">int</span><span class="p">),</span> <span class="n">kw_only</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
+<div class="viewcode-block" id="Shape.get_area">
+<a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.plugins.data_formats.datumaro_binary.mapper.html#datumaro.components.abstracts.merger.Shape.get_area">[docs]</a>
     <span class="k">def</span> <span class="nf">get_area</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">()</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Calculate the area of the shape.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">()</span></div>
 
+
+<div class="viewcode-block" id="Shape.as_polygon">
+<a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.plugins.data_formats.datumaro_binary.mapper.html#datumaro.components.abstracts.merger.Shape.as_polygon">[docs]</a>
     <span class="k">def</span> <span class="nf">as_polygon</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">]:</span>
-        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">()</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Convert the shape into a polygon representation.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">()</span></div>
 
+
+<div class="viewcode-block" id="Shape.get_bbox">
+<a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.plugins.data_formats.datumaro_binary.mapper.html#datumaro.components.abstracts.merger.Shape.get_bbox">[docs]</a>
     <span class="k">def</span> <span class="nf">get_bbox</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">]:</span>
-        <span class="s2">&quot;Returns [x, y, w, h]&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Calculate and return the bounding box of the shape.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            Tuple[float, float, float, float]: The bounding box as [x, y, w, h].</span>
+<span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="n">points</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">points</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">points</span><span class="p">:</span>
@@ -1159,11 +1196,17 @@ document.write(`
         <span class="n">x1</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">xs</span><span class="p">)</span>
         <span class="n">y0</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">ys</span><span class="p">)</span>
         <span class="n">y1</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">ys</span><span class="p">)</span>
-        <span class="k">return</span> <span class="p">[</span><span class="n">x0</span><span class="p">,</span> <span class="n">y0</span><span class="p">,</span> <span class="n">x1</span> <span class="o">-</span> <span class="n">x0</span><span class="p">,</span> <span class="n">y1</span> <span class="o">-</span> <span class="n">y0</span><span class="p">]</span>
+        <span class="k">return</span> <span class="p">[</span><span class="n">x0</span><span class="p">,</span> <span class="n">y0</span><span class="p">,</span> <span class="n">x1</span> <span class="o">-</span> <span class="n">x0</span><span class="p">,</span> <span class="n">y1</span> <span class="o">-</span> <span class="n">y0</span><span class="p">]</span></div>
 
+
+<div class="viewcode-block" id="Shape.get_points">
+<a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.plugins.data_formats.datumaro_binary.mapper.html#datumaro.components.abstracts.merger.Shape.get_points">[docs]</a>
     <span class="k">def</span> <span class="nf">get_points</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">]]]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Return points as a list of tuples, e.g. [(x0, y0), (x1, y1), ...]</span>
+<span class="sd">        Convert and return the points of the shape as a list of (x, y) tuples.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            Optional[List[Tuple[float, float]]]: List of points as (x, y) tuples, or None if no points.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">points</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">points</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">points</span><span class="p">:</span>
@@ -1174,13 +1217,26 @@ document.write(`
         <span class="n">xs</span> <span class="o">=</span> <span class="p">[</span><span class="n">p</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">points</span><span class="p">[</span><span class="mi">0</span><span class="p">::</span><span class="mi">2</span><span class="p">]]</span>
         <span class="n">ys</span> <span class="o">=</span> <span class="p">[</span><span class="n">p</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">points</span><span class="p">[</span><span class="mi">1</span><span class="p">::</span><span class="mi">2</span><span class="p">]]</span>
 
-        <span class="k">return</span> <span class="p">[(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">xs</span><span class="p">,</span> <span class="n">ys</span><span class="p">)]</span>
+        <span class="k">return</span> <span class="p">[(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">xs</span><span class="p">,</span> <span class="n">ys</span><span class="p">)]</span></div>
+</div>
+
 
 
 <div class="viewcode-block" id="PolyLine">
 <a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.plugins.data_formats.datumaro_binary.mapper.html#datumaro.components.abstracts.merger.PolyLine">[docs]</a>
 <span class="nd">@attrs</span><span class="p">(</span><span class="n">slots</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">order</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
-<span class="k">class</span> <span class="nc">PolyLine</span><span class="p">(</span><span class="n">_Shape</span><span class="p">):</span>
+<span class="k">class</span> <span class="nc">PolyLine</span><span class="p">(</span><span class="n">Shape</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    PolyLine annotation class. This class represents a polyline shape, which is a series of connected line segments.</span>
+
+<span class="sd">    Attributes:</span>
+<span class="sd">        _type (AnnotationType): The type of annotation, set to `AnnotationType.polyline`.</span>
+
+<span class="sd">    Methods:</span>
+<span class="sd">        as_polygon: Returns the points of the polyline as a polygon.</span>
+<span class="sd">        get_area: Returns the area of the polyline, which is always 0.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
     <span class="n">_type</span> <span class="o">=</span> <span class="n">AnnotationType</span><span class="o">.</span><span class="n">polyline</span>
 
 <div class="viewcode-block" id="PolyLine.as_polygon">
@@ -1201,6 +1257,21 @@ document.write(`
 <a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.plugins.data_formats.datumaro_binary.mapper.html#datumaro.components.abstracts.merger.Cuboid3d">[docs]</a>
 <span class="nd">@attrs</span><span class="p">(</span><span class="n">slots</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">init</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">order</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
 <span class="k">class</span> <span class="nc">Cuboid3d</span><span class="p">(</span><span class="n">Annotation</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Cuboid3d annotation class. This class represents a 3D cuboid annotation with position, rotation, and scale.</span>
+
+<span class="sd">    Attributes:</span>
+<span class="sd">        _type (AnnotationType): The type of annotation, set to `AnnotationType.cuboid_3d`.</span>
+<span class="sd">        _points (List[float]): List of float values representing the position, rotation, and scale of the cuboid.</span>
+<span class="sd">        label (Optional[int]): Optional label ID for the cuboid. Default is None.</span>
+
+<span class="sd">    Methods:</span>
+<span class="sd">        __init__: Initializes the Cuboid3d with position, rotation, and scale.</span>
+<span class="sd">        position: Property to get and set the position of the cuboid.</span>
+<span class="sd">        rotation: Property to get and set the rotation of the cuboid.</span>
+<span class="sd">        scale: Property to get and set the scale of the cuboid.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
     <span class="n">_type</span> <span class="o">=</span> <span class="n">AnnotationType</span><span class="o">.</span><span class="n">cuboid_3d</span>
     <span class="n">_points</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
     <span class="n">label</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span>
@@ -1209,6 +1280,13 @@ document.write(`
 
     <span class="nd">@_points</span><span class="o">.</span><span class="n">validator</span>
     <span class="k">def</span> <span class="nf">_points_validator</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">attribute</span><span class="p">,</span> <span class="n">points</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Validate and round the points representing the cuboid&#39;s position, rotation, and scale.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            attribute: The attribute being validated.</span>
+<span class="sd">            points: The list of float values to validate.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="n">points</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">points</span> <span class="o">=</span> <span class="p">[</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">]</span>
         <span class="k">else</span><span class="p">:</span>
@@ -1216,22 +1294,44 @@ document.write(`
             <span class="n">points</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">around</span><span class="p">(</span><span class="n">points</span><span class="p">,</span> <span class="n">COORDINATE_ROUNDING_DIGITS</span><span class="p">)</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_points</span> <span class="o">=</span> <span class="n">points</span>
 
+<div class="viewcode-block" id="Cuboid3d.__init__">
+<a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.plugins.data_formats.datumaro_binary.mapper.html#datumaro.components.abstracts.merger.Cuboid3d.__init__">[docs]</a>
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">position</span><span class="p">,</span> <span class="n">rotation</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">scale</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Initialize the Cuboid3d with position, rotation, and scale.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            position (List[float]): List of 3 float values representing the position [x, y, z].</span>
+<span class="sd">            rotation (List[float], optional): List of 3 float values representing the rotation [rx, ry, rz].</span>
+<span class="sd">            scale (List[float], optional): List of 3 float values representing the scale [sx, sy, sz].</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">position</span><span class="p">)</span> <span class="o">==</span> <span class="mi">3</span><span class="p">,</span> <span class="n">position</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">rotation</span><span class="p">:</span>
             <span class="n">rotation</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="mi">3</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">scale</span><span class="p">:</span>
             <span class="n">scale</span> <span class="o">=</span> <span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">*</span> <span class="mi">3</span>
         <span class="n">kwargs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;points&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">__attrs_init__</span><span class="p">(</span><span class="n">points</span><span class="o">=</span><span class="p">[</span><span class="o">*</span><span class="n">position</span><span class="p">,</span> <span class="o">*</span><span class="n">rotation</span><span class="p">,</span> <span class="o">*</span><span class="n">scale</span><span class="p">],</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__attrs_init__</span><span class="p">(</span><span class="n">points</span><span class="o">=</span><span class="p">[</span><span class="o">*</span><span class="n">position</span><span class="p">,</span> <span class="o">*</span><span class="n">rotation</span><span class="p">,</span> <span class="o">*</span><span class="n">scale</span><span class="p">],</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
+
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">position</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;[x, y, z]&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Get the position of the cuboid.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            List[float]: The position [x, y, z] of the cuboid.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_points</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="mi">3</span><span class="p">]</span>
 
     <span class="nd">@position</span><span class="o">.</span><span class="n">setter</span>
     <span class="k">def</span> <span class="nf">_set_poistion</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Set the position of the cuboid.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            value (List[float]): The new position [x, y, z] of the cuboid.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="c1"># TODO: fix the issue with separate coordinate rounding:</span>
         <span class="c1"># self.position[0] = 12.345676</span>
         <span class="c1"># - the number assigned won&#39;t be rounded.</span>
@@ -1239,20 +1339,42 @@ document.write(`
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">rotation</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;[rx, ry, rz]&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Get the rotation of the cuboid.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            List[float]: The rotation [rx, ry, rz] of the cuboid.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_points</span><span class="p">[</span><span class="mi">3</span><span class="p">:</span><span class="mi">6</span><span class="p">]</span>
 
     <span class="nd">@rotation</span><span class="o">.</span><span class="n">setter</span>
     <span class="k">def</span> <span class="nf">_set_rotation</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Set the rotation of the cuboid.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            value (List[float]): The new rotation [rx, ry, rz] of the cuboid.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">rotation</span><span class="p">[:]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">around</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">COORDINATE_ROUNDING_DIGITS</span><span class="p">)</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">scale</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;[sx, sy, sz]&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Get the scale of the cuboid.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            List[float]: The scale [sx, sy, sz] of the cuboid.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_points</span><span class="p">[</span><span class="mi">6</span><span class="p">:</span><span class="mi">9</span><span class="p">]</span>
 
     <span class="nd">@scale</span><span class="o">.</span><span class="n">setter</span>
     <span class="k">def</span> <span class="nf">_set_scale</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Set the scale of the cuboid.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            value (List[float]): The new scale [sx, sy, sz] of the cuboid.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">scale</span><span class="p">[:]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">around</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">COORDINATE_ROUNDING_DIGITS</span><span class="p">)</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span></div>
 
 
@@ -1260,18 +1382,47 @@ document.write(`
 <div class="viewcode-block" id="Polygon">
 <a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.plugins.sam_transforms.bbox_to_inst_mask.html#datumaro.components.abstracts.merger.Polygon">[docs]</a>
 <span class="nd">@attrs</span><span class="p">(</span><span class="n">slots</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">order</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">eq</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
-<span class="k">class</span> <span class="nc">Polygon</span><span class="p">(</span><span class="n">_Shape</span><span class="p">):</span>
+<span class="k">class</span> <span class="nc">Polygon</span><span class="p">(</span><span class="n">Shape</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Polygon annotation class. This class represents a polygon shape defined by a series of points.</span>
+
+<span class="sd">    Attributes:</span>
+<span class="sd">        _type (AnnotationType): The type of annotation, set to `AnnotationType.polygon`.</span>
+
+<span class="sd">    Methods:</span>
+<span class="sd">        __attrs_post_init__: Validates the points to ensure they form a valid polygon.</span>
+<span class="sd">        get_area: Calculates the area of the polygon using the shoelace formula.</span>
+<span class="sd">        as_polygon: Returns the points of the polygon.</span>
+<span class="sd">        __eq__: Compares this polygon with another for equality.</span>
+<span class="sd">        _get_shoelace_area: Helper method to calculate the area of the polygon using the shoelace formula.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
     <span class="n">_type</span> <span class="o">=</span> <span class="n">AnnotationType</span><span class="o">.</span><span class="n">polygon</span>
 
+<div class="viewcode-block" id="Polygon.__attrs_post_init__">
+<a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.plugins.sam_transforms.bbox_to_inst_mask.html#datumaro.components.abstracts.merger.Polygon.__attrs_post_init__">[docs]</a>
     <span class="k">def</span> <span class="nf">__attrs_post_init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Validate the points to ensure they form a valid polygon.</span>
+
+<span class="sd">        Raises:</span>
+<span class="sd">            AssertionError: If the number of points is not even or less than 3 pairs of coordinates.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="c1"># keep the message on a single line to produce informative output</span>
         <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">points</span><span class="p">)</span> <span class="o">%</span> <span class="mi">2</span> <span class="o">==</span> <span class="mi">0</span> <span class="ow">and</span> <span class="mi">3</span> <span class="o">&lt;=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">points</span><span class="p">)</span> <span class="o">//</span> <span class="mi">2</span><span class="p">,</span> <span class="p">(</span>
             <span class="s2">&quot;Wrong polygon points: </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">points</span>
-        <span class="p">)</span>
+        <span class="p">)</span></div>
+
 
 <div class="viewcode-block" id="Polygon.get_area">
 <a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.plugins.sam_transforms.bbox_to_inst_mask.html#datumaro.components.abstracts.merger.Polygon.get_area">[docs]</a>
     <span class="k">def</span> <span class="nf">get_area</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Calculate the area of the polygon using the shoelace formula.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            float: The area of the polygon.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="c1"># import pycocotools.mask as mask_utils</span>
 
         <span class="c1"># x, y, w, h = self.get_bbox()</span>
@@ -1284,10 +1435,27 @@ document.write(`
 <div class="viewcode-block" id="Polygon.as_polygon">
 <a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.plugins.sam_transforms.bbox_to_inst_mask.html#datumaro.components.abstracts.merger.Polygon.as_polygon">[docs]</a>
     <span class="k">def</span> <span class="nf">as_polygon</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Return the points of the polygon.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            List[float]: The points of the polygon.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">points</span></div>
 
 
+<div class="viewcode-block" id="Polygon.__eq__">
+<a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.plugins.sam_transforms.bbox_to_inst_mask.html#datumaro.components.abstracts.merger.Polygon.__eq__">[docs]</a>
     <span class="k">def</span> <span class="fm">__eq__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Compare this polygon with another for equality.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            other: The other polygon to compare with.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            bool: True if the polygons are equal, False otherwise.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">other</span><span class="p">,</span> <span class="vm">__class__</span><span class="p">):</span>
             <span class="k">return</span> <span class="kc">False</span>
         <span class="k">if</span> <span class="p">(</span>
@@ -1305,9 +1473,18 @@ document.write(`
         <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="n">self_polygon</span><span class="o">.</span><span class="n">is_valid</span> <span class="ow">and</span> <span class="n">other_polygon</span><span class="o">.</span><span class="n">is_valid</span><span class="p">):</span>
             <span class="k">return</span> <span class="n">self_points</span> <span class="o">==</span> <span class="n">other_points</span>
         <span class="n">inter_area</span> <span class="o">=</span> <span class="n">self_polygon</span><span class="o">.</span><span class="n">intersection</span><span class="p">(</span><span class="n">other_polygon</span><span class="p">)</span><span class="o">.</span><span class="n">area</span>
-        <span class="k">return</span> <span class="nb">abs</span><span class="p">(</span><span class="n">self_polygon</span><span class="o">.</span><span class="n">area</span> <span class="o">-</span> <span class="n">inter_area</span><span class="p">)</span> <span class="o">&lt;</span> <span class="n">CHECK_POLYGON_EQ_EPSILONE</span>
+        <span class="k">return</span> <span class="nb">abs</span><span class="p">(</span><span class="n">self_polygon</span><span class="o">.</span><span class="n">area</span> <span class="o">-</span> <span class="n">inter_area</span><span class="p">)</span> <span class="o">&lt;</span> <span class="n">CHECK_POLYGON_EQ_EPSILONE</span></div>
 
+
+<div class="viewcode-block" id="Polygon._get_shoelace_area">
+<a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.plugins.sam_transforms.bbox_to_inst_mask.html#datumaro.components.abstracts.merger.Polygon._get_shoelace_area">[docs]</a>
     <span class="k">def</span> <span class="nf">_get_shoelace_area</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Calculate the area of the polygon using the shoelace formula.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            float: The area of the polygon.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">points</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_points</span><span class="p">()</span>
         <span class="n">n</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">points</span><span class="p">)</span>
         <span class="c1"># Not a polygon</span>
@@ -1321,57 +1498,141 @@ document.write(`
             <span class="n">area</span> <span class="o">+=</span> <span class="n">x1</span> <span class="o">*</span> <span class="n">y2</span> <span class="o">-</span> <span class="n">y1</span> <span class="o">*</span> <span class="n">x2</span>
 
         <span class="k">return</span> <span class="nb">abs</span><span class="p">(</span><span class="n">area</span><span class="p">)</span> <span class="o">/</span> <span class="mf">2.0</span></div>
+</div>
 
 
 
 <div class="viewcode-block" id="Bbox">
 <a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.plugins.sam_transforms.bbox_to_inst_mask.html#datumaro.components.abstracts.merger.Bbox">[docs]</a>
 <span class="nd">@attrs</span><span class="p">(</span><span class="n">slots</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">init</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">order</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
-<span class="k">class</span> <span class="nc">Bbox</span><span class="p">(</span><span class="n">_Shape</span><span class="p">):</span>
+<span class="k">class</span> <span class="nc">Bbox</span><span class="p">(</span><span class="n">Shape</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Bbox annotation class. This class represents a bounding box defined by its top-left corner (x, y)</span>
+<span class="sd">    and its width and height (w, h).</span>
+
+<span class="sd">    Attributes:</span>
+<span class="sd">        _type (AnnotationType): The type of annotation, set to `AnnotationType.bbox`.</span>
+
+<span class="sd">    Methods:</span>
+<span class="sd">        __init__: Initializes the Bbox with its coordinates and dimensions.</span>
+<span class="sd">        x: Property to get the x-coordinate of the bounding box.</span>
+<span class="sd">        y: Property to get the y-coordinate of the bounding box.</span>
+<span class="sd">        w: Property to get the width of the bounding box.</span>
+<span class="sd">        h: Property to get the height of the bounding box.</span>
+<span class="sd">        get_area: Calculates the area of the bounding box.</span>
+<span class="sd">        get_bbox: Returns the bounding box coordinates and dimensions.</span>
+<span class="sd">        as_polygon: Returns the bounding box as a list of points forming a polygon.</span>
+<span class="sd">        iou: Calculates the Intersection over Union (IoU) with another shape.</span>
+<span class="sd">        wrap: Creates a new Bbox instance with updated attributes.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
     <span class="n">_type</span> <span class="o">=</span> <span class="n">AnnotationType</span><span class="o">.</span><span class="n">bbox</span>
 
+<div class="viewcode-block" id="Bbox.__init__">
+<a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.plugins.sam_transforms.bbox_to_inst_mask.html#datumaro.components.abstracts.merger.Bbox.__init__">[docs]</a>
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">w</span><span class="p">,</span> <span class="n">h</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Initialize the Bbox with its top-left corner (x, y) and its width and height (w, h).</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            x (float): The x-coordinate of the top-left corner.</span>
+<span class="sd">            y (float): The y-coordinate of the top-left corner.</span>
+<span class="sd">            w (float): The width of the bounding box.</span>
+<span class="sd">            h (float): The height of the bounding box.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">kwargs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;points&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>  <span class="c1"># comes from wrap()</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">__attrs_init__</span><span class="p">([</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">x</span> <span class="o">+</span> <span class="n">w</span><span class="p">,</span> <span class="n">y</span> <span class="o">+</span> <span class="n">h</span><span class="p">],</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__attrs_init__</span><span class="p">([</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">x</span> <span class="o">+</span> <span class="n">w</span><span class="p">,</span> <span class="n">y</span> <span class="o">+</span> <span class="n">h</span><span class="p">],</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
+
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">x</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Get the x-coordinate of the top-left corner of the bounding box.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            float: The x-coordinate of the bounding box.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">points</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">y</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Get the y-coordinate of the top-left corner of the bounding box.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            float: The y-coordinate of the bounding box.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">points</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">w</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Get the width of the bounding box.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            float: The width of the bounding box.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">points</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">points</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">h</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Get the height of the bounding box.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            float: The height of the bounding box.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">points</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">points</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
 
 <div class="viewcode-block" id="Bbox.get_area">
 <a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.plugins.sam_transforms.bbox_to_inst_mask.html#datumaro.components.abstracts.merger.Bbox.get_area">[docs]</a>
     <span class="k">def</span> <span class="nf">get_area</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Calculate the area of the bounding box.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            float: The area of the bounding box.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">w</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">h</span></div>
 
 
 <div class="viewcode-block" id="Bbox.get_bbox">
 <a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.plugins.sam_transforms.bbox_to_inst_mask.html#datumaro.components.abstracts.merger.Bbox.get_bbox">[docs]</a>
     <span class="k">def</span> <span class="nf">get_bbox</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Get the bounding box coordinates and dimensions.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            List[float]: The bounding box as [x, y, w, h].</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">x</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">y</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">w</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">h</span><span class="p">]</span></div>
 
 
 <div class="viewcode-block" id="Bbox.as_polygon">
 <a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.plugins.sam_transforms.bbox_to_inst_mask.html#datumaro.components.abstracts.merger.Bbox.as_polygon">[docs]</a>
     <span class="k">def</span> <span class="nf">as_polygon</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Convert the bounding box into a polygon representation.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            List[float]: The bounding box as a polygon.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">w</span><span class="p">,</span> <span class="n">h</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_bbox</span><span class="p">()</span>
         <span class="k">return</span> <span class="p">[</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">x</span> <span class="o">+</span> <span class="n">w</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">x</span> <span class="o">+</span> <span class="n">w</span><span class="p">,</span> <span class="n">y</span> <span class="o">+</span> <span class="n">h</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span> <span class="o">+</span> <span class="n">h</span><span class="p">]</span></div>
 
 
 <div class="viewcode-block" id="Bbox.iou">
 <a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.plugins.sam_transforms.bbox_to_inst_mask.html#datumaro.components.abstracts.merger.Bbox.iou">[docs]</a>
-    <span class="k">def</span> <span class="nf">iou</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">:</span> <span class="n">_Shape</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Union</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="n">Literal</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]]:</span>
+    <span class="k">def</span> <span class="nf">iou</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">:</span> <span class="n">Shape</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Union</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="n">Literal</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Calculate the Intersection over Union (IoU) with another shape.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            other (Shape): The other shape to compare with.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            Union[float, Literal[-1]]: The IoU value or -1 if not applicable.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="kn">from</span> <span class="nn">datumaro.util.annotation_util</span> <span class="kn">import</span> <span class="n">bbox_iou</span>
 
         <span class="k">return</span> <span class="n">bbox_iou</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">get_bbox</span><span class="p">(),</span> <span class="n">other</span><span class="o">.</span><span class="n">get_bbox</span><span class="p">())</span></div>
@@ -1380,6 +1641,16 @@ document.write(`
 <div class="viewcode-block" id="Bbox.wrap">
 <a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.plugins.sam_transforms.bbox_to_inst_mask.html#datumaro.components.abstracts.merger.Bbox.wrap">[docs]</a>
     <span class="k">def</span> <span class="nf">wrap</span><span class="p">(</span><span class="n">item</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Create a new Bbox instance with updated attributes.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            item (Bbox): The original Bbox instance.</span>
+<span class="sd">            kwargs: Additional attributes to update.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            Bbox: A new Bbox instance with updated attributes.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">d</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;x&quot;</span><span class="p">:</span> <span class="n">item</span><span class="o">.</span><span class="n">x</span><span class="p">,</span> <span class="s2">&quot;y&quot;</span><span class="p">:</span> <span class="n">item</span><span class="o">.</span><span class="n">y</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">:</span> <span class="n">item</span><span class="o">.</span><span class="n">w</span><span class="p">,</span> <span class="s2">&quot;h&quot;</span><span class="p">:</span> <span class="n">item</span><span class="o">.</span><span class="n">h</span><span class="p">}</span>
         <span class="n">d</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">kwargs</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">attr</span><span class="o">.</span><span class="n">evolve</span><span class="p">(</span><span class="n">item</span><span class="p">,</span> <span class="o">**</span><span class="n">d</span><span class="p">)</span></div>
@@ -1390,17 +1661,64 @@ document.write(`
 <div class="viewcode-block" id="RotatedBbox">
 <a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.components.annotation.html#datumaro.components.abstracts.merger.RotatedBbox">[docs]</a>
 <span class="nd">@attrs</span><span class="p">(</span><span class="n">slots</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">init</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">order</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
-<span class="k">class</span> <span class="nc">RotatedBbox</span><span class="p">(</span><span class="n">_Shape</span><span class="p">):</span>
+<span class="k">class</span> <span class="nc">RotatedBbox</span><span class="p">(</span><span class="n">Shape</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    RotatedBbox annotation class. This class represents a rotated bounding box defined</span>
+<span class="sd">    by its center (cx, cy), width (w), height (h), and rotation angle (r).</span>
+
+<span class="sd">    Attributes:</span>
+<span class="sd">        _type (AnnotationType): The type of annotation, set to `AnnotationType.rotated_bbox`.</span>
+
+<span class="sd">    Methods:</span>
+<span class="sd">        __init__: Initializes the RotatedBbox with its center, dimensions, and rotation angle.</span>
+<span class="sd">        from_rectangle: Creates a RotatedBbox from a list of four corner points.</span>
+<span class="sd">        cx: Property to get the x-coordinate of the center of the bounding box.</span>
+<span class="sd">        cy: Property to get the y-coordinate of the center of the bounding box.</span>
+<span class="sd">        w: Property to get the width of the bounding box.</span>
+<span class="sd">        h: Property to get the height of the bounding box.</span>
+<span class="sd">        r: Property to get the rotation angle of the bounding box.</span>
+<span class="sd">        get_area: Calculates the area of the bounding box.</span>
+<span class="sd">        get_bbox: Returns the bounding box coordinates and dimensions.</span>
+<span class="sd">        get_rotated_bbox: Returns the rotated bounding box parameters.</span>
+<span class="sd">        as_polygon: Converts the rotated bounding box into a list of corner points.</span>
+<span class="sd">        iou: Calculates the Intersection over Union (IoU) with another shape.</span>
+<span class="sd">        wrap: Creates a new RotatedBbox instance with updated attributes.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
     <span class="n">_type</span> <span class="o">=</span> <span class="n">AnnotationType</span><span class="o">.</span><span class="n">rotated_bbox</span>
 
+<div class="viewcode-block" id="RotatedBbox.__init__">
+<a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.components.annotation.html#datumaro.components.abstracts.merger.RotatedBbox.__init__">[docs]</a>
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cx</span><span class="p">,</span> <span class="n">cy</span><span class="p">,</span> <span class="n">w</span><span class="p">,</span> <span class="n">h</span><span class="p">,</span> <span class="n">r</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Initialize the RotatedBbox with its center (cx, cy), width (w), height (h), and rotation angle (r).</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            cx (float): The x-coordinate of the center.</span>
+<span class="sd">            cy (float): The y-coordinate of the center.</span>
+<span class="sd">            w (float): The width of the bounding box.</span>
+<span class="sd">            h (float): The height of the bounding box.</span>
+<span class="sd">            r (float): The rotation angle of the bounding box in degrees.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">kwargs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;points&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>  <span class="c1"># comes from wrap()</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">__attrs_init__</span><span class="p">([</span><span class="n">cx</span><span class="p">,</span> <span class="n">cy</span><span class="p">,</span> <span class="n">w</span><span class="p">,</span> <span class="n">h</span><span class="p">,</span> <span class="n">r</span><span class="p">],</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__attrs_init__</span><span class="p">([</span><span class="n">cx</span><span class="p">,</span> <span class="n">cy</span><span class="p">,</span> <span class="n">w</span><span class="p">,</span> <span class="n">h</span><span class="p">,</span> <span class="n">r</span><span class="p">],</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
+
 
 <div class="viewcode-block" id="RotatedBbox.from_rectangle">
 <a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.components.annotation.html#datumaro.components.abstracts.merger.RotatedBbox.from_rectangle">[docs]</a>
     <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">from_rectangle</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">points</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">]],</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Create a RotatedBbox from a list of four corner points.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            points (List[Tuple[float, float]]): A list of four points defining the rectangle.</span>
+<span class="sd">            args: Additional arguments.</span>
+<span class="sd">            kwargs: Additional keyword arguments.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            RotatedBbox: A new RotatedBbox instance.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">points</span><span class="p">)</span> <span class="o">==</span> <span class="mi">4</span><span class="p">,</span> <span class="s2">&quot;polygon for a rotated bbox should have only 4 coordinates.&quot;</span>
 
         <span class="c1"># Calculate rotation angle</span>
@@ -1419,33 +1737,75 @@ document.write(`
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">cx</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Get the x-coordinate of the center of the bounding box.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            float: The x-coordinate of the center.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">points</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">cy</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Get the y-coordinate of the center of the bounding box.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            float: The y-coordinate of the center.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">points</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">w</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Get the width of the bounding box.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            float: The width of the bounding box.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">points</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">h</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Get the height of the bounding box.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            float: The height of the bounding box.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">points</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">r</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Get the rotation angle of the bounding box in degrees.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            float: The rotation angle of the bounding box.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">points</span><span class="p">[</span><span class="mi">4</span><span class="p">]</span>
 
 <div class="viewcode-block" id="RotatedBbox.get_area">
 <a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.components.annotation.html#datumaro.components.abstracts.merger.RotatedBbox.get_area">[docs]</a>
     <span class="k">def</span> <span class="nf">get_area</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Calculate the area of the bounding box.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            float: The area of the bounding box.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">w</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">h</span></div>
 
 
 <div class="viewcode-block" id="RotatedBbox.get_bbox">
 <a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.components.annotation.html#datumaro.components.abstracts.merger.RotatedBbox.get_bbox">[docs]</a>
     <span class="k">def</span> <span class="nf">get_bbox</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Get the bounding box coordinates and dimensions.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            List[float]: The bounding box as [x, y, w, h].</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">polygon</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">as_polygon</span><span class="p">()</span>
         <span class="n">xs</span> <span class="o">=</span> <span class="p">[</span><span class="n">pt</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">pt</span> <span class="ow">in</span> <span class="n">polygon</span><span class="p">]</span>
         <span class="n">ys</span> <span class="o">=</span> <span class="p">[</span><span class="n">pt</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="k">for</span> <span class="n">pt</span> <span class="ow">in</span> <span class="n">polygon</span><span class="p">]</span>
@@ -1456,16 +1816,37 @@ document.write(`
 <div class="viewcode-block" id="RotatedBbox.get_rotated_bbox">
 <a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.components.annotation.html#datumaro.components.abstracts.merger.RotatedBbox.get_rotated_bbox">[docs]</a>
     <span class="k">def</span> <span class="nf">get_rotated_bbox</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Get the rotated bounding box parameters.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            List[float]: The rotated bounding box as [cx, cy, w, h, r].</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">cx</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">cy</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">w</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">h</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">r</span><span class="p">]</span></div>
 
 
 <div class="viewcode-block" id="RotatedBbox.as_polygon">
 <a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.components.annotation.html#datumaro.components.abstracts.merger.RotatedBbox.as_polygon">[docs]</a>
     <span class="k">def</span> <span class="nf">as_polygon</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">]]:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Convert [center_x, center_y, width, height, rotation] to 4 coordinates for a rotated bounding box.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Convert the rotated bounding box into a list of corner points.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            List[Tuple[float, float]]: The bounding box as a list of four corner points.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="k">def</span> <span class="nf">_rotate_point</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">angle</span><span class="p">):</span>
-<span class="w">            </span><span class="sd">&quot;&quot;&quot;Rotate a point around another point.&quot;&quot;&quot;</span>
+<span class="w">            </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">            Rotate a point around another point.</span>
+
+<span class="sd">            Args:</span>
+<span class="sd">                x (float): The x-coordinate of the point.</span>
+<span class="sd">                y (float): The y-coordinate of the point.</span>
+<span class="sd">                angle (float): The rotation angle in degrees.</span>
+
+<span class="sd">            Returns:</span>
+<span class="sd">                Tuple[float, float]: The rotated point coordinates.</span>
+<span class="sd">            &quot;&quot;&quot;</span>
             <span class="n">angle_rad</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">radians</span><span class="p">(</span><span class="n">angle</span><span class="p">)</span>
             <span class="n">cos_theta</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">angle_rad</span><span class="p">)</span>
             <span class="n">sin_theta</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">angle_rad</span><span class="p">)</span>
@@ -1490,7 +1871,16 @@ document.write(`
 
 <div class="viewcode-block" id="RotatedBbox.iou">
 <a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.components.annotation.html#datumaro.components.abstracts.merger.RotatedBbox.iou">[docs]</a>
-    <span class="k">def</span> <span class="nf">iou</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">:</span> <span class="n">_Shape</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Union</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="n">Literal</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]]:</span>
+    <span class="k">def</span> <span class="nf">iou</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">:</span> <span class="n">Shape</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Union</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="n">Literal</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Calculate the Intersection over Union (IoU) with another shape.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            other (Shape): The other shape to compare with.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            Union[float, Literal[-1]]: The IoU value or -1 if not applicable.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="kn">from</span> <span class="nn">datumaro.util.annotation_util</span> <span class="kn">import</span> <span class="n">bbox_iou</span>
 
         <span class="k">return</span> <span class="n">bbox_iou</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">get_bbox</span><span class="p">(),</span> <span class="n">other</span><span class="o">.</span><span class="n">get_bbox</span><span class="p">())</span></div>
@@ -1499,6 +1889,16 @@ document.write(`
 <div class="viewcode-block" id="RotatedBbox.wrap">
 <a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.components.annotation.html#datumaro.components.abstracts.merger.RotatedBbox.wrap">[docs]</a>
     <span class="k">def</span> <span class="nf">wrap</span><span class="p">(</span><span class="n">item</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Create a new RotatedBbox instance with updated attributes.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            item (RotatedBbox): The original RotatedBbox instance.</span>
+<span class="sd">            kwargs: Additional attributes to update.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            RotatedBbox: A new RotatedBbox instance with updated attributes.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">d</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;x&quot;</span><span class="p">:</span> <span class="n">item</span><span class="o">.</span><span class="n">x</span><span class="p">,</span> <span class="s2">&quot;y&quot;</span><span class="p">:</span> <span class="n">item</span><span class="o">.</span><span class="n">y</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">:</span> <span class="n">item</span><span class="o">.</span><span class="n">w</span><span class="p">,</span> <span class="s2">&quot;h&quot;</span><span class="p">:</span> <span class="n">item</span><span class="o">.</span><span class="n">h</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">:</span> <span class="n">item</span><span class="o">.</span><span class="n">r</span><span class="p">}</span>
         <span class="n">d</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">kwargs</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">attr</span><span class="o">.</span><span class="n">evolve</span><span class="p">(</span><span class="n">item</span><span class="p">,</span> <span class="o">**</span><span class="n">d</span><span class="p">)</span></div>
@@ -1585,14 +1985,38 @@ document.write(`
 <div class="viewcode-block" id="Points">
 <a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.plugins.data_formats.datumaro_binary.mapper.html#datumaro.components.abstracts.merger.Points">[docs]</a>
 <span class="nd">@attrs</span><span class="p">(</span><span class="n">slots</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">order</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
-<span class="k">class</span> <span class="nc">Points</span><span class="p">(</span><span class="n">_Shape</span><span class="p">):</span>
+<span class="k">class</span> <span class="nc">Points</span><span class="p">(</span><span class="n">Shape</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Represents an ordered set of points.</span>
+
+<span class="sd">    Attributes:</span>
+<span class="sd">        _type (AnnotationType): The type of annotation, set to `AnnotationType.points`.</span>
+<span class="sd">        visibility (List[IntEnum]): A list indicating the visibility status of each point.</span>
+
+<span class="sd">    Nested Class:</span>
+<span class="sd">        Visibility (IntEnum): Enum representing the visibility state of points. It has three states:</span>
+<span class="sd">            - absent: Point is absent (0).</span>
+<span class="sd">            - hidden: Point is hidden (1).</span>
+<span class="sd">            - visible: Point is visible (2).</span>
+
+<span class="sd">    Methods:</span>
+<span class="sd">        __attrs_post_init__: Validates that the number of points is even.</span>
+<span class="sd">        get_area: Returns the area covered by the points, always zero.</span>
+<span class="sd">        get_bbox: Returns the bounding box containing all visible or hidden points.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
 <div class="viewcode-block" id="Points.Visibility">
 <a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.plugins.data_formats.datumaro_binary.mapper.html#datumaro.components.abstracts.merger.Points.Visibility">[docs]</a>
     <span class="k">class</span> <span class="nc">Visibility</span><span class="p">(</span><span class="n">IntEnum</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Enum representing the visibility state of points.</span>
+
+<span class="sd">        Attributes:</span>
+<span class="sd">            absent (int): Point is absent (0).</span>
+<span class="sd">            hidden (int): Point is hidden (1).</span>
+<span class="sd">            visible (int): Point is visible (2).</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
         <span class="n">absent</span> <span class="o">=</span> <span class="mi">0</span>
         <span class="n">hidden</span> <span class="o">=</span> <span class="mi">1</span>
         <span class="n">visible</span> <span class="o">=</span> <span class="mi">2</span></div>
@@ -1604,6 +2028,16 @@ document.write(`
 
     <span class="nd">@visibility</span><span class="o">.</span><span class="n">validator</span>
     <span class="k">def</span> <span class="nf">_visibility_validator</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">attribute</span><span class="p">,</span> <span class="n">visibility</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Validates and initializes the visibility list.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            attribute: The attribute being validated.</span>
+<span class="sd">            visibility (List[IntEnum]): A list indicating the visibility status of each point.</span>
+
+<span class="sd">        Raises:</span>
+<span class="sd">            AssertionError: If the length of the visibility list does not match half the length of the points list.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="n">visibility</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">visibility</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">Visibility</span><span class="o">.</span><span class="n">visible</span><span class="p">]</span> <span class="o">*</span> <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">points</span><span class="p">)</span> <span class="o">//</span> <span class="mi">2</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
@@ -1613,18 +2047,39 @@ document.write(`
         <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">visibility</span><span class="p">)</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">points</span><span class="p">)</span> <span class="o">//</span> <span class="mi">2</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">visibility</span> <span class="o">=</span> <span class="n">visibility</span>
 
+<div class="viewcode-block" id="Points.__attrs_post_init__">
+<a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.plugins.data_formats.datumaro_binary.mapper.html#datumaro.components.abstracts.merger.Points.__attrs_post_init__">[docs]</a>
     <span class="k">def</span> <span class="nf">__attrs_post_init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">points</span><span class="p">)</span> <span class="o">%</span> <span class="mi">2</span> <span class="o">==</span> <span class="mi">0</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">points</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Validates that the number of points is even after initialization.</span>
+
+<span class="sd">        Raises:</span>
+<span class="sd">            AssertionError: If the number of points is not even.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">points</span><span class="p">)</span> <span class="o">%</span> <span class="mi">2</span> <span class="o">==</span> <span class="mi">0</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">points</span></div>
+
 
 <div class="viewcode-block" id="Points.get_area">
 <a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.plugins.data_formats.datumaro_binary.mapper.html#datumaro.components.abstracts.merger.Points.get_area">[docs]</a>
     <span class="k">def</span> <span class="nf">get_area</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns the area covered by the points.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            int: Always returns 0.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="mi">0</span></div>
 
 
 <div class="viewcode-block" id="Points.get_bbox">
 <a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.plugins.data_formats.datumaro_binary.mapper.html#datumaro.components.abstracts.merger.Points.get_bbox">[docs]</a>
     <span class="k">def</span> <span class="nf">get_bbox</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns the bounding box containing all visible or hidden points.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            List[float]: The bounding box as [x0, y0, width, height].</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">xs</span> <span class="o">=</span> <span class="p">[</span>
             <span class="n">p</span>
             <span class="k">for</span> <span class="n">p</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">points</span><span class="p">[</span><span class="mi">0</span><span class="p">::</span><span class="mi">2</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">visibility</span><span class="p">)</span>
@@ -1696,7 +2151,7 @@ document.write(`
 <div class="viewcode-block" id="Ellipse">
 <a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.plugins.data_formats.datumaro_binary.mapper.html#datumaro.components.abstracts.merger.Ellipse">[docs]</a>
 <span class="nd">@attrs</span><span class="p">(</span><span class="n">slots</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">init</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">order</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
-<span class="k">class</span> <span class="nc">Ellipse</span><span class="p">(</span><span class="n">_Shape</span><span class="p">):</span>
+<span class="k">class</span> <span class="nc">Ellipse</span><span class="p">(</span><span class="n">Shape</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Ellipse represents an ellipse that is encapsulated by a rectangle.</span>
 
@@ -1811,7 +2266,7 @@ document.write(`
 
 <div class="viewcode-block" id="Ellipse.iou">
 <a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.plugins.data_formats.datumaro_binary.mapper.html#datumaro.components.abstracts.merger.Ellipse.iou">[docs]</a>
-    <span class="k">def</span> <span class="nf">iou</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">:</span> <span class="n">_Shape</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Union</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="n">Literal</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]]:</span>
+    <span class="k">def</span> <span class="nf">iou</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">:</span> <span class="n">Shape</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Union</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="n">Literal</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]]:</span>
         <span class="kn">from</span> <span class="nn">datumaro.util.annotation_util</span> <span class="kn">import</span> <span class="n">bbox_iou</span>
 
         <span class="k">return</span> <span class="n">bbox_iou</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">get_bbox</span><span class="p">(),</span> <span class="n">other</span><span class="o">.</span><span class="n">get_bbox</span><span class="p">())</span></div>

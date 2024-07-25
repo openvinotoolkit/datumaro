@@ -47,6 +47,7 @@ datumaro.components.annotation
       Polygon
       RleMask
       RotatedBbox
+      Shape
       SuperResolutionAnnotation
       Tabular
       TabularCategories
