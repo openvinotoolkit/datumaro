@@ -1,0 +1,14 @@
+path: .
+train: images/train
+
+names:
+  0: label_0
+  1: label_1
+  2: label_2
+  3: label_3
+  4: label_4
+  5: label_5
+  6: label_6
+  7: label_7
+  8: label_8
+  9: label_9

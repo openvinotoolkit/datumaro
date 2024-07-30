@@ -1,0 +1,7 @@
+path: .
+train: images/train
+
+kpt_shape: [3, 2]
+
+names:
+  0: skeleton_label

@@ -1,9 +1,11 @@
 # Copyright (C) 2021 Intel Corporation
-# Copyright (C) 2022 CVAT.ai Corporation
+# Copyright (C) 2022-2024 CVAT.ai Corporation
 #
 # SPDX-License-Identifier: MIT
+from datumaro.util.test_utils import TestDir
 
 from .fixtures import *
+from .utils.test_utils import TestCaseHelper
 
 
 def pytest_configure(config):
@@ -19,3 +21,14 @@ def pytest_configure(config):
     config.addinivalue_line("markers", "components(ids): link a test with a component")
     config.addinivalue_line("markers", "reqids(ids): link a test with a requirement")
     config.addinivalue_line("markers", "bugs(ids): link a test with a bug")
+
+
+@pytest.fixture(scope="function")
+def test_dir():
+    with TestDir() as test_dir:
+        yield test_dir
+
+
+@pytest.fixture(scope="class")
+def helper_tc():
+    return TestCaseHelper()
