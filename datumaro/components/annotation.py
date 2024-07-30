@@ -107,7 +107,7 @@ class LabelCategories(Categories):
         attributes: Set[str] = field(factory=set, validator=default_if_none(set))
 
     items: List[str] = field(factory=list, validator=default_if_none(list))
-    _indices: Dict[str, int] = field(factory=dict, init=False, eq=False)
+    _indices: Dict[Tuple[str, str], int] = field(factory=dict, init=False, eq=False)
 
     @classmethod
     def from_iterable(
@@ -149,15 +149,24 @@ class LabelCategories(Categories):
     def _reindex(self):
         indices = {}
         for index, item in enumerate(self.items):
-            assert (item.parent + item.name) not in self._indices
-            indices[item.parent + item.name] = index
+            key = (item.parent, item.name)
+            assert key not in self._indices
+            indices[key] = index
         self._indices = indices
+
+    @property
+    def labels(self):
+        return {
+            label_index: parent + name
+            for (parent, name), label_index
+            in self._indices.items()
+        }
 
     def add(
         self, name: str, parent: Optional[str] = "", attributes: Optional[Set[str]] = None
     ) -> int:
         assert name
-        key = (parent or "") + name
+        key = (parent or "", name)
         assert key not in self._indices
 
         index = len(self.items)
@@ -166,7 +175,7 @@ class LabelCategories(Categories):
         return index
 
     def find(self, name: str, parent: str = "") -> Tuple[Optional[int], Optional[Category]]:
-        index = self._indices.get(parent + name)
+        index = self._indices.get((parent, name))
         if index is not None:
             return index, self.items[index]
         return index, None

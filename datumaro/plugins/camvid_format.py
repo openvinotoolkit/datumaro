@@ -198,8 +198,7 @@ class CamvidExtractor(SourceExtractor):
     def _load_items(self, path):
         items = {}
 
-        labels = self._categories[AnnotationType.label]._indices
-        labels = {labels[label_name]: label_name for label_name in labels}
+        labels = self._categories[AnnotationType.label].labels
 
         with open(path, encoding="utf-8") as f:
             for line in f:
