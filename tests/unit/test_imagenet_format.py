@@ -7,7 +7,7 @@ import numpy as np
 import pytest
 
 from datumaro.components.annotation import AnnotationType, Label, LabelCategories
-from datumaro.components.dataset import Dataset
+from datumaro.components.dataset import Dataset, StreamDataset
 from datumaro.components.dataset_base import DatasetItem
 from datumaro.components.environment import Environment
 from datumaro.components.media import Image
@@ -176,9 +176,8 @@ class ImagenetWithSubsetDirsFormatTest(ImagenetFormatTest):
         super().test_can_save_and_load(fxt_test_case_with_subsets)
 
 
-class ImagenetImporterTest(TestCase):
+class ImagenetImporterTest:
     DUMMY_DATASET_DIR = get_test_asset_path("imagenet_dataset")
-    FORMAT_NAME = "imagenet"
     IMPORTER_NAME = ImagenetImporter.NAME
 
     def _create_expected_dataset(self):
@@ -212,37 +211,40 @@ class ImagenetImporterTest(TestCase):
         )
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
-    def test_can_import(self):
+    @pytest.mark.parametrize("dataset_cls, is_stream", [(Dataset, False), (StreamDataset, True)])
+    def test_can_import(self, dataset_cls, is_stream, helper_tc):
         expected_dataset = self._create_expected_dataset()
-        dataset = Dataset.import_from(self.DUMMY_DATASET_DIR, self.FORMAT_NAME)
+        dataset = dataset_cls.import_from(self.DUMMY_DATASET_DIR, self.IMPORTER_NAME)
+        assert dataset.is_stream == is_stream
 
-        compare_datasets(self, expected_dataset, dataset, require_media=True)
+        compare_datasets(helper_tc, expected_dataset, dataset, require_media=True)
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_can_detect_imagenet(self):
         detected_formats = Environment().detect_dataset(self.DUMMY_DATASET_DIR)
-        self.assertEqual([self.IMPORTER_NAME], detected_formats)
+        assert [self.IMPORTER_NAME] == detected_formats
 
     @mark_requirement(Requirements.DATUM_673)
-    def test_can_pickle(self):
-        source = Dataset.import_from(self.DUMMY_DATASET_DIR, format=self.FORMAT_NAME)
+    def test_can_pickle(self, helper_tc):
+        source = Dataset.import_from(self.DUMMY_DATASET_DIR, format=self.IMPORTER_NAME)
 
         parsed = pickle.loads(pickle.dumps(source))  # nosec
 
-        compare_datasets_strict(self, source, parsed)
+        compare_datasets_strict(helper_tc, source, parsed)
 
 
 class ImagenetWithSubsetDirsImporterTest(ImagenetImporterTest):
     DUMMY_DATASET_DIR = get_test_asset_path("imagenet_subsets_dataset")
-    FORMAT_NAME = "imagenet_with_subset_dirs"
     IMPORTER_NAME = ImagenetWithSubsetDirsImporter.NAME
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
-    def test_can_import(self):
-        dataset = Dataset.import_from(self.DUMMY_DATASET_DIR, self.FORMAT_NAME)
+    @pytest.mark.parametrize("dataset_cls, is_stream", [(Dataset, False), (StreamDataset, True)])
+    def test_can_import(self, dataset_cls, is_stream, helper_tc):
+        dataset = dataset_cls.import_from(self.DUMMY_DATASET_DIR, self.IMPORTER_NAME)
+        assert dataset.is_stream == is_stream
 
         for subset_name, subset in dataset.subsets().items():
             expected_dataset = self._create_expected_dataset().transform(
                 "map_subsets", mapping={"default": subset_name}
             )
-            compare_datasets(self, expected_dataset, subset, require_media=True)
+            compare_datasets(helper_tc, expected_dataset, subset, require_media=True)
