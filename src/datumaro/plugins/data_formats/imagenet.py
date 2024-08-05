@@ -86,6 +86,10 @@ class ImagenetBase(SubsetBase):
 
         return items
 
+    @property
+    def is_stream(self) -> bool:
+        return True
+
 
 class ImagenetImporter(Importer):
     """

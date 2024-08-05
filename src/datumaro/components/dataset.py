@@ -989,6 +989,56 @@ class StreamDataset(Dataset):
     def is_eager(self) -> bool:
         return False
 
+    @classmethod
+    def from_extractors(
+        cls,
+        *sources: IDataset,
+        env: Optional[Environment] = None,
+        merge_policy: str = DEFAULT_MERGE_POLICY,
+    ) -> Dataset:
+        """
+        Creates a new dataset from one or several `Extractor`s.
+
+        In case of a single input, creates a lazy wrapper around the input.
+        In case of several inputs, unifies them and caches the resulting
+        dataset. We cannot apply regular dataset merge, since items list cannot be accessed.
+
+        Parameters:
+            sources: one or many input extractors
+            env: A context for plugins, which will be used for this dataset.
+                If not specified, the builtin plugins will be used.
+            merge_policy: Policy on how to merge multiple datasets.
+                Possible options are "exact", "intersect", and "union".
+
+        Returns:
+            dataset: A new dataset with contents produced by input extractors
+        """
+
+        if len(sources) == 1:
+            source = sources[0]
+            dataset = cls(source=source, env=env)
+        else:
+
+            class _MergedStreamDataset(cls):
+                def __init__(self, *sources: IDataset):
+                    from datumaro.components.hl_ops import HLOps
+
+                    self.merged = HLOps.merge(*sources, merge_policy=merge_policy)
+
+                def __iter__(self):
+                    yield from self.merged
+
+                @property
+                def is_stream(self):
+                    return True
+
+                def subsets(self) -> Dict[str, DatasetSubset]:
+                    return self.merged.subsets()
+
+            return _MergedStreamDataset(*sources)
+
+        return dataset
+
 
 @contextmanager
 def eager_mode(new_mode: bool = True, dataset: Optional[Dataset] = None) -> None:
