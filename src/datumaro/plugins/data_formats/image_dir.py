@@ -73,6 +73,10 @@ class ImageDirBase(SubsetBase):
             )
         self._ann_types = set()
 
+    @property
+    def is_stream(self) -> bool:
+        return True
+
 
 class ImageDirExporter(Exporter):
     DEFAULT_IMAGE_EXT = ".jpg"
