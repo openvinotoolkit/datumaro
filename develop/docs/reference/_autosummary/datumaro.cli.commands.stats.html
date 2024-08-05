@@ -31,7 +31,7 @@
     <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=a746c00c" />
     <link rel="stylesheet" type="text/css" href="../../../_static/copybutton.css?v=76b2166b" />
     <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css?v=eafc0fe6" />
-    <link rel="stylesheet" type="text/css" href="../../../_static/sphinx-design.min.css?v=87e54e7c" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/sphinx-design.min.css?v=95c83b7e" />
     <link rel="stylesheet" type="text/css" href="../../../_static/css/custom.css?v=8b7c274f" />
   
   <!-- Pre-loaded scripts that we'll load fully later -->
@@ -794,28 +794,29 @@ such as registering error and exit callbacks and context managers.</p>
 <dl class="py function">
 <dt class="sig sig-object py" id="datumaro.cli.commands.stats.str_to_bool">
 <span class="sig-prename descclassname"><span class="pre">datumaro.cli.commands.stats.</span></span><span class="sig-name descname"><span class="pre">str_to_bool</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">val</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#datumaro.cli.commands.stats.str_to_bool" title="Link to this definition">#</a></dt>
-<dd><p>Convert “boolean” strings (e.g., from env. vars.) to real booleans.</p>
-<p>Values mapping to <code class="code docutils literal notranslate"><span class="pre">True</span></code>:</p>
+<dd><p>Convert “boolean” strings (for example, from environment variables) to real
+booleans.</p>
+<p>Values mapping to <cite>True</cite>:</p>
 <ul class="simple">
-<li><p><code class="code docutils literal notranslate"><span class="pre">True</span></code></p></li>
-<li><p><code class="code docutils literal notranslate"><span class="pre">&quot;true&quot;</span></code> / <code class="code docutils literal notranslate"><span class="pre">&quot;t&quot;</span></code></p></li>
-<li><p><code class="code docutils literal notranslate"><span class="pre">&quot;yes&quot;</span></code> / <code class="code docutils literal notranslate"><span class="pre">&quot;y&quot;</span></code></p></li>
-<li><p><code class="code docutils literal notranslate"><span class="pre">&quot;on&quot;</span></code></p></li>
-<li><p><code class="code docutils literal notranslate"><span class="pre">&quot;1&quot;</span></code></p></li>
-<li><p><code class="code docutils literal notranslate"><span class="pre">1</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">True</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">&quot;true&quot;</span></code> / <code class="docutils literal notranslate"><span class="pre">&quot;t&quot;</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">&quot;yes&quot;</span></code> / <code class="docutils literal notranslate"><span class="pre">&quot;y&quot;</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">&quot;on&quot;</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">&quot;1&quot;</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">1</span></code></p></li>
 </ul>
-<p>Values mapping to <code class="code docutils literal notranslate"><span class="pre">False</span></code>:</p>
+<p>Values mapping to <cite>False</cite>:</p>
 <ul class="simple">
-<li><p><code class="code docutils literal notranslate"><span class="pre">False</span></code></p></li>
-<li><p><code class="code docutils literal notranslate"><span class="pre">&quot;false&quot;</span></code> / <code class="code docutils literal notranslate"><span class="pre">&quot;f&quot;</span></code></p></li>
-<li><p><code class="code docutils literal notranslate"><span class="pre">&quot;no&quot;</span></code> / <code class="code docutils literal notranslate"><span class="pre">&quot;n&quot;</span></code></p></li>
-<li><p><code class="code docutils literal notranslate"><span class="pre">&quot;off&quot;</span></code></p></li>
-<li><p><code class="code docutils literal notranslate"><span class="pre">&quot;0&quot;</span></code></p></li>
-<li><p><code class="code docutils literal notranslate"><span class="pre">0</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">False</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">&quot;false&quot;</span></code> / <code class="docutils literal notranslate"><span class="pre">&quot;f&quot;</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">&quot;no&quot;</span></code> / <code class="docutils literal notranslate"><span class="pre">&quot;n&quot;</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">&quot;off&quot;</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">&quot;0&quot;</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">0</span></code></p></li>
 </ul>
 <dl class="field-list simple">
 <dt class="field-odd">Raises<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#ValueError" title="(in Python v3.12)"><strong>ValueError</strong></a> – for any other value.</p>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#ValueError" title="(in Python v3.12)"><strong>ValueError</strong></a> – For any other value.</p>
 </dd>
 </dl>
 <div class="versionadded">

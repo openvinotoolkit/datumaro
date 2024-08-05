@@ -30,7 +30,7 @@
     <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=a746c00c" />
     <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css?v=76b2166b" />
     <link rel="stylesheet" type="text/css" href="../../_static/graphviz.css?v=eafc0fe6" />
-    <link rel="stylesheet" type="text/css" href="../../_static/sphinx-design.min.css?v=87e54e7c" />
+    <link rel="stylesheet" type="text/css" href="../../_static/sphinx-design.min.css?v=95c83b7e" />
     <link rel="stylesheet" type="text/css" href="../../_static/css/custom.css?v=8b7c274f" />
   
   <!-- Pre-loaded scripts that we'll load fully later -->
@@ -342,6 +342,9 @@ document.write(`
   <h1>Source code for attr._make</h1><div class="highlight"><pre>
 <span></span><span class="c1"># SPDX-License-Identifier: MIT</span>
 
+<span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">annotations</span>
+
+<span class="kn">import</span> <span class="nn">abc</span>
 <span class="kn">import</span> <span class="nn">contextlib</span>
 <span class="kn">import</span> <span class="nn">copy</span>
 <span class="kn">import</span> <span class="nn">enum</span>
@@ -359,8 +362,8 @@ document.write(`
 <span class="c1"># having the thread-local in the globals here.</span>
 <span class="kn">from</span> <span class="nn">.</span> <span class="kn">import</span> <span class="n">_compat</span><span class="p">,</span> <span class="n">_config</span><span class="p">,</span> <span class="n">setters</span>
 <span class="kn">from</span> <span class="nn">._compat</span> <span class="kn">import</span> <span class="p">(</span>
-    <span class="n">PY310</span><span class="p">,</span>
     <span class="n">PY_3_8_PLUS</span><span class="p">,</span>
+    <span class="n">PY_3_10_PLUS</span><span class="p">,</span>
     <span class="n">_AnnotationExtractor</span><span class="p">,</span>
     <span class="n">get_generic_base</span><span class="p">,</span>
 <span class="p">)</span>
@@ -373,10 +376,9 @@ document.write(`
 
 
 <span class="c1"># This is used at least twice, so cache it here.</span>
-<span class="n">_obj_setattr</span> <span class="o">=</span> <span class="nb">object</span><span class="o">.</span><span class="fm">__setattr__</span>
-<span class="n">_init_converter_pat</span> <span class="o">=</span> <span class="s2">&quot;__attr_converter_</span><span class="si">%s</span><span class="s2">&quot;</span>
-<span class="n">_init_factory_pat</span> <span class="o">=</span> <span class="s2">&quot;__attr_factory_</span><span class="si">%s</span><span class="s2">&quot;</span>
-<span class="n">_classvar_prefixes</span> <span class="o">=</span> <span class="p">(</span>
+<span class="n">_OBJ_SETATTR</span> <span class="o">=</span> <span class="nb">object</span><span class="o">.</span><span class="fm">__setattr__</span>
+<span class="n">_INIT_FACTORY_PAT</span> <span class="o">=</span> <span class="s2">&quot;__attr_factory_</span><span class="si">%s</span><span class="s2">&quot;</span>
+<span class="n">_CLASSVAR_PREFIXES</span> <span class="o">=</span> <span class="p">(</span>
     <span class="s2">&quot;typing.ClassVar&quot;</span><span class="p">,</span>
     <span class="s2">&quot;t.ClassVar&quot;</span><span class="p">,</span>
     <span class="s2">&quot;ClassVar&quot;</span><span class="p">,</span>
@@ -385,19 +387,19 @@ document.write(`
 <span class="c1"># we don&#39;t use a double-underscore prefix because that triggers</span>
 <span class="c1"># name mangling when trying to create a slot for the field</span>
 <span class="c1"># (when slots=True)</span>
-<span class="n">_hash_cache_field</span> <span class="o">=</span> <span class="s2">&quot;_attrs_cached_hash&quot;</span>
+<span class="n">_HASH_CACHE_FIELD</span> <span class="o">=</span> <span class="s2">&quot;_attrs_cached_hash&quot;</span>
 
-<span class="n">_empty_metadata_singleton</span> <span class="o">=</span> <span class="n">types</span><span class="o">.</span><span class="n">MappingProxyType</span><span class="p">({})</span>
+<span class="n">_EMPTY_METADATA_SINGLETON</span> <span class="o">=</span> <span class="n">types</span><span class="o">.</span><span class="n">MappingProxyType</span><span class="p">({})</span>
 
 <span class="c1"># Unique object for unequivocal getattr() defaults.</span>
-<span class="n">_sentinel</span> <span class="o">=</span> <span class="nb">object</span><span class="p">()</span>
+<span class="n">_SENTINEL</span> <span class="o">=</span> <span class="nb">object</span><span class="p">()</span>
 
-<span class="n">_ng_default_on_setattr</span> <span class="o">=</span> <span class="n">setters</span><span class="o">.</span><span class="n">pipe</span><span class="p">(</span><span class="n">setters</span><span class="o">.</span><span class="n">convert</span><span class="p">,</span> <span class="n">setters</span><span class="o">.</span><span class="n">validate</span><span class="p">)</span>
+<span class="n">_DEFAULT_ON_SETATTR</span> <span class="o">=</span> <span class="n">setters</span><span class="o">.</span><span class="n">pipe</span><span class="p">(</span><span class="n">setters</span><span class="o">.</span><span class="n">convert</span><span class="p">,</span> <span class="n">setters</span><span class="o">.</span><span class="n">validate</span><span class="p">)</span>
 
 
 <span class="k">class</span> <span class="nc">_Nothing</span><span class="p">(</span><span class="n">enum</span><span class="o">.</span><span class="n">Enum</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Sentinel to indicate the lack of a value when ``None`` is ambiguous.</span>
+<span class="sd">    Sentinel to indicate the lack of a value when `None` is ambiguous.</span>
 
 <span class="sd">    If extending attrs, you can use ``typing.Literal[NOTHING]`` to show</span>
 <span class="sd">    that a value may be ``NOTHING``.</span>
@@ -417,7 +419,7 @@ document.write(`
 
 <span class="n">NOTHING</span> <span class="o">=</span> <span class="n">_Nothing</span><span class="o">.</span><span class="n">NOTHING</span>
 <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">Sentinel to indicate the lack of a value when ``None`` is ambiguous.</span>
+<span class="sd">Sentinel to indicate the lack of a value when `None` is ambiguous.</span>
 <span class="sd">&quot;&quot;&quot;</span>
 
 
@@ -426,7 +428,7 @@ document.write(`
 <span class="sd">    An integer subclass that pickles / copies as None</span>
 
 <span class="sd">    This is used for non-slots classes with ``cache_hash=True``, to avoid</span>
-<span class="sd">    serializing a potentially (even likely) invalid hash value. Since ``None``</span>
+<span class="sd">    serializing a potentially (even likely) invalid hash value. Since `None`</span>
 <span class="sd">    is the default value for uncalculated hashes, whenever this is copied,</span>
 <span class="sd">    the copy&#39;s value for the hash should automatically reset.</span>
 
@@ -457,137 +459,29 @@ document.write(`
     <span class="n">alias</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
 <span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Create a new attribute on a class.</span>
+<span class="sd">    Create a new field / attribute on a class.</span>
+
+<span class="sd">    Identical to `attrs.field`, except it&#39;s not keyword-only.</span>
+
+<span class="sd">    Consider using `attrs.field` in new code (``attr.ib`` will *never* go away,</span>
+<span class="sd">    though).</span>
 
 <span class="sd">    ..  warning::</span>
 
-<span class="sd">        Does *not* do anything unless the class is also decorated with `attr.s`</span>
-<span class="sd">        / `attrs.define` / and so on!</span>
+<span class="sd">        Does **nothing** unless the class is also decorated with</span>
+<span class="sd">        `attr.s` (or similar)!</span>
 
-<span class="sd">    Please consider using `attrs.field` in new code (``attr.ib`` will *never*</span>
-<span class="sd">    go away, though).</span>
-
-<span class="sd">    :param default: A value that is used if an *attrs*-generated ``__init__``</span>
-<span class="sd">        is used and no value is passed while instantiating or the attribute is</span>
-<span class="sd">        excluded using ``init=False``.</span>
-
-<span class="sd">        If the value is an instance of `attrs.Factory`, its callable will be</span>
-<span class="sd">        used to construct a new value (useful for mutable data types like lists</span>
-<span class="sd">        or dicts).</span>
-
-<span class="sd">        If a default is not set (or set manually to `attrs.NOTHING`), a value</span>
-<span class="sd">        *must* be supplied when instantiating; otherwise a `TypeError` will be</span>
-<span class="sd">        raised.</span>
-
-<span class="sd">        The default can also be set using decorator notation as shown below.</span>
-
-<span class="sd">        .. seealso:: `defaults`</span>
-
-<span class="sd">    :param callable factory: Syntactic sugar for</span>
-<span class="sd">        ``default=attr.Factory(factory)``.</span>
-
-<span class="sd">    :param validator: `callable` that is called by *attrs*-generated</span>
-<span class="sd">        ``__init__`` methods after the instance has been initialized.  They</span>
-<span class="sd">        receive the initialized instance, the :func:`~attrs.Attribute`, and the</span>
-<span class="sd">        passed value.</span>
-
-<span class="sd">        The return value is *not* inspected so the validator has to throw an</span>
-<span class="sd">        exception itself.</span>
-
-<span class="sd">        If a `list` is passed, its items are treated as validators and must all</span>
-<span class="sd">        pass.</span>
-
-<span class="sd">        Validators can be globally disabled and re-enabled using</span>
-<span class="sd">        `attrs.validators.get_disabled` / `attrs.validators.set_disabled`.</span>
-
-<span class="sd">        The validator can also be set using decorator notation as shown below.</span>
-
-<span class="sd">        .. seealso:: :ref:`validators`</span>
-
-<span class="sd">    :type validator: `callable` or a `list` of `callable`\\ s.</span>
-
-<span class="sd">    :param repr: Include this attribute in the generated ``__repr__`` method.</span>
-<span class="sd">        If ``True``, include the attribute; if ``False``, omit it. By default,</span>
-<span class="sd">        the built-in ``repr()`` function is used. To override how the attribute</span>
-<span class="sd">        value is formatted, pass a ``callable`` that takes a single value and</span>
-<span class="sd">        returns a string. Note that the resulting string is used as-is, i.e. it</span>
-<span class="sd">        will be used directly *instead* of calling ``repr()`` (the default).</span>
-<span class="sd">    :type repr: a `bool` or a `callable` to use a custom function.</span>
-
-<span class="sd">    :param eq: If ``True`` (default), include this attribute in the generated</span>
-<span class="sd">        ``__eq__`` and ``__ne__`` methods that check two instances for</span>
-<span class="sd">        equality. To override how the attribute value is compared, pass a</span>
-<span class="sd">        ``callable`` that takes a single value and returns the value to be</span>
-<span class="sd">        compared.</span>
-
-<span class="sd">        .. seealso:: `comparison`</span>
-<span class="sd">    :type eq: a `bool` or a `callable`.</span>
-
-<span class="sd">    :param order: If ``True`` (default), include this attributes in the</span>
-<span class="sd">        generated ``__lt__``, ``__le__``, ``__gt__`` and ``__ge__`` methods. To</span>
-<span class="sd">        override how the attribute value is ordered, pass a ``callable`` that</span>
-<span class="sd">        takes a single value and returns the value to be ordered.</span>
-
-<span class="sd">        .. seealso:: `comparison`</span>
-<span class="sd">    :type order: a `bool` or a `callable`.</span>
-
-<span class="sd">    :param cmp: Setting *cmp* is equivalent to setting *eq* and *order* to the</span>
-<span class="sd">        same value. Must not be mixed with *eq* or *order*.</span>
-
-<span class="sd">        .. seealso:: `comparison`</span>
-<span class="sd">    :type cmp: a `bool` or a `callable`.</span>
-
-<span class="sd">    :param bool | None hash: Include this attribute in the generated</span>
-<span class="sd">        ``__hash__`` method.  If ``None`` (default), mirror *eq*&#39;s value.  This</span>
-<span class="sd">        is the correct behavior according the Python spec.  Setting this value</span>
-<span class="sd">        to anything else than ``None`` is *discouraged*.</span>
-
-<span class="sd">        .. seealso:: `hashing`</span>
-<span class="sd">    :param bool init: Include this attribute in the generated ``__init__``</span>
-<span class="sd">        method.  It is possible to set this to ``False`` and set a default</span>
-<span class="sd">        value.  In that case this attributed is unconditionally initialized</span>
-<span class="sd">        with the specified default value or factory.</span>
-
-<span class="sd">        .. seealso:: `init`</span>
-<span class="sd">    :param callable converter: `callable` that is called by *attrs*-generated</span>
-<span class="sd">        ``__init__`` methods to convert attribute&#39;s value to the desired</span>
-<span class="sd">        format.  It is given the passed-in value, and the returned value will</span>
-<span class="sd">        be used as the new value of the attribute.  The value is converted</span>
-<span class="sd">        before being passed to the validator, if any.</span>
-
-<span class="sd">        .. seealso:: :ref:`converters`</span>
-<span class="sd">    :param dict | None metadata: An arbitrary mapping, to be used by</span>
-<span class="sd">        third-party components.  See `extending-metadata`.</span>
-
-<span class="sd">    :param type: The type of the attribute. Nowadays, the preferred method to</span>
-<span class="sd">        specify the type is using a variable annotation (see :pep:`526`). This</span>
-<span class="sd">        argument is provided for backward compatibility. Regardless of the</span>
-<span class="sd">        approach used, the type will be stored on ``Attribute.type``.</span>
-
-<span class="sd">        Please note that *attrs* doesn&#39;t do anything with this metadata by</span>
-<span class="sd">        itself. You can use it as part of your own code or for `static type</span>
-<span class="sd">        checking &lt;types&gt;`.</span>
-<span class="sd">    :param bool kw_only: Make this attribute keyword-only in the generated</span>
-<span class="sd">        ``__init__`` (if ``init`` is ``False``, this parameter is ignored).</span>
-<span class="sd">    :param on_setattr: Allows to overwrite the *on_setattr* setting from</span>
-<span class="sd">        `attr.s`. If left `None`, the *on_setattr* value from `attr.s` is used.</span>
-<span class="sd">        Set to `attrs.setters.NO_OP` to run **no** `setattr` hooks for this</span>
-<span class="sd">        attribute -- regardless of the setting in `attr.s`.</span>
-<span class="sd">    :type on_setattr: `callable`, or a list of callables, or `None`, or</span>
-<span class="sd">        `attrs.setters.NO_OP`</span>
-<span class="sd">    :param str | None alias: Override this attribute&#39;s parameter name in the</span>
-<span class="sd">        generated ``__init__`` method. If left `None`, default to ``name``</span>
-<span class="sd">        stripped of leading underscores. See `private-attributes`.</span>
 
 <span class="sd">    .. versionadded:: 15.2.0 *convert*</span>
 <span class="sd">    .. versionadded:: 16.3.0 *metadata*</span>
 <span class="sd">    .. versionchanged:: 17.1.0 *validator* can be a ``list`` now.</span>
 <span class="sd">    .. versionchanged:: 17.1.0</span>
-<span class="sd">       *hash* is ``None`` and therefore mirrors *eq* by default.</span>
+<span class="sd">       *hash* is `None` and therefore mirrors *eq* by default.</span>
 <span class="sd">    .. versionadded:: 17.3.0 *type*</span>
 <span class="sd">    .. deprecated:: 17.4.0 *convert*</span>
-<span class="sd">    .. versionadded:: 17.4.0 *converter* as a replacement for the deprecated</span>
-<span class="sd">       *convert* to achieve consistency with other noun-based arguments.</span>
+<span class="sd">    .. versionadded:: 17.4.0</span>
+<span class="sd">       *converter* as a replacement for the deprecated *convert* to achieve</span>
+<span class="sd">       consistency with other noun-based arguments.</span>
 <span class="sd">    .. versionadded:: 18.1.0</span>
 <span class="sd">       ``factory=f`` is syntactic sugar for ``default=attr.Factory(f)``.</span>
 <span class="sd">    .. versionadded:: 18.2.0 *kw_only*</span>
@@ -657,17 +551,18 @@ document.write(`
 
 <span class="k">def</span> <span class="nf">_compile_and_eval</span><span class="p">(</span><span class="n">script</span><span class="p">,</span> <span class="n">globs</span><span class="p">,</span> <span class="n">locs</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">filename</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    &quot;Exec&quot; the script with the given global (globs) and local (locs) variables.</span>
+<span class="sd">    Evaluate the script with the given global (globs) and local (locs)</span>
+<span class="sd">    variables.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">bytecode</span> <span class="o">=</span> <span class="nb">compile</span><span class="p">(</span><span class="n">script</span><span class="p">,</span> <span class="n">filename</span><span class="p">,</span> <span class="s2">&quot;exec&quot;</span><span class="p">)</span>
     <span class="nb">eval</span><span class="p">(</span><span class="n">bytecode</span><span class="p">,</span> <span class="n">globs</span><span class="p">,</span> <span class="n">locs</span><span class="p">)</span>
 
 
-<span class="k">def</span> <span class="nf">_make_method</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">script</span><span class="p">,</span> <span class="n">filename</span><span class="p">,</span> <span class="n">globs</span><span class="p">):</span>
+<span class="k">def</span> <span class="nf">_make_method</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">script</span><span class="p">,</span> <span class="n">filename</span><span class="p">,</span> <span class="n">globs</span><span class="p">,</span> <span class="nb">locals</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Create the method with the script given and return the method object.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">locs</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="n">locs</span> <span class="o">=</span> <span class="p">{}</span> <span class="k">if</span> <span class="nb">locals</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="nb">locals</span>
 
     <span class="c1"># In order of debuggers like PDB being able to step through the code,</span>
     <span class="c1"># we add a fake linecache entry.</span>
@@ -748,33 +643,21 @@ document.write(`
     <span class="k">if</span> <span class="n">annot</span><span class="o">.</span><span class="n">startswith</span><span class="p">((</span><span class="s2">&quot;&#39;&quot;</span><span class="p">,</span> <span class="s1">&#39;&quot;&#39;</span><span class="p">))</span> <span class="ow">and</span> <span class="n">annot</span><span class="o">.</span><span class="n">endswith</span><span class="p">((</span><span class="s2">&quot;&#39;&quot;</span><span class="p">,</span> <span class="s1">&#39;&quot;&#39;</span><span class="p">)):</span>
         <span class="n">annot</span> <span class="o">=</span> <span class="n">annot</span><span class="p">[</span><span class="mi">1</span><span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
 
-    <span class="k">return</span> <span class="n">annot</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="n">_classvar_prefixes</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">annot</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="n">_CLASSVAR_PREFIXES</span><span class="p">)</span>
 
 
 <span class="k">def</span> <span class="nf">_has_own_attribute</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">attrib_name</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Check whether *cls* defines *attrib_name* (and doesn&#39;t just inherit it).</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">attr</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">attrib_name</span><span class="p">,</span> <span class="n">_sentinel</span><span class="p">)</span>
-    <span class="k">if</span> <span class="n">attr</span> <span class="ow">is</span> <span class="n">_sentinel</span><span class="p">:</span>
-        <span class="k">return</span> <span class="kc">False</span>
-
-    <span class="k">for</span> <span class="n">base_cls</span> <span class="ow">in</span> <span class="bp">cls</span><span class="o">.</span><span class="vm">__mro__</span><span class="p">[</span><span class="mi">1</span><span class="p">:]:</span>
-        <span class="n">a</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">base_cls</span><span class="p">,</span> <span class="n">attrib_name</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
-        <span class="k">if</span> <span class="n">attr</span> <span class="ow">is</span> <span class="n">a</span><span class="p">:</span>
-            <span class="k">return</span> <span class="kc">False</span>
-
-    <span class="k">return</span> <span class="kc">True</span>
+    <span class="k">return</span> <span class="n">attrib_name</span> <span class="ow">in</span> <span class="bp">cls</span><span class="o">.</span><span class="vm">__dict__</span>
 
 
 <span class="k">def</span> <span class="nf">_get_annotations</span><span class="p">(</span><span class="bp">cls</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Get annotations for *cls*.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">if</span> <span class="n">_has_own_attribute</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="s2">&quot;__annotations__&quot;</span><span class="p">):</span>
-        <span class="k">return</span> <span class="bp">cls</span><span class="o">.</span><span class="vm">__annotations__</span>
-
-    <span class="k">return</span> <span class="p">{}</span>
+    <span class="k">return</span> <span class="bp">cls</span><span class="o">.</span><span class="vm">__dict__</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;__annotations__&quot;</span><span class="p">,</span> <span class="p">{})</span>
 
 
 <span class="k">def</span> <span class="nf">_collect_base_attrs</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">taken_attr_names</span><span class="p">):</span>
@@ -844,8 +727,8 @@ document.write(`
 
 <span class="sd">    If *these* is passed, use that and don&#39;t look for them on the class.</span>
 
-<span class="sd">    *collect_by_mro* is True, collect them in the correct MRO order, otherwise</span>
-<span class="sd">    use the old -- incorrect -- order.  See #428.</span>
+<span class="sd">    If *collect_by_mro* is True, collect them in the correct MRO order,</span>
+<span class="sd">    otherwise use the old -- incorrect -- order.  See #428.</span>
 
 <span class="sd">    Return an `_Attributes`.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -945,15 +828,11 @@ document.write(`
     <span class="k">return</span> <span class="n">_Attributes</span><span class="p">((</span><span class="n">AttrsClass</span><span class="p">(</span><span class="n">attrs</span><span class="p">),</span> <span class="n">base_attrs</span><span class="p">,</span> <span class="n">base_attr_map</span><span class="p">))</span>
 
 
-<span class="k">def</span> <span class="nf">_make_cached_property_getattr</span><span class="p">(</span>
-    <span class="n">cached_properties</span><span class="p">,</span>
-    <span class="n">original_getattr</span><span class="p">,</span>
-    <span class="bp">cls</span><span class="p">,</span>
-<span class="p">):</span>
+<span class="k">def</span> <span class="nf">_make_cached_property_getattr</span><span class="p">(</span><span class="n">cached_properties</span><span class="p">,</span> <span class="n">original_getattr</span><span class="p">,</span> <span class="bp">cls</span><span class="p">):</span>
     <span class="n">lines</span> <span class="o">=</span> <span class="p">[</span>
         <span class="c1"># Wrapped to get `__class__` into closure cell for super()</span>
         <span class="c1"># (It will be replaced with the newly constructed class after construction).</span>
-        <span class="s2">&quot;def wrapper():&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;def wrapper(_cls):&quot;</span><span class="p">,</span>
         <span class="s2">&quot;    __class__ = _cls&quot;</span><span class="p">,</span>
         <span class="s2">&quot;    def __getattr__(self, item, cached_properties=cached_properties, original_getattr=original_getattr, _cached_setattr_get=_cached_setattr_get):&quot;</span><span class="p">,</span>
         <span class="s2">&quot;         func = cached_properties.get(item)&quot;</span><span class="p">,</span>
@@ -970,8 +849,12 @@ document.write(`
     <span class="k">else</span><span class="p">:</span>
         <span class="n">lines</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span>
             <span class="p">[</span>
-                <span class="s2">&quot;         if hasattr(super(), &#39;__getattr__&#39;):&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;              return super().__getattr__(item)&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;         try:&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;             return super().__getattribute__(item)&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;         except AttributeError:&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;             if not hasattr(super(), &#39;__getattr__&#39;):&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;                 raise&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;             return super().__getattr__(item)&quot;</span><span class="p">,</span>
                 <span class="s2">&quot;         original_error = f</span><span class="se">\&quot;</span><span class="s2">&#39;</span><span class="si">{self.__class__.__name__}</span><span class="s2">&#39; object has no attribute &#39;</span><span class="si">{item}</span><span class="s2">&#39;</span><span class="se">\&quot;</span><span class="s2">&quot;</span><span class="p">,</span>
                 <span class="s2">&quot;         raise AttributeError(original_error)&quot;</span><span class="p">,</span>
             <span class="p">]</span>
@@ -980,7 +863,7 @@ document.write(`
     <span class="n">lines</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span>
         <span class="p">[</span>
             <span class="s2">&quot;    return __getattr__&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;__getattr__ = wrapper()&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;__getattr__ = wrapper(_cls)&quot;</span><span class="p">,</span>
         <span class="p">]</span>
     <span class="p">)</span>
 
@@ -988,8 +871,7 @@ document.write(`
 
     <span class="n">glob</span> <span class="o">=</span> <span class="p">{</span>
         <span class="s2">&quot;cached_properties&quot;</span><span class="p">:</span> <span class="n">cached_properties</span><span class="p">,</span>
-        <span class="s2">&quot;_cached_setattr_get&quot;</span><span class="p">:</span> <span class="n">_obj_setattr</span><span class="o">.</span><span class="fm">__get__</span><span class="p">,</span>
-        <span class="s2">&quot;_cls&quot;</span><span class="p">:</span> <span class="bp">cls</span><span class="p">,</span>
+        <span class="s2">&quot;_cached_setattr_get&quot;</span><span class="p">:</span> <span class="n">_OBJ_SETATTR</span><span class="o">.</span><span class="fm">__get__</span><span class="p">,</span>
         <span class="s2">&quot;original_getattr&quot;</span><span class="p">:</span> <span class="n">original_getattr</span><span class="p">,</span>
     <span class="p">}</span>
 
@@ -998,6 +880,9 @@ document.write(`
         <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">lines</span><span class="p">),</span>
         <span class="n">unique_filename</span><span class="p">,</span>
         <span class="n">glob</span><span class="p">,</span>
+        <span class="nb">locals</span><span class="o">=</span><span class="p">{</span>
+            <span class="s2">&quot;_cls&quot;</span><span class="p">:</span> <span class="bp">cls</span><span class="p">,</span>
+        <span class="p">},</span>
     <span class="p">)</span>
 
 
@@ -1109,7 +994,7 @@ document.write(`
 
             <span class="bp">self</span><span class="o">.</span><span class="n">_wrote_own_setattr</span> <span class="o">=</span> <span class="kc">True</span>
         <span class="k">elif</span> <span class="n">on_setattr</span> <span class="ow">in</span> <span class="p">(</span>
-            <span class="n">_ng_default_on_setattr</span><span class="p">,</span>
+            <span class="n">_DEFAULT_ON_SETATTR</span><span class="p">,</span>
             <span class="n">setters</span><span class="o">.</span><span class="n">validate</span><span class="p">,</span>
             <span class="n">setters</span><span class="o">.</span><span class="n">convert</span><span class="p">,</span>
         <span class="p">):</span>
@@ -1124,7 +1009,7 @@ document.write(`
                     <span class="k">break</span>
             <span class="k">if</span> <span class="p">(</span>
                 <span class="p">(</span>
-                    <span class="n">on_setattr</span> <span class="o">==</span> <span class="n">_ng_default_on_setattr</span>
+                    <span class="n">on_setattr</span> <span class="o">==</span> <span class="n">_DEFAULT_ON_SETATTR</span>
                     <span class="ow">and</span> <span class="ow">not</span> <span class="p">(</span><span class="n">has_validator</span> <span class="ow">or</span> <span class="n">has_converter</span><span class="p">)</span>
                 <span class="p">)</span>
                 <span class="ow">or</span> <span class="p">(</span><span class="n">on_setattr</span> <span class="o">==</span> <span class="n">setters</span><span class="o">.</span><span class="n">validate</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">has_validator</span><span class="p">)</span>
@@ -1144,34 +1029,28 @@ document.write(`
     <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;&lt;_ClassBuilder(cls=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_cls</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2">)&gt;&quot;</span>
 
-    <span class="k">if</span> <span class="n">PY310</span><span class="p">:</span>
-        <span class="kn">import</span> <span class="nn">abc</span>
+    <span class="k">def</span> <span class="nf">build_class</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Finalize class based on the accumulated configuration.</span>
 
-        <span class="k">def</span> <span class="nf">build_class</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">            </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">            Finalize class based on the accumulated configuration.</span>
+<span class="sd">        Builder cannot be used after calling this method.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_slots</span> <span class="ow">is</span> <span class="kc">True</span><span class="p">:</span>
+            <span class="bp">cls</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_create_slots_class</span><span class="p">()</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">cls</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_patch_original_class</span><span class="p">()</span>
+            <span class="k">if</span> <span class="n">PY_3_10_PLUS</span><span class="p">:</span>
+                <span class="bp">cls</span> <span class="o">=</span> <span class="n">abc</span><span class="o">.</span><span class="n">update_abstractmethods</span><span class="p">(</span><span class="bp">cls</span><span class="p">)</span>
 
-<span class="sd">            Builder cannot be used after calling this method.</span>
-<span class="sd">            &quot;&quot;&quot;</span>
-            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_slots</span> <span class="ow">is</span> <span class="kc">True</span><span class="p">:</span>
-                <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_create_slots_class</span><span class="p">()</span>
+        <span class="c1"># The method gets only called if it&#39;s not inherited from a base class.</span>
+        <span class="c1"># _has_own_attribute does NOT work properly for classmethods.</span>
+        <span class="k">if</span> <span class="p">(</span>
+            <span class="nb">getattr</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="s2">&quot;__attrs_init_subclass__&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+            <span class="ow">and</span> <span class="s2">&quot;__attrs_init_subclass__&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">cls</span><span class="o">.</span><span class="vm">__dict__</span>
+        <span class="p">):</span>
+            <span class="bp">cls</span><span class="o">.</span><span class="n">__attrs_init_subclass__</span><span class="p">()</span>
 
-            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">abc</span><span class="o">.</span><span class="n">update_abstractmethods</span><span class="p">(</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">_patch_original_class</span><span class="p">()</span>
-            <span class="p">)</span>
-
-    <span class="k">else</span><span class="p">:</span>
-
-        <span class="k">def</span> <span class="nf">build_class</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">            </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">            Finalize class based on the accumulated configuration.</span>
-
-<span class="sd">            Builder cannot be used after calling this method.</span>
-<span class="sd">            &quot;&quot;&quot;</span>
-            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_slots</span> <span class="ow">is</span> <span class="kc">True</span><span class="p">:</span>
-                <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_create_slots_class</span><span class="p">()</span>
-
-            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_patch_original_class</span><span class="p">()</span>
+        <span class="k">return</span> <span class="bp">cls</span>
 
     <span class="k">def</span> <span class="nf">_patch_original_class</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
@@ -1185,7 +1064,7 @@ document.write(`
             <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_attr_names</span><span class="p">:</span>
                 <span class="k">if</span> <span class="p">(</span>
                     <span class="n">name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">base_names</span>
-                    <span class="ow">and</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">_sentinel</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="n">_sentinel</span>
+                    <span class="ow">and</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">_SENTINEL</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="n">_SENTINEL</span>
                 <span class="p">):</span>
                     <span class="c1"># An AttributeError can happen if a base class defines a</span>
                     <span class="c1"># class variable and we want to set an attribute with the</span>
@@ -1205,7 +1084,7 @@ document.write(`
             <span class="bp">cls</span><span class="o">.</span><span class="n">__attrs_own_setattr__</span> <span class="o">=</span> <span class="kc">False</span>
 
             <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_has_custom_setattr</span><span class="p">:</span>
-                <span class="bp">cls</span><span class="o">.</span><span class="fm">__setattr__</span> <span class="o">=</span> <span class="n">_obj_setattr</span>
+                <span class="bp">cls</span><span class="o">.</span><span class="fm">__setattr__</span> <span class="o">=</span> <span class="n">_OBJ_SETATTR</span>
 
         <span class="k">return</span> <span class="bp">cls</span>
 
@@ -1233,7 +1112,7 @@ document.write(`
             <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_has_custom_setattr</span><span class="p">:</span>
                 <span class="k">for</span> <span class="n">base_cls</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cls</span><span class="o">.</span><span class="vm">__bases__</span><span class="p">:</span>
                     <span class="k">if</span> <span class="n">base_cls</span><span class="o">.</span><span class="vm">__dict__</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;__attrs_own_setattr__&quot;</span><span class="p">,</span> <span class="kc">False</span><span class="p">):</span>
-                        <span class="n">cd</span><span class="p">[</span><span class="s2">&quot;__setattr__&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">_obj_setattr</span>
+                        <span class="n">cd</span><span class="p">[</span><span class="s2">&quot;__setattr__&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">_OBJ_SETATTR</span>
                         <span class="k">break</span>
 
         <span class="c1"># Traverse the MRO to collect existing slots</span>
@@ -1276,15 +1155,13 @@ document.write(`
         <span class="c1"># To know to update them.</span>
         <span class="n">additional_closure_functions_to_update</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="k">if</span> <span class="n">cached_properties</span><span class="p">:</span>
-            <span class="c1"># Add cached properties to names for slotting.</span>
-            <span class="n">names</span> <span class="o">+=</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">cached_properties</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
-
-            <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">cached_properties</span><span class="p">:</span>
-                <span class="c1"># Clear out function from class to avoid clashing.</span>
-                <span class="k">del</span> <span class="n">cd</span><span class="p">[</span><span class="n">name</span><span class="p">]</span>
-
             <span class="n">class_annotations</span> <span class="o">=</span> <span class="n">_get_annotations</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_cls</span><span class="p">)</span>
             <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">func</span> <span class="ow">in</span> <span class="n">cached_properties</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                <span class="c1"># Add cached properties to names for slotting.</span>
+                <span class="n">names</span> <span class="o">+=</span> <span class="p">(</span><span class="n">name</span><span class="p">,)</span>
+                <span class="c1"># Clear out function from class to avoid clashing.</span>
+                <span class="k">del</span> <span class="n">cd</span><span class="p">[</span><span class="n">name</span><span class="p">]</span>
+                <span class="n">additional_closure_functions_to_update</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">func</span><span class="p">)</span>
                 <span class="n">annotation</span> <span class="o">=</span> <span class="n">inspect</span><span class="o">.</span><span class="n">signature</span><span class="p">(</span><span class="n">func</span><span class="p">)</span><span class="o">.</span><span class="n">return_annotation</span>
                 <span class="k">if</span> <span class="n">annotation</span> <span class="ow">is</span> <span class="ow">not</span> <span class="n">inspect</span><span class="o">.</span><span class="n">Parameter</span><span class="o">.</span><span class="n">empty</span><span class="p">:</span>
                     <span class="n">class_annotations</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">annotation</span>
@@ -1313,7 +1190,7 @@ document.write(`
         <span class="n">slot_names</span> <span class="o">=</span> <span class="p">[</span><span class="n">name</span> <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">slot_names</span> <span class="k">if</span> <span class="n">name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">reused_slots</span><span class="p">]</span>
         <span class="n">cd</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">reused_slots</span><span class="p">)</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cache_hash</span><span class="p">:</span>
-            <span class="n">slot_names</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">_hash_cache_field</span><span class="p">)</span>
+            <span class="n">slot_names</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">_HASH_CACHE_FIELD</span><span class="p">)</span>
 
         <span class="n">cd</span><span class="p">[</span><span class="s2">&quot;__slots__&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">slot_names</span><span class="p">)</span>
 
@@ -1394,7 +1271,7 @@ document.write(`
 <span class="w">            </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">            Automatically created by attrs.</span>
 <span class="sd">            &quot;&quot;&quot;</span>
-            <span class="n">__bound_setattr</span> <span class="o">=</span> <span class="n">_obj_setattr</span><span class="o">.</span><span class="fm">__get__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+            <span class="n">__bound_setattr</span> <span class="o">=</span> <span class="n">_OBJ_SETATTR</span><span class="o">.</span><span class="fm">__get__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
             <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">state</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">):</span>
                 <span class="c1"># Backward compatibility with attrs instances pickled with</span>
                 <span class="c1"># attrs versions before v22.2.0 which stored tuples.</span>
@@ -1410,7 +1287,7 @@ document.write(`
             <span class="c1"># indicate that the first call to __hash__ should be a cache</span>
             <span class="c1"># miss.</span>
             <span class="k">if</span> <span class="n">hash_caching_enabled</span><span class="p">:</span>
-                <span class="n">__bound_setattr</span><span class="p">(</span><span class="n">_hash_cache_field</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+                <span class="n">__bound_setattr</span><span class="p">(</span><span class="n">_HASH_CACHE_FIELD</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
 
         <span class="k">return</span> <span class="n">slots_getstate</span><span class="p">,</span> <span class="n">slots_setstate</span>
 
@@ -1524,7 +1401,7 @@ document.write(`
             <span class="k">else</span><span class="p">:</span>
                 <span class="n">nval</span> <span class="o">=</span> <span class="n">hook</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">a</span><span class="p">,</span> <span class="n">val</span><span class="p">)</span>
 
-            <span class="n">_obj_setattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">nval</span><span class="p">)</span>
+            <span class="n">_OBJ_SETATTR</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">nval</span><span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">_cls_dict</span><span class="p">[</span><span class="s2">&quot;__attrs_own_setattr__&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_cls_dict</span><span class="p">[</span><span class="s2">&quot;__setattr__&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_add_method_dunders</span><span class="p">(</span><span class="fm">__setattr__</span><span class="p">)</span>
@@ -1680,238 +1557,28 @@ document.write(`
 <span class="sd">    A class decorator that adds :term:`dunder methods` according to the</span>
 <span class="sd">    specified attributes using `attr.ib` or the *these* argument.</span>
 
-<span class="sd">    Please consider using `attrs.define` / `attrs.frozen` in new code</span>
-<span class="sd">    (``attr.s`` will *never* go away, though).</span>
+<span class="sd">    Consider using `attrs.define` / `attrs.frozen` in new code (``attr.s`` will</span>
+<span class="sd">    *never* go away, though).</span>
 
-<span class="sd">    :param these: A dictionary of name to `attr.ib` mappings.  This is useful</span>
-<span class="sd">        to avoid the definition of your attributes within the class body</span>
-<span class="sd">        because you can&#39;t (e.g. if you want to add ``__repr__`` methods to</span>
-<span class="sd">        Django models) or don&#39;t want to.</span>
+<span class="sd">    Args:</span>
+<span class="sd">        repr_ns (str):</span>
+<span class="sd">            When using nested classes, there was no way in Python 2 to</span>
+<span class="sd">            automatically detect that.  This argument allows to set a custom</span>
+<span class="sd">            name for a more meaningful ``repr`` output.  This argument is</span>
+<span class="sd">            pointless in Python 3 and is therefore deprecated.</span>
 
-<span class="sd">        If *these* is not ``None``, *attrs* will *not* search the class body</span>
-<span class="sd">        for attributes and will *not* remove any attributes from it.</span>
+<span class="sd">    .. caution::</span>
+<span class="sd">        Refer to `attrs.define` for the rest of the parameters, but note that they</span>
+<span class="sd">        can have different defaults.</span>
 
-<span class="sd">        The order is deduced from the order of the attributes inside *these*.</span>
-
-<span class="sd">    :type these: `dict` of `str` to `attr.ib`</span>
-
-<span class="sd">    :param str repr_ns: When using nested classes, there&#39;s no way in Python 2</span>
-<span class="sd">        to automatically detect that.  Therefore it&#39;s possible to set the</span>
-<span class="sd">        namespace explicitly for a more meaningful ``repr`` output.</span>
-<span class="sd">    :param bool auto_detect: Instead of setting the *init*, *repr*, *eq*,</span>
-<span class="sd">        *order*, and *hash* arguments explicitly, assume they are set to</span>
-<span class="sd">        ``True`` **unless any** of the involved methods for one of the</span>
-<span class="sd">        arguments is implemented in the *current* class (i.e. it is *not*</span>
-<span class="sd">        inherited from some base class).</span>
-
-<span class="sd">        So for example by implementing ``__eq__`` on a class yourself, *attrs*</span>
-<span class="sd">        will deduce ``eq=False`` and will create *neither* ``__eq__`` *nor*</span>
-<span class="sd">        ``__ne__`` (but Python classes come with a sensible ``__ne__`` by</span>
-<span class="sd">        default, so it *should* be enough to only implement ``__eq__`` in most</span>
-<span class="sd">        cases).</span>
-
-<span class="sd">        .. warning::</span>
-
-<span class="sd">           If you prevent *attrs* from creating the ordering methods for you</span>
-<span class="sd">           (``order=False``, e.g. by implementing ``__le__``), it becomes</span>
-<span class="sd">           *your* responsibility to make sure its ordering is sound. The best</span>
-<span class="sd">           way is to use the `functools.total_ordering` decorator.</span>
-
-
-<span class="sd">        Passing ``True`` or ``False`` to *init*, *repr*, *eq*, *order*, *cmp*,</span>
-<span class="sd">        or *hash* overrides whatever *auto_detect* would determine.</span>
-
-<span class="sd">    :param bool repr: Create a ``__repr__`` method with a human readable</span>
-<span class="sd">        representation of *attrs* attributes..</span>
-<span class="sd">    :param bool str: Create a ``__str__`` method that is identical to</span>
-<span class="sd">        ``__repr__``.  This is usually not necessary except for `Exception`\ s.</span>
-<span class="sd">    :param bool | None eq: If ``True`` or ``None`` (default), add ``__eq__``</span>
-<span class="sd">        and ``__ne__`` methods that check two instances for equality.</span>
-
-<span class="sd">        They compare the instances as if they were tuples of their *attrs*</span>
-<span class="sd">        attributes if and only if the types of both classes are *identical*!</span>
-
-<span class="sd">        .. seealso:: `comparison`</span>
-<span class="sd">    :param bool | None order: If ``True``, add ``__lt__``, ``__le__``,</span>
-<span class="sd">        ``__gt__``, and ``__ge__`` methods that behave like *eq* above and</span>
-<span class="sd">        allow instances to be ordered. If ``None`` (default) mirror value of</span>
-<span class="sd">        *eq*.</span>
-
-<span class="sd">        .. seealso:: `comparison`</span>
-<span class="sd">    :param bool | None cmp: Setting *cmp* is equivalent to setting *eq* and</span>
-<span class="sd">        *order* to the same value. Must not be mixed with *eq* or *order*.</span>
-
-<span class="sd">        .. seealso:: `comparison`</span>
-<span class="sd">    :param bool | None unsafe_hash: If ``None`` (default), the ``__hash__``</span>
-<span class="sd">        method is generated according how *eq* and *frozen* are set.</span>
-
-<span class="sd">        1. If *both* are True, *attrs* will generate a ``__hash__`` for you.</span>
-<span class="sd">        2. If *eq* is True and *frozen* is False, ``__hash__`` will be set to</span>
-<span class="sd">           None, marking it unhashable (which it is).</span>
-<span class="sd">        3. If *eq* is False, ``__hash__`` will be left untouched meaning the</span>
-<span class="sd">           ``__hash__`` method of the base class will be used (if base class is</span>
-<span class="sd">           ``object``, this means it will fall back to id-based hashing.).</span>
-
-<span class="sd">        Although not recommended, you can decide for yourself and force *attrs*</span>
-<span class="sd">        to create one (e.g. if the class is immutable even though you didn&#39;t</span>
-<span class="sd">        freeze it programmatically) by passing ``True`` or not.  Both of these</span>
-<span class="sd">        cases are rather special and should be used carefully.</span>
-
-<span class="sd">        .. seealso::</span>
-
-<span class="sd">           - Our documentation on `hashing`,</span>
-<span class="sd">           - Python&#39;s documentation on `object.__hash__`,</span>
-<span class="sd">           - and the `GitHub issue that led to the default \</span>
-<span class="sd">             behavior &lt;https://github.com/python-attrs/attrs/issues/136&gt;`_ for</span>
-<span class="sd">             more details.</span>
-
-<span class="sd">    :param bool | None hash: Alias for *unsafe_hash*. *unsafe_hash* takes</span>
-<span class="sd">        precedence.</span>
-<span class="sd">    :param bool init: Create a ``__init__`` method that initializes the *attrs*</span>
-<span class="sd">        attributes. Leading underscores are stripped for the argument name. If</span>
-<span class="sd">        a ``__attrs_pre_init__`` method exists on the class, it will be called</span>
-<span class="sd">        before the class is initialized. If a ``__attrs_post_init__`` method</span>
-<span class="sd">        exists on the class, it will be called after the class is fully</span>
-<span class="sd">        initialized.</span>
-
-<span class="sd">        If ``init`` is ``False``, an ``__attrs_init__`` method will be injected</span>
-<span class="sd">        instead. This allows you to define a custom ``__init__`` method that</span>
-<span class="sd">        can do pre-init work such as ``super().__init__()``, and then call</span>
-<span class="sd">        ``__attrs_init__()`` and ``__attrs_post_init__()``.</span>
-
-<span class="sd">        .. seealso:: `init`</span>
-<span class="sd">    :param bool slots: Create a :term:`slotted class &lt;slotted classes&gt;` that&#39;s</span>
-<span class="sd">        more memory-efficient. Slotted classes are generally superior to the</span>
-<span class="sd">        default dict classes, but have some gotchas you should know about, so</span>
-<span class="sd">        we encourage you to read the :term:`glossary entry &lt;slotted classes&gt;`.</span>
-<span class="sd">    :param bool frozen: Make instances immutable after initialization.  If</span>
-<span class="sd">        someone attempts to modify a frozen instance,</span>
-<span class="sd">        `attrs.exceptions.FrozenInstanceError` is raised.</span>
-
-<span class="sd">        .. note::</span>
-
-<span class="sd">            1. This is achieved by installing a custom ``__setattr__`` method</span>
-<span class="sd">               on your class, so you can&#39;t implement your own.</span>
-
-<span class="sd">            2. True immutability is impossible in Python.</span>
-
-<span class="sd">            3. This *does* have a minor a runtime performance `impact</span>
-<span class="sd">               &lt;how-frozen&gt;` when initializing new instances.  In other words:</span>
-<span class="sd">               ``__init__`` is slightly slower with ``frozen=True``.</span>
-
-<span class="sd">            4. If a class is frozen, you cannot modify ``self`` in</span>
-<span class="sd">               ``__attrs_post_init__`` or a self-written ``__init__``. You can</span>
-<span class="sd">               circumvent that limitation by using ``object.__setattr__(self,</span>
-<span class="sd">               &quot;attribute_name&quot;, value)``.</span>
-
-<span class="sd">            5. Subclasses of a frozen class are frozen too.</span>
-
-<span class="sd">    :param bool weakref_slot: Make instances weak-referenceable.  This has no</span>
-<span class="sd">        effect unless ``slots`` is also enabled.</span>
-<span class="sd">    :param bool auto_attribs: If ``True``, collect :pep:`526`-annotated</span>
-<span class="sd">        attributes from the class body.</span>
-
-<span class="sd">        In this case, you **must** annotate every field.  If *attrs* encounters</span>
-<span class="sd">        a field that is set to an `attr.ib` but lacks a type annotation, an</span>
-<span class="sd">        `attr.exceptions.UnannotatedAttributeError` is raised.  Use</span>
-<span class="sd">        ``field_name: typing.Any = attr.ib(...)`` if you don&#39;t want to set a</span>
-<span class="sd">        type.</span>
-
-<span class="sd">        If you assign a value to those attributes (e.g. ``x: int = 42``), that</span>
-<span class="sd">        value becomes the default value like if it were passed using</span>
-<span class="sd">        ``attr.ib(default=42)``.  Passing an instance of `attrs.Factory` also</span>
-<span class="sd">        works as expected in most cases (see warning below).</span>
-
-<span class="sd">        Attributes annotated as `typing.ClassVar`, and attributes that are</span>
-<span class="sd">        neither annotated nor set to an `attr.ib` are **ignored**.</span>
-
-<span class="sd">        .. warning::</span>
-<span class="sd">           For features that use the attribute name to create decorators (e.g.</span>
-<span class="sd">           :ref:`validators &lt;validators&gt;`), you still *must* assign `attr.ib`</span>
-<span class="sd">           to them. Otherwise Python will either not find the name or try to</span>
-<span class="sd">           use the default value to call e.g. ``validator`` on it.</span>
-
-<span class="sd">           These errors can be quite confusing and probably the most common bug</span>
-<span class="sd">           report on our bug tracker.</span>
-
-<span class="sd">    :param bool kw_only: Make all attributes keyword-only in the generated</span>
-<span class="sd">        ``__init__`` (if ``init`` is ``False``, this parameter is ignored).</span>
-<span class="sd">    :param bool cache_hash: Ensure that the object&#39;s hash code is computed only</span>
-<span class="sd">        once and stored on the object.  If this is set to ``True``, hashing</span>
-<span class="sd">        must be either explicitly or implicitly enabled for this class.  If the</span>
-<span class="sd">        hash code is cached, avoid any reassignments of fields involved in hash</span>
-<span class="sd">        code computation or mutations of the objects those fields point to</span>
-<span class="sd">        after object creation.  If such changes occur, the behavior of the</span>
-<span class="sd">        object&#39;s hash code is undefined.</span>
-<span class="sd">    :param bool auto_exc: If the class subclasses `BaseException` (which</span>
-<span class="sd">        implicitly includes any subclass of any exception), the following</span>
-<span class="sd">        happens to behave like a well-behaved Python exceptions class:</span>
-
-<span class="sd">        - the values for *eq*, *order*, and *hash* are ignored and the</span>
-<span class="sd">          instances compare and hash by the instance&#39;s ids (N.B. *attrs* will</span>
-<span class="sd">          *not* remove existing implementations of ``__hash__`` or the equality</span>
-<span class="sd">          methods. It just won&#39;t add own ones.),</span>
-<span class="sd">        - all attributes that are either passed into ``__init__`` or have a</span>
-<span class="sd">          default value are additionally available as a tuple in the ``args``</span>
-<span class="sd">          attribute,</span>
-<span class="sd">        - the value of *str* is ignored leaving ``__str__`` to base classes.</span>
-<span class="sd">    :param bool collect_by_mro: Setting this to `True` fixes the way *attrs*</span>
-<span class="sd">       collects attributes from base classes.  The default behavior is</span>
-<span class="sd">       incorrect in certain cases of multiple inheritance.  It should be on by</span>
-<span class="sd">       default but is kept off for backward-compatibility.</span>
-
-<span class="sd">       .. seealso::</span>
-<span class="sd">          Issue `#428 &lt;https://github.com/python-attrs/attrs/issues/428&gt;`_</span>
-
-<span class="sd">    :param bool | None getstate_setstate:</span>
-<span class="sd">       .. note::</span>
-<span class="sd">          This is usually only interesting for slotted classes and you should</span>
-<span class="sd">          probably just set *auto_detect* to `True`.</span>
-
-<span class="sd">       If `True`, ``__getstate__`` and ``__setstate__`` are generated and</span>
-<span class="sd">       attached to the class. This is necessary for slotted classes to be</span>
-<span class="sd">       pickleable. If left `None`, it&#39;s `True` by default for slotted classes</span>
-<span class="sd">       and ``False`` for dict classes.</span>
-
-<span class="sd">       If *auto_detect* is `True`, and *getstate_setstate* is left `None`, and</span>
-<span class="sd">       **either** ``__getstate__`` or ``__setstate__`` is detected directly on</span>
-<span class="sd">       the class (i.e. not inherited), it is set to `False` (this is usually</span>
-<span class="sd">       what you want).</span>
-
-<span class="sd">    :param on_setattr: A callable that is run whenever the user attempts to set</span>
-<span class="sd">        an attribute (either by assignment like ``i.x = 42`` or by using</span>
-<span class="sd">        `setattr` like ``setattr(i, &quot;x&quot;, 42)``). It receives the same arguments</span>
-<span class="sd">        as validators: the instance, the attribute that is being modified, and</span>
-<span class="sd">        the new value.</span>
-
-<span class="sd">        If no exception is raised, the attribute is set to the return value of</span>
-<span class="sd">        the callable.</span>
-
-<span class="sd">        If a list of callables is passed, they&#39;re automatically wrapped in an</span>
-<span class="sd">        `attrs.setters.pipe`.</span>
-<span class="sd">    :type on_setattr: `callable`, or a list of callables, or `None`, or</span>
-<span class="sd">        `attrs.setters.NO_OP`</span>
-
-<span class="sd">    :param callable | None field_transformer:</span>
-<span class="sd">        A function that is called with the original class object and all fields</span>
-<span class="sd">        right before *attrs* finalizes the class.  You can use this, e.g., to</span>
-<span class="sd">        automatically add converters or validators to fields based on their</span>
-<span class="sd">        types.</span>
-
-<span class="sd">        .. seealso:: `transform-fields`</span>
-
-<span class="sd">    :param bool match_args:</span>
-<span class="sd">        If `True` (default), set ``__match_args__`` on the class to support</span>
-<span class="sd">        :pep:`634` (Structural Pattern Matching). It is a tuple of all</span>
-<span class="sd">        non-keyword-only ``__init__`` parameter names on Python 3.10 and later.</span>
-<span class="sd">        Ignored on older Python versions.</span>
+<span class="sd">        Notably, leaving *on_setattr* as `None` will **not** add any hooks.</span>
 
 <span class="sd">    .. versionadded:: 16.0.0 *slots*</span>
 <span class="sd">    .. versionadded:: 16.1.0 *frozen*</span>
 <span class="sd">    .. versionadded:: 16.3.0 *str*</span>
 <span class="sd">    .. versionadded:: 16.3.0 Support for ``__attrs_post_init__``.</span>
 <span class="sd">    .. versionchanged:: 17.1.0</span>
-<span class="sd">       *hash* supports ``None`` as value which is also the default now.</span>
+<span class="sd">       *hash* supports `None` as value which is also the default now.</span>
 <span class="sd">    .. versionadded:: 17.3.0 *auto_attribs*</span>
 <span class="sd">    .. versionchanged:: 18.1.0</span>
 <span class="sd">       If *these* is passed, no attributes are deleted from the class body.</span>
@@ -1942,10 +1609,38 @@ document.write(`
 <span class="sd">    .. versionadded:: 21.3.0 *match_args*</span>
 <span class="sd">    .. versionadded:: 22.2.0</span>
 <span class="sd">       *unsafe_hash* as an alias for *hash* (for :pep:`681` compliance).</span>
+<span class="sd">    .. deprecated:: 24.1.0 *repr_ns*</span>
+<span class="sd">    .. versionchanged:: 24.1.0</span>
+<span class="sd">       Instances are not compared as tuples of attributes anymore, but using a</span>
+<span class="sd">       big ``and`` condition. This is faster and has more correct behavior for</span>
+<span class="sd">       uncomparable values like `math.nan`.</span>
+<span class="sd">    .. versionadded:: 24.1.0</span>
+<span class="sd">       If a class has an *inherited* classmethod called</span>
+<span class="sd">       ``__attrs_init_subclass__``, it is executed after the class is created.</span>
+<span class="sd">    .. deprecated:: 24.1.0 *hash* is deprecated in favor of *unsafe_hash*.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">repr_ns</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="kn">import</span> <span class="nn">warnings</span>
+
+        <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
+            <span class="ne">DeprecationWarning</span><span class="p">(</span>
+                <span class="s2">&quot;The `repr_ns` argument is deprecated and will be removed in or after August 2025.&quot;</span>
+            <span class="p">),</span>
+            <span class="n">stacklevel</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+        <span class="p">)</span>
+
     <span class="n">eq_</span><span class="p">,</span> <span class="n">order_</span> <span class="o">=</span> <span class="n">_determine_attrs_eq_order</span><span class="p">(</span><span class="n">cmp</span><span class="p">,</span> <span class="n">eq</span><span class="p">,</span> <span class="n">order</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
 
-    <span class="c1"># unsafe_hash takes precedence due to PEP 681.</span>
+    <span class="c1"># hash is deprecated &amp; unsafe_hash takes precedence due to PEP 681.</span>
+    <span class="k">if</span> <span class="nb">hash</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="kn">import</span> <span class="nn">warnings</span>
+
+        <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
+            <span class="ne">DeprecationWarning</span><span class="p">(</span>
+                <span class="s2">&quot;The `hash` argument is deprecated in favor of `unsafe_hash` and will be removed in or after August 2025.&quot;</span>
+            <span class="p">),</span>
+            <span class="n">stacklevel</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+        <span class="p">)</span>
     <span class="k">if</span> <span class="n">unsafe_hash</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
         <span class="nb">hash</span> <span class="o">=</span> <span class="n">unsafe_hash</span>
 
@@ -2046,7 +1741,7 @@ document.write(`
                 <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="p">(</span>
-            <span class="n">PY310</span>
+            <span class="n">PY_3_10_PLUS</span>
             <span class="ow">and</span> <span class="n">match_args</span>
             <span class="ow">and</span> <span class="ow">not</span> <span class="n">_has_own_attribute</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="s2">&quot;__match_args__&quot;</span><span class="p">)</span>
         <span class="p">):</span>
@@ -2055,7 +1750,7 @@ document.write(`
         <span class="k">return</span> <span class="n">builder</span><span class="o">.</span><span class="n">build_class</span><span class="p">()</span>
 
     <span class="c1"># maybe_cls&#39;s type depends on the usage of the decorator.  It&#39;s a class</span>
-    <span class="c1"># if it&#39;s used as `@attrs` but ``None`` if used as `@attrs()`.</span>
+    <span class="c1"># if it&#39;s used as `@attrs` but `None` if used as `@attrs()`.</span>
     <span class="k">if</span> <span class="n">maybe_cls</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
         <span class="k">return</span> <span class="n">wrap</span>
 
@@ -2141,17 +1836,17 @@ document.write(`
         <span class="n">method_lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">indent</span> <span class="o">+</span> <span class="s2">&quot;    &quot;</span> <span class="o">+</span> <span class="n">closing_braces</span><span class="p">)</span>
 
     <span class="k">if</span> <span class="n">cache_hash</span><span class="p">:</span>
-        <span class="n">method_lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">tab</span> <span class="o">+</span> <span class="sa">f</span><span class="s2">&quot;if self.</span><span class="si">{</span><span class="n">_hash_cache_field</span><span class="si">}</span><span class="s2"> is None:&quot;</span><span class="p">)</span>
+        <span class="n">method_lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">tab</span> <span class="o">+</span> <span class="sa">f</span><span class="s2">&quot;if self.</span><span class="si">{</span><span class="n">_HASH_CACHE_FIELD</span><span class="si">}</span><span class="s2"> is None:&quot;</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">frozen</span><span class="p">:</span>
             <span class="n">append_hash_computation_lines</span><span class="p">(</span>
-                <span class="sa">f</span><span class="s2">&quot;object.__setattr__(self, &#39;</span><span class="si">{</span><span class="n">_hash_cache_field</span><span class="si">}</span><span class="s2">&#39;, &quot;</span><span class="p">,</span> <span class="n">tab</span> <span class="o">*</span> <span class="mi">2</span>
+                <span class="sa">f</span><span class="s2">&quot;object.__setattr__(self, &#39;</span><span class="si">{</span><span class="n">_HASH_CACHE_FIELD</span><span class="si">}</span><span class="s2">&#39;, &quot;</span><span class="p">,</span> <span class="n">tab</span> <span class="o">*</span> <span class="mi">2</span>
             <span class="p">)</span>
             <span class="n">method_lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">tab</span> <span class="o">*</span> <span class="mi">2</span> <span class="o">+</span> <span class="s2">&quot;)&quot;</span><span class="p">)</span>  <span class="c1"># close __setattr__</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">append_hash_computation_lines</span><span class="p">(</span>
-                <span class="sa">f</span><span class="s2">&quot;self.</span><span class="si">{</span><span class="n">_hash_cache_field</span><span class="si">}</span><span class="s2"> = &quot;</span><span class="p">,</span> <span class="n">tab</span> <span class="o">*</span> <span class="mi">2</span>
+                <span class="sa">f</span><span class="s2">&quot;self.</span><span class="si">{</span><span class="n">_HASH_CACHE_FIELD</span><span class="si">}</span><span class="s2"> = &quot;</span><span class="p">,</span> <span class="n">tab</span> <span class="o">*</span> <span class="mi">2</span>
             <span class="p">)</span>
-        <span class="n">method_lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">tab</span> <span class="o">+</span> <span class="sa">f</span><span class="s2">&quot;return self.</span><span class="si">{</span><span class="n">_hash_cache_field</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="n">method_lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">tab</span> <span class="o">+</span> <span class="sa">f</span><span class="s2">&quot;return self.</span><span class="si">{</span><span class="n">_HASH_CACHE_FIELD</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="n">append_hash_computation_lines</span><span class="p">(</span><span class="s2">&quot;return &quot;</span><span class="p">,</span> <span class="n">tab</span><span class="p">)</span>
 
@@ -2204,20 +1899,20 @@ document.write(`
     <span class="n">globs</span> <span class="o">=</span> <span class="p">{}</span>
     <span class="k">if</span> <span class="n">attrs</span><span class="p">:</span>
         <span class="n">lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;    return  (&quot;</span><span class="p">)</span>
-        <span class="n">others</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;    ) == (&quot;</span><span class="p">]</span>
         <span class="k">for</span> <span class="n">a</span> <span class="ow">in</span> <span class="n">attrs</span><span class="p">:</span>
             <span class="k">if</span> <span class="n">a</span><span class="o">.</span><span class="n">eq_key</span><span class="p">:</span>
                 <span class="n">cmp_name</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;_</span><span class="si">{</span><span class="n">a</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">_key&quot;</span>
                 <span class="c1"># Add the key function to the global namespace</span>
                 <span class="c1"># of the evaluated function.</span>
                 <span class="n">globs</span><span class="p">[</span><span class="n">cmp_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">a</span><span class="o">.</span><span class="n">eq_key</span>
-                <span class="n">lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;        </span><span class="si">{</span><span class="n">cmp_name</span><span class="si">}</span><span class="s2">(self.</span><span class="si">{</span><span class="n">a</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">),&quot;</span><span class="p">)</span>
-                <span class="n">others</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;        </span><span class="si">{</span><span class="n">cmp_name</span><span class="si">}</span><span class="s2">(other.</span><span class="si">{</span><span class="n">a</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">),&quot;</span><span class="p">)</span>
+                <span class="n">lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                    <span class="sa">f</span><span class="s2">&quot;        </span><span class="si">{</span><span class="n">cmp_name</span><span class="si">}</span><span class="s2">(self.</span><span class="si">{</span><span class="n">a</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">) == </span><span class="si">{</span><span class="n">cmp_name</span><span class="si">}</span><span class="s2">(other.</span><span class="si">{</span><span class="n">a</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">)&quot;</span>
+                <span class="p">)</span>
             <span class="k">else</span><span class="p">:</span>
-                <span class="n">lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;        self.</span><span class="si">{</span><span class="n">a</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">,&quot;</span><span class="p">)</span>
-                <span class="n">others</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;        other.</span><span class="si">{</span><span class="n">a</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">,&quot;</span><span class="p">)</span>
-
-        <span class="n">lines</span> <span class="o">+=</span> <span class="p">[</span><span class="o">*</span><span class="n">others</span><span class="p">,</span> <span class="s2">&quot;    )&quot;</span><span class="p">]</span>
+                <span class="n">lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;        self.</span><span class="si">{</span><span class="n">a</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2"> == other.</span><span class="si">{</span><span class="n">a</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">a</span> <span class="ow">is</span> <span class="ow">not</span> <span class="n">attrs</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]:</span>
+                <span class="n">lines</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">lines</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="si">}</span><span class="s2"> and&quot;</span>
+        <span class="n">lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;    )&quot;</span><span class="p">)</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="n">lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;    return True&quot;</span><span class="p">)</span>
 
@@ -2370,13 +2065,17 @@ document.write(`
 <span class="sd">    The tuple also allows accessing the fields by their names (see below for</span>
 <span class="sd">    examples).</span>
 
-<span class="sd">    :param type cls: Class to introspect.</span>
+<span class="sd">    Args:</span>
+<span class="sd">        cls (type): Class to introspect.</span>
 
-<span class="sd">    :raise TypeError: If *cls* is not a class.</span>
-<span class="sd">    :raise attrs.exceptions.NotAnAttrsClassError: If *cls* is not an *attrs*</span>
-<span class="sd">        class.</span>
+<span class="sd">    Raises:</span>
+<span class="sd">        TypeError: If *cls* is not a class.</span>
 
-<span class="sd">    :rtype: tuple (with name accessors) of `attrs.Attribute`</span>
+<span class="sd">        attrs.exceptions.NotAnAttrsClassError:</span>
+<span class="sd">            If *cls* is not an *attrs* class.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        tuple (with name accessors) of `attrs.Attribute`</span>
 
 <span class="sd">    .. versionchanged:: 16.2.0 Returned tuple allows accessing the fields</span>
 <span class="sd">       by name.</span>
@@ -2407,16 +2106,20 @@ document.write(`
 
 <span class="k">def</span> <span class="nf">fields_dict</span><span class="p">(</span><span class="bp">cls</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Return an ordered dictionary of *attrs* attributes for a class, whose</span>
-<span class="sd">    keys are the attribute names.</span>
+<span class="sd">    Return an ordered dictionary of *attrs* attributes for a class, whose keys</span>
+<span class="sd">    are the attribute names.</span>
 
-<span class="sd">    :param type cls: Class to introspect.</span>
+<span class="sd">    Args:</span>
+<span class="sd">        cls (type): Class to introspect.</span>
 
-<span class="sd">    :raise TypeError: If *cls* is not a class.</span>
-<span class="sd">    :raise attrs.exceptions.NotAnAttrsClassError: If *cls* is not an *attrs*</span>
-<span class="sd">        class.</span>
+<span class="sd">    Raises:</span>
+<span class="sd">        TypeError: If *cls* is not a class.</span>
 
-<span class="sd">    :rtype: dict</span>
+<span class="sd">        attrs.exceptions.NotAnAttrsClassError:</span>
+<span class="sd">            If *cls* is not an *attrs* class.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        dict[str, attrs.Attribute]: Dict of attribute name to definition</span>
 
 <span class="sd">    .. versionadded:: 18.1.0</span>
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -2436,7 +2139,8 @@ document.write(`
 
 <span class="sd">    Leaves all exceptions through.</span>
 
-<span class="sd">    :param inst: Instance of a class with *attrs* attributes.</span>
+<span class="sd">    Args:</span>
+<span class="sd">        inst: Instance of a class with *attrs* attributes.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="n">_config</span><span class="o">.</span><span class="n">_run_validators</span> <span class="ow">is</span> <span class="kc">False</span><span class="p">:</span>
         <span class="k">return</span>
@@ -2447,15 +2151,12 @@ document.write(`
             <span class="n">v</span><span class="p">(</span><span class="n">inst</span><span class="p">,</span> <span class="n">a</span><span class="p">,</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">inst</span><span class="p">,</span> <span class="n">a</span><span class="o">.</span><span class="n">name</span><span class="p">))</span>
 
 
-<span class="k">def</span> <span class="nf">_is_slot_cls</span><span class="p">(</span><span class="bp">cls</span><span class="p">):</span>
-    <span class="k">return</span> <span class="s2">&quot;__slots__&quot;</span> <span class="ow">in</span> <span class="bp">cls</span><span class="o">.</span><span class="vm">__dict__</span>
-
-
 <span class="k">def</span> <span class="nf">_is_slot_attr</span><span class="p">(</span><span class="n">a_name</span><span class="p">,</span> <span class="n">base_attr_map</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Check if the attribute name comes from a slot class.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">return</span> <span class="n">a_name</span> <span class="ow">in</span> <span class="n">base_attr_map</span> <span class="ow">and</span> <span class="n">_is_slot_cls</span><span class="p">(</span><span class="n">base_attr_map</span><span class="p">[</span><span class="n">a_name</span><span class="p">])</span>
+    <span class="bp">cls</span> <span class="o">=</span> <span class="n">base_attr_map</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">a_name</span><span class="p">)</span>
+    <span class="k">return</span> <span class="bp">cls</span> <span class="ow">and</span> <span class="s2">&quot;__slots__&quot;</span> <span class="ow">in</span> <span class="bp">cls</span><span class="o">.</span><span class="vm">__dict__</span>
 
 
 <span class="k">def</span> <span class="nf">_make_init</span><span class="p">(</span>
@@ -2513,7 +2214,7 @@ document.write(`
         <span class="n">is_exc</span><span class="p">,</span>
         <span class="n">needs_cached_setattr</span><span class="p">,</span>
         <span class="n">has_cls_on_setattr</span><span class="p">,</span>
-        <span class="n">attrs_init</span><span class="p">,</span>
+        <span class="s2">&quot;__attrs_init__&quot;</span> <span class="k">if</span> <span class="n">attrs_init</span> <span class="k">else</span> <span class="s2">&quot;__init__&quot;</span><span class="p">,</span>
     <span class="p">)</span>
     <span class="k">if</span> <span class="bp">cls</span><span class="o">.</span><span class="vm">__module__</span> <span class="ow">in</span> <span class="n">sys</span><span class="o">.</span><span class="n">modules</span><span class="p">:</span>
         <span class="c1"># This makes typing.get_type_hints(CLS.__init__) resolve string types.</span>
@@ -2524,7 +2225,7 @@ document.write(`
     <span class="k">if</span> <span class="n">needs_cached_setattr</span><span class="p">:</span>
         <span class="c1"># Save the lookup overhead in __init__ if we need to circumvent</span>
         <span class="c1"># setattr hooks.</span>
-        <span class="n">globs</span><span class="p">[</span><span class="s2">&quot;_cached_setattr_get&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">_obj_setattr</span><span class="o">.</span><span class="fm">__get__</span>
+        <span class="n">globs</span><span class="p">[</span><span class="s2">&quot;_cached_setattr_get&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">_OBJ_SETATTR</span><span class="o">.</span><span class="fm">__get__</span>
 
     <span class="n">init</span> <span class="o">=</span> <span class="n">_make_method</span><span class="p">(</span>
         <span class="s2">&quot;__attrs_init__&quot;</span> <span class="k">if</span> <span class="n">attrs_init</span> <span class="k">else</span> <span class="s2">&quot;__init__&quot;</span><span class="p">,</span>
@@ -2537,26 +2238,24 @@ document.write(`
     <span class="k">return</span> <span class="n">init</span>
 
 
-<span class="k">def</span> <span class="nf">_setattr</span><span class="p">(</span><span class="n">attr_name</span><span class="p">,</span> <span class="n">value_var</span><span class="p">,</span> <span class="n">has_on_setattr</span><span class="p">):</span>
+<span class="k">def</span> <span class="nf">_setattr</span><span class="p">(</span><span class="n">attr_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">value_var</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">has_on_setattr</span><span class="p">:</span> <span class="nb">bool</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Use the cached object.setattr to set *attr_name* to *value_var*.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;_setattr(&#39;</span><span class="si">{</span><span class="n">attr_name</span><span class="si">}</span><span class="s2">&#39;, </span><span class="si">{</span><span class="n">value_var</span><span class="si">}</span><span class="s2">)&quot;</span>
 
 
-<span class="k">def</span> <span class="nf">_setattr_with_converter</span><span class="p">(</span><span class="n">attr_name</span><span class="p">,</span> <span class="n">value_var</span><span class="p">,</span> <span class="n">has_on_setattr</span><span class="p">):</span>
+<span class="k">def</span> <span class="nf">_setattr_with_converter</span><span class="p">(</span>
+    <span class="n">attr_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">value_var</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">has_on_setattr</span><span class="p">:</span> <span class="nb">bool</span><span class="p">,</span> <span class="n">converter</span><span class="p">:</span> <span class="n">Converter</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Use the cached object.setattr to set *attr_name* to *value_var*, but run</span>
 <span class="sd">    its converter first.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">return</span> <span class="s2">&quot;_setattr(&#39;</span><span class="si">%s</span><span class="s2">&#39;, </span><span class="si">%s</span><span class="s2">(</span><span class="si">%s</span><span class="s2">))&quot;</span> <span class="o">%</span> <span class="p">(</span>
-        <span class="n">attr_name</span><span class="p">,</span>
-        <span class="n">_init_converter_pat</span> <span class="o">%</span> <span class="p">(</span><span class="n">attr_name</span><span class="p">,),</span>
-        <span class="n">value_var</span><span class="p">,</span>
-    <span class="p">)</span>
+    <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;_setattr(&#39;</span><span class="si">{</span><span class="n">attr_name</span><span class="si">}</span><span class="s2">&#39;, </span><span class="si">{</span><span class="n">converter</span><span class="o">.</span><span class="n">_fmt_converter_call</span><span class="p">(</span><span class="n">attr_name</span><span class="p">,</span><span class="w"> </span><span class="n">value_var</span><span class="p">)</span><span class="si">}</span><span class="s2">)&quot;</span>
 
 
-<span class="k">def</span> <span class="nf">_assign</span><span class="p">(</span><span class="n">attr_name</span><span class="p">,</span> <span class="n">value</span><span class="p">,</span> <span class="n">has_on_setattr</span><span class="p">):</span>
+<span class="k">def</span> <span class="nf">_assign</span><span class="p">(</span><span class="n">attr_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">has_on_setattr</span><span class="p">:</span> <span class="nb">bool</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Unless *attr_name* has an on_setattr hook, use normal assignment. Otherwise</span>
 <span class="sd">    relegate to _setattr.</span>
@@ -2567,90 +2266,100 @@ document.write(`
     <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;self.</span><span class="si">{</span><span class="n">attr_name</span><span class="si">}</span><span class="s2"> = </span><span class="si">{</span><span class="n">value</span><span class="si">}</span><span class="s2">&quot;</span>
 
 
-<span class="k">def</span> <span class="nf">_assign_with_converter</span><span class="p">(</span><span class="n">attr_name</span><span class="p">,</span> <span class="n">value_var</span><span class="p">,</span> <span class="n">has_on_setattr</span><span class="p">):</span>
+<span class="k">def</span> <span class="nf">_assign_with_converter</span><span class="p">(</span>
+    <span class="n">attr_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">value_var</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">has_on_setattr</span><span class="p">:</span> <span class="nb">bool</span><span class="p">,</span> <span class="n">converter</span><span class="p">:</span> <span class="n">Converter</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Unless *attr_name* has an on_setattr hook, use normal assignment after</span>
 <span class="sd">    conversion. Otherwise relegate to _setattr_with_converter.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="n">has_on_setattr</span><span class="p">:</span>
-        <span class="k">return</span> <span class="n">_setattr_with_converter</span><span class="p">(</span><span class="n">attr_name</span><span class="p">,</span> <span class="n">value_var</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">_setattr_with_converter</span><span class="p">(</span><span class="n">attr_name</span><span class="p">,</span> <span class="n">value_var</span><span class="p">,</span> <span class="kc">True</span><span class="p">,</span> <span class="n">converter</span><span class="p">)</span>
 
-    <span class="k">return</span> <span class="s2">&quot;self.</span><span class="si">%s</span><span class="s2"> = </span><span class="si">%s</span><span class="s2">(</span><span class="si">%s</span><span class="s2">)&quot;</span> <span class="o">%</span> <span class="p">(</span>
-        <span class="n">attr_name</span><span class="p">,</span>
-        <span class="n">_init_converter_pat</span> <span class="o">%</span> <span class="p">(</span><span class="n">attr_name</span><span class="p">,),</span>
-        <span class="n">value_var</span><span class="p">,</span>
-    <span class="p">)</span>
+    <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;self.</span><span class="si">{</span><span class="n">attr_name</span><span class="si">}</span><span class="s2"> = </span><span class="si">{</span><span class="n">converter</span><span class="o">.</span><span class="n">_fmt_converter_call</span><span class="p">(</span><span class="n">attr_name</span><span class="p">,</span><span class="w"> </span><span class="n">value_var</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span>
+
+
+<span class="k">def</span> <span class="nf">_determine_setters</span><span class="p">(</span>
+    <span class="n">frozen</span><span class="p">:</span> <span class="nb">bool</span><span class="p">,</span> <span class="n">slots</span><span class="p">:</span> <span class="nb">bool</span><span class="p">,</span> <span class="n">base_attr_map</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">type</span><span class="p">]</span>
+<span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Determine the correct setter functions based on whether a class is frozen</span>
+<span class="sd">    and/or slotted.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">frozen</span> <span class="ow">is</span> <span class="kc">True</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">slots</span> <span class="ow">is</span> <span class="kc">True</span><span class="p">:</span>
+            <span class="k">return</span> <span class="p">(),</span> <span class="n">_setattr</span><span class="p">,</span> <span class="n">_setattr_with_converter</span>
+
+        <span class="c1"># Dict frozen classes assign directly to __dict__.</span>
+        <span class="c1"># But only if the attribute doesn&#39;t come from an ancestor slot</span>
+        <span class="c1"># class.</span>
+        <span class="c1"># Note _inst_dict will be used again below if cache_hash is True</span>
+
+        <span class="k">def</span> <span class="nf">fmt_setter</span><span class="p">(</span>
+            <span class="n">attr_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">value_var</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">has_on_setattr</span><span class="p">:</span> <span class="nb">bool</span>
+        <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">_is_slot_attr</span><span class="p">(</span><span class="n">attr_name</span><span class="p">,</span> <span class="n">base_attr_map</span><span class="p">):</span>
+                <span class="k">return</span> <span class="n">_setattr</span><span class="p">(</span><span class="n">attr_name</span><span class="p">,</span> <span class="n">value_var</span><span class="p">,</span> <span class="n">has_on_setattr</span><span class="p">)</span>
+
+            <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;_inst_dict[&#39;</span><span class="si">{</span><span class="n">attr_name</span><span class="si">}</span><span class="s2">&#39;] = </span><span class="si">{</span><span class="n">value_var</span><span class="si">}</span><span class="s2">&quot;</span>
+
+        <span class="k">def</span> <span class="nf">fmt_setter_with_converter</span><span class="p">(</span>
+            <span class="n">attr_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+            <span class="n">value_var</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+            <span class="n">has_on_setattr</span><span class="p">:</span> <span class="nb">bool</span><span class="p">,</span>
+            <span class="n">converter</span><span class="p">:</span> <span class="n">Converter</span><span class="p">,</span>
+        <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">has_on_setattr</span> <span class="ow">or</span> <span class="n">_is_slot_attr</span><span class="p">(</span><span class="n">attr_name</span><span class="p">,</span> <span class="n">base_attr_map</span><span class="p">):</span>
+                <span class="k">return</span> <span class="n">_setattr_with_converter</span><span class="p">(</span>
+                    <span class="n">attr_name</span><span class="p">,</span> <span class="n">value_var</span><span class="p">,</span> <span class="n">has_on_setattr</span><span class="p">,</span> <span class="n">converter</span>
+                <span class="p">)</span>
+
+            <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;_inst_dict[&#39;</span><span class="si">{</span><span class="n">attr_name</span><span class="si">}</span><span class="s2">&#39;] = </span><span class="si">{</span><span class="n">converter</span><span class="o">.</span><span class="n">_fmt_converter_call</span><span class="p">(</span><span class="n">attr_name</span><span class="p">,</span><span class="w"> </span><span class="n">value_var</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span>
+
+        <span class="k">return</span> <span class="p">(</span>
+            <span class="p">(</span><span class="s2">&quot;_inst_dict = self.__dict__&quot;</span><span class="p">,),</span>
+            <span class="n">fmt_setter</span><span class="p">,</span>
+            <span class="n">fmt_setter_with_converter</span><span class="p">,</span>
+        <span class="p">)</span>
+
+    <span class="c1"># Not frozen -- we can just assign directly.</span>
+    <span class="k">return</span> <span class="p">(),</span> <span class="n">_assign</span><span class="p">,</span> <span class="n">_assign_with_converter</span>
 
 
 <span class="k">def</span> <span class="nf">_attrs_to_init_script</span><span class="p">(</span>
-    <span class="n">attrs</span><span class="p">,</span>
-    <span class="n">frozen</span><span class="p">,</span>
-    <span class="n">slots</span><span class="p">,</span>
-    <span class="n">pre_init</span><span class="p">,</span>
-    <span class="n">pre_init_has_args</span><span class="p">,</span>
-    <span class="n">post_init</span><span class="p">,</span>
-    <span class="n">cache_hash</span><span class="p">,</span>
-    <span class="n">base_attr_map</span><span class="p">,</span>
-    <span class="n">is_exc</span><span class="p">,</span>
-    <span class="n">needs_cached_setattr</span><span class="p">,</span>
-    <span class="n">has_cls_on_setattr</span><span class="p">,</span>
-    <span class="n">attrs_init</span><span class="p">,</span>
-<span class="p">):</span>
+    <span class="n">attrs</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">Attribute</span><span class="p">],</span>
+    <span class="n">is_frozen</span><span class="p">:</span> <span class="nb">bool</span><span class="p">,</span>
+    <span class="n">is_slotted</span><span class="p">:</span> <span class="nb">bool</span><span class="p">,</span>
+    <span class="n">call_pre_init</span><span class="p">:</span> <span class="nb">bool</span><span class="p">,</span>
+    <span class="n">pre_init_has_args</span><span class="p">:</span> <span class="nb">bool</span><span class="p">,</span>
+    <span class="n">call_post_init</span><span class="p">:</span> <span class="nb">bool</span><span class="p">,</span>
+    <span class="n">does_cache_hash</span><span class="p">:</span> <span class="nb">bool</span><span class="p">,</span>
+    <span class="n">base_attr_map</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">type</span><span class="p">],</span>
+    <span class="n">is_exc</span><span class="p">:</span> <span class="nb">bool</span><span class="p">,</span>
+    <span class="n">needs_cached_setattr</span><span class="p">:</span> <span class="nb">bool</span><span class="p">,</span>
+    <span class="n">has_cls_on_setattr</span><span class="p">:</span> <span class="nb">bool</span><span class="p">,</span>
+    <span class="n">method_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">dict</span><span class="p">,</span> <span class="nb">dict</span><span class="p">]:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Return a script of an initializer for *attrs* and a dict of globals.</span>
+<span class="sd">    Return a script of an initializer for *attrs*, a dict of globals, and</span>
+<span class="sd">    annotations for the initializer.</span>
 
-<span class="sd">    The globals are expected by the generated script.</span>
-
-<span class="sd">    If *frozen* is True, we cannot set the attributes directly so we use</span>
-<span class="sd">    a cached ``object.__setattr__``.</span>
+<span class="sd">    The globals are required by the generated script.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">lines</span> <span class="o">=</span> <span class="p">[]</span>
-    <span class="k">if</span> <span class="n">pre_init</span><span class="p">:</span>
-        <span class="n">lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;self.__attrs_pre_init__()&quot;</span><span class="p">)</span>
+    <span class="n">lines</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;self.__attrs_pre_init__()&quot;</span><span class="p">]</span> <span class="k">if</span> <span class="n">call_pre_init</span> <span class="k">else</span> <span class="p">[]</span>
 
     <span class="k">if</span> <span class="n">needs_cached_setattr</span><span class="p">:</span>
         <span class="n">lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
             <span class="c1"># Circumvent the __setattr__ descriptor to save one lookup per</span>
-            <span class="c1"># assignment.</span>
-            <span class="c1"># Note _setattr will be used again below if cache_hash is True</span>
+            <span class="c1"># assignment. Note _setattr will be used again below if</span>
+            <span class="c1"># does_cache_hash is True.</span>
             <span class="s2">&quot;_setattr = _cached_setattr_get(self)&quot;</span>
         <span class="p">)</span>
 
-    <span class="k">if</span> <span class="n">frozen</span> <span class="ow">is</span> <span class="kc">True</span><span class="p">:</span>
-        <span class="k">if</span> <span class="n">slots</span> <span class="ow">is</span> <span class="kc">True</span><span class="p">:</span>
-            <span class="n">fmt_setter</span> <span class="o">=</span> <span class="n">_setattr</span>
-            <span class="n">fmt_setter_with_converter</span> <span class="o">=</span> <span class="n">_setattr_with_converter</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="c1"># Dict frozen classes assign directly to __dict__.</span>
-            <span class="c1"># But only if the attribute doesn&#39;t come from an ancestor slot</span>
-            <span class="c1"># class.</span>
-            <span class="c1"># Note _inst_dict will be used again below if cache_hash is True</span>
-            <span class="n">lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;_inst_dict = self.__dict__&quot;</span><span class="p">)</span>
-
-            <span class="k">def</span> <span class="nf">fmt_setter</span><span class="p">(</span><span class="n">attr_name</span><span class="p">,</span> <span class="n">value_var</span><span class="p">,</span> <span class="n">has_on_setattr</span><span class="p">):</span>
-                <span class="k">if</span> <span class="n">_is_slot_attr</span><span class="p">(</span><span class="n">attr_name</span><span class="p">,</span> <span class="n">base_attr_map</span><span class="p">):</span>
-                    <span class="k">return</span> <span class="n">_setattr</span><span class="p">(</span><span class="n">attr_name</span><span class="p">,</span> <span class="n">value_var</span><span class="p">,</span> <span class="n">has_on_setattr</span><span class="p">)</span>
-
-                <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;_inst_dict[&#39;</span><span class="si">{</span><span class="n">attr_name</span><span class="si">}</span><span class="s2">&#39;] = </span><span class="si">{</span><span class="n">value_var</span><span class="si">}</span><span class="s2">&quot;</span>
-
-            <span class="k">def</span> <span class="nf">fmt_setter_with_converter</span><span class="p">(</span>
-                <span class="n">attr_name</span><span class="p">,</span> <span class="n">value_var</span><span class="p">,</span> <span class="n">has_on_setattr</span>
-            <span class="p">):</span>
-                <span class="k">if</span> <span class="n">has_on_setattr</span> <span class="ow">or</span> <span class="n">_is_slot_attr</span><span class="p">(</span><span class="n">attr_name</span><span class="p">,</span> <span class="n">base_attr_map</span><span class="p">):</span>
-                    <span class="k">return</span> <span class="n">_setattr_with_converter</span><span class="p">(</span>
-                        <span class="n">attr_name</span><span class="p">,</span> <span class="n">value_var</span><span class="p">,</span> <span class="n">has_on_setattr</span>
-                    <span class="p">)</span>
-
-                <span class="k">return</span> <span class="s2">&quot;_inst_dict[&#39;</span><span class="si">%s</span><span class="s2">&#39;] = </span><span class="si">%s</span><span class="s2">(</span><span class="si">%s</span><span class="s2">)&quot;</span> <span class="o">%</span> <span class="p">(</span>
-                    <span class="n">attr_name</span><span class="p">,</span>
-                    <span class="n">_init_converter_pat</span> <span class="o">%</span> <span class="p">(</span><span class="n">attr_name</span><span class="p">,),</span>
-                    <span class="n">value_var</span><span class="p">,</span>
-                <span class="p">)</span>
-
-    <span class="k">else</span><span class="p">:</span>
-        <span class="c1"># Not frozen.</span>
-        <span class="n">fmt_setter</span> <span class="o">=</span> <span class="n">_assign</span>
-        <span class="n">fmt_setter_with_converter</span> <span class="o">=</span> <span class="n">_assign_with_converter</span>
+    <span class="n">extra_lines</span><span class="p">,</span> <span class="n">fmt_setter</span><span class="p">,</span> <span class="n">fmt_setter_with_converter</span> <span class="o">=</span> <span class="n">_determine_setters</span><span class="p">(</span>
+        <span class="n">is_frozen</span><span class="p">,</span> <span class="n">is_slotted</span><span class="p">,</span> <span class="n">base_attr_map</span>
+    <span class="p">)</span>
+    <span class="n">lines</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">extra_lines</span><span class="p">)</span>
 
     <span class="n">args</span> <span class="o">=</span> <span class="p">[]</span>
     <span class="n">kw_only_args</span> <span class="o">=</span> <span class="p">[]</span>
@@ -2676,19 +2385,26 @@ document.write(`
         <span class="n">has_factory</span> <span class="o">=</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">a</span><span class="o">.</span><span class="n">default</span><span class="p">,</span> <span class="n">Factory</span><span class="p">)</span>
         <span class="n">maybe_self</span> <span class="o">=</span> <span class="s2">&quot;self&quot;</span> <span class="k">if</span> <span class="n">has_factory</span> <span class="ow">and</span> <span class="n">a</span><span class="o">.</span><span class="n">default</span><span class="o">.</span><span class="n">takes_self</span> <span class="k">else</span> <span class="s2">&quot;&quot;</span>
 
+        <span class="k">if</span> <span class="n">a</span><span class="o">.</span><span class="n">converter</span> <span class="ow">and</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">a</span><span class="o">.</span><span class="n">converter</span><span class="p">,</span> <span class="n">Converter</span><span class="p">):</span>
+            <span class="n">converter</span> <span class="o">=</span> <span class="n">Converter</span><span class="p">(</span><span class="n">a</span><span class="o">.</span><span class="n">converter</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">converter</span> <span class="o">=</span> <span class="n">a</span><span class="o">.</span><span class="n">converter</span>
+
         <span class="k">if</span> <span class="n">a</span><span class="o">.</span><span class="n">init</span> <span class="ow">is</span> <span class="kc">False</span><span class="p">:</span>
             <span class="k">if</span> <span class="n">has_factory</span><span class="p">:</span>
-                <span class="n">init_factory_name</span> <span class="o">=</span> <span class="n">_init_factory_pat</span> <span class="o">%</span> <span class="p">(</span><span class="n">a</span><span class="o">.</span><span class="n">name</span><span class="p">,)</span>
-                <span class="k">if</span> <span class="n">a</span><span class="o">.</span><span class="n">converter</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">init_factory_name</span> <span class="o">=</span> <span class="n">_INIT_FACTORY_PAT</span> <span class="o">%</span> <span class="p">(</span><span class="n">a</span><span class="o">.</span><span class="n">name</span><span class="p">,)</span>
+                <span class="k">if</span> <span class="n">converter</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
                     <span class="n">lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
                         <span class="n">fmt_setter_with_converter</span><span class="p">(</span>
                             <span class="n">attr_name</span><span class="p">,</span>
                             <span class="n">init_factory_name</span> <span class="o">+</span> <span class="sa">f</span><span class="s2">&quot;(</span><span class="si">{</span><span class="n">maybe_self</span><span class="si">}</span><span class="s2">)&quot;</span><span class="p">,</span>
                             <span class="n">has_on_setattr</span><span class="p">,</span>
+                            <span class="n">converter</span><span class="p">,</span>
                         <span class="p">)</span>
                     <span class="p">)</span>
-                    <span class="n">conv_name</span> <span class="o">=</span> <span class="n">_init_converter_pat</span> <span class="o">%</span> <span class="p">(</span><span class="n">a</span><span class="o">.</span><span class="n">name</span><span class="p">,)</span>
-                    <span class="n">names_for_globals</span><span class="p">[</span><span class="n">conv_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">a</span><span class="o">.</span><span class="n">converter</span>
+                    <span class="n">names_for_globals</span><span class="p">[</span><span class="n">converter</span><span class="o">.</span><span class="n">_get_global_name</span><span class="p">(</span><span class="n">a</span><span class="o">.</span><span class="n">name</span><span class="p">)]</span> <span class="o">=</span> <span class="p">(</span>
+                        <span class="n">converter</span><span class="o">.</span><span class="n">converter</span>
+                    <span class="p">)</span>
                 <span class="k">else</span><span class="p">:</span>
                     <span class="n">lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
                         <span class="n">fmt_setter</span><span class="p">(</span>
@@ -2698,16 +2414,18 @@ document.write(`
                         <span class="p">)</span>
                     <span class="p">)</span>
                 <span class="n">names_for_globals</span><span class="p">[</span><span class="n">init_factory_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">a</span><span class="o">.</span><span class="n">default</span><span class="o">.</span><span class="n">factory</span>
-            <span class="k">elif</span> <span class="n">a</span><span class="o">.</span><span class="n">converter</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">elif</span> <span class="n">converter</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
                 <span class="n">lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
                     <span class="n">fmt_setter_with_converter</span><span class="p">(</span>
                         <span class="n">attr_name</span><span class="p">,</span>
                         <span class="sa">f</span><span class="s2">&quot;attr_dict[&#39;</span><span class="si">{</span><span class="n">attr_name</span><span class="si">}</span><span class="s2">&#39;].default&quot;</span><span class="p">,</span>
                         <span class="n">has_on_setattr</span><span class="p">,</span>
+                        <span class="n">converter</span><span class="p">,</span>
                     <span class="p">)</span>
                 <span class="p">)</span>
-                <span class="n">conv_name</span> <span class="o">=</span> <span class="n">_init_converter_pat</span> <span class="o">%</span> <span class="p">(</span><span class="n">a</span><span class="o">.</span><span class="n">name</span><span class="p">,)</span>
-                <span class="n">names_for_globals</span><span class="p">[</span><span class="n">conv_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">a</span><span class="o">.</span><span class="n">converter</span>
+                <span class="n">names_for_globals</span><span class="p">[</span><span class="n">converter</span><span class="o">.</span><span class="n">_get_global_name</span><span class="p">(</span><span class="n">a</span><span class="o">.</span><span class="n">name</span><span class="p">)]</span> <span class="o">=</span> <span class="p">(</span>
+                    <span class="n">converter</span><span class="o">.</span><span class="n">converter</span>
+                <span class="p">)</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="n">lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
                     <span class="n">fmt_setter</span><span class="p">(</span>
@@ -2723,15 +2441,15 @@ document.write(`
             <span class="k">else</span><span class="p">:</span>
                 <span class="n">args</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">arg</span><span class="p">)</span>
 
-            <span class="k">if</span> <span class="n">a</span><span class="o">.</span><span class="n">converter</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">converter</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
                 <span class="n">lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
                     <span class="n">fmt_setter_with_converter</span><span class="p">(</span>
-                        <span class="n">attr_name</span><span class="p">,</span> <span class="n">arg_name</span><span class="p">,</span> <span class="n">has_on_setattr</span>
+                        <span class="n">attr_name</span><span class="p">,</span> <span class="n">arg_name</span><span class="p">,</span> <span class="n">has_on_setattr</span><span class="p">,</span> <span class="n">converter</span>
                     <span class="p">)</span>
                 <span class="p">)</span>
-                <span class="n">names_for_globals</span><span class="p">[</span>
-                    <span class="n">_init_converter_pat</span> <span class="o">%</span> <span class="p">(</span><span class="n">a</span><span class="o">.</span><span class="n">name</span><span class="p">,)</span>
-                <span class="p">]</span> <span class="o">=</span> <span class="n">a</span><span class="o">.</span><span class="n">converter</span>
+                <span class="n">names_for_globals</span><span class="p">[</span><span class="n">converter</span><span class="o">.</span><span class="n">_get_global_name</span><span class="p">(</span><span class="n">a</span><span class="o">.</span><span class="n">name</span><span class="p">)]</span> <span class="o">=</span> <span class="p">(</span>
+                    <span class="n">converter</span><span class="o">.</span><span class="n">converter</span>
+                <span class="p">)</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="n">lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">fmt_setter</span><span class="p">(</span><span class="n">attr_name</span><span class="p">,</span> <span class="n">arg_name</span><span class="p">,</span> <span class="n">has_on_setattr</span><span class="p">))</span>
 
@@ -2743,12 +2461,12 @@ document.write(`
                 <span class="n">args</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">arg</span><span class="p">)</span>
             <span class="n">lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;if </span><span class="si">{</span><span class="n">arg_name</span><span class="si">}</span><span class="s2"> is not NOTHING:&quot;</span><span class="p">)</span>
 
-            <span class="n">init_factory_name</span> <span class="o">=</span> <span class="n">_init_factory_pat</span> <span class="o">%</span> <span class="p">(</span><span class="n">a</span><span class="o">.</span><span class="n">name</span><span class="p">,)</span>
-            <span class="k">if</span> <span class="n">a</span><span class="o">.</span><span class="n">converter</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">init_factory_name</span> <span class="o">=</span> <span class="n">_INIT_FACTORY_PAT</span> <span class="o">%</span> <span class="p">(</span><span class="n">a</span><span class="o">.</span><span class="n">name</span><span class="p">,)</span>
+            <span class="k">if</span> <span class="n">converter</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
                 <span class="n">lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
                     <span class="s2">&quot;    &quot;</span>
                     <span class="o">+</span> <span class="n">fmt_setter_with_converter</span><span class="p">(</span>
-                        <span class="n">attr_name</span><span class="p">,</span> <span class="n">arg_name</span><span class="p">,</span> <span class="n">has_on_setattr</span>
+                        <span class="n">attr_name</span><span class="p">,</span> <span class="n">arg_name</span><span class="p">,</span> <span class="n">has_on_setattr</span><span class="p">,</span> <span class="n">converter</span>
                     <span class="p">)</span>
                 <span class="p">)</span>
                 <span class="n">lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;else:&quot;</span><span class="p">)</span>
@@ -2758,11 +2476,12 @@ document.write(`
                         <span class="n">attr_name</span><span class="p">,</span>
                         <span class="n">init_factory_name</span> <span class="o">+</span> <span class="s2">&quot;(&quot;</span> <span class="o">+</span> <span class="n">maybe_self</span> <span class="o">+</span> <span class="s2">&quot;)&quot;</span><span class="p">,</span>
                         <span class="n">has_on_setattr</span><span class="p">,</span>
+                        <span class="n">converter</span><span class="p">,</span>
                     <span class="p">)</span>
                 <span class="p">)</span>
-                <span class="n">names_for_globals</span><span class="p">[</span>
-                    <span class="n">_init_converter_pat</span> <span class="o">%</span> <span class="p">(</span><span class="n">a</span><span class="o">.</span><span class="n">name</span><span class="p">,)</span>
-                <span class="p">]</span> <span class="o">=</span> <span class="n">a</span><span class="o">.</span><span class="n">converter</span>
+                <span class="n">names_for_globals</span><span class="p">[</span><span class="n">converter</span><span class="o">.</span><span class="n">_get_global_name</span><span class="p">(</span><span class="n">a</span><span class="o">.</span><span class="n">name</span><span class="p">)]</span> <span class="o">=</span> <span class="p">(</span>
+                    <span class="n">converter</span><span class="o">.</span><span class="n">converter</span>
+                <span class="p">)</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="n">lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
                     <span class="s2">&quot;    &quot;</span> <span class="o">+</span> <span class="n">fmt_setter</span><span class="p">(</span><span class="n">attr_name</span><span class="p">,</span> <span class="n">arg_name</span><span class="p">,</span> <span class="n">has_on_setattr</span><span class="p">)</span>
@@ -2783,26 +2502,24 @@ document.write(`
             <span class="k">else</span><span class="p">:</span>
                 <span class="n">args</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">arg_name</span><span class="p">)</span>
 
-            <span class="k">if</span> <span class="n">a</span><span class="o">.</span><span class="n">converter</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">converter</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
                 <span class="n">lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
                     <span class="n">fmt_setter_with_converter</span><span class="p">(</span>
-                        <span class="n">attr_name</span><span class="p">,</span> <span class="n">arg_name</span><span class="p">,</span> <span class="n">has_on_setattr</span>
+                        <span class="n">attr_name</span><span class="p">,</span> <span class="n">arg_name</span><span class="p">,</span> <span class="n">has_on_setattr</span><span class="p">,</span> <span class="n">converter</span>
                     <span class="p">)</span>
                 <span class="p">)</span>
-                <span class="n">names_for_globals</span><span class="p">[</span>
-                    <span class="n">_init_converter_pat</span> <span class="o">%</span> <span class="p">(</span><span class="n">a</span><span class="o">.</span><span class="n">name</span><span class="p">,)</span>
-                <span class="p">]</span> <span class="o">=</span> <span class="n">a</span><span class="o">.</span><span class="n">converter</span>
+                <span class="n">names_for_globals</span><span class="p">[</span><span class="n">converter</span><span class="o">.</span><span class="n">_get_global_name</span><span class="p">(</span><span class="n">a</span><span class="o">.</span><span class="n">name</span><span class="p">)]</span> <span class="o">=</span> <span class="p">(</span>
+                    <span class="n">converter</span><span class="o">.</span><span class="n">converter</span>
+                <span class="p">)</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="n">lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">fmt_setter</span><span class="p">(</span><span class="n">attr_name</span><span class="p">,</span> <span class="n">arg_name</span><span class="p">,</span> <span class="n">has_on_setattr</span><span class="p">))</span>
 
         <span class="k">if</span> <span class="n">a</span><span class="o">.</span><span class="n">init</span> <span class="ow">is</span> <span class="kc">True</span><span class="p">:</span>
-            <span class="k">if</span> <span class="n">a</span><span class="o">.</span><span class="n">type</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">a</span><span class="o">.</span><span class="n">converter</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">a</span><span class="o">.</span><span class="n">type</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">converter</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
                 <span class="n">annotations</span><span class="p">[</span><span class="n">arg_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">a</span><span class="o">.</span><span class="n">type</span>
-            <span class="k">elif</span> <span class="n">a</span><span class="o">.</span><span class="n">converter</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-                <span class="c1"># Try to get the type from the converter.</span>
-                <span class="n">t</span> <span class="o">=</span> <span class="n">_AnnotationExtractor</span><span class="p">(</span><span class="n">a</span><span class="o">.</span><span class="n">converter</span><span class="p">)</span><span class="o">.</span><span class="n">get_first_param_type</span><span class="p">()</span>
-                <span class="k">if</span> <span class="n">t</span><span class="p">:</span>
-                    <span class="n">annotations</span><span class="p">[</span><span class="n">arg_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">t</span>
+            <span class="k">elif</span> <span class="n">converter</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">converter</span><span class="o">.</span><span class="n">_first_param_type</span><span class="p">:</span>
+                <span class="c1"># Use the type from the converter if present.</span>
+                <span class="n">annotations</span><span class="p">[</span><span class="n">arg_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">converter</span><span class="o">.</span><span class="n">_first_param_type</span>
 
     <span class="k">if</span> <span class="n">attrs_to_validate</span><span class="p">:</span>  <span class="c1"># we can skip this if there are no validators.</span>
         <span class="n">names_for_globals</span><span class="p">[</span><span class="s2">&quot;_config&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">_config</span>
@@ -2814,25 +2531,23 @@ document.write(`
             <span class="n">names_for_globals</span><span class="p">[</span><span class="n">val_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">a</span><span class="o">.</span><span class="n">validator</span>
             <span class="n">names_for_globals</span><span class="p">[</span><span class="n">attr_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">a</span>
 
-    <span class="k">if</span> <span class="n">post_init</span><span class="p">:</span>
+    <span class="k">if</span> <span class="n">call_post_init</span><span class="p">:</span>
         <span class="n">lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;self.__attrs_post_init__()&quot;</span><span class="p">)</span>
 
-    <span class="c1"># because this is set only after __attrs_post_init__ is called, a crash</span>
+    <span class="c1"># Because this is set only after __attrs_post_init__ is called, a crash</span>
     <span class="c1"># will result if post-init tries to access the hash code.  This seemed</span>
-    <span class="c1"># preferable to setting this beforehand, in which case alteration to</span>
-    <span class="c1"># field values during post-init combined with post-init accessing the</span>
-    <span class="c1"># hash code would result in silent bugs.</span>
-    <span class="k">if</span> <span class="n">cache_hash</span><span class="p">:</span>
-        <span class="k">if</span> <span class="n">frozen</span><span class="p">:</span>
-            <span class="k">if</span> <span class="n">slots</span><span class="p">:</span>  <span class="c1"># noqa: SIM108</span>
-                <span class="c1"># if frozen and slots, then _setattr defined above</span>
-                <span class="n">init_hash_cache</span> <span class="o">=</span> <span class="s2">&quot;_setattr(&#39;</span><span class="si">%s</span><span class="s2">&#39;, </span><span class="si">%s</span><span class="s2">)&quot;</span>
+    <span class="c1"># preferable to setting this beforehand, in which case alteration to field</span>
+    <span class="c1"># values during post-init combined with post-init accessing the hash code</span>
+    <span class="c1"># would result in silent bugs.</span>
+    <span class="k">if</span> <span class="n">does_cache_hash</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">is_frozen</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">is_slotted</span><span class="p">:</span>
+                <span class="n">init_hash_cache</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;_setattr(&#39;</span><span class="si">{</span><span class="n">_HASH_CACHE_FIELD</span><span class="si">}</span><span class="s2">&#39;, None)&quot;</span>
             <span class="k">else</span><span class="p">:</span>
-                <span class="c1"># if frozen and not slots, then _inst_dict defined above</span>
-                <span class="n">init_hash_cache</span> <span class="o">=</span> <span class="s2">&quot;_inst_dict[&#39;</span><span class="si">%s</span><span class="s2">&#39;] = </span><span class="si">%s</span><span class="s2">&quot;</span>
+                <span class="n">init_hash_cache</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;_inst_dict[&#39;</span><span class="si">{</span><span class="n">_HASH_CACHE_FIELD</span><span class="si">}</span><span class="s2">&#39;] = None&quot;</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="n">init_hash_cache</span> <span class="o">=</span> <span class="s2">&quot;self.</span><span class="si">%s</span><span class="s2"> = </span><span class="si">%s</span><span class="s2">&quot;</span>
-        <span class="n">lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">init_hash_cache</span> <span class="o">%</span> <span class="p">(</span><span class="n">_hash_cache_field</span><span class="p">,</span> <span class="s2">&quot;None&quot;</span><span class="p">))</span>
+            <span class="n">init_hash_cache</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;self.</span><span class="si">{</span><span class="n">_HASH_CACHE_FIELD</span><span class="si">}</span><span class="s2"> = None&quot;</span>
+        <span class="n">lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">init_hash_cache</span><span class="p">)</span>
 
     <span class="c1"># For exceptions we rely on BaseException.__init__ for proper</span>
     <span class="c1"># initialization.</span>
@@ -2844,29 +2559,28 @@ document.write(`
     <span class="n">args</span> <span class="o">=</span> <span class="s2">&quot;, &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">args</span><span class="p">)</span>
     <span class="n">pre_init_args</span> <span class="o">=</span> <span class="n">args</span>
     <span class="k">if</span> <span class="n">kw_only_args</span><span class="p">:</span>
-        <span class="n">args</span> <span class="o">+=</span> <span class="s2">&quot;</span><span class="si">%s</span><span class="s2">*, </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span>
-            <span class="s2">&quot;, &quot;</span> <span class="k">if</span> <span class="n">args</span> <span class="k">else</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>  <span class="c1"># leading comma</span>
-            <span class="s2">&quot;, &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">kw_only_args</span><span class="p">),</span>  <span class="c1"># kw_only args</span>
-        <span class="p">)</span>
+        <span class="c1"># leading comma &amp; kw_only args</span>
+        <span class="n">args</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="s1">&#39;, &#39;</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="n">args</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="s1">&#39;&#39;</span><span class="si">}</span><span class="s2">*, </span><span class="si">{</span><span class="s1">&#39;, &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">kw_only_args</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span>
         <span class="n">pre_init_kw_only_args</span> <span class="o">=</span> <span class="s2">&quot;, &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
-            <span class="p">[</span><span class="s2">&quot;</span><span class="si">%s</span><span class="s2">=</span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">kw_arg</span><span class="p">,</span> <span class="n">kw_arg</span><span class="p">)</span> <span class="k">for</span> <span class="n">kw_arg</span> <span class="ow">in</span> <span class="n">kw_only_args</span><span class="p">]</span>
+            <span class="p">[</span>
+                <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">kw_arg_name</span><span class="si">}</span><span class="s2">=</span><span class="si">{</span><span class="n">kw_arg_name</span><span class="si">}</span><span class="s2">&quot;</span>
+                <span class="c1"># We need to remove the defaults from the kw_only_args.</span>
+                <span class="k">for</span> <span class="n">kw_arg_name</span> <span class="ow">in</span> <span class="p">(</span><span class="n">kwa</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;=&quot;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">kwa</span> <span class="ow">in</span> <span class="n">kw_only_args</span><span class="p">)</span>
+            <span class="p">]</span>
         <span class="p">)</span>
-        <span class="n">pre_init_args</span> <span class="o">+=</span> <span class="p">(</span>
-            <span class="s2">&quot;, &quot;</span> <span class="k">if</span> <span class="n">pre_init_args</span> <span class="k">else</span> <span class="s2">&quot;&quot;</span>
-        <span class="p">)</span>  <span class="c1"># handle only kwargs and no regular args</span>
+        <span class="n">pre_init_args</span> <span class="o">+=</span> <span class="s2">&quot;, &quot;</span> <span class="k">if</span> <span class="n">pre_init_args</span> <span class="k">else</span> <span class="s2">&quot;&quot;</span>
         <span class="n">pre_init_args</span> <span class="o">+=</span> <span class="n">pre_init_kw_only_args</span>
 
-    <span class="k">if</span> <span class="n">pre_init</span> <span class="ow">and</span> <span class="n">pre_init_has_args</span><span class="p">:</span>
-        <span class="c1"># If pre init method has arguments, pass same arguments as `__init__`</span>
-        <span class="n">lines</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;self.__attrs_pre_init__(</span><span class="si">%s</span><span class="s2">)&quot;</span> <span class="o">%</span> <span class="n">pre_init_args</span>
+    <span class="k">if</span> <span class="n">call_pre_init</span> <span class="ow">and</span> <span class="n">pre_init_has_args</span><span class="p">:</span>
+        <span class="c1"># If pre init method has arguments, pass same arguments as `__init__`.</span>
+        <span class="n">lines</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;self.__attrs_pre_init__(</span><span class="si">{</span><span class="n">pre_init_args</span><span class="si">}</span><span class="s2">)&quot;</span>
 
+    <span class="c1"># Python 3.7 doesn&#39;t allow backslashes in f strings.</span>
+    <span class="n">NL</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">    &quot;</span>
     <span class="k">return</span> <span class="p">(</span>
-        <span class="s2">&quot;def </span><span class="si">%s</span><span class="s2">(self, </span><span class="si">%s</span><span class="s2">):</span><span class="se">\n</span><span class="s2">    </span><span class="si">%s</span><span class="se">\n</span><span class="s2">&quot;</span>
-        <span class="o">%</span> <span class="p">(</span>
-            <span class="p">(</span><span class="s2">&quot;__attrs_init__&quot;</span> <span class="k">if</span> <span class="n">attrs_init</span> <span class="k">else</span> <span class="s2">&quot;__init__&quot;</span><span class="p">),</span>
-            <span class="n">args</span><span class="p">,</span>
-            <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">    &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">lines</span><span class="p">)</span> <span class="k">if</span> <span class="n">lines</span> <span class="k">else</span> <span class="s2">&quot;pass&quot;</span><span class="p">,</span>
-        <span class="p">),</span>
+        <span class="sa">f</span><span class="s2">&quot;&quot;&quot;def </span><span class="si">{</span><span class="n">method_name</span><span class="si">}</span><span class="s2">(self, </span><span class="si">{</span><span class="n">args</span><span class="si">}</span><span class="s2">):</span>
+<span class="s2">    </span><span class="si">{</span><span class="n">NL</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">lines</span><span class="p">)</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="n">lines</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="s1">&#39;pass&#39;</span><span class="si">}</span>
+<span class="s2">&quot;&quot;&quot;</span><span class="p">,</span>
         <span class="n">names_for_globals</span><span class="p">,</span>
         <span class="n">annotations</span><span class="p">,</span>
     <span class="p">)</span>
@@ -2891,20 +2605,19 @@ document.write(`
 
 <span class="sd">       You should never instantiate this class yourself.</span>
 
-<span class="sd">    The class has *all* arguments of `attr.ib` (except for ``factory``</span>
-<span class="sd">    which is only syntactic sugar for ``default=Factory(...)`` plus the</span>
-<span class="sd">    following:</span>
+<span class="sd">    The class has *all* arguments of `attr.ib` (except for ``factory`` which is</span>
+<span class="sd">    only syntactic sugar for ``default=Factory(...)`` plus the following:</span>
 
 <span class="sd">    - ``name`` (`str`): The name of the attribute.</span>
 <span class="sd">    - ``alias`` (`str`): The __init__ parameter name of the attribute, after</span>
 <span class="sd">      any explicit overrides and default private-attribute-name handling.</span>
 <span class="sd">    - ``inherited`` (`bool`): Whether or not that attribute has been inherited</span>
 <span class="sd">      from a base class.</span>
-<span class="sd">    - ``eq_key`` and ``order_key`` (`typing.Callable` or `None`): The callables</span>
-<span class="sd">      that are used for comparing and ordering objects by this attribute,</span>
-<span class="sd">      respectively. These are set by passing a callable to `attr.ib`&#39;s ``eq``,</span>
-<span class="sd">      ``order``, or ``cmp`` arguments. See also :ref:`comparison customization</span>
-<span class="sd">      &lt;custom-comparison&gt;`.</span>
+<span class="sd">    - ``eq_key`` and ``order_key`` (`typing.Callable` or `None`): The</span>
+<span class="sd">      callables that are used for comparing and ordering objects by this</span>
+<span class="sd">      attribute, respectively. These are set by passing a callable to</span>
+<span class="sd">      `attr.ib`&#39;s ``eq``, ``order``, or ``cmp`` arguments. See also</span>
+<span class="sd">      :ref:`comparison customization &lt;custom-comparison&gt;`.</span>
 
 <span class="sd">    Instances of this class are frequently used for introspection purposes</span>
 <span class="sd">    like:</span>
@@ -2973,7 +2686,7 @@ document.write(`
         <span class="p">)</span>
 
         <span class="c1"># Cache this descriptor here to speed things up later.</span>
-        <span class="n">bound_setattr</span> <span class="o">=</span> <span class="n">_obj_setattr</span><span class="o">.</span><span class="fm">__get__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="n">bound_setattr</span> <span class="o">=</span> <span class="n">_OBJ_SETATTR</span><span class="o">.</span><span class="fm">__get__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
 
         <span class="c1"># Despite the big red warning, people *do* instantiate `Attribute`</span>
         <span class="c1"># themselves.</span>
@@ -2993,7 +2706,7 @@ document.write(`
             <span class="p">(</span>
                 <span class="n">types</span><span class="o">.</span><span class="n">MappingProxyType</span><span class="p">(</span><span class="nb">dict</span><span class="p">(</span><span class="n">metadata</span><span class="p">))</span>  <span class="c1"># Shallow copy</span>
                 <span class="k">if</span> <span class="n">metadata</span>
-                <span class="k">else</span> <span class="n">_empty_metadata_singleton</span>
+                <span class="k">else</span> <span class="n">_EMPTY_METADATA_SINGLETON</span>
             <span class="p">),</span>
         <span class="p">)</span>
         <span class="n">bound_setattr</span><span class="p">(</span><span class="s2">&quot;type&quot;</span><span class="p">,</span> <span class="nb">type</span><span class="p">)</span>
@@ -3041,7 +2754,7 @@ document.write(`
 <span class="sd">        Copy *self* and apply *changes*.</span>
 
 <span class="sd">        This works similarly to `attrs.evolve` but that function does not work</span>
-<span class="sd">        with `Attribute`.</span>
+<span class="sd">        with {class}`Attribute`.</span>
 
 <span class="sd">        It is mainly meant to be used for `transform-fields`.</span>
 
@@ -3070,16 +2783,18 @@ document.write(`
         <span class="bp">self</span><span class="o">.</span><span class="n">_setattrs</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="vm">__slots__</span><span class="p">,</span> <span class="n">state</span><span class="p">))</span>
 
     <span class="k">def</span> <span class="nf">_setattrs</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name_values_pairs</span><span class="p">):</span>
-        <span class="n">bound_setattr</span> <span class="o">=</span> <span class="n">_obj_setattr</span><span class="o">.</span><span class="fm">__get__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="n">bound_setattr</span> <span class="o">=</span> <span class="n">_OBJ_SETATTR</span><span class="o">.</span><span class="fm">__get__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
         <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">name_values_pairs</span><span class="p">:</span>
             <span class="k">if</span> <span class="n">name</span> <span class="o">!=</span> <span class="s2">&quot;metadata&quot;</span><span class="p">:</span>
                 <span class="n">bound_setattr</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="n">bound_setattr</span><span class="p">(</span>
                     <span class="n">name</span><span class="p">,</span>
-                    <span class="n">types</span><span class="o">.</span><span class="n">MappingProxyType</span><span class="p">(</span><span class="nb">dict</span><span class="p">(</span><span class="n">value</span><span class="p">))</span>
-                    <span class="k">if</span> <span class="n">value</span>
-                    <span class="k">else</span> <span class="n">_empty_metadata_singleton</span><span class="p">,</span>
+                    <span class="p">(</span>
+                        <span class="n">types</span><span class="o">.</span><span class="n">MappingProxyType</span><span class="p">(</span><span class="nb">dict</span><span class="p">(</span><span class="n">value</span><span class="p">))</span>
+                        <span class="k">if</span> <span class="n">value</span>
+                        <span class="k">else</span> <span class="n">_EMPTY_METADATA_SINGLETON</span>
+                    <span class="p">),</span>
                 <span class="p">)</span>
 
 
@@ -3244,7 +2959,8 @@ document.write(`
 
 <span class="sd">        Returns *meth* unchanged.</span>
 
-<span class="sd">        :raises DefaultAlreadySetError: If default has been set before.</span>
+<span class="sd">        Raises:</span>
+<span class="sd">            DefaultAlreadySetError: If default has been set before.</span>
 
 <span class="sd">        .. versionadded:: 17.1.0</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -3266,10 +2982,14 @@ document.write(`
 <span class="sd">    If passed as the default value to `attrs.field`, the factory is used to</span>
 <span class="sd">    generate a new value.</span>
 
-<span class="sd">    :param callable factory: A callable that takes either none or exactly one</span>
-<span class="sd">        mandatory positional argument depending on *takes_self*.</span>
-<span class="sd">    :param bool takes_self: Pass the partially initialized instance that is</span>
-<span class="sd">        being initialized as a positional argument.</span>
+<span class="sd">    Args:</span>
+<span class="sd">        factory (typing.Callable):</span>
+<span class="sd">            A callable that takes either none or exactly one mandatory</span>
+<span class="sd">            positional argument depending on *takes_self*.</span>
+
+<span class="sd">        takes_self (bool):</span>
+<span class="sd">            Pass the partially initialized instance that is being initialized</span>
+<span class="sd">            as a positional argument.</span>
 
 <span class="sd">    .. versionadded:: 17.1.0  *takes_self*</span>
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -3313,30 +3033,135 @@ document.write(`
 <span class="n">Factory</span> <span class="o">=</span> <span class="n">_add_hash</span><span class="p">(</span><span class="n">_add_eq</span><span class="p">(</span><span class="n">_add_repr</span><span class="p">(</span><span class="n">Factory</span><span class="p">,</span> <span class="n">attrs</span><span class="o">=</span><span class="n">_f</span><span class="p">),</span> <span class="n">attrs</span><span class="o">=</span><span class="n">_f</span><span class="p">),</span> <span class="n">attrs</span><span class="o">=</span><span class="n">_f</span><span class="p">)</span>
 
 
+<span class="k">class</span> <span class="nc">Converter</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Stores a converter callable.</span>
+
+<span class="sd">    Allows for the wrapped converter to take additional arguments. The</span>
+<span class="sd">    arguments are passed in the order they are documented.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        converter (Callable): A callable that converts the passed value.</span>
+
+<span class="sd">        takes_self (bool):</span>
+<span class="sd">            Pass the partially initialized instance that is being initialized</span>
+<span class="sd">            as a positional argument. (default: `False`)</span>
+
+<span class="sd">        takes_field (bool):</span>
+<span class="sd">            Pass the field definition (an :class:`Attribute`) into the</span>
+<span class="sd">            converter as a positional argument. (default: `False`)</span>
+
+<span class="sd">    .. versionadded:: 24.1.0</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="vm">__slots__</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="s2">&quot;converter&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;takes_self&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;takes_field&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;_first_param_type&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;_global_name&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;__call__&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">converter</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">takes_self</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">takes_field</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">converter</span> <span class="o">=</span> <span class="n">converter</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">takes_self</span> <span class="o">=</span> <span class="n">takes_self</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">takes_field</span> <span class="o">=</span> <span class="n">takes_field</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_first_param_type</span> <span class="o">=</span> <span class="n">_AnnotationExtractor</span><span class="p">(</span>
+            <span class="n">converter</span>
+        <span class="p">)</span><span class="o">.</span><span class="n">get_first_param_type</span><span class="p">()</span>
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">_get_global_name</span><span class="p">(</span><span class="n">attr_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Return the name that a converter for an attribute name *attr_name*</span>
+<span class="sd">        would have.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;__attr_converter_</span><span class="si">{</span><span class="n">attr_name</span><span class="si">}</span><span class="s2">&quot;</span>
+
+    <span class="k">def</span> <span class="nf">_fmt_converter_call</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">attr_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">value_var</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Return a string that calls the converter for an attribute name</span>
+<span class="sd">        *attr_name* and the value in variable named *value_var* according to</span>
+<span class="sd">        `self.takes_self` and `self.takes_field`.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">takes_self</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">takes_field</span><span class="p">):</span>
+            <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_get_global_name</span><span class="p">(</span><span class="n">attr_name</span><span class="p">)</span><span class="si">}</span><span class="s2">(</span><span class="si">{</span><span class="n">value_var</span><span class="si">}</span><span class="s2">)&quot;</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">takes_self</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">takes_field</span><span class="p">:</span>
+            <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_get_global_name</span><span class="p">(</span><span class="n">attr_name</span><span class="p">)</span><span class="si">}</span><span class="s2">(</span><span class="si">{</span><span class="n">value_var</span><span class="si">}</span><span class="s2">, self, attr_dict[&#39;</span><span class="si">{</span><span class="n">attr_name</span><span class="si">}</span><span class="s2">&#39;])&quot;</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">takes_self</span><span class="p">:</span>
+            <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_get_global_name</span><span class="p">(</span><span class="n">attr_name</span><span class="p">)</span><span class="si">}</span><span class="s2">(</span><span class="si">{</span><span class="n">value_var</span><span class="si">}</span><span class="s2">, self)&quot;</span>
+
+        <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_get_global_name</span><span class="p">(</span><span class="n">attr_name</span><span class="p">)</span><span class="si">}</span><span class="s2">(</span><span class="si">{</span><span class="n">value_var</span><span class="si">}</span><span class="s2">, attr_dict[&#39;</span><span class="si">{</span><span class="n">attr_name</span><span class="si">}</span><span class="s2">&#39;])&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__getstate__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Return a dict containing only converter and takes_self -- the rest gets</span>
+<span class="sd">        computed when loading.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="p">{</span>
+            <span class="s2">&quot;converter&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">converter</span><span class="p">,</span>
+            <span class="s2">&quot;takes_self&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">takes_self</span><span class="p">,</span>
+            <span class="s2">&quot;takes_field&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">takes_field</span><span class="p">,</span>
+        <span class="p">}</span>
+
+    <span class="k">def</span> <span class="nf">__setstate__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">state</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Load instance from state.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">**</span><span class="n">state</span><span class="p">)</span>
+
+
+<span class="n">_f</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="n">Attribute</span><span class="p">(</span>
+        <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span>
+        <span class="n">default</span><span class="o">=</span><span class="n">NOTHING</span><span class="p">,</span>
+        <span class="n">validator</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="nb">repr</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">cmp</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">eq</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">order</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="nb">hash</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">init</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">inherited</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">&quot;converter&quot;</span><span class="p">,</span> <span class="s2">&quot;takes_self&quot;</span><span class="p">,</span> <span class="s2">&quot;takes_field&quot;</span><span class="p">)</span>
+<span class="p">]</span>
+
+<span class="n">Converter</span> <span class="o">=</span> <span class="n">_add_hash</span><span class="p">(</span>
+    <span class="n">_add_eq</span><span class="p">(</span><span class="n">_add_repr</span><span class="p">(</span><span class="n">Converter</span><span class="p">,</span> <span class="n">attrs</span><span class="o">=</span><span class="n">_f</span><span class="p">),</span> <span class="n">attrs</span><span class="o">=</span><span class="n">_f</span><span class="p">),</span> <span class="n">attrs</span><span class="o">=</span><span class="n">_f</span>
+<span class="p">)</span>
+
+
 <span class="k">def</span> <span class="nf">make_class</span><span class="p">(</span>
     <span class="n">name</span><span class="p">,</span> <span class="n">attrs</span><span class="p">,</span> <span class="n">bases</span><span class="o">=</span><span class="p">(</span><span class="nb">object</span><span class="p">,),</span> <span class="n">class_body</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">attributes_arguments</span>
 <span class="p">):</span>
 <span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    A quick way to create a new class called *name* with *attrs*.</span>
 
-<span class="sd">    :param str name: The name for the new class.</span>
+<span class="sd">    Args:</span>
+<span class="sd">        name (str): The name for the new class.</span>
 
-<span class="sd">    :param attrs: A list of names or a dictionary of mappings of names to</span>
-<span class="sd">        `attr.ib`\ s / `attrs.field`\ s.</span>
+<span class="sd">        attrs( list | dict):</span>
+<span class="sd">            A list of names or a dictionary of mappings of names to `attr.ib`\</span>
+<span class="sd">            s / `attrs.field`\ s.</span>
 
-<span class="sd">        The order is deduced from the order of the names or attributes inside</span>
-<span class="sd">        *attrs*.  Otherwise the order of the definition of the attributes is</span>
-<span class="sd">        used.</span>
-<span class="sd">    :type attrs: `list` or `dict`</span>
+<span class="sd">            The order is deduced from the order of the names or attributes</span>
+<span class="sd">            inside *attrs*.  Otherwise the order of the definition of the</span>
+<span class="sd">            attributes is used.</span>
 
-<span class="sd">    :param tuple bases: Classes that the new class will subclass.</span>
+<span class="sd">        bases (tuple[type, ...]): Classes that the new class will subclass.</span>
 
-<span class="sd">    :param dict class_body: An optional dictionary of class attributes for the new class.</span>
+<span class="sd">        class_body (dict):</span>
+<span class="sd">            An optional dictionary of class attributes for the new class.</span>
 
-<span class="sd">    :param attributes_arguments: Passed unmodified to `attr.s`.</span>
+<span class="sd">        attributes_arguments: Passed unmodified to `attr.s`.</span>
 
-<span class="sd">    :return: A new class with *attrs*.</span>
-<span class="sd">    :rtype: type</span>
+<span class="sd">    Returns:</span>
+<span class="sd">        type: A new class with *attrs*.</span>
 
 <span class="sd">    .. versionadded:: 17.1.0 *bases*</span>
 <span class="sd">    .. versionchanged:: 18.1.0 If *attrs* is ordered, the order is retained.</span>
@@ -3387,14 +3212,32 @@ document.write(`
         <span class="kc">True</span><span class="p">,</span>
     <span class="p">)</span>
 
-    <span class="k">return</span> <span class="n">_attrs</span><span class="p">(</span><span class="n">these</span><span class="o">=</span><span class="n">cls_dict</span><span class="p">,</span> <span class="o">**</span><span class="n">attributes_arguments</span><span class="p">)(</span><span class="n">type_</span><span class="p">)</span>
+    <span class="nb">hash</span> <span class="o">=</span> <span class="n">attributes_arguments</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;hash&quot;</span><span class="p">,</span> <span class="n">_SENTINEL</span><span class="p">)</span>
+    <span class="k">if</span> <span class="nb">hash</span> <span class="ow">is</span> <span class="ow">not</span> <span class="n">_SENTINEL</span><span class="p">:</span>
+        <span class="kn">import</span> <span class="nn">warnings</span>
+
+        <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
+            <span class="ne">DeprecationWarning</span><span class="p">(</span>
+                <span class="s2">&quot;The `hash` argument is deprecated in favor of `unsafe_hash` and will be removed in or after August 2025.&quot;</span>
+            <span class="p">),</span>
+            <span class="n">stacklevel</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+        <span class="p">)</span>
+
+        <span class="n">attributes_arguments</span><span class="p">[</span><span class="s2">&quot;unsafe_hash&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">hash</span>
+
+    <span class="bp">cls</span> <span class="o">=</span> <span class="n">_attrs</span><span class="p">(</span><span class="n">these</span><span class="o">=</span><span class="n">cls_dict</span><span class="p">,</span> <span class="o">**</span><span class="n">attributes_arguments</span><span class="p">)(</span><span class="n">type_</span><span class="p">)</span>
+    <span class="c1"># Only add type annotations now or &quot;_attrs()&quot; will complain:</span>
+    <span class="bp">cls</span><span class="o">.</span><span class="vm">__annotations__</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="n">k</span><span class="p">:</span> <span class="n">v</span><span class="o">.</span><span class="n">type</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">cls_dict</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="n">v</span><span class="o">.</span><span class="n">type</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+    <span class="p">}</span>
+    <span class="k">return</span> <span class="bp">cls</span>
 
 
 <span class="c1"># These are required by within this module so we define them here and merely</span>
 <span class="c1"># import into .validators / .converters.</span>
 
 
-<span class="nd">@attrs</span><span class="p">(</span><span class="n">slots</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="nb">hash</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="nd">@attrs</span><span class="p">(</span><span class="n">slots</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">unsafe_hash</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 <span class="k">class</span> <span class="nc">_AndValidator</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Compose many validators to a single one.</span>
@@ -3413,7 +3256,9 @@ document.write(`
 
 <span class="sd">    When called on a value, it runs all wrapped validators.</span>
 
-<span class="sd">    :param callables validators: Arbitrary number of validators.</span>
+<span class="sd">    Args:</span>
+<span class="sd">        validators (~collections.abc.Iterable[typing.Callable]):</span>
+<span class="sd">            Arbitrary number of validators.</span>
 
 <span class="sd">    .. versionadded:: 17.1.0</span>
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -3435,24 +3280,36 @@ document.write(`
 <span class="sd">    When called on a value, it runs all wrapped converters, returning the</span>
 <span class="sd">    *last* value.</span>
 
-<span class="sd">    Type annotations will be inferred from the wrapped converters&#39;, if</span>
-<span class="sd">    they have any.</span>
+<span class="sd">    Type annotations will be inferred from the wrapped converters&#39;, if they</span>
+<span class="sd">    have any.</span>
 
-<span class="sd">    :param callables converters: Arbitrary number of converters.</span>
+<span class="sd">        converters (~collections.abc.Iterable[typing.Callable]):</span>
+<span class="sd">            Arbitrary number of converters.</span>
 
 <span class="sd">    .. versionadded:: 20.1.0</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="nf">pipe_converter</span><span class="p">(</span><span class="n">val</span><span class="p">):</span>
-        <span class="k">for</span> <span class="n">converter</span> <span class="ow">in</span> <span class="n">converters</span><span class="p">:</span>
-            <span class="n">val</span> <span class="o">=</span> <span class="n">converter</span><span class="p">(</span><span class="n">val</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">pipe_converter</span><span class="p">(</span><span class="n">val</span><span class="p">,</span> <span class="n">inst</span><span class="p">,</span> <span class="n">field</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">converters</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">c</span><span class="p">,</span> <span class="n">Converter</span><span class="p">):</span>
+                <span class="n">val</span> <span class="o">=</span> <span class="n">c</span><span class="o">.</span><span class="n">converter</span><span class="p">(</span>
+                    <span class="n">val</span><span class="p">,</span>
+                    <span class="o">*</span><span class="p">{</span>
+                        <span class="p">(</span><span class="kc">False</span><span class="p">,</span> <span class="kc">False</span><span class="p">):</span> <span class="p">(),</span>
+                        <span class="p">(</span><span class="kc">True</span><span class="p">,</span> <span class="kc">False</span><span class="p">):</span> <span class="p">(</span><span class="n">c</span><span class="o">.</span><span class="n">takes_self</span><span class="p">,),</span>
+                        <span class="p">(</span><span class="kc">False</span><span class="p">,</span> <span class="kc">True</span><span class="p">):</span> <span class="p">(</span><span class="n">c</span><span class="o">.</span><span class="n">takes_field</span><span class="p">,),</span>
+                        <span class="p">(</span><span class="kc">True</span><span class="p">,</span> <span class="kc">True</span><span class="p">):</span> <span class="p">(</span><span class="n">c</span><span class="o">.</span><span class="n">takes_self</span><span class="p">,</span> <span class="n">c</span><span class="o">.</span><span class="n">takes_field</span><span class="p">),</span>
+                    <span class="p">}[</span><span class="n">c</span><span class="o">.</span><span class="n">takes_self</span><span class="p">,</span> <span class="n">c</span><span class="o">.</span><span class="n">takes_field</span><span class="p">],</span>
+                <span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">val</span> <span class="o">=</span> <span class="n">c</span><span class="p">(</span><span class="n">val</span><span class="p">)</span>
 
         <span class="k">return</span> <span class="n">val</span>
 
     <span class="k">if</span> <span class="ow">not</span> <span class="n">converters</span><span class="p">:</span>
         <span class="c1"># If the converter list is empty, pipe_converter is the identity.</span>
         <span class="n">A</span> <span class="o">=</span> <span class="n">typing</span><span class="o">.</span><span class="n">TypeVar</span><span class="p">(</span><span class="s2">&quot;A&quot;</span><span class="p">)</span>
-        <span class="n">pipe_converter</span><span class="o">.</span><span class="vm">__annotations__</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;val&quot;</span><span class="p">:</span> <span class="n">A</span><span class="p">,</span> <span class="s2">&quot;return&quot;</span><span class="p">:</span> <span class="n">A</span><span class="p">}</span>
+        <span class="n">pipe_converter</span><span class="o">.</span><span class="vm">__annotations__</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="s2">&quot;val&quot;</span><span class="p">:</span> <span class="n">A</span><span class="p">,</span> <span class="s2">&quot;return&quot;</span><span class="p">:</span> <span class="n">A</span><span class="p">})</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="c1"># Get parameter type from first converter.</span>
         <span class="n">t</span> <span class="o">=</span> <span class="n">_AnnotationExtractor</span><span class="p">(</span><span class="n">converters</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span><span class="o">.</span><span class="n">get_first_param_type</span><span class="p">()</span>
@@ -3464,7 +3321,7 @@ document.write(`
         <span class="k">if</span> <span class="n">rt</span><span class="p">:</span>
             <span class="n">pipe_converter</span><span class="o">.</span><span class="vm">__annotations__</span><span class="p">[</span><span class="s2">&quot;return&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">rt</span>
 
-    <span class="k">return</span> <span class="n">pipe_converter</span>
+    <span class="k">return</span> <span class="n">Converter</span><span class="p">(</span><span class="n">pipe_converter</span><span class="p">,</span> <span class="n">takes_self</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">takes_field</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 </pre></div>
 
                 </article>

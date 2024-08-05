@@ -30,7 +30,7 @@
     <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=a746c00c" />
     <link rel="stylesheet" type="text/css" href="../../../../_static/copybutton.css?v=76b2166b" />
     <link rel="stylesheet" type="text/css" href="../../../../_static/graphviz.css?v=eafc0fe6" />
-    <link rel="stylesheet" type="text/css" href="../../../../_static/sphinx-design.min.css?v=87e54e7c" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/sphinx-design.min.css?v=95c83b7e" />
     <link rel="stylesheet" type="text/css" href="../../../../_static/css/custom.css?v=8b7c274f" />
   
   <!-- Pre-loaded scripts that we'll load fully later -->
@@ -431,7 +431,11 @@ document.write(`
                         <span class="n">e</span><span class="p">,</span> <span class="n">item_id</span><span class="o">=</span><span class="p">(</span><span class="n">item_id</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_subset</span><span class="p">)</span>
                     <span class="p">)</span>
 
-        <span class="k">return</span> <span class="n">items</span></div>
+        <span class="k">return</span> <span class="n">items</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">is_stream</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">True</span></div>
 
 
 

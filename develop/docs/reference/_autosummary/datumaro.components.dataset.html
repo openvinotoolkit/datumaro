@@ -31,7 +31,7 @@
     <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=a746c00c" />
     <link rel="stylesheet" type="text/css" href="../../../_static/copybutton.css?v=76b2166b" />
     <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css?v=eafc0fe6" />
-    <link rel="stylesheet" type="text/css" href="../../../_static/sphinx-design.min.css?v=87e54e7c" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/sphinx-design.min.css?v=95c83b7e" />
     <link rel="stylesheet" type="text/css" href="../../../_static/css/custom.css?v=8b7c274f" />
   
   <!-- Pre-loaded scripts that we'll load fully later -->
@@ -2387,6 +2387,32 @@ and release of their resources, if necessary.</p>
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">is_eager</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.12)"><span class="pre">bool</span></a></em><a class="headerlink" href="#datumaro.components.dataset.StreamDataset.is_eager" title="Link to this definition">#</a></dt>
 <dd></dd></dl>
 
+<dl class="py method">
+<dt class="sig sig-object py" id="datumaro.components.dataset.StreamDataset.from_extractors">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_extractors</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">sources</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="datumaro.components.dataset_base.html#datumaro.components.dataset_base.IDataset" title="datumaro.components.dataset_base.IDataset"><span class="pre">IDataset</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">env</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="datumaro.components.environment.html#datumaro.components.environment.Environment" title="datumaro.components.environment.Environment"><span class="pre">Environment</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.12)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">merge_policy</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><span class="pre">str</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'exact'</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#datumaro.components.dataset.Dataset" title="datumaro.components.dataset.Dataset"><span class="pre">Dataset</span></a></span></span><a class="reference internal" href="../../../_modules/datumaro/components/dataset.html#StreamDataset.from_extractors"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.components.dataset.StreamDataset.from_extractors" title="Link to this definition">#</a></dt>
+<dd><p>Creates a new dataset from one or several <a href="#id3"><span class="problematic" id="id4">`</span></a>Extractor`s.</p>
+<p>In case of a single input, creates a lazy wrapper around the input.
+In case of several inputs, unifies them and caches the resulting
+dataset. We cannot apply regular dataset merge, since items list cannot be accessed.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>sources</strong> – one or many input extractors</p></li>
+<li><p><strong>env</strong> – A context for plugins, which will be used for this dataset.
+If not specified, the builtin plugins will be used.</p></li>
+<li><p><strong>merge_policy</strong> – Policy on how to merge multiple datasets.
+Possible options are “exact”, “intersect”, and “union”.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>A new dataset with contents produced by input extractors</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>dataset</p>
+</dd>
+</dl>
+</dd></dl>
+
 </dd></dl>
 
 <dl class="py class">
@@ -3243,6 +3269,7 @@ such as registering error and exit callbacks and context managers.</p>
 </li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.dataset.StreamDataset"><code class="docutils literal notranslate"><span class="pre">StreamDataset</span></code></a><ul class="nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.dataset.StreamDataset.is_eager"><code class="docutils literal notranslate"><span class="pre">StreamDataset.is_eager</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.dataset.StreamDataset.from_extractors"><code class="docutils literal notranslate"><span class="pre">StreamDataset.from_extractors()</span></code></a></li>
 </ul>
 </li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.components.dataset.StreamDatasetStorage"><code class="docutils literal notranslate"><span class="pre">StreamDatasetStorage</span></code></a><ul class="nav section-nav flex-column">
