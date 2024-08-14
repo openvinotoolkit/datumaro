@@ -364,7 +364,9 @@ document.write(`
 <span class="kn">from</span> <span class="nn">._compat</span> <span class="kn">import</span> <span class="p">(</span>
     <span class="n">PY_3_8_PLUS</span><span class="p">,</span>
     <span class="n">PY_3_10_PLUS</span><span class="p">,</span>
+    <span class="n">PY_3_11_PLUS</span><span class="p">,</span>
     <span class="n">_AnnotationExtractor</span><span class="p">,</span>
+    <span class="n">_get_annotations</span><span class="p">,</span>
     <span class="n">get_generic_base</span><span class="p">,</span>
 <span class="p">)</span>
 <span class="kn">from</span> <span class="nn">.exceptions</span> <span class="kn">import</span> <span class="p">(</span>
@@ -651,13 +653,6 @@ document.write(`
 <span class="sd">    Check whether *cls* defines *attrib_name* (and doesn&#39;t just inherit it).</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">return</span> <span class="n">attrib_name</span> <span class="ow">in</span> <span class="bp">cls</span><span class="o">.</span><span class="vm">__dict__</span>
-
-
-<span class="k">def</span> <span class="nf">_get_annotations</span><span class="p">(</span><span class="bp">cls</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Get annotations for *cls*.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">return</span> <span class="bp">cls</span><span class="o">.</span><span class="vm">__dict__</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;__annotations__&quot;</span><span class="p">,</span> <span class="p">{})</span>
 
 
 <span class="k">def</span> <span class="nf">_collect_base_attrs</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">taken_attr_names</span><span class="p">):</span>
@@ -1631,16 +1626,7 @@ document.write(`
 
     <span class="n">eq_</span><span class="p">,</span> <span class="n">order_</span> <span class="o">=</span> <span class="n">_determine_attrs_eq_order</span><span class="p">(</span><span class="n">cmp</span><span class="p">,</span> <span class="n">eq</span><span class="p">,</span> <span class="n">order</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
 
-    <span class="c1"># hash is deprecated &amp; unsafe_hash takes precedence due to PEP 681.</span>
-    <span class="k">if</span> <span class="nb">hash</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="kn">import</span> <span class="nn">warnings</span>
-
-        <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
-            <span class="ne">DeprecationWarning</span><span class="p">(</span>
-                <span class="s2">&quot;The `hash` argument is deprecated in favor of `unsafe_hash` and will be removed in or after August 2025.&quot;</span>
-            <span class="p">),</span>
-            <span class="n">stacklevel</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
-        <span class="p">)</span>
+    <span class="c1">#  unsafe_hash takes precedence due to PEP 681.</span>
     <span class="k">if</span> <span class="n">unsafe_hash</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
         <span class="nb">hash</span> <span class="o">=</span> <span class="n">unsafe_hash</span>
 
@@ -3068,9 +3054,27 @@ document.write(`
         <span class="bp">self</span><span class="o">.</span><span class="n">takes_self</span> <span class="o">=</span> <span class="n">takes_self</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">takes_field</span> <span class="o">=</span> <span class="n">takes_field</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">_first_param_type</span> <span class="o">=</span> <span class="n">_AnnotationExtractor</span><span class="p">(</span>
-            <span class="n">converter</span>
-        <span class="p">)</span><span class="o">.</span><span class="n">get_first_param_type</span><span class="p">()</span>
+        <span class="n">ex</span> <span class="o">=</span> <span class="n">_AnnotationExtractor</span><span class="p">(</span><span class="n">converter</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_first_param_type</span> <span class="o">=</span> <span class="n">ex</span><span class="o">.</span><span class="n">get_first_param_type</span><span class="p">()</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">takes_self</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">takes_field</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="fm">__call__</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">value</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">__</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">converter</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">takes_self</span> <span class="ow">and</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">takes_field</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="fm">__call__</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">value</span><span class="p">,</span> <span class="n">instance</span><span class="p">,</span> <span class="n">__</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">converter</span><span class="p">(</span>
+                <span class="n">value</span><span class="p">,</span> <span class="n">instance</span>
+            <span class="p">)</span>
+        <span class="k">elif</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">takes_self</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">takes_field</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="fm">__call__</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">value</span><span class="p">,</span> <span class="n">__</span><span class="p">,</span> <span class="n">field</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">converter</span><span class="p">(</span>
+                <span class="n">value</span><span class="p">,</span> <span class="n">field</span>
+            <span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="fm">__call__</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">value</span><span class="p">,</span> <span class="n">instance</span><span class="p">,</span> <span class="n">field</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">converter</span><span class="p">(</span>
+                <span class="n">value</span><span class="p">,</span> <span class="n">instance</span><span class="p">,</span> <span class="n">field</span>
+            <span class="p">)</span>
+
+        <span class="n">rt</span> <span class="o">=</span> <span class="n">ex</span><span class="o">.</span><span class="n">get_return_type</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">rt</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="fm">__call__</span><span class="o">.</span><span class="vm">__annotations__</span><span class="p">[</span><span class="s2">&quot;return&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">rt</span>
 
     <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">_get_global_name</span><span class="p">(</span><span class="n">attr_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
@@ -3212,19 +3216,6 @@ document.write(`
         <span class="kc">True</span><span class="p">,</span>
     <span class="p">)</span>
 
-    <span class="nb">hash</span> <span class="o">=</span> <span class="n">attributes_arguments</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;hash&quot;</span><span class="p">,</span> <span class="n">_SENTINEL</span><span class="p">)</span>
-    <span class="k">if</span> <span class="nb">hash</span> <span class="ow">is</span> <span class="ow">not</span> <span class="n">_SENTINEL</span><span class="p">:</span>
-        <span class="kn">import</span> <span class="nn">warnings</span>
-
-        <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
-            <span class="ne">DeprecationWarning</span><span class="p">(</span>
-                <span class="s2">&quot;The `hash` argument is deprecated in favor of `unsafe_hash` and will be removed in or after August 2025.&quot;</span>
-            <span class="p">),</span>
-            <span class="n">stacklevel</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
-        <span class="p">)</span>
-
-        <span class="n">attributes_arguments</span><span class="p">[</span><span class="s2">&quot;unsafe_hash&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">hash</span>
-
     <span class="bp">cls</span> <span class="o">=</span> <span class="n">_attrs</span><span class="p">(</span><span class="n">these</span><span class="o">=</span><span class="n">cls_dict</span><span class="p">,</span> <span class="o">**</span><span class="n">attributes_arguments</span><span class="p">)(</span><span class="n">type_</span><span class="p">)</span>
     <span class="c1"># Only add type annotations now or &quot;_attrs()&quot; will complain:</span>
     <span class="bp">cls</span><span class="o">.</span><span class="vm">__annotations__</span> <span class="o">=</span> <span class="p">{</span>
@@ -3291,18 +3282,7 @@ document.write(`
 
     <span class="k">def</span> <span class="nf">pipe_converter</span><span class="p">(</span><span class="n">val</span><span class="p">,</span> <span class="n">inst</span><span class="p">,</span> <span class="n">field</span><span class="p">):</span>
         <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">converters</span><span class="p">:</span>
-            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">c</span><span class="p">,</span> <span class="n">Converter</span><span class="p">):</span>
-                <span class="n">val</span> <span class="o">=</span> <span class="n">c</span><span class="o">.</span><span class="n">converter</span><span class="p">(</span>
-                    <span class="n">val</span><span class="p">,</span>
-                    <span class="o">*</span><span class="p">{</span>
-                        <span class="p">(</span><span class="kc">False</span><span class="p">,</span> <span class="kc">False</span><span class="p">):</span> <span class="p">(),</span>
-                        <span class="p">(</span><span class="kc">True</span><span class="p">,</span> <span class="kc">False</span><span class="p">):</span> <span class="p">(</span><span class="n">c</span><span class="o">.</span><span class="n">takes_self</span><span class="p">,),</span>
-                        <span class="p">(</span><span class="kc">False</span><span class="p">,</span> <span class="kc">True</span><span class="p">):</span> <span class="p">(</span><span class="n">c</span><span class="o">.</span><span class="n">takes_field</span><span class="p">,),</span>
-                        <span class="p">(</span><span class="kc">True</span><span class="p">,</span> <span class="kc">True</span><span class="p">):</span> <span class="p">(</span><span class="n">c</span><span class="o">.</span><span class="n">takes_self</span><span class="p">,</span> <span class="n">c</span><span class="o">.</span><span class="n">takes_field</span><span class="p">),</span>
-                    <span class="p">}[</span><span class="n">c</span><span class="o">.</span><span class="n">takes_self</span><span class="p">,</span> <span class="n">c</span><span class="o">.</span><span class="n">takes_field</span><span class="p">],</span>
-                <span class="p">)</span>
-            <span class="k">else</span><span class="p">:</span>
-                <span class="n">val</span> <span class="o">=</span> <span class="n">c</span><span class="p">(</span><span class="n">val</span><span class="p">)</span>
+            <span class="n">val</span> <span class="o">=</span> <span class="n">c</span><span class="p">(</span><span class="n">val</span><span class="p">,</span> <span class="n">inst</span><span class="p">,</span> <span class="n">field</span><span class="p">)</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">c</span><span class="p">,</span> <span class="n">Converter</span><span class="p">)</span> <span class="k">else</span> <span class="n">c</span><span class="p">(</span><span class="n">val</span><span class="p">)</span>
 
         <span class="k">return</span> <span class="n">val</span>
 
@@ -3316,8 +3296,12 @@ document.write(`
         <span class="k">if</span> <span class="n">t</span><span class="p">:</span>
             <span class="n">pipe_converter</span><span class="o">.</span><span class="vm">__annotations__</span><span class="p">[</span><span class="s2">&quot;val&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">t</span>
 
+        <span class="n">last</span> <span class="o">=</span> <span class="n">converters</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">PY_3_11_PLUS</span> <span class="ow">and</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">last</span><span class="p">,</span> <span class="n">Converter</span><span class="p">):</span>
+            <span class="n">last</span> <span class="o">=</span> <span class="n">last</span><span class="o">.</span><span class="fm">__call__</span>
+
         <span class="c1"># Get return type from last converter.</span>
-        <span class="n">rt</span> <span class="o">=</span> <span class="n">_AnnotationExtractor</span><span class="p">(</span><span class="n">converters</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span><span class="o">.</span><span class="n">get_return_type</span><span class="p">()</span>
+        <span class="n">rt</span> <span class="o">=</span> <span class="n">_AnnotationExtractor</span><span class="p">(</span><span class="n">last</span><span class="p">)</span><span class="o">.</span><span class="n">get_return_type</span><span class="p">()</span>
         <span class="k">if</span> <span class="n">rt</span><span class="p">:</span>
             <span class="n">pipe_converter</span><span class="o">.</span><span class="vm">__annotations__</span><span class="p">[</span><span class="s2">&quot;return&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">rt</span>
 
