@@ -17,6 +17,6 @@ jobs:
         uses: pozil/auto-assign-issue@v2.0.0
         with:
           repo-token: ${{ secrets.GITHUB_TOKEN }}
-          assignees: vinnamkim,jihyeonyi,sooahleex,itrushkin
+          assignees: jihyeonyi,sooahleex,itrushkin
           numOfAssignee: 1
           allowSelfAssign: false
