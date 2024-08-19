@@ -10,6 +10,8 @@ import pytest
 
 from datumaro import Dataset
 
+from tests.utils.test_utils import TestDir
+
 
 @pytest.fixture
 def fxt_dummy_dataset():
@@ -35,12 +37,12 @@ def fxt_export_kwargs():
 @pytest.fixture
 def fxt_dataset_dir_with_subset_dirs(test_dir: str, request: pytest.FixtureRequest):
     fxt_dataset_dir = request.param
+    with TestDir(f"{test_dir}_with_subsets") as new_test_dir:
+        for subset in ["train", "val", "test"]:
+            dst = os.path.join(new_test_dir, subset)
+            shutil.copytree(fxt_dataset_dir, dst)
 
-    for subset in ["train", "val", "test"]:
-        dst = os.path.join(test_dir, subset)
-        shutil.copytree(fxt_dataset_dir, dst)
-
-    yield test_dir
+        yield new_test_dir
 
 
 @pytest.fixture
