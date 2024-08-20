@@ -13,6 +13,7 @@ import pytest
 from datumaro.components.annotation import (
     AnnotationType,
     Bbox,
+    Caption,
     Label,
     LabelCategories,
     Mask,
@@ -20,7 +21,7 @@ from datumaro.components.annotation import (
 )
 from datumaro.components.dataset import Dataset
 from datumaro.components.dataset_base import DatasetItem
-from datumaro.components.media import Image
+from datumaro.components.media import Image, Table, TableRow
 from datumaro.plugins.framework_converter import (
     TASK_ANN_TYPE,
     DmTfDataset,
@@ -36,6 +37,9 @@ from tests.utils.assets import get_test_asset_path
 
 try:
     import torch
+    from torchtext.data.utils import get_tokenizer
+    from torchtext.datasets import IMDB
+    from torchtext.vocab import build_vocab_from_iterator
     from torchvision import datasets, transforms
 except ImportError:
     TORCH_AVAILABLE = False
@@ -142,6 +146,35 @@ def fxt_dataset():
     )
 
 
+@pytest.fixture
+def fxt_tabular_dataset():
+    table = Table.from_list(
+        [{"nswprice": 0.076108, "class": "DOWN"}, {"nswprice": 0.060376, "class": "UP"}]
+    )
+    return Dataset.from_iterable(
+        [
+            DatasetItem(
+                id="0",
+                subset="train",
+                media=TableRow(table=table, index=0),
+                annotations=[Label(label=0), Caption("nswprice:0.076108")],
+            ),
+            DatasetItem(
+                id="1",
+                subset="train",
+                media=TableRow(table=table, index=1),
+                annotations=[Label(label=1), Caption("nswprice:0.060376")],
+            ),
+        ],
+        categories={
+            AnnotationType.label: LabelCategories.from_iterable(
+                [("class:DOWN", "class"), ("class:UP", "class")]
+            )
+        },
+        media_type=TableRow,
+    )
+
+
 @pytest.mark.new
 @mark_requirement(Requirements.DATUM_GENERAL_REQ)
 class FrameworkConverterFactoryTest(TestCase):
@@ -173,38 +206,47 @@ class FrameworkConverterFactoryTest(TestCase):
 @mark_requirement(Requirements.DATUM_GENERAL_REQ)
 class MultiframeworkConverterTest:
     @pytest.mark.parametrize(
-        "fxt_subset,fxt_task",
+        "fxt_dataset_type,fxt_subset,fxt_task",
         [
             (
+                "fxt_dataset",
                 "train",
                 "classification",
             ),
             (
+                "fxt_dataset",
                 "val",
                 "multilabel_classification",
             ),
             (
+                "fxt_dataset",
                 "train",
                 "detection",
             ),
             (
+                "fxt_dataset",
                 "val",
                 "instance_segmentation",
             ),
             (
+                "fxt_dataset",
                 "train",
                 "semantic_segmentation",
             ),
+            ("fxt_tabular_dataset", "train", "tabular"),
         ],
     )
-    def test_multi_framework_dataset(self, fxt_dataset: Dataset, fxt_subset: str, fxt_task: str):
+    def test_multi_framework_dataset(
+        self, fxt_dataset_type: str, fxt_subset: str, fxt_task: str, request
+    ):
+        dataset = request.getfixturevalue(fxt_dataset_type)
         dm_multi_framework_dataset = _MultiFrameworkDataset(
-            dataset=fxt_dataset, subset=fxt_subset, task=fxt_task
+            dataset=dataset, subset=fxt_subset, task=fxt_task
         )
 
         for idx in range(len(dm_multi_framework_dataset)):
             image, label = dm_multi_framework_dataset._gen_item(idx)
-            assert isinstance(image, np.ndarray)
+            assert isinstance(image, (np.ndarray, dict))
             if fxt_task == "classification":
                 assert isinstance(label, int)
             elif fxt_task == "multilabel_classification":
@@ -213,63 +255,79 @@ class MultiframeworkConverterTest:
                 assert isinstance(label, list)
             if fxt_task == "semantic_segmentation":
                 assert isinstance(label, np.ndarray)
+            elif fxt_task == "tabular":
+                assert isinstance(label, list)
 
     @pytest.mark.skipif(not TORCH_AVAILABLE, reason="PyTorch is not installed")
     @pytest.mark.parametrize(
-        "fxt_subset,fxt_task,fxt_convert_kwargs",
+        "fxt_dataset_type,fxt_subset,fxt_task,fxt_convert_kwargs",
         [
             (
+                "fxt_dataset",
                 "train",
                 "classification",
                 {},
             ),
             (
+                "fxt_dataset",
                 "val",
                 "multilabel_classification",
                 {},
             ),
             (
+                "fxt_dataset",
                 "train",
                 "detection",
                 {},
             ),
             (
+                "fxt_dataset",
                 "val",
                 "instance_segmentation",
                 {},
             ),
             (
+                "fxt_dataset",
                 "train",
                 "semantic_segmentation",
                 {},
             ),
             (
+                "fxt_dataset",
                 "val",
                 "semantic_segmentation",
                 {"transform": None, "target_transform": None},
             ),
             (
+                "fxt_dataset",
                 "train",
                 "semantic_segmentation",
                 {"transform": transforms.ToTensor()},
+            ),
+            (
+                "fxt_dataset",
+                "train",
+                "tabular",
+                {},
             ),
         ],
     )
     def test_can_convert_torch_framework(
         self,
-        fxt_dataset: Dataset,
+        fxt_dataset_type: str,
         fxt_subset: str,
         fxt_task: str,
         fxt_convert_kwargs: Dict[str, Any],
         request: pytest.FixtureRequest,
     ):
-        multi_framework_dataset = FrameworkConverter(fxt_dataset, subset=fxt_subset, task=fxt_task)
+        dataset = request.getfixturevalue(fxt_dataset_type)
+        multi_framework_dataset = FrameworkConverter(dataset, subset=fxt_subset, task=fxt_task)
 
         dm_torch_dataset = multi_framework_dataset.to_framework(
             framework="torch", **fxt_convert_kwargs
         )
 
-        expected_dataset = fxt_dataset.get_subset(fxt_subset)
+        expected_dataset = dataset.get_subset(fxt_subset)
 
         for exp_item, dm_torch_item in zip(expected_dataset, dm_torch_dataset):
             image = exp_item.media.data
@@ -294,7 +352,12 @@ class MultiframeworkConverterTest:
                     if ann.type == TASK_ANN_TYPE[fxt_task]
                 ]
                 label = np.sum(masks, axis=0, dtype=np.uint8)
-
+            elif fxt_task == "tabular":
+                label = [
+                    ann.as_dict()
+                    for ann in exp_item.annotations
+                    if ann.type in TASK_ANN_TYPE[fxt_task]
+                ]
             if fxt_convert_kwargs.get("transform", None):
                 actual = dm_torch_item[0].permute(1, 2, 0).mul(255.0).to(torch.uint8).numpy()
                 assert np.array_equal(image, actual)
@@ -373,6 +436,60 @@ class MultiframeworkConverterTest:
                 x1, y1, x2, y2 = dm_ann["points"]
                 assert torch_ann["bbox"] == [x1, y1, x2 - x1, y2 - y1]
                 assert torch_ann["iscrowd"] == dm_ann["attributes"]["is_crowd"]
+
+    @pytest.mark.skipif(not TORCH_AVAILABLE, reason="PyTorch is not installed")
+    def test_can_convert_torch_framework_tabular_label(self):
+        class IMDBDataset(Dataset):
+            def __init__(self, data_iter, vocab, transform=None):
+                self._data = list(data_iter)
+                self.vocab = vocab
+                self.transform = transform
+                self.tokenizer = get_tokenizer("basic_english")
+
+            def __len__(self):
+                return len(self._data)
+
+            def __getitem__(self, idx):
+                label, text = self._data[idx]
+                label = 1 if label == "pos" else 0
+                tokens = self.tokenizer(text)
+                token_ids = self.vocab(tokens)
+
+                if self.transform:
+                    token_ids = self.transform(token_ids)
+
+                return torch.tensor(token_ids, dtype=torch.long), torch.tensor(
+                    label, dtype=torch.long
+                )
+
+        # data_path = osp.join(
+        #     get_test_asset_path("tabular_dataset"), "women-clothing", "women_clothing_refined.csv"
+        # )
+        data_path = "/home/sooahlee/imdb_train.csv"
+        train_iter = IMDB(split="train")
+        tokenizer = get_tokenizer("basic_english")
+
+        def yield_tokens(data_iter):
+            for _, text in data_iter:
+                yield tokenizer(text)
+
+        vocab = build_vocab_from_iterator(yield_tokens(train_iter), specials=["<unk>"])
+        vocab.set_default_index(vocab["<unk>"])
+        torch_dataset = IMDBDataset(train_iter, vocab, transform=None)
+
+        target = {"input": ["text"], "output": ["label"]}
+        dm_dataset = Dataset.import_from(data_path, "tabular", target=target)
+        dm_dataset = dm_dataset.transform("astype_annotations")
+
+        multi_framework_dataset = FrameworkConverter(
+            dm_dataset, subset="imdb_train", task="tabular"
+        )
+        dm_torch_dataset = multi_framework_dataset.to_framework(
+            framework="torch",
+        )
+
+        for torch_item, dm_item in zip(torch_dataset, dm_torch_dataset):
+            assert torch_item[1] == dm_item[0]["text"]
 
     @pytest.mark.skipif(not TF_AVAILABLE, reason="Tensorflow is not installed")
     @pytest.mark.parametrize(
