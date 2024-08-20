@@ -98,8 +98,6 @@ class _MultiFrameworkDataset:
 
 try:
     import torch
-    from torchtext.data.utils import get_tokenizer
-    from torchtext.vocab import build_vocab_from_iterator
 
     class DmTorchDataset(_MultiFrameworkDataset, torch.utils.data.Dataset):
         def __init__(
@@ -110,6 +108,8 @@ try:
             transform: Optional[Callable] = None,
             target_transform: Optional[Callable] = None,
             target: Optional[str] = None,
+            tokenizer: Optional[tuple[Callable, Callable]] = None,
+            vocab: Optional[tuple[Callable, Callable]] = None,
         ):
             super().__init__(dataset=dataset, subset=subset, task=task)
 
@@ -117,31 +117,47 @@ try:
             self.target_transform = target_transform
 
             if self.task == "tabular":
-                self.target = target
-                if not self.target:
+                if not isinstance(target, dict):
+                    raise ValueError(
+                        "Target should be a dictionary with 'input' and 'output' keys."
+                    )
+                self.input_target = target.get("input")
+                self.output_target = target.get("output")
+                if not self.input_target:
                     raise ValueError(
                         "Please provide target column for tabular task which is used for input"
                     )
 
-                data_iter = [item.media.data()[self.target] for item in self.dataset]
-                self.tokenizer = get_tokenizer("basic_english")
-
-                # Build the vocab once during initialization to avoid repeated processing
-                self.vocab = build_vocab_from_iterator(
-                    map(self.tokenizer, data_iter), specials=["<unk>"]
-                )
-                self.vocab.set_default_index(self.vocab["<unk>"])
+                if not (tokenizer and vocab):
+                    raise ValueError("Both tokenizer and vocab must be provided for tabular task")
+                self.tokenizer = tokenizer
+                self.vocab = vocab
 
         def __getitem__(self, idx):
             image, label = self._gen_item(idx)
 
             if self.task == "tabular":
-                text = image()[self.target]
-                tokens = self.tokenizer(text)
-                token_ids = self.vocab(tokens)
-                return torch.tensor(token_ids, dtype=torch.long), torch.tensor(
-                    label[0]["label"], dtype=torch.long
-                )
+                text = image()[self.input_target]
+
+                if self.output_target:
+                    src_tokenizer, tgt_tokenizer = self.tokenizer
+                    src_vocab, tgt_vocab = self.vocab
+                    src_tokens = src_tokenizer(text)
+                    src_token_ids = src_vocab(src_tokens)
+
+                    label_text = label[0]["caption"].split(f"{self.output_target}:")[-1]
+                    tgt_tokens = tgt_tokenizer(label_text)
+                    tgt_token_ids = tgt_vocab(tgt_tokens)
+
+                    return torch.tensor(src_token_ids, dtype=torch.long), torch.tensor(
+                        tgt_token_ids, dtype=torch.long
+                    )
+                else:
+                    tokens = self.tokenizer(text)
+                    token_ids = self.vocab(tokens)
+                    return torch.tensor(token_ids, dtype=torch.long), torch.tensor(
+                        label[0]["label"], dtype=torch.long
+                    )
 
             if len(image.shape) == 2:
                 image = np.expand_dims(image, axis=-1)
