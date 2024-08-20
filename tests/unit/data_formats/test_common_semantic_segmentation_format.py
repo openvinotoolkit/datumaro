@@ -2,8 +2,10 @@
 #
 # SPDX-License-Identifier: MIT
 
+import os
+import shutil
 from collections import OrderedDict
-from typing import Any, Dict, Optional
+from typing import Any, Dict
 
 import numpy as np
 import pytest
@@ -11,6 +13,7 @@ import pytest
 from datumaro.components.annotation import Mask
 from datumaro.components.dataset import Dataset
 from datumaro.components.dataset_base import DatasetItem
+from datumaro.components.errors import DatasetImportError
 from datumaro.components.media import Image
 from datumaro.plugins.data_formats.common_semantic_segmentation import (
     CommonSemanticSegmentationImporter,
@@ -142,6 +145,40 @@ class CommonSemanticSegmentationImporterTest(TestDataFormatBase):
         return super().test_can_import(
             fxt_dataset_dir, fxt_expected_dataset, fxt_import_kwargs, request
         )
+
+    @pytest.mark.parametrize(
+        ["fxt_dataset_dir", "fxt_expected_dataset", "fxt_import_kwargs"],
+        [
+            (DUMMY_DATASET_DIR, "fxt_dataset", {}),
+            (
+                DUMMY_NON_STANDARD_DATASET_DIR,
+                "fxt_non_standard_dataset",
+                {"image_prefix": "image_", "mask_prefix": "gt_"},
+            ),
+        ],
+        indirect=["fxt_expected_dataset"],
+        ids=IDS,
+    )
+    def test_cannot_import_nested(
+        self,
+        fxt_dataset_dir: str,
+        fxt_expected_dataset: Dataset,
+        fxt_import_kwargs: Dict[str, Any],
+        request: pytest.FixtureRequest,
+        test_dir: str,
+    ):
+        shutil.copytree(fxt_dataset_dir, test_dir, dirs_exist_ok=True)
+        subdir_name = "subdir"
+        subdir = os.path.join(test_dir, subdir_name)
+        os.makedirs(subdir)
+        for _file in os.listdir(test_dir):
+            if _file != subdir_name:
+                file_path = os.path.join(test_dir, _file)
+                shutil.move(file_path, subdir)
+        with pytest.raises(DatasetImportError) as exc_info:
+            super().test_can_import(test_dir, fxt_expected_dataset, fxt_import_kwargs, request)
+        assert exc_info.value.__cause__ is not None
+        assert isinstance(exc_info.value.__cause__, FileNotFoundError)
 
 
 class CommonSemanticSegmentationWithSubsetDirsImporterTest(TestDataFormatBase):

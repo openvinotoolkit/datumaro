@@ -3,7 +3,6 @@
 # SPDX-License-Identifier: MIT
 
 import errno
-import glob
 import os.path as osp
 from typing import List, Optional
 
@@ -69,11 +68,11 @@ class CommonSemanticSegmentationBase(SubsetBase):
         self._image_prefix = image_prefix
         self._mask_prefix = mask_prefix
 
-        meta_file = glob.glob(osp.join(path, "**", DATASET_META_FILE), recursive=True)
-        if is_meta_file(meta_file[0]):
-            self._root_dir = osp.dirname(meta_file[0])
+        meta_file = osp.join(path, DATASET_META_FILE)
+        if is_meta_file(meta_file):
+            self._root_dir = osp.dirname(meta_file)
 
-            label_map = parse_meta_file(meta_file[0])
+            label_map = parse_meta_file(meta_file)
             self._categories = make_categories(label_map)
         else:
             raise FileNotFoundError(errno.ENOENT, "Dataset meta info file was not found", path)
@@ -163,11 +162,10 @@ class CommonSemanticSegmentationImporter(Importer):
 
     @classmethod
     def detect(cls, context: FormatDetectionContext) -> FormatDetectionConfidence:
-        path = context.require_file(f"**/{DATASET_META_FILE}")
-        path = osp.dirname(path)
+        context.require_file(DATASET_META_FILE)
 
-        context.require_file(osp.join(path, CommonSemanticSegmentationPath.IMAGES_DIR, "**", "*"))
-        context.require_file(osp.join(path, CommonSemanticSegmentationPath.MASKS_DIR, "**", "*"))
+        context.require_file(osp.join(CommonSemanticSegmentationPath.IMAGES_DIR, "**", "*"))
+        context.require_file(osp.join(CommonSemanticSegmentationPath.MASKS_DIR, "**", "*"))
 
         return FormatDetectionConfidence.MEDIUM
 
