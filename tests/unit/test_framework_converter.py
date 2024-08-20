@@ -18,6 +18,7 @@ from datumaro.components.annotation import (
     LabelCategories,
     Mask,
     Polygon,
+    Tabular,
 )
 from datumaro.components.dataset import Dataset
 from datumaro.components.dataset_base import DatasetItem
@@ -38,7 +39,7 @@ from tests.utils.assets import get_test_asset_path
 try:
     import torch
     from torchtext.data.utils import get_tokenizer
-    from torchtext.datasets import IMDB
+    from torchtext.datasets import IMDB, Multi30k
     from torchtext.vocab import build_vocab_from_iterator
     from torchvision import datasets, transforms
 except ImportError:
@@ -171,6 +172,62 @@ def fxt_tabular_dataset():
                 [("class:DOWN", "class"), ("class:UP", "class")]
             )
         },
+        media_type=TableRow,
+    )
+
+
+@pytest.fixture
+def fxt_tabular_label_dataset():
+    table = Table.from_list(
+        [
+            {
+                "label": 1,
+                "text": "I rented I AM CURIOUS-YELLOW from my video store because of all the controversy that surrounded it when it was first released in 1967. I also heard that at first it was seized by U.S. customs if it ever tried to enter this country, therefore being a fan of films considered "
+                "controversial"
+                " I really had to see this for myself.<br /><br />The plot is centered around a young Swedish drama student named Lena who wants to learn everything she can about life. In particular she wants to focus her attentions to making some sort of documentary on what the average Swede thought about certain political issues such as the Vietnam War and race issues in the United States. In between asking politicians and ordinary denizens of Stockholm about their opinions on politics, she has sex with her drama teacher, classmates, and married men.<br /><br />What kills me about I AM CURIOUS-YELLOW is that 40 years ago, this was considered pornographic. Really, the sex and nudity scenes are few and far between, even then it's not shot like some cheaply made porno. While my countrymen mind find it shocking, in reality sex and nudity are a major staple in Swedish cinema. Even Ingmar Bergman, arguably their answer to good old boy John Ford, had sex scenes in his films.<br /><br />I do commend the filmmakers for the fact that any sex shown in the film is shown for artistic purposes rather than just to shock people and make money to be shown in pornographic theaters in America. I AM CURIOUS-YELLOW is a good film for anyone wanting to study the meat and potatoes (no pun intended) of Swedish cinema. But really, this film doesn't have much of a plot.",
+            }
+        ]
+    )
+    return Dataset.from_iterable(
+        [
+            DatasetItem(
+                id=0,
+                subset="train",
+                media=TableRow(table=table, index=0),
+                annotations=[Label(id=0, attributes={}, group=0, object_id=-1, label=0)],
+            )
+        ],
+        categories={
+            AnnotationType.label: LabelCategories.from_iterable(
+                [("label:1", "label"), ("label:2", "label")]
+            )
+        },
+        media_type=TableRow,
+    )
+
+
+@pytest.fixture
+def fxt_tabular_caption_dataset():
+    table = Table.from_list(
+        [
+            {
+                "source": "Zwei junge weiße Männer sind im Freien in der Nähe vieler Büsche.",
+                "target": "Two young, White males are outside near many bushes.",
+            }
+        ]
+    )
+    return Dataset.from_iterable(
+        [
+            DatasetItem(
+                id=0,
+                subset="train",
+                media=TableRow(table=table, index=0),
+                annotations=[
+                    Caption("target:Two young, White males are outside near many bushes.")
+                ],
+            )
+        ],
+        categories={},
         media_type=TableRow,
     )
 
@@ -438,7 +495,7 @@ class MultiframeworkConverterTest:
                 assert torch_ann["iscrowd"] == dm_ann["attributes"]["is_crowd"]
 
     @pytest.mark.skipif(not TORCH_AVAILABLE, reason="PyTorch is not installed")
-    def test_can_convert_torch_framework_tabular_label(self):
+    def test_can_convert_torch_framework_tabular_label(self, fxt_tabular_label_dataset):
         class IMDBDataset(Dataset):
             def __init__(self, data_iter, vocab, transform=None):
                 self._data = list(data_iter)
@@ -462,7 +519,6 @@ class MultiframeworkConverterTest:
                 )
 
         # Prepare data and tokenizer
-        data_path = osp.join(get_test_asset_path("tabular_dataset"), "imdb_train.csv")
         train_iter = IMDB(split="train")
         tokenizer = get_tokenizer("basic_english")
 
@@ -476,13 +532,11 @@ class MultiframeworkConverterTest:
         torch_dataset = IMDBDataset(train_iter, vocab)
 
         # Convert to dm_torch_dataset
-        target = {"input": ["text"], "output": ["label"]}
-        dm_dataset = Dataset.import_from(data_path, "tabular", target=target)
-        dm_dataset = dm_dataset.transform("astype_annotations")
-        multi_framework_dataset = FrameworkConverter(
-            dm_dataset, subset="imdb_train", task="tabular"
+        dm_dataset = fxt_tabular_label_dataset
+        multi_framework_dataset = FrameworkConverter(dm_dataset, subset="train", task="tabular")
+        dm_torch_dataset = multi_framework_dataset.to_framework(
+            framework="torch", target={"input": "text"}, tokenizer=tokenizer, vocab=vocab
         )
-        dm_torch_dataset = multi_framework_dataset.to_framework(framework="torch", target="text")
 
         # Verify equality of items in torch_dataset and dm_torch_dataset
         label_indices = dm_dataset.categories().get(AnnotationType.label)._indices
@@ -496,6 +550,73 @@ class MultiframeworkConverterTest:
             ":"
         )[-1]
         assert torch_item_label == dm_item_label, "Labels do not match"
+
+    @pytest.mark.skipif(not TORCH_AVAILABLE, reason="PyTorch is not installed")
+    def test_can_convert_torch_framework_tabular_caption(self, fxt_tabular_caption_dataset):
+        class Multi30kDataset(Dataset):
+            def __init__(self, dataset, src_tokenizer, tgt_tokenizer, src_vocab, tgt_vocab):
+                self.dataset = list(dataset)
+                self.src_tokenizer = src_tokenizer
+                self.tgt_tokenizer = tgt_tokenizer
+                self.src_vocab = src_vocab
+                self.tgt_vocab = tgt_vocab
+
+            def __len__(self):
+                return len(self.dataset)
+
+            def _data_process(self, text, tokenizer, vocab):
+                tokens = tokenizer(text)
+                token_ids = [vocab[token] for token in tokens]
+                return torch.tensor(token_ids, dtype=torch.long)
+
+            def __getitem__(self, idx):
+                src, tgt = self.dataset[idx]
+                src_tensor = self._data_process(src, self.src_tokenizer, self.src_vocab)
+                tgt_tensor = self._data_process(tgt, self.tgt_tokenizer, self.tgt_vocab)
+                return src_tensor, tgt_tensor
+
+        # Prepare data and tokenizer
+        train_iter = Multi30k(language_pair=("de", "en"), split="train")
+
+        def dummy_tokenizer(text):
+            return text.split()
+
+        def yield_tokens(data_iter, tokenizer):
+            for src, tgt in data_iter:
+                yield tokenizer(src)
+                yield tokenizer(tgt)
+
+        # Build vocabulary
+        src_vocab = build_vocab_from_iterator(
+            yield_tokens(train_iter, dummy_tokenizer), specials=["<unk>", "<pad>", "<bos>", "<eos>"]
+        )
+        src_vocab.set_default_index(src_vocab["<unk>"])
+        tgt_vocab = build_vocab_from_iterator(
+            yield_tokens(train_iter, dummy_tokenizer), specials=["<unk>", "<pad>", "<bos>", "<eos>"]
+        )
+        tgt_vocab.set_default_index(tgt_vocab["<unk>"])
+
+        # Create torch dataset
+        torch_dataset = Multi30kDataset(
+            train_iter, dummy_tokenizer, dummy_tokenizer, src_vocab, tgt_vocab
+        )
+
+        # Convert to dm_torch_dataset
+        dm_dataset = fxt_tabular_caption_dataset
+        multi_framework_dataset = FrameworkConverter(dm_dataset, subset="train", task="tabular")
+        dm_torch_dataset = multi_framework_dataset.to_framework(
+            framework="torch",
+            target={"input": "source", "output": "target"},
+            tokenizer=(dummy_tokenizer, dummy_tokenizer),
+            vocab=(src_vocab, tgt_vocab),
+        )
+
+        # Verify equality of items in torch_dataset and dm_torch_dataset
+        torch_item = torch_dataset[0]
+        dm_item = dm_torch_dataset[0]
+
+        assert torch.equal(torch_item[0], dm_item[0]), "Token IDs for de do not match"
+        assert torch.equal(torch_item[1], dm_item[1]), "Token IDs for en do not match"
 
     @pytest.mark.skipif(not TF_AVAILABLE, reason="Tensorflow is not installed")
     @pytest.mark.parametrize(
