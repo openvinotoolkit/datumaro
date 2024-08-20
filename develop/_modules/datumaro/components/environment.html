@@ -648,7 +648,7 @@ document.write(`
         <span class="n">merged</span> <span class="o">=</span> <span class="n">Environment</span><span class="p">()</span>
 
         <span class="k">def</span> <span class="nf">_register</span><span class="p">(</span><span class="n">registry</span><span class="p">:</span> <span class="n">PluginRegistry</span><span class="p">):</span>
-            <span class="n">merged</span><span class="o">.</span><span class="n">register_plugins</span><span class="p">(</span><span class="n">plugin</span> <span class="k">for</span> <span class="n">plugin</span> <span class="ow">in</span> <span class="n">registry</span><span class="p">)</span>
+            <span class="n">merged</span><span class="o">.</span><span class="n">register_plugins</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">registry</span><span class="o">.</span><span class="n">_items</span><span class="o">.</span><span class="n">values</span><span class="p">()))</span>
 
         <span class="k">for</span> <span class="n">env</span> <span class="ow">in</span> <span class="n">envs</span><span class="p">:</span>
             <span class="n">_register</span><span class="p">(</span><span class="n">env</span><span class="o">.</span><span class="n">extractors</span><span class="p">)</span>

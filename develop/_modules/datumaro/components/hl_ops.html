@@ -637,13 +637,14 @@ document.write(`
         <span class="n">merger</span> <span class="o">=</span> <span class="n">get_merger</span><span class="p">(</span><span class="n">merge_policy</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
         <span class="n">merged</span> <span class="o">=</span> <span class="n">merger</span><span class="p">(</span><span class="o">*</span><span class="n">datasets</span><span class="p">)</span>
         <span class="n">env</span> <span class="o">=</span> <span class="n">Environment</span><span class="o">.</span><span class="n">merge</span><span class="p">(</span>
-            <span class="n">dataset</span><span class="o">.</span><span class="n">env</span>
-            <span class="k">for</span> <span class="n">dataset</span> <span class="ow">in</span> <span class="n">datasets</span>
-            <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span>
-                <span class="n">dataset</span><span class="p">,</span> <span class="s2">&quot;env&quot;</span>
-            <span class="p">)</span>  <span class="c1"># TODO: Sometimes, there is dataset which is not exactly &quot;Dataset&quot;,</span>
-            <span class="c1"># e.g., VocClassificationBase. this should be fixed and every object from</span>
-            <span class="c1"># Dataset.import_from should have &quot;Dataset&quot; type.</span>
+            <span class="p">[</span>
+                <span class="n">dataset</span><span class="o">.</span><span class="n">env</span>
+                <span class="k">for</span> <span class="n">dataset</span> <span class="ow">in</span> <span class="n">datasets</span>
+                <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">dataset</span><span class="p">,</span> <span class="s2">&quot;env&quot;</span><span class="p">)</span>
+                <span class="c1"># TODO: Sometimes, there is dataset which is not exactly &quot;Dataset&quot;,</span>
+                <span class="c1"># e.g., VocClassificationBase. this should be fixed and every object from</span>
+                <span class="c1"># Dataset.import_from should have &quot;Dataset&quot; type.</span>
+            <span class="p">]</span>
         <span class="p">)</span>
         <span class="k">if</span> <span class="n">report_path</span><span class="p">:</span>
             <span class="n">merger</span><span class="o">.</span><span class="n">save_merge_report</span><span class="p">(</span><span class="n">report_path</span><span class="p">)</span>
