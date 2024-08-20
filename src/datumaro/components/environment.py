@@ -275,7 +275,7 @@ class Environment:
         merged = Environment()
 
         def _register(registry: PluginRegistry):
-            merged.register_plugins(plugin for plugin in registry)
+            merged.register_plugins(list(registry._items.values()))
 
         for env in envs:
             _register(env.extractors)
