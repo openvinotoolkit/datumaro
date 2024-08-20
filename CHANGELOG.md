@@ -9,6 +9,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### New features
 - Add a new CLI command: datum format
   (<https://github.com/openvinotoolkit/datumaro/pull/1570>)
+- Support language dataset for DmTorchDataset
+  (<https://github.com/openvinotoolkit/datumaro/pull/1588>)
 
 ### Enhancements
 - Change _Shape to Shape and add comments for subclasses of Shape
