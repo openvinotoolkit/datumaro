@@ -1,4 +1,4 @@
-# Copyright (C) 2023 Intel Corporation
+# Copyright (C) 2023-2024 Intel Corporation
 #
 # SPDX-License-Identifier: MIT
 
@@ -451,7 +451,6 @@ class MultiframeworkConverterTest:
 
             def __getitem__(self, idx):
                 label, text = self._data[idx]
-                label = 1 if label == "pos" else 0
                 tokens = self.tokenizer(text)
                 token_ids = self.vocab(tokens)
 
@@ -462,34 +461,41 @@ class MultiframeworkConverterTest:
                     label, dtype=torch.long
                 )
 
-        # data_path = osp.join(
-        #     get_test_asset_path("tabular_dataset"), "women-clothing", "women_clothing_refined.csv"
-        # )
-        data_path = "/home/sooahlee/imdb_train.csv"
+        # Prepare data and tokenizer
+        data_path = osp.join(get_test_asset_path("tabular_dataset"), "imdb_train.csv")
         train_iter = IMDB(split="train")
         tokenizer = get_tokenizer("basic_english")
 
-        def yield_tokens(data_iter):
-            for _, text in data_iter:
-                yield tokenizer(text)
-
-        vocab = build_vocab_from_iterator(yield_tokens(train_iter), specials=["<unk>"])
+        # Build vocabulary
+        vocab = build_vocab_from_iterator(
+            map(tokenizer, (text for _, text in train_iter)), specials=["<unk>"]
+        )
         vocab.set_default_index(vocab["<unk>"])
-        torch_dataset = IMDBDataset(train_iter, vocab, transform=None)
 
+        # Create torch dataset
+        torch_dataset = IMDBDataset(train_iter, vocab)
+
+        # Convert to dm_torch_dataset
         target = {"input": ["text"], "output": ["label"]}
         dm_dataset = Dataset.import_from(data_path, "tabular", target=target)
         dm_dataset = dm_dataset.transform("astype_annotations")
-
         multi_framework_dataset = FrameworkConverter(
             dm_dataset, subset="imdb_train", task="tabular"
         )
-        dm_torch_dataset = multi_framework_dataset.to_framework(
-            framework="torch",
-        )
+        dm_torch_dataset = multi_framework_dataset.to_framework(framework="torch", target="text")
 
-        for torch_item, dm_item in zip(torch_dataset, dm_torch_dataset):
-            assert torch_item[1] == dm_item[0]["text"]
+        # Verify equality of items in torch_dataset and dm_torch_dataset
+        label_indices = dm_dataset.categories().get(AnnotationType.label)._indices
+        torch_item = torch_dataset[0]
+        dm_item = dm_torch_dataset[0]
+        assert torch.equal(torch_item[0], dm_item[0]), "Token IDs do not match"
+
+        # Extract and compare labels
+        torch_item_label = str(torch_item[1].item())
+        dm_item_label = list(label_indices.keys())[list(label_indices.values()).index(0)].split(
+            ":"
+        )[-1]
+        assert torch_item_label == dm_item_label, "Labels do not match"
 
     @pytest.mark.skipif(not TF_AVAILABLE, reason="Tensorflow is not installed")
     @pytest.mark.parametrize(

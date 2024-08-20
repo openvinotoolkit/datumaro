@@ -1,4 +1,4 @@
-# Copyright (C) 2023 Intel Corporation
+# Copyright (C) 2023-2024 Intel Corporation
 #
 # SPDX-License-Identifier: MIT
 
@@ -109,6 +109,7 @@ try:
             task: str,
             transform: Optional[Callable] = None,
             target_transform: Optional[Callable] = None,
+            target: Optional[str] = None,
         ):
             super().__init__(dataset=dataset, subset=subset, task=task)
 
@@ -116,24 +117,30 @@ try:
             self.target_transform = target_transform
 
             if self.task == "tabular":
-                data_iter = [item.media.data() for item in self.dataset]
+                self.target = target
+                if not self.target:
+                    raise ValueError(
+                        "Please provide target column for tabular task which is used for input"
+                    )
+
+                data_iter = [item.media.data()[self.target] for item in self.dataset]
                 self.tokenizer = get_tokenizer("basic_english")
 
-                def yield_tokens(data_iter):
-                    for _, text in data_iter:
-                        yield self.tokenizer(text)
-
-                self.vocab = build_vocab_from_iterator(yield_tokens(data_iter), specials=["<unk>"])
+                # Build the vocab once during initialization to avoid repeated processing
+                self.vocab = build_vocab_from_iterator(
+                    map(self.tokenizer, data_iter), specials=["<unk>"]
+                )
                 self.vocab.set_default_index(self.vocab["<unk>"])
 
         def __getitem__(self, idx):
             image, label = self._gen_item(idx)
 
             if self.task == "tabular":
-                tokens = self.tokenizer(image())
+                text = image()[self.target]
+                tokens = self.tokenizer(text)
                 token_ids = self.vocab(tokens)
                 return torch.tensor(token_ids, dtype=torch.long), torch.tensor(
-                    label, dtype=torch.long
+                    label[0]["label"], dtype=torch.long
                 )
 
             if len(image.shape) == 2:
