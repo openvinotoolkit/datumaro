@@ -17,6 +17,7 @@ TASK_ANN_TYPE = {
     "detection": AnnotationType.bbox,
     "instance_segmentation": AnnotationType.polygon,
     "semantic_segmentation": AnnotationType.mask,
+    "tabular": [AnnotationType.label, AnnotationType.caption],
 }
 
 
@@ -88,12 +89,17 @@ class _MultiFrameworkDataset:
                 if ann.type == TASK_ANN_TYPE[self.task]
             ]
             label = mask_tools.merge_masks((mask, label_id) for mask, label_id in masks)
-
+        elif self.task == "tabular":
+            label = [
+                ann.as_dict() for ann in item.annotations if ann.type in TASK_ANN_TYPE[self.task]
+            ]
         return image, label
 
 
 try:
     import torch
+    from torchtext.data.utils import get_tokenizer
+    from torchtext.vocab import build_vocab_from_iterator
 
     class DmTorchDataset(_MultiFrameworkDataset, torch.utils.data.Dataset):
         def __init__(
@@ -109,8 +115,26 @@ try:
             self.transform = transform
             self.target_transform = target_transform
 
+            if self.task == "tabular":
+                data_iter = [item.media.data() for item in self.dataset]
+                self.tokenizer = get_tokenizer("basic_english")
+
+                def yield_tokens(data_iter):
+                    for _, text in data_iter:
+                        yield self.tokenizer(text)
+
+                self.vocab = build_vocab_from_iterator(yield_tokens(data_iter), specials=["<unk>"])
+                self.vocab.set_default_index(self.vocab["<unk>"])
+
         def __getitem__(self, idx):
             image, label = self._gen_item(idx)
+
+            if self.task == "tabular":
+                tokens = self.tokenizer(image())
+                token_ids = self.vocab(tokens)
+                return torch.tensor(token_ids, dtype=torch.long), torch.tensor(
+                    label, dtype=torch.long
+                )
 
             if len(image.shape) == 2:
                 image = np.expand_dims(image, axis=-1)
