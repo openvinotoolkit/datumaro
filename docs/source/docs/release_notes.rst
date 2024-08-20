@@ -4,6 +4,19 @@ Release Notes
 .. toctree::
    :maxdepth: 1
 
+v1.9.0 (2024 Q3)
+----------------
+
+New features
+^^^^^^^^^^^^
+
+- Add a new CLI command: datum format
+
+Enhancements
+^^^^^^^^^^^^
+
+- Change _Shape to Shape and add comments for subclasses of Shape
+
 v1.8.0 (2024 Q3)
 ----------------
 
