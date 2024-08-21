@@ -148,35 +148,6 @@ def fxt_dataset():
 
 
 @pytest.fixture
-def fxt_tabular_dataset():
-    table = Table.from_list(
-        [{"nswprice": 0.076108, "class": "DOWN"}, {"nswprice": 0.060376, "class": "UP"}]
-    )
-    return Dataset.from_iterable(
-        [
-            DatasetItem(
-                id="0",
-                subset="train",
-                media=TableRow(table=table, index=0),
-                annotations=[Label(label=0), Caption("nswprice:0.076108")],
-            ),
-            DatasetItem(
-                id="1",
-                subset="train",
-                media=TableRow(table=table, index=1),
-                annotations=[Label(label=1), Caption("nswprice:0.060376")],
-            ),
-        ],
-        categories={
-            AnnotationType.label: LabelCategories.from_iterable(
-                [("class:DOWN", "class"), ("class:UP", "class")]
-            )
-        },
-        media_type=TableRow,
-    )
-
-
-@pytest.fixture
 def fxt_tabular_label_dataset():
     table = Table.from_list(
         [
@@ -230,6 +201,33 @@ def fxt_tabular_caption_dataset():
         categories={},
         media_type=TableRow,
     )
+
+
+@pytest.fixture
+def fxt_dummy_tokenizer():
+    def dummy_tokenizer(text):
+        return text.split()
+
+    return dummy_tokenizer
+
+
+@pytest.fixture
+def data_iter():
+    return [(1, "This is a sample text"), (2, "Another sample text")]
+
+
+@pytest.fixture
+def fxt_dummy_vocab(fxt_dummy_tokenizer, data_iter):
+    vocab = build_vocab_from_iterator(
+        map(fxt_dummy_tokenizer, (text for _, text in data_iter)), specials=["<unk>"]
+    )
+    vocab.set_default_index(vocab["<unk>"])
+    return vocab
+
+
+@pytest.fixture
+def fxt_tabular_fixture(fxt_dummy_tokenizer, fxt_dummy_vocab):
+    return {"target": {"input": "text"}, "tokenizer": fxt_dummy_tokenizer, "vocab": fxt_dummy_vocab}
 
 
 @pytest.mark.new
@@ -290,7 +288,7 @@ class MultiframeworkConverterTest:
                 "train",
                 "semantic_segmentation",
             ),
-            ("fxt_tabular_dataset", "train", "tabular"),
+            ("fxt_tabular_label_dataset", "train", "tabular"),
         ],
     )
     def test_multi_framework_dataset(
@@ -303,6 +301,8 @@ class MultiframeworkConverterTest:
 
         for idx in range(len(dm_multi_framework_dataset)):
             image, label = dm_multi_framework_dataset._gen_item(idx)
+            if fxt_task == "tabular":
+                image = image()
             assert isinstance(image, (np.ndarray, dict))
             if fxt_task == "classification":
                 assert isinstance(label, int)
@@ -317,74 +317,59 @@ class MultiframeworkConverterTest:
 
     @pytest.mark.skipif(not TORCH_AVAILABLE, reason="PyTorch is not installed")
     @pytest.mark.parametrize(
-        "fxt_dataset_type,fxt_subset,fxt_task,fxt_convert_kwargs",
+        "fxt_subset,fxt_task,fxt_convert_kwargs",
         [
             (
-                "fxt_dataset",
                 "train",
                 "classification",
                 {},
             ),
             (
-                "fxt_dataset",
                 "val",
                 "multilabel_classification",
                 {},
             ),
             (
-                "fxt_dataset",
                 "train",
                 "detection",
                 {},
             ),
             (
-                "fxt_dataset",
                 "val",
                 "instance_segmentation",
                 {},
             ),
             (
-                "fxt_dataset",
                 "train",
                 "semantic_segmentation",
                 {},
             ),
             (
-                "fxt_dataset",
                 "val",
                 "semantic_segmentation",
                 {"transform": None, "target_transform": None},
             ),
             (
-                "fxt_dataset",
                 "train",
                 "semantic_segmentation",
                 {"transform": transforms.ToTensor()},
-            ),
-            (
-                "fxt_dataset",
-                "train",
-                "tabular",
-                {},
             ),
         ],
     )
     def test_can_convert_torch_framework(
         self,
-        fxt_dataset_type: str,
+        fxt_dataset: Dataset,
         fxt_subset: str,
         fxt_task: str,
         fxt_convert_kwargs: Dict[str, Any],
-        request: pytest.FixtureRequest,
     ):
-        dataset = request.getfixturevalue(fxt_dataset_type)
-        multi_framework_dataset = FrameworkConverter(dataset, subset=fxt_subset, task=fxt_task)
+        multi_framework_dataset = FrameworkConverter(fxt_dataset, subset=fxt_subset, task=fxt_task)
 
         dm_torch_dataset = multi_framework_dataset.to_framework(
             framework="torch", **fxt_convert_kwargs
         )
 
-        expected_dataset = dataset.get_subset(fxt_subset)
+        expected_dataset = fxt_dataset.get_subset(fxt_subset)
 
         for exp_item, dm_torch_item in zip(expected_dataset, dm_torch_dataset):
             image = exp_item.media.data
