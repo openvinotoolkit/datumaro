@@ -504,7 +504,7 @@ class MultiframeworkConverterTest:
 
         # Prepare data and tokenizer
         train_iter = IMDB(split="train")
-        first_item = next(iter(train_iter))
+        first_item = next(train_iter.__iter__())
         tokenizer = get_tokenizer("basic_english")
 
         # Build vocabulary
@@ -560,7 +560,7 @@ class MultiframeworkConverterTest:
 
         # Prepare data and tokenizer
         train_iter = Multi30k(language_pair=("de", "en"), split="train")
-        first_item = next(iter(train_iter))
+        first_item = next(train_iter.__iter__())
 
         dummy_tokenizer = str.split
 
