@@ -39,7 +39,6 @@ from tests.utils.assets import get_test_asset_path
 try:
     import torch
     from torchtext.data.utils import get_tokenizer
-    from torchtext.datasets import IMDB, Multi30k
     from torchtext.vocab import build_vocab_from_iterator
     from torchvision import datasets, transforms
 except ImportError:
@@ -503,8 +502,11 @@ class MultiframeworkConverterTest:
                 )
 
         # Prepare data and tokenizer
-        train_iter = IMDB(split="train")
-        first_item = next(train_iter.__iter__())
+        # First item of IMDB
+        first_item = (
+            1,
+            "I rented I AM CURIOUS-YELLOW from my video store because of all the controversy that surrounded it when it was first released in 1967. I also heard that at first it was seized by U.S. customs if it ever tried to enter this country, therefore being a fan of films considered \"controversial\" I really had to see this for myself.<br /><br />The plot is centered around a young Swedish drama student named Lena who wants to learn everything she can about life. In particular she wants to focus her attentions to making some sort of documentary on what the average Swede thought about certain political issues such as the Vietnam War and race issues in the United States. In between asking politicians and ordinary denizens of Stockholm about their opinions on politics, she has sex with her drama teacher, classmates, and married men.<br /><br />What kills me about I AM CURIOUS-YELLOW is that 40 years ago, this was considered pornographic. Really, the sex and nudity scenes are few and far between, even then it's not shot like some cheaply made porno. While my countrymen mind find it shocking, in reality sex and nudity are a major staple in Swedish cinema. Even Ingmar Bergman, arguably their answer to good old boy John Ford, had sex scenes in his films.<br /><br />I do commend the filmmakers for the fact that any sex shown in the film is shown for artistic purposes rather than just to shock people and make money to be shown in pornographic theaters in America. I AM CURIOUS-YELLOW is a good film for anyone wanting to study the meat and potatoes (no pun intended) of Swedish cinema. But really, this film doesn't have much of a plot.",
+        )
         tokenizer = get_tokenizer("basic_english")
 
         # Build vocabulary
@@ -512,7 +514,7 @@ class MultiframeworkConverterTest:
         vocab.set_default_index(vocab["<unk>"])
 
         # Create torch dataset
-        torch_dataset = IMDBDataset(train_iter, vocab)
+        torch_dataset = IMDBDataset(iter([first_item]), vocab)
 
         # Convert to dm_torch_dataset
         dm_dataset = fxt_tabular_label_dataset
@@ -559,8 +561,11 @@ class MultiframeworkConverterTest:
                 return src_tensor, tgt_tensor
 
         # Prepare data and tokenizer
-        train_iter = Multi30k(language_pair=("de", "en"), split="train")
-        first_item = next(train_iter.__iter__())
+        # First item of Multi30k
+        first_item = (
+            "Zwei junge weiße Männer sind im Freien in der Nähe vieler Büsche.",
+            "Two young, White males are outside near many bushes.",
+        )
 
         dummy_tokenizer = str.split
 
@@ -577,7 +582,7 @@ class MultiframeworkConverterTest:
 
         # Create torch dataset
         torch_dataset = Multi30kDataset(
-            train_iter, dummy_tokenizer, dummy_tokenizer, src_vocab, tgt_vocab
+            iter([first_item]), dummy_tokenizer, dummy_tokenizer, src_vocab, tgt_vocab
         )
 
         # Convert to dm_torch_dataset
