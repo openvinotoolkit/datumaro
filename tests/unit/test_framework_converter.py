@@ -483,18 +483,17 @@ class MultiframeworkConverterTest:
     def test_can_convert_torch_framework_tabular_label(self, fxt_tabular_label_dataset):
         class IMDBDataset(Dataset):
             def __init__(self, data_iter, vocab, transform=None):
-                self._data = list(data_iter)
+                self.data = list(data_iter)
                 self.vocab = vocab
                 self.transform = transform
                 self.tokenizer = get_tokenizer("basic_english")
 
             def __len__(self):
-                return len(self._data)
+                return len(self.data)
 
             def __getitem__(self, idx):
-                label, text = self._data[idx]
-                tokens = self.tokenizer(text)
-                token_ids = self.vocab(tokens)
+                label, text = self.data[idx]
+                token_ids = [self.vocab[token] for token in self.tokenizer(text)]
 
                 if self.transform:
                     token_ids = self.transform(token_ids)
@@ -505,12 +504,11 @@ class MultiframeworkConverterTest:
 
         # Prepare data and tokenizer
         train_iter = IMDB(split="train")
+        first_item = next(iter(train_iter))
         tokenizer = get_tokenizer("basic_english")
 
         # Build vocabulary
-        vocab = build_vocab_from_iterator(
-            map(tokenizer, (text for _, text in train_iter)), specials=["<unk>"]
-        )
+        vocab = build_vocab_from_iterator([tokenizer(first_item[1])], specials=["<unk>"])
         vocab.set_default_index(vocab["<unk>"])
 
         # Create torch dataset
@@ -562,24 +560,20 @@ class MultiframeworkConverterTest:
 
         # Prepare data and tokenizer
         train_iter = Multi30k(language_pair=("de", "en"), split="train")
+        first_item = next(iter(train_iter))
 
-        def dummy_tokenizer(text):
-            return text.split()
+        dummy_tokenizer = str.split
 
-        def yield_tokens(data_iter, tokenizer):
-            for src, tgt in data_iter:
-                yield tokenizer(src)
-                yield tokenizer(tgt)
+        def build_single_vocab(item, tokenizer, specials):
+            tokens = tokenizer(item)
+            vocab = build_vocab_from_iterator([tokens], specials=specials)
+            vocab.set_default_index(vocab["<unk>"])
+            return vocab
 
-        # Build vocabulary
-        src_vocab = build_vocab_from_iterator(
-            yield_tokens(train_iter, dummy_tokenizer), specials=["<unk>", "<pad>", "<bos>", "<eos>"]
-        )
-        src_vocab.set_default_index(src_vocab["<unk>"])
-        tgt_vocab = build_vocab_from_iterator(
-            yield_tokens(train_iter, dummy_tokenizer), specials=["<unk>", "<pad>", "<bos>", "<eos>"]
-        )
-        tgt_vocab.set_default_index(tgt_vocab["<unk>"])
+        # Build vocabularies
+        specials = ["<unk>", "<pad>", "<bos>", "<eos>"]
+        src_vocab = build_single_vocab(first_item[0], dummy_tokenizer, specials)
+        tgt_vocab = build_single_vocab(first_item[1], dummy_tokenizer, specials)
 
         # Create torch dataset
         torch_dataset = Multi30kDataset(
