@@ -282,13 +282,14 @@ class HLOps:
         merger = get_merger(merge_policy, **kwargs)
         merged = merger(*datasets)
         env = Environment.merge(
-            dataset.env
-            for dataset in datasets
-            if hasattr(
-                dataset, "env"
-            )  # TODO: Sometimes, there is dataset which is not exactly "Dataset",
-            # e.g., VocClassificationBase. this should be fixed and every object from
-            # Dataset.import_from should have "Dataset" type.
+            [
+                dataset.env
+                for dataset in datasets
+                if hasattr(dataset, "env")
+                # TODO: Sometimes, there is dataset which is not exactly "Dataset",
+                # e.g., VocClassificationBase. this should be fixed and every object from
+                # Dataset.import_from should have "Dataset" type.
+            ]
         )
         if report_path:
             merger.save_merge_report(report_path)

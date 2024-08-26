@@ -5,7 +5,8 @@
 import pytest
 
 import datumaro.components.lazy_plugin
-from datumaro.components.environment import Environment, PluginRegistry
+from datumaro.components.environment import DEFAULT_ENVIRONMENT, Environment, PluginRegistry
+from datumaro.components.exporter import Exporter
 
 real_find_spec = datumaro.components.lazy_plugin.find_spec
 
@@ -77,3 +78,17 @@ class EnvironmentTest:
         )
 
         assert "tf_detection_api" not in loaded_plugin_names
+
+    def test_merge_default_env(self):
+        merged_env = Environment.merge([DEFAULT_ENVIRONMENT, DEFAULT_ENVIRONMENT])
+        assert merged_env is DEFAULT_ENVIRONMENT
+
+    def test_merge_custom_env(self):
+        class TestPlugin(Exporter):
+            pass
+
+        envs = [Environment(), Environment()]
+        envs[0].exporters.register("test_plugin", TestPlugin)
+
+        merged = Environment.merge(envs)
+        assert "test_plugin" in merged.exporters
