@@ -22,6 +22,7 @@ import pycocotools.mask as mask_utils
 from pandas.api.types import CategoricalDtype
 
 import datumaro.util.mask_tools as mask_tools
+from datumaro.components.algorithms.hash_key_inference.hashkey_util import calculate_hamming
 from datumaro.components.annotation import (
     AnnotationType,
     Bbox,
@@ -2004,3 +2005,39 @@ class Clean(ItemTransform):
             refined_annotations.append(ann)
 
         return self.wrap_item(item, media=refined_media, annotations=refined_annotations)
+
+
+class PseudoLabeling(ItemTransform):
+    def __init__(
+        self,
+        extractor: IDataset,
+        labels,
+        explorer=None,
+    ):
+        super().__init__(extractor)
+
+        self._categories = self._extractor.categories()
+        self._labels = labels
+        self._explorer = explorer
+        self._label_indices = self._extractor.categories()[AnnotationType.label]._indices
+        self._labels = list(self._label_indices.keys())
+
+        label_hashkeys = [
+            np.unpackbits(self._explorer._get_hash_key_from_text_query(label).hash_key, axis=-1)
+            for label in self._labels
+        ]
+        self._label_hashkeys = np.stack(label_hashkeys, axis=0)
+
+    def categories(self):
+        return self._categories
+
+    def transform_item(self, item: DatasetItem):
+        hashkey_ = np.unpackbits(self._explorer._get_hash_key_from_item_query(item).hash_key)
+        logits = calculate_hamming(hashkey_, self._label_hashkeys)
+        inverse_distances = 1.0 / (logits + 1e-6)
+        probs = inverse_distances / np.sum(inverse_distances)
+        ind = np.argsort(probs)[::-1]
+
+        pseudo = np.array(self._labels)[ind][0]
+        pseudo_annotation = [Label(label=self._label_indices[pseudo])]
+        return self.wrap_item(item, annotations=pseudo_annotation)
