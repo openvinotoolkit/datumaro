@@ -22,6 +22,7 @@ import pycocotools.mask as mask_utils
 from pandas.api.types import CategoricalDtype
 
 import datumaro.util.mask_tools as mask_tools
+from datumaro.components.algorithms.hash_key_inference.explorer import Explorer
 from datumaro.components.algorithms.hash_key_inference.hashkey_util import calculate_hamming
 from datumaro.components.annotation import (
     AnnotationType,
@@ -41,6 +42,7 @@ from datumaro.components.annotation import (
     TabularCategories,
 )
 from datumaro.components.cli_plugin import CliPlugin
+from datumaro.components.dataset import Dataset
 from datumaro.components.dataset_base import DEFAULT_SUBSET_NAME, DatasetInfo, DatasetItem, IDataset
 from datumaro.components.errors import (
     AnnotationTypeError,
@@ -2011,16 +2013,20 @@ class PseudoLabeling(ItemTransform):
     def __init__(
         self,
         extractor: IDataset,
-        labels,
-        explorer=None,
+        labels: Optional[List[str]] = None,
+        explorer: Optional[Explorer] = None,
     ):
         super().__init__(extractor)
 
         self._categories = self._extractor.categories()
         self._labels = labels
         self._explorer = explorer
-        self._label_indices = self._extractor.categories()[AnnotationType.label]._indices
-        self._labels = list(self._label_indices.keys())
+        self._label_indices = self._categories[AnnotationType.label]._indices
+
+        if not self._labels:
+            self._labels = list(self._label_indices.keys())
+        if not self._explorer:
+            self._explorer = Explorer(Dataset.from_iterable(list(self._extractor)))
 
         label_hashkeys = [
             np.unpackbits(self._explorer._get_hash_key_from_text_query(label).hash_key, axis=-1)
