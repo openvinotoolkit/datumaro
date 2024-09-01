@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import argparse
 import logging as log
+import os
 import os.path as osp
 import random
 from unittest import TestCase
@@ -14,6 +15,7 @@ from pandas.api.types import CategoricalDtype
 
 import datumaro.plugins.transforms as transforms
 import datumaro.util.mask_tools as mask_tools
+from datumaro.components.algorithms.hash_key_inference.explorer import Explorer
 from datumaro.components.annotation import (
     AnnotationType,
     Bbox,
@@ -1673,11 +1675,6 @@ class CleanTest(TestCase):
             result_item = result.__getitem__(i)
             self.assertEqual(expected_item.annotations, result_item.annotations)
             self.assertEqual(expected_item.media, result_item.media)
-
-
-import os
-
-from datumaro.components.algorithms.hash_key_inference.explorer import Explorer
 
 
 class PseudoLabelingTest(TestCase):

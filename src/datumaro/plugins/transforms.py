@@ -2010,6 +2010,27 @@ class Clean(ItemTransform):
 
 
 class PseudoLabeling(ItemTransform):
+    """
+    A class used to assign pseudo-labels to items in a dataset based on
+    their similarity to predefined labels.|n
+    |n
+    This class leverages hashing techniques to compute the similarity
+    between dataset items and a set of predefined labels.|n
+    It assigns the most similar label as a pseudo-label to each item.
+    This is particularly useful in semi-supervised
+    learning scenarios where some labels are missing or uncertain.|n
+    |n
+    Attributes:|n
+        - extractor : IDataset|n
+        The dataset extractor that provides access to dataset items and their annotations.|n
+        - labels : Optional[List[str]]|n
+        A list of label names to be used for pseudo-labeling.
+        If not provided, all available labels in the dataset will be used.|n
+        - explorer : Optional[Explorer]|n
+        An optional Explorer object used to compute hash keys for items and labels.
+        If not provided, a new Explorer will be created.|n
+    """
+
     def __init__(
         self,
         extractor: IDataset,
