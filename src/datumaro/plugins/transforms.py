@@ -1351,9 +1351,21 @@ class RemoveAttributes(ItemTransform):
 
 class Correct(Transform, CliPlugin):
     """
-    Correct the dataset from a validation report.
-    A user can should feed into validation_reports.json from validator to correct the dataset.
-    This helps to refine the dataset by rejecting undefined labels, missing annotations, and outliers.
+    This class provides functionality to correct and refine a dataset based on a validation report.|n
+    It processes a validation report (typically in JSON format) to identify and rectify various |n
+    dataset issues, such as undefined labels, missing annotations, outliers, empty labels/captions,|n
+    and unnecessary characters in captions. The correction process includes:|n
+    |n
+    - Adding missing labels and attributes.|n
+    - Removing or adjusting annotations with invalid or anomalous values.|n
+    - Filling in missing labels and captions with appropriate values.|n
+    - Removing unnecessary characters from text-based annotations like captions.|n
+    - Handling outliers by capping values within specified bounds.|n
+    - Updating dataset categories and annotations according to the corrections.|n
+    |n
+    The class is designed to be used as part of a command-line interface (CLI) and can be |n
+    configured with different validation reports. It integrates with the dataset extraction |n
+    process, ensuring that corrections are applied consistently across the dataset.|n
     """
 
     @classmethod
@@ -1749,13 +1761,15 @@ class Correct(Transform, CliPlugin):
 
 class AstypeAnnotations(ItemTransform):
     """
-    Enables the conversion of annotation types for the categories and individual items within a dataset.|n
+    Converts the types of annotations within a dataset based on a specified mapping.|n
     |n
-    Based on a specified mapping, it transforms the annotation types,|n
-    changing them to 'Label' if they are categorical, and to 'Caption' if they are of type string, float, or integer.|n
+    This transform changes annotations to 'Label' if they are categorical, and to 'Caption'
+    if they are of type string, float, or integer. This is particularly useful when working
+    with tabular data that needs to be converted into a format suitable for specific machine
+    learning tasks.|n
     |n
     Examples:|n
-        - Convert type of `title` annotation|n
+        - Convert the type of a `title` annotation:|n
 
         .. code-block::
 
