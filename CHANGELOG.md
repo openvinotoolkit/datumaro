@@ -19,6 +19,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   (<https://github.com/openvinotoolkit/datumaro/pull/1596>)
 
 ### Bug fixes
+- Fix KITTI-3D importer and exporter
+  (<https://github.com/openvinotoolkit/datumaro/pull/1596>)
 
 ## Q3 2024 Release 1.8.0
 ### New features
