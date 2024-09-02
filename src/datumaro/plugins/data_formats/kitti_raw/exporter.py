@@ -348,7 +348,7 @@ class KittiRawExporter(Exporter):
                     }
                     tracks[track_id] = track
                 else:
-                    if [track["w"], track["h"], track["l"]] != ann.scale:
+                    if [track["h"], track["w"], track["l"]] != ann.scale:
                         # Tracks have fixed scale in the format
                         raise DatasetExportError(
                             "Item %s: mismatching track shapes, "
