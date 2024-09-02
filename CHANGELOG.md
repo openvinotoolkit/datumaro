@@ -15,6 +15,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Enhancements
 - Change _Shape to Shape and add comments for subclasses of Shape
   (<https://github.com/openvinotoolkit/datumaro/pull/1568>)
+- Fix `kitti_raw` importer and exporter for dimensions (height, width, length) in meters
+  (<https://github.com/openvinotoolkit/datumaro/pull/1596>)
 
 ### Bug fixes
 
