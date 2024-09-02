@@ -339,8 +339,8 @@ class KittiRawExporter(Exporter):
                 if not track:
                     track = {
                         "objectType": label,
-                        "h": ann.scale[1],
-                        "w": ann.scale[0],
+                        "h": ann.scale[0],
+                        "w": ann.scale[1],
                         "l": ann.scale[2],
                         "first_frame": frame_id,
                         "poses": [],
