@@ -1,4 +1,4 @@
-# Copyright (C) 2021-2023 Intel Corporation
+# Copyright (C) 2021-2024 Intel Corporation
 #
 # SPDX-License-Identifier: MIT
 
@@ -182,7 +182,7 @@ class KittiRawBase(SubsetBase):
     @classmethod
     def _parse_track(cls, track_id, track, categories):
         common_attrs = {k: cls._parse_attr(v) for k, v in track["attributes"].items()}
-        scale = [track["scale"][k] for k in ["w", "h", "l"]]
+        scale = [track["scale"][k] for k in ["h", "w", "l"]]
         label = categories[AnnotationType.label].find(track["label"])[0]
 
         kf_occluded = False

@@ -1,4 +1,4 @@
-# Copyright (C) 2021 Intel Corporation
+# Copyright (C) 2021-2024 Intel Corporation
 #
 # SPDX-License-Identifier: MIT
 
@@ -339,8 +339,8 @@ class KittiRawExporter(Exporter):
                 if not track:
                     track = {
                         "objectType": label,
-                        "h": ann.scale[1],
-                        "w": ann.scale[0],
+                        "h": ann.scale[0],
+                        "w": ann.scale[1],
                         "l": ann.scale[2],
                         "first_frame": frame_id,
                         "poses": [],
@@ -348,7 +348,7 @@ class KittiRawExporter(Exporter):
                     }
                     tracks[track_id] = track
                 else:
-                    if [track["w"], track["h"], track["l"]] != ann.scale:
+                    if [track["h"], track["w"], track["l"]] != ann.scale:
                         # Tracks have fixed scale in the format
                         raise DatasetExportError(
                             "Item %s: mismatching track shapes, "
