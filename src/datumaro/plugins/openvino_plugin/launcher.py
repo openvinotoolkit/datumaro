@@ -1,4 +1,4 @@
-# Copyright (C) 2019-2021 Intel Corporation
+# Copyright (C) 2019-2024 Intel Corporation
 #
 # SPDX-License-Identifier: MIT
 
@@ -92,6 +92,8 @@ class BuiltinOpenvinoModelInfo(OpenvinoModelInfo):
     downloadable_models = {
         "clip_text_ViT-B_32",
         "clip_visual_ViT-B_32",
+        "vit_visual_l_14_336px_int8",
+        "vit_text_l_14_336px_int8",
         "googlenet-v4-tf",
     }
 
