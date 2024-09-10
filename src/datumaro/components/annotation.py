@@ -261,7 +261,7 @@ class HashKey(Annotation):
 
     @hash_key.validator
     def _validate(self, attribute, value: np.ndarray):
-        """Check whether value is a 1D Numpy array having 64 np.uint8 values"""
+        """Check whether value is a 1D Numpy array having 96 np.uint8 values"""
         if value.ndim != 1 or value.shape[0] != 96 or value.dtype != np.uint8:
             raise ValueError(value)
 

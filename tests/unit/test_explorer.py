@@ -1,21 +1,12 @@
-import os.path as osp
-from copy import deepcopy
-from functools import partial
 from unittest import TestCase
 
-import numpy as np
-
 from datumaro.components.algorithms.hash_key_inference.explorer import Explorer
-from datumaro.components.annotation import AnnotationType, Caption, Label
+from datumaro.components.annotation import AnnotationType
 from datumaro.components.dataset import Dataset
-from datumaro.components.dataset_base import DatasetItem
 from datumaro.components.errors import MediaTypeError
-from datumaro.components.media import Image
-from datumaro.plugins.data_formats.datumaro.exporter import DatumaroExporter
 
 from tests.requirements import Requirements, mark_requirement
 from tests.utils.assets import get_test_asset_path
-from tests.utils.test_utils import TestDir
 
 
 class ExplorerTest(TestCase):

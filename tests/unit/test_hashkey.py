@@ -46,7 +46,7 @@ def fxt_dataset_dir_with_hash_key(test_dir, fxt_data_format):
     test_asset_dir = test_asset_dir_map[fxt_data_format]
     dataset = Dataset.import_from(test_asset_dir, format=fxt_data_format)
     for item in dataset:
-        hash_key = HashKey(hash_key=np.random.randint(0, 256, size=(64,), dtype=np.uint8))
+        hash_key = HashKey(hash_key=np.random.randint(0, 256, size=(96,), dtype=np.uint8))
         item.annotations += [hash_key]
 
     if fxt_data_format == "wider_face":

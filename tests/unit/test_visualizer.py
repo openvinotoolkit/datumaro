@@ -474,7 +474,7 @@ class UnsupportedTypeTest(LabelVisualizerTest):
         super().setUpClass()
 
         for item in cls.dataset:
-            item.annotations.append(HashKey(np.ones(64).astype(np.uint8)))
+            item.annotations.append(HashKey(np.ones(96).astype(np.uint8)))
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_vis_one_sample(self):
