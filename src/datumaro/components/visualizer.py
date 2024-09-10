@@ -19,6 +19,7 @@ from datumaro.components.annotation import (
     AnnotationType,
     Bbox,
     Caption,
+    Cuboid2D,
     Cuboid3d,
     DepthAnnotation,
     Ellipse,
@@ -660,6 +661,39 @@ class Visualizer:
         context: List,
     ) -> None:
         raise NotImplementedError(f"{ann.type} is not implemented yet.")
+
+    def _draw_cuboid_2d(
+        self,
+        ann: Cuboid2D,
+        label_categories: Optional[LabelCategories],
+        fig: Figure,
+        ax: Axes,
+        context: List,
+    ) -> None:
+        import matplotlib.patches as patches
+
+        points = ann.points
+        color = self._get_color(ann)
+        label_text = label_categories[ann.label].name if label_categories is not None else ann.label
+
+        # Define the faces based on vertex indices
+
+        faces = [
+            [points[i] for i in [0, 1, 2, 3]],  # Bottom face
+            [points[i] for i in [4, 5, 6, 7]],  # Top face
+            [points[i] for i in [0, 1, 5, 4]],  # Front face
+            [points[i] for i in [1, 2, 6, 5]],  # Right face
+            [points[i] for i in [2, 3, 7, 6]],  # Back face
+            [points[i] for i in [3, 0, 4, 7]],  # Left face
+        ]
+        ax.text(points[0][0], points[0][1] - self.text_y_offset, label_text, color=color)
+
+        # Draw each face
+        for face in faces:
+            polygon = patches.Polygon(
+                face, fill=False, linewidth=self.bbox_linewidth, edgecolor=color
+            )
+            ax.add_patch(polygon)
 
     def _draw_super_resolution_annotation(
         self,

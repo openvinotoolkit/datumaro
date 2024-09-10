@@ -20,6 +20,7 @@ from datumaro.components.annotation import (
     Annotation,
     Bbox,
     Caption,
+    Cuboid2D,
     Cuboid3d,
     Ellipse,
     HashKey,
@@ -311,6 +312,8 @@ class _SubsetWriter:
                 converted_ann = self._convert_ellipse_object(ann)
             elif isinstance(ann, HashKey):
                 continue
+            elif isinstance(ann, Cuboid2D):
+                converted_ann = self._convert_cuboid_2d_object(ann)
             else:
                 raise NotImplementedError()
             annotations.append(converted_ann)
@@ -434,6 +437,18 @@ class _SubsetWriter:
 
     def _convert_ellipse_object(self, obj: Ellipse):
         return self._convert_shape_object(obj)
+
+    def _convert_cuboid_2d_object(self, obj: Cuboid2D):
+        converted = self._convert_annotation(obj)
+
+        converted.update(
+            {
+                "label_id": cast(obj.label, int),
+                "points": obj.points,
+                "z_order": obj.z_order,
+            }
+        )
+        return converted
 
 
 class _StreamSubsetWriter(_SubsetWriter):

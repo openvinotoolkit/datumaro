@@ -22,6 +22,7 @@ __all__ = [
     "CaptionMapper",
     "Cuboid3dMapper",
     "EllipseMapper",
+    "Cuboid2DMapper",
     # common
     "Mapper",
     "DictMapper",
