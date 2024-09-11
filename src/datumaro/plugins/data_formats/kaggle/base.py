@@ -125,7 +125,11 @@ class KaggleImageCsvBase(DatasetBase):
 
         indices = {"media": df_fields.index(columns["media"])}
         if "label" in columns:
-            indices.update({"label": df_fields.index(columns["label"])})
+            labels = columns["label"]
+            if not isinstance(labels, list):
+                labels = [labels]
+            for label in labels:
+                indices.update({"label": df_fields.index(label)})
 
         bbox_flag = False
         bbox_index = columns.get("bbox")
