@@ -52,13 +52,13 @@ class KittiRawImporterTest(TestCase):
                     annotations=[
                         Cuboid3d(
                             position=[1, 2, 3],
-                            scale=[7.95, -3.62, -1.03],
+                            scale=[-3.62, 7.95, -1.03],
                             label=1,
                             attributes={"occluded": False, "track_id": 1},
                         ),
                         Cuboid3d(
                             position=[1, 1, 0],
-                            scale=[8.34, 23.01, -0.76],
+                            scale=[23.01, 8.34, -0.76],
                             label=0,
                             attributes={"occluded": False, "track_id": 2},
                         ),
@@ -71,7 +71,7 @@ class KittiRawImporterTest(TestCase):
                     annotations=[
                         Cuboid3d(
                             position=[0, 1, 0],
-                            scale=[8.34, 23.01, -0.76],
+                            scale=[23.01, 8.34, -0.76],
                             rotation=[1, 1, 3],
                             label=0,
                             attributes={"occluded": True, "track_id": 2},
@@ -85,7 +85,7 @@ class KittiRawImporterTest(TestCase):
                     annotations=[
                         Cuboid3d(
                             position=[1, 2, 3],
-                            scale=[-9.41, 13.54, 0.24],
+                            scale=[13.54, -9.41, 0.24],
                             label=1,
                             attributes={"occluded": False, "track_id": 3},
                         )
@@ -161,7 +161,7 @@ class KittiRawExporterTest(TestCase):
                         Cuboid3d(position=[1.4, 2.1, 1.4], label=1, attributes={"track_id": 2}),
                         Cuboid3d(
                             position=[11.4, -0.1, 4.2],
-                            scale=[2, 1, 2],
+                            scale=[1, 2, 2],
                             label=0,
                             attributes={"track_id": 3},
                         ),
@@ -172,7 +172,7 @@ class KittiRawExporterTest(TestCase):
                     annotations=[
                         Cuboid3d(
                             position=[0.4, -1, 2.24],
-                            scale=[2, 1, 2],
+                            scale=[1, 2, 2],
                             label=0,
                             attributes={"track_id": 3},
                         ),
@@ -185,7 +185,7 @@ class KittiRawExporterTest(TestCase):
                     annotations=[
                         Cuboid3d(
                             position=[0.4, -1, 3.24],
-                            scale=[2, 1, 2],
+                            scale=[1, 2, 2],
                             label=0,
                             attributes={"track_id": 3},
                         ),
@@ -244,7 +244,7 @@ class KittiRawExporterTest(TestCase):
                             ),
                             Cuboid3d(
                                 position=[11.4, -0.1, 4.2],
-                                scale=[2, 1, 2],
+                                scale=[1, 2, 2],
                                 label=0,
                                 attributes={"occluded": False, "track_id": 3},
                             ),
@@ -256,7 +256,7 @@ class KittiRawExporterTest(TestCase):
                         annotations=[
                             Cuboid3d(
                                 position=[0.4, -1, 2.24],
-                                scale=[2, 1, 2],
+                                scale=[1, 2, 2],
                                 label=0,
                                 attributes={"occluded": False, "track_id": 3},
                             ),
@@ -271,7 +271,7 @@ class KittiRawExporterTest(TestCase):
                         annotations=[
                             Cuboid3d(
                                 position=[0.4, -1, 3.24],
-                                scale=[2, 1, 2],
+                                scale=[1, 2, 2],
                                 label=0,
                                 attributes={"occluded": False, "track_id": 3},
                             ),

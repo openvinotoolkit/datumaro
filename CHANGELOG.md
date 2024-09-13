@@ -5,16 +5,22 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## \[unreleased\]
+## \[Q3 2024 Release 1.9.0\]
 ### New features
 - Add a new CLI command: datum format
   (<https://github.com/openvinotoolkit/datumaro/pull/1570>)
+- Support language dataset for DmTorchDataset
+  (<https://github.com/openvinotoolkit/datumaro/pull/1592>)
 
 ### Enhancements
 - Change _Shape to Shape and add comments for subclasses of Shape
   (<https://github.com/openvinotoolkit/datumaro/pull/1568>)
+- Fix `kitti_raw` importer and exporter for dimensions (height, width, length) in meters
+  (<https://github.com/openvinotoolkit/datumaro/pull/1596>)
 
 ### Bug fixes
+- Fix KITTI-3D importer and exporter
+  (<https://github.com/openvinotoolkit/datumaro/pull/1596>)
 
 ## Q3 2024 Release 1.8.0
 ### New features

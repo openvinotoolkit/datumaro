@@ -1,4 +1,4 @@
-# Copyright (C) 2023 Intel Corporation
+# Copyright (C) 2023-2024 Intel Corporation
 #
 # SPDX-License-Identifier: MIT
 
@@ -13,14 +13,16 @@ import pytest
 from datumaro.components.annotation import (
     AnnotationType,
     Bbox,
+    Caption,
     Label,
     LabelCategories,
     Mask,
     Polygon,
+    Tabular,
 )
 from datumaro.components.dataset import Dataset
 from datumaro.components.dataset_base import DatasetItem
-from datumaro.components.media import Image
+from datumaro.components.media import Image, Table, TableRow
 from datumaro.plugins.framework_converter import (
     TASK_ANN_TYPE,
     DmTfDataset,
@@ -36,6 +38,8 @@ from tests.utils.assets import get_test_asset_path
 
 try:
     import torch
+    from torchtext.data.utils import get_tokenizer
+    from torchtext.vocab import build_vocab_from_iterator
     from torchvision import datasets, transforms
 except ImportError:
     TORCH_AVAILABLE = False
@@ -142,6 +146,89 @@ def fxt_dataset():
     )
 
 
+@pytest.fixture
+def fxt_tabular_label_dataset():
+    table = Table.from_list(
+        [
+            {
+                "label": 1,
+                "text": "I rented I AM CURIOUS-YELLOW from my video store because of all the controversy that surrounded it when it was first released in 1967. I also heard that at first it was seized by U.S. customs if it ever tried to enter this country, therefore being a fan of films considered "
+                "controversial"
+                " I really had to see this for myself.<br /><br />The plot is centered around a young Swedish drama student named Lena who wants to learn everything she can about life. In particular she wants to focus her attentions to making some sort of documentary on what the average Swede thought about certain political issues such as the Vietnam War and race issues in the United States. In between asking politicians and ordinary denizens of Stockholm about their opinions on politics, she has sex with her drama teacher, classmates, and married men.<br /><br />What kills me about I AM CURIOUS-YELLOW is that 40 years ago, this was considered pornographic. Really, the sex and nudity scenes are few and far between, even then it's not shot like some cheaply made porno. While my countrymen mind find it shocking, in reality sex and nudity are a major staple in Swedish cinema. Even Ingmar Bergman, arguably their answer to good old boy John Ford, had sex scenes in his films.<br /><br />I do commend the filmmakers for the fact that any sex shown in the film is shown for artistic purposes rather than just to shock people and make money to be shown in pornographic theaters in America. I AM CURIOUS-YELLOW is a good film for anyone wanting to study the meat and potatoes (no pun intended) of Swedish cinema. But really, this film doesn't have much of a plot.",
+            }
+        ]
+    )
+    return Dataset.from_iterable(
+        [
+            DatasetItem(
+                id=0,
+                subset="train",
+                media=TableRow(table=table, index=0),
+                annotations=[Label(id=0, attributes={}, group=0, object_id=-1, label=0)],
+            )
+        ],
+        categories={
+            AnnotationType.label: LabelCategories.from_iterable(
+                [("label:1", "label"), ("label:2", "label")]
+            )
+        },
+        media_type=TableRow,
+    )
+
+
+@pytest.fixture
+def fxt_tabular_caption_dataset():
+    table = Table.from_list(
+        [
+            {
+                "source": "Zwei junge weiße Männer sind im Freien in der Nähe vieler Büsche.",
+                "target": "Two young, White males are outside near many bushes.",
+            }
+        ]
+    )
+    return Dataset.from_iterable(
+        [
+            DatasetItem(
+                id=0,
+                subset="train",
+                media=TableRow(table=table, index=0),
+                annotations=[
+                    Caption("target:Two young, White males are outside near many bushes.")
+                ],
+            )
+        ],
+        categories={},
+        media_type=TableRow,
+    )
+
+
+@pytest.fixture
+def fxt_dummy_tokenizer():
+    def dummy_tokenizer(text):
+        return text.split()
+
+    return dummy_tokenizer
+
+
+@pytest.fixture
+def data_iter():
+    return [(1, "This is a sample text"), (2, "Another sample text")]
+
+
+@pytest.fixture
+def fxt_dummy_vocab(fxt_dummy_tokenizer, data_iter):
+    vocab = build_vocab_from_iterator(
+        map(fxt_dummy_tokenizer, (text for _, text in data_iter)), specials=["<unk>"]
+    )
+    vocab.set_default_index(vocab["<unk>"])
+    return vocab
+
+
+@pytest.fixture
+def fxt_tabular_fixture(fxt_dummy_tokenizer, fxt_dummy_vocab):
+    return {"target": {"input": "text"}, "tokenizer": fxt_dummy_tokenizer, "vocab": fxt_dummy_vocab}
+
+
 @pytest.mark.new
 @mark_requirement(Requirements.DATUM_GENERAL_REQ)
 class FrameworkConverterFactoryTest(TestCase):
@@ -173,38 +260,49 @@ class FrameworkConverterFactoryTest(TestCase):
 @mark_requirement(Requirements.DATUM_GENERAL_REQ)
 class MultiframeworkConverterTest:
     @pytest.mark.parametrize(
-        "fxt_subset,fxt_task",
+        "fxt_dataset_type,fxt_subset,fxt_task",
         [
             (
+                "fxt_dataset",
                 "train",
                 "classification",
             ),
             (
+                "fxt_dataset",
                 "val",
                 "multilabel_classification",
             ),
             (
+                "fxt_dataset",
                 "train",
                 "detection",
             ),
             (
+                "fxt_dataset",
                 "val",
                 "instance_segmentation",
             ),
             (
+                "fxt_dataset",
                 "train",
                 "semantic_segmentation",
             ),
+            ("fxt_tabular_label_dataset", "train", "tabular"),
         ],
     )
-    def test_multi_framework_dataset(self, fxt_dataset: Dataset, fxt_subset: str, fxt_task: str):
+    def test_multi_framework_dataset(
+        self, fxt_dataset_type: str, fxt_subset: str, fxt_task: str, request
+    ):
+        dataset = request.getfixturevalue(fxt_dataset_type)
         dm_multi_framework_dataset = _MultiFrameworkDataset(
-            dataset=fxt_dataset, subset=fxt_subset, task=fxt_task
+            dataset=dataset, subset=fxt_subset, task=fxt_task
         )
 
         for idx in range(len(dm_multi_framework_dataset)):
             image, label = dm_multi_framework_dataset._gen_item(idx)
-            assert isinstance(image, np.ndarray)
+            if fxt_task == "tabular":
+                image = image()
+            assert isinstance(image, (np.ndarray, dict))
             if fxt_task == "classification":
                 assert isinstance(label, int)
             elif fxt_task == "multilabel_classification":
@@ -213,6 +311,8 @@ class MultiframeworkConverterTest:
                 assert isinstance(label, list)
             if fxt_task == "semantic_segmentation":
                 assert isinstance(label, np.ndarray)
+            elif fxt_task == "tabular":
+                assert isinstance(label, list)
 
     @pytest.mark.skipif(not TORCH_AVAILABLE, reason="PyTorch is not installed")
     @pytest.mark.parametrize(
@@ -261,7 +361,6 @@ class MultiframeworkConverterTest:
         fxt_subset: str,
         fxt_task: str,
         fxt_convert_kwargs: Dict[str, Any],
-        request: pytest.FixtureRequest,
     ):
         multi_framework_dataset = FrameworkConverter(fxt_dataset, subset=fxt_subset, task=fxt_task)
 
@@ -294,7 +393,12 @@ class MultiframeworkConverterTest:
                     if ann.type == TASK_ANN_TYPE[fxt_task]
                 ]
                 label = np.sum(masks, axis=0, dtype=np.uint8)
-
+            elif fxt_task == "tabular":
+                label = [
+                    ann.as_dict()
+                    for ann in exp_item.annotations
+                    if ann.type in TASK_ANN_TYPE[fxt_task]
+                ]
             if fxt_convert_kwargs.get("transform", None):
                 actual = dm_torch_item[0].permute(1, 2, 0).mul(255.0).to(torch.uint8).numpy()
                 assert np.array_equal(image, actual)
@@ -373,6 +477,130 @@ class MultiframeworkConverterTest:
                 x1, y1, x2, y2 = dm_ann["points"]
                 assert torch_ann["bbox"] == [x1, y1, x2 - x1, y2 - y1]
                 assert torch_ann["iscrowd"] == dm_ann["attributes"]["is_crowd"]
+
+    @pytest.mark.skipif(not TORCH_AVAILABLE, reason="PyTorch is not installed")
+    def test_can_convert_torch_framework_tabular_label(self, fxt_tabular_label_dataset):
+        class IMDBDataset(Dataset):
+            def __init__(self, data_iter, vocab, transform=None):
+                self.data = list(data_iter)
+                self.vocab = vocab
+                self.transform = transform
+                self.tokenizer = get_tokenizer("basic_english")
+
+            def __len__(self):
+                return len(self.data)
+
+            def __getitem__(self, idx):
+                label, text = self.data[idx]
+                token_ids = [self.vocab[token] for token in self.tokenizer(text)]
+
+                if self.transform:
+                    token_ids = self.transform(token_ids)
+
+                return torch.tensor(token_ids, dtype=torch.long), torch.tensor(
+                    label, dtype=torch.long
+                )
+
+        # Prepare data and tokenizer
+        # First item of IMDB
+        first_item = (
+            1,
+            "I rented I AM CURIOUS-YELLOW from my video store because of all the controversy that surrounded it when it was first released in 1967. I also heard that at first it was seized by U.S. customs if it ever tried to enter this country, therefore being a fan of films considered \"controversial\" I really had to see this for myself.<br /><br />The plot is centered around a young Swedish drama student named Lena who wants to learn everything she can about life. In particular she wants to focus her attentions to making some sort of documentary on what the average Swede thought about certain political issues such as the Vietnam War and race issues in the United States. In between asking politicians and ordinary denizens of Stockholm about their opinions on politics, she has sex with her drama teacher, classmates, and married men.<br /><br />What kills me about I AM CURIOUS-YELLOW is that 40 years ago, this was considered pornographic. Really, the sex and nudity scenes are few and far between, even then it's not shot like some cheaply made porno. While my countrymen mind find it shocking, in reality sex and nudity are a major staple in Swedish cinema. Even Ingmar Bergman, arguably their answer to good old boy John Ford, had sex scenes in his films.<br /><br />I do commend the filmmakers for the fact that any sex shown in the film is shown for artistic purposes rather than just to shock people and make money to be shown in pornographic theaters in America. I AM CURIOUS-YELLOW is a good film for anyone wanting to study the meat and potatoes (no pun intended) of Swedish cinema. But really, this film doesn't have much of a plot.",
+        )
+        tokenizer = get_tokenizer("basic_english")
+
+        # Build vocabulary
+        vocab = build_vocab_from_iterator([tokenizer(first_item[1])], specials=["<unk>"])
+        vocab.set_default_index(vocab["<unk>"])
+
+        # Create torch dataset
+        torch_dataset = IMDBDataset(iter([first_item]), vocab)
+
+        # Convert to dm_torch_dataset
+        dm_dataset = fxt_tabular_label_dataset
+        multi_framework_dataset = FrameworkConverter(dm_dataset, subset="train", task="tabular")
+        dm_torch_dataset = multi_framework_dataset.to_framework(
+            framework="torch", target={"input": "text"}, tokenizer=tokenizer, vocab=vocab
+        )
+
+        # Verify equality of items in torch_dataset and dm_torch_dataset
+        label_indices = dm_dataset.categories().get(AnnotationType.label)._indices
+        torch_item = torch_dataset[0]
+        dm_item = dm_torch_dataset[0]
+        assert torch.equal(torch_item[0], dm_item[0]), "Token IDs do not match"
+
+        # Extract and compare labels
+        torch_item_label = str(torch_item[1].item())
+        dm_item_label = list(label_indices.keys())[list(label_indices.values()).index(0)].split(
+            ":"
+        )[-1]
+        assert torch_item_label == dm_item_label, "Labels do not match"
+
+    @pytest.mark.skipif(not TORCH_AVAILABLE, reason="PyTorch is not installed")
+    def test_can_convert_torch_framework_tabular_caption(self, fxt_tabular_caption_dataset):
+        class Multi30kDataset(Dataset):
+            def __init__(self, dataset, src_tokenizer, tgt_tokenizer, src_vocab, tgt_vocab):
+                self.dataset = list(dataset)
+                self.src_tokenizer = src_tokenizer
+                self.tgt_tokenizer = tgt_tokenizer
+                self.src_vocab = src_vocab
+                self.tgt_vocab = tgt_vocab
+
+            def __len__(self):
+                return len(self.dataset)
+
+            def _data_process(self, text, tokenizer, vocab):
+                tokens = tokenizer(text)
+                token_ids = [vocab[token] for token in tokens]
+                return torch.tensor(token_ids, dtype=torch.long)
+
+            def __getitem__(self, idx):
+                src, tgt = self.dataset[idx]
+                src_tensor = self._data_process(src, self.src_tokenizer, self.src_vocab)
+                tgt_tensor = self._data_process(tgt, self.tgt_tokenizer, self.tgt_vocab)
+                return src_tensor, tgt_tensor
+
+        # Prepare data and tokenizer
+        # First item of Multi30k
+        first_item = (
+            "Zwei junge weiße Männer sind im Freien in der Nähe vieler Büsche.",
+            "Two young, White males are outside near many bushes.",
+        )
+
+        dummy_tokenizer = str.split
+
+        def build_single_vocab(item, tokenizer, specials):
+            tokens = tokenizer(item)
+            vocab = build_vocab_from_iterator([tokens], specials=specials)
+            vocab.set_default_index(vocab["<unk>"])
+            return vocab
+
+        # Build vocabularies
+        specials = ["<unk>", "<pad>", "<bos>", "<eos>"]
+        src_vocab = build_single_vocab(first_item[0], dummy_tokenizer, specials)
+        tgt_vocab = build_single_vocab(first_item[1], dummy_tokenizer, specials)
+
+        # Create torch dataset
+        torch_dataset = Multi30kDataset(
+            iter([first_item]), dummy_tokenizer, dummy_tokenizer, src_vocab, tgt_vocab
+        )
+
+        # Convert to dm_torch_dataset
+        dm_dataset = fxt_tabular_caption_dataset
+        multi_framework_dataset = FrameworkConverter(dm_dataset, subset="train", task="tabular")
+        dm_torch_dataset = multi_framework_dataset.to_framework(
+            framework="torch",
+            target={"input": "source", "output": "target"},
+            tokenizer=(dummy_tokenizer, dummy_tokenizer),
+            vocab=(src_vocab, tgt_vocab),
+        )
+
+        # Verify equality of items in torch_dataset and dm_torch_dataset
+        torch_item = torch_dataset[0]
+        dm_item = dm_torch_dataset[0]
+
+        assert torch.equal(torch_item[0], dm_item[0]), "Token IDs for de do not match"
+        assert torch.equal(torch_item[1], dm_item[1]), "Token IDs for en do not match"
 
     @pytest.mark.skipif(not TF_AVAILABLE, reason="Tensorflow is not installed")
     @pytest.mark.parametrize(
