@@ -4,22 +4,6 @@ Release Notes
 .. toctree::
    :maxdepth: 1
 
-v1.9.0 (2024 Q3)
-----------------
-
-New features
-^^^^^^^^^^^^
-- Add a new CLI command: datum format
-- Support language dataset for DmTorchDataset
-
-Enhancements
-^^^^^^^^^^^^
-- Change _Shape to Shape and add comments for subclasses of Shape
-
-Bug fixes
-^^^^^^^^^
-- Fix KITTI-3D importer and exporter
-
 v1.8.0 (2024 Q3)
 ----------------
 

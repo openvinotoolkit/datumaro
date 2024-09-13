@@ -64,6 +64,3 @@ json-stream
 
 # TabularValidator
 nltk
-
-# torch converter for language
-portalocker
