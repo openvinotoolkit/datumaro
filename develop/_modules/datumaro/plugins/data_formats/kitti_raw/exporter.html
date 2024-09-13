@@ -7,7 +7,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>datumaro.plugins.data_formats.kitti_raw.exporter &#8212; Datumaro 1.9.0rc0 documentation</title>
+    <title>datumaro.plugins.data_formats.kitti_raw.exporter &#8212; Datumaro 1.9.0 documentation</title>
   
   
   
@@ -38,7 +38,7 @@
 <link rel="preload" as="script" href="../../../../../_static/scripts/pydata-sphinx-theme.js?digest=8d27b9dea8ad943066ae" />
   <script src="../../../../../_static/vendor/fontawesome/6.5.1/js/all.min.js?digest=8d27b9dea8ad943066ae"></script>
 
-    <script src="../../../../../_static/documentation_options.js?v=6dc964b9"></script>
+    <script src="../../../../../_static/documentation_options.js?v=c4cb232b"></script>
     <script src="../../../../../_static/doctools.js?v=888ff710"></script>
     <script src="../../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../../../../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -124,8 +124,8 @@
       
     
     
-    <img src="../../../../../_static/datumaro-logo.png" class="logo__image only-light" alt="Datumaro 1.9.0rc0 documentation - Home"/>
-    <script>document.write(`<img src="../../../../../_static/datumaro-logo.png" class="logo__image only-dark" alt="Datumaro 1.9.0rc0 documentation - Home"/>`);</script>
+    <img src="../../../../../_static/datumaro-logo.png" class="logo__image only-light" alt="Datumaro 1.9.0 documentation - Home"/>
+    <script>document.write(`<img src="../../../../../_static/datumaro-logo.png" class="logo__image only-dark" alt="Datumaro 1.9.0 documentation - Home"/>`);</script>
   
   
 </a></div>
@@ -340,7 +340,7 @@ document.write(`
                 <article class="bd-article">
                   
   <h1>Source code for datumaro.plugins.data_formats.kitti_raw.exporter</h1><div class="highlight"><pre>
-<span></span><span class="c1"># Copyright (C) 2021 Intel Corporation</span>
+<span></span><span class="c1"># Copyright (C) 2021-2024 Intel Corporation</span>
 <span class="c1">#</span>
 <span class="c1"># SPDX-License-Identifier: MIT</span>
 
@@ -686,8 +686,8 @@ document.write(`
                 <span class="k">if</span> <span class="ow">not</span> <span class="n">track</span><span class="p">:</span>
                     <span class="n">track</span> <span class="o">=</span> <span class="p">{</span>
                         <span class="s2">&quot;objectType&quot;</span><span class="p">:</span> <span class="n">label</span><span class="p">,</span>
-                        <span class="s2">&quot;h&quot;</span><span class="p">:</span> <span class="n">ann</span><span class="o">.</span><span class="n">scale</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span>
-                        <span class="s2">&quot;w&quot;</span><span class="p">:</span> <span class="n">ann</span><span class="o">.</span><span class="n">scale</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
+                        <span class="s2">&quot;h&quot;</span><span class="p">:</span> <span class="n">ann</span><span class="o">.</span><span class="n">scale</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
+                        <span class="s2">&quot;w&quot;</span><span class="p">:</span> <span class="n">ann</span><span class="o">.</span><span class="n">scale</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span>
                         <span class="s2">&quot;l&quot;</span><span class="p">:</span> <span class="n">ann</span><span class="o">.</span><span class="n">scale</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span>
                         <span class="s2">&quot;first_frame&quot;</span><span class="p">:</span> <span class="n">frame_id</span><span class="p">,</span>
                         <span class="s2">&quot;poses&quot;</span><span class="p">:</span> <span class="p">[],</span>
@@ -695,7 +695,7 @@ document.write(`
                     <span class="p">}</span>
                     <span class="n">tracks</span><span class="p">[</span><span class="n">track_id</span><span class="p">]</span> <span class="o">=</span> <span class="n">track</span>
                 <span class="k">else</span><span class="p">:</span>
-                    <span class="k">if</span> <span class="p">[</span><span class="n">track</span><span class="p">[</span><span class="s2">&quot;w&quot;</span><span class="p">],</span> <span class="n">track</span><span class="p">[</span><span class="s2">&quot;h&quot;</span><span class="p">],</span> <span class="n">track</span><span class="p">[</span><span class="s2">&quot;l&quot;</span><span class="p">]]</span> <span class="o">!=</span> <span class="n">ann</span><span class="o">.</span><span class="n">scale</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="p">[</span><span class="n">track</span><span class="p">[</span><span class="s2">&quot;h&quot;</span><span class="p">],</span> <span class="n">track</span><span class="p">[</span><span class="s2">&quot;w&quot;</span><span class="p">],</span> <span class="n">track</span><span class="p">[</span><span class="s2">&quot;l&quot;</span><span class="p">]]</span> <span class="o">!=</span> <span class="n">ann</span><span class="o">.</span><span class="n">scale</span><span class="p">:</span>
                         <span class="c1"># Tracks have fixed scale in the format</span>
                         <span class="k">raise</span> <span class="n">DatasetExportError</span><span class="p">(</span>
                             <span class="s2">&quot;Item </span><span class="si">%s</span><span class="s2">: mismatching track shapes, &quot;</span>
