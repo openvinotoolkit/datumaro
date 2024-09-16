@@ -1023,17 +1023,22 @@ class StreamDataset(Dataset):
                 def __init__(self, *sources: IDataset):
                     from datumaro.components.hl_ops import HLOps
 
-                    self.merged = HLOps.merge(*sources, merge_policy=merge_policy)
+                    self._merged = HLOps.merge(*sources, merge_policy=merge_policy)
+                    self._data = self._merged._data
+                    self._env = env
+                    self._format = DEFAULT_FORMAT
+                    self._source_path = None
+                    self._options = {}
 
                 def __iter__(self):
-                    yield from self.merged
+                    yield from self._merged
 
                 @property
                 def is_stream(self):
                     return True
 
                 def subsets(self) -> Dict[str, DatasetSubset]:
-                    return self.merged.subsets()
+                    return self._merged.subsets()
 
             return _MergedStreamDataset(*sources)
 
