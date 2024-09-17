@@ -17,6 +17,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   (<https://github.com/openvinotoolkit/datumaro/pull/1568>)
 - Fix `kitti_raw` importer and exporter for dimensions (height, width, length) in meters
   (<https://github.com/openvinotoolkit/datumaro/pull/1596>)
+- Support multiple labels for kaggle format
+  (<https://github.com/openvinotoolkit/datumaro/pull/1607>)
 
 ### Bug fixes
 - Fix KITTI-3D importer and exporter
