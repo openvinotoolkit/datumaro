@@ -77,7 +77,9 @@ class KaggleImageCsvBase(DatasetBase):
         # expected to output [x1, y1, x2, y2]
         return [float(coord.strip()) for coord in coords]
 
-    def _load_annotations(self, datas: list, indices: Dict[str, int], bbox_flag: bool):
+    def _load_annotations(
+        self, datas: list, indices: Dict[str, Union[int, Dict[str, int]]], bbox_flag: bool
+    ):
         if "label" in indices:
             label_indices = indices["label"]
             if isinstance(label_indices, dict):
@@ -146,7 +148,7 @@ class KaggleImageCsvBase(DatasetBase):
         indices = {"media": df_fields.index(columns["media"])}
         if "label" in columns:
             label_columns = columns["label"]
-            if isinstance(columns["label"], list):
+            if isinstance(label_columns, list):
                 indices_label = {}
                 for label in label_columns:
                     indices_label[label] = df_fields.index(label)
