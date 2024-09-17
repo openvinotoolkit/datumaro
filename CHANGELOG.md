@@ -14,6 +14,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Enhancements
 - Raise an appropriate error when exporting a datumaro dataset if its subset name contains path separators.
   (<https://github.com/openvinotoolkit/datumaro/pull/1615>)
+- Update docs for transform plugins
+  (<https://github.com/openvinotoolkit/datumaro/pull/1599>)
 
 ### Bug fixes
 
