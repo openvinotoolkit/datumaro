@@ -1957,7 +1957,7 @@ class Clean(ItemTransform):
             or item.media.table.dtype(col) is int
         ]
 
-        df[str_cols] = df[str_cols].applymap(lambda x: self.remove_unnecessary_char(x))
+        df[str_cols] = df[str_cols].map(lambda x: self.remove_unnecessary_char(x))
 
         if not (self._outlier_value):
             self.check_outlier(media.table.data[float_cols + int_cols], float_cols + int_cols)
