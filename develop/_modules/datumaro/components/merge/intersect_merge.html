@@ -364,6 +364,7 @@ document.write(`
     <span class="n">AnnotationMerger</span><span class="p">,</span>
     <span class="n">BboxMerger</span><span class="p">,</span>
     <span class="n">CaptionsMerger</span><span class="p">,</span>
+    <span class="n">Cuboid2DMerger</span><span class="p">,</span>
     <span class="n">Cuboid3dMerger</span><span class="p">,</span>
     <span class="n">EllipseMerger</span><span class="p">,</span>
     <span class="n">FeatureVectorMerger</span><span class="p">,</span>
@@ -826,6 +827,8 @@ document.write(`
                 <span class="k">return</span> <span class="n">_make</span><span class="p">(</span><span class="n">TabularMerger</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
             <span class="k">elif</span> <span class="n">t</span> <span class="ow">is</span> <span class="n">AnnotationType</span><span class="o">.</span><span class="n">rotated_bbox</span><span class="p">:</span>
                 <span class="k">return</span> <span class="n">_make</span><span class="p">(</span><span class="n">RotatedBboxMerger</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+            <span class="k">elif</span> <span class="n">t</span> <span class="ow">is</span> <span class="n">AnnotationType</span><span class="o">.</span><span class="n">cuboid_2d</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">_make</span><span class="p">(</span><span class="n">Cuboid2DMerger</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s2">&quot;Type </span><span class="si">%s</span><span class="s2"> is not supported&quot;</span> <span class="o">%</span> <span class="n">t</span><span class="p">)</span>
 

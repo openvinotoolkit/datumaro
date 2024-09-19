@@ -354,6 +354,7 @@ document.write(`
     <span class="n">AnnotationType</span><span class="p">,</span>
     <span class="n">Bbox</span><span class="p">,</span>
     <span class="n">Caption</span><span class="p">,</span>
+    <span class="n">Cuboid2D</span><span class="p">,</span>
     <span class="n">Cuboid3d</span><span class="p">,</span>
     <span class="n">Ellipse</span><span class="p">,</span>
     <span class="n">Label</span><span class="p">,</span>
@@ -717,6 +718,42 @@ document.write(`
 
 
 
+<div class="viewcode-block" id="Cuboid2DMapper">
+<a class="viewcode-back" href="../../../../../../docs/reference/_autosummary/datumaro.plugins.data_formats.datumaro_binary.mapper.annotation.html#datumaro.plugins.data_formats.arrow.mapper.Cuboid2DMapper">[docs]</a>
+<span class="k">class</span> <span class="nc">Cuboid2DMapper</span><span class="p">(</span><span class="n">AnnotationMapper</span><span class="p">):</span>
+    <span class="n">ann_type</span> <span class="o">=</span> <span class="n">AnnotationType</span><span class="o">.</span><span class="n">cuboid_2d</span>
+
+<div class="viewcode-block" id="Cuboid2DMapper.forward">
+<a class="viewcode-back" href="../../../../../../docs/reference/_autosummary/datumaro.plugins.data_formats.datumaro_binary.mapper.annotation.html#datumaro.plugins.data_formats.arrow.mapper.Cuboid2DMapper.forward">[docs]</a>
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">forward</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">ann</span><span class="p">:</span> <span class="n">Shape</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bytes</span><span class="p">:</span>
+        <span class="n">_bytearray</span> <span class="o">=</span> <span class="nb">bytearray</span><span class="p">()</span>
+        <span class="n">_bytearray</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">struct</span><span class="o">.</span><span class="n">pack</span><span class="p">(</span><span class="s2">&quot;&lt;Bqqi&quot;</span><span class="p">,</span> <span class="n">ann</span><span class="o">.</span><span class="n">type</span><span class="p">,</span> <span class="n">ann</span><span class="o">.</span><span class="n">id</span><span class="p">,</span> <span class="n">ann</span><span class="o">.</span><span class="n">group</span><span class="p">,</span> <span class="n">ann</span><span class="o">.</span><span class="n">object_id</span><span class="p">))</span>
+        <span class="n">_bytearray</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">DictMapper</span><span class="o">.</span><span class="n">forward</span><span class="p">(</span><span class="n">ann</span><span class="o">.</span><span class="n">attributes</span><span class="p">))</span>
+        <span class="n">_bytearray</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span>
+            <span class="n">struct</span><span class="o">.</span><span class="n">pack</span><span class="p">(</span><span class="s2">&quot;&lt;ii&quot;</span><span class="p">,</span> <span class="n">_ShapeMapper</span><span class="o">.</span><span class="n">forward_optional_label</span><span class="p">(</span><span class="n">ann</span><span class="o">.</span><span class="n">label</span><span class="p">),</span> <span class="n">ann</span><span class="o">.</span><span class="n">z_order</span><span class="p">)</span>
+        <span class="p">)</span>
+        <span class="n">_bytearray</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span>
+            <span class="n">FloatListMapper</span><span class="o">.</span><span class="n">forward</span><span class="p">([</span><span class="n">coord</span> <span class="k">for</span> <span class="n">point</span> <span class="ow">in</span> <span class="n">ann</span><span class="o">.</span><span class="n">points</span> <span class="k">for</span> <span class="n">coord</span> <span class="ow">in</span> <span class="n">point</span><span class="p">])</span>
+        <span class="p">)</span>
+        <span class="k">return</span> <span class="nb">bytes</span><span class="p">(</span><span class="n">_bytearray</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Cuboid2DMapper.backward">
+<a class="viewcode-back" href="../../../../../../docs/reference/_autosummary/datumaro.plugins.data_formats.datumaro_binary.mapper.annotation.html#datumaro.plugins.data_formats.arrow.mapper.Cuboid2DMapper.backward">[docs]</a>
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">backward</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">_bytes</span><span class="p">:</span> <span class="nb">bytes</span><span class="p">,</span> <span class="n">offset</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">Ellipse</span><span class="p">,</span> <span class="nb">int</span><span class="p">]:</span>
+        <span class="n">ann_dict</span><span class="p">,</span> <span class="n">offset</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">backward_dict</span><span class="p">(</span><span class="n">_bytes</span><span class="p">,</span> <span class="n">offset</span><span class="p">)</span>
+        <span class="n">label</span><span class="p">,</span> <span class="n">z_order</span> <span class="o">=</span> <span class="n">struct</span><span class="o">.</span><span class="n">unpack_from</span><span class="p">(</span><span class="s2">&quot;&lt;ii&quot;</span><span class="p">,</span> <span class="n">_bytes</span><span class="p">,</span> <span class="n">offset</span><span class="p">)</span>
+        <span class="n">offset</span> <span class="o">+=</span> <span class="mi">8</span>
+        <span class="n">points</span><span class="p">,</span> <span class="n">offset</span> <span class="o">=</span> <span class="n">FloatListMapper</span><span class="o">.</span><span class="n">backward</span><span class="p">(</span><span class="n">_bytes</span><span class="p">,</span> <span class="n">offset</span><span class="p">)</span>
+        <span class="n">points</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="n">points</span><span class="p">[::</span><span class="mi">2</span><span class="p">],</span> <span class="n">points</span><span class="p">[</span><span class="mi">1</span><span class="p">::</span><span class="mi">2</span><span class="p">]))</span>
+
+        <span class="k">return</span> <span class="n">Cuboid2D</span><span class="p">(</span><span class="n">points</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="n">label</span><span class="p">,</span> <span class="n">z_order</span><span class="o">=</span><span class="n">z_order</span><span class="p">,</span> <span class="o">**</span><span class="n">ann_dict</span><span class="p">),</span> <span class="n">offset</span></div>
+</div>
+
+
+
 <div class="viewcode-block" id="AnnotationListMapper">
 <a class="viewcode-back" href="../../../../../../docs/reference/_autosummary/datumaro.plugins.data_formats.datumaro_binary.mapper.annotation.html#datumaro.plugins.data_formats.arrow.mapper.AnnotationListMapper">[docs]</a>
 <span class="k">class</span> <span class="nc">AnnotationListMapper</span><span class="p">(</span><span class="n">Mapper</span><span class="p">):</span>
@@ -730,6 +767,7 @@ document.write(`
         <span class="n">AnnotationType</span><span class="o">.</span><span class="n">caption</span><span class="p">:</span> <span class="n">CaptionMapper</span><span class="o">.</span><span class="n">backward</span><span class="p">,</span>
         <span class="n">AnnotationType</span><span class="o">.</span><span class="n">cuboid_3d</span><span class="p">:</span> <span class="n">Cuboid3dMapper</span><span class="o">.</span><span class="n">backward</span><span class="p">,</span>
         <span class="n">AnnotationType</span><span class="o">.</span><span class="n">ellipse</span><span class="p">:</span> <span class="n">EllipseMapper</span><span class="o">.</span><span class="n">backward</span><span class="p">,</span>
+        <span class="n">AnnotationType</span><span class="o">.</span><span class="n">cuboid_2d</span><span class="p">:</span> <span class="n">Cuboid2DMapper</span><span class="o">.</span><span class="n">backward</span><span class="p">,</span>
     <span class="p">}</span>
 
 <div class="viewcode-block" id="AnnotationListMapper.forward">
@@ -758,6 +796,8 @@ document.write(`
                 <span class="n">_bytearray</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">Cuboid3dMapper</span><span class="o">.</span><span class="n">forward</span><span class="p">(</span><span class="n">ann</span><span class="p">))</span>
             <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">ann</span><span class="p">,</span> <span class="n">Ellipse</span><span class="p">):</span>
                 <span class="n">_bytearray</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">EllipseMapper</span><span class="o">.</span><span class="n">forward</span><span class="p">(</span><span class="n">ann</span><span class="p">))</span>
+            <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">ann</span><span class="p">,</span> <span class="n">Cuboid2D</span><span class="p">):</span>
+                <span class="n">_bytearray</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">Cuboid2DMapper</span><span class="o">.</span><span class="n">forward</span><span class="p">(</span><span class="n">ann</span><span class="p">))</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">()</span>
 

@@ -20,6 +20,7 @@ datumaro.components.annotations.merger
       AnnotationMerger
       BboxMerger
       CaptionsMerger
+      Cuboid2DMerger
       Cuboid3dMerger
       EllipseMerger
       FeatureVectorMerger

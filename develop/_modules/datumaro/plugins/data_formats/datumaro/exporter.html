@@ -362,6 +362,7 @@ document.write(`
     <span class="n">Annotation</span><span class="p">,</span>
     <span class="n">Bbox</span><span class="p">,</span>
     <span class="n">Caption</span><span class="p">,</span>
+    <span class="n">Cuboid2D</span><span class="p">,</span>
     <span class="n">Cuboid3d</span><span class="p">,</span>
     <span class="n">Ellipse</span><span class="p">,</span>
     <span class="n">HashKey</span><span class="p">,</span>
@@ -659,6 +660,8 @@ document.write(`
                 <span class="n">converted_ann</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_convert_ellipse_object</span><span class="p">(</span><span class="n">ann</span><span class="p">)</span>
             <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">ann</span><span class="p">,</span> <span class="n">HashKey</span><span class="p">):</span>
                 <span class="k">continue</span>
+            <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">ann</span><span class="p">,</span> <span class="n">Cuboid2D</span><span class="p">):</span>
+                <span class="n">converted_ann</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_convert_cuboid_2d_object</span><span class="p">(</span><span class="n">ann</span><span class="p">)</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">()</span>
             <span class="n">annotations</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">converted_ann</span><span class="p">)</span>
@@ -782,6 +785,18 @@ document.write(`
 
     <span class="k">def</span> <span class="nf">_convert_ellipse_object</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obj</span><span class="p">:</span> <span class="n">Ellipse</span><span class="p">):</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_convert_shape_object</span><span class="p">(</span><span class="n">obj</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_convert_cuboid_2d_object</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obj</span><span class="p">:</span> <span class="n">Cuboid2D</span><span class="p">):</span>
+        <span class="n">converted</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_convert_annotation</span><span class="p">(</span><span class="n">obj</span><span class="p">)</span>
+
+        <span class="n">converted</span><span class="o">.</span><span class="n">update</span><span class="p">(</span>
+            <span class="p">{</span>
+                <span class="s2">&quot;label_id&quot;</span><span class="p">:</span> <span class="n">cast</span><span class="p">(</span><span class="n">obj</span><span class="o">.</span><span class="n">label</span><span class="p">,</span> <span class="nb">int</span><span class="p">),</span>
+                <span class="s2">&quot;points&quot;</span><span class="p">:</span> <span class="n">obj</span><span class="o">.</span><span class="n">points</span><span class="p">,</span>
+                <span class="s2">&quot;z_order&quot;</span><span class="p">:</span> <span class="n">obj</span><span class="o">.</span><span class="n">z_order</span><span class="p">,</span>
+            <span class="p">}</span>
+        <span class="p">)</span>
+        <span class="k">return</span> <span class="n">converted</span>
 
 
 <span class="k">class</span> <span class="nc">_StreamSubsetWriter</span><span class="p">(</span><span class="n">_SubsetWriter</span><span class="p">):</span>

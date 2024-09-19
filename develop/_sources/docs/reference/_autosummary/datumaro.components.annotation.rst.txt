@@ -30,6 +30,7 @@ datumaro.components.annotation
       Caption
       Categories
       CompiledMask
+      Cuboid2D
       Cuboid3d
       DepthAnnotation
       Ellipse
