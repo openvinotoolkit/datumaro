@@ -10,7 +10,16 @@ import cv2
 import numpy as np
 import pytest
 
-from datumaro.components.annotation import Bbox, Caption, Ellipse, Label, Mask, Points, RotatedBbox
+from datumaro.components.annotation import (
+    Bbox,
+    Caption,
+    Cuboid2D,
+    Ellipse,
+    Label,
+    Mask,
+    Points,
+    RotatedBbox,
+)
 from datumaro.components.dataset import Dataset
 from datumaro.components.dataset_base import DatasetItem
 from datumaro.components.errors import DatumaroError
@@ -232,6 +241,25 @@ class AnnStatisticsTest:
                                 "tiny": True,
                             },
                         ),
+                        Cuboid2D(
+                            [
+                                (1, 1),
+                                (3, 1),
+                                (3, 3),
+                                (1, 3),
+                                (1.5, 1.5),
+                                (3.5, 1.5),
+                                (3.5, 3.5),
+                                (1.5, 3.5),
+                            ],
+                            label=3,
+                            id=5,
+                            z_order=2,
+                            attributes={
+                                "x": 1,
+                                "y": "2",
+                            },
+                        ),
                     ],
                 ),
                 DatasetItem(id=3),
@@ -242,7 +270,7 @@ class AnnStatisticsTest:
 
         expected = {
             "images count": 4,
-            "annotations count": 12,
+            "annotations count": 13,
             "unannotated images count": 2,
             "unannotated images": ["3", "2.2"],
             "annotations by type": {
@@ -277,33 +305,34 @@ class AnnStatisticsTest:
                 "hash_key": {"count": 0},
                 "feature_vector": {"count": 0},
                 "tabular": {"count": 0},
+                "cuboid_2d": {"count": 1},
                 "unknown": {"count": 0},
             },
             "annotations": {
                 "labels": {
-                    "count": 6,
+                    "count": 7,
                     "distribution": {
-                        "label_0": [1, 1 / 6],
+                        "label_0": [1, 1 / 7],
                         "label_1": [0, 0.0],
-                        "label_2": [3, 3 / 6],
-                        "label_3": [2, 2 / 6],
+                        "label_2": [3, 3 / 7],
+                        "label_3": [3, 3 / 7],
                     },
                     "attributes": {
                         "x": {
-                            "count": 2,  # annotations with no label are skipped
+                            "count": 3,  # annotations with no label are skipped
                             "values count": 2,
                             "values present": ["1", "2"],
                             "distribution": {
-                                "1": [1, 1 / 2],
-                                "2": [1, 1 / 2],
+                                "1": [2, 2 / 3],
+                                "2": [1, 1 / 3],
                             },
                         },
                         "y": {
-                            "count": 2,  # annotations with no label are skipped
+                            "count": 3,  # annotations with no label are skipped
                             "values count": 1,
                             "values present": ["2"],
                             "distribution": {
-                                "2": [2, 2 / 2],
+                                "2": [3, 3 / 3],
                             },
                         },
                         # must not include "special" attributes like "occluded"
@@ -403,6 +432,7 @@ class AnnStatisticsTest:
                 "feature_vector": {"count": 0},
                 "tabular": {"count": 0},
                 "rotated_bbox": {"count": 0},
+                "cuboid_2d": {"count": 0},
                 "unknown": {"count": 0},
             },
             "annotations": {

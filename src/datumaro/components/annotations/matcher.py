@@ -35,6 +35,7 @@ __all__ = [
     "ImageAnnotationMatcher",
     "HashKeyMatcher",
     "FeatureVectorMatcher",
+    "Cuboid2DMatcher",
 ]
 
 
@@ -378,3 +379,8 @@ class RotatedBboxMatcher(ShapeMatcher):
         b = Points([p for pt in b.as_polygon() for p in pt])
 
         return OKS(a, b, sigma=self.sigma)
+
+
+@attrs
+class Cuboid2DMatcher(ShapeMatcher):
+    pass

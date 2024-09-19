@@ -50,6 +50,7 @@ class AnnotationType(IntEnum):
     feature_vector = 13
     tabular = 14
     rotated_bbox = 15
+    cuboid_2d = 16
 
 
 COORDINATE_ROUNDING_DIGITS = 2
@@ -1361,6 +1362,41 @@ class RotatedBbox(Shape):
         d = {"x": item.x, "y": item.y, "w": item.w, "h": item.h, "r": item.r}
         d.update(kwargs)
         return attr.evolve(item, **d)
+
+
+@attrs(slots=True, init=False, order=False)
+class Cuboid2D(Annotation):
+    """
+    Cuboid2D annotation class. This class represents a 3D bounding box defined by its point coordinates
+    in the following way:
+    [(x1, y1), (x2, y2), (x3, y3), (x4, y4), (x5, y5), (x6, y6), (x7, y7), (x8, y8)].
+
+
+      6---7
+     /|  /|
+    5-+-8 |
+    | 2 + 3
+    |/  |/
+    1---4
+
+    Attributes:
+        _type (AnnotationType): The type of annotation, set to `AnnotationType.bbox`.
+
+    Methods:
+        __init__: Initializes the Cuboid2D with its coordinates.
+        wrap: Creates a new Bbox instance with updated attributes.
+    """
+
+    _type = AnnotationType.cuboid_2d
+    points = field(default=None)
+    label: Optional[int] = field(
+        converter=attr.converters.optional(int), default=None, kw_only=True
+    )
+    z_order: int = field(default=0, validator=default_if_none(int), kw_only=True)
+
+    def __init__(self, _points: Iterable[Tuple[float, float]], *args, **kwargs):
+        kwargs.pop("points", None)  # comes from wrap()
+        self.__attrs_init__(points=_points, *args, **kwargs)
 
 
 @attrs(slots=True, order=False)

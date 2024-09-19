@@ -12,6 +12,7 @@ from .matcher import (
     AnnotationMatcher,
     BboxMatcher,
     CaptionsMatcher,
+    Cuboid2DMatcher,
     Cuboid3dMatcher,
     FeatureVectorMatcher,
     HashKeyMatcher,
@@ -209,4 +210,9 @@ class TabularMerger(AnnotationMerger, TabularMatcher):
 
 @attrs
 class RotatedBboxMerger(_ShapeMerger, RotatedBboxMatcher):
+    pass
+
+
+@attrs
+class Cuboid2DMerger(_ShapeMerger, Cuboid2DMatcher):
     pass
