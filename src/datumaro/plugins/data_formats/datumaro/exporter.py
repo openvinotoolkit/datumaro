@@ -185,7 +185,8 @@ class _SubsetWriter:
 
             if context.save_media:
                 fname = context.make_video_filename(item)
-                context.save_video(item, fname=fname, subdir=item.subset)
+                subdir = item.subset.replace(os.sep, "_") if item.subset else None
+                context.save_video(item, fname=fname, subdir=subdir)
                 item.media = Video(
                     path=fname,
                     step=video._step,
@@ -200,7 +201,8 @@ class _SubsetWriter:
 
             if context.save_media:
                 fname = context.make_video_filename(item)
-                context.save_video(item, fname=fname, subdir=item.subset)
+                subdir = item.subset.replace(os.sep, "_") if item.subset else None
+                context.save_video(item, fname=fname, subdir=subdir)
                 item.media = VideoFrame(Video(fname), video_frame.index)
 
             yield
@@ -210,8 +212,9 @@ class _SubsetWriter:
 
             if context.save_media:
                 # Temporarily update image path and save it.
-                fname = context.make_image_filename(item)
-                context.save_image(item, encryption=encryption, fname=fname, subdir=item.subset)
+                fname = context.make_image_filename(item, name=str(item.id).replace(os.sep, "_"))
+                subdir = item.subset.replace(os.sep, "_") if item.subset else None
+                context.save_image(item, encryption=encryption, fname=fname, subdir=subdir)
                 item.media = Image.from_file(path=fname, size=image._size)
 
             yield
@@ -220,14 +223,18 @@ class _SubsetWriter:
             pcd = item.media_as(PointCloud)
 
             if context.save_media:
-                pcd_fname = context.make_pcd_filename(item)
-                context.save_point_cloud(item, fname=pcd_fname, subdir=item.subset)
+                pcd_name = str(item.id).replace(os.sep, "_")
+                pcd_fname = context.make_pcd_filename(item, name=pcd_name)
+                subdir = item.subset.replace(os.sep, "_") if item.subset else None
+                context.save_point_cloud(item, fname=pcd_fname, subdir=subdir)
 
                 extra_images = []
                 for i, extra_image in enumerate(pcd.extra_images):
                     extra_images.append(
                         Image.from_file(
-                            path=context.make_pcd_extra_image_filename(item, i, extra_image)
+                            path=context.make_pcd_extra_image_filename(
+                                item, i, extra_image, name=f"{pcd_name}/extra_image_{i}"
+                            )
                         )
                     )
 
@@ -511,14 +518,20 @@ class DatumaroExporter(Exporter):
             _SubsetWriter(
                 context=self,
                 subset=subset,
-                ann_file=osp.join(self._annotations_dir, subset + self.PATH_CLS.ANNOTATION_EXT),
+                ann_file=osp.join(
+                    self._annotations_dir,
+                    subset.replace(os.sep, "_") + self.PATH_CLS.ANNOTATION_EXT,
+                ),
                 export_context=export_context,
             )
             if not self._stream
             else _StreamSubsetWriter(
                 context=self,
                 subset=subset,
-                ann_file=osp.join(self._annotations_dir, subset + self.PATH_CLS.ANNOTATION_EXT),
+                ann_file=osp.join(
+                    self._annotations_dir,
+                    subset.replace(os.sep, "_") + self.PATH_CLS.ANNOTATION_EXT,
+                ),
                 export_context=export_context,
             )
         )
