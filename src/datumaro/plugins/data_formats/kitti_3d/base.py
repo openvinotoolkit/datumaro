@@ -4,7 +4,7 @@
 
 import os
 import os.path as osp
-from typing import List, Optional
+from typing import Optional
 
 from defusedxml import ElementTree as ET
 
