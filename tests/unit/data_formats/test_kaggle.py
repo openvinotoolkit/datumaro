@@ -20,6 +20,9 @@ from tests.utils.assets import get_test_asset_path
 from tests.utils.test_utils import compare_datasets
 
 DUMMY_DATASET_IMAGE_CSV_DIR = get_test_asset_path("kaggle_dataset", "image_csv")
+DUMMY_DATASET_IMAGE_CSV_MULTI_LB_DIR = get_test_asset_path(
+    "kaggle_dataset", "image_csv_multi_label"
+)
 DUMMY_DATASET_IMAGE_CSV_DET_DIR = get_test_asset_path("kaggle_dataset", "image_csv_det")
 DUMMY_DATASET_IMAGE_TXT_DIR = get_test_asset_path("kaggle_dataset", "image_txt")
 DUMMY_DATASET_IMAGE_TXT_DET_DIR = get_test_asset_path("kaggle_dataset", "image_txt_det")
@@ -69,6 +72,51 @@ def fxt_img_dataset() -> Dataset:
             ),
         ],
         categories=["dog", "cat"],
+    )
+
+
+@pytest.fixture
+def fxt_img_multi_label_dataset() -> Dataset:
+    return Dataset.from_iterable(
+        [
+            DatasetItem(
+                id="1",
+                subset="default",
+                media=Image.from_numpy(data=np.ones((5, 10, 3))),
+                annotations=[Label(label=0)],
+            ),
+            DatasetItem(
+                id="2",
+                subset="default",
+                media=Image.from_numpy(data=np.ones((5, 10, 3))),
+                annotations=[Label(label=1)],
+            ),
+            DatasetItem(
+                id="3",
+                subset="default",
+                media=Image.from_numpy(data=np.ones((5, 10, 3))),
+                annotations=[Label(label=2)],
+            ),
+            DatasetItem(
+                id="4",
+                subset="default",
+                media=Image.from_numpy(data=np.ones((5, 10, 3))),
+                annotations=[Label(label=0), Label(label=1)],
+            ),
+            DatasetItem(
+                id="5",
+                subset="default",
+                media=Image.from_numpy(data=np.ones((5, 10, 3))),
+                annotations=[Label(label=0), Label(label=2)],
+            ),
+            DatasetItem(
+                id="6",
+                subset="default",
+                media=Image.from_numpy(data=np.ones((5, 10, 3))),
+                annotations=[Label(label=1), Label(label=2)],
+            ),
+        ],
+        categories=["dog", "cat", "person"],
     )
 
 
@@ -321,6 +369,8 @@ def fxt_coco_dataset() -> Dataset:
 IDS = [
     "IMAGE_CSV",
     "IMAGE_CSV_WO_EXT",
+    "IMAGE_CSV_MULTI_LB",
+    "IMAGE_CSV_MULTI_LB_WO_EXT",
     "IMAGE_CSV_DET",
     "IMAGE_CSV_DET2",
     "IMAGE_CSV_DET3",
@@ -370,6 +420,26 @@ class KaggleImporterTest(TestDataFormatBase):
                 {
                     "ann_file": osp.join(DUMMY_DATASET_IMAGE_CSV_DIR, "ann_wo_ext.csv"),
                     "columns": {"media": "image_name", "label": "label_name"},
+                },
+            ),
+            (
+                DUMMY_DATASET_IMAGE_CSV_MULTI_LB_DIR,
+                "images",
+                "fxt_img_multi_label_dataset",
+                KaggleImageCsvBase,
+                {
+                    "ann_file": osp.join(DUMMY_DATASET_IMAGE_CSV_MULTI_LB_DIR, "ann.csv"),
+                    "columns": {"media": "image_name", "label": ["dog", "cat", "person"]},
+                },
+            ),
+            (
+                DUMMY_DATASET_IMAGE_CSV_MULTI_LB_DIR,
+                "images",
+                "fxt_img_multi_label_dataset",
+                KaggleImageCsvBase,
+                {
+                    "ann_file": osp.join(DUMMY_DATASET_IMAGE_CSV_MULTI_LB_DIR, "ann_wo_ext.csv"),
+                    "columns": {"media": "image_name", "label": ["dog", "cat", "person"]},
                 },
             ),
             (

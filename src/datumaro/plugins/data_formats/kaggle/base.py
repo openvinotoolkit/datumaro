@@ -77,13 +77,31 @@ class KaggleImageCsvBase(DatasetBase):
         # expected to output [x1, y1, x2, y2]
         return [float(coord.strip()) for coord in coords]
 
-    def _load_annotations(self, datas: list, indices: Dict[str, int], bbox_flag: bool):
+    def _load_annotations(
+        self, datas: list, indices: Dict[str, Union[int, Dict[str, int]]], bbox_flag: bool
+    ):
         if "label" in indices:
-            label_name = str(datas[indices["label"]])
-            label, cat = self._label_cat.find(label_name)
-            if not cat:
-                self._label_cat.add(label_name)
-                label, _ = self._label_cat.find(label_name)
+            label_indices = indices["label"]
+            if isinstance(label_indices, dict):
+                labels = []
+                list_values = datas[1:]
+                index_to_label = {v: k for k, v in label_indices.items()}
+                present_labels = [
+                    index_to_label[i + 1] for i, value in enumerate(list_values) if value == "1"
+                ]
+
+                for label_name in present_labels:
+                    label, cat = self._label_cat.find(label_name)
+                    if not cat:
+                        self._label_cat.add(label_name)
+                        label, _ = self._label_cat.find(label_name)
+                    labels.append(Label(label=label))
+            else:
+                label_name = str(datas[indices["label"]])
+                label, cat = self._label_cat.find(label_name)
+                if not cat:
+                    self._label_cat.add(label_name)
+                    label, _ = self._label_cat.find(label_name)
         else:
             _, cat = self._label_cat.find("object")
             if not cat:
@@ -91,7 +109,11 @@ class KaggleImageCsvBase(DatasetBase):
             label = 0
 
         if "label" in indices and not bbox_flag:
+            label_indices = indices["label"]
+            if isinstance(label_indices, dict):
+                return labels
             return Label(label=label)
+
         if bbox_flag:
             if "bbox" in indices:
                 coords = self._parse_bbox_coords(datas[indices["bbox"]])
@@ -125,7 +147,14 @@ class KaggleImageCsvBase(DatasetBase):
 
         indices = {"media": df_fields.index(columns["media"])}
         if "label" in columns:
-            indices.update({"label": df_fields.index(columns["label"])})
+            label_columns = columns["label"]
+            if isinstance(label_columns, list):
+                indices_label = {}
+                for label in label_columns:
+                    indices_label[label] = df_fields.index(label)
+                indices.update({"label": indices_label})
+            else:
+                indices.update({"label": df_fields.index(label_columns)})
 
         bbox_flag = False
         bbox_index = columns.get("bbox")
@@ -165,16 +194,30 @@ class KaggleImageCsvBase(DatasetBase):
                 continue
 
             ann = self._load_annotations(data_info, indices, bbox_flag)
-            self._ann_types.add(ann.type)
-            if item_id in items:
-                items[item_id].annotations.append(ann)
+            if isinstance(ann, list):
+                for label in ann:
+                    self._ann_types.add(label.type)
+                if item_id in items:
+                    for label in ann:
+                        items[item_id].annotations.append(label)
+                else:
+                    items[item_id] = DatasetItem(
+                        id=item_id,
+                        subset=self._subset,
+                        media=Image.from_file(path=media_path),
+                        annotations=ann,
+                    )
             else:
-                items[item_id] = DatasetItem(
-                    id=item_id,
-                    subset=self._subset,
-                    media=Image.from_file(path=media_path),
-                    annotations=[ann],
-                )
+                self._ann_types.add(ann.type)
+                if item_id in items:
+                    items[item_id].annotations.append(ann)
+                else:
+                    items[item_id] = DatasetItem(
+                        id=item_id,
+                        subset=self._subset,
+                        media=Image.from_file(path=media_path),
+                        annotations=[ann],
+                    )
         return items.values()
 
     def categories(self):
