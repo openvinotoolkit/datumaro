@@ -1,14 +1,5 @@
 [
   {
-    "import_path": "datumaro.plugins.accuracy_checker_plugin.ac_launcher.AcLauncher",
-    "plugin_name": "ac",
-    "plugin_type": "Launcher",
-    "extra_deps": [
-      "tensorflow",
-      "openvino.tools.accuracy_checker"
-    ]
-  },
-  {
     "import_path": "datumaro.plugins.configurable_validator.ConfigurableValidator",
     "plugin_name": "configurable",
     "plugin_type": "Validator"
@@ -1207,27 +1198,6 @@
     "plugin_type": "DatasetBase"
   },
   {
-    "import_path": "datumaro.plugins.data_formats.roboflow.base_tfrecord.RoboflowTfrecordBase",
-    "plugin_name": "roboflow_tfrecord",
-    "plugin_type": "DatasetBase",
-    "extra_deps": [
-      "tensorflow"
-    ]
-  },
-  {
-    "import_path": "datumaro.plugins.data_formats.roboflow.base_tfrecord.RoboflowTfrecordImporter",
-    "plugin_name": "roboflow_tfrecord",
-    "plugin_type": "Importer",
-    "extra_deps": [
-      "tensorflow"
-    ],
-    "metadata": {
-      "file_extensions": [
-        ".tfrecord"
-      ]
-    }
-  },
-  {
     "import_path": "datumaro.plugins.data_formats.roboflow.importer.RoboflowCocoImporter",
     "plugin_name": "roboflow_coco",
     "plugin_type": "Importer",
@@ -1391,35 +1361,6 @@
         ".csv"
       ]
     }
-  },
-  {
-    "import_path": "datumaro.plugins.data_formats.tf_detection_api.base.TfDetectionApiBase",
-    "plugin_name": "tf_detection_api",
-    "plugin_type": "DatasetBase",
-    "extra_deps": [
-      "tensorflow"
-    ]
-  },
-  {
-    "import_path": "datumaro.plugins.data_formats.tf_detection_api.base.TfDetectionApiImporter",
-    "plugin_name": "tf_detection_api",
-    "plugin_type": "Importer",
-    "extra_deps": [
-      "tensorflow"
-    ],
-    "metadata": {
-      "file_extensions": [
-        ".tfrecord"
-      ]
-    }
-  },
-  {
-    "import_path": "datumaro.plugins.data_formats.tf_detection_api.exporter.TfDetectionApiExporter",
-    "plugin_name": "tf_detection_api",
-    "plugin_type": "Exporter",
-    "extra_deps": [
-      "tensorflow"
-    ]
   },
   {
     "import_path": "datumaro.plugins.data_formats.vgg_face2.VggFace2Base",
@@ -1855,13 +1796,13 @@
     "plugin_type": "Transform"
   },
   {
-    "import_path": "datumaro.plugins.transforms.Correct",
-    "plugin_name": "correct",
+    "import_path": "datumaro.plugins.transforms.Clean",
+    "plugin_name": "clean",
     "plugin_type": "Transform"
   },
   {
-    "import_path": "datumaro.plugins.transforms.Clean",
-    "plugin_name": "clean",
+    "import_path": "datumaro.plugins.transforms.Correct",
+    "plugin_name": "correct",
     "plugin_type": "Transform"
   },
   {
