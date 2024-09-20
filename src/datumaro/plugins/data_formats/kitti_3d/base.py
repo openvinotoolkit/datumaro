@@ -11,131 +11,16 @@ from defusedxml import ElementTree as ET
 from datumaro.components.annotation import AnnotationType, Cuboid3d, LabelCategories
 from datumaro.components.dataset_base import DatasetItem, SubsetBase
 from datumaro.components.errors import InvalidAnnotationError
-from datumaro.components.format_detection import FormatDetectionContext
-from datumaro.components.importer import ImportContext, Importer
+from datumaro.components.importer import ImportContext
 from datumaro.components.media import Image, PointCloud
 from datumaro.util import cast
 from datumaro.util.image import find_images
 from datumaro.util.meta_file_util import has_meta_file, parse_meta_file
 
-from .format import KittiRawPath, OcclusionStates, TruncationStates
+from .format import Kitti3dPath, OcclusionStates, TruncationStates
 
 
-class Kitti3dBase(DatasetBase):
-    def __init__(
-        self,
-        subset_name: str,
-        path: str,
-        items: OrderedDict[str, str],
-        categories: CategoriesInfo,
-        image_info: ImageMeta,
-    ):
-        super().__init__()
-        self._subset_name = subset_name
-        self._path = path
-        self._items = items
-        self._categories = categories
-        self._image_info = image_info
-
-    def __iter__(self) -> Iterator[DatasetItem]:
-        for item_id in self._items:
-            item = self._get(item_id)
-            if item is not None:
-                yield item
-
-    def _get(self, item_id: str) -> Optional[DatasetItem]:
-        item = self._items.get(item_id)
-
-        if not isinstance(item, str):
-            return None
-
-        try:
-            image_size = self._image_info.get(item_id)
-            image = Image.from_file(path=osp.join(self._path, item), size=image_size)
-
-            anno_path = osp.splitext(image.path)[0] + ".txt"
-            annotations = self._parse_annotations(
-                anno_path,
-                image,
-                label_categories=self._categories[AnnotationType.label],
-            )
-
-            item = DatasetItem(
-                id=item_id, subset=self._subset_name, media=image, annotations=annotations
-            )
-            return item
-        except (UndeclaredLabelError, InvalidAnnotationError) as e:
-            self._ctx.error_policy.report_annotation_error(e, item_id=(item_id, self._subset_name))
-        except Exception as e:
-            self._ctx.error_policy.report_item_error(e, item_id=(item_id, self._subset_name))
-
-        return None
-
-    @classmethod
-    def _parse_annotations(
-        cls,
-        anno_path: str,
-        image: ImageFromFile,
-        *,
-        label_categories: LabelCategories,
-    ) -> List[Annotation]:
-        lines = []
-        with open(anno_path, "r", encoding="utf-8") as f:
-            for line in f:
-                line = line.strip()
-                if line:
-                    lines.append(line)
-
-        annotations = []
-
-        if lines:
-            # Use image info as late as possible to avoid unnecessary image loading
-            if image.size is None:
-                raise DatasetImportError(f"Can't find image info for '{localize_path(image.path)}'")
-            image_height, image_width = image.size
-
-        for idx, line in enumerate(lines):
-            parts = line.split()
-            if len(parts) != 5:
-                raise InvalidAnnotationError(
-                    f"Unexpected field count {len(parts)} in the bbox description. "
-                    "Expected 5 fields (label, xc, yc, w, h)."
-                )
-            label_id, xc, yc, w, h = parts
-
-            label_id = cls._parse_field(label_id, int, "bbox label id")
-            if label_id not in label_categories:
-                raise UndeclaredLabelError(str(label_id))
-
-            w = cls._parse_field(w, float, "bbox width")
-            h = cls._parse_field(h, float, "bbox height")
-            x = cls._parse_field(xc, float, "bbox center x") - w * 0.5
-            y = cls._parse_field(yc, float, "bbox center y") - h * 0.5
-            annotations.append(
-                Bbox(
-                    x * image_width,
-                    y * image_height,
-                    w * image_width,
-                    h * image_height,
-                    label=label_id,
-                    id=idx,
-                    group=idx,
-                )
-            )
-
-        return annotations
-
-    @classmethod
-    def _parse_field(cls, value: str, desired_type: Type[T], field_name: str) -> T:
-        try:
-            return desired_type(value)
-        except Exception as e:
-            raise InvalidAnnotationError(
-                f"Can't parse {field_name} from '{value}'. Expected {desired_type}"
-            ) from e
-
-
-class KittiRawBase(SubsetBase):
+class Kitti3dBase(SubsetBase):
     # http://www.cvlibs.net/datasets/kitti/raw_data.php
     # https://s3.eu-central-1.amazonaws.com/avg-kitti/devkit_raw_data.zip
     # Check cpp header implementation for field meaning
@@ -257,7 +142,7 @@ class KittiRawBase(SubsetBase):
         if track is not None or shape is not None or attr is not None:
             raise InvalidAnnotationError("Failed to parse annotations from '%s'" % path)
 
-        special_attrs = KittiRawPath.SPECIAL_ATTRS
+        special_attrs = Kitti3dPath.SPECIAL_ATTRS
         common_attrs = ["occluded"]
 
         if has_meta_file(path):
@@ -346,7 +231,7 @@ class KittiRawBase(SubsetBase):
         images = {}
         for d in os.listdir(self._rootdir):
             image_dir = osp.join(self._rootdir, d, "data")
-            if not (d.lower().startswith(KittiRawPath.IMG_DIR_PREFIX) and osp.isdir(image_dir)):
+            if not (d.lower().startswith(Kitti3dPath.IMG_DIR_PREFIX) and osp.isdir(image_dir)):
                 continue
 
             for p in find_images(image_dir, recursive=True):
@@ -354,7 +239,7 @@ class KittiRawBase(SubsetBase):
                 images.setdefault(image_name, []).append(p)
 
         name_mapping = self._parse_name_mapping(
-            osp.join(self._rootdir, KittiRawPath.NAME_MAPPING_FILE)
+            osp.join(self._rootdir, Kitti3dPath.NAME_MAPPING_FILE)
         )
 
         items = {}
@@ -364,7 +249,7 @@ class KittiRawBase(SubsetBase):
                 id=name,
                 subset=self._subset,
                 media=PointCloud.from_file(
-                    path=osp.join(self._rootdir, KittiRawPath.PCD_DIR, name + ".pcd"),
+                    path=osp.join(self._rootdir, Kitti3dPath.PCD_DIR, name + ".pcd"),
                     extra_images=[
                         Image.from_file(path=image) for image in sorted(images.get(name, []))
                     ],
@@ -383,7 +268,7 @@ class KittiRawBase(SubsetBase):
                 id=name,
                 subset=self._subset,
                 media=PointCloud.from_file(
-                    path=osp.join(self._rootdir, KittiRawPath.PCD_DIR, name + ".pcd"),
+                    path=osp.join(self._rootdir, Kitti3dPath.PCD_DIR, name + ".pcd"),
                     extra_images=[
                         Image.from_file(path=image) for image in sorted(images.get(name, []))
                     ],

@@ -2,19 +2,13 @@
 #
 # SPDX-License-Identifier: MIT
 
-import os
-import os.path as osp
-from typing import List, Optional
+from typing import List
 
 from datumaro.components.errors import DatasetImportError
 from datumaro.components.format_detection import FormatDetectionConfidence, FormatDetectionContext
-from datumaro.components.importer import ImportContext, Importer
-from datumaro.components.media import Image, PointCloud
-from datumaro.util import cast
-from datumaro.util.image import find_images
-from datumaro.util.meta_file_util import has_meta_file, parse_meta_file
+from datumaro.components.importer import Importer
 
-from .format import Kitti3DPath, OcclusionStates, TruncationStates
+from .format import Kitti3DPath
 
 
 class Kitti3dImporter(Importer):
