@@ -1,23 +1,21 @@
-# Copyright (C) 2021-2023 Intel Corporation
+# Copyright (C) 2024 Intel Corporation
 #
 # SPDX-License-Identifier: MIT
 
-import os
+import glob
 import os.path as osp
-from typing import Optional
+from typing import List, Optional, Type, TypeVar
 
-from defusedxml import ElementTree as ET
-
-from datumaro.components.annotation import AnnotationType, Cuboid3d, LabelCategories
+from datumaro.components.annotation import AnnotationType, Bbox, LabelCategories
 from datumaro.components.dataset_base import DatasetItem, SubsetBase
 from datumaro.components.errors import InvalidAnnotationError
 from datumaro.components.importer import ImportContext
-from datumaro.components.media import Image, PointCloud
-from datumaro.util import cast
+from datumaro.components.media import Image
 from datumaro.util.image import find_images
-from datumaro.util.meta_file_util import has_meta_file, parse_meta_file
 
-from .format import Kitti3dPath, OcclusionStates, TruncationStates
+from .format import Kitti3dPath
+
+T = TypeVar("T")
 
 
 class Kitti3dBase(SubsetBase):
@@ -33,247 +31,92 @@ class Kitti3dBase(SubsetBase):
         ctx: Optional[ImportContext] = None,
     ):
         assert osp.isfile(path), path
-        self._rootdir = osp.dirname(path)
+        super().__init__(subset=subset, ctx=ctx)
 
-        super().__init__(subset=subset, media_type=PointCloud, ctx=ctx)
+        self._path = path
+        self._categories = {AnnotationType.label: LabelCategories()}
+        self._items = self._load()
 
-        items, categories = self._parse(path)
-        self._categories = categories
-        self._items = list(self._load_items(items).values())
+    def _load(self) -> List[DatasetItem]:
+        items = []
+        image_dir = osp.join(self._path, Kitti3dPath.IMAGE_DIR)
+        image_path_by_id = {
+            osp.splitext(osp.relpath(p, image_dir))[0]: p
+            for p in find_images(image_dir, recursive=True)
+        }
 
-    @classmethod
-    def _parse(cls, path):
-        tracks = []
-        track = None
-        shape = None
-        attr = None
-        labels = {}
-        point_tags = {"tx", "ty", "tz", "rx", "ry", "rz"}
+        ann_dir = osp.join(self._path, Kitti3dPath.LABEL_DIR)
+        label_categories = self._categories[AnnotationType.label]
+        for labels_path in sorted(glob.glob(osp.join(ann_dir, "*.txt"), recursive=True)):
+            item_id = osp.splitext(osp.relpath(labels_path, ann_dir))[0]
+            anns = []
 
-        # Can fail with "XML declaration not well-formed" on documents with
-        # <?xml ... standalone="true"?>
-        #                       ^^^^
-        # (like the original Kitti dataset), while
-        # <?xml ... standalone="yes"?>
-        #                       ^^^
-        # works.
-        tree = ET.iterparse(path, events=("start", "end"))
-        for ev, elem in tree:
-            if ev == "start":
-                if elem.tag == "item":
-                    if track is None:
-                        track = {
-                            "shapes": [],
-                            "scale": {},
-                            "label": None,
-                            "attributes": {},
-                            "start_frame": None,
-                            "length": None,
-                        }
-                    else:
-                        shape = {
-                            "points": {},
-                            "attributes": {},
-                            "occluded": None,
-                            "occluded_kf": False,
-                            "truncated": None,
-                        }
+            with open(labels_path, "r", encoding="utf-8") as f:
+                lines = f.readlines()
 
-                elif elem.tag == "attribute":
-                    attr = {}
+            for line_idx, line in enumerate(lines):
+                line = line.split()
+                assert len(line) == 15 or len(line) == 16
 
-            elif ev == "end":
-                if elem.tag == "item":
-                    assert track is not None
+                label_name = line[0]
+                label_id = label_categories.find(label_name)[0]
+                if label_id is None:
+                    label_id = label_categories.add(label_name)
 
-                    if shape:
-                        track["shapes"].append(shape)
-                        shape = None
-                    else:
-                        assert track["length"] == len(track["shapes"])
+                x1 = self._parse_field(line[4], float, "bbox left-top x")
+                y1 = self._parse_field(line[5], float, "bbox left-top y")
+                x2 = self._parse_field(line[6], float, "bbox right-bottom x")
+                y2 = self._parse_field(line[7], float, "bbox right-bottom y")
 
-                        if track["label"]:
-                            labels.setdefault(track["label"], set())
+                attributes = {}
+                attributes["truncated"] = self._parse_field(line[1], float, "truncated")
+                attributes["occluded"] = self._parse_field(line[2], int, "occluded")
+                attributes["alpha"] = self._parse_field(line[3], float, "alpha")
 
-                            for a in track["attributes"]:
-                                labels[track["label"]].add(a)
+                height_3d = self._parse_field(line[8], float, "height (in meters)")
+                width_3d = self._parse_field(line[9], float, "width (in meters)")
+                length_3d = self._parse_field(line[10], float, "length (in meters)")
 
-                            for s in track["shapes"]:
-                                for a in s["attributes"]:
-                                    labels[track["label"]].add(a)
+                x_3d = self._parse_field(line[11], float, "x (in meters)")
+                y_3d = self._parse_field(line[12], float, "y (in meters)")
+                z_3d = self._parse_field(line[13], float, "z (in meters)")
 
-                        tracks.append(track)
-                        track = None
+                yaw_angle = self._parse_field(line[14], float, "rotation_y")
 
-                # track tags
-                elif track and elem.tag == "objectType":
-                    track["label"] = elem.text
-                elif track and elem.tag in {"h", "w", "l"}:
-                    track["scale"][elem.tag] = float(elem.text)
-                elif track and elem.tag == "first_frame":
-                    track["start_frame"] = int(elem.text)
-                elif track and elem.tag == "count" and track:
-                    track["length"] = int(elem.text)
+                attributes["dimensions"] = [height_3d, width_3d, length_3d]
+                attributes["location"] = [x_3d, y_3d, z_3d]
+                attributes["rotation_y"] = yaw_angle
 
-                # pose tags
-                elif shape and elem.tag in point_tags:
-                    shape["points"][elem.tag] = float(elem.text)
-                elif shape and elem.tag == "occlusion":
-                    shape["occluded"] = OcclusionStates(int(elem.text))
-                elif shape and elem.tag == "occlusion_kf":
-                    shape["occluded_kf"] = elem.text == "1"
-                elif shape and elem.tag == "truncation":
-                    shape["truncated"] = TruncationStates(int(elem.text))
+                if len(line) == 16:
+                    attributes["score"] = self._parse_field(line[15], float, "score")
 
-                # common tags
-                elif attr is not None and elem.tag == "name":
-                    if not elem.text:
-                        raise InvalidAnnotationError("Attribute name can't be empty")
-                    attr["name"] = elem.text
-                elif attr is not None and elem.tag == "value":
-                    attr["value"] = elem.text or ""
-                elif attr is not None and elem.tag == "attribute":
-                    if shape:
-                        shape["attributes"][attr["name"]] = attr["value"]
-                    else:
-                        track["attributes"][attr["name"]] = attr["value"]
-                    attr = None
+                anns.append(
+                    Bbox(
+                        x=x1,
+                        y=y1,
+                        w=x2 - x1,
+                        h=y2 - y1,
+                        id=line_idx,
+                        attributes=attributes,
+                        label=label_id,
+                    )
+                )
+                self._ann_types.add(AnnotationType.bbox)
 
-        if track is not None or shape is not None or attr is not None:
-            raise InvalidAnnotationError("Failed to parse annotations from '%s'" % path)
+            image = image_path_by_id.pop(item_id, None)
+            if image:
+                image = Image.from_file(path=image)
 
-        special_attrs = Kitti3dPath.SPECIAL_ATTRS
-        common_attrs = ["occluded"]
-
-        if has_meta_file(path):
-            categories = {
-                AnnotationType.label: LabelCategories.from_iterable(parse_meta_file(path).keys())
-            }
-        else:
-            label_cat = LabelCategories(attributes=common_attrs)
-            for label, attrs in sorted(labels.items(), key=lambda e: e[0]):
-                label_cat.add(label, attributes=set(attrs) - special_attrs)
-
-            categories = {AnnotationType.label: label_cat}
-
-        items = {}
-        for idx, track in enumerate(tracks):
-            track_id = idx + 1
-            for i, ann in enumerate(cls._parse_track(track_id, track, categories)):
-                frame_desc = items.setdefault(track["start_frame"] + i, {"annotations": []})
-                frame_desc["annotations"].append(ann)
-
-        return items, categories
-
-    @classmethod
-    def _parse_attr(cls, value):
-        if value == "true":
-            return True
-        elif value == "false":
-            return False
-        elif str(cast(value, int, 0)) == value:
-            return int(value)
-        elif str(cast(value, float, 0)) == value:
-            return float(value)
-        else:
-            return value
-
-    @classmethod
-    def _parse_track(cls, track_id, track, categories):
-        common_attrs = {k: cls._parse_attr(v) for k, v in track["attributes"].items()}
-        scale = [track["scale"][k] for k in ["w", "h", "l"]]
-        label = categories[AnnotationType.label].find(track["label"])[0]
-
-        kf_occluded = False
-        for shape in track["shapes"]:
-            occluded = shape["occluded"] in {OcclusionStates.FULLY, OcclusionStates.PARTLY}
-            if shape["occluded_kf"]:
-                kf_occluded = occluded
-            elif shape["occluded"] == OcclusionStates.OCCLUSION_UNSET:
-                occluded = kf_occluded
-
-            if shape["truncated"] in {TruncationStates.OUT_IMAGE, TruncationStates.BEHIND_IMAGE}:
-                # skip these frames
-                continue
-
-            local_attrs = {k: cls._parse_attr(v) for k, v in shape["attributes"].items()}
-            local_attrs["occluded"] = occluded
-            local_attrs["track_id"] = track_id
-            attrs = dict(common_attrs)
-            attrs.update(local_attrs)
-
-            position = [shape["points"][k] for k in ["tx", "ty", "tz"]]
-            rotation = [shape["points"][k] for k in ["rx", "ry", "rz"]]
-
-            yield Cuboid3d(position, rotation, scale, label=label, attributes=attrs)
-
-    @staticmethod
-    def _parse_name_mapping(path):
-        rootdir = osp.dirname(path)
-
-        name_mapping = {}
-        if osp.isfile(path):
-            with open(path, encoding="utf-8") as f:
-                for line in f:
-                    line = line.strip()
-                    if not line or line.startswith("#"):
-                        continue
-
-                    idx, path = line.split(maxsplit=1)
-                    path = osp.abspath(osp.join(rootdir, path))
-                    assert path.startswith(rootdir), path
-                    path = osp.relpath(path, rootdir)
-                    name_mapping[int(idx)] = path
-
-        return name_mapping
-
-    def _load_items(self, parsed):
-        images = {}
-        for d in os.listdir(self._rootdir):
-            image_dir = osp.join(self._rootdir, d, "data")
-            if not (d.lower().startswith(Kitti3dPath.IMG_DIR_PREFIX) and osp.isdir(image_dir)):
-                continue
-
-            for p in find_images(image_dir, recursive=True):
-                image_name = osp.splitext(osp.relpath(p, image_dir))[0]
-                images.setdefault(image_name, []).append(p)
-
-        name_mapping = self._parse_name_mapping(
-            osp.join(self._rootdir, Kitti3dPath.NAME_MAPPING_FILE)
-        )
-
-        items = {}
-        for frame_id, item_desc in parsed.items():
-            name = name_mapping.get(frame_id, "%010d" % int(frame_id))
-            items[frame_id] = DatasetItem(
-                id=name,
-                subset=self._subset,
-                media=PointCloud.from_file(
-                    path=osp.join(self._rootdir, Kitti3dPath.PCD_DIR, name + ".pcd"),
-                    extra_images=[
-                        Image.from_file(path=image) for image in sorted(images.get(name, []))
-                    ],
-                ),
-                annotations=item_desc.get("annotations"),
-                attributes={"frame": int(frame_id)},
-            )
-            for ann in item_desc.get("annotations"):
-                self._ann_types.add(ann.type)
-
-        for frame_id, name in name_mapping.items():
-            if frame_id in items:
-                continue
-
-            items[frame_id] = DatasetItem(
-                id=name,
-                subset=self._subset,
-                media=PointCloud.from_file(
-                    path=osp.join(self._rootdir, Kitti3dPath.PCD_DIR, name + ".pcd"),
-                    extra_images=[
-                        Image.from_file(path=image) for image in sorted(images.get(name, []))
-                    ],
-                ),
-                attributes={"frame": int(frame_id)},
+            items.append(
+                DatasetItem(id=item_id, annotations=anns, media=image, subset=self._subset)
             )
 
         return items
+
+    def _parse_field(self, value: str, desired_type: Type[T], field_name: str) -> T:
+        try:
+            return desired_type(value)
+        except Exception as e:
+            raise InvalidAnnotationError(
+                f"Can't parse {field_name} from '{value}'. Expected {desired_type}"
+            ) from e

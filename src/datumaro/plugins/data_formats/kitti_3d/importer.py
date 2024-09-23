@@ -8,7 +8,7 @@ from datumaro.components.errors import DatasetImportError
 from datumaro.components.format_detection import FormatDetectionConfidence, FormatDetectionContext
 from datumaro.components.importer import Importer
 
-from .format import Kitti3DPath
+from .format import Kitti3dPath
 
 
 class Kitti3dImporter(Importer):
@@ -18,7 +18,7 @@ class Kitti3dImporter(Importer):
     def detect(cls, context: FormatDetectionContext) -> FormatDetectionConfidence:
         with context.require_any():
             with context.alternative():
-                cls._check_ann_file(context.require_file(f"{Kitti3DPath.LABEL_DIR}/*.txt"), context)
+                cls._check_ann_file(context.require_file(f"{Kitti3dPath.LABEL_DIR}/*.txt"), context)
 
         return FormatDetectionConfidence.MEDIUM
 
