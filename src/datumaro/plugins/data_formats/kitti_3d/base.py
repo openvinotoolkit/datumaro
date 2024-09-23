@@ -20,9 +20,7 @@ T = TypeVar("T")
 
 
 class Kitti3dBase(SubsetBase):
-    # http://www.cvlibs.net/datasets/kitti/raw_data.php
-    # https://s3.eu-central-1.amazonaws.com/avg-kitti/devkit_raw_data.zip
-    # Check cpp header implementation for field meaning
+    # https://www.cvlibs.net/datasets/kitti/eval_object.php?obj_benchmark=3d
 
     def __init__(
         self,
