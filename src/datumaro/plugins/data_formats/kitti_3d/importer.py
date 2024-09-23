@@ -39,3 +39,7 @@ class Kitti3dImporter(Importer):
     @classmethod
     def get_file_extensions(cls) -> List[str]:
         return [cls._ANNO_EXT]
+
+    @classmethod
+    def find_sources(cls, path):
+        return [{"url": path, "format": "kitti3d"}]

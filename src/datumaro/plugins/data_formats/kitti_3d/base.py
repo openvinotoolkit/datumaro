@@ -30,14 +30,14 @@ class Kitti3dBase(SubsetBase):
         subset: Optional[str] = None,
         ctx: Optional[ImportContext] = None,
     ):
-        assert osp.isfile(path), path
+        assert osp.isdir(path), path
         super().__init__(subset=subset, ctx=ctx)
 
         self._path = path
         self._categories = {AnnotationType.label: LabelCategories()}
-        self._items = self._load()
+        self._items = self._load_items()
 
-    def _load(self) -> List[DatasetItem]:
+    def _load_items(self) -> List[DatasetItem]:
         items = []
         image_dir = osp.join(self._path, Kitti3dPath.IMAGE_DIR)
         image_path_by_id = {
