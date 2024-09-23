@@ -1769,7 +1769,7 @@ class AstypeAnnotations(ItemTransform):
     learning tasks.|n
     |n
     Examples:|n
-        - Convert the type of a `title` annotation:|n
+        - Converts the type of a `title` annotation:|n
 
         .. code-block::
 

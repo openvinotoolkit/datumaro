@@ -101,8 +101,8 @@ Basic dataset item manipulations:
 - [`remove_images`](#remove_images) - Removes specific images
 - [`remove_annotations`](#remove_annotations) - Removes annotations
 - [`remove_attributes`](#remove_attributes) - Removes attributes
-- [`astype_annotations`](#astype_annotations) - Convert annotation type
-- [`pseudo_labeling`](#pseudo_labeling) - Generate pseudo labels for unlabeled data
+- [`astype_annotations`](#astype_annotations) - Transforms annotation types
+- [`pseudo_labeling`](#pseudo_labeling) - Generates pseudo labels for unlabeled data
 - [`correct`](#correct) - Corrects annotaiton types
 - [`clean`](#clean) - Removes noisy data for tabular dataset
 
