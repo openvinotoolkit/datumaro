@@ -1,0 +1,7 @@
+image_name,dog,cat,person
+1.jpg,1,0,0
+2.jpg,0,1,0
+3.jpg,0,0,1
+4.jpg,1,1,0
+5.jpg,1,0,1
+6.jpg,0,1,1
