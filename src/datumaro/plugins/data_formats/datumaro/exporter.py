@@ -38,6 +38,7 @@ from datumaro.components.annotation import (
 from datumaro.components.crypter import NULL_CRYPTER
 from datumaro.components.dataset_base import DatasetItem
 from datumaro.components.dataset_item_storage import ItemStatus
+from datumaro.components.errors import PathSeparatorInSubsetNameError
 from datumaro.components.exporter import ExportContextComponent, Exporter
 from datumaro.components.media import Image, MediaElement, PointCloud, Video, VideoFrame
 from datumaro.util import cast, dump_json_file
@@ -514,13 +515,16 @@ class DatumaroExporter(Exporter):
             default_image_ext=self._default_image_ext,
         )
 
+        if os.path.sep in subset:
+            raise PathSeparatorInSubsetNameError(subset)
+
         return (
             _SubsetWriter(
                 context=self,
                 subset=subset,
                 ann_file=osp.join(
                     self._annotations_dir,
-                    subset.replace(os.sep, "_") + self.PATH_CLS.ANNOTATION_EXT,
+                    subset + self.PATH_CLS.ANNOTATION_EXT,
                 ),
                 export_context=export_context,
             )
@@ -530,7 +534,7 @@ class DatumaroExporter(Exporter):
                 subset=subset,
                 ann_file=osp.join(
                     self._annotations_dir,
-                    subset.replace(os.sep, "_") + self.PATH_CLS.ANNOTATION_EXT,
+                    subset + self.PATH_CLS.ANNOTATION_EXT,
                 ),
                 export_context=export_context,
             )

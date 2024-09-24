@@ -342,6 +342,16 @@ class RepeatedItemError(DatasetError):
         return f"Item {self.item_id} is repeated in the source sequence."
 
 
+@define(auto_exc=False)
+class PathSeparatorInSubsetNameError(DatasetError):
+    subset: str = field()
+
+    def __str__(self):
+        return (
+            f"Failed to export the subset '{self.subset}': subset name contains path separator(s)."
+        )
+
+
 class DatasetQualityError(DatasetError):
     pass
 
