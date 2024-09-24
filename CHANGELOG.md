@@ -13,6 +13,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   (<https://github.com/openvinotoolkit/datumaro/pull/1607>)
 
 ### Bug fixes
+- Fix StreamDataset merging when importing in eager mode
+  (<https://github.com/openvinotoolkit/datumaro/pull/1609>)
 
 ## Q3 2024 Release 1.9.0
 ### New features
