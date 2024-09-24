@@ -73,6 +73,8 @@ A Datumaro dataset directory should have the following structure:
         └── ...
 ```
 
+Note that the subset name shouldn't contain path separators.
+
 If your dataset is not following the above directory structure,
 it cannot detect and import your dataset as the Datumaro format properly.
 
