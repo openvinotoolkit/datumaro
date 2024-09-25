@@ -8,6 +8,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## \[Unreleased\]
 
 ### New features
+- Add PseudoLabeling transform for unlabeled dataset
+  (<https://github.com/openvinotoolkit/datumaro/pull/1594>)
 
 ### Enhancements
 - Raise an appropriate error when exporting a datumaro dataset if its subset name contains path separators.
@@ -15,7 +17,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Bug fixes
 
-## Q3 2024 Release 1.9.0
+## \[Q3 2024 Release 1.9.0\]
 ### New features
 - Add a new CLI command: datum format
   (<https://github.com/openvinotoolkit/datumaro/pull/1570>)
