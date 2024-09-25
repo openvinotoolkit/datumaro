@@ -52,6 +52,7 @@ datumaro.plugins.data\_formats
    datumaro.plugins.data_formats.kaggle
    datumaro.plugins.data_formats.kinetics
    datumaro.plugins.data_formats.kitti
+   datumaro.plugins.data_formats.kitti_3d
    datumaro.plugins.data_formats.kitti_raw
    datumaro.plugins.data_formats.labelme
    datumaro.plugins.data_formats.lfw

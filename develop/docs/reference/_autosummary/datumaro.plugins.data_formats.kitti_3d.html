@@ -8,7 +8,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>datumaro.plugins.data_formats.kitti.importer &#8212; Datumaro 1.9.0 documentation</title>
+    <title>datumaro.plugins.data_formats.kitti_3d &#8212; Datumaro 1.9.0 documentation</title>
   
   
   
@@ -46,11 +46,11 @@
     <script src="../../../_static/copybutton.js?v=f281be69"></script>
     <script src="../../../_static/design-tabs.js?v=f930bc37"></script>
     <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
-    <script>DOCUMENTATION_OPTIONS.pagename = 'docs/reference/_autosummary/datumaro.plugins.data_formats.kitti.importer';</script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'docs/reference/_autosummary/datumaro.plugins.data_formats.kitti_3d';</script>
     <link rel="index" title="Index" href="../../../genindex.html" />
     <link rel="search" title="Search" href="../../../search.html" />
-    <link rel="next" title="datumaro.plugins.data_formats.kitti_3d" href="datumaro.plugins.data_formats.kitti_3d.html" />
-    <link rel="prev" title="datumaro.plugins.data_formats.kitti.format" href="datumaro.plugins.data_formats.kitti.format.html" />
+    <link rel="next" title="datumaro.plugins.data_formats.kitti_3d.base" href="datumaro.plugins.data_formats.kitti_3d.base.html" />
+    <link rel="prev" title="datumaro.plugins.data_formats.kitti.importer" href="datumaro.plugins.data_formats.kitti.importer.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
   </head>
@@ -644,7 +644,7 @@ document.write(`
     <li class="breadcrumb-item"><i class="fa-solid fa-ellipsis"></i></li>
     
     
-    <li class="breadcrumb-item"><a href="datumaro.plugins.data_formats.kitti.html" class="nav-link">datumaro.plugins.data_formats.kitti</a></li>
+    <li class="breadcrumb-item"><a href="datumaro.plugins.data_formats.html" class="nav-link">datumaro.plugins.data_formats</a></li>
     
     <li class="breadcrumb-item active" aria-current="page">datumaro.plu...</li>
   </ul>
@@ -663,80 +663,22 @@ document.write(`
 <div id="searchbox"></div>
                 <article class="bd-article">
                   
-  <section id="module-datumaro.plugins.data_formats.kitti.importer">
-<span id="datumaro-plugins-data-formats-kitti-importer"></span><h1>datumaro.plugins.data_formats.kitti.importer<a class="headerlink" href="#module-datumaro.plugins.data_formats.kitti.importer" title="Link to this heading">#</a></h1>
-<p class="rubric">Classes</p>
+  <section id="module-datumaro.plugins.data_formats.kitti_3d">
+<span id="datumaro-plugins-data-formats-kitti-3d"></span><h1>datumaro.plugins.data_formats.kitti_3d<a class="headerlink" href="#module-datumaro.plugins.data_formats.kitti_3d" title="Link to this heading">#</a></h1>
+<p class="rubric">Modules</p>
 <table class="autosummary longtable table autosummary">
 <tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="#datumaro.plugins.data_formats.kitti.importer.KittiDetectionImporter" title="datumaro.plugins.data_formats.kitti.importer.KittiDetectionImporter"><code class="xref py py-obj docutils literal notranslate"><span class="pre">KittiDetectionImporter</span></code></a>()</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="datumaro.plugins.data_formats.kitti_3d.base.html#module-datumaro.plugins.data_formats.kitti_3d.base" title="datumaro.plugins.data_formats.kitti_3d.base"><code class="xref py py-obj docutils literal notranslate"><span class="pre">datumaro.plugins.data_formats.kitti_3d.base</span></code></a></p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#datumaro.plugins.data_formats.kitti.importer.KittiImporter" title="datumaro.plugins.data_formats.kitti.importer.KittiImporter"><code class="xref py py-obj docutils literal notranslate"><span class="pre">KittiImporter</span></code></a>()</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="datumaro.plugins.data_formats.kitti_3d.format.html#module-datumaro.plugins.data_formats.kitti_3d.format" title="datumaro.plugins.data_formats.kitti_3d.format"><code class="xref py py-obj docutils literal notranslate"><span class="pre">datumaro.plugins.data_formats.kitti_3d.format</span></code></a></p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#datumaro.plugins.data_formats.kitti.importer.KittiSegmentationImporter" title="datumaro.plugins.data_formats.kitti.importer.KittiSegmentationImporter"><code class="xref py py-obj docutils literal notranslate"><span class="pre">KittiSegmentationImporter</span></code></a>()</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="datumaro.plugins.data_formats.kitti_3d.importer.html#module-datumaro.plugins.data_formats.kitti_3d.importer" title="datumaro.plugins.data_formats.kitti_3d.importer"><code class="xref py py-obj docutils literal notranslate"><span class="pre">datumaro.plugins.data_formats.kitti_3d.importer</span></code></a></p></td>
 <td><p></p></td>
 </tr>
 </tbody>
 </table>
-<dl class="py class">
-<dt class="sig sig-object py" id="datumaro.plugins.data_formats.kitti.importer.KittiImporter">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">datumaro.plugins.data_formats.kitti.importer.</span></span><span class="sig-name descname"><span class="pre">KittiImporter</span></span><a class="reference internal" href="../../../_modules/datumaro/plugins/data_formats/kitti/importer.html#KittiImporter"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.plugins.data_formats.kitti.importer.KittiImporter" title="Link to this definition">#</a></dt>
-<dd><p>Bases: <a class="reference internal" href="datumaro.components.importer.html#datumaro.components.importer.Importer" title="datumaro.components.importer.Importer"><code class="xref py py-class docutils literal notranslate"><span class="pre">Importer</span></code></a></p>
-<dl class="py attribute">
-<dt class="sig sig-object py" id="datumaro.plugins.data_formats.kitti.importer.KittiImporter.DETECT_CONFIDENCE">
-<span class="sig-name descname"><span class="pre">DETECT_CONFIDENCE</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">20</span></em><a class="headerlink" href="#datumaro.plugins.data_formats.kitti.importer.KittiImporter.DETECT_CONFIDENCE" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="datumaro.plugins.data_formats.kitti.importer.KittiImporter.find_sources">
-<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">find_sources</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/datumaro/plugins/data_formats/kitti/importer.html#KittiImporter.find_sources"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.plugins.data_formats.kitti.importer.KittiImporter.find_sources" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="datumaro.plugins.data_formats.kitti.importer.KittiImporter.detect">
-<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">detect</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">context</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="datumaro.components.format_detection.html#datumaro.components.format_detection.FormatDetectionContext" title="datumaro.components.format_detection.FormatDetectionContext"><span class="pre">FormatDetectionContext</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="datumaro.components.format_detection.html#datumaro.components.format_detection.FormatDetectionConfidence" title="datumaro.components.format_detection.FormatDetectionConfidence"><span class="pre">FormatDetectionConfidence</span></a></span></span><a class="reference internal" href="../../../_modules/datumaro/plugins/data_formats/kitti/importer.html#KittiImporter.detect"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.plugins.data_formats.kitti.importer.KittiImporter.detect" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="datumaro.plugins.data_formats.kitti.importer.KittiImporter.get_file_extensions">
-<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">get_file_extensions</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.List" title="(in Python v3.12)"><span class="pre">List</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../../_modules/datumaro/plugins/data_formats/kitti/importer.html#KittiImporter.get_file_extensions"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.plugins.data_formats.kitti.importer.KittiImporter.get_file_extensions" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
-
-</dd></dl>
-
-<dl class="py class">
-<dt class="sig sig-object py" id="datumaro.plugins.data_formats.kitti.importer.KittiDetectionImporter">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">datumaro.plugins.data_formats.kitti.importer.</span></span><span class="sig-name descname"><span class="pre">KittiDetectionImporter</span></span><a class="reference internal" href="../../../_modules/datumaro/plugins/data_formats/kitti/importer.html#KittiDetectionImporter"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.plugins.data_formats.kitti.importer.KittiDetectionImporter" title="Link to this definition">#</a></dt>
-<dd><p>Bases: <a class="reference internal" href="#datumaro.plugins.data_formats.kitti.importer.KittiImporter" title="datumaro.plugins.data_formats.kitti.importer.KittiImporter"><code class="xref py py-class docutils literal notranslate"><span class="pre">KittiImporter</span></code></a></p>
-<dl class="py method">
-<dt class="sig sig-object py" id="datumaro.plugins.data_formats.kitti.importer.KittiDetectionImporter.detect">
-<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">detect</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">context</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="datumaro.components.format_detection.html#datumaro.components.format_detection.FormatDetectionContext" title="datumaro.components.format_detection.FormatDetectionContext"><span class="pre">FormatDetectionContext</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="datumaro.components.format_detection.html#datumaro.components.format_detection.FormatDetectionConfidence" title="datumaro.components.format_detection.FormatDetectionConfidence"><span class="pre">FormatDetectionConfidence</span></a></span></span><a class="reference internal" href="../../../_modules/datumaro/plugins/data_formats/kitti/importer.html#KittiDetectionImporter.detect"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.plugins.data_formats.kitti.importer.KittiDetectionImporter.detect" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="datumaro.plugins.data_formats.kitti.importer.KittiDetectionImporter.get_file_extensions">
-<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">get_file_extensions</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.List" title="(in Python v3.12)"><span class="pre">List</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../../_modules/datumaro/plugins/data_formats/kitti/importer.html#KittiDetectionImporter.get_file_extensions"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.plugins.data_formats.kitti.importer.KittiDetectionImporter.get_file_extensions" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
-
-</dd></dl>
-
-<dl class="py class">
-<dt class="sig sig-object py" id="datumaro.plugins.data_formats.kitti.importer.KittiSegmentationImporter">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">datumaro.plugins.data_formats.kitti.importer.</span></span><span class="sig-name descname"><span class="pre">KittiSegmentationImporter</span></span><a class="reference internal" href="../../../_modules/datumaro/plugins/data_formats/kitti/importer.html#KittiSegmentationImporter"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.plugins.data_formats.kitti.importer.KittiSegmentationImporter" title="Link to this definition">#</a></dt>
-<dd><p>Bases: <a class="reference internal" href="#datumaro.plugins.data_formats.kitti.importer.KittiImporter" title="datumaro.plugins.data_formats.kitti.importer.KittiImporter"><code class="xref py py-class docutils literal notranslate"><span class="pre">KittiImporter</span></code></a></p>
-<dl class="py method">
-<dt class="sig sig-object py" id="datumaro.plugins.data_formats.kitti.importer.KittiSegmentationImporter.detect">
-<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">detect</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">context</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="datumaro.components.format_detection.html#datumaro.components.format_detection.FormatDetectionContext" title="datumaro.components.format_detection.FormatDetectionContext"><span class="pre">FormatDetectionContext</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="datumaro.components.format_detection.html#datumaro.components.format_detection.FormatDetectionConfidence" title="datumaro.components.format_detection.FormatDetectionConfidence"><span class="pre">FormatDetectionConfidence</span></a></span></span><a class="reference internal" href="../../../_modules/datumaro/plugins/data_formats/kitti/importer.html#KittiSegmentationImporter.detect"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.plugins.data_formats.kitti.importer.KittiSegmentationImporter.detect" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="datumaro.plugins.data_formats.kitti.importer.KittiSegmentationImporter.get_file_extensions">
-<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">get_file_extensions</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.List" title="(in Python v3.12)"><span class="pre">List</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../../_modules/datumaro/plugins/data_formats/kitti/importer.html#KittiSegmentationImporter.get_file_extensions"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.plugins.data_formats.kitti.importer.KittiSegmentationImporter.get_file_extensions" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
-
-</dd></dl>
-
 </section>
 
 
@@ -750,20 +692,20 @@ document.write(`
                   
 <div class="prev-next-area">
     <a class="left-prev"
-       href="datumaro.plugins.data_formats.kitti.format.html"
+       href="datumaro.plugins.data_formats.kitti.importer.html"
        title="previous page">
       <i class="fa-solid fa-angle-left"></i>
       <div class="prev-next-info">
         <p class="prev-next-subtitle">previous</p>
-        <p class="prev-next-title">datumaro.plugins.data_formats.kitti.format</p>
+        <p class="prev-next-title">datumaro.plugins.data_formats.kitti.importer</p>
       </div>
     </a>
     <a class="right-next"
-       href="datumaro.plugins.data_formats.kitti_3d.html"
+       href="datumaro.plugins.data_formats.kitti_3d.base.html"
        title="next page">
       <div class="prev-next-info">
         <p class="prev-next-subtitle">next</p>
-        <p class="prev-next-title">datumaro.plugins.data_formats.kitti_3d</p>
+        <p class="prev-next-title">datumaro.plugins.data_formats.kitti_3d.base</p>
       </div>
       <i class="fa-solid fa-angle-right"></i>
     </a>
@@ -778,37 +720,9 @@ document.write(`
 
 
   <div class="sidebar-secondary-item">
-<div
-    id="pst-page-navigation-heading-2"
-    class="page-toc tocsection onthispage">
-    <i class="fa-solid fa-list"></i> On this page
-  </div>
-  <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
-    <ul class="visible nav section-nav flex-column">
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.plugins.data_formats.kitti.importer.KittiImporter"><code class="docutils literal notranslate"><span class="pre">KittiImporter</span></code></a><ul class="nav section-nav flex-column">
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.plugins.data_formats.kitti.importer.KittiImporter.DETECT_CONFIDENCE"><code class="docutils literal notranslate"><span class="pre">KittiImporter.DETECT_CONFIDENCE</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.plugins.data_formats.kitti.importer.KittiImporter.find_sources"><code class="docutils literal notranslate"><span class="pre">KittiImporter.find_sources()</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.plugins.data_formats.kitti.importer.KittiImporter.detect"><code class="docutils literal notranslate"><span class="pre">KittiImporter.detect()</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.plugins.data_formats.kitti.importer.KittiImporter.get_file_extensions"><code class="docutils literal notranslate"><span class="pre">KittiImporter.get_file_extensions()</span></code></a></li>
-</ul>
-</li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.plugins.data_formats.kitti.importer.KittiDetectionImporter"><code class="docutils literal notranslate"><span class="pre">KittiDetectionImporter</span></code></a><ul class="nav section-nav flex-column">
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.plugins.data_formats.kitti.importer.KittiDetectionImporter.detect"><code class="docutils literal notranslate"><span class="pre">KittiDetectionImporter.detect()</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.plugins.data_formats.kitti.importer.KittiDetectionImporter.get_file_extensions"><code class="docutils literal notranslate"><span class="pre">KittiDetectionImporter.get_file_extensions()</span></code></a></li>
-</ul>
-</li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.plugins.data_formats.kitti.importer.KittiSegmentationImporter"><code class="docutils literal notranslate"><span class="pre">KittiSegmentationImporter</span></code></a><ul class="nav section-nav flex-column">
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.plugins.data_formats.kitti.importer.KittiSegmentationImporter.detect"><code class="docutils literal notranslate"><span class="pre">KittiSegmentationImporter.detect()</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.plugins.data_formats.kitti.importer.KittiSegmentationImporter.get_file_extensions"><code class="docutils literal notranslate"><span class="pre">KittiSegmentationImporter.get_file_extensions()</span></code></a></li>
-</ul>
-</li>
-</ul>
-  </nav></div>
-
-  <div class="sidebar-secondary-item">
 
   <div class="tocsection sourcelink">
-    <a href="../../../_sources/docs/reference/_autosummary/datumaro.plugins.data_formats.kitti.importer.rst.txt">
+    <a href="../../../_sources/docs/reference/_autosummary/datumaro.plugins.data_formats.kitti_3d.rst.txt">
       <i class="fa-solid fa-file-lines"></i> Show Source
     </a>
   </div>
