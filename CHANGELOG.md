@@ -8,6 +8,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## \[Unreleased\]
 
 ### New features
+- Support KITTI 3D format
+  (<https://github.com/openvinotoolkit/datumaro/pull/1619>)
 - Add PseudoLabeling transform for unlabeled dataset
   (<https://github.com/openvinotoolkit/datumaro/pull/1594>)
 
