@@ -1899,9 +1899,21 @@ document.write(`
 <a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.plugins.transforms.html#datumaro.plugins.transforms.Correct">[docs]</a>
 <span class="k">class</span> <span class="nc">Correct</span><span class="p">(</span><span class="n">Transform</span><span class="p">,</span> <span class="n">CliPlugin</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Correct the dataset from a validation report.</span>
-<span class="sd">    A user can should feed into validation_reports.json from validator to correct the dataset.</span>
-<span class="sd">    This helps to refine the dataset by rejecting undefined labels, missing annotations, and outliers.</span>
+<span class="sd">    This class provides functionality to correct and refine a dataset based on a validation report.|n</span>
+<span class="sd">    It processes a validation report (typically in JSON format) to identify and rectify various |n</span>
+<span class="sd">    dataset issues, such as undefined labels, missing annotations, outliers, empty labels/captions,|n</span>
+<span class="sd">    and unnecessary characters in captions. The correction process includes:|n</span>
+<span class="sd">    |n</span>
+<span class="sd">    - Adding missing labels and attributes.|n</span>
+<span class="sd">    - Removing or adjusting annotations with invalid or anomalous values.|n</span>
+<span class="sd">    - Filling in missing labels and captions with appropriate values.|n</span>
+<span class="sd">    - Removing unnecessary characters from text-based annotations like captions.|n</span>
+<span class="sd">    - Handling outliers by capping values within specified bounds.|n</span>
+<span class="sd">    - Updating dataset categories and annotations according to the corrections.|n</span>
+<span class="sd">    |n</span>
+<span class="sd">    The class is designed to be used as part of a command-line interface (CLI) and can be |n</span>
+<span class="sd">    configured with different validation reports. It integrates with the dataset extraction |n</span>
+<span class="sd">    process, ensuring that corrections are applied consistently across the dataset.|n</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
 <div class="viewcode-block" id="Correct.build_cmdline_parser">
@@ -2327,13 +2339,15 @@ document.write(`
 <a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.plugins.transforms.html#datumaro.plugins.transforms.AstypeAnnotations">[docs]</a>
 <span class="k">class</span> <span class="nc">AstypeAnnotations</span><span class="p">(</span><span class="n">ItemTransform</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Enables the conversion of annotation types for the categories and individual items within a dataset.|n</span>
+<span class="sd">    Converts the types of annotations within a dataset based on a specified mapping.|n</span>
 <span class="sd">    |n</span>
-<span class="sd">    Based on a specified mapping, it transforms the annotation types,|n</span>
-<span class="sd">    changing them to &#39;Label&#39; if they are categorical, and to &#39;Caption&#39; if they are of type string, float, or integer.|n</span>
+<span class="sd">    This transform changes annotations to &#39;Label&#39; if they are categorical, and to &#39;Caption&#39;</span>
+<span class="sd">    if they are of type string, float, or integer. This is particularly useful when working</span>
+<span class="sd">    with tabular data that needs to be converted into a format suitable for specific machine</span>
+<span class="sd">    learning tasks.|n</span>
 <span class="sd">    |n</span>
 <span class="sd">    Examples:|n</span>
-<span class="sd">        - Convert type of `title` annotation|n</span>
+<span class="sd">        - Converts the type of a `title` annotation:|n</span>
 
 <span class="sd">        .. code-block::</span>
 

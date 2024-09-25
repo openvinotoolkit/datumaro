@@ -672,7 +672,7 @@ document.write(`
 <td><p>Collects all labels from annotations (of all types) and transforms them into a set of annotations of type Label</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#datumaro.plugins.transforms.AstypeAnnotations" title="datumaro.plugins.transforms.AstypeAnnotations"><code class="xref py py-obj docutils literal notranslate"><span class="pre">AstypeAnnotations</span></code></a>(extractor[, mapping])</p></td>
-<td><p>Enables the conversion of annotation types for the categories and individual items within a dataset.</p></td>
+<td><p>Converts the types of annotations within a dataset based on a specified mapping.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#datumaro.plugins.transforms.BboxValuesDecrement" title="datumaro.plugins.transforms.BboxValuesDecrement"><code class="xref py py-obj docutils literal notranslate"><span class="pre">BboxValuesDecrement</span></code></a>(extractor)</p></td>
 <td><p>Subtracts one from the coordinates of bounding boxes</p></td>
@@ -687,7 +687,7 @@ document.write(`
 <td><p>A class used to refine the media items in a dataset.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#datumaro.plugins.transforms.Correct" title="datumaro.plugins.transforms.Correct"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Correct</span></code></a>(extractor, reports)</p></td>
-<td><p>Correct the dataset from a validation report.</p></td>
+<td><p>This class provides functionality to correct and refine a dataset based on a validation report.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#datumaro.plugins.transforms.CropCoveredSegments" title="datumaro.plugins.transforms.CropCoveredSegments"><code class="xref py py-obj docutils literal notranslate"><span class="pre">CropCoveredSegments</span></code></a>(extractor)</p></td>
 <td><p>Sorts polygons and masks (&quot;segments&quot;) according to <cite>z_order</cite>, crops covered areas of underlying segments.</p></td>
@@ -1359,9 +1359,26 @@ unexpected problems. Use wrap_item() or item.wrap() to simplify copying.</p>
 <dt class="sig sig-object py" id="datumaro.plugins.transforms.Correct">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">datumaro.plugins.transforms.</span></span><span class="sig-name descname"><span class="pre">Correct</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">extractor</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="datumaro.components.dataset_base.html#datumaro.components.dataset_base.IDataset" title="datumaro.components.dataset_base.IDataset"><span class="pre">IDataset</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">reports</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><span class="pre">str</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Dict" title="(in Python v3.12)"><span class="pre">Dict</span></a></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/datumaro/plugins/transforms.html#Correct"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.plugins.transforms.Correct" title="Link to this definition">#</a></dt>
 <dd><p>Bases: <a class="reference internal" href="datumaro.components.transformer.html#datumaro.components.transformer.Transform" title="datumaro.components.transformer.Transform"><code class="xref py py-class docutils literal notranslate"><span class="pre">Transform</span></code></a>, <a class="reference internal" href="datumaro.components.cli_plugin.html#datumaro.components.cli_plugin.CliPlugin" title="datumaro.components.cli_plugin.CliPlugin"><code class="xref py py-class docutils literal notranslate"><span class="pre">CliPlugin</span></code></a></p>
-<p>Correct the dataset from a validation report.
-A user can should feed into validation_reports.json from validator to correct the dataset.
-This helps to refine the dataset by rejecting undefined labels, missing annotations, and outliers.</p>
+<p>This class provides functionality to correct and refine a dataset based on a validation report.
+
+It processes a validation report (typically in JSON format) to identify and rectify various 
+
+dataset issues, such as undefined labels, missing annotations, outliers, empty labels/captions,
+
+and unnecessary characters in captions. The correction process includes:</p>
+<ul class="simple">
+<li><p>Adding missing labels and attributes.</p></li>
+<li><p>Removing or adjusting annotations with invalid or anomalous values.</p></li>
+<li><p>Filling in missing labels and captions with appropriate values.</p></li>
+<li><p>Removing unnecessary characters from text-based annotations like captions.</p></li>
+<li><p>Handling outliers by capping values within specified bounds.</p></li>
+<li><p>Updating dataset categories and annotations according to the corrections.</p></li>
+</ul>
+<p>The class is designed to be used as part of a command-line interface (CLI) and can be 
+
+configured with different validation reports. It integrates with the dataset extraction 
+
+process, ensuring that corrections are applied consistently across the dataset.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="datumaro.plugins.transforms.Correct.build_cmdline_parser">
 <em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">build_cmdline_parser</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/datumaro/plugins/transforms.html#Correct.build_cmdline_parser"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.plugins.transforms.Correct.build_cmdline_parser" title="Link to this definition">#</a></dt>
@@ -1414,14 +1431,15 @@ This helps to refine the dataset by rejecting undefined labels, missing annotati
 <dt class="sig sig-object py" id="datumaro.plugins.transforms.AstypeAnnotations">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">datumaro.plugins.transforms.</span></span><span class="sig-name descname"><span class="pre">AstypeAnnotations</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">extractor</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="datumaro.components.dataset_base.html#datumaro.components.dataset_base.IDataset" title="datumaro.components.dataset_base.IDataset"><span class="pre">IDataset</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">mapping</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Dict" title="(in Python v3.12)"><span class="pre">Dict</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.List" title="(in Python v3.12)"><span class="pre">List</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Tuple" title="(in Python v3.12)"><span class="pre">Tuple</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.12)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/datumaro/plugins/transforms.html#AstypeAnnotations"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.plugins.transforms.AstypeAnnotations" title="Link to this definition">#</a></dt>
 <dd><p>Bases: <a class="reference internal" href="datumaro.components.transformer.html#datumaro.components.transformer.ItemTransform" title="datumaro.components.transformer.ItemTransform"><code class="xref py py-class docutils literal notranslate"><span class="pre">ItemTransform</span></code></a></p>
-<p>Enables the conversion of annotation types for the categories and individual items within a dataset.</p>
-<p>Based on a specified mapping, it transforms the annotation types,
-
-changing them to ‘Label’ if they are categorical, and to ‘Caption’ if they are of type string, float, or integer.</p>
+<p>Converts the types of annotations within a dataset based on a specified mapping.</p>
+<p>This transform changes annotations to ‘Label’ if they are categorical, and to ‘Caption’
+if they are of type string, float, or integer. This is particularly useful when working
+with tabular data that needs to be converted into a format suitable for specific machine
+learning tasks.</p>
 <dl>
 <dt>Examples:
 </dt><dd><ul class="simple">
-<li><p>Convert type of <cite>title</cite> annotation</p></li>
+<li><p>Converts the type of a <cite>title</cite> annotation:</p></li>
 </ul>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">astype_annotations</span> <span class="o">--</span><span class="n">mapping</span> <span class="s1">&#39;title:text&#39;</span>
 </pre></div>

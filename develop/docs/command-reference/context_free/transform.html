@@ -756,8 +756,10 @@ k images with annotations per class</p></li>
 <li><p>remove_images - Removes specific images</p></li>
 <li><p>remove_annotations - Removes annotations</p></li>
 <li><p>remove_attributes - Removes attributes</p></li>
-<li><p>astype_annotations - Convert annotation type</p></li>
-<li><p>pseudo_labeling - Generate pseudo labels for unlabeled data</p></li>
+<li><p>astype_annotations - Transforms annotation types</p></li>
+<li><p>pseudo_labeling - Generates pseudo labels for unlabeled data</p></li>
+<li><p><a class="reference internal" href="#correct"><span class="std std-ref">correct</span></a> - Corrects annotaiton types</p></li>
+<li><p><a class="reference internal" href="#clean"><span class="std std-ref">clean</span></a> - Removes noisy data for tabular dataset</p></li>
 </ul>
 <p>Subset manipulations:</p>
 <ul class="simple">
@@ -1518,19 +1520,6 @@ the corresponding number of separate annotations joined into a group.</p>
 <li><p><code class="docutils literal notranslate"><span class="pre">-h</span></code>, <code class="docutils literal notranslate"><span class="pre">--help</span></code> (flag) - Show this help message and exit</p></li>
 </ul>
 </section>
-<section id="correct">
-<h4><code class="docutils literal notranslate"><span class="pre">correct</span></code><a class="headerlink" href="#correct" title="Link to this heading">#</a></h4>
-<p>Correct the dataset from a validation report</p>
-<p>Usage:</p>
-<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">correct [-h] [-r REPORT_PATH]</span>
-</pre></div>
-</div>
-<p>Optional arguments:</p>
-<ul class="simple">
-<li><p><code class="docutils literal notranslate"><span class="pre">-h</span></code>, <code class="docutils literal notranslate"><span class="pre">--help</span></code> (flag) - Show this help message and exit</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">-r</span></code>, <code class="docutils literal notranslate"><span class="pre">--reports</span></code> (str) - A validation report from a ‘validate’ CLI (default=validation_reports.json)</p></li>
-</ul>
-</section>
 <section id="pseudo-labeling">
 <h4><code class="docutils literal notranslate"><span class="pre">pseudo_labeling</span></code><a class="headerlink" href="#pseudo-labeling" title="Link to this heading">#</a></h4>
 <p>Assigns pseudo-labels to items in a dataset based on their similarity to predefined labels. This class is useful for semi-supervised learning when dealing with missing or uncertain labels.</p>
@@ -1547,17 +1536,52 @@ the corresponding number of separate annotations joined into a group.</p>
 </ul>
 <p>Usage:</p>
 <div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">pseudo_labeling [-h] [--labels LABELS]</span>
+
+<span class="go">Optional arguments:</span>
+<span class="go">- `-h`, `--help` (flag) - Show this help message and exit</span>
+<span class="go">- `--labels` (str) - Comma-separated list of label names for pseudo-labeling</span>
+
+<span class="go">Examples:</span>
+<span class="go">- Assign pseudo-labels based on predefined labels</span>
+<span class="go">  ```console</span>
+<span class="go">  datum transform -t pseudo_labeling -- --labels &#39;label1,label2&#39;</span>
+</pre></div>
+</div>
+</section>
+<section id="correct">
+<h4><code class="docutils literal notranslate"><span class="pre">correct</span></code><a class="headerlink" href="#correct" title="Link to this heading">#</a></h4>
+<p>Correct the dataset from a validation report</p>
+<p>Usage:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">correct [-h] [-r REPORT_PATH]</span>
 </pre></div>
 </div>
 <p>Optional arguments:</p>
 <ul class="simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">-h</span></code>, <code class="docutils literal notranslate"><span class="pre">--help</span></code> (flag) - Show this help message and exit</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">--labels</span></code> (str) - Comma-separated list of label names for pseudo-labeling</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">-r</span></code>, <code class="docutils literal notranslate"><span class="pre">--reports</span></code> (str) - A validation report from a ‘validate’ CLI (default=validation_reports.json)</p></li>
+</ul>
+</section>
+<section id="clean">
+<h4><code class="docutils literal notranslate"><span class="pre">clean</span></code><a class="headerlink" href="#clean" title="Link to this heading">#</a></h4>
+<p>Refines and preprocesses media items in a dataset, focusing on string, numeric, and categorical data. This transform is designed to clean and improve the quality of the data, making it more suitable for analysis and modeling.</p>
+<p>The cleaning process includes:</p>
+<ul class="simple">
+<li><p>String Data: Removes unnecessary characters using NLP techniques.</p></li>
+<li><p>Numeric Data: Identifies and handles outliers and missing values.</p></li>
+<li><p>Categorical Data: Cleans and refines categorical information.</p></li>
+</ul>
+<p>Usage:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">clean [-h]</span>
+</pre></div>
+</div>
+<p>Optional arguments:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">-h</span></code>, <code class="docutils literal notranslate"><span class="pre">--help</span></code> (flag) - Show this help message and exit</p></li>
 </ul>
 <p>Examples:</p>
 <ul>
-<li><p>Assign pseudo-labels based on predefined labels</p>
-<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">datum transform -t pseudo_labeling -- --labels &#39;label1,label2&#39;</span>
+<li><p>Clean and preprocess dataset items</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">datum transform -t clean</span>
 </pre></div>
 </div>
 </li>
@@ -1641,8 +1665,9 @@ the corresponding number of separate annotations joined into a group.</p>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#merge-instance-segments"><code class="docutils literal notranslate"><span class="pre">merge_instance_segments</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#crop-covered-segments"><code class="docutils literal notranslate"><span class="pre">crop_covered_segments</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#bbox-value-decrement"><code class="docutils literal notranslate"><span class="pre">bbox_value_decrement</span></code></a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#correct"><code class="docutils literal notranslate"><span class="pre">correct</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#pseudo-labeling"><code class="docutils literal notranslate"><span class="pre">pseudo_labeling</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#correct"><code class="docutils literal notranslate"><span class="pre">correct</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#clean"><code class="docutils literal notranslate"><span class="pre">clean</span></code></a></li>
 </ul>
 </li>
 </ul>
