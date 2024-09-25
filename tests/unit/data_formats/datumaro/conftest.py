@@ -222,6 +222,191 @@ def fxt_test_datumaro_format_dataset():
 
 
 @pytest.fixture
+def fxt_test_datumaro_format_dataset_with_path_separator():
+    label_categories = LabelCategories(attributes={"a", "b", "score"})
+    for i in range(5):
+        label_categories.add("cat" + str(i), attributes={"x", "y"})
+
+    mask_categories = MaskCategories(generate_colormap(len(label_categories.items)))
+
+    points_categories = PointsCategories()
+    for index, _ in enumerate(label_categories.items):
+        points_categories.add(index, ["cat1", "cat2"], joints=[[0, 1]])
+
+    sep = os.path.sep
+    return Dataset.from_iterable(
+        [
+            DatasetItem(
+                id="100/0",
+                subset=f"my{sep}train",
+                media=Image.from_numpy(data=np.ones((10, 6, 3))),
+                annotations=[
+                    Caption("hello", id=1),
+                    Caption("world", id=2, group=5),
+                    Label(
+                        2,
+                        id=3,
+                        attributes={
+                            "x": 1,
+                            "y": "2",
+                        },
+                    ),
+                    Bbox(
+                        1,
+                        2,
+                        3,
+                        4,
+                        label=4,
+                        id=4,
+                        z_order=1,
+                        attributes={
+                            "score": 1.0,
+                        },
+                    ),
+                    Bbox(
+                        5,
+                        6,
+                        7,
+                        8,
+                        id=5,
+                        group=5,
+                        attributes={
+                            "a": 1.5,
+                            "b": "text",
+                        },
+                    ),
+                    Points(
+                        [1, 2, 2, 0, 1, 1],
+                        label=0,
+                        id=5,
+                        z_order=4,
+                        attributes={
+                            "x": 1,
+                            "y": "2",
+                        },
+                    ),
+                    Mask(
+                        label=3,
+                        id=5,
+                        z_order=2,
+                        image=np.ones((2, 3)),
+                        attributes={
+                            "x": 1,
+                            "y": "2",
+                        },
+                    ),
+                    Ellipse(
+                        5,
+                        6,
+                        7,
+                        8,
+                        label=3,
+                        id=5,
+                        z_order=2,
+                        attributes={
+                            "x": 1,
+                            "y": "2",
+                        },
+                    ),
+                    Cuboid2D(
+                        [
+                            (1, 1),
+                            (3, 1),
+                            (3, 3),
+                            (1, 3),
+                            (1.5, 1.5),
+                            (3.5, 1.5),
+                            (3.5, 3.5),
+                            (1.5, 3.5),
+                        ],
+                        label=3,
+                        id=5,
+                        z_order=2,
+                        attributes={
+                            "x": 1,
+                            "y": "2",
+                        },
+                    ),
+                ],
+            ),
+            DatasetItem(
+                id=21,
+                media=Image.from_numpy(data=np.ones((10, 6, 3))),
+                subset="train",
+                annotations=[
+                    Caption("test"),
+                    Label(2),
+                    Bbox(1, 2, 3, 4, label=5, id=42, group=42),
+                ],
+            ),
+            DatasetItem(
+                id=2,
+                media=Image.from_numpy(data=np.ones((10, 6, 3))),
+                subset=f"my{sep}val",
+                annotations=[
+                    PolyLine([1, 2, 3, 4, 5, 6, 7, 8], id=11, z_order=1),
+                    Polygon([1, 2, 3, 4, 5, 6, 7, 8], id=12, z_order=4),
+                ],
+            ),
+            DatasetItem(
+                id="1/1",
+                media=Image.from_numpy(data=np.ones((10, 6, 3))),
+                subset="test",
+                annotations=[
+                    Cuboid3d(
+                        [1.0, 2.0, 3.0],
+                        [2.0, 2.0, 4.0],
+                        [1.0, 3.0, 4.0],
+                        id=6,
+                        label=0,
+                        attributes={"occluded": True},
+                        group=6,
+                    )
+                ],
+            ),
+            DatasetItem(
+                id=42,
+                media=Image.from_numpy(data=np.ones((10, 6, 3))),
+                subset=f"my{sep}test",
+                attributes={"a1": 5, "a2": "42"},
+            ),
+            DatasetItem(
+                id=42,
+                media=Image.from_numpy(data=np.ones((10, 6, 3))),
+                # id and group integer value can be higher than 32bits limits (COCO instances).
+                annotations=[
+                    Mask(
+                        id=900100087038, group=900100087038, image=np.ones((2, 3), dtype=np.uint8)
+                    ),
+                    RleMask(
+                        rle=mask_tools.encode(np.ones((2, 3), dtype=np.uint8, order="F")),
+                        id=900100087038,
+                        group=900100087038,
+                    ),
+                ],
+            ),
+            DatasetItem(
+                id="1/b/c",
+                media=Image.from_file(path="1/b/c.qq", size=(2, 4)),
+            ),
+        ],
+        categories={
+            AnnotationType.label: label_categories,
+            AnnotationType.mask: mask_categories,
+            AnnotationType.points: points_categories,
+        },
+        infos={
+            "string": "test",
+            "int": 0,
+            "float": 0.0,
+            "string_list": ["test0", "test1", "test2"],
+            "int_list": [0, 1, 2],
+            "float_list": [0.0, 0.1, 0.2],
+        },
+    )
+
+
+@pytest.fixture
 def fxt_test_datumaro_format_video_dataset(test_dir) -> Dataset:
     video_path = osp.join(test_dir, "video.avi")
     make_sample_video(video_path, frame_size=(4, 6), frames=4)

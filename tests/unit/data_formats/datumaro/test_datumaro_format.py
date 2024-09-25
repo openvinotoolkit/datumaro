@@ -14,6 +14,7 @@ import pytest
 
 from datumaro.components.dataset_base import DatasetItem
 from datumaro.components.environment import Environment
+from datumaro.components.errors import PathSeparatorInSubsetNameError
 from datumaro.components.importer import DatasetImportError
 from datumaro.components.media import Image
 from datumaro.components.project import Dataset
@@ -154,6 +155,31 @@ class DatumaroFormatTest:
             importer_args=fxt_import_kwargs,
             stream=stream,
         )
+
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
+    @pytest.mark.parametrize("require_media", [True, False])
+    @pytest.mark.parametrize("stream", [True, False])
+    def test_cannot_export_dataset_with_subset_containing_path_separators(
+        self,
+        fxt_test_datumaro_format_dataset_with_path_separator,
+        test_dir,
+        fxt_import_kwargs,
+        fxt_export_kwargs,
+        stream,
+        require_media,
+        helper_tc,
+    ):
+        with pytest.raises(PathSeparatorInSubsetNameError):
+            self._test_save_and_load(
+                helper_tc,
+                fxt_test_datumaro_format_dataset_with_path_separator,
+                partial(self.exporter.convert, save_media=True, stream=stream, **fxt_export_kwargs),
+                test_dir,
+                compare=compare_datasets,
+                require_media=require_media,
+                importer_args=fxt_import_kwargs,
+                stream=stream,
+            )
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_export_video_only_once(
