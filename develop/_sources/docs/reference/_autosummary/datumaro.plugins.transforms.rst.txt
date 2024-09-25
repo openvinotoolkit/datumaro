@@ -32,6 +32,7 @@ datumaro.plugins.transforms
       PolygonsToMasks
       ProjectInfos
       ProjectLabels
+      PseudoLabeling
       RandomSplit
       Reindex
       ReindexAnnotations

@@ -713,37 +713,40 @@ document.write(`
 <tr class="row-odd"><td><p><a class="reference internal" href="#datumaro.plugins.transforms.ProjectLabels" title="datumaro.plugins.transforms.ProjectLabels"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ProjectLabels</span></code></a>(extractor, dst_labels)</p></td>
 <td><p>Changes the order of labels in the dataset from the existing to the desired one, removes unknown labels and adds new labels.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#datumaro.plugins.transforms.RandomSplit" title="datumaro.plugins.transforms.RandomSplit"><code class="xref py py-obj docutils literal notranslate"><span class="pre">RandomSplit</span></code></a>(extractor, splits[, seed])</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#datumaro.plugins.transforms.PseudoLabeling" title="datumaro.plugins.transforms.PseudoLabeling"><code class="xref py py-obj docutils literal notranslate"><span class="pre">PseudoLabeling</span></code></a>(extractor[, labels, explorer])</p></td>
+<td><p>A class used to assign pseudo-labels to items in a dataset based on their similarity to predefined labels.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#datumaro.plugins.transforms.RandomSplit" title="datumaro.plugins.transforms.RandomSplit"><code class="xref py py-obj docutils literal notranslate"><span class="pre">RandomSplit</span></code></a>(extractor, splits[, seed])</p></td>
 <td><p>Joins all subsets into one and splits the result into few parts.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#datumaro.plugins.transforms.Reindex" title="datumaro.plugins.transforms.Reindex"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Reindex</span></code></a>(extractor[, start])</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#datumaro.plugins.transforms.Reindex" title="datumaro.plugins.transforms.Reindex"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Reindex</span></code></a>(extractor[, start])</p></td>
 <td><p>Replaces dataset item IDs with sequential indices.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#datumaro.plugins.transforms.ReindexAnnotations" title="datumaro.plugins.transforms.ReindexAnnotations"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ReindexAnnotations</span></code></a>(extractor[, start, ...])</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#datumaro.plugins.transforms.ReindexAnnotations" title="datumaro.plugins.transforms.ReindexAnnotations"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ReindexAnnotations</span></code></a>(extractor[, start, ...])</p></td>
 <td><p>Replaces dataset items' annotations with sequential indices.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#datumaro.plugins.transforms.RemapLabels" title="datumaro.plugins.transforms.RemapLabels"><code class="xref py py-obj docutils literal notranslate"><span class="pre">RemapLabels</span></code></a>(extractor, mapping[, default])</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#datumaro.plugins.transforms.RemapLabels" title="datumaro.plugins.transforms.RemapLabels"><code class="xref py py-obj docutils literal notranslate"><span class="pre">RemapLabels</span></code></a>(extractor, mapping[, default])</p></td>
 <td><p>Changes labels in the dataset.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#datumaro.plugins.transforms.RemoveAnnotations" title="datumaro.plugins.transforms.RemoveAnnotations"><code class="xref py py-obj docutils literal notranslate"><span class="pre">RemoveAnnotations</span></code></a>(extractor, *, ids)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#datumaro.plugins.transforms.RemoveAnnotations" title="datumaro.plugins.transforms.RemoveAnnotations"><code class="xref py py-obj docutils literal notranslate"><span class="pre">RemoveAnnotations</span></code></a>(extractor, *, ids)</p></td>
 <td><p>Allows to remove annotations on specific dataset items.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#datumaro.plugins.transforms.RemoveAttributes" title="datumaro.plugins.transforms.RemoveAttributes"><code class="xref py py-obj docutils literal notranslate"><span class="pre">RemoveAttributes</span></code></a>(extractor[, ids, attributes])</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#datumaro.plugins.transforms.RemoveAttributes" title="datumaro.plugins.transforms.RemoveAttributes"><code class="xref py py-obj docutils literal notranslate"><span class="pre">RemoveAttributes</span></code></a>(extractor[, ids, attributes])</p></td>
 <td><p>Allows to remove item and annotation attributes in a dataset.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#datumaro.plugins.transforms.RemoveItems" title="datumaro.plugins.transforms.RemoveItems"><code class="xref py py-obj docutils literal notranslate"><span class="pre">RemoveItems</span></code></a>(extractor, ids)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#datumaro.plugins.transforms.RemoveItems" title="datumaro.plugins.transforms.RemoveItems"><code class="xref py py-obj docutils literal notranslate"><span class="pre">RemoveItems</span></code></a>(extractor, ids)</p></td>
 <td><p>Allows to remove specific dataset items from dataset by their ids.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#datumaro.plugins.transforms.Rename" title="datumaro.plugins.transforms.Rename"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Rename</span></code></a>(extractor, regex)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#datumaro.plugins.transforms.Rename" title="datumaro.plugins.transforms.Rename"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Rename</span></code></a>(extractor, regex)</p></td>
 <td><p>Renames items in the dataset.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#datumaro.plugins.transforms.ResizeTransform" title="datumaro.plugins.transforms.ResizeTransform"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ResizeTransform</span></code></a>(extractor, width, height)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#datumaro.plugins.transforms.ResizeTransform" title="datumaro.plugins.transforms.ResizeTransform"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ResizeTransform</span></code></a>(extractor, width, height)</p></td>
 <td><p>Resizes images and annotations in the dataset to the specified size.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#datumaro.plugins.transforms.ShapesToBoxes" title="datumaro.plugins.transforms.ShapesToBoxes"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ShapesToBoxes</span></code></a>(extractor)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#datumaro.plugins.transforms.ShapesToBoxes" title="datumaro.plugins.transforms.ShapesToBoxes"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ShapesToBoxes</span></code></a>(extractor)</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#datumaro.plugins.transforms.Sort" title="datumaro.plugins.transforms.Sort"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Sort</span></code></a>(extractor[, key])</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#datumaro.plugins.transforms.Sort" title="datumaro.plugins.transforms.Sort"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Sort</span></code></a>(extractor[, key])</p></td>
 <td><p>Sorts dataset items.</p></td>
 </tr>
 </tbody>
@@ -1508,6 +1511,52 @@ unexpected problems. Use wrap_item() or item.wrap() to simplify copying.</p>
 
 </dd></dl>
 
+<dl class="py class">
+<dt class="sig sig-object py" id="datumaro.plugins.transforms.PseudoLabeling">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">datumaro.plugins.transforms.</span></span><span class="sig-name descname"><span class="pre">PseudoLabeling</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">extractor</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="datumaro.components.dataset_base.html#datumaro.components.dataset_base.IDataset" title="datumaro.components.dataset_base.IDataset"><span class="pre">IDataset</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">labels</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.List" title="(in Python v3.12)"><span class="pre">List</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.12)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">explorer</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="datumaro.components.algorithms.hash_key_inference.explorer.html#datumaro.components.algorithms.hash_key_inference.explorer.Explorer" title="datumaro.components.algorithms.hash_key_inference.explorer.Explorer"><span class="pre">Explorer</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.12)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/datumaro/plugins/transforms.html#PseudoLabeling"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.plugins.transforms.PseudoLabeling" title="Link to this definition">#</a></dt>
+<dd><p>Bases: <a class="reference internal" href="datumaro.components.transformer.html#datumaro.components.transformer.ItemTransform" title="datumaro.components.transformer.ItemTransform"><code class="xref py py-class docutils literal notranslate"><span class="pre">ItemTransform</span></code></a></p>
+<p>A class used to assign pseudo-labels to items in a dataset based on
+their similarity to predefined labels.</p>
+<p>This class leverages hashing techniques to compute the similarity
+between dataset items and a set of predefined labels.
+
+It assigns the most similar label as a pseudo-label to each item.
+This is particularly useful in semi-supervised
+learning scenarios where some labels are missing or uncertain.</p>
+<dl>
+<dt>Attributes:
+</dt><dd><ul class="simple">
+<li><p>extractor : IDataset</p></li>
+</ul>
+<p>The dataset extractor that provides access to dataset items and their annotations.
+
+- labels : Optional[List[str]]
+
+A list of label names to be used for pseudo-labeling.
+If not provided, all available labels in the dataset will be used.
+
+- explorer : Optional[Explorer]
+
+An optional Explorer object used to compute hash keys for items and labels.
+If not provided, a new Explorer will be created.</p>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="datumaro.plugins.transforms.PseudoLabeling.categories">
+<span class="sig-name descname"><span class="pre">categories</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/datumaro/plugins/transforms.html#PseudoLabeling.categories"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.plugins.transforms.PseudoLabeling.categories" title="Link to this definition">#</a></dt>
+<dd><p>Returns metainfo about dataset labels.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="datumaro.plugins.transforms.PseudoLabeling.transform_item">
+<span class="sig-name descname"><span class="pre">transform_item</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">item</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="datumaro.components.dataset_base.html#datumaro.components.dataset_base.DatasetItem" title="datumaro.components.dataset_base.DatasetItem"><span class="pre">DatasetItem</span></a></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/datumaro/plugins/transforms.html#PseudoLabeling.transform_item"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.plugins.transforms.PseudoLabeling.transform_item" title="Link to this definition">#</a></dt>
+<dd><p>Returns a modified copy of the input item.</p>
+<p>Avoid changing and returning the input item, because it can lead to
+unexpected problems. Use wrap_item() or item.wrap() to simplify copying.</p>
+</dd></dl>
+
+</dd></dl>
+
 </section>
 
 
@@ -1701,6 +1750,11 @@ unexpected problems. Use wrap_item() or item.wrap() to simplify copying.</p>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.plugins.transforms.Clean.fill_missing_value"><code class="docutils literal notranslate"><span class="pre">Clean.fill_missing_value()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.plugins.transforms.Clean.refine_tabular_media"><code class="docutils literal notranslate"><span class="pre">Clean.refine_tabular_media()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.plugins.transforms.Clean.transform_item"><code class="docutils literal notranslate"><span class="pre">Clean.transform_item()</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.plugins.transforms.PseudoLabeling"><code class="docutils literal notranslate"><span class="pre">PseudoLabeling</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.plugins.transforms.PseudoLabeling.categories"><code class="docutils literal notranslate"><span class="pre">PseudoLabeling.categories()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.plugins.transforms.PseudoLabeling.transform_item"><code class="docutils literal notranslate"><span class="pre">PseudoLabeling.transform_item()</span></code></a></li>
 </ul>
 </li>
 </ul>
