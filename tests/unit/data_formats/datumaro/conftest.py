@@ -233,11 +233,12 @@ def fxt_test_datumaro_format_dataset_with_path_separator():
     for index, _ in enumerate(label_categories.items):
         points_categories.add(index, ["cat1", "cat2"], joints=[[0, 1]])
 
+    sep = os.path.sep
     return Dataset.from_iterable(
         [
             DatasetItem(
                 id="100/0",
-                subset="my/train",
+                subset=f"my{sep}train",
                 media=Image.from_numpy(data=np.ones((10, 6, 3))),
                 annotations=[
                     Caption("hello", id=1),
@@ -341,7 +342,7 @@ def fxt_test_datumaro_format_dataset_with_path_separator():
             DatasetItem(
                 id=2,
                 media=Image.from_numpy(data=np.ones((10, 6, 3))),
-                subset="my/val",
+                subset=f"my{sep}val",
                 annotations=[
                     PolyLine([1, 2, 3, 4, 5, 6, 7, 8], id=11, z_order=1),
                     Polygon([1, 2, 3, 4, 5, 6, 7, 8], id=12, z_order=4),
@@ -366,7 +367,7 @@ def fxt_test_datumaro_format_dataset_with_path_separator():
             DatasetItem(
                 id=42,
                 media=Image.from_numpy(data=np.ones((10, 6, 3))),
-                subset="my/test",
+                subset=f"my{sep}test",
                 attributes={"a1": 5, "a2": "42"},
             ),
             DatasetItem(
