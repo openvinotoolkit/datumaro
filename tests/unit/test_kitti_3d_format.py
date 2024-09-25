@@ -14,8 +14,8 @@ from tests.requirements import Requirements, mark_requirement
 from tests.utils.assets import get_test_asset_path
 from tests.utils.test_utils import compare_datasets_3d
 
-DUMMY_DATASET_DIR = get_test_asset_path("kitti_dataset", "kitti_3d", "training")
-DUMMY_SUBSET_DATASET_DIR = get_test_asset_path("kitti_dataset", "kitti_3d", "subset")
+DUMMY_DATASET_DIR = get_test_asset_path("kitti_dataset", "kitti_3d")
+DUMMY_SUBSET_DATASET_DIR = get_test_asset_path("kitti_dataset", "kitti_3d_with_subset")
 
 
 class Kitti3DImporterTest(TestCase):
@@ -40,16 +40,27 @@ class Kitti3DImporterTest(TestCase):
         2. Load the dataset from the KITTI3D format.
         3. Compare the loaded dataset with the expected dataset.
         """
-        pcd1 = osp.join(DUMMY_DATASET_DIR, "velodyne", "000001.bin")
 
         image1 = Image.from_file(path=osp.join(DUMMY_DATASET_DIR, "image_2", "000001.png"))
 
         expected_label_cat = LabelCategories(
             attributes={"occluded", "truncated", "alpha", "dimensions", "location", "rotation_y"}
         )
-        expected_label_cat.add("Truck")
-        expected_label_cat.add("Car")
-        expected_label_cat.add("DontCare")
+        expected_label_list = [
+            "DontCare",
+            "Car",
+            "Pedestrian",
+            "Van",
+            "Truck",
+            "Cyclist",
+            "Sitter",
+            "Train",
+            "Motorcycle",
+            "Bus",
+            "Misc",
+        ]
+        for label in expected_label_list:
+            expected_label_cat.add(label)
         expected_dataset = Dataset.from_iterable(
             [
                 DatasetItem(
@@ -60,7 +71,7 @@ class Kitti3DImporterTest(TestCase):
                             150,  # y1
                             30,  # x2-x1
                             40,  # y2-y1
-                            label=0,
+                            label=4,
                             id=0,
                             attributes={
                                 "truncated": 0.0,
@@ -92,7 +103,7 @@ class Kitti3DImporterTest(TestCase):
                             170,  # y1
                             90,  # x2-x1
                             20,  # y2-y1
-                            label=2,
+                            label=0,
                             id=2,
                             attributes={
                                 "truncated": -1.0,
@@ -104,12 +115,11 @@ class Kitti3DImporterTest(TestCase):
                             },
                         ),
                     ],
-                    media=PointCloud.from_file(path=pcd1, extra_images=[image1]),
+                    media=image1,
                     attributes={"calib_path": osp.join(DUMMY_DATASET_DIR, "calib", "000001.txt")},
                 ),
             ],
             categories={AnnotationType.label: expected_label_cat},
-            media_type=PointCloud,
         )
 
         parsed_dataset = Dataset.import_from(DUMMY_DATASET_DIR, "kitti3d")
@@ -134,20 +144,33 @@ class Kitti3DImporterTest(TestCase):
         expected_label_cat = LabelCategories(
             attributes={"occluded", "truncated", "alpha", "dimensions", "location", "rotation_y"}
         )
-        expected_label_cat.add("Pedestrian")
-        expected_label_cat.add("DontCare")
-        expected_label_cat.add("Car")
+        expected_label_list = [
+            "DontCare",
+            "Car",
+            "Pedestrian",
+            "Van",
+            "Truck",
+            "Cyclist",
+            "Sitter",
+            "Train",
+            "Motorcycle",
+            "Bus",
+            "Misc",
+        ]
+        for label in expected_label_list:
+            expected_label_cat.add(label)
         expected_dataset = Dataset.from_iterable(
             [
                 DatasetItem(
                     id="000000",
+                    subset="train",
                     annotations=[
                         Bbox(
-                            100,  # x1
+                            700,  # x1
                             150,  # y1
                             100,  # x2-x1
                             150,  # y2-y1
-                            label=0,
+                            label=2,
                             id=0,
                             attributes={
                                 "truncated": 0.0,
@@ -159,20 +182,25 @@ class Kitti3DImporterTest(TestCase):
                             },
                         ),
                     ],
-                    media=Image.from_numpy(data=np.ones((1, 5, 3))),
+                    media=Image.from_file(
+                        path=osp.join(DUMMY_SUBSET_DATASET_DIR, "image_2", "train", "000000.png")
+                    ),
                     attributes={
-                        "calib_path": osp.join(DUMMY_SUBSET_DATASET_DIR, "calib", "000000.txt")
+                        "calib_path": osp.join(
+                            DUMMY_SUBSET_DATASET_DIR, "calib", "train", "000000.txt"
+                        )
                     },
                 ),
                 DatasetItem(
                     id="000001",
+                    subset="val",
                     annotations=[
                         Bbox(
                             330,  # x1
                             180,  # y1
                             30,  # x2-x1
                             60,  # y2-y1
-                            label=0,
+                            label=2,
                             id=0,
                             attributes={
                                 "truncated": 0.0,
@@ -188,8 +216,8 @@ class Kitti3DImporterTest(TestCase):
                             170,  # y1
                             20,  # x2-x1
                             15,  # y2-y1
-                            label=1,
-                            id=0,
+                            label=0,
+                            id=1,
                             attributes={
                                 "truncated": -1,
                                 "occluded": -1,
@@ -200,20 +228,25 @@ class Kitti3DImporterTest(TestCase):
                             },
                         ),
                     ],
-                    media=Image.from_numpy(data=np.ones((1, 5, 3))),
+                    media=Image.from_file(
+                        path=osp.join(DUMMY_SUBSET_DATASET_DIR, "image_2", "val", "000001.png")
+                    ),
                     attributes={
-                        "calib_path": osp.join(DUMMY_SUBSET_DATASET_DIR, "calib", "000001.txt")
+                        "calib_path": osp.join(
+                            DUMMY_SUBSET_DATASET_DIR, "calib", "val", "000001.txt"
+                        )
                     },
                 ),
                 DatasetItem(
                     id="000002",
+                    subset="test",
                     annotations=[
                         Bbox(
                             0,  # x1
                             190,  # y1
                             400,  # x2-x1
                             190,  # y2-y1
-                            label=2,
+                            label=1,
                             id=0,
                             attributes={
                                 "truncated": 0.88,
@@ -228,9 +261,9 @@ class Kitti3DImporterTest(TestCase):
                             800,  # x1
                             160,  # y1
                             25,  # x2-x1
-                            15,  # y2-y1
-                            label=1,
-                            id=0,
+                            25,  # y2-y1
+                            label=0,
+                            id=1,
                             attributes={
                                 "truncated": -1,
                                 "occluded": -1,
@@ -241,9 +274,13 @@ class Kitti3DImporterTest(TestCase):
                             },
                         ),
                     ],
-                    media=Image.from_numpy(data=np.ones((1, 5, 3))),
+                    media=Image.from_file(
+                        path=osp.join(DUMMY_SUBSET_DATASET_DIR, "image_2", "test", "000002.png")
+                    ),
                     attributes={
-                        "calib_path": osp.join(DUMMY_SUBSET_DATASET_DIR, "calib", "000002.txt")
+                        "calib_path": osp.join(
+                            DUMMY_SUBSET_DATASET_DIR, "calib", "test", "000002.txt"
+                        )
                     },
                 ),
             ],

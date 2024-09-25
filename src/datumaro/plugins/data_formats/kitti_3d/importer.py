@@ -17,7 +17,6 @@ class Kitti3dImporter(Importer):
 
     @classmethod
     def detect(cls, context: FormatDetectionContext) -> FormatDetectionConfidence:
-        context.require_file(f"{Kitti3dPath.PCD_DIR}/*.bin")
         cls._check_ann_file(context.require_file(f"{Kitti3dPath.LABEL_DIR}/*.txt"), context)
         return FormatDetectionConfidence.MEDIUM
 
@@ -43,6 +42,11 @@ class Kitti3dImporter(Importer):
 
     @classmethod
     def find_sources(cls, path):
-        return cls._find_sources_recursive(
+        # return [{"url": path, "format": "kitti3d"}]
+        sources = cls._find_sources_recursive(
             path, "", "kitti3d", dirname=Kitti3dPath.LABEL_DIR, file_filter=lambda p: osp.isdir(p)
         )
+        if len(sources) == 0:
+            return [{"url": path, "format": "kitti3d"}]
+        else:
+            return sources
