@@ -96,6 +96,7 @@ datumaro.components.errors
       OnlyOneLabel
       OutlierInCaption
       PathOutsideSourceError
+      PathSeparatorInSubsetNameError
       PipelineError
       ProjectAlreadyExists
       ProjectNotFoundError

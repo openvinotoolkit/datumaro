@@ -843,6 +843,19 @@ document.write(`
 
 
 
+<div class="viewcode-block" id="PathSeparatorInSubsetNameError">
+<a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.components.errors.html#datumaro.cli.commands.require_project.modification.add.PathSeparatorInSubsetNameError">[docs]</a>
+<span class="nd">@define</span><span class="p">(</span><span class="n">auto_exc</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+<span class="k">class</span> <span class="nc">PathSeparatorInSubsetNameError</span><span class="p">(</span><span class="n">DatasetError</span><span class="p">):</span>
+    <span class="n">subset</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">field</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;Failed to export the subset &#39;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">subset</span><span class="si">}</span><span class="s2">&#39;: subset name contains path separator(s).&quot;</span>
+        <span class="p">)</span></div>
+
+
+
 <div class="viewcode-block" id="DatasetQualityError">
 <a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.components.errors.html#datumaro.cli.commands.require_project.modification.add.DatasetQualityError">[docs]</a>
 <span class="k">class</span> <span class="nc">DatasetQualityError</span><span class="p">(</span><span class="n">DatasetError</span><span class="p">):</span>
