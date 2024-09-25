@@ -17,6 +17,7 @@ class Kitti3dImporter(Importer):
 
     @classmethod
     def detect(cls, context: FormatDetectionContext) -> FormatDetectionConfidence:
+        context.require_file(f"{Kitti3dPath.CALIB_DIR}/*.txt")
         cls._check_ann_file(context.require_file(f"{Kitti3dPath.LABEL_DIR}/*.txt"), context)
         return FormatDetectionConfidence.MEDIUM
 
