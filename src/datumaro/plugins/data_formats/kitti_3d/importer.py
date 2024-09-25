@@ -2,6 +2,7 @@
 #
 # SPDX-License-Identifier: MIT
 
+import os.path as osp
 from typing import List
 
 from datumaro.components.errors import DatasetImportError
@@ -42,4 +43,6 @@ class Kitti3dImporter(Importer):
 
     @classmethod
     def find_sources(cls, path):
-        return [{"url": path, "format": "kitti3d"}]
+        return cls._find_sources_recursive(
+            path, "", "kitti3d", dirname=Kitti3dPath.LABEL_DIR, file_filter=lambda p: osp.isdir(p)
+        )

@@ -46,11 +46,11 @@ class Kitti3dBase(SubsetBase):
             for p in find_images(image_dir, recursive=True)
         }
 
-        ann_dir = osp.join(self._path, Kitti3dPath.LABEL_DIR)
         label_categories = self._categories[AnnotationType.label]
+        subset = osp.split(self._path)[-1]
 
-        for labels_path in sorted(glob.glob(osp.join(ann_dir, "*.txt"), recursive=True)):
-            item_id = osp.splitext(osp.relpath(labels_path, ann_dir))[0]
+        for labels_path in sorted(glob.glob(osp.join(self._path, "*.txt"), recursive=True)):
+            item_id = osp.splitext(osp.relpath(labels_path, self._path))[0]
             anns = []
 
             try:
@@ -119,11 +119,8 @@ class Kitti3dBase(SubsetBase):
             items.append(
                 DatasetItem(
                     id=item_id,
-                    subset=self._subset,
-                    media=PointCloud.from_file(
-                        path=osp.join(self._path, Kitti3dPath.PCD_DIR, item_id + ".bin"),
-                        extra_images=[image],
-                    ),
+                    subset=subset,
+                    media=image,
                     attributes={
                         "calib_path": osp.join(self._path, Kitti3dPath.CALIB_DIR, item_id + ".txt")
                     },
