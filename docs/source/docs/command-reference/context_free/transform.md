@@ -101,8 +101,10 @@ Basic dataset item manipulations:
 - [`remove_images`](#remove_images) - Removes specific images
 - [`remove_annotations`](#remove_annotations) - Removes annotations
 - [`remove_attributes`](#remove_attributes) - Removes attributes
-- [`astype_annotations`](#astype_annotations) - Convert annotation type
-- [`pseudo_labeling`](#pseudo_labeling) - Generate pseudo labels for unlabeled data
+- [`astype_annotations`](#astype_annotations) - Transforms annotation types
+- [`pseudo_labeling`](#pseudo_labeling) - Generates pseudo labels for unlabeled data
+- [`correct`](#correct) - Corrects annotaiton types
+- [`clean`](#clean) - Removes noisy data for tabular dataset
 
 Subset manipulations:
 - [`random_split`](#random_split) - Splits dataset into subsets
@@ -827,19 +829,6 @@ bbox_values_decrement [-h]
 Optional arguments:
 - `-h`, `--help` (flag) - Show this help message and exit
 
-#### `correct`
-
-Correct the dataset from a validation report
-
-Usage:
-```console
-correct [-h] [-r REPORT_PATH]
-```
-
-Optional arguments:
-- `-h`, `--help` (flag) - Show this help message and exit
-- `-r`, `--reports` (str) - A validation report from a 'validate' CLI (default=validation_reports.json)
-
 #### `pseudo_labeling`
 
 Assigns pseudo-labels to items in a dataset based on their similarity to predefined labels. This class is useful for semi-supervised learning when dealing with missing or uncertain labels.
@@ -858,7 +847,6 @@ Attributes:
 Usage:
 ```console
 pseudo_labeling [-h] [--labels LABELS]
-```
 
 Optional arguments:
 - `-h`, `--help` (flag) - Show this help message and exit
@@ -868,4 +856,41 @@ Examples:
 - Assign pseudo-labels based on predefined labels
   ```console
   datum transform -t pseudo_labeling -- --labels 'label1,label2'
+  ```
+
+#### `correct`
+
+Correct the dataset from a validation report
+
+Usage:
+```console
+correct [-h] [-r REPORT_PATH]
+```
+
+Optional arguments:
+- `-h`, `--help` (flag) - Show this help message and exit
+- `-r`, `--reports` (str) - A validation report from a 'validate' CLI (default=validation_reports.json)
+
+#### `clean`
+
+Refines and preprocesses media items in a dataset, focusing on string, numeric, and categorical data. This transform is designed to clean and improve the quality of the data, making it more suitable for analysis and modeling.
+
+The cleaning process includes:
+
+- String Data: Removes unnecessary characters using NLP techniques.
+- Numeric Data: Identifies and handles outliers and missing values.
+- Categorical Data: Cleans and refines categorical information.
+
+Usage:
+```console
+clean [-h]
+```
+
+Optional arguments:
+- `-h`, `--help` (flag) - Show this help message and exit
+
+Examples:
+- Clean and preprocess dataset items
+  ```console
+  datum transform -t clean
   ```
