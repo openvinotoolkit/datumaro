@@ -7,7 +7,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>datumaro.plugins.data_formats.kaggle.base &#8212; Datumaro 1.9.0 documentation</title>
+    <title>datumaro.plugins.data_formats.kaggle.base &#8212; Datumaro 1.10.0.dev0 documentation</title>
   
   
   
@@ -38,7 +38,7 @@
 <link rel="preload" as="script" href="../../../../../_static/scripts/pydata-sphinx-theme.js?digest=8d27b9dea8ad943066ae" />
   <script src="../../../../../_static/vendor/fontawesome/6.5.1/js/all.min.js?digest=8d27b9dea8ad943066ae"></script>
 
-    <script src="../../../../../_static/documentation_options.js?v=c4cb232b"></script>
+    <script src="../../../../../_static/documentation_options.js?v=9b3985ad"></script>
     <script src="../../../../../_static/doctools.js?v=888ff710"></script>
     <script src="../../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../../../../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -124,8 +124,8 @@
       
     
     
-    <img src="../../../../../_static/datumaro-logo.png" class="logo__image only-light" alt="Datumaro 1.9.0 documentation - Home"/>
-    <script>document.write(`<img src="../../../../../_static/datumaro-logo.png" class="logo__image only-dark" alt="Datumaro 1.9.0 documentation - Home"/>`);</script>
+    <img src="../../../../../_static/datumaro-logo.png" class="logo__image only-light" alt="Datumaro 1.10.0.dev0 documentation - Home"/>
+    <script>document.write(`<img src="../../../../../_static/datumaro-logo.png" class="logo__image only-dark" alt="Datumaro 1.10.0.dev0 documentation - Home"/>`);</script>
   
   
 </a></div>
@@ -421,13 +421,31 @@ document.write(`
         <span class="c1"># expected to output [x1, y1, x2, y2]</span>
         <span class="k">return</span> <span class="p">[</span><span class="nb">float</span><span class="p">(</span><span class="n">coord</span><span class="o">.</span><span class="n">strip</span><span class="p">())</span> <span class="k">for</span> <span class="n">coord</span> <span class="ow">in</span> <span class="n">coords</span><span class="p">]</span>
 
-    <span class="k">def</span> <span class="nf">_load_annotations</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">datas</span><span class="p">:</span> <span class="nb">list</span><span class="p">,</span> <span class="n">indices</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">int</span><span class="p">],</span> <span class="n">bbox_flag</span><span class="p">:</span> <span class="nb">bool</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">_load_annotations</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">datas</span><span class="p">:</span> <span class="nb">list</span><span class="p">,</span> <span class="n">indices</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">int</span><span class="p">]]],</span> <span class="n">bbox_flag</span><span class="p">:</span> <span class="nb">bool</span>
+    <span class="p">):</span>
         <span class="k">if</span> <span class="s2">&quot;label&quot;</span> <span class="ow">in</span> <span class="n">indices</span><span class="p">:</span>
-            <span class="n">label_name</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">datas</span><span class="p">[</span><span class="n">indices</span><span class="p">[</span><span class="s2">&quot;label&quot;</span><span class="p">]])</span>
-            <span class="n">label</span><span class="p">,</span> <span class="n">cat</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_label_cat</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="n">label_name</span><span class="p">)</span>
-            <span class="k">if</span> <span class="ow">not</span> <span class="n">cat</span><span class="p">:</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">_label_cat</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">label_name</span><span class="p">)</span>
-                <span class="n">label</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_label_cat</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="n">label_name</span><span class="p">)</span>
+            <span class="n">label_indices</span> <span class="o">=</span> <span class="n">indices</span><span class="p">[</span><span class="s2">&quot;label&quot;</span><span class="p">]</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">label_indices</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
+                <span class="n">labels</span> <span class="o">=</span> <span class="p">[]</span>
+                <span class="n">list_values</span> <span class="o">=</span> <span class="n">datas</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span>
+                <span class="n">index_to_label</span> <span class="o">=</span> <span class="p">{</span><span class="n">v</span><span class="p">:</span> <span class="n">k</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">label_indices</span><span class="o">.</span><span class="n">items</span><span class="p">()}</span>
+                <span class="n">present_labels</span> <span class="o">=</span> <span class="p">[</span>
+                    <span class="n">index_to_label</span><span class="p">[</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span> <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">list_values</span><span class="p">)</span> <span class="k">if</span> <span class="n">value</span> <span class="o">==</span> <span class="s2">&quot;1&quot;</span>
+                <span class="p">]</span>
+
+                <span class="k">for</span> <span class="n">label_name</span> <span class="ow">in</span> <span class="n">present_labels</span><span class="p">:</span>
+                    <span class="n">label</span><span class="p">,</span> <span class="n">cat</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_label_cat</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="n">label_name</span><span class="p">)</span>
+                    <span class="k">if</span> <span class="ow">not</span> <span class="n">cat</span><span class="p">:</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">_label_cat</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">label_name</span><span class="p">)</span>
+                        <span class="n">label</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_label_cat</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="n">label_name</span><span class="p">)</span>
+                    <span class="n">labels</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">Label</span><span class="p">(</span><span class="n">label</span><span class="o">=</span><span class="n">label</span><span class="p">))</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">label_name</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">datas</span><span class="p">[</span><span class="n">indices</span><span class="p">[</span><span class="s2">&quot;label&quot;</span><span class="p">]])</span>
+                <span class="n">label</span><span class="p">,</span> <span class="n">cat</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_label_cat</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="n">label_name</span><span class="p">)</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="n">cat</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_label_cat</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">label_name</span><span class="p">)</span>
+                    <span class="n">label</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_label_cat</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="n">label_name</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">_</span><span class="p">,</span> <span class="n">cat</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_label_cat</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s2">&quot;object&quot;</span><span class="p">)</span>
             <span class="k">if</span> <span class="ow">not</span> <span class="n">cat</span><span class="p">:</span>
@@ -435,7 +453,11 @@ document.write(`
             <span class="n">label</span> <span class="o">=</span> <span class="mi">0</span>
 
         <span class="k">if</span> <span class="s2">&quot;label&quot;</span> <span class="ow">in</span> <span class="n">indices</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">bbox_flag</span><span class="p">:</span>
+            <span class="n">label_indices</span> <span class="o">=</span> <span class="n">indices</span><span class="p">[</span><span class="s2">&quot;label&quot;</span><span class="p">]</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">label_indices</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
+                <span class="k">return</span> <span class="n">labels</span>
             <span class="k">return</span> <span class="n">Label</span><span class="p">(</span><span class="n">label</span><span class="o">=</span><span class="n">label</span><span class="p">)</span>
+
         <span class="k">if</span> <span class="n">bbox_flag</span><span class="p">:</span>
             <span class="k">if</span> <span class="s2">&quot;bbox&quot;</span> <span class="ow">in</span> <span class="n">indices</span><span class="p">:</span>
                 <span class="n">coords</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_parse_bbox_coords</span><span class="p">(</span><span class="n">datas</span><span class="p">[</span><span class="n">indices</span><span class="p">[</span><span class="s2">&quot;bbox&quot;</span><span class="p">]])</span>
@@ -469,7 +491,14 @@ document.write(`
 
         <span class="n">indices</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;media&quot;</span><span class="p">:</span> <span class="n">df_fields</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">columns</span><span class="p">[</span><span class="s2">&quot;media&quot;</span><span class="p">])}</span>
         <span class="k">if</span> <span class="s2">&quot;label&quot;</span> <span class="ow">in</span> <span class="n">columns</span><span class="p">:</span>
-            <span class="n">indices</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="s2">&quot;label&quot;</span><span class="p">:</span> <span class="n">df_fields</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">columns</span><span class="p">[</span><span class="s2">&quot;label&quot;</span><span class="p">])})</span>
+            <span class="n">label_columns</span> <span class="o">=</span> <span class="n">columns</span><span class="p">[</span><span class="s2">&quot;label&quot;</span><span class="p">]</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">label_columns</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
+                <span class="n">indices_label</span> <span class="o">=</span> <span class="p">{}</span>
+                <span class="k">for</span> <span class="n">label</span> <span class="ow">in</span> <span class="n">label_columns</span><span class="p">:</span>
+                    <span class="n">indices_label</span><span class="p">[</span><span class="n">label</span><span class="p">]</span> <span class="o">=</span> <span class="n">df_fields</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">label</span><span class="p">)</span>
+                <span class="n">indices</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="s2">&quot;label&quot;</span><span class="p">:</span> <span class="n">indices_label</span><span class="p">})</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">indices</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="s2">&quot;label&quot;</span><span class="p">:</span> <span class="n">df_fields</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">label_columns</span><span class="p">)})</span>
 
         <span class="n">bbox_flag</span> <span class="o">=</span> <span class="kc">False</span>
         <span class="n">bbox_index</span> <span class="o">=</span> <span class="n">columns</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;bbox&quot;</span><span class="p">)</span>
@@ -509,16 +538,30 @@ document.write(`
                 <span class="k">continue</span>
 
             <span class="n">ann</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_load_annotations</span><span class="p">(</span><span class="n">data_info</span><span class="p">,</span> <span class="n">indices</span><span class="p">,</span> <span class="n">bbox_flag</span><span class="p">)</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_ann_types</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">ann</span><span class="o">.</span><span class="n">type</span><span class="p">)</span>
-            <span class="k">if</span> <span class="n">item_id</span> <span class="ow">in</span> <span class="n">items</span><span class="p">:</span>
-                <span class="n">items</span><span class="p">[</span><span class="n">item_id</span><span class="p">]</span><span class="o">.</span><span class="n">annotations</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">ann</span><span class="p">)</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">ann</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
+                <span class="k">for</span> <span class="n">label</span> <span class="ow">in</span> <span class="n">ann</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_ann_types</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">label</span><span class="o">.</span><span class="n">type</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">item_id</span> <span class="ow">in</span> <span class="n">items</span><span class="p">:</span>
+                    <span class="k">for</span> <span class="n">label</span> <span class="ow">in</span> <span class="n">ann</span><span class="p">:</span>
+                        <span class="n">items</span><span class="p">[</span><span class="n">item_id</span><span class="p">]</span><span class="o">.</span><span class="n">annotations</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">label</span><span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">items</span><span class="p">[</span><span class="n">item_id</span><span class="p">]</span> <span class="o">=</span> <span class="n">DatasetItem</span><span class="p">(</span>
+                        <span class="nb">id</span><span class="o">=</span><span class="n">item_id</span><span class="p">,</span>
+                        <span class="n">subset</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_subset</span><span class="p">,</span>
+                        <span class="n">media</span><span class="o">=</span><span class="n">Image</span><span class="o">.</span><span class="n">from_file</span><span class="p">(</span><span class="n">path</span><span class="o">=</span><span class="n">media_path</span><span class="p">),</span>
+                        <span class="n">annotations</span><span class="o">=</span><span class="n">ann</span><span class="p">,</span>
+                    <span class="p">)</span>
             <span class="k">else</span><span class="p">:</span>
-                <span class="n">items</span><span class="p">[</span><span class="n">item_id</span><span class="p">]</span> <span class="o">=</span> <span class="n">DatasetItem</span><span class="p">(</span>
-                    <span class="nb">id</span><span class="o">=</span><span class="n">item_id</span><span class="p">,</span>
-                    <span class="n">subset</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_subset</span><span class="p">,</span>
-                    <span class="n">media</span><span class="o">=</span><span class="n">Image</span><span class="o">.</span><span class="n">from_file</span><span class="p">(</span><span class="n">path</span><span class="o">=</span><span class="n">media_path</span><span class="p">),</span>
-                    <span class="n">annotations</span><span class="o">=</span><span class="p">[</span><span class="n">ann</span><span class="p">],</span>
-                <span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_ann_types</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">ann</span><span class="o">.</span><span class="n">type</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">item_id</span> <span class="ow">in</span> <span class="n">items</span><span class="p">:</span>
+                    <span class="n">items</span><span class="p">[</span><span class="n">item_id</span><span class="p">]</span><span class="o">.</span><span class="n">annotations</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">ann</span><span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">items</span><span class="p">[</span><span class="n">item_id</span><span class="p">]</span> <span class="o">=</span> <span class="n">DatasetItem</span><span class="p">(</span>
+                        <span class="nb">id</span><span class="o">=</span><span class="n">item_id</span><span class="p">,</span>
+                        <span class="n">subset</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_subset</span><span class="p">,</span>
+                        <span class="n">media</span><span class="o">=</span><span class="n">Image</span><span class="o">.</span><span class="n">from_file</span><span class="p">(</span><span class="n">path</span><span class="o">=</span><span class="n">media_path</span><span class="p">),</span>
+                        <span class="n">annotations</span><span class="o">=</span><span class="p">[</span><span class="n">ann</span><span class="p">],</span>
+                    <span class="p">)</span>
         <span class="k">return</span> <span class="n">items</span><span class="o">.</span><span class="n">values</span><span class="p">()</span>
 
 <div class="viewcode-block" id="KaggleImageCsvBase.categories">
