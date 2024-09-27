@@ -4,17 +4,18 @@
 
 import glob
 import logging
+import os
 import os.path as osp
 from typing import List, Optional, Type, TypeVar
 
-from datumaro.components.annotation import AnnotationType, Bbox, LabelCategories
+from datumaro.components.annotation import AnnotationType, Bbox
 from datumaro.components.dataset_base import DatasetItem, SubsetBase
 from datumaro.components.errors import InvalidAnnotationError
 from datumaro.components.importer import ImportContext
-from datumaro.components.media import Image, PointCloud
+from datumaro.components.media import Image
 from datumaro.util.image import find_images
 
-from .format import Kitti3dPath
+from .format import Kitti3DLabelMap, Kitti3dPath, make_kitti3d_categories
 
 T = TypeVar("T")
 
@@ -30,26 +31,37 @@ class Kitti3dBase(SubsetBase):
         ctx: Optional[ImportContext] = None,
     ):
         assert osp.isdir(path), path
-        super().__init__(subset=subset, media_type=PointCloud, ctx=ctx)
 
         self._path = path
 
-        common_attrs = {"truncated", "occluded", "alpha", "dimensions", "location", "rotation_y"}
-        self._categories = {AnnotationType.label: LabelCategories(attributes=common_attrs)}
+        if not subset:
+            folder_path = path.rsplit(Kitti3dPath.LABEL_DIR, 1)[0]
+            img_dir = osp.join(folder_path, Kitti3dPath.IMAGE_DIR)
+            if any(os.path.isdir(os.path.join(img_dir, item)) for item in os.listdir(img_dir)):
+                subset = osp.split(path)[-1]
+                self._path = folder_path
+        super().__init__(subset=subset, ctx=ctx)
+
+        self._categories = make_kitti3d_categories(Kitti3DLabelMap)
         self._items = self._load_items()
 
     def _load_items(self) -> List[DatasetItem]:
         items = []
+
         image_dir = osp.join(self._path, Kitti3dPath.IMAGE_DIR)
         image_path_by_id = {
-            osp.splitext(osp.relpath(p, image_dir))[0]: p
+            osp.split(osp.splitext(osp.relpath(p, image_dir))[0])[-1]: p
             for p in find_images(image_dir, recursive=True)
         }
 
-        ann_dir = osp.join(self._path, Kitti3dPath.LABEL_DIR)
+        if self._subset == "default":
+            ann_dir = osp.join(self._path, Kitti3dPath.LABEL_DIR)
+        else:
+            ann_dir = osp.join(self._path, Kitti3dPath.LABEL_DIR, self._subset)
+
         label_categories = self._categories[AnnotationType.label]
 
-        for labels_path in sorted(glob.glob(osp.join(ann_dir, "*.txt"), recursive=True)):
+        for labels_path in sorted(glob.glob(osp.join(ann_dir, "**", "*.txt"), recursive=True)):
             item_id = osp.splitext(osp.relpath(labels_path, ann_dir))[0]
             anns = []
 
@@ -116,17 +128,18 @@ class Kitti3dBase(SubsetBase):
             if image:
                 image = Image.from_file(path=image)
 
+            if self._subset == "default":
+                calib_path = osp.join(self._path, Kitti3dPath.CALIB_DIR, item_id + ".txt")
+            else:
+                calib_path = osp.join(
+                    self._path, Kitti3dPath.CALIB_DIR, self._subset, item_id + ".txt"
+                )
             items.append(
                 DatasetItem(
                     id=item_id,
                     subset=self._subset,
-                    media=PointCloud.from_file(
-                        path=osp.join(self._path, Kitti3dPath.PCD_DIR, item_id + ".bin"),
-                        extra_images=[image],
-                    ),
-                    attributes={
-                        "calib_path": osp.join(self._path, Kitti3dPath.CALIB_DIR, item_id + ".txt")
-                    },
+                    media=image,
+                    attributes={"calib_path": calib_path},
                     annotations=anns,
                 )
             )
