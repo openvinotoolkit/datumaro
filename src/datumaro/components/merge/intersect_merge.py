@@ -19,6 +19,7 @@ from datumaro.components.annotations.merger import (
     AnnotationMerger,
     BboxMerger,
     CaptionsMerger,
+    Cuboid2DMerger,
     Cuboid3dMerger,
     EllipseMerger,
     FeatureVectorMerger,
@@ -455,6 +456,8 @@ class IntersectMerge(Merger):
                 return _make(TabularMerger, **kwargs)
             elif t is AnnotationType.rotated_bbox:
                 return _make(RotatedBboxMerger, **kwargs)
+            elif t is AnnotationType.cuboid_2d:
+                return _make(Cuboid2DMerger, **kwargs)
             else:
                 raise NotImplementedError("Type %s is not supported" % t)
 

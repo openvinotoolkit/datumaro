@@ -101,7 +101,10 @@ Basic dataset item manipulations:
 - [`remove_images`](#remove_images) - Removes specific images
 - [`remove_annotations`](#remove_annotations) - Removes annotations
 - [`remove_attributes`](#remove_attributes) - Removes attributes
-- [`astype_annotations`](#astype_annotations) - Convert annotation type
+- [`astype_annotations`](#astype_annotations) - Transforms annotation types
+- [`pseudo_labeling`](#pseudo_labeling) - Generates pseudo labels for unlabeled data
+- [`correct`](#correct) - Corrects annotaiton types
+- [`clean`](#clean) - Removes noisy data for tabular dataset
 
 Subset manipulations:
 - [`random_split`](#random_split) - Splits dataset into subsets
@@ -826,6 +829,35 @@ bbox_values_decrement [-h]
 Optional arguments:
 - `-h`, `--help` (flag) - Show this help message and exit
 
+#### `pseudo_labeling`
+
+Assigns pseudo-labels to items in a dataset based on their similarity to predefined labels. This class is useful for semi-supervised learning when dealing with missing or uncertain labels.
+
+The process includes:
+
+- Similarity Computation: Uses hashing techniques to compute the similarity between items and predefined labels.
+- Pseudo-Label Assignment: Assigns the most similar label as a pseudo-label to each item.
+
+Attributes:
+
+- `extractor` (IDataset) - Provides access to dataset items and their annotations.
+- `labels` (Optional[List[str]]) - List of predefined labels for pseudo-labeling. Defaults to all available labels if not provided.
+- `explorer` (Optional[Explorer]) - Computes hash keys for items and labels. If not provided, a new Explorer is created.
+
+Usage:
+```console
+pseudo_labeling [-h] [--labels LABELS]
+
+Optional arguments:
+- `-h`, `--help` (flag) - Show this help message and exit
+- `--labels` (str) - Comma-separated list of label names for pseudo-labeling
+
+Examples:
+- Assign pseudo-labels based on predefined labels
+  ```console
+  datum transform -t pseudo_labeling -- --labels 'label1,label2'
+  ```
+
 #### `correct`
 
 Correct the dataset from a validation report
@@ -838,3 +870,27 @@ correct [-h] [-r REPORT_PATH]
 Optional arguments:
 - `-h`, `--help` (flag) - Show this help message and exit
 - `-r`, `--reports` (str) - A validation report from a 'validate' CLI (default=validation_reports.json)
+
+#### `clean`
+
+Refines and preprocesses media items in a dataset, focusing on string, numeric, and categorical data. This transform is designed to clean and improve the quality of the data, making it more suitable for analysis and modeling.
+
+The cleaning process includes:
+
+- String Data: Removes unnecessary characters using NLP techniques.
+- Numeric Data: Identifies and handles outliers and missing values.
+- Categorical Data: Cleans and refines categorical information.
+
+Usage:
+```console
+clean [-h]
+```
+
+Optional arguments:
+- `-h`, `--help` (flag) - Show this help message and exit
+
+Examples:
+- Clean and preprocess dataset items
+  ```console
+  datum transform -t clean
+  ```

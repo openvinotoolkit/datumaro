@@ -12,6 +12,7 @@ from datumaro.components.annotation import (
     AnnotationType,
     Bbox,
     Caption,
+    Cuboid2D,
     Cuboid3d,
     Ellipse,
     Label,
@@ -270,6 +271,33 @@ class EllipseMapper(_ShapeMapper):
         return Ellipse(x, y, x2, y2, **shape_dict), offset
 
 
+class Cuboid2DMapper(AnnotationMapper):
+    ann_type = AnnotationType.cuboid_2d
+
+    @classmethod
+    def forward(cls, ann: Shape) -> bytes:
+        _bytearray = bytearray()
+        _bytearray.extend(struct.pack("<Bqqi", ann.type, ann.id, ann.group, ann.object_id))
+        _bytearray.extend(DictMapper.forward(ann.attributes))
+        _bytearray.extend(
+            struct.pack("<ii", _ShapeMapper.forward_optional_label(ann.label), ann.z_order)
+        )
+        _bytearray.extend(
+            FloatListMapper.forward([coord for point in ann.points for coord in point])
+        )
+        return bytes(_bytearray)
+
+    @classmethod
+    def backward(cls, _bytes: bytes, offset: int = 0) -> Tuple[Ellipse, int]:
+        ann_dict, offset = super().backward_dict(_bytes, offset)
+        label, z_order = struct.unpack_from("<ii", _bytes, offset)
+        offset += 8
+        points, offset = FloatListMapper.backward(_bytes, offset)
+        points = list(zip(points[::2], points[1::2]))
+
+        return Cuboid2D(points, label=label, z_order=z_order, **ann_dict), offset
+
+
 class AnnotationListMapper(Mapper):
     backward_map = {
         AnnotationType.label: LabelMapper.backward,
@@ -281,6 +309,7 @@ class AnnotationListMapper(Mapper):
         AnnotationType.caption: CaptionMapper.backward,
         AnnotationType.cuboid_3d: Cuboid3dMapper.backward,
         AnnotationType.ellipse: EllipseMapper.backward,
+        AnnotationType.cuboid_2d: Cuboid2DMapper.backward,
     }
 
     @classmethod
@@ -307,6 +336,8 @@ class AnnotationListMapper(Mapper):
                 _bytearray.extend(Cuboid3dMapper.forward(ann))
             elif isinstance(ann, Ellipse):
                 _bytearray.extend(EllipseMapper.forward(ann))
+            elif isinstance(ann, Cuboid2D):
+                _bytearray.extend(Cuboid2DMapper.forward(ann))
             else:
                 raise NotImplementedError()
 

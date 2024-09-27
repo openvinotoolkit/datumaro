@@ -1,4 +1,4 @@
-# Copyright (C) 2023 Intel Corporation
+# Copyright (C) 2024 Intel Corporation
 #
 # SPDX-License-Identifier: MIT
 
@@ -15,7 +15,7 @@ from typing import Any, List, Optional, Union
 
 from datumaro.components.crypter import NULL_CRYPTER, Crypter
 from datumaro.components.dataset_base import DatasetItem, IDataset
-from datumaro.components.errors import DatumaroError
+from datumaro.components.errors import DatumaroError, PathSeparatorInSubsetNameError
 from datumaro.components.exporter import ExportContext, ExportContextComponent, Exporter
 from datumaro.plugins.data_formats.datumaro.exporter import DatumaroExporter
 from datumaro.plugins.data_formats.datumaro.exporter import _SubsetWriter as __SubsetWriter
@@ -308,6 +308,9 @@ class DatumaroBinaryExporter(DatumaroExporter):
             image_ext=self._image_ext,
             default_image_ext=self._default_image_ext,
         )
+
+        if osp.sep in subset:
+            raise PathSeparatorInSubsetNameError(subset)
 
         return _SubsetWriter(
             context=self,

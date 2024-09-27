@@ -99,7 +99,7 @@ class KittiDetectionImporter(KittiImporter):
     @classmethod
     def detect(cls, context: FormatDetectionContext) -> FormatDetectionConfidence:
         # left color camera label files
-        context.require_file(f"**/label_2/*{cls._ANNO_EXT}")
+        context.require_file(f"**/label_2/*_*{cls._ANNO_EXT}")
         return cls.DETECT_CONFIDENCE
 
     @classmethod
