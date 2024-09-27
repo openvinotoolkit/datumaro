@@ -4,6 +4,18 @@ Release Notes
 .. toctree::
    :maxdepth: 1
 
+v1.9.1 (2024 Q3)
+----------------
+
+Enhancements
+^^^^^^^^^^^^
+- Support multiple labels for kaggle format
+- Use DataFrame.map instead of DataFrame.applymap
+
+Bug fixes
+^^^^^^^^^
+- Fix StreamDataset merging when importing in eager mode
+
 v1.9.0 (2024 Q3)
 ----------------
 
