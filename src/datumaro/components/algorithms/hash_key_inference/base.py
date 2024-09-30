@@ -21,13 +21,13 @@ class HashInference:
     @property
     def model(self):
         if self._model is None:
-            self._model = explorer.ExplorerLauncher(model_name="vit_visual_l_14_336px_int8")
+            self._model = explorer.ExplorerLauncher(model_name="clip_visual_vit_l_14_336px")
         return self._model
 
     @property
     def text_model(self):
         if self._text_model is None:
-            self._text_model = explorer.ExplorerLauncher(model_name="vit_text_l_14_336px_int8")
+            self._text_model = explorer.ExplorerLauncher(model_name="clip_text_vit_l_14_336px")
         return self._text_model
 
     def _compute_hash_key(self, datasets, datasets_to_infer):

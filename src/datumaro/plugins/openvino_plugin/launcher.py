@@ -92,8 +92,8 @@ class BuiltinOpenvinoModelInfo(OpenvinoModelInfo):
     downloadable_models = {
         "clip_text_ViT-B_32",
         "clip_visual_ViT-B_32",
-        "vit_visual_l_14_336px_int8",
-        "vit_text_l_14_336px_int8",
+        "clip_visual_vit_l_14_336px",
+        "clip_text_vit_l_14_336px",
         "googlenet-v4-tf",
     }
 
