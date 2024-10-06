@@ -19,6 +19,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   (<https://github.com/openvinotoolkit/datumaro/pull/1615>)
 - Update docs for transform plugins
   (<https://github.com/openvinotoolkit/datumaro/pull/1599>)
+- Update ov ir model for explorer openvino launcher with CLIP ViT-L/14@336px model
+  (<https://github.com/openvinotoolkit/datumaro/pull/1603>)
 
 ### Bug fixes
 
