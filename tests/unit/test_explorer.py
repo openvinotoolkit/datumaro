@@ -1,21 +1,17 @@
-import os.path as osp
-from copy import deepcopy
-from functools import partial
 from unittest import TestCase
+from unittest.mock import patch
 
 import numpy as np
 
 from datumaro.components.algorithms.hash_key_inference.explorer import Explorer
-from datumaro.components.annotation import AnnotationType, Caption, Label
+from datumaro.components.annotation import AnnotationType, HashKey
 from datumaro.components.dataset import Dataset
 from datumaro.components.dataset_base import DatasetItem
 from datumaro.components.errors import MediaTypeError
-from datumaro.components.media import Image
-from datumaro.plugins.data_formats.datumaro.exporter import DatumaroExporter
+from datumaro.util.meta_file_util import load_hash_key
 
 from tests.requirements import Requirements, mark_requirement
 from tests.utils.assets import get_test_asset_path
-from tests.utils.test_utils import TestDir
 
 
 class ExplorerTest(TestCase):
@@ -171,3 +167,71 @@ class ExplorerTest(TestCase):
         with self.assertRaises(MediaTypeError) as capture:
             Explorer(imported_dataset)
         self.assertIn("PointCloud", str(capture.exception))
+
+
+class MetaFileTest(TestCase):
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
+    def test_no_hashkey_dir(self):
+        """
+        Test that the function returns the original dataset if the hashkey directory doesn't exist.
+        """
+        dataset = [DatasetItem(id="000001", subset="test")]
+        with patch("os.path.isdir") as mock_isdir:
+            mock_isdir.return_value = False
+            result = load_hash_key("invalid_path", dataset)
+            self.assertEqual(result, dataset)
+
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
+    def test_no_hashkey_file(self):
+        """
+        Test that the function returns the original dataset if the hashkey file doesn't exist.
+        """
+        dataset = [DatasetItem(id="000001", subset="test")]
+        with patch("os.path.isdir") as mock_isdir, patch(
+            "datumaro.util.meta_file_util.has_hashkey_file"
+        ) as mock_has_hashkey_file:
+            mock_isdir.return_value = True
+            mock_has_hashkey_file.return_value = False
+            result = load_hash_key("hashkey_dir", dataset)
+            self.assertEqual(result, dataset)
+
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
+    def test_load_hash_key(self):
+        """
+        Test that the function successfully parses the hashkey file and adds HashKey annotations to the dataset items.
+        """
+        dataset = [
+            DatasetItem(id="000001", subset="train", annotations=[]),
+            DatasetItem(id="000002", subset="val", annotations=[]),
+        ]
+        expected_hashkey1 = np.ones((96,), dtype=np.uint8)
+        expected_hashkey2 = np.zeros((96,), dtype=np.uint8)
+        hashkey_dict = {
+            "train/000001": expected_hashkey1.tolist(),
+            "val/000002": expected_hashkey2.tolist(),
+        }
+
+        with patch("os.path.isdir") as mock_isdir, patch(
+            "datumaro.util.meta_file_util.has_hashkey_file"
+        ) as mock_has_hashkey_file, patch(
+            "datumaro.util.meta_file_util.parse_hashkey_file"
+        ) as mock_parse_hashkey_file:
+            mock_isdir.return_value = True
+            mock_has_hashkey_file.return_value = True
+            mock_parse_hashkey_file.return_value = hashkey_dict
+
+            result = load_hash_key("hashkey_dir", dataset)
+
+            self.assertEqual(len(result), len(dataset))
+            self.assertEqual(result[0].id, dataset[0].id)
+            self.assertEqual(result[0].subset, dataset[0].subset)
+
+            # Check if HashKey annotations are added
+            self.assertEqual(len(result[0].annotations), 1)
+            self.assertIsInstance(result[0].annotations[0], HashKey)
+            self.assertTrue(np.array_equal(result[0].annotations[0].hash_key, expected_hashkey1))
+
+            # Check if HashKey annotations are added for the second item as well
+            self.assertEqual(len(result[1].annotations), 1)
+            self.assertIsInstance(result[1].annotations[0], HashKey)
+            self.assertTrue(np.array_equal(result[1].annotations[0].hash_key, expected_hashkey2))
