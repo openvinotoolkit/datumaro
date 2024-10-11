@@ -17,7 +17,7 @@ tqdm
 pycocotools>=2.0.4; platform_system != "Windows" or python_version >= '3.9'
 
 pycocotools-windows; platform_system == "Windows" and python_version < '3.9'
-PyYAML==6.0.1
+PyYAML==6.0.2
 
 # 2.3 has an unlisted dependency on PyTorch, which we don't need
 tensorboardX>=1.8,!=2.3
