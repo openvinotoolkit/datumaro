@@ -5,9 +5,8 @@ import logging as log
 import os
 import os.path as osp
 import random
-import re
 from unittest import TestCase
-from unittest.mock import patch
+from unittest.mock import MagicMock, patch
 
 import numpy as np
 import pandas as pd
@@ -1213,6 +1212,8 @@ class IdFromImageNameTest:
     @pytest.fixture
     def fxt_dataset(self, n_labels=3, n_anns=5, n_items=7) -> Dataset:
         video = Video("video.mp4")
+        video._frame_size = MagicMock(return_value=(32, 32))
+        video.get_frame_data = MagicMock(return_value=np.ndarray((32, 32, 3), dtype=np.uint8))
         return Dataset.from_iterable(
             [
                 DatasetItem(id=1, media=Image.from_file(path="path1.jpg")),
@@ -1229,7 +1230,7 @@ class IdFromImageNameTest:
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     @pytest.mark.parametrize("ensure_unique", [True, False])
     def test_id_from_image(self, fxt_dataset, ensure_unique):
-        source_dataset = fxt_dataset
+        source_dataset: Dataset = fxt_dataset
         actual_dataset = transforms.IdFromImageName(source_dataset, ensure_unique=ensure_unique)
 
         unique_names: set[str] = set()
@@ -1247,7 +1248,7 @@ class IdFromImageNameTest:
                     assert actual.id not in unique_names
                     unique_names.add(actual.id)
                 else:
-                    assert actual == src.wrap(id=expected_id)
+                    assert src.wrap(id=expected_id) == actual
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
     def test_id_from_image_wrong_suffix_length(self, fxt_dataset):
