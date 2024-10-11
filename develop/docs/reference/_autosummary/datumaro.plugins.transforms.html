@@ -692,8 +692,8 @@ document.write(`
 <tr class="row-even"><td><p><a class="reference internal" href="#datumaro.plugins.transforms.CropCoveredSegments" title="datumaro.plugins.transforms.CropCoveredSegments"><code class="xref py py-obj docutils literal notranslate"><span class="pre">CropCoveredSegments</span></code></a>(extractor)</p></td>
 <td><p>Sorts polygons and masks (&quot;segments&quot;) according to <cite>z_order</cite>, crops covered areas of underlying segments.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#datumaro.plugins.transforms.IdFromImageName" title="datumaro.plugins.transforms.IdFromImageName"><code class="xref py py-obj docutils literal notranslate"><span class="pre">IdFromImageName</span></code></a>(extractor)</p></td>
-<td><p>Renames items in the dataset using image file name (without extension).</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#datumaro.plugins.transforms.IdFromImageName" title="datumaro.plugins.transforms.IdFromImageName"><code class="xref py py-obj docutils literal notranslate"><span class="pre">IdFromImageName</span></code></a>(extractor[, ensure_unique, ...])</p></td>
+<td><p>Renames items in the dataset based on the image file name, excluding the extension.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#datumaro.plugins.transforms.MapSubsets" title="datumaro.plugins.transforms.MapSubsets"><code class="xref py py-obj docutils literal notranslate"><span class="pre">MapSubsets</span></code></a>(extractor[, mapping])</p></td>
 <td><p>Renames subsets in the dataset.</p></td>
@@ -985,9 +985,49 @@ It is expected that item ids are unique and subset ratios sum up to 1.</p>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="datumaro.plugins.transforms.IdFromImageName">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">datumaro.plugins.transforms.</span></span><span class="sig-name descname"><span class="pre">IdFromImageName</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">extractor</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="datumaro.components.dataset_base.html#datumaro.components.dataset_base.IDataset" title="datumaro.components.dataset_base.IDataset"><span class="pre">IDataset</span></a></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/datumaro/plugins/transforms.html#IdFromImageName"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.plugins.transforms.IdFromImageName" title="Link to this definition">#</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">datumaro.plugins.transforms.</span></span><span class="sig-name descname"><span class="pre">IdFromImageName</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">extractor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ensure_unique</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.13)"><span class="pre">bool</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">suffix_length</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><span class="pre">int</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">3</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/datumaro/plugins/transforms.html#IdFromImageName"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.plugins.transforms.IdFromImageName" title="Link to this definition">#</a></dt>
 <dd><p>Bases: <a class="reference internal" href="datumaro.components.transformer.html#datumaro.components.transformer.ItemTransform" title="datumaro.components.transformer.ItemTransform"><code class="xref py py-class docutils literal notranslate"><span class="pre">ItemTransform</span></code></a>, <a class="reference internal" href="datumaro.components.cli_plugin.html#datumaro.components.cli_plugin.CliPlugin" title="datumaro.components.cli_plugin.CliPlugin"><code class="xref py py-class docutils literal notranslate"><span class="pre">CliPlugin</span></code></a></p>
-<p>Renames items in the dataset using image file name (without extension).</p>
+<p>Renames items in the dataset based on the image file name, excluding the extension.
+
+When ‘ensure_unique’ is enabled, a random suffix is appened to ensure each identifier is unique
+in cases where the image name is not distinct. By default, the random suffix is three characters long,
+but this can be adjusted with the ‘suffix_length’ parameter.</p>
+<p>Examples:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>Renames items without duplication check:</p></li>
+</ul>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">id_from_image_name</span>
+</pre></div>
+</div>
+<ul class="simple">
+<li><p>Renames items with duplication check:</p></li>
+</ul>
+</div></blockquote>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>  <span class="n">id_from_image_name</span> <span class="o">--</span><span class="n">ensure_unique</span>
+
+
+<span class="o">-</span> <span class="n">Renames</span> <span class="n">items</span> <span class="k">with</span> <span class="n">duplication</span> <span class="n">check</span> <span class="ow">and</span> <span class="n">alters</span> <span class="n">the</span> <span class="n">suffix</span> <span class="n">length</span><span class="p">(</span><span class="n">default</span><span class="p">:</span> <span class="mi">3</span><span class="p">):</span>
+</pre></div>
+</div>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">id_from_image_name</span> <span class="o">--</span><span class="n">ensure_unique</span> <span class="o">--</span><span class="n">suffix_length</span> <span class="mi">2</span>
+</pre></div>
+</div>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="datumaro.plugins.transforms.IdFromImageName.DEFAULT_RETRY">
+<span class="sig-name descname"><span class="pre">DEFAULT_RETRY</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">1000</span></em><a class="headerlink" href="#datumaro.plugins.transforms.IdFromImageName.DEFAULT_RETRY" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="datumaro.plugins.transforms.IdFromImageName.SUFFIX_LETTERS">
+<span class="sig-name descname"><span class="pre">SUFFIX_LETTERS</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'abcdefghijklmnopqrstuvwxyz0123456789'</span></em><a class="headerlink" href="#datumaro.plugins.transforms.IdFromImageName.SUFFIX_LETTERS" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="datumaro.plugins.transforms.IdFromImageName.build_cmdline_parser">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">build_cmdline_parser</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/datumaro/plugins/transforms.html#IdFromImageName.build_cmdline_parser"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.plugins.transforms.IdFromImageName.build_cmdline_parser" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
 <dl class="py method">
 <dt class="sig sig-object py" id="datumaro.plugins.transforms.IdFromImageName.transform_item">
 <span class="sig-name descname"><span class="pre">transform_item</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">item</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/datumaro/plugins/transforms.html#IdFromImageName.transform_item"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#datumaro.plugins.transforms.IdFromImageName.transform_item" title="Link to this definition">#</a></dt>
@@ -1683,6 +1723,9 @@ unexpected problems. Use wrap_item() or item.wrap() to simplify copying.</p>
 </ul>
 </li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.plugins.transforms.IdFromImageName"><code class="docutils literal notranslate"><span class="pre">IdFromImageName</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.plugins.transforms.IdFromImageName.DEFAULT_RETRY"><code class="docutils literal notranslate"><span class="pre">IdFromImageName.DEFAULT_RETRY</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.plugins.transforms.IdFromImageName.SUFFIX_LETTERS"><code class="docutils literal notranslate"><span class="pre">IdFromImageName.SUFFIX_LETTERS</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.plugins.transforms.IdFromImageName.build_cmdline_parser"><code class="docutils literal notranslate"><span class="pre">IdFromImageName.build_cmdline_parser()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datumaro.plugins.transforms.IdFromImageName.transform_item"><code class="docutils literal notranslate"><span class="pre">IdFromImageName.transform_item()</span></code></a></li>
 </ul>
 </li>

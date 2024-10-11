@@ -835,14 +835,37 @@ contain <code class="docutils literal notranslate"><span class="pre">str.format<
 </section>
 <section id="id-from-image-name">
 <h4><code class="docutils literal notranslate"><span class="pre">id_from_image_name</span></code><a class="headerlink" href="#id-from-image-name" title="Link to this heading">#</a></h4>
-<p>Renames items in the dataset using image file name (without extension).</p>
+<p>Renames items in the dataset based on the image file name, excluding the extension.
+When ‘ensure_unique’ is enabled, a random suffix is appened to ensure each identifier is unique
+in cases where the image name is not distinct. By default, the random suffix is three characters long,
+but this can be adjusted with the ‘suffix_length’ parameter.</p>
 <p>Usage:</p>
-<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">id_from_image_name [-h]</span>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">id_from_image_name [-h] [-u] [-l SUFFIX_LENGTH]</span>
 </pre></div>
 </div>
 <p>Optional arguments:</p>
 <ul class="simple">
-<li><p><code class="docutils literal notranslate"><span class="pre">-h</span></code>, <code class="docutils literal notranslate"><span class="pre">--help</span></code> (flag) - Show this help message and exit</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">-h</span></code>, <code class="docutils literal notranslate"><span class="pre">--help</span></code> (flag) - show this help message and exit</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">-u</span></code>, <code class="docutils literal notranslate"><span class="pre">--ensure_unique</span></code> (flag) - Appends a random suffix to ensure each identifier is unique if the image name is duplicated</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">-l</span></code>, <code class="docutils literal notranslate"><span class="pre">--suffix_length</span></code> (int) - Alters the length of the random suffix if the <code class="docutils literal notranslate"><span class="pre">ensure_unique</span></code> is enabled(default: 3)</p></li>
+</ul>
+<p>Examples:</p>
+<ul>
+<li><p>Renames items without duplication check</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">datum transform -t id_from_image_name</span>
+</pre></div>
+</div>
+</li>
+<li><p>Renames items with duplication check</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">datum transform -t id_from_image_name -- --ensure_unique</span>
+</pre></div>
+</div>
+</li>
+<li><p>Renames items with duplication check and alters the suffix length(default: 3)</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">datum transform -t id_from_image_name -- --ensure_unique --suffix_length 2</span>
+</pre></div>
+</div>
+</li>
 </ul>
 </section>
 <section id="reindex">
