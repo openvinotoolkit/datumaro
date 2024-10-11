@@ -1269,6 +1269,22 @@ class IdFromImageNameTest:
                 )
         assert str(e.value).startswith("Too many duplicate names.")
 
+    @mark_requirement(Requirements.DATUM_GENERAL_REQ)
+    @pytest.mark.parametrize(
+        "args,ensure_unique,suffix_length",
+        [
+            ([], False, 3),
+            (["--ensure_unique", "--suffix_length", "2"], True, 2),
+        ],
+        ids=["default", "ensure_unique"],
+    )
+    def test_parser(self, args, ensure_unique, suffix_length):
+        parser = transforms.IdFromImageName.build_cmdline_parser()
+        args = parser.parse_args(args)
+
+        assert hasattr(args, "ensure_unique") and args.ensure_unique == ensure_unique
+        assert hasattr(args, "suffix_length") and args.suffix_length == suffix_length
+
 
 class AstypeAnnotationsTest(TestCase):
     def setUp(self):
