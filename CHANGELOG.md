@@ -21,6 +21,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   (<https://github.com/openvinotoolkit/datumaro/pull/1599>)
 - Update ov ir model for explorer openvino launcher with CLIP ViT-L/14@336px model
   (<https://github.com/openvinotoolkit/datumaro/pull/1603>)
+- Optimize path assignment to handle point cloud in JSON without images
+  (<https://github.com/openvinotoolkit/datumaro/pull/1643>)
 
 ### Bug fixes
 - Fix datumaro format to load visibility information from Points annotations
