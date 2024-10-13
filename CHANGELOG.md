@@ -22,6 +22,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   (<https://github.com/openvinotoolkit/datumaro/pull/1599>)
 
 ### Bug fixes
+- Fix assertion to compare hashkeys against expected value
+  (<https://github.com/openvinotoolkit/datumaro/pull/1641>)
 
 ## Q4 2024 Release 1.9.1
 ### Enhancements
