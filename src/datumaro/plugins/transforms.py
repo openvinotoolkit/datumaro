@@ -63,7 +63,7 @@ from datumaro.components.errors import (
     UndefinedAttribute,
     UndefinedLabel,
 )
-from datumaro.components.media import Image, TableRow
+from datumaro.components.media import Image, TableRow, VideoFrame
 from datumaro.components.transformer import ItemTransform, TabularTransform, Transform
 from datumaro.util import NOTSET, filter_dict, parse_json_file, parse_str_enum_value, take_by
 from datumaro.util.annotation_util import find_group_leader, find_instances
