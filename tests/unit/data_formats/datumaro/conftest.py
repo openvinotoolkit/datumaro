@@ -91,7 +91,7 @@ def fxt_test_datumaro_format_dataset():
                         },
                     ),
                     Points(
-                        [1, 2, 2, 0, 1, 1],
+                        [1, 2, 0, 0, 1, 1],
                         label=0,
                         id=5,
                         z_order=4,
@@ -99,6 +99,7 @@ def fxt_test_datumaro_format_dataset():
                             "x": 1,
                             "y": "2",
                         },
+                        visibility=[1, 0, 2],
                     ),
                     Mask(
                         label=3,

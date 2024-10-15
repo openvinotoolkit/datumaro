@@ -339,6 +339,7 @@ class JsonReader:
                             points,
                             label=label_id,
                             id=ann_id,
+                            visibility=ann.get("visibility"),
                             attributes=attributes,
                             group=group,
                             object_id=object_id,

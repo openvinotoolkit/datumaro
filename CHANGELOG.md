@@ -23,6 +23,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   (<https://github.com/openvinotoolkit/datumaro/pull/1603>)
 
 ### Bug fixes
+- Fix datumaro format to load visibility information from Points annotations
+  (<https://github.com/openvinotoolkit/datumaro/pull/1644>)
 
 ## Q4 2024 Release 1.9.1
 ### Enhancements
