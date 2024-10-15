@@ -48,8 +48,17 @@ class ImagenetBase(SubsetBase):
         path = Path(path)
         for dirname in sorted(d for d in path.rglob("*") if d.is_dir()):
             dirname = dirname.relative_to(path)
+            level = len(dirname.parts)
             if str(dirname) != ImagenetPath.IMAGE_DIR_NO_LABEL:
                 label_cat.add(str(dirname))
+                if level > 1:
+                    group_name = str(dirname.parents[0])
+                    if not any([g.name == group_name for g in label_cat.label_groups]):
+                        label_cat.add_label_group(group_name, [str(dirname.name)], group_type=0)
+                    else:
+                        g = next(x for x in label_cat.label_groups if x.name == group_name)
+                        g.labels.append(str(dirname.name))
+
         return {AnnotationType.label: label_cat}
 
     def _load_items(self, path):
