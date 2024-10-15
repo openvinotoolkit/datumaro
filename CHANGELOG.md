@@ -16,10 +16,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   (<https://github.com/openvinotoolkit/datumaro/pull/1639>)
 
 ### Enhancements
+- Enhance 'id_from_image_name' transform to ensure each identifier is unique
+  (<https://github.com/openvinotoolkit/datumaro/pull/1635>)
 - Raise an appropriate error when exporting a datumaro dataset if its subset name contains path separators.
   (<https://github.com/openvinotoolkit/datumaro/pull/1615>)
 - Update docs for transform plugins
   (<https://github.com/openvinotoolkit/datumaro/pull/1599>)
+- Optimize path assignment to handle point cloud in JSON without images
+  (<https://github.com/openvinotoolkit/datumaro/pull/1643>)
 
 ### Bug fixes
 
