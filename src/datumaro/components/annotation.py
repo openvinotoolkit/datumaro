@@ -1407,6 +1407,7 @@ class Cuboid2D(Annotation):
 
     @staticmethod
     def _get_plane_equation(points):
+        """Calculates coefficients of the plane equation from three points."""
         x1, y1, z1 = points[0, 0], points[0, 1], points[0, 2]
         x2, y2, z2 = points[1, 0], points[1, 1], points[1, 2]
         x3, y3, z3 = points[2, 0], points[2, 1], points[2, 2]
@@ -1424,6 +1425,11 @@ class Cuboid2D(Annotation):
 
     @staticmethod
     def _get_denorm(Tr_velo_to_cam_homo):
+        """Calculates the denormalized vector perpendicular to the image plane.
+        Args:
+            Tr_velo_to_cam_homo (np.ndarray): Homogeneous (4x4) LiDAR-to-camera transformation matrix
+        Returns:
+            np.ndarray: vector"""
         ground_points_lidar = np.array([[0.0, 0.0, 0.0], [0.0, 1.0, 0.0], [1.0, 1.0, 0.0]])
         ground_points_lidar = np.concatenate(
             (ground_points_lidar, np.ones((ground_points_lidar.shape[0], 1))), axis=1
@@ -1488,22 +1494,44 @@ class Cuboid2D(Annotation):
         return pts_2d
 
     @classmethod
-    def from_3d(cls, dim, location, rotation_y, P, Tr_velo_to_cam):
+    def from_3d(
+        cls,
+        dim: np.ndarray,
+        location: np.ndarray,
+        rotation_y: float,
+        P: np.ndarray,
+        Tr_velo_to_cam: np.ndarray,
+    ) -> Cuboid2D:
         """Creates an instance of Cuboid2D class from 3D bounding box parameters.
 
         Args:
-            dim (np.)
+            dim (np.ndarray): 3 scalars describing length, width and height of a 3D bounding box
+            location (np.ndarray): (x, y, z) coordinates of the middle of the top face.
+            rotation_y (np.ndarray): rotation along the Y-axis (from -pi to pi)
+            P (np.ndarray): Camera-to-Image transformation matrix (3x4)
+            Tr_velo_to_cam (np.ndarray): LiDAR-to-Camera transformation matrix (3x4)
+
+        Returns:
+            Cuboid2D: Projection points for the given bounding box
         """
         Tr_velo_to_cam_homo = np.eye(4)
         Tr_velo_to_cam_homo[:3, :4] = Tr_velo_to_cam
-        denorm = Cuboid2D._get_denorm(Tr_velo_to_cam_homo)
+        denorm = cls._get_denorm(Tr_velo_to_cam_homo)
         pts_3d = cls._get_3d_points(dim, location, rotation_y, denorm)
         y_3d = np.mean(pts_3d[:4, 1])
         pts_2d = cls._project_to_2d(pts_3d, P)
 
         return cls(list(map(tuple, pts_2d)), y_3d=y_3d)
 
-    def to_3d(self, P_inv):
+    def to_3d(self, P_inv: np.ndarray) -> tuple[np.ndarray, np.ndarray, float]:
+        """Reconstructs 3D object Velodyne coordinates (dimensions, location and rotation along the Y-axis)
+        from the given Cuboid2D instance.
+
+        Args:
+            P_inv (np.ndarray): Pseudo-inverse of Camera-to-Image projection matrix
+        Returns:
+            tuple: dimensions, location and rotation along the Y-axis
+        """
         recon_3d = []
         for idx, coord_2d in enumerate(self.points):
             coord_2d = np.append(coord_2d, 1)
