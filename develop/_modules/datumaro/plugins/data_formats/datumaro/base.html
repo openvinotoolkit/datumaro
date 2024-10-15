@@ -527,8 +527,7 @@ document.write(`
             <span class="n">pcd_info</span> <span class="o">=</span> <span class="n">item_desc</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;point_cloud&quot;</span><span class="p">)</span>
             <span class="k">if</span> <span class="n">media</span> <span class="ow">and</span> <span class="n">pcd_info</span><span class="p">:</span>
                 <span class="k">raise</span> <span class="n">MediaTypeError</span><span class="p">(</span><span class="n">STR_MULTIPLE_MEDIA</span><span class="p">)</span>
-            <span class="k">if</span> <span class="n">pcd_info</span><span class="p">:</span>
-                <span class="n">pcd_path</span> <span class="o">=</span> <span class="n">pcd_info</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;path&quot;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">pcd_info</span> <span class="ow">and</span> <span class="p">(</span><span class="n">pcd_path</span> <span class="o">:=</span> <span class="n">pcd_info</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;path&quot;</span><span class="p">)):</span>
                 <span class="n">point_cloud</span> <span class="o">=</span> <span class="n">osp</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_pcd_dir</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_subset</span><span class="p">,</span> <span class="n">pcd_path</span><span class="p">)</span>
 
                 <span class="n">related_images</span> <span class="o">=</span> <span class="kc">None</span>
