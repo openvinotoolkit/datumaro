@@ -182,6 +182,13 @@ class ImagenetImporterTest:
     IMPORTER_NAME = ImagenetImporter.NAME
 
     def _create_expected_dataset(self):
+        label_categories = LabelCategories.from_iterable(
+            ("label_0", "label_1", f"{Path('label_1', 'label_1_1')}")
+        )
+        label_categories.label_groups = [
+            LabelCategories.LabelGroup(name="label_1", labels=["label_1_1"]),
+        ]
+
         return Dataset.from_iterable(
             [
                 DatasetItem(
@@ -204,11 +211,7 @@ class ImagenetImporterTest:
                     annotations=[Label(1)],
                 ),
             ],
-            categories={
-                AnnotationType.label: LabelCategories.from_iterable(
-                    ("label_0", "label_1", f"{Path('label_1', 'label_1_1')}")
-                ),
-            },
+            categories={AnnotationType.label: label_categories},
         )
 
     @mark_requirement(Requirements.DATUM_GENERAL_REQ)
