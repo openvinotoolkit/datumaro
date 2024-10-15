@@ -661,7 +661,9 @@ class IdFromImageName(ItemTransform, CliPlugin):
     def _add_unique_suffix(self, name):
         count = 0
         while name in self._names:
-            suffix = "".join(random.choices(self.SUFFIX_LETTERS, k=self._suffix_length))
+            suffix = "".join(
+                random.choices(self.SUFFIX_LETTERS, k=self._suffix_length)
+            )  # nosec B311
             new_name = f"{name}__{suffix}"
             if new_name not in self._names:
                 name = new_name
