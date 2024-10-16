@@ -366,6 +366,7 @@ document.write(`
 <span class="p">)</span>
 
 <span class="kn">import</span> <span class="nn">attr</span>
+<span class="kn">import</span> <span class="nn">cv2</span>
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 <span class="kn">import</span> <span class="nn">shapely.geometry</span> <span class="k">as</span> <span class="nn">sg</span>
 <span class="kn">from</span> <span class="nn">attr</span> <span class="kn">import</span> <span class="n">asdict</span><span class="p">,</span> <span class="n">attrs</span><span class="p">,</span> <span class="n">field</span>
@@ -1917,19 +1918,19 @@ document.write(`
 <span class="sd">    [(x1, y1), (x2, y2), (x3, y3), (x4, y4), (x5, y5), (x6, y6), (x7, y7), (x8, y8)].</span>
 
 
-<span class="sd">      6---7</span>
+<span class="sd">      2---3</span>
 <span class="sd">     /|  /|</span>
-<span class="sd">    5-+-8 |</span>
-<span class="sd">    | 2 + 3</span>
+<span class="sd">    1-+-4 |</span>
+<span class="sd">    | 5 + 6</span>
 <span class="sd">    |/  |/</span>
-<span class="sd">    1---4</span>
+<span class="sd">    8---7</span>
 
 <span class="sd">    Attributes:</span>
-<span class="sd">        _type (AnnotationType): The type of annotation, set to `AnnotationType.bbox`.</span>
+<span class="sd">        _type (AnnotationType): The type of annotation, set to `AnnotationType.cuboid_2d`.</span>
 
 <span class="sd">    Methods:</span>
 <span class="sd">        __init__: Initializes the Cuboid2D with its coordinates.</span>
-<span class="sd">        wrap: Creates a new Bbox instance with updated attributes.</span>
+<span class="sd">        wrap: Creates a new Cuboid2D instance with updated attributes.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="n">_type</span> <span class="o">=</span> <span class="n">AnnotationType</span><span class="o">.</span><span class="n">cuboid_2d</span>
@@ -1938,12 +1939,201 @@ document.write(`
         <span class="n">converter</span><span class="o">=</span><span class="n">attr</span><span class="o">.</span><span class="n">converters</span><span class="o">.</span><span class="n">optional</span><span class="p">(</span><span class="nb">int</span><span class="p">),</span> <span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">kw_only</span><span class="o">=</span><span class="kc">True</span>
     <span class="p">)</span>
     <span class="n">z_order</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">validator</span><span class="o">=</span><span class="n">default_if_none</span><span class="p">(</span><span class="nb">int</span><span class="p">),</span> <span class="n">kw_only</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">y_3d</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">validator</span><span class="o">=</span><span class="n">default_if_none</span><span class="p">(</span><span class="nb">float</span><span class="p">),</span> <span class="n">kw_only</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
 <div class="viewcode-block" id="Cuboid2D.__init__">
 <a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.plugins.data_formats.datumaro_binary.mapper.html#datumaro.components.abstracts.merger.Cuboid2D.__init__">[docs]</a>
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">_points</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">]],</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">_points</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">]],</span>
+        <span class="o">*</span><span class="n">args</span><span class="p">,</span>
+        <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
+    <span class="p">):</span>
         <span class="n">kwargs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;points&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>  <span class="c1"># comes from wrap()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">__attrs_init__</span><span class="p">(</span><span class="n">points</span><span class="o">=</span><span class="n">_points</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
+
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">_get_plane_equation</span><span class="p">(</span><span class="n">points</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Calculates coefficients of the plane equation from three points.&quot;&quot;&quot;</span>
+        <span class="n">x1</span><span class="p">,</span> <span class="n">y1</span><span class="p">,</span> <span class="n">z1</span> <span class="o">=</span> <span class="n">points</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="n">points</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> <span class="n">points</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="p">]</span>
+        <span class="n">x2</span><span class="p">,</span> <span class="n">y2</span><span class="p">,</span> <span class="n">z2</span> <span class="o">=</span> <span class="n">points</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="n">points</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> <span class="n">points</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">]</span>
+        <span class="n">x3</span><span class="p">,</span> <span class="n">y3</span><span class="p">,</span> <span class="n">z3</span> <span class="o">=</span> <span class="n">points</span><span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="n">points</span><span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> <span class="n">points</span><span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">]</span>
+        <span class="n">a1</span> <span class="o">=</span> <span class="n">x2</span> <span class="o">-</span> <span class="n">x1</span>
+        <span class="n">b1</span> <span class="o">=</span> <span class="n">y2</span> <span class="o">-</span> <span class="n">y1</span>
+        <span class="n">c1</span> <span class="o">=</span> <span class="n">z2</span> <span class="o">-</span> <span class="n">z1</span>
+        <span class="n">a2</span> <span class="o">=</span> <span class="n">x3</span> <span class="o">-</span> <span class="n">x1</span>
+        <span class="n">b2</span> <span class="o">=</span> <span class="n">y3</span> <span class="o">-</span> <span class="n">y1</span>
+        <span class="n">c2</span> <span class="o">=</span> <span class="n">z3</span> <span class="o">-</span> <span class="n">z1</span>
+        <span class="n">a</span> <span class="o">=</span> <span class="n">b1</span> <span class="o">*</span> <span class="n">c2</span> <span class="o">-</span> <span class="n">b2</span> <span class="o">*</span> <span class="n">c1</span>
+        <span class="n">b</span> <span class="o">=</span> <span class="n">a2</span> <span class="o">*</span> <span class="n">c1</span> <span class="o">-</span> <span class="n">a1</span> <span class="o">*</span> <span class="n">c2</span>
+        <span class="n">c</span> <span class="o">=</span> <span class="n">a1</span> <span class="o">*</span> <span class="n">b2</span> <span class="o">-</span> <span class="n">b1</span> <span class="o">*</span> <span class="n">a2</span>
+        <span class="n">d</span> <span class="o">=</span> <span class="o">-</span><span class="n">a</span> <span class="o">*</span> <span class="n">x1</span> <span class="o">-</span> <span class="n">b</span> <span class="o">*</span> <span class="n">y1</span> <span class="o">-</span> <span class="n">c</span> <span class="o">*</span> <span class="n">z1</span>
+        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">,</span> <span class="n">c</span><span class="p">,</span> <span class="n">d</span><span class="p">])</span>
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">_get_denorm</span><span class="p">(</span><span class="n">Tr_velo_to_cam_homo</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Calculates the denormalized vector perpendicular to the image plane.</span>
+<span class="sd">        Args:</span>
+<span class="sd">            Tr_velo_to_cam_homo (np.ndarray): Homogeneous (4x4) LiDAR-to-camera transformation matrix</span>
+<span class="sd">        Returns:</span>
+<span class="sd">            np.ndarray: vector&quot;&quot;&quot;</span>
+        <span class="n">ground_points_lidar</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([[</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">],</span> <span class="p">[</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">],</span> <span class="p">[</span><span class="mf">1.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">]])</span>
+        <span class="n">ground_points_lidar</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">(</span>
+            <span class="p">(</span><span class="n">ground_points_lidar</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">((</span><span class="n">ground_points_lidar</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="mi">1</span><span class="p">))),</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span>
+        <span class="p">)</span>
+        <span class="n">ground_points_cam</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">matmul</span><span class="p">(</span><span class="n">Tr_velo_to_cam_homo</span><span class="p">,</span> <span class="n">ground_points_lidar</span><span class="o">.</span><span class="n">T</span><span class="p">)</span><span class="o">.</span><span class="n">T</span>
+        <span class="n">denorm</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span> <span class="o">*</span> <span class="n">Cuboid2D</span><span class="o">.</span><span class="n">_get_plane_equation</span><span class="p">(</span><span class="n">ground_points_cam</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">denorm</span>
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">_get_3d_points</span><span class="p">(</span><span class="n">dim</span><span class="p">,</span> <span class="n">location</span><span class="p">,</span> <span class="n">rotation_y</span><span class="p">,</span> <span class="n">denorm</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Get corner points according to the 3D bounding box parameters.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            dim (List[float]): The dimensions of the 3D bounding box as [l, w, h].</span>
+<span class="sd">            location (List[float]): The location of the 3D bounding box as [x, y, z].</span>
+<span class="sd">            rotation_y (float): The rotation angle around the y-axis.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            np.ndarray: The corner points of the 3D bounding box.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">c</span><span class="p">,</span> <span class="n">s</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">rotation_y</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">rotation_y</span><span class="p">)</span>
+        <span class="n">R</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([[</span><span class="n">c</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">s</span><span class="p">],</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="p">[</span><span class="o">-</span><span class="n">s</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">c</span><span class="p">]],</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
+        <span class="n">l</span><span class="p">,</span> <span class="n">w</span><span class="p">,</span> <span class="n">h</span> <span class="o">=</span> <span class="n">dim</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span> <span class="n">dim</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">dim</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">x_corners</span> <span class="o">=</span> <span class="p">[</span><span class="n">l</span> <span class="o">/</span> <span class="mi">2</span><span class="p">,</span> <span class="n">l</span> <span class="o">/</span> <span class="mi">2</span><span class="p">,</span> <span class="o">-</span><span class="n">l</span> <span class="o">/</span> <span class="mi">2</span><span class="p">,</span> <span class="o">-</span><span class="n">l</span> <span class="o">/</span> <span class="mi">2</span><span class="p">,</span> <span class="n">l</span> <span class="o">/</span> <span class="mi">2</span><span class="p">,</span> <span class="n">l</span> <span class="o">/</span> <span class="mi">2</span><span class="p">,</span> <span class="o">-</span><span class="n">l</span> <span class="o">/</span> <span class="mi">2</span><span class="p">,</span> <span class="o">-</span><span class="n">l</span> <span class="o">/</span> <span class="mi">2</span><span class="p">]</span>
+        <span class="n">y_corners</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="o">-</span><span class="n">h</span><span class="p">,</span> <span class="o">-</span><span class="n">h</span><span class="p">,</span> <span class="o">-</span><span class="n">h</span><span class="p">,</span> <span class="o">-</span><span class="n">h</span><span class="p">]</span>
+        <span class="n">z_corners</span> <span class="o">=</span> <span class="p">[</span><span class="n">w</span> <span class="o">/</span> <span class="mi">2</span><span class="p">,</span> <span class="o">-</span><span class="n">w</span> <span class="o">/</span> <span class="mi">2</span><span class="p">,</span> <span class="o">-</span><span class="n">w</span> <span class="o">/</span> <span class="mi">2</span><span class="p">,</span> <span class="n">w</span> <span class="o">/</span> <span class="mi">2</span><span class="p">,</span> <span class="n">w</span> <span class="o">/</span> <span class="mi">2</span><span class="p">,</span> <span class="o">-</span><span class="n">w</span> <span class="o">/</span> <span class="mi">2</span><span class="p">,</span> <span class="o">-</span><span class="n">w</span> <span class="o">/</span> <span class="mi">2</span><span class="p">,</span> <span class="n">w</span> <span class="o">/</span> <span class="mi">2</span><span class="p">]</span>
+
+        <span class="n">corners</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">x_corners</span><span class="p">,</span> <span class="n">y_corners</span><span class="p">,</span> <span class="n">z_corners</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
+        <span class="n">corners_3d</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">R</span><span class="p">,</span> <span class="n">corners</span><span class="p">)</span>
+
+        <span class="n">denorm</span> <span class="o">=</span> <span class="n">denorm</span><span class="p">[:</span><span class="mi">3</span><span class="p">]</span>
+        <span class="n">denorm_norm</span> <span class="o">=</span> <span class="n">denorm</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">denorm</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">**</span> <span class="mi">2</span> <span class="o">+</span> <span class="n">denorm</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">**</span> <span class="mi">2</span> <span class="o">+</span> <span class="n">denorm</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">**</span> <span class="mi">2</span><span class="p">)</span>
+        <span class="n">ori_denorm</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">0.0</span><span class="p">,</span> <span class="o">-</span><span class="mf">1.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">])</span>
+        <span class="n">theta</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span> <span class="o">*</span> <span class="n">math</span><span class="o">.</span><span class="n">acos</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">denorm_norm</span><span class="p">,</span> <span class="n">ori_denorm</span><span class="p">))</span>
+        <span class="n">n_vector</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">cross</span><span class="p">(</span><span class="n">denorm</span><span class="p">,</span> <span class="n">ori_denorm</span><span class="p">)</span>
+        <span class="n">n_vector_norm</span> <span class="o">=</span> <span class="n">n_vector</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">n_vector</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">**</span> <span class="mi">2</span> <span class="o">+</span> <span class="n">n_vector</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">**</span> <span class="mi">2</span> <span class="o">+</span> <span class="n">n_vector</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">**</span> <span class="mi">2</span><span class="p">)</span>
+        <span class="n">rotation_matrix</span><span class="p">,</span> <span class="n">j</span> <span class="o">=</span> <span class="n">cv2</span><span class="o">.</span><span class="n">Rodrigues</span><span class="p">(</span><span class="n">theta</span> <span class="o">*</span> <span class="n">n_vector_norm</span><span class="p">)</span>
+        <span class="n">corners_3d</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">rotation_matrix</span><span class="p">,</span> <span class="n">corners_3d</span><span class="p">)</span>
+        <span class="n">corners_3d</span> <span class="o">=</span> <span class="n">corners_3d</span> <span class="o">+</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">location</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">corners_3d</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">_project_to_2d</span><span class="p">(</span><span class="n">pts_3d</span><span class="p">,</span> <span class="n">P</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Project 3D points to 2D image plane.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            pts_3d (np.ndarray): The 3D points to project.</span>
+<span class="sd">            P (np.ndarray): The projection matrix.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            np.ndarray: The 2D points projected to the image</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># Convert to homogeneous coordinates</span>
+        <span class="n">pts_3d</span> <span class="o">=</span> <span class="n">pts_3d</span><span class="o">.</span><span class="n">T</span>
+        <span class="n">pts_3d_homo</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">vstack</span><span class="p">((</span><span class="n">pts_3d</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="n">pts_3d</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">])))</span>
+        <span class="n">pts_2d</span> <span class="o">=</span> <span class="n">P</span> <span class="o">@</span> <span class="n">pts_3d_homo</span>
+        <span class="n">pts_2d</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="p">:]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">divide</span><span class="p">(</span><span class="n">pts_2d</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="p">:],</span> <span class="n">pts_2d</span><span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="p">:])</span>
+        <span class="n">pts_2d</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="p">:]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">divide</span><span class="p">(</span><span class="n">pts_2d</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="p">:],</span> <span class="n">pts_2d</span><span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="p">:])</span>
+        <span class="n">pts_2d</span> <span class="o">=</span> <span class="n">pts_2d</span><span class="p">[:</span><span class="mi">2</span><span class="p">,</span> <span class="p">:]</span><span class="o">.</span><span class="n">T</span>
+
+        <span class="k">return</span> <span class="n">pts_2d</span>
+
+<div class="viewcode-block" id="Cuboid2D.from_3d">
+<a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.plugins.data_formats.datumaro_binary.mapper.html#datumaro.components.abstracts.merger.Cuboid2D.from_3d">[docs]</a>
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">from_3d</span><span class="p">(</span>
+        <span class="bp">cls</span><span class="p">,</span>
+        <span class="n">dim</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+        <span class="n">location</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+        <span class="n">rotation_y</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+        <span class="n">P</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+        <span class="n">Tr_velo_to_cam</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Cuboid2D</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Creates an instance of Cuboid2D class from 3D bounding box parameters.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            dim (np.ndarray): 3 scalars describing length, width and height of a 3D bounding box</span>
+<span class="sd">            location (np.ndarray): (x, y, z) coordinates of the middle of the top face.</span>
+<span class="sd">            rotation_y (np.ndarray): rotation along the Y-axis (from -pi to pi)</span>
+<span class="sd">            P (np.ndarray): Camera-to-Image transformation matrix (3x4)</span>
+<span class="sd">            Tr_velo_to_cam (np.ndarray): LiDAR-to-Camera transformation matrix (3x4)</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            Cuboid2D: Projection points for the given bounding box</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">Tr_velo_to_cam_homo</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">eye</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span>
+        <span class="n">Tr_velo_to_cam_homo</span><span class="p">[:</span><span class="mi">3</span><span class="p">,</span> <span class="p">:</span><span class="mi">4</span><span class="p">]</span> <span class="o">=</span> <span class="n">Tr_velo_to_cam</span>
+        <span class="n">denorm</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="n">_get_denorm</span><span class="p">(</span><span class="n">Tr_velo_to_cam_homo</span><span class="p">)</span>
+        <span class="n">pts_3d</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="n">_get_3d_points</span><span class="p">(</span><span class="n">dim</span><span class="p">,</span> <span class="n">location</span><span class="p">,</span> <span class="n">rotation_y</span><span class="p">,</span> <span class="n">denorm</span><span class="p">)</span>
+        <span class="n">y_3d</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">pts_3d</span><span class="p">[:</span><span class="mi">4</span><span class="p">,</span> <span class="mi">1</span><span class="p">])</span>
+        <span class="n">pts_2d</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="n">_project_to_2d</span><span class="p">(</span><span class="n">pts_3d</span><span class="p">,</span> <span class="n">P</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="nb">tuple</span><span class="p">,</span> <span class="n">pts_2d</span><span class="p">)),</span> <span class="n">y_3d</span><span class="o">=</span><span class="n">y_3d</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Cuboid2D.to_3d">
+<a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.plugins.data_formats.datumaro_binary.mapper.html#datumaro.components.abstracts.merger.Cuboid2D.to_3d">[docs]</a>
+    <span class="k">def</span> <span class="nf">to_3d</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">P_inv</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="nb">float</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Reconstructs 3D object Velodyne coordinates (dimensions, location and rotation along the Y-axis)</span>
+<span class="sd">        from the given Cuboid2D instance.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            P_inv (np.ndarray): Pseudo-inverse of Camera-to-Image projection matrix</span>
+<span class="sd">        Returns:</span>
+<span class="sd">            tuple: dimensions, location and rotation along the Y-axis</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">recon_3d</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">idx</span><span class="p">,</span> <span class="n">coord_2d</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">points</span><span class="p">):</span>
+            <span class="n">coord_2d</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">coord_2d</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+            <span class="n">coord_3d</span> <span class="o">=</span> <span class="n">P_inv</span> <span class="o">@</span> <span class="n">coord_2d</span>
+            <span class="k">if</span> <span class="n">idx</span> <span class="o">&lt;</span> <span class="mi">4</span><span class="p">:</span>
+                <span class="n">coord_3d</span> <span class="o">=</span> <span class="n">coord_3d</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">y_3d</span> <span class="o">/</span> <span class="n">coord_3d</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">coord_3d</span> <span class="o">=</span> <span class="n">coord_3d</span> <span class="o">*</span> <span class="n">recon_3d</span><span class="p">[</span><span class="n">idx</span> <span class="o">-</span> <span class="mi">4</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span> <span class="o">/</span> <span class="n">coord_3d</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="n">recon_3d</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">coord_3d</span><span class="p">[:</span><span class="mi">3</span><span class="p">])</span>
+        <span class="n">recon_3d</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">recon_3d</span><span class="p">)</span>
+
+        <span class="n">x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">recon_3d</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">])</span>
+        <span class="n">z</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">recon_3d</span><span class="p">[:,</span> <span class="mi">2</span><span class="p">])</span>
+
+        <span class="n">yaws</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">pairs</span> <span class="o">=</span> <span class="p">[(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span> <span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">2</span><span class="p">),</span> <span class="p">(</span><span class="mi">4</span><span class="p">,</span> <span class="mi">5</span><span class="p">),</span> <span class="p">(</span><span class="mi">7</span><span class="p">,</span> <span class="mi">6</span><span class="p">)]</span>
+        <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">pairs</span><span class="p">:</span>
+            <span class="n">delta_x</span> <span class="o">=</span> <span class="n">recon_3d</span><span class="p">[</span><span class="n">p</span><span class="p">[</span><span class="mi">0</span><span class="p">]][</span><span class="mi">0</span><span class="p">]</span> <span class="o">-</span> <span class="n">recon_3d</span><span class="p">[</span><span class="n">p</span><span class="p">[</span><span class="mi">1</span><span class="p">]][</span><span class="mi">0</span><span class="p">]</span>
+            <span class="n">delta_z</span> <span class="o">=</span> <span class="n">recon_3d</span><span class="p">[</span><span class="n">p</span><span class="p">[</span><span class="mi">0</span><span class="p">]][</span><span class="mi">2</span><span class="p">]</span> <span class="o">-</span> <span class="n">recon_3d</span><span class="p">[</span><span class="n">p</span><span class="p">[</span><span class="mi">1</span><span class="p">]][</span><span class="mi">2</span><span class="p">]</span>
+            <span class="n">yaws</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">arctan2</span><span class="p">(</span><span class="n">delta_x</span><span class="p">,</span> <span class="n">delta_z</span><span class="p">))</span>
+        <span class="n">yaw</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">yaws</span><span class="p">)</span>
+
+        <span class="n">widths</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">pairs</span> <span class="o">=</span> <span class="p">[(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span> <span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">),</span> <span class="p">(</span><span class="mi">4</span><span class="p">,</span> <span class="mi">5</span><span class="p">),</span> <span class="p">(</span><span class="mi">6</span><span class="p">,</span> <span class="mi">7</span><span class="p">)]</span>
+        <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">pairs</span><span class="p">:</span>
+            <span class="n">delta_x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span>
+                <span class="p">(</span><span class="n">recon_3d</span><span class="p">[</span><span class="n">p</span><span class="p">[</span><span class="mi">0</span><span class="p">]][</span><span class="mi">0</span><span class="p">]</span> <span class="o">-</span> <span class="n">recon_3d</span><span class="p">[</span><span class="n">p</span><span class="p">[</span><span class="mi">1</span><span class="p">]][</span><span class="mi">0</span><span class="p">])</span> <span class="o">**</span> <span class="mi">2</span>
+                <span class="o">+</span> <span class="p">(</span><span class="n">recon_3d</span><span class="p">[</span><span class="n">p</span><span class="p">[</span><span class="mi">0</span><span class="p">]][</span><span class="mi">2</span><span class="p">]</span> <span class="o">-</span> <span class="n">recon_3d</span><span class="p">[</span><span class="n">p</span><span class="p">[</span><span class="mi">1</span><span class="p">]][</span><span class="mi">2</span><span class="p">])</span> <span class="o">**</span> <span class="mi">2</span>
+            <span class="p">)</span>
+            <span class="n">widths</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">delta_x</span><span class="p">)</span>
+        <span class="n">w</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">widths</span><span class="p">)</span>
+
+        <span class="n">lengths</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">pairs</span> <span class="o">=</span> <span class="p">[(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">),</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">3</span><span class="p">),</span> <span class="p">(</span><span class="mi">5</span><span class="p">,</span> <span class="mi">6</span><span class="p">),</span> <span class="p">(</span><span class="mi">4</span><span class="p">,</span> <span class="mi">7</span><span class="p">)]</span>
+        <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">pairs</span><span class="p">:</span>
+            <span class="n">delta_z</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span>
+                <span class="p">(</span><span class="n">recon_3d</span><span class="p">[</span><span class="n">p</span><span class="p">[</span><span class="mi">0</span><span class="p">]][</span><span class="mi">0</span><span class="p">]</span> <span class="o">-</span> <span class="n">recon_3d</span><span class="p">[</span><span class="n">p</span><span class="p">[</span><span class="mi">1</span><span class="p">]][</span><span class="mi">0</span><span class="p">])</span> <span class="o">**</span> <span class="mi">2</span>
+                <span class="o">+</span> <span class="p">(</span><span class="n">recon_3d</span><span class="p">[</span><span class="n">p</span><span class="p">[</span><span class="mi">0</span><span class="p">]][</span><span class="mi">2</span><span class="p">]</span> <span class="o">-</span> <span class="n">recon_3d</span><span class="p">[</span><span class="n">p</span><span class="p">[</span><span class="mi">1</span><span class="p">]][</span><span class="mi">2</span><span class="p">])</span> <span class="o">**</span> <span class="mi">2</span>
+            <span class="p">)</span>
+            <span class="n">lengths</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">delta_z</span><span class="p">)</span>
+        <span class="n">l</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">lengths</span><span class="p">)</span>
+
+        <span class="n">heights</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">pairs</span> <span class="o">=</span> <span class="p">[(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">4</span><span class="p">),</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">5</span><span class="p">),</span> <span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">6</span><span class="p">),</span> <span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">7</span><span class="p">)]</span>
+        <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">pairs</span><span class="p">:</span>
+            <span class="n">delta_y</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">recon_3d</span><span class="p">[</span><span class="n">p</span><span class="p">[</span><span class="mi">0</span><span class="p">]][</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">recon_3d</span><span class="p">[</span><span class="n">p</span><span class="p">[</span><span class="mi">1</span><span class="p">]][</span><span class="mi">1</span><span class="p">])</span>
+            <span class="n">heights</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">delta_y</span><span class="p">)</span>
+        <span class="n">h</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">heights</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">h</span><span class="p">,</span> <span class="n">w</span><span class="p">,</span> <span class="n">l</span><span class="p">]),</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">x</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">y_3d</span><span class="p">,</span> <span class="n">z</span><span class="p">]),</span> <span class="n">yaw</span></div>
 </div>
 
 
