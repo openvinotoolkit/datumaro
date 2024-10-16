@@ -62,7 +62,7 @@ class HashKeyTest:
     )
     def test_compare_hashkey(self, fxt_hashkeys, expected, request):
         hashkey1, hashkey2 = request.getfixturevalue(fxt_hashkeys)
-        assert (expected, hashkey1 == hashkey2)
+        assert (hashkey1 == hashkey2) == expected
 
 
 class RotatedBboxTest:
