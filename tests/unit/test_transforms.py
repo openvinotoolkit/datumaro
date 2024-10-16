@@ -1685,15 +1685,11 @@ class PseudoLabelingTest(TestCase):
             [
                 DatasetItem(
                     id=0,
-                    media=Image.from_file(
-                        path=os.path.join(self.data_path, "dog", "ILSVRC2012_val_00001698.JPEG")
-                    ),
+                    media=Image.from_file(path=os.path.join(self.data_path, "dog", "0.JPEG")),
                 ),
                 DatasetItem(
                     id=1,
-                    media=Image.from_file(
-                        path=os.path.join(self.data_path, "cat", "ILSVRC2012_val_00004894.JPEG")
-                    ),
+                    media=Image.from_file(path=os.path.join(self.data_path, "cat", "0.JPEG")),
                 ),
             ],
             categories=self.categories,
