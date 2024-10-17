@@ -183,8 +183,7 @@ class JsonReader:
             pcd_info = item_desc.get("point_cloud")
             if media and pcd_info:
                 raise MediaTypeError(STR_MULTIPLE_MEDIA)
-            if pcd_info:
-                pcd_path = pcd_info.get("path")
+            if pcd_info and (pcd_path := pcd_info.get("path")):
                 point_cloud = osp.join(self._pcd_dir, self._subset, pcd_path)
 
                 related_images = None
