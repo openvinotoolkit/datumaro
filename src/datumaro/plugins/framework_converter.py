@@ -137,7 +137,10 @@ try:
             image, label = self._gen_item(idx)
 
             if self.task == "tabular":
-                text = image()[self.input_target]
+                try:
+                    text = image[self.input_target]
+                except TypeError:
+                    text = image()[self.input_target]
 
                 if self.output_target:
                     src_tokenizer, tgt_tokenizer = self.tokenizer
