@@ -240,6 +240,36 @@ def test_build_and_copy_images_section(tmp_path: Path):
     assert (subset_dir / "src.jpg").exists()
 
 
+def test_build_and_copy_images_section_disambiguates_same_basename(tmp_path: Path):
+    """Regression test for https://github.com/open-edge-platform/geti/issues/7496.
+
+    Different source files sharing the same basename (e.g. video frames extracted
+    from different videos into per-video directories, both named "frame000066.png")
+    must not collide/overwrite each other when flattened into a single subset dir.
+    """
+    video_a_dir = tmp_path / "video_a_frames"
+    video_b_dir = tmp_path / "video_b_frames"
+    video_a_dir.mkdir()
+    video_b_dir.mkdir()
+    frame_a = video_a_dir / "frame000066.png"
+    frame_b = video_b_dir / "frame000066.png"
+    frame_a.write_bytes(b"frame-a")
+    frame_b.write_bytes(b"frame-b")
+
+    subset_dir = tmp_path / "subset"
+    subset_dir.mkdir()
+
+    sample_a = _make_sample(image=str(frame_a), image_id=1)
+    sample_b = _make_sample(image=str(frame_b), image_id=2)
+
+    images = _build_and_copy_images_section([sample_a, sample_b], lambda s: s.image_id, subset_dir)
+
+    file_names = [img["file_name"] for img in images]
+    assert len(set(file_names)) == 2, f"expected unique file names, got {file_names}"
+    assert (subset_dir / file_names[0]).read_bytes() == b"frame-a"
+    assert (subset_dir / file_names[1]).read_bytes() == b"frame-b"
+
+
 def test_collect_helpers_extract_expected_fields():
     instances_by_image = {
         1: [

@@ -16,6 +16,7 @@ import yaml
 
 from datumaro.experimental import Dataset
 from datumaro.experimental.categories import LabelCategories
+from datumaro.experimental.data_formats.base import unique_destination_filename
 from datumaro.experimental.data_formats.yolo.constants import (
     DIR_NAME_TO_SUBSET,
     SUBSET_TO_DIR_NAME,
@@ -454,13 +455,14 @@ def _save_sample_to_dir(
     images_dir: Path,
     labels_dir: Path,
     save_images: bool,
+    used_names: dict[str, str],
 ) -> None:
     """Save a single sample's image and annotation to directories (Ultralytics format)."""
     image_path = Path(sample.image) if sample.image else None
     if not image_path:
         return
 
-    file_name = image_path.name
+    file_name = unique_destination_filename(image_path, used_names)
     dst_image_path = images_dir / file_name
 
     # Copy image if requested
@@ -468,7 +470,7 @@ def _save_sample_to_dir(
         shutil.copy2(image_path, dst_image_path)
 
     # Write annotation file
-    anno_path = labels_dir / f"{image_path.stem}.txt"
+    anno_path = labels_dir / f"{Path(file_name).stem}.txt"
     _write_sample_annotation(anno_path, sample)
 
 
@@ -477,13 +479,14 @@ def _save_traditional_sample(
     subset_dir: Path,
     subset_dir_name: str,
     save_images: bool,
+    used_names: dict[str, str],
 ) -> str | None:
     """Save a single sample in traditional YOLO format. Returns the image path string or None."""
     image_path = Path(sample.image) if sample.image else None
     if not image_path:
         return None
 
-    file_name = image_path.name
+    file_name = unique_destination_filename(image_path, used_names)
     dst_image_path = subset_dir / file_name
 
     # Copy image if requested
@@ -491,7 +494,7 @@ def _save_traditional_sample(
         shutil.copy2(image_path, dst_image_path)
 
     # Write annotation file
-    anno_path = subset_dir / f"{image_path.stem}.txt"
+    anno_path = subset_dir / f"{Path(file_name).stem}.txt"
     _write_sample_annotation(anno_path, sample)
 
     return f"data/{subset_dir_name}/{file_name}"
@@ -505,9 +508,10 @@ def _save_traditional_subset(
 ) -> list[str]:
     """Save all samples for a subset. Returns list of image paths."""
     image_paths = []
+    used_names: dict[str, str] = {}
     for sample in samples:
         try:
-            img_path = _save_traditional_sample(sample, subset_dir, subset_dir_name, save_images)
+            img_path = _save_traditional_sample(sample, subset_dir, subset_dir_name, save_images, used_names)
             if img_path:
                 image_paths.append(img_path)
         except Exception as e:
@@ -667,9 +671,10 @@ def _save_yolo_ultralytics(
 
         logger.info("[YOLO] Saving subset '%s' with %d samples", subset_name, len(samples))
 
+        used_names: dict[str, str] = {}
         for sample in samples:
             try:
-                _save_sample_to_dir(sample, images_subset_dir, labels_subset_dir, save_images)
+                _save_sample_to_dir(sample, images_subset_dir, labels_subset_dir, save_images, used_names)
             except Exception as e:
                 logger.warning("[YOLO] Failed to save sample: %s", e)
 

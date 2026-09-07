@@ -14,6 +14,7 @@ import numpy as np
 
 from datumaro.experimental import Dataset
 from datumaro.experimental.categories import KeypointCategories, LabelCategories
+from datumaro.experimental.data_formats.base import unique_destination_filename
 from datumaro.experimental.data_formats.coco.sample import CocoCategories, CocoSample
 from datumaro.experimental.fields import ImageInfo, Subset
 
@@ -272,6 +273,7 @@ def _build_and_copy_images_section(
 ) -> list[dict]:
     images_section: list[dict] = []
     seen_images: set[int] = set()
+    used_names: dict[str, str] = {}
     for s in samples:
         iid = get_or_assign_image_id(s)
         if iid in seen_images:
@@ -279,7 +281,7 @@ def _build_and_copy_images_section(
         seen_images.add(iid)
 
         image_path = Path(s.image) if s.image else Path()
-        file_name = image_path.name
+        file_name = unique_destination_filename(image_path, used_names)
         info = s.image_info
         height = int(info.height) if (info is not None and getattr(info, "height", None) is not None) else 0
         width = int(info.width) if (info is not None and getattr(info, "width", None) is not None) else 0
