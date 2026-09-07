@@ -256,11 +256,14 @@ class DownloadDescribeTest:
 
         assert redirected_output == stdout_output
 
-    @pytest.mark.skipif(not KAGGLE_API_KEY_EXISTS, reason="Kaggle API key missing")
-    def test_kaggle(self):
-        run(
-            self._helper_tc,
-            "download",
-            "kaggle",
-            "describe",
-        )
+
+class KaggleDownloadDescribeTest:
+    _helper_tc = TestCaseHelper()
+
+    def test_text(self):
+        output_file = io.StringIO()
+
+        with contextlib.redirect_stdout(output_file):
+            run(self._helper_tc, "download", "kaggle", "describe")
+
+        assert "Supported datasets:" in output_file.getvalue()

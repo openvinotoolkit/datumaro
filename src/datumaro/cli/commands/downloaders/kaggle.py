@@ -95,9 +95,9 @@ class KaggleDatasetDownloader(IDatasetDownloader):
                 raise CliException(f"Failed to import dataset: {e}")
 
     @classmethod
-    def describe(cls, report_format="txt", report_file=None) -> None:
+    def describe(cls, report_format="text", report_file=None) -> None:
         file = report_file if report_file else None
-        if report_format == "txt":
+        if report_format == "text":
             print(cls.get_command_description(), file=file)
 
     @classmethod
