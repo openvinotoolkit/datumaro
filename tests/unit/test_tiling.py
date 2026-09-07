@@ -6,6 +6,8 @@ from typing import Dict, List
 from unittest import TestCase
 
 import numpy as np
+import pytest
+from pycocotools import mask as mask_utils
 from shapely import Polygon as ShapelyPolygon
 from shapely import box
 
@@ -20,6 +22,7 @@ from datumaro.components.annotation import (
     Points,
     Polygon,
     PolyLine,
+    RleMask,
     SuperResolutionAnnotation,
 )
 from datumaro.components.dataset import Dataset
@@ -646,3 +649,67 @@ class MergeTileTest(_TestBase, TestCase):
                 .transform("merge_tile")
             )
             compare_datasets(self, transformed, source, require_media=True)
+
+
+@pytest.mark.parametrize("mask_type", ["dense", "rle", "lazy_rle"])
+def test_tile_mask_preserves_pixels_and_metadata(mask_type):
+    pixels = np.zeros((6, 8), dtype=np.uint8)
+    pixels[1:5, 2:7] = 1
+    metadata = dict(id=7, label=0, group=3, object_id=11, z_order=2, attributes={"nested": {"value": 1}})
+    if mask_type == "dense":
+        annotation = Mask(pixels, **metadata)
+    else:
+        rle = mask_utils.encode(np.asfortranarray(pixels))
+        annotation = RleMask(rle if mask_type == "rle" else lambda: rle, **metadata)
+    source = Dataset.from_iterable(
+        [DatasetItem("sample", media=Image.from_numpy(np.zeros((6, 8, 3), dtype=np.uint8)), annotations=[annotation])],
+        categories=["object"],
+    )
+
+    tiled = list(Tile(source, grid_size=(2, 2), overlap=(0.0, 0.0), threshold_drop_ann=0.5))
+
+    assert len(tiled) == 4
+    for item, (y, x) in zip(tiled, [(0, 0), (0, 4), (3, 0), (3, 4)]):
+        assert len(item.annotations) == 1
+        result = item.annotations[0]
+        np.testing.assert_array_equal(result.image, pixels[y : y + 3, x : x + 4])
+        assert (result.id, result.label, result.group, result.object_id, result.z_order) == (7, 0, 3, 11, 2)
+        assert result.attributes == {"nested": {"value": 1}}
+        assert isinstance(result, type(annotation))
+    tiled[0].annotations[0].attributes["nested"]["value"] = 2
+    assert annotation.attributes == {"nested": {"value": 1}}
+    assert tiled[1].annotations[0].attributes == {"nested": {"value": 1}}
+    np.testing.assert_array_equal(annotation.image, pixels)
+
+
+def test_tile_imported_datumaro_mask_can_be_exported(tmp_path):
+    pixels = np.zeros((6, 8), dtype=np.uint8)
+    pixels[1:5, 2:7] = 1
+    source = Dataset.from_iterable(
+        [
+            DatasetItem(
+                "sample",
+                media=Image.from_numpy(np.zeros((6, 8, 3), dtype=np.uint8)),
+                annotations=[Mask(pixels, id=7, label=0, group=3, z_order=2, attributes={"name": "object"})],
+            )
+        ],
+        categories=["object"],
+    )
+    source.export(str(tmp_path / "source"), "datumaro", save_media=True)
+    imported = Dataset.import_from(str(tmp_path / "source"), "datumaro")
+    assert isinstance(imported.get("sample").annotations[0], RleMask)
+
+    imported.transform(Tile, grid_size=(2, 2), overlap=(0.0, 0.0), threshold_drop_ann=0.5)
+    imported.export(str(tmp_path / "tiled"), "datumaro", save_media=True)
+    restored = Dataset.import_from(str(tmp_path / "tiled"), "datumaro")
+
+    assert len(restored) == 4
+    for idx, (y, x) in enumerate([(0, 0), (0, 4), (3, 0), (3, 4)]):
+        item = restored.get(f"sample_tile_{idx}")
+        assert item.media.size == (3, 4)
+        assert item.media.data.shape == (3, 4, 3)
+        assert len(item.annotations) == 1
+        annotation = item.annotations[0]
+        np.testing.assert_array_equal(annotation.image, pixels[y : y + 3, x : x + 4])
+        assert (annotation.id, annotation.label, annotation.group, annotation.z_order) == (7, 0, 3, 2)
+        assert annotation.attributes == {"name": "object"}
