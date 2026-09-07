@@ -340,6 +340,8 @@
 <span class="kn">from</span><span class="w"> </span><span class="nn">copy</span><span class="w"> </span><span class="kn">import</span> <span class="n">deepcopy</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Tuple</span>
 
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pycocotools</span><span class="w"> </span><span class="kn">import</span> <span class="n">mask</span> <span class="k">as</span> <span class="n">mask_utils</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">shapely</span><span class="w"> </span><span class="kn">import</span> <span class="n">LineString</span><span class="p">,</span> <span class="n">MultiPoint</span><span class="p">,</span> <span class="n">box</span><span class="p">,</span> <span class="n">transform</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">shapely</span><span class="w"> </span><span class="kn">import</span> <span class="n">Polygon</span> <span class="k">as</span> <span class="n">ShapelyPolygon</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">shapely.geometry.base</span><span class="w"> </span><span class="kn">import</span> <span class="n">BaseGeometry</span>
@@ -353,6 +355,7 @@
     <span class="n">Points</span><span class="p">,</span>
     <span class="n">Polygon</span><span class="p">,</span>
     <span class="n">PolyLine</span><span class="p">,</span>
+    <span class="n">RleMask</span><span class="p">,</span>
 <span class="p">)</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">datumaro.components.cli_plugin</span><span class="w"> </span><span class="kn">import</span> <span class="n">CliPlugin</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">datumaro.components.dataset_base</span><span class="w"> </span><span class="kn">import</span> <span class="n">DatasetItem</span>
@@ -376,6 +379,11 @@
 <span class="k">def</span><span class="w"> </span><span class="nf">_tile_mask</span><span class="p">(</span><span class="n">ann</span><span class="p">:</span> <span class="n">Mask</span><span class="p">,</span> <span class="n">roi_int</span><span class="p">:</span> <span class="n">BboxIntCoords</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Mask</span><span class="p">:</span>
     <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">w</span><span class="p">,</span> <span class="n">h</span> <span class="o">=</span> <span class="n">roi_int</span>
     <span class="n">tiled_mask</span> <span class="o">=</span> <span class="n">ann</span><span class="o">.</span><span class="n">image</span><span class="p">[</span><span class="n">y</span> <span class="p">:</span> <span class="n">y</span> <span class="o">+</span> <span class="n">h</span><span class="p">,</span> <span class="n">x</span> <span class="p">:</span> <span class="n">x</span> <span class="o">+</span> <span class="n">w</span><span class="p">]</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">ann</span><span class="p">,</span> <span class="n">RleMask</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">ann</span><span class="o">.</span><span class="n">wrap</span><span class="p">(</span>
+            <span class="n">rle</span><span class="o">=</span><span class="n">mask_utils</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">asfortranarray</span><span class="p">(</span><span class="n">tiled_mask</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">uint8</span><span class="p">))),</span>
+            <span class="n">attributes</span><span class="o">=</span><span class="n">deepcopy</span><span class="p">(</span><span class="n">ann</span><span class="o">.</span><span class="n">attributes</span><span class="p">),</span>
+        <span class="p">)</span>
     <span class="k">return</span> <span class="n">ann</span><span class="o">.</span><span class="n">wrap</span><span class="p">(</span>
         <span class="n">image</span><span class="o">=</span><span class="n">tiled_mask</span><span class="p">,</span>
         <span class="n">attributes</span><span class="o">=</span><span class="n">deepcopy</span><span class="p">(</span><span class="n">ann</span><span class="o">.</span><span class="n">attributes</span><span class="p">),</span>
