@@ -46,7 +46,7 @@ def _tile_mask(ann: Mask, roi_int: BboxIntCoords, *args, **kwargs) -> Mask:
     tiled_mask = ann.image[y : y + h, x : x + w]
     if isinstance(ann, RleMask):
         return ann.wrap(
-            rle=mask_utils.encode(np.asfortranarray(tiled_mask)),
+            rle=mask_utils.encode(np.asfortranarray(tiled_mask.astype(np.uint8))),
             attributes=deepcopy(ann.attributes),
         )
     return ann.wrap(
