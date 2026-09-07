@@ -49,7 +49,7 @@ def unique_destination_filename(source_path: Path, used_names: dict[str, str]) -
     if not base_name:
         return base_name
 
-    resolved_source = str(source_path.resolve()) if source_path.exists() else str(source_path)
+    resolved_source = str(source_path.resolve())
     stem, suffix = source_path.stem, source_path.suffix
 
     candidate = base_name
