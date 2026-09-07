@@ -5,6 +5,8 @@
 from copy import deepcopy
 from typing import Any, Callable, Dict, List, Optional, Tuple
 
+import numpy as np
+from pycocotools import mask as mask_utils
 from shapely import LineString, MultiPoint, box, transform
 from shapely import Polygon as ShapelyPolygon
 from shapely.geometry.base import BaseGeometry
@@ -18,6 +20,7 @@ from datumaro.components.annotation import (
     Points,
     Polygon,
     PolyLine,
+    RleMask,
 )
 from datumaro.components.cli_plugin import CliPlugin
 from datumaro.components.dataset_base import DatasetItem
@@ -41,6 +44,11 @@ def _apply_offset(geom: BaseGeometry, roi_box: ShapelyPolygon) -> BaseGeometry:
 def _tile_mask(ann: Mask, roi_int: BboxIntCoords, *args, **kwargs) -> Mask:
     x, y, w, h = roi_int
     tiled_mask = ann.image[y : y + h, x : x + w]
+    if isinstance(ann, RleMask):
+        return ann.wrap(
+            rle=mask_utils.encode(np.asfortranarray(tiled_mask)),
+            attributes=deepcopy(ann.attributes),
+        )
     return ann.wrap(
         image=tiled_mask,
         attributes=deepcopy(ann.attributes),
