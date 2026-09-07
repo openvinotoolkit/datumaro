@@ -26,6 +26,8 @@ from datumaro.experimental.data_formats.yolo.helpers import (
     _load_ultralytics_categories,
     _make_yolo_bbox,
     _parse_yolo_annotation,
+    _save_sample_to_dir,
+    _save_traditional_sample,
     _write_obj_data,
     _write_obj_names,
     _write_sample_annotation,
@@ -440,6 +442,100 @@ def test_write_sample_annotation(tmp_path: Path):
     assert float(parts[2]) == pytest.approx(0.5, abs=0.001)  # center_y normalized
     assert float(parts[3]) == pytest.approx(0.1, abs=0.001)  # width normalized
     assert float(parts[4]) == pytest.approx(0.1, abs=0.001)  # height normalized
+
+
+# ================================
+# _save_sample_to_dir / _save_traditional_sample Tests
+# ================================
+
+
+def test_save_sample_to_dir_disambiguates_same_basename(tmp_path: Path):
+    """Regression test for https://github.com/open-edge-platform/geti/issues/7496.
+
+    Frames extracted from different videos into per-video directories can share the
+    same basename (e.g. "frame000066.png"). Saving them to a flattened YOLO images
+    directory must not let one overwrite/shadow the other.
+    """
+    video_a_dir = tmp_path / "video_a_frames"
+    video_b_dir = tmp_path / "video_b_frames"
+    video_a_dir.mkdir()
+    video_b_dir.mkdir()
+    frame_a = video_a_dir / "frame000066.png"
+    frame_b = video_b_dir / "frame000066.png"
+    _create_test_image(frame_a, 640, 480)
+    _create_test_image(frame_b, 320, 240)
+
+    images_dir = tmp_path / "images"
+    labels_dir = tmp_path / "labels"
+    images_dir.mkdir()
+    labels_dir.mkdir()
+
+    sample_a = YoloSample(
+        image=str(frame_a),
+        image_info=ImageInfo(height=480, width=640),
+        bboxes=np.array([[320.0, 240.0, 64.0, 48.0]], dtype=np.float32),
+        labels=np.array([0], dtype=np.int32),
+        subset=Subset.TRAINING,
+    )
+    sample_b = YoloSample(
+        image=str(frame_b),
+        image_info=ImageInfo(height=240, width=320),
+        bboxes=np.array([[160.0, 120.0, 32.0, 24.0]], dtype=np.float32),
+        labels=np.array([1], dtype=np.int32),
+        subset=Subset.TRAINING,
+    )
+
+    used_names: dict[str, str] = {}
+    _save_sample_to_dir(sample_a, images_dir, labels_dir, save_images=True, used_names=used_names)
+    _save_sample_to_dir(sample_b, images_dir, labels_dir, save_images=True, used_names=used_names)
+
+    saved_images = sorted(p.name for p in images_dir.iterdir())
+    saved_labels = sorted(p.name for p in labels_dir.iterdir())
+    assert len(saved_images) == 2, f"expected 2 distinct images, got {saved_images}"
+    assert len(saved_labels) == 2, f"expected 2 distinct label files, got {saved_labels}"
+
+    # Each label file must reference its own sample's class, not be overwritten by the other.
+    label_contents = {p.name: p.read_text() for p in labels_dir.iterdir()}
+    classes = {content.split()[0] for content in label_contents.values()}
+    assert classes == {"0", "1"}
+
+
+def test_save_traditional_sample_disambiguates_same_basename(tmp_path: Path):
+    """Regression test for https://github.com/open-edge-platform/geti/issues/7496 (traditional format)."""
+    video_a_dir = tmp_path / "video_a_frames"
+    video_b_dir = tmp_path / "video_b_frames"
+    video_a_dir.mkdir()
+    video_b_dir.mkdir()
+    frame_a = video_a_dir / "frame000066.png"
+    frame_b = video_b_dir / "frame000066.png"
+    _create_test_image(frame_a, 640, 480)
+    _create_test_image(frame_b, 320, 240)
+
+    subset_dir = tmp_path / "obj_train_data"
+    subset_dir.mkdir()
+
+    sample_a = YoloSample(
+        image=str(frame_a),
+        image_info=ImageInfo(height=480, width=640),
+        bboxes=np.array([[320.0, 240.0, 64.0, 48.0]], dtype=np.float32),
+        labels=np.array([0], dtype=np.int32),
+        subset=Subset.TRAINING,
+    )
+    sample_b = YoloSample(
+        image=str(frame_b),
+        image_info=ImageInfo(height=240, width=320),
+        bboxes=np.array([[160.0, 120.0, 32.0, 24.0]], dtype=np.float32),
+        labels=np.array([1], dtype=np.int32),
+        subset=Subset.TRAINING,
+    )
+
+    used_names: dict[str, str] = {}
+    path_a = _save_traditional_sample(sample_a, subset_dir, "obj_train_data", save_images=True, used_names=used_names)
+    path_b = _save_traditional_sample(sample_b, subset_dir, "obj_train_data", save_images=True, used_names=used_names)
+
+    assert path_a != path_b
+    saved_images = sorted(p.name for p in subset_dir.iterdir() if p.suffix == ".png")
+    assert len(saved_images) == 2, f"expected 2 distinct images, got {saved_images}"
 
 
 # ================================
