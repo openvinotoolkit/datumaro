@@ -12,8 +12,10 @@ Supports both:
 
 import json
 import logging
+import re
 from collections import defaultdict
 from pathlib import Path
+from typing import Any
 
 from datumaro.experimental import Dataset
 from datumaro.experimental.data_formats.coco.helpers import (
@@ -44,6 +46,27 @@ _SUBSET_NAME_TO_ENUM: dict[str, Subset] = {
     "testing": Subset.TESTING,
     _DEFAULT_SUBSET_KEY: Subset.UNASSIGNED,
 }
+
+# Official COCO releases suffix subset names with a year (e.g. train2017, val2014, test2015)
+_YEAR_SUFFIX_RE = re.compile(r"^(?P<base>.+?)[-_]?\d{4}$")
+
+
+def _subset_name_to_enum(subset_name: str) -> Subset:
+    """
+    Map a subset name to a ``Subset`` enum value (case-insensitive).
+
+    Year-suffixed names from the official COCO releases (e.g. ``train2017``,
+    ``val2014``, ``test2015``) are resolved using their base name. Unknown names
+    are mapped to ``Subset.UNASSIGNED``.
+    """
+    name = subset_name.lower()
+    if name in _SUBSET_NAME_TO_ENUM:
+        return _SUBSET_NAME_TO_ENUM[name]
+    match = _YEAR_SUFFIX_RE.match(name)
+    if match:
+        return _SUBSET_NAME_TO_ENUM.get(match.group("base"), Subset.UNASSIGNED)
+    return Subset.UNASSIGNED
+
 
 # Roboflow exports use these subset directory names
 ROBOFLOW_SUBSETS = ("train", "valid", "test")
@@ -320,6 +343,8 @@ def load_coco_dataset(
        - Subset names can be arbitrary strings (e.g., "training", "validation", "test")
        - Known subset names ("train", "training", "val", "validation", "test", "testing")
          are mapped to ``Subset.TRAINING``, ``Subset.VALIDATION``, ``Subset.TESTING``
+       - Year-suffixed names from the official COCO releases (e.g., "train2017",
+         "val2014") are mapped using their base name
        - Unknown subset names are mapped to ``Subset.UNASSIGNED``
 
     Args:
@@ -398,8 +423,8 @@ def load_coco_dataset(
         categories["keypoints"] = loaded_keypoint_categories
     dataset = Dataset(CocoSample, categories=categories)
 
-    for subset, config in subset_config.items():
-        _load_subset_into_dataset(dataset, subset, config)
+    for config in subset_config.values():
+        _load_subset_into_dataset(dataset, config["subset"], config)
 
     logger.info("[COCO] Finished loading dataset with %d samples in total", len(dataset))
     return dataset
@@ -456,7 +481,7 @@ def _normalize_load_inputs(
 def _load_subset_into_dataset(
     dataset: Dataset,
     subset: Subset,
-    config: dict[str, Path | list[Path]],
+    config: dict[str, Any],
 ) -> None:
     """
     Load a single subset's data into the dataset.
@@ -606,20 +631,21 @@ def _merge_annotations_from_files(
 def _build_subset_config_from_paths(
     images_config: dict[str, str],
     annotations_config: dict[str, list[str]],
-) -> dict[Subset, dict[str, Path | list[Path]]]:
+) -> dict[str, dict[str, Any]]:
     """
     Build subset configuration from user-provided paths.
 
     Maps user-provided subset names to Subset enum values and creates
-    configuration dictionaries for each subset.
+    configuration dictionaries for each subset. The result is keyed by the
+    user-provided subset name so that several names resolving to the same
+    Subset enum value (e.g., unknown names mapped to ``Subset.UNASSIGNED``)
+    are all loaded instead of overwriting each other.
     """
-    result: dict[Subset, dict[str, Path | list[Path]]] = {}
+    result: dict[str, dict[str, Any]] = {}
 
     for subset_name, images_path in images_config.items():
-        # Map subset name to enum (case-insensitive)
-        subset_enum = _SUBSET_NAME_TO_ENUM.get(subset_name.lower(), Subset.UNASSIGNED)
-
-        result[subset_enum] = {
+        result[subset_name] = {
+            "subset": _subset_name_to_enum(subset_name),
             "images_dir": Path(images_path),
             "annotations": [Path(p) for p in annotations_config[subset_name]],
         }
@@ -745,7 +771,7 @@ def save_coco_dataset(
     else:
         # Split layout: save each subset to its designated location
         for subset_name, images_dir_str in images_config.items():
-            subset_enum = _SUBSET_NAME_TO_ENUM.get(subset_name.lower(), Subset.UNASSIGNED)
+            subset_enum = _subset_name_to_enum(subset_name)
             samples = subset_to_samples.get(subset_enum, [])
 
             if not samples:
