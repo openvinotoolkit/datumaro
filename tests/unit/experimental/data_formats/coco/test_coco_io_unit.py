@@ -10,6 +10,7 @@ from datumaro.experimental.data_formats.base import DataFormat
 from datumaro.experimental.data_formats.coco.io import (
     _detect_roboflow_coco_layout,
     _is_roboflow_coco_layout,
+    _subset_name_to_enum,
     import_coco_dataset,
     is_coco_format,
     load_coco_dataset,
@@ -389,6 +390,108 @@ def test_load_coco_dataset_keypoint_categories_from_second_file(tmp_path: Path):
     kp_categories = ds.schema.get_categories_for_field("keypoints")
     assert isinstance(kp_categories, KeypointCategories)
     assert kp_categories.labels == ("left_hip", "right_hip")
+
+
+@pytest.mark.parametrize(
+    ("subset_name", "expected"),
+    [
+        ("train", Subset.TRAINING),
+        ("Training", Subset.TRAINING),
+        ("val", Subset.VALIDATION),
+        ("test", Subset.TESTING),
+        ("train2017", Subset.TRAINING),
+        ("val2017", Subset.VALIDATION),
+        ("test2017", Subset.TESTING),
+        ("train2014", Subset.TRAINING),
+        ("val2014", Subset.VALIDATION),
+        ("test2015", Subset.TESTING),
+        ("VAL_2017", Subset.VALIDATION),
+        ("test-dev2017", Subset.UNASSIGNED),
+        ("unlabeled2017", Subset.UNASSIGNED),
+        ("default", Subset.UNASSIGNED),
+        ("2017", Subset.UNASSIGNED),
+    ],
+)
+def test_subset_name_to_enum(subset_name: str, expected: Subset):
+    assert _subset_name_to_enum(subset_name) == expected
+
+
+def _setup_official_coco_layout(root: Path, year: str) -> None:
+    """Create a tiny dataset following the official cocodataset.org layout:
+    ``images/{train,val,test}<year>/`` and ``annotations/*_<split><year>.json``.
+    """
+    categories = [{"id": 1, "name": "person"}, {"id": 2, "name": "dog"}]
+    splits = {"train": [1, 2, 3], "val": [4, 5], "test": [6]}
+    for split, image_ids in splits.items():
+        images_dir = root / "images" / f"{split}{year}"
+        images_dir.mkdir(parents=True)
+        images = []
+        for image_id in image_ids:
+            file_name = f"{image_id:012d}.jpg"
+            (images_dir / file_name).write_bytes(b"img")
+            images.append({"id": image_id, "file_name": file_name, "height": 10, "width": 8})
+
+        if split == "test":
+            # The test split only ships image info, without annotations
+            _write_json(
+                root / "annotations" / f"image_info_{split}{year}.json",
+                {"images": images, "categories": categories},
+            )
+        else:
+            annotations = [
+                {"id": i, "image_id": i, "category_id": 1, "bbox": [0, 0, 2, 2], "area": 4, "iscrowd": 0}
+                for i in image_ids
+            ]
+            _write_json(
+                root / "annotations" / f"instances_{split}{year}.json",
+                {"images": images, "annotations": annotations, "categories": categories},
+            )
+
+
+@pytest.mark.parametrize("year", ["2017", "2014"])
+def test_import_coco_dataset_official_year_suffixed_layout(tmp_path: Path, year: str):
+    """Official COCO layout with year-suffixed subset folders must map to known subsets."""
+    root = tmp_path / "coco"
+    _setup_official_coco_layout(root, year)
+
+    ds = import_coco_dataset(root)
+
+    assert len(ds) == 6
+    subsets_by_image_id = {s.image_id: s.subset for s in ds}
+    assert subsets_by_image_id == {
+        1: Subset.TRAINING,
+        2: Subset.TRAINING,
+        3: Subset.TRAINING,
+        4: Subset.VALIDATION,
+        5: Subset.VALIDATION,
+        6: Subset.TESTING,
+    }
+
+
+def test_load_coco_dataset_keeps_subsets_mapping_to_same_enum(tmp_path: Path):
+    """Several subset names resolving to the same Subset value must all be loaded."""
+    images_config = {}
+    annotations_config = {}
+    for image_id, subset_name in enumerate(["foo", "bar"], start=1):
+        images_dir = tmp_path / subset_name
+        images_dir.mkdir()
+        (images_dir / "img.jpg").write_bytes(b"img")
+        annotations_file = tmp_path / f"{subset_name}.json"
+        _write_json(
+            annotations_file,
+            {
+                "images": [{"id": image_id, "file_name": "img.jpg", "height": 10, "width": 8}],
+                "annotations": [],
+                "categories": [{"id": 1, "name": "cat"}],
+            },
+        )
+        images_config[subset_name] = str(images_dir)
+        annotations_config[subset_name] = str(annotations_file)
+
+    ds = load_coco_dataset(images_dir_path=images_config, annotations_path=annotations_config)
+
+    assert len(ds) == 2
+    assert all(s.subset == Subset.UNASSIGNED for s in ds)
 
 
 # ---------------------------------------------------------------------------
