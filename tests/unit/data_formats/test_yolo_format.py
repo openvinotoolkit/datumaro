@@ -4,6 +4,7 @@
 
 # pylint: disable=signature-differs
 
+import os.path as osp
 from copy import deepcopy
 from typing import Any, Dict, Optional, Type
 
@@ -133,3 +134,85 @@ class YoloFormatTest(TestDataFormatBase):
             importer=importer,
             dataset_cls=dataset_cls,
         )
+
+
+@pytest.mark.parametrize("exporter", [YoloExporter, YoloUltralyticsExporter], ids=["yolo", "yolo_ultralytics"])
+@pytest.mark.parametrize(
+    "is_crowd_value",
+    [True, "True", 1, "1"],
+    ids=["bool_true", "str_True", "int_1", "str_1"],
+)
+def test_yolo_export_skips_crowd_regions(test_dir, exporter, is_crowd_value, caplog):
+    dataset = Dataset.from_iterable(
+        [
+            DatasetItem(
+                id=1,
+                subset="train",
+                media=Image.from_numpy(data=np.ones((10, 15, 3))),
+                annotations=[
+                    Bbox(0, 2, 4, 2, label=1, id=0, group=0),
+                    Bbox(5, 5, 4, 4, label=2, id=1, group=1, attributes={"is_crowd": is_crowd_value}),
+                ],
+            ),
+            DatasetItem(
+                id=2,
+                subset="val",
+                media=Image.from_numpy(data=np.ones((10, 15, 3))),
+                annotations=[Bbox(0, 2, 4, 2, label=1, id=0, group=0)],
+            ),
+        ],
+        categories=["label_" + str(i) for i in range(5)],
+    )
+
+    exporter.convert(dataset, save_dir=test_dir, save_media=True)
+
+    if exporter is YoloExporter:
+        label_path = osp.join(test_dir, "obj_train_data", "1.txt")
+    else:
+        label_path = osp.join(test_dir, "labels", "train", "1.txt")
+
+    with open(label_path, encoding="utf-8") as f:
+        lines = [line for line in f.read().splitlines() if line]
+
+    assert len(lines) == 1
+    assert lines[0].split(" ")[0] == "1"
+    assert "crowd region(s)" in caplog.text
+    assert "Item '1'" in caplog.text
+
+
+@pytest.mark.parametrize(
+    "is_crowd_value",
+    [False, "False", 0, "0"],
+    ids=["bool_false", "str_False", "int_0", "str_0"],
+)
+def test_yolo_export_keeps_non_crowd_regions(test_dir, is_crowd_value, caplog):
+    dataset = Dataset.from_iterable(
+        [
+            DatasetItem(
+                id=1,
+                subset="train",
+                media=Image.from_numpy(data=np.ones((10, 15, 3))),
+                annotations=[
+                    Bbox(0, 2, 4, 2, label=1, id=0, group=0),
+                    Bbox(5, 5, 4, 4, label=2, id=1, group=1, attributes={"is_crowd": is_crowd_value}),
+                ],
+            ),
+            DatasetItem(
+                id=2,
+                subset="val",
+                media=Image.from_numpy(data=np.ones((10, 15, 3))),
+                annotations=[Bbox(0, 2, 4, 2, label=1, id=0, group=0)],
+            ),
+        ],
+        categories=["label_" + str(i) for i in range(5)],
+    )
+
+    YoloExporter.convert(dataset, save_dir=test_dir, save_media=True)
+
+    label_path = osp.join(test_dir, "obj_train_data", "1.txt")
+    with open(label_path, encoding="utf-8") as f:
+        lines = [line for line in f.read().splitlines() if line]
+
+    assert len(lines) == 2
+    assert sorted(line.split(" ")[0] for line in lines) == ["1", "2"]
+    assert "crowd region(s)" not in caplog.text
