@@ -166,7 +166,7 @@ class _MapillaryVistasBase(SubsetBase):
                 )
 
             if self._parse_polygon:
-                polygon_path = osp.join(polygon_dir, item_id + ".json")
+                polygon_path = join_within_base(polygon_dir, item_id + ".json")
                 item_info = parse_json_file(polygon_path)
 
                 polygons = item_info["objects"]
@@ -217,7 +217,7 @@ class _MapillaryVistasBase(SubsetBase):
                 annotations.append(ExtractedMask(index_mask=index_mask, index=uval, label=label_id, id=instance_id))
 
             if self._parse_polygon:
-                polygon_path = osp.join(polygon_dir, item_id + ".json")
+                polygon_path = join_within_base(polygon_dir, item_id + ".json")
                 item_info = parse_json_file(polygon_path)
 
                 polygons = item_info["objects"]
