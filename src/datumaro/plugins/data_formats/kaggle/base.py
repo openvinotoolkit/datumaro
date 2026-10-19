@@ -62,7 +62,10 @@ class KaggleImageCsvBase(DatasetBase):
             return media_path
 
         for ext in IMAGE_EXTENSIONS:
-            media_path_with_ext = media_path + ext
+            try:
+                media_path_with_ext = join_within_base(self._path, media_name + ext)
+            except ValueError:
+                continue
             if osp.exists(media_path_with_ext):
                 return media_path_with_ext
 
