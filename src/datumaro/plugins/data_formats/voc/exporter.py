@@ -22,7 +22,7 @@ from datumaro.components.errors import DatasetExportError, InvalidAnnotationErro
 from datumaro.components.exporter import Exporter
 from datumaro.components.media import Image
 from datumaro.util import find, str_to_bool
-from datumaro.util.annotation_util import make_label_id_mapping
+from datumaro.util.annotation_util import is_crowd_region, make_label_id_mapping
 from datumaro.util.image import save_image
 from datumaro.util.mask_tools import paint_mask, remap_mask
 from datumaro.util.meta_file_util import has_meta_file
@@ -310,6 +310,15 @@ class VocExporter(Exporter):
                     main_bboxes.append(bbox)
                 elif self._is_part(label):
                     layout_bboxes.append(bbox)
+
+            crowd_regions = [obj for obj in main_bboxes if is_crowd_region(obj.attributes)]
+            if crowd_regions:
+                log.warning(
+                    "Item '%s': exporting %d crowd region(s) (is_crowd=True) as ordinary objects."
+                    " The VOC format has no ignore-region concept, so the flag only survives"
+                    " in a datumaro-specific <attributes> block that other VOC readers ignore."
+                    % (item.id, len(crowd_regions))
+                )
 
             for new_obj_id, obj in enumerate(main_bboxes):
                 attr = obj.attributes

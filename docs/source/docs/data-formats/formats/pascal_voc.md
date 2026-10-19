@@ -38,6 +38,12 @@ Supported annotation attributes:
   in the `attributes` section of the annotation `xml` file. Available for
   bbox annotations only.
 
+Annotations marked as crowd regions (the `is_crowd` attribute, which
+originates from COCO `iscrowd` annotations) are exported as ordinary
+objects with a warning, since the format has no ignore-region concept
+and the flag is only preserved in the Datumaro-specific `attributes`
+section.
+
 ## Convert Pascal VOC dataset
 
 The Pascal VOC dataset is available for free download

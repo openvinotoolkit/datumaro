@@ -3,12 +3,13 @@
 # SPDX-License-Identifier: MIT
 
 from itertools import groupby
-from typing import Callable, Dict, Iterable, NewType, Optional, Sequence, Tuple, Union
+from typing import Any, Callable, Dict, Iterable, NewType, Optional, Sequence, Tuple, Union
 
 import numpy as np
 from typing_extensions import Literal
 
 from datumaro.components.annotation import AnnotationType, LabelCategories, Mask, RleMask, Shape
+from datumaro.util import str_to_bool
 from datumaro.util.mask_tools import mask_to_rle
 
 
@@ -287,3 +288,24 @@ def make_label_id_mapping(
         return id_mapping.get(src_id, fallback)
 
     return map_id, id_mapping, source_labels, target_labels
+
+
+def is_crowd_region(attributes: Optional[Dict[str, Any]]) -> bool:
+    """Check whether annotation attributes mark an annotation as a crowd region.
+
+    The flag originates from COCO ``iscrowd`` annotations, where crowd regions
+    are ignore regions rather than objects to detect. Importers store it as a
+    boolean value (e.g., COCO, KITTI), while attribute-serializing formats
+    such as VOC round-trip it as a string.
+    """
+    if not attributes:
+        return False
+
+    value = attributes.get("is_crowd")
+    if value is None:
+        return False
+
+    try:
+        return str_to_bool(value)
+    except (TypeError, ValueError):
+        return False
