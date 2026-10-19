@@ -605,6 +605,9 @@ models. Specification for this format is available
 <li><p><code class="docutils literal notranslate"><span class="pre">Bounding</span> <span class="pre">boxes</span></code></p></li>
 </ul>
 <p>YOLO format doesn’t support attributes for annotations.</p>
+<p>Annotations marked as crowd regions (the <code class="docutils literal notranslate"><span class="pre">is_crowd</span></code> attribute, which
+originates from COCO <code class="docutils literal notranslate"><span class="pre">iscrowd</span></code> annotations) are skipped during export
+with a warning, since the format cannot represent ignore regions.</p>
 <p>The format supports arbitrary subset names, except <code class="docutils literal notranslate"><span class="pre">classes</span></code>, <code class="docutils literal notranslate"><span class="pre">names</span></code> and <code class="docutils literal notranslate"><span class="pre">backup</span></code>.</p>
 <blockquote>
 <div><p>Note, that by default, the YOLO framework does not expect any subset names,

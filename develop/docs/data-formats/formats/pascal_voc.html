@@ -633,6 +633,11 @@ Indicate that the object does the corresponding action.</p></li>
 in the <code class="docutils literal notranslate"><span class="pre">attributes</span></code> section of the annotation <code class="docutils literal notranslate"><span class="pre">xml</span></code> file. Available for
 bbox annotations only.</p></li>
 </ul>
+<p>Annotations marked as crowd regions (the <code class="docutils literal notranslate"><span class="pre">is_crowd</span></code> attribute, which
+originates from COCO <code class="docutils literal notranslate"><span class="pre">iscrowd</span></code> annotations) are exported as ordinary
+objects with a warning, since the format has no ignore-region concept
+and the flag is only preserved in the Datumaro-specific <code class="docutils literal notranslate"><span class="pre">attributes</span></code>
+section.</p>
 </section>
 <section id="convert-pascal-voc-dataset">
 <h2>Convert Pascal VOC dataset<a class="headerlink" href="#convert-pascal-voc-dataset" title="Link to this heading">#</a></h2>

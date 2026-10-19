@@ -13,6 +13,10 @@ Supported annotation types:
 
 YOLO format doesn't support attributes for annotations.
 
+Annotations marked as crowd regions (the `is_crowd` attribute, which
+originates from COCO `iscrowd` annotations) are skipped during export
+with a warning, since the format cannot represent ignore regions.
+
 The format supports arbitrary subset names, except `classes`, `names` and `backup`.
 
 > Note, that by default, the YOLO framework does not expect any subset names,

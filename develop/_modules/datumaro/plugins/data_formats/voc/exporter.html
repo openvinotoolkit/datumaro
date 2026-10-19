@@ -357,7 +357,7 @@
 <span class="kn">from</span><span class="w"> </span><span class="nn">datumaro.components.exporter</span><span class="w"> </span><span class="kn">import</span> <span class="n">Exporter</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">datumaro.components.media</span><span class="w"> </span><span class="kn">import</span> <span class="n">Image</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">datumaro.util</span><span class="w"> </span><span class="kn">import</span> <span class="n">find</span><span class="p">,</span> <span class="n">str_to_bool</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">datumaro.util.annotation_util</span><span class="w"> </span><span class="kn">import</span> <span class="n">make_label_id_mapping</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">datumaro.util.annotation_util</span><span class="w"> </span><span class="kn">import</span> <span class="n">is_crowd_region</span><span class="p">,</span> <span class="n">make_label_id_mapping</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">datumaro.util.image</span><span class="w"> </span><span class="kn">import</span> <span class="n">save_image</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">datumaro.util.mask_tools</span><span class="w"> </span><span class="kn">import</span> <span class="n">paint_mask</span><span class="p">,</span> <span class="n">remap_mask</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">datumaro.util.meta_file_util</span><span class="w"> </span><span class="kn">import</span> <span class="n">has_meta_file</span>
@@ -662,6 +662,15 @@
                     <span class="n">main_bboxes</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">bbox</span><span class="p">)</span>
                 <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">_is_part</span><span class="p">(</span><span class="n">label</span><span class="p">):</span>
                     <span class="n">layout_bboxes</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">bbox</span><span class="p">)</span>
+
+            <span class="n">crowd_regions</span> <span class="o">=</span> <span class="p">[</span><span class="n">obj</span> <span class="k">for</span> <span class="n">obj</span> <span class="ow">in</span> <span class="n">main_bboxes</span> <span class="k">if</span> <span class="n">is_crowd_region</span><span class="p">(</span><span class="n">obj</span><span class="o">.</span><span class="n">attributes</span><span class="p">)]</span>
+            <span class="k">if</span> <span class="n">crowd_regions</span><span class="p">:</span>
+                <span class="n">log</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
+                    <span class="s2">"Item '</span><span class="si">%s</span><span class="s2">': exporting </span><span class="si">%d</span><span class="s2"> crowd region(s) (is_crowd=True) as ordinary objects."</span>
+                    <span class="s2">" The VOC format has no ignore-region concept, so the flag only survives"</span>
+                    <span class="s2">" in a datumaro-specific &lt;attributes&gt; block that other VOC readers ignore."</span>
+                    <span class="o">%</span> <span class="p">(</span><span class="n">item</span><span class="o">.</span><span class="n">id</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">crowd_regions</span><span class="p">))</span>
+                <span class="p">)</span>
 
             <span class="k">for</span> <span class="n">new_obj_id</span><span class="p">,</span> <span class="n">obj</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">main_bboxes</span><span class="p">):</span>
                 <span class="n">attr</span> <span class="o">=</span> <span class="n">obj</span><span class="o">.</span><span class="n">attributes</span>

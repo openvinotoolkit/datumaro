@@ -14,6 +14,7 @@ datumaro.util.annotation\_util
       bbox_iou
       find_group_leader
       find_instances
+      is_crowd_region
       make_label_id_mapping
       max_bbox
       mean_bbox
