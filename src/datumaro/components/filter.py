@@ -6,6 +6,8 @@ from __future__ import annotations
 import logging as log
 from typing import TYPE_CHECKING, Callable, Optional
 
+import numpy as np
+
 # Disable B410: import_lxml - the library is used for writing
 from lxml import etree as ET  # nosec
 
@@ -115,6 +117,38 @@ class DatasetItemEncoder:
         ET.SubElement(ann_elem, "label").text = str(cls._get_label(obj.label, categories))
         ET.SubElement(ann_elem, "label_id").text = str(obj.label)
 
+        # Expose the same geometry fields as the other shape annotations, so
+        # that filters like '/item/annotation[area > 30]' can also match mask
+        # annotations. The mask is decoded once for both values. Annotations
+        # without decodable data keep the previous encoding (no geometry
+        # fields), since their area cannot be determined.
+        image = obj.image
+        if image is not None:
+            area = int(np.count_nonzero(image))
+            if area:
+                # Computed here instead of mask_tools.find_mask_bbox, which
+                # subtracts the inclusive last nonzero indices and therefore
+                # reports extents one pixel short in each dimension (see the
+                # referenced issue).
+                nonzero_cols = np.flatnonzero(np.any(image, axis=0))
+                nonzero_rows = np.flatnonzero(np.any(image, axis=1))
+                x = int(nonzero_cols[0])
+                y = int(nonzero_rows[0])
+                w = int(nonzero_cols[-1]) - x + 1
+                h = int(nonzero_rows[-1]) - y + 1
+                bbox_area = w * h
+            else:
+                x, y, w, h, bbox_area = 0, 0, 0, 0, 0
+
+            ET.SubElement(ann_elem, "area").text = str(area)
+
+            bbox_elem = ET.SubElement(ann_elem, "bbox")
+            ET.SubElement(bbox_elem, "x").text = str(x)
+            ET.SubElement(bbox_elem, "y").text = str(y)
+            ET.SubElement(bbox_elem, "w").text = str(w)
+            ET.SubElement(bbox_elem, "h").text = str(h)
+            ET.SubElement(bbox_elem, "area").text = str(bbox_area)
+
         return ann_elem
 
     @classmethod
@@ -137,6 +171,10 @@ class DatasetItemEncoder:
 
         ET.SubElement(ann_elem, "label").text = str(cls._get_label(obj.label, categories))
         ET.SubElement(ann_elem, "label_id").text = str(obj.label)
+
+        # The shape area itself, so that the documented
+        # '/item/annotation[area > N]' filter works for every shape type.
+        ET.SubElement(ann_elem, "area").text = str(obj.get_area())
 
         x, y, w, h = obj.get_bbox()
         area = w * h
@@ -163,6 +201,10 @@ class DatasetItemEncoder:
         ET.SubElement(ann_elem, "label").text = str(cls._get_label(obj.label, categories))
         ET.SubElement(ann_elem, "label_id").text = str(obj.label)
 
+        # The shape area itself, so that the documented
+        # '/item/annotation[area > N]' filter works for every shape type.
+        ET.SubElement(ann_elem, "area").text = str(obj.get_area())
+
         x, y, w, h = obj.get_bbox()
         area = w * h
         bbox_elem = ET.SubElement(ann_elem, "bbox")
@@ -186,6 +228,10 @@ class DatasetItemEncoder:
 
         ET.SubElement(ann_elem, "label").text = str(cls._get_label(obj.label, categories))
         ET.SubElement(ann_elem, "label_id").text = str(obj.label)
+
+        # The shape area itself, so that the documented
+        # '/item/annotation[area > N]' filter works for every shape type.
+        ET.SubElement(ann_elem, "area").text = str(obj.get_area())
 
         x, y, w, h = obj.get_bbox()
         area = w * h

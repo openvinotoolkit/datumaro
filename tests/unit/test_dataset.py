@@ -2139,6 +2139,183 @@ class DatasetFilterTest(TestCase):
 
         compare_datasets(self, expected, filtered)
 
+    def test_mask_encoding_exposes_geometry(self):
+        item = DatasetItem(
+            id=1,
+            annotations=[
+                Mask(
+                    id=1,
+                    image=np.array(
+                        [
+                            [0, 0, 0, 0],
+                            [0, 1, 1, 0],
+                            [0, 1, 1, 0],
+                        ],
+                        dtype=np.uint8,
+                    ),
+                ),
+            ],
+        )
+
+        encoded = DatasetItemEncoder.encode(item)
+        ann = encoded.find("annotation")
+
+        self.assertEqual("4", ann.find("area").text)
+
+        bbox = ann.find("bbox")
+        self.assertEqual([1, 1, 2, 2], [int(bbox.find(k).text) for k in ("x", "y", "w", "h")])
+        self.assertEqual("4", bbox.find("area").text)
+
+    def test_mask_encoding_exposes_zero_area_for_empty_mask(self):
+        item = DatasetItem(
+            id=1,
+            annotations=[Mask(id=1, image=np.zeros((3, 3), dtype=np.uint8))],
+        )
+
+        encoded = DatasetItemEncoder.encode(item)
+        ann = encoded.find("annotation")
+
+        self.assertEqual("0", ann.find("area").text)
+        self.assertEqual([0, 0, 0, 0], [int(ann.find("bbox").find(k).text) for k in ("x", "y", "w", "h")])
+
+    def test_annotations_filter_by_area_keeps_mask_annotations(self):
+        # Regression test for
+        # https://github.com/open-edge-platform/datumaro/issues/2208:
+        # mask annotations used to be silently dropped by area predicates,
+        # because their encoding had no geometry fields at all.
+        source = Dataset.from_iterable(
+            [
+                DatasetItem(
+                    id=1,
+                    annotations=[
+                        Mask(id=1, image=np.ones((8, 5), dtype=np.uint8)),  # area 40
+                        Bbox(2, 2, 5, 8, id=2),  # area 40
+                        Mask(id=3, image=np.ones((2, 3), dtype=np.uint8)),  # area 6
+                        Bbox(0, 0, 2, 3, id=4),  # area 6
+                    ],
+                ),
+            ],
+            categories=["a"],
+        )
+
+        expected = Dataset.from_iterable(
+            [
+                DatasetItem(
+                    id=1,
+                    annotations=[
+                        Mask(id=1, image=np.ones((8, 5), dtype=np.uint8)),
+                        Bbox(2, 2, 5, 8, id=2),
+                    ],
+                ),
+            ],
+            categories=["a"],
+        )
+
+        filtered = XPathAnnotationsFilter(source, "/item/annotation[area > 30]")
+
+        compare_datasets(self, expected, filtered)
+
+    def test_annotations_filter_by_area_can_drop_mask_annotations(self):
+        source = Dataset.from_iterable(
+            [
+                DatasetItem(
+                    id=1,
+                    annotations=[
+                        Mask(id=1, image=np.ones((2, 3), dtype=np.uint8)),  # area 6
+                    ],
+                ),
+            ],
+            categories=["a"],
+        )
+
+        expected = Dataset.from_iterable(
+            [
+                DatasetItem(id=1, annotations=[]),
+            ],
+            categories=["a"],
+        )
+
+        filtered = XPathAnnotationsFilter(source, "/item/annotation[area > 30]")
+
+        compare_datasets(self, expected, filtered)
+
+    def test_annotations_filter_by_area_keeps_polygon_annotations(self):
+        # The same documented '/item/annotation[area > N]' expression must
+        # also work for polygons, using the polygon area itself.
+        source = Dataset.from_iterable(
+            [
+                DatasetItem(
+                    id=1,
+                    annotations=[Polygon([0, 0, 10, 0, 10, 10, 0, 10], id=1)],  # area 100
+                ),
+            ],
+            categories=["a"],
+        )
+
+        filtered = XPathAnnotationsFilter(source, "/item/annotation[area > 50]")
+        compare_datasets(self, source, filtered)
+
+        expected_empty = Dataset.from_iterable(
+            [
+                DatasetItem(id=1, annotations=[]),
+            ],
+            categories=["a"],
+        )
+
+        filtered = XPathAnnotationsFilter(source, "/item/annotation[area > 200]")
+        compare_datasets(self, expected_empty, filtered)
+
+    def test_points_and_polyline_encoding_exposes_zero_area(self):
+        item = DatasetItem(
+            id=1,
+            annotations=[
+                Points([1, 2, 2, 0, 1, 1], id=1),
+                PolyLine([1, 2, 3, 4, 5, 6, 7, 8], id=2),
+            ],
+        )
+
+        encoded = DatasetItemEncoder.encode(item)
+
+        self.assertEqual(2, len(encoded.findall("annotation")))
+        for ann in encoded.findall("annotation"):
+            self.assertEqual("0", ann.find("area").text)
+
+    def test_chained_filters_preserve_mask_annotations(self):
+        # The exact scenario from
+        # https://github.com/open-edge-platform/datumaro/issues/2208:
+        # a label filter followed by an area filter must not lose masks.
+        source = Dataset.from_iterable(
+            [
+                DatasetItem(
+                    id=1,
+                    annotations=[
+                        Mask(label=0, id=1, image=np.ones((8, 5), dtype=np.uint8)),
+                        Mask(label=1, id=2, image=np.ones((2, 3), dtype=np.uint8)),
+                    ],
+                ),
+            ],
+            categories=["a", "b"],
+        )
+
+        source.filter(
+            '/item/annotation[label = "a" or label = "b"]',
+            filter_annotations=True,
+            remove_empty=True,
+        )
+        source.filter("/item/annotation[area > 30]", filter_annotations=True, remove_empty=True)
+
+        expected = Dataset.from_iterable(
+            [
+                DatasetItem(
+                    id=1,
+                    annotations=[Mask(label=0, id=1, image=np.ones((8, 5), dtype=np.uint8))],
+                ),
+            ],
+            categories=["a", "b"],
+        )
+
+        compare_datasets(self, expected, source)
+
 
 class DatasetTransformTest:
     @pytest.mark.parametrize("mode", [True, False])
