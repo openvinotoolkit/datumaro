@@ -1623,3 +1623,47 @@ class VocFormatErrorTest:
         with pytest.raises(DatasetImportError) as err_info:
             Dataset.import_from(test_dir, format="voc_layout").init_cache()
         assert "Failed to import dataset" in str(err_info.value)
+
+
+@pytest.mark.parametrize(
+    "is_crowd_value",
+    [True, "True", 1, "1"],
+    ids=["bool_true", "str_True", "int_1", "str_1"],
+)
+def test_voc_export_warns_on_crowd_regions(test_dir, is_crowd_value, caplog):
+    dataset = Dataset.from_iterable(
+        [
+            DatasetItem(
+                id="2007_000001",
+                subset="train",
+                media=Image.from_numpy(data=np.ones((10, 20, 3))),
+                annotations=[
+                    Bbox(1.0, 2.0, 2.0, 2.0, label=8, id=0, group=0),
+                    Bbox(
+                        5.0,
+                        5.0,
+                        2.0,
+                        2.0,
+                        label=9,
+                        id=1,
+                        group=1,
+                        attributes={"is_crowd": is_crowd_value},
+                    ),
+                ],
+            ),
+        ],
+        categories=VOC.make_voc_categories(task=VocTask.voc_detection),
+    )
+
+    VocDetectionExporter.convert(dataset, save_dir=test_dir, save_media=True)
+
+    tree = ElementTree.parse(osp.join(test_dir, "Annotations", "2007_000001.xml"))
+    objects = tree.findall("object")
+    assert len(objects) == 2
+
+    crowd_objects = [obj for obj in objects if obj.find("attributes/attribute[name='is_crowd']") is not None]
+    assert len(crowd_objects) == 1
+    assert crowd_objects[0].find("attributes/attribute[name='is_crowd']/value").text == str(is_crowd_value)
+
+    assert "crowd region(s)" in caplog.text
+    assert "Item '2007_000001'" in caplog.text

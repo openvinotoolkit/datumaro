@@ -15,6 +15,7 @@ from datumaro.components.errors import DatasetExportError, DatumaroError, MediaT
 from datumaro.components.exporter import Exporter
 from datumaro.components.media import Image
 from datumaro.util import str_to_bool
+from datumaro.util.annotation_util import is_crowd_region
 from datumaro.util.definitions import SUBSET_NAME_WHITELIST
 
 from .format import YoloPath
@@ -134,14 +135,26 @@ class YoloExporter(Exporter):
             height, width = item.media.size
 
             yolo_annotation = ""
+            skipped_crowd_regions = 0
 
             for bbox in item.annotations:
                 if not isinstance(bbox, Bbox) or bbox.label is None:
                     continue
 
+                if is_crowd_region(bbox.attributes):
+                    skipped_crowd_regions += 1
+                    continue
+
                 yolo_bb = _make_yolo_bbox((width, height), bbox.points)
                 yolo_bb = " ".join("%.6f" % p for p in yolo_bb)
                 yolo_annotation += "%s %s\n" % (bbox.label, yolo_bb)
+
+            if skipped_crowd_regions:
+                log.warning(
+                    "Item '%s': skipped %d crowd region(s) (is_crowd=True)."
+                    " The YOLO format has no representation for COCO ignore regions,"
+                    " and training on them would learn crowd regions as objects." % (item.id, skipped_crowd_regions)
+                )
 
             annotation_path = osp.join(subset_dir, "%s.txt" % item.id)
             os.makedirs(osp.dirname(annotation_path), exist_ok=True)
