@@ -299,14 +299,16 @@ class VocFormatImportExportTest(TestDataFormatBase):
         assert VocBase._parse_bbox(bbox, coordinate_mode="voc-one-based") == expected
 
     @pytest.mark.parametrize(
-        "coordinate_mode, expected_part",
+        "coordinate_mode, expected_part, expected_part_bbox",
         [
-            ("dm-zero-based", ["5.5", "6.0", "7.5", "8.0"]),
-            ("voc-one-based", ["6", "7", "8", "8"]),
+            ("dm-zero-based", ["5.5", "6.0", "7.5", "8.0"], [5.5, 6, 2, 2]),
+            ("voc-one-based", ["6", "7", "8", "8"], [5, 6, 3, 2]),
         ],
     )
     @pytest.mark.parametrize("format_name", ["voc_layout", "voc_action"])
-    def test_task_bbox_coordinate_mode(self, test_dir, request, format_name, coordinate_mode, expected_part):
+    def test_task_bbox_coordinate_mode(
+        self, test_dir, request, format_name, coordinate_mode, expected_part, expected_part_bbox
+    ):
         dataset = request.getfixturevalue("fxt_layout_dataset" if format_name == "voc_layout" else "fxt_action_dataset")
         dataset.export(test_dir, format_name, label_map=format_name, coordinate_mode=coordinate_mode)
         root = ElementTree.parse(osp.join(test_dir, "Annotations", "2007_000001.xml")).getroot()
@@ -321,7 +323,7 @@ class VocFormatImportExportTest(TestDataFormatBase):
         if format_name == "voc_layout":
             part = root.find("object/part/bndbox")
             assert [field.text for field in part] == expected_part
-            assert annotations[0].get_bbox() == ([5, 6, 3, 2] if coordinate_mode == "voc-one-based" else [5.5, 6, 2, 2])
+            assert annotations[0].get_bbox() == expected_part_bbox
 
     @pytest.mark.parametrize(
         "box",
