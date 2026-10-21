@@ -36,6 +36,12 @@ class _VocImporter(Importer):
         return parser
 
     @classmethod
+    def get_save_options(cls, **import_params):
+        if "coordinate_mode" in import_params:
+            return {"coordinate_mode": import_params["coordinate_mode"]}
+        return {}
+
+    @classmethod
     def detect(cls, context: FormatDetectionContext) -> None:
         # The `voc` format is inherently ambiguous with `voc_classification`,
         # `voc_detection`, etc. To remove the ambiguity (and thus make it

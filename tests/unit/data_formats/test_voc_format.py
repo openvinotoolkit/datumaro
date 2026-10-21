@@ -265,6 +265,28 @@ class VocFormatImportExportTest(TestDataFormatBase):
         item = next(item for item in dataset if item.id == "2007_000001" and item.subset == "train")
         assert item.annotations[0].get_bbox() == expected
 
+    def test_inplace_save_preserves_coordinate_mode(self, test_dir):
+        Dataset.from_iterable(
+            [
+                DatasetItem(id="edited", annotations=[Bbox(0, 0, 10, 10, label=0)]),
+                DatasetItem(id="untouched", annotations=[Bbox(0, 0, 10, 10, label=0)]),
+            ],
+            categories=["person"],
+        ).export(test_dir, "voc_detection", coordinate_mode="voc-one-based")
+
+        dataset = Dataset.import_from(test_dir, "voc_detection", coordinate_mode="voc-one-based")
+        item = next(item for item in dataset if item.id == "edited")
+        ann = item.annotations[0]
+        dataset.put(item.wrap(annotations=[Bbox(2, 3, 4, 5, label=ann.label, attributes=ann.attributes, id=ann.id)]))
+        dataset.save()
+
+        def read_box(item_id):
+            root = ElementTree.parse(osp.join(test_dir, "Annotations", f"{item_id}.xml")).getroot()
+            return [field.text for field in root.find("object/bndbox")]
+
+        assert read_box("edited") == ["3", "4", "6", "8"]
+        assert read_box("untouched") == ["1", "1", "10", "10"]
+
     @pytest.mark.parametrize(
         "coordinates, expected",
         [("1 1 1 1", [0, 0, 1, 1]), ("1 1 20 10", [0, 0, 20, 10]), ("3 4 6 8", [2, 3, 4, 5])],
