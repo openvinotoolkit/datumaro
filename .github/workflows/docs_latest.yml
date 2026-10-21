@@ -27,6 +27,7 @@ jobs:
             docs.python.org:443
             github.com:443
             numpy.org:443
+            release-assets.githubusercontent.com:443
             static.crates.io:443
 
       - name: Checkout repository
