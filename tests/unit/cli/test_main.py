@@ -98,6 +98,40 @@ def test_cli_extra_keeps_help_and_version_working(entry_point, args, cli_env):
     assert result.stdout.strip()
 
 
+@pytest.mark.parametrize(
+    "missing",
+    [
+        ("tensorboardX",),
+        ("tabulate",),
+        ("scipy",),
+        ("matplotlib",),
+        ("tensorboardX", "tabulate", "scipy", "matplotlib"),
+    ],
+)
+def test_main_reports_missing_dependencies_before_loading_commands(missing, monkeypatch, caplog):
+    def find_spec(name):
+        return None if name in missing else object()
+
+    def fail_parser():
+        pytest.fail("Commands must not be loaded when CLI dependencies are missing")
+
+    monkeypatch.setattr(cli.importlib.util, "find_spec", find_spec)
+    monkeypatch.setattr(cli, "make_parser", fail_parser)
+
+    assert cli.main(["--help"]) == 1
+    assert f"Missing optional CLI dependencies: {', '.join(missing)}." in caplog.text
+    assert "pip install 'datumaro[cli]'" in caplog.text
+
+
+@pytest.mark.parametrize("args, expected", [(["--help"], "Dataset Framework"), (["--version"], cli.__version__)])
+def test_main_with_cli_extra_keeps_help_and_version_working(args, expected, capsys):
+    with pytest.raises(SystemExit) as error:
+        cli.main(args)
+
+    assert error.value.code == 0
+    assert expected in capsys.readouterr().out
+
+
 def test_unrelated_import_failure_is_not_hidden(monkeypatch, caplog):
     def fail_parser():
         raise ModuleNotFoundError("broken installed plugin", name="unrelated_plugin_dependency")
