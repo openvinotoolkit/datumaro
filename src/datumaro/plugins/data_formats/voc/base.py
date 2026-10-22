@@ -48,8 +48,13 @@ class VocBase(SubsetBase):
         subset: Optional[str] = None,
         voc_importer_type: VocImporterType = VocImporterType.default,
         ctx: Optional[ImportContext] = None,
+        coordinate_mode: str = "dm-zero-based",
         **kwargs,
     ):
+        if coordinate_mode not in ("dm-zero-based", "voc-one-based"):
+            raise ValueError(f"Unknown VOC coordinate mode: {coordinate_mode!r}")
+        self._coordinate_mode = coordinate_mode
+
         if not subset:
             subset = osp.splitext(osp.basename(path))[0]
 
@@ -248,7 +253,7 @@ class VocBase(SubsetBase):
         return attributes
 
     @classmethod
-    def _parse_bbox(cls, object_elem):
+    def _parse_bbox(cls, object_elem, *, coordinate_mode="dm-zero-based"):
         bbox_elem = object_elem.find("bndbox")
         if bbox_elem is None:
             raise MissingFieldError("bndbox")
@@ -257,6 +262,10 @@ class VocBase(SubsetBase):
         xmax = cls._parse_field(bbox_elem, "xmax", float)
         ymin = cls._parse_field(bbox_elem, "ymin", float)
         ymax = cls._parse_field(bbox_elem, "ymax", float)
+        assert xmin is not None and xmax is not None and ymin is not None and ymax is not None
+        if coordinate_mode == "voc-one-based":
+            xmin -= 1
+            ymin -= 1
         return [xmin, ymin, xmax - xmin, ymax - ymin]
 
     def _parse_annotations(self, root_elem, *, item_id: Tuple[str, str]) -> List[Annotation]:
@@ -274,7 +283,7 @@ class VocBase(SubsetBase):
                     continue
 
                 obj_label_id = self._get_label_id(label_name)
-                obj_bbox = self._parse_bbox(object_elem)
+                obj_bbox = self._parse_bbox(object_elem, coordinate_mode=self._coordinate_mode)
                 attributes = self._parse_attribute(object_elem)
 
                 group = obj_id
@@ -282,7 +291,7 @@ class VocBase(SubsetBase):
                 if self._task in [VocTask.voc, VocTask.voc_layout]:
                     for part_elem in object_elem.findall("part"):
                         part_label_id = self._get_label_id(self._parse_field(part_elem, "name"))
-                        part_bbox = self._parse_bbox(part_elem)
+                        part_bbox = self._parse_bbox(part_elem, coordinate_mode=self._coordinate_mode)
 
                         item_annotations.append(Bbox(*part_bbox, label=part_label_id, group=group))
 
