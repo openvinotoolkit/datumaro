@@ -1742,8 +1742,8 @@ class CocoExporterTest:
                         Bbox(
                             1.0,
                             0.0,
-                            2.0,
-                            2.0,
+                            3.0,
+                            3.0,
                             id=3,
                             attributes={"is_crowd": True},
                             group=3,
@@ -1770,8 +1770,8 @@ class CocoExporterTest:
                         Bbox(
                             0.0,
                             1.0,
+                            3.0,
                             2.0,
-                            1.0,
                             id=3,
                             attributes={"is_crowd": True},
                             group=3,
@@ -1911,8 +1911,8 @@ class CocoExporterTest:
                         Bbox(
                             0.0,
                             0.0,
-                            4.0,
-                            4.0,
+                            5.0,
+                            5.0,
                             id=1,
                             attributes={"is_crowd": True},
                             group=1,
@@ -2086,8 +2086,8 @@ class CocoExporterTest:
                         Bbox(
                             1.0,
                             0.0,
-                            7.0,
-                            3.0,
+                            8.0,
+                            4.0,
                             id=4,
                             attributes={"is_crowd": False},
                             group=4,
@@ -2748,8 +2748,8 @@ class CocoExporterTest:
                         Bbox(
                             1.0,
                             1.0,
-                            2.0,
-                            2.0,
+                            3.0,
+                            3.0,
                             id=1,
                             attributes={"is_crowd": True},
                             group=1,
