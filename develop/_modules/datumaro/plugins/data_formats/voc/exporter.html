@@ -338,6 +338,7 @@
 <span class="c1"># SPDX-License-Identifier: MIT</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">logging</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">log</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">math</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">os.path</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">osp</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">collections</span><span class="w"> </span><span class="kn">import</span> <span class="n">OrderedDict</span><span class="p">,</span> <span class="n">defaultdict</span>
@@ -388,13 +389,22 @@
         <span class="k">return</span> <span class="n">default</span>
 
 
-<span class="k">def</span><span class="w"> </span><span class="nf">_write_xml_bbox</span><span class="p">(</span><span class="n">bbox</span><span class="p">,</span> <span class="n">parent_elem</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">_write_xml_bbox</span><span class="p">(</span><span class="n">bbox</span><span class="p">,</span> <span class="n">parent_elem</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">coordinate_mode</span><span class="o">=</span><span class="s2">"dm-zero-based"</span><span class="p">):</span>
     <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">w</span><span class="p">,</span> <span class="n">h</span> <span class="o">=</span> <span class="n">bbox</span>
+    <span class="k">if</span> <span class="n">coordinate_mode</span> <span class="o">==</span> <span class="s2">"voc-one-based"</span><span class="p">:</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">all</span><span class="p">(</span><span class="n">math</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span><span class="n">value</span><span class="p">)</span> <span class="k">for</span> <span class="n">value</span> <span class="ow">in</span> <span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">w</span><span class="p">,</span> <span class="n">h</span><span class="p">,</span> <span class="n">x</span> <span class="o">+</span> <span class="n">w</span><span class="p">,</span> <span class="n">y</span> <span class="o">+</span> <span class="n">h</span><span class="p">)):</span>
+            <span class="k">raise</span> <span class="n">InvalidAnnotationError</span><span class="p">(</span><span class="s2">"VOC bounding box coordinates must be finite"</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">x</span> <span class="o">&lt;</span> <span class="mi">0</span> <span class="ow">or</span> <span class="n">y</span> <span class="o">&lt;</span> <span class="mi">0</span> <span class="ow">or</span> <span class="n">w</span> <span class="o">&lt;=</span> <span class="mi">0</span> <span class="ow">or</span> <span class="n">h</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">InvalidAnnotationError</span><span class="p">(</span><span class="s2">"VOC bounding boxes must have nonnegative origins and positive dimensions"</span><span class="p">)</span>
+        <span class="n">xmin</span><span class="p">,</span> <span class="n">ymin</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">floor</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="n">math</span><span class="o">.</span><span class="n">floor</span><span class="p">(</span><span class="n">y</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span>
+        <span class="n">xmax</span><span class="p">,</span> <span class="n">ymax</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">ceil</span><span class="p">(</span><span class="n">x</span> <span class="o">+</span> <span class="n">w</span><span class="p">),</span> <span class="n">math</span><span class="o">.</span><span class="n">ceil</span><span class="p">(</span><span class="n">y</span> <span class="o">+</span> <span class="n">h</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">xmin</span><span class="p">,</span> <span class="n">ymin</span><span class="p">,</span> <span class="n">xmax</span><span class="p">,</span> <span class="n">ymax</span> <span class="o">=</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">x</span> <span class="o">+</span> <span class="n">w</span><span class="p">,</span> <span class="n">y</span> <span class="o">+</span> <span class="n">h</span>
     <span class="n">bbox_elem</span> <span class="o">=</span> <span class="n">ET</span><span class="o">.</span><span class="n">SubElement</span><span class="p">(</span><span class="n">parent_elem</span><span class="p">,</span> <span class="s2">"bndbox"</span><span class="p">)</span>
-    <span class="n">ET</span><span class="o">.</span><span class="n">SubElement</span><span class="p">(</span><span class="n">bbox_elem</span><span class="p">,</span> <span class="s2">"xmin"</span><span class="p">)</span><span class="o">.</span><span class="n">text</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
-    <span class="n">ET</span><span class="o">.</span><span class="n">SubElement</span><span class="p">(</span><span class="n">bbox_elem</span><span class="p">,</span> <span class="s2">"ymin"</span><span class="p">)</span><span class="o">.</span><span class="n">text</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">y</span><span class="p">)</span>
-    <span class="n">ET</span><span class="o">.</span><span class="n">SubElement</span><span class="p">(</span><span class="n">bbox_elem</span><span class="p">,</span> <span class="s2">"xmax"</span><span class="p">)</span><span class="o">.</span><span class="n">text</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">x</span> <span class="o">+</span> <span class="n">w</span><span class="p">)</span>
-    <span class="n">ET</span><span class="o">.</span><span class="n">SubElement</span><span class="p">(</span><span class="n">bbox_elem</span><span class="p">,</span> <span class="s2">"ymax"</span><span class="p">)</span><span class="o">.</span><span class="n">text</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">y</span> <span class="o">+</span> <span class="n">h</span><span class="p">)</span>
+    <span class="n">ET</span><span class="o">.</span><span class="n">SubElement</span><span class="p">(</span><span class="n">bbox_elem</span><span class="p">,</span> <span class="s2">"xmin"</span><span class="p">)</span><span class="o">.</span><span class="n">text</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">xmin</span><span class="p">)</span>
+    <span class="n">ET</span><span class="o">.</span><span class="n">SubElement</span><span class="p">(</span><span class="n">bbox_elem</span><span class="p">,</span> <span class="s2">"ymin"</span><span class="p">)</span><span class="o">.</span><span class="n">text</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">ymin</span><span class="p">)</span>
+    <span class="n">ET</span><span class="o">.</span><span class="n">SubElement</span><span class="p">(</span><span class="n">bbox_elem</span><span class="p">,</span> <span class="s2">"xmax"</span><span class="p">)</span><span class="o">.</span><span class="n">text</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">xmax</span><span class="p">)</span>
+    <span class="n">ET</span><span class="o">.</span><span class="n">SubElement</span><span class="p">(</span><span class="n">bbox_elem</span><span class="p">,</span> <span class="s2">"ymax"</span><span class="p">)</span><span class="o">.</span><span class="n">text</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">ymax</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">bbox_elem</span>
 
 
@@ -449,6 +459,14 @@
         <span class="n">parser</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">build_cmdline_parser</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
 
         <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+            <span class="s2">"--coordinate-mode"</span><span class="p">,</span>
+            <span class="n">choices</span><span class="o">=</span><span class="p">(</span><span class="s2">"dm-zero-based"</span><span class="p">,</span> <span class="s2">"voc-one-based"</span><span class="p">),</span>
+            <span class="n">default</span><span class="o">=</span><span class="s2">"dm-zero-based"</span><span class="p">,</span>
+            <span class="n">help</span><span class="o">=</span><span class="p">(</span>
+                <span class="s2">"Bounding box convention: unchanged coordinates or 1-based inclusive integer VOC (default: </span><span class="si">%(default)s</span><span class="s2">)"</span>
+            <span class="p">),</span>
+        <span class="p">)</span>
+        <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
             <span class="s2">"--apply-colormap"</span><span class="p">,</span>
             <span class="nb">type</span><span class="o">=</span><span class="n">str_to_bool</span><span class="p">,</span>
             <span class="n">default</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
@@ -491,9 +509,14 @@
         <span class="n">label_map</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
         <span class="n">allow_attributes</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
         <span class="n">keep_empty</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="n">coordinate_mode</span><span class="o">=</span><span class="s2">"dm-zero-based"</span><span class="p">,</span>
         <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
     <span class="p">):</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">extractor</span><span class="p">,</span> <span class="n">save_dir</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">coordinate_mode</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">"dm-zero-based"</span><span class="p">,</span> <span class="s2">"voc-one-based"</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Unknown VOC coordinate mode: </span><span class="si">{</span><span class="n">coordinate_mode</span><span class="si">!r}</span><span class="s2">"</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_coordinate_mode</span> <span class="o">=</span> <span class="n">coordinate_mode</span>
 
         <span class="n">task</span> <span class="o">=</span> <span class="n">VocTask</span><span class="o">.</span><span class="n">voc</span> <span class="k">if</span> <span class="n">task</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">task</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">task</span><span class="p">,</span> <span class="n">VocTask</span><span class="p">):</span>
@@ -689,7 +712,7 @@
 
                 <span class="n">bbox</span> <span class="o">=</span> <span class="n">obj</span><span class="o">.</span><span class="n">get_bbox</span><span class="p">()</span>
                 <span class="k">if</span> <span class="n">bbox</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-                    <span class="n">_write_xml_bbox</span><span class="p">(</span><span class="n">bbox</span><span class="p">,</span> <span class="n">obj_elem</span><span class="p">)</span>
+                    <span class="n">_write_xml_bbox</span><span class="p">(</span><span class="n">bbox</span><span class="p">,</span> <span class="n">obj_elem</span><span class="p">,</span> <span class="n">coordinate_mode</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_coordinate_mode</span><span class="p">)</span>
 
                 <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_task</span> <span class="ow">in</span> <span class="p">[</span><span class="n">VocTask</span><span class="o">.</span><span class="n">voc</span><span class="p">,</span> <span class="n">VocTask</span><span class="o">.</span><span class="n">voc_layout</span><span class="p">]:</span>
                     <span class="k">for</span> <span class="n">part_bbox</span> <span class="ow">in</span> <span class="n">layout_bboxes</span><span class="p">:</span>
@@ -698,7 +721,7 @@
 
                         <span class="n">part_elem</span> <span class="o">=</span> <span class="n">ET</span><span class="o">.</span><span class="n">SubElement</span><span class="p">(</span><span class="n">obj_elem</span><span class="p">,</span> <span class="s2">"part"</span><span class="p">)</span>
                         <span class="n">ET</span><span class="o">.</span><span class="n">SubElement</span><span class="p">(</span><span class="n">part_elem</span><span class="p">,</span> <span class="s2">"name"</span><span class="p">)</span><span class="o">.</span><span class="n">text</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_label</span><span class="p">(</span><span class="n">part_bbox</span><span class="o">.</span><span class="n">label</span><span class="p">)</span>
-                        <span class="n">_write_xml_bbox</span><span class="p">(</span><span class="n">part_bbox</span><span class="o">.</span><span class="n">get_bbox</span><span class="p">(),</span> <span class="n">part_elem</span><span class="p">)</span>
+                        <span class="n">_write_xml_bbox</span><span class="p">(</span><span class="n">part_bbox</span><span class="o">.</span><span class="n">get_bbox</span><span class="p">(),</span> <span class="n">part_elem</span><span class="p">,</span> <span class="n">coordinate_mode</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_coordinate_mode</span><span class="p">)</span>
 
                         <span class="n">objects_with_parts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">new_obj_id</span><span class="p">)</span>
 

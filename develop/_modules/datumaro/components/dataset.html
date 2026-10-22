@@ -1214,6 +1214,7 @@
             <span class="nb">format</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="n">detect</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">env</span><span class="o">=</span><span class="n">env</span><span class="p">)</span>
 
         <span class="n">extractor_merger</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="n">save_options</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="c1"># TODO: remove importers, put this logic into extractors</span>
         <span class="k">if</span> <span class="nb">format</span> <span class="ow">in</span> <span class="n">env</span><span class="o">.</span><span class="n">importers</span><span class="p">:</span>
             <span class="n">importer</span> <span class="o">=</span> <span class="n">env</span><span class="o">.</span><span class="n">make_importer</span><span class="p">(</span><span class="nb">format</span><span class="p">)</span>
@@ -1222,6 +1223,7 @@
                     <span class="n">importer</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">stream</span><span class="o">=</span><span class="bp">cls</span><span class="o">.</span><span class="n">_stream</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="k">if</span> <span class="n">importer</span><span class="o">.</span><span class="n">can_stream</span> <span class="k">else</span> <span class="n">importer</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
                 <span class="p">)</span>
             <span class="n">extractor_merger</span> <span class="o">=</span> <span class="n">importer</span><span class="o">.</span><span class="n">get_extractor_merger</span><span class="p">()</span>
+            <span class="n">save_options</span> <span class="o">=</span> <span class="n">importer</span><span class="o">.</span><span class="n">get_save_options</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
         <span class="k">elif</span> <span class="nb">format</span> <span class="ow">in</span> <span class="n">env</span><span class="o">.</span><span class="n">extractors</span><span class="p">:</span>
             <span class="n">detected_sources</span> <span class="o">=</span> <span class="p">[{</span><span class="s2">"url"</span><span class="p">:</span> <span class="n">path</span><span class="p">,</span> <span class="s2">"format"</span><span class="p">:</span> <span class="nb">format</span><span class="p">,</span> <span class="s2">"options"</span><span class="p">:</span> <span class="n">kwargs</span><span class="p">}]</span>
         <span class="k">else</span><span class="p">:</span>
@@ -1288,6 +1290,7 @@
 
         <span class="n">dataset</span><span class="o">.</span><span class="n">_source_path</span> <span class="o">=</span> <span class="n">path</span>
         <span class="n">dataset</span><span class="o">.</span><span class="n">_format</span> <span class="o">=</span> <span class="nb">format</span>
+        <span class="n">dataset</span><span class="o">.</span><span class="n">_options</span> <span class="o">=</span> <span class="n">save_options</span>
 
         <span class="k">return</span> <span class="n">dataset</span></div>
 

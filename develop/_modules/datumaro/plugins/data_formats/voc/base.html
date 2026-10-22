@@ -385,8 +385,13 @@
         <span class="n">subset</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">voc_importer_type</span><span class="p">:</span> <span class="n">VocImporterType</span> <span class="o">=</span> <span class="n">VocImporterType</span><span class="o">.</span><span class="n">default</span><span class="p">,</span>
         <span class="n">ctx</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">ImportContext</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">coordinate_mode</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">"dm-zero-based"</span><span class="p">,</span>
         <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
     <span class="p">):</span>
+        <span class="k">if</span> <span class="n">coordinate_mode</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">"dm-zero-based"</span><span class="p">,</span> <span class="s2">"voc-one-based"</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Unknown VOC coordinate mode: </span><span class="si">{</span><span class="n">coordinate_mode</span><span class="si">!r}</span><span class="s2">"</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_coordinate_mode</span> <span class="o">=</span> <span class="n">coordinate_mode</span>
+
         <span class="k">if</span> <span class="ow">not</span> <span class="n">subset</span><span class="p">:</span>
             <span class="n">subset</span> <span class="o">=</span> <span class="n">osp</span><span class="o">.</span><span class="n">splitext</span><span class="p">(</span><span class="n">osp</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">path</span><span class="p">))[</span><span class="mi">0</span><span class="p">]</span>
 
@@ -585,7 +590,7 @@
         <span class="k">return</span> <span class="n">attributes</span>
 
     <span class="nd">@classmethod</span>
-    <span class="k">def</span><span class="w"> </span><span class="nf">_parse_bbox</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">object_elem</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_parse_bbox</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">object_elem</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">coordinate_mode</span><span class="o">=</span><span class="s2">"dm-zero-based"</span><span class="p">):</span>
         <span class="n">bbox_elem</span> <span class="o">=</span> <span class="n">object_elem</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s2">"bndbox"</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">bbox_elem</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">raise</span> <span class="n">MissingFieldError</span><span class="p">(</span><span class="s2">"bndbox"</span><span class="p">)</span>
@@ -594,6 +599,10 @@
         <span class="n">xmax</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="n">_parse_field</span><span class="p">(</span><span class="n">bbox_elem</span><span class="p">,</span> <span class="s2">"xmax"</span><span class="p">,</span> <span class="nb">float</span><span class="p">)</span>
         <span class="n">ymin</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="n">_parse_field</span><span class="p">(</span><span class="n">bbox_elem</span><span class="p">,</span> <span class="s2">"ymin"</span><span class="p">,</span> <span class="nb">float</span><span class="p">)</span>
         <span class="n">ymax</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="n">_parse_field</span><span class="p">(</span><span class="n">bbox_elem</span><span class="p">,</span> <span class="s2">"ymax"</span><span class="p">,</span> <span class="nb">float</span><span class="p">)</span>
+        <span class="k">assert</span> <span class="n">xmin</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">xmax</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">ymin</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">ymax</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+        <span class="k">if</span> <span class="n">coordinate_mode</span> <span class="o">==</span> <span class="s2">"voc-one-based"</span><span class="p">:</span>
+            <span class="n">xmin</span> <span class="o">-=</span> <span class="mi">1</span>
+            <span class="n">ymin</span> <span class="o">-=</span> <span class="mi">1</span>
         <span class="k">return</span> <span class="p">[</span><span class="n">xmin</span><span class="p">,</span> <span class="n">ymin</span><span class="p">,</span> <span class="n">xmax</span> <span class="o">-</span> <span class="n">xmin</span><span class="p">,</span> <span class="n">ymax</span> <span class="o">-</span> <span class="n">ymin</span><span class="p">]</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">_parse_annotations</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">root_elem</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">item_id</span><span class="p">:</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">Annotation</span><span class="p">]:</span>
@@ -611,7 +620,7 @@
                     <span class="k">continue</span>
 
                 <span class="n">obj_label_id</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_label_id</span><span class="p">(</span><span class="n">label_name</span><span class="p">)</span>
-                <span class="n">obj_bbox</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_parse_bbox</span><span class="p">(</span><span class="n">object_elem</span><span class="p">)</span>
+                <span class="n">obj_bbox</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_parse_bbox</span><span class="p">(</span><span class="n">object_elem</span><span class="p">,</span> <span class="n">coordinate_mode</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_coordinate_mode</span><span class="p">)</span>
                 <span class="n">attributes</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_parse_attribute</span><span class="p">(</span><span class="n">object_elem</span><span class="p">)</span>
 
                 <span class="n">group</span> <span class="o">=</span> <span class="n">obj_id</span>
@@ -619,7 +628,7 @@
                 <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_task</span> <span class="ow">in</span> <span class="p">[</span><span class="n">VocTask</span><span class="o">.</span><span class="n">voc</span><span class="p">,</span> <span class="n">VocTask</span><span class="o">.</span><span class="n">voc_layout</span><span class="p">]:</span>
                     <span class="k">for</span> <span class="n">part_elem</span> <span class="ow">in</span> <span class="n">object_elem</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="s2">"part"</span><span class="p">):</span>
                         <span class="n">part_label_id</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_label_id</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_parse_field</span><span class="p">(</span><span class="n">part_elem</span><span class="p">,</span> <span class="s2">"name"</span><span class="p">))</span>
-                        <span class="n">part_bbox</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_parse_bbox</span><span class="p">(</span><span class="n">part_elem</span><span class="p">)</span>
+                        <span class="n">part_bbox</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_parse_bbox</span><span class="p">(</span><span class="n">part_elem</span><span class="p">,</span> <span class="n">coordinate_mode</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_coordinate_mode</span><span class="p">)</span>
 
                         <span class="n">item_annotations</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">Bbox</span><span class="p">(</span><span class="o">*</span><span class="n">part_bbox</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="n">part_label_id</span><span class="p">,</span> <span class="n">group</span><span class="o">=</span><span class="n">group</span><span class="p">))</span>
 

@@ -360,6 +360,23 @@
     <span class="n">ANNO_EXT</span> <span class="o">=</span> <span class="s2">".txt"</span>
 
     <span class="nd">@classmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">build_cmdline_parser</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="n">parser</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">build_cmdline_parser</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+            <span class="s2">"--coordinate-mode"</span><span class="p">,</span>
+            <span class="n">choices</span><span class="o">=</span><span class="p">(</span><span class="s2">"dm-zero-based"</span><span class="p">,</span> <span class="s2">"voc-one-based"</span><span class="p">),</span>
+            <span class="n">default</span><span class="o">=</span><span class="s2">"dm-zero-based"</span><span class="p">,</span>
+            <span class="n">help</span><span class="o">=</span><span class="s2">"Bounding box convention: unchanged coordinates or 1-based inclusive VOC (default: </span><span class="si">%(default)s</span><span class="s2">)"</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="k">return</span> <span class="n">parser</span>
+
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_save_options</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="o">**</span><span class="n">import_params</span><span class="p">):</span>
+        <span class="k">if</span> <span class="s2">"coordinate_mode"</span> <span class="ow">in</span> <span class="n">import_params</span><span class="p">:</span>
+            <span class="k">return</span> <span class="p">{</span><span class="s2">"coordinate_mode"</span><span class="p">:</span> <span class="n">import_params</span><span class="p">[</span><span class="s2">"coordinate_mode"</span><span class="p">]}</span>
+        <span class="k">return</span> <span class="p">{}</span>
+
+    <span class="nd">@classmethod</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">detect</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">context</span><span class="p">:</span> <span class="n">FormatDetectionContext</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="c1"># The `voc` format is inherently ambiguous with `voc_classification`,</span>
         <span class="c1"># `voc_detection`, etc. To remove the ambiguity (and thus make it</span>

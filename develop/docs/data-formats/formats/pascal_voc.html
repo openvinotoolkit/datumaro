@@ -618,6 +618,55 @@ multiple formats, use the corresponding option of the <code class="docutils lite
 <li><p><code class="docutils literal notranslate"><span class="pre">Bbox</span></code> (detection, action detection and person layout)</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">Mask</span></code> (segmentation)</p></li>
 </ul>
+<section id="bounding-box-coordinates">
+<h3>Bounding box coordinates<a class="headerlink" href="#bounding-box-coordinates" title="Link to this heading">#</a></h3>
+<p>VOC uses image coordinates whose top-left pixel is <code class="docutils literal notranslate"><span class="pre">(1,</span> <span class="pre">1)</span></code> for both
+detection results (VOC2012 DevKit, section 4.3, page 13) and ground-truth
+annotations (section 10.2.2, page 28). Object parts use the same convention
+(page 29). The PDF does not explicitly require integer coordinates everywhere;
+its detection-result text examples include decimal notation. However, some
+XML annotation readers require integer strings.</p>
+<p>Datumaro supports two bounding box coordinate modes for VOC import and export:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">dm-zero-based</span></code> (default): preserves the existing Datumaro behavior. Export writes
+<code class="docutils literal notranslate"><span class="pre">(xmin,</span> <span class="pre">ymin,</span> <span class="pre">xmax,</span> <span class="pre">ymax)</span> <span class="pre">=</span> <span class="pre">(x,</span> <span class="pre">y,</span> <span class="pre">x</span> <span class="pre">+</span> <span class="pre">w,</span> <span class="pre">y</span> <span class="pre">+</span> <span class="pre">h)</span></code> directly, with floating-point
+values. Import reads floats and returns <code class="docutils literal notranslate"><span class="pre">(xmin,</span> <span class="pre">ymin,</span> <span class="pre">xmax</span> <span class="pre">-</span> <span class="pre">xmin,</span> <span class="pre">ymax</span> <span class="pre">-</span> <span class="pre">ymin)</span></code>
+without an offset. For boxes originating in Datumaro’s 0-based coordinate
+space, this output differs from the VOC convention. VOC-aware readers may
+change the box geometry, and integer-only readers may reject even <code class="docutils literal notranslate"><span class="pre">10.0</span></code>.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">voc-one-based</span></code> (opt-in): interprets imported boxes as 1-based inclusive pixel indices
+and converts them to Datumaro’s 0-based coordinates:
+<code class="docutils literal notranslate"><span class="pre">(x,</span> <span class="pre">y,</span> <span class="pre">w,</span> <span class="pre">h)</span> <span class="pre">=</span> <span class="pre">(xmin</span> <span class="pre">-</span> <span class="pre">1,</span> <span class="pre">ymin</span> <span class="pre">-</span> <span class="pre">1,</span> <span class="pre">xmax</span> <span class="pre">-</span> <span class="pre">xmin</span> <span class="pre">+</span> <span class="pre">1,</span> <span class="pre">ymax</span> <span class="pre">-</span> <span class="pre">ymin</span> <span class="pre">+</span> <span class="pre">1)</span></code>.
+Export writes integer XML values with outward rounding:
+<code class="docutils literal notranslate"><span class="pre">(floor(x)</span> <span class="pre">+</span> <span class="pre">1,</span> <span class="pre">floor(y)</span> <span class="pre">+</span> <span class="pre">1,</span> <span class="pre">ceil(x</span> <span class="pre">+</span> <span class="pre">w),</span> <span class="pre">ceil(y</span> <span class="pre">+</span> <span class="pre">h))</span></code>.
+For example, <code class="docutils literal notranslate"><span class="pre">Bbox(0,</span> <span class="pre">0,</span> <span class="pre">10,</span> <span class="pre">10)</span></code> becomes <code class="docutils literal notranslate"><span class="pre">(1,</span> <span class="pre">1,</span> <span class="pre">10,</span> <span class="pre">10)</span></code>, and
+<code class="docutils literal notranslate"><span class="pre">Bbox(0,</span> <span class="pre">0,</span> <span class="pre">1,</span> <span class="pre">1)</span></code> becomes <code class="docutils literal notranslate"><span class="pre">(1,</span> <span class="pre">1,</span> <span class="pre">1,</span> <span class="pre">1)</span></code>.</p></li>
+</ul>
+<p>VOC-mode export rejects non-finite coordinates, negative origins, and
+nonpositive dimensions. Boxes are not clipped to image dimensions. Fractional
+boxes can expand during integer quantization, so their round trip is not lossless.
+Import continues to accept fractional values without rounding them.</p>
+<p>The mode applies to object and part bounding boxes in the combined <code class="docutils literal notranslate"><span class="pre">voc</span></code>,
+<code class="docutils literal notranslate"><span class="pre">voc_detection</span></code>, <code class="docutils literal notranslate"><span class="pre">voc_action</span></code>, and <code class="docutils literal notranslate"><span class="pre">voc_layout</span></code> formats. It does not modify
+classification labels, segmentation masks, or reference-point attributes.</p>
+<p>Use <code class="docutils literal notranslate"><span class="pre">dm-zero-based</span></code> when reading files previously exported by Datumaro with its default
+settings. Use <code class="docutils literal notranslate"><span class="pre">voc-one-based</span></code> for official VOC annotations and compatible XML consumers.
+The convention is not auto-detected: the same numeric coordinates can be valid
+under either interpretation. The mode is not recorded in exported files.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">datumaro</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">dm</span>
+
+<span class="n">dataset</span> <span class="o">=</span> <span class="n">dm</span><span class="o">.</span><span class="n">Dataset</span><span class="o">.</span><span class="n">import_from</span><span class="p">(</span><span class="s1">'VOC2012'</span><span class="p">,</span> <span class="s1">'voc_detection'</span><span class="p">,</span> <span class="n">coordinate_mode</span><span class="o">=</span><span class="s1">'voc-one-based'</span><span class="p">)</span>
+<span class="n">dataset</span><span class="o">.</span><span class="n">export</span><span class="p">(</span><span class="s1">'voc_output'</span><span class="p">,</span> <span class="s1">'voc_detection'</span><span class="p">,</span> <span class="n">coordinate_mode</span><span class="o">=</span><span class="s1">'voc-one-based'</span><span class="p">,</span> <span class="n">save_media</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Both importer and exporter plugins accept <code class="docutils literal notranslate"><span class="pre">--coordinate-mode</span> <span class="pre">{dm-zero-based,voc-one-based}</span></code>.
+For example, to export a native Datumaro dataset using VOC coordinates:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>datum<span class="w"> </span>convert<span class="w"> </span>-if<span class="w"> </span>datumaro<span class="w"> </span>-i<span class="w"> </span>&lt;input/dir&gt;<span class="w"> </span>-f<span class="w"> </span>voc_detection<span class="w"> </span>-o<span class="w"> </span>&lt;output/dir&gt;<span class="w"> </span>--<span class="w"> </span>--coordinate-mode<span class="w"> </span>voc-one-based
+</pre></div>
+</div>
+</section>
+<section id="annotation-attributes">
+<h3>Annotation attributes<a class="headerlink" href="#annotation-attributes" title="Link to this heading">#</a></h3>
 <p>Supported annotation attributes:</p>
 <ul class="simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">occluded</span></code> (boolean) - indicates that a significant portion of the
@@ -638,6 +687,7 @@ originates from COCO <code class="docutils literal notranslate"><span class="pre
 objects with a warning, since the format has no ignore-region concept
 and the flag is only preserved in the Datumaro-specific <code class="docutils literal notranslate"><span class="pre">attributes</span></code>
 section.</p>
+</section>
 </section>
 <section id="convert-pascal-voc-dataset">
 <h2>Convert Pascal VOC dataset<a class="headerlink" href="#convert-pascal-voc-dataset" title="Link to this heading">#</a></h2>
@@ -944,7 +994,11 @@ in Pascal VOC 2012 has for segmentation task and this result is the same as the
   </div>
   <nav id="pst-page-toc-nav" class="page-toc" aria-labelledby="pst-page-navigation-heading-2">
     <ul class="pst-show_toc_level nav section-nav flex-column">
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#format-specification">Format specification</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#format-specification">Format specification</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bounding-box-coordinates">Bounding box coordinates</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#annotation-attributes">Annotation attributes</a></li>
+</ul>
+</li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#convert-pascal-voc-dataset">Convert Pascal VOC dataset</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#export-to-other-formats">Export to other formats</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#export-to-pascal-voc">Export to Pascal VOC</a></li>
