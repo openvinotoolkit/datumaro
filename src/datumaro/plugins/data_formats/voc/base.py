@@ -23,6 +23,7 @@ from datumaro.components.media import Image
 from datumaro.util.image import find_images
 from datumaro.util.mask_tools import invert_colormap, lazy_mask
 from datumaro.util.meta_file_util import has_meta_file
+from datumaro.util.os_util import join_within_base
 
 from .format import (
     VocImporterType,
@@ -158,7 +159,7 @@ class VocBase(SubsetBase):
                 anns = annotations.get(item_id, [])
                 image = None
 
-                ann_file = osp.join(self._anno_dir, item_id + ".xml")
+                ann_file = join_within_base(self._anno_dir, item_id + ".xml")
                 if osp.isfile(ann_file) and self._task not in [
                     VocTask.voc_classification,
                     VocTask.voc_segmentation,
@@ -174,7 +175,7 @@ class VocBase(SubsetBase):
 
                     filename_elem = root_elem.find("filename")
                     if filename_elem is not None:
-                        image = osp.join(self._image_dir, filename_elem.text)
+                        image = join_within_base(self._image_dir, filename_elem.text)
 
                     anns += self._parse_annotations(root_elem, item_id=(item_id, self._subset))
 
@@ -321,13 +322,13 @@ class VocBase(SubsetBase):
         item_annotations = []
 
         class_mask = None
-        segm_path = osp.join(self._mask_dir, item_id + VocPath.SEGM_EXT)
+        segm_path = join_within_base(self._mask_dir, item_id + VocPath.SEGM_EXT)
         if osp.isfile(segm_path):
             inverse_cls_colormap = self._categories[AnnotationType.mask].inverse_colormap
             class_mask = lazy_mask(segm_path, inverse_cls_colormap)
 
         instances_mask = None
-        inst_path = osp.join(self._inst_dir, item_id + VocPath.SEGM_EXT)
+        inst_path = join_within_base(self._inst_dir, item_id + VocPath.SEGM_EXT)
         if osp.isfile(inst_path):
             instances_mask = lazy_mask(inst_path, _inverse_inst_colormap)
 
@@ -374,7 +375,7 @@ class VocBase(SubsetBase):
         annotations = {}
         task_dir = osp.dirname(self._path)
         for label_id, label in enumerate(self._categories[AnnotationType.label]):
-            ann_file = osp.join(task_dir, f"{label.name}_{self._subset}.txt")
+            ann_file = join_within_base(task_dir, f"{label.name}_{self._subset}.txt")
             if not osp.isfile(ann_file):
                 continue
 
