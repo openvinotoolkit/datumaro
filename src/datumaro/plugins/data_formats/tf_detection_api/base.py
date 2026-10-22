@@ -177,7 +177,8 @@ class TfDetectionApiBase(SubsetBase):
                     image = Image.from_numpy(data=frame_image, size=image_size)
                 else:
                     image = Image.from_bytes(data=frame_image, size=image_size)
-            elif frame_filename:
+            # Without an images dir there is no safe base, as "" would resolve against the CWD.
+            elif frame_filename and images_dir:
                 image = Image.from_file(path=join_within_base(images_dir, frame_filename), size=image_size)
 
             for ann in annotations:

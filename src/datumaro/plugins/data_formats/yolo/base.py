@@ -181,7 +181,7 @@ class YoloStrictBase(SubsetBase):
             raise InvalidAnnotationError("Failed to parse names file path from config")
 
         self._categories = {
-            AnnotationType.label: self._load_categories(osp.join(self._path, localize_path(names_path)))
+            AnnotationType.label: self._load_categories(join_within_base(self._path, localize_path(names_path)))
         }
 
         # The original format is like this:
@@ -201,7 +201,7 @@ class YoloStrictBase(SubsetBase):
             if subset_name != subset:
                 continue
 
-            list_path = osp.join(self._path, localize_path(list_path))
+            list_path = join_within_base(self._path, localize_path(list_path))
             if not osp.isfile(list_path):
                 raise InvalidAnnotationError(f"Can't find '{subset_name}' subset list file")
 
