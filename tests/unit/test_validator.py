@@ -1265,9 +1265,9 @@ class TestValidateAnnotations(_TestValidatorBase):
             report_types = [r["anomaly_type"] for r in actual_reports]
             count_by_type = Counter(report_types)
 
-            self.assertEqual(len(actual_reports), 26)
+            self.assertEqual(len(actual_reports), 25)
             self.assertEqual(count_by_type["ImbalancedDistInLabel"], 0)
-            self.assertEqual(count_by_type["ImbalancedDistInAttribute"], 14)
+            self.assertEqual(count_by_type["ImbalancedDistInAttribute"], 13)
             self.assertEqual(count_by_type["MissingAnnotation"], 1)
             self.assertEqual(count_by_type["UndefinedLabel"], 3)
             self.assertEqual(count_by_type["FewSamplesInAttribute"], 4)
@@ -1275,7 +1275,7 @@ class TestValidateAnnotations(_TestValidatorBase):
 
         with self.subTest("Test of summary", i=2):
             actual_summary = actual_results["summary"]
-            expected_summary = {"errors": 7, "infos": 18, "warnings": 1}
+            expected_summary = {"errors": 7, "infos": 17, "warnings": 1}
 
             self.assertEqual(actual_summary, expected_summary)
 
