@@ -1419,12 +1419,6 @@
 
             <span class="n">_</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">_w</span><span class="p">,</span> <span class="n">_h</span> <span class="o">=</span> <span class="n">ann</span><span class="o">.</span><span class="n">get_bbox</span><span class="p">()</span>
 
-            <span class="c1"># Detete the following block when #226 is resolved</span>
-            <span class="c1"># https://github.com/open-edge-platform/datumaro/issues/226</span>
-            <span class="k">if</span> <span class="n">ann</span><span class="o">.</span><span class="n">type</span> <span class="o">==</span> <span class="n">AnnotationType</span><span class="o">.</span><span class="n">mask</span><span class="p">:</span>
-                <span class="n">_w</span> <span class="o">+=</span> <span class="mi">1</span>
-                <span class="n">_h</span> <span class="o">+=</span> <span class="mi">1</span>
-
             <span class="n">area</span> <span class="o">=</span> <span class="n">ann</span><span class="o">.</span><span class="n">get_area</span><span class="p">()</span>
 
             <span class="n">ann_mask_info</span> <span class="o">=</span> <span class="n">_generate_ann_mask_info</span><span class="p">(</span><span class="n">area</span><span class="p">,</span> <span class="n">_w</span><span class="p">,</span> <span class="n">_h</span><span class="p">)</span>
@@ -1466,12 +1460,6 @@
             <span class="n">mask_label_stats</span> <span class="o">=</span> <span class="n">dist_by_label</span><span class="p">[</span><span class="n">label_name</span><span class="p">]</span>
 
             <span class="n">_</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">_w</span><span class="p">,</span> <span class="n">_h</span> <span class="o">=</span> <span class="n">ann</span><span class="o">.</span><span class="n">get_bbox</span><span class="p">()</span>
-
-            <span class="c1"># Detete the following block when #226 is resolved</span>
-            <span class="c1"># https://github.com/open-edge-platform/datumaro/issues/226</span>
-            <span class="k">if</span> <span class="n">ann</span><span class="o">.</span><span class="n">type</span> <span class="o">==</span> <span class="n">AnnotationType</span><span class="o">.</span><span class="n">mask</span><span class="p">:</span>
-                <span class="n">_w</span> <span class="o">+=</span> <span class="mi">1</span>
-                <span class="n">_h</span> <span class="o">+=</span> <span class="mi">1</span>
             <span class="n">area</span> <span class="o">=</span> <span class="n">ann</span><span class="o">.</span><span class="n">get_area</span><span class="p">()</span>
 
             <span class="n">ann_mask_info</span> <span class="o">=</span> <span class="n">_generate_ann_mask_info</span><span class="p">(</span><span class="n">area</span><span class="p">,</span> <span class="n">_w</span><span class="p">,</span> <span class="n">_h</span><span class="p">)</span>

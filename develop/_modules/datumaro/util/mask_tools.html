@@ -830,11 +830,21 @@
 <div class="viewcode-block" id="find_mask_bbox">
 <a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.util.mask_tools.html#datumaro.util.mask_tools.find_mask_bbox">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">find_mask_bbox</span><span class="p">(</span><span class="n">mask</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    Computes the bounding box of the non-zero mask pixels.</span>
+
+<span class="sd">    The extent is the number of covered rows/columns, so the box covers</span>
+<span class="sd">    every non-zero pixel: a mask that spans columns ``x0..x1`` (inclusive)</span>
+<span class="sd">    has width ``x1 - x0 + 1``. The input must contain at least one non-zero</span>
+<span class="sd">    pixel.</span>
+
+<span class="sd">    Returns: [x, y, w, h]</span>
+<span class="sd">    """</span>
     <span class="n">cols</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">any</span><span class="p">(</span><span class="n">mask</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
     <span class="n">rows</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">any</span><span class="p">(</span><span class="n">mask</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
     <span class="n">x0</span><span class="p">,</span> <span class="n">x1</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">cols</span><span class="p">)[</span><span class="mi">0</span><span class="p">][[</span><span class="mi">0</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">]]</span>
     <span class="n">y0</span><span class="p">,</span> <span class="n">y1</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">rows</span><span class="p">)[</span><span class="mi">0</span><span class="p">][[</span><span class="mi">0</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">]]</span>
-    <span class="k">return</span> <span class="p">(</span><span class="n">x0</span><span class="p">,</span> <span class="n">y0</span><span class="p">,</span> <span class="n">x1</span> <span class="o">-</span> <span class="n">x0</span><span class="p">,</span> <span class="n">y1</span> <span class="o">-</span> <span class="n">y0</span><span class="p">)</span></div>
+    <span class="k">return</span> <span class="p">(</span><span class="n">x0</span><span class="p">,</span> <span class="n">y0</span><span class="p">,</span> <span class="n">x1</span> <span class="o">-</span> <span class="n">x0</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="n">y1</span> <span class="o">-</span> <span class="n">y0</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span></div>
 
 
 
