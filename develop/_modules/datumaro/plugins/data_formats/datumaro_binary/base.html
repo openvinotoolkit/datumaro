@@ -367,6 +367,7 @@
         <span class="o">*</span><span class="p">,</span>
         <span class="n">num_workers</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
         <span class="n">subset</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">allow_external_media</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
         <span class="n">ctx</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">ImportContext</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">):</span>
 <span class="w">        </span><span class="sd">"""</span>
@@ -376,10 +377,13 @@
 <span class="sd">            Directory path to import DatumaroBinary format dataset</span>
 <span class="sd">        num_workers</span>
 <span class="sd">            The number of multi-processing workers for import. If num_workers = 0, do not use multiprocessing.</span>
+<span class="sd">        allow_external_media</span>
+<span class="sd">            Allow media paths in the annotations to point outside the dataset directory, as written</span>
+<span class="sd">            by exports made without `save_media`. Only enable this for trusted datasets.</span>
 <span class="sd">        """</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_fp</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">BufferedReader</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_num_workers</span> <span class="o">=</span> <span class="n">num_workers</span>
-        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">subset</span><span class="o">=</span><span class="n">subset</span><span class="p">,</span> <span class="n">ctx</span><span class="o">=</span><span class="n">ctx</span><span class="p">)</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">subset</span><span class="o">=</span><span class="n">subset</span><span class="p">,</span> <span class="n">allow_external_media</span><span class="o">=</span><span class="n">allow_external_media</span><span class="p">,</span> <span class="n">ctx</span><span class="o">=</span><span class="n">ctx</span><span class="p">)</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">_get_dm_format_version</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
         <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="s2">"rb"</span><span class="p">)</span> <span class="k">as</span> <span class="n">fp</span><span class="p">:</span>
@@ -478,6 +482,7 @@
                         <span class="p">(</span>
                             <span class="n">blob_bytes</span><span class="p">,</span>
                             <span class="n">media_path_prefix</span><span class="p">,</span>
+                            <span class="bp">self</span><span class="o">.</span><span class="n">_allow_external_media</span><span class="p">,</span>
                         <span class="p">),</span>
                     <span class="p">)</span>
                 <span class="p">]</span>
@@ -489,18 +494,23 @@
             <span class="p">]</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">_read_items_sp</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">blob_sizes</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">int</span><span class="p">],</span> <span class="n">media_path_prefix</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="n">MediaType</span><span class="p">,</span> <span class="nb">str</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">DatasetItem</span><span class="p">]:</span>
-        <span class="n">items_list</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_read_blob</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_fp</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="n">blob_size</span><span class="p">),</span> <span class="n">media_path_prefix</span><span class="p">)</span> <span class="k">for</span> <span class="n">blob_size</span> <span class="ow">in</span> <span class="n">blob_sizes</span><span class="p">]</span>
+        <span class="n">items_list</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_read_blob</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_fp</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="n">blob_size</span><span class="p">),</span> <span class="n">media_path_prefix</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_allow_external_media</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">blob_size</span> <span class="ow">in</span> <span class="n">blob_sizes</span>
+        <span class="p">]</span>
 
         <span class="k">return</span> <span class="p">[</span><span class="n">item</span> <span class="k">for</span> <span class="n">items</span> <span class="ow">in</span> <span class="n">items_list</span> <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">items</span><span class="p">]</span>
 
     <span class="nd">@staticmethod</span>
-    <span class="k">def</span><span class="w"> </span><span class="nf">_read_blob</span><span class="p">(</span><span class="n">blob_bytes</span><span class="p">:</span> <span class="nb">bytes</span><span class="p">,</span> <span class="n">media_path_prefix</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="n">MediaType</span><span class="p">,</span> <span class="nb">str</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">DatasetItem</span><span class="p">]:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_read_blob</span><span class="p">(</span>
+        <span class="n">blob_bytes</span><span class="p">:</span> <span class="nb">bytes</span><span class="p">,</span> <span class="n">media_path_prefix</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="n">MediaType</span><span class="p">,</span> <span class="nb">str</span><span class="p">],</span> <span class="n">allow_external_media</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">DatasetItem</span><span class="p">]:</span>
         <span class="n">items</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="n">offset</span> <span class="o">=</span> <span class="mi">0</span>
 
         <span class="c1"># Extract items</span>
         <span class="k">while</span> <span class="n">offset</span> <span class="o">&lt;</span> <span class="nb">len</span><span class="p">(</span><span class="n">blob_bytes</span><span class="p">):</span>
-            <span class="n">item</span><span class="p">,</span> <span class="n">offset</span> <span class="o">=</span> <span class="n">DatasetItemMapper</span><span class="o">.</span><span class="n">backward</span><span class="p">(</span><span class="n">blob_bytes</span><span class="p">,</span> <span class="n">offset</span><span class="p">,</span> <span class="n">media_path_prefix</span><span class="p">)</span>
+            <span class="n">item</span><span class="p">,</span> <span class="n">offset</span> <span class="o">=</span> <span class="n">DatasetItemMapper</span><span class="o">.</span><span class="n">backward</span><span class="p">(</span><span class="n">blob_bytes</span><span class="p">,</span> <span class="n">offset</span><span class="p">,</span> <span class="n">media_path_prefix</span><span class="p">,</span> <span class="n">allow_external_media</span><span class="p">)</span>
             <span class="n">items</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">item</span><span class="p">)</span>
 
         <span class="k">assert</span> <span class="n">offset</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="n">blob_bytes</span><span class="p">)</span>

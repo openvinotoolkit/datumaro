@@ -354,6 +354,7 @@
 <span class="kn">from</span><span class="w"> </span><span class="nn">datumaro.util.image</span><span class="w"> </span><span class="kn">import</span> <span class="n">find_images</span><span class="p">,</span> <span class="n">lazy_image</span><span class="p">,</span> <span class="n">load_image</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">datumaro.util.mask_tools</span><span class="w"> </span><span class="kn">import</span> <span class="n">bgr2index</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">datumaro.util.meta_file_util</span><span class="w"> </span><span class="kn">import</span> <span class="n">has_meta_file</span><span class="p">,</span> <span class="n">parse_meta_file</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">datumaro.util.os_util</span><span class="w"> </span><span class="kn">import</span> <span class="n">join_within_base</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">.format</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
     <span class="n">MapillaryVistasLabelMaps</span><span class="p">,</span>
@@ -463,7 +464,7 @@
 
         <span class="n">images_info</span> <span class="o">=</span> <span class="p">{</span>
             <span class="n">img</span><span class="p">[</span><span class="s2">"id"</span><span class="p">]:</span> <span class="p">{</span>
-                <span class="s2">"path"</span><span class="p">:</span> <span class="n">osp</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_images_dir</span><span class="p">,</span> <span class="n">img</span><span class="p">[</span><span class="s2">"file_name"</span><span class="p">]),</span>
+                <span class="s2">"path"</span><span class="p">:</span> <span class="n">join_within_base</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_images_dir</span><span class="p">,</span> <span class="n">img</span><span class="p">[</span><span class="s2">"file_name"</span><span class="p">]),</span>
                 <span class="s2">"height"</span><span class="p">:</span> <span class="n">img</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"height"</span><span class="p">),</span>
                 <span class="s2">"width"</span><span class="p">:</span> <span class="n">img</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"width"</span><span class="p">),</span>
             <span class="p">}</span>
@@ -480,7 +481,7 @@
                     <span class="n">size</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_get_image_size</span><span class="p">(</span><span class="n">images_info</span><span class="p">[</span><span class="n">item_id</span><span class="p">]),</span>
                 <span class="p">)</span>
 
-            <span class="n">mask_path</span> <span class="o">=</span> <span class="n">osp</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_annotations_dir</span><span class="p">,</span> <span class="n">MapillaryVistasPath</span><span class="o">.</span><span class="n">PANOPTIC_DIR</span><span class="p">,</span> <span class="n">item_ann</span><span class="p">[</span><span class="s2">"file_name"</span><span class="p">])</span>
+            <span class="n">mask_path</span> <span class="o">=</span> <span class="n">join_within_base</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_annotations_dir</span><span class="p">,</span> <span class="n">MapillaryVistasPath</span><span class="o">.</span><span class="n">PANOPTIC_DIR</span><span class="p">,</span> <span class="n">item_ann</span><span class="p">[</span><span class="s2">"file_name"</span><span class="p">])</span>
             <span class="n">mask</span> <span class="o">=</span> <span class="n">lazy_image</span><span class="p">(</span><span class="n">mask_path</span><span class="p">,</span> <span class="n">loader</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_load_pan_mask</span><span class="p">)</span>
 
             <span class="n">annotations</span> <span class="o">=</span> <span class="p">[]</span>
@@ -500,7 +501,7 @@
                 <span class="p">)</span>
 
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_parse_polygon</span><span class="p">:</span>
-                <span class="n">polygon_path</span> <span class="o">=</span> <span class="n">osp</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">polygon_dir</span><span class="p">,</span> <span class="n">item_id</span> <span class="o">+</span> <span class="s2">".json"</span><span class="p">)</span>
+                <span class="n">polygon_path</span> <span class="o">=</span> <span class="n">join_within_base</span><span class="p">(</span><span class="n">polygon_dir</span><span class="p">,</span> <span class="n">item_id</span> <span class="o">+</span> <span class="s2">".json"</span><span class="p">)</span>
                 <span class="n">item_info</span> <span class="o">=</span> <span class="n">parse_json_file</span><span class="p">(</span><span class="n">polygon_path</span><span class="p">)</span>
 
                 <span class="n">polygons</span> <span class="o">=</span> <span class="n">item_info</span><span class="p">[</span><span class="s2">"objects"</span><span class="p">]</span>
@@ -551,7 +552,7 @@
                 <span class="n">annotations</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">ExtractedMask</span><span class="p">(</span><span class="n">index_mask</span><span class="o">=</span><span class="n">index_mask</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="n">uval</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="n">label_id</span><span class="p">,</span> <span class="nb">id</span><span class="o">=</span><span class="n">instance_id</span><span class="p">))</span>
 
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_parse_polygon</span><span class="p">:</span>
-                <span class="n">polygon_path</span> <span class="o">=</span> <span class="n">osp</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">polygon_dir</span><span class="p">,</span> <span class="n">item_id</span> <span class="o">+</span> <span class="s2">".json"</span><span class="p">)</span>
+                <span class="n">polygon_path</span> <span class="o">=</span> <span class="n">join_within_base</span><span class="p">(</span><span class="n">polygon_dir</span><span class="p">,</span> <span class="n">item_id</span> <span class="o">+</span> <span class="s2">".json"</span><span class="p">)</span>
                 <span class="n">item_info</span> <span class="o">=</span> <span class="n">parse_json_file</span><span class="p">(</span><span class="n">polygon_path</span><span class="p">)</span>
 
                 <span class="n">polygons</span> <span class="o">=</span> <span class="n">item_info</span><span class="p">[</span><span class="s2">"objects"</span><span class="p">]</span>

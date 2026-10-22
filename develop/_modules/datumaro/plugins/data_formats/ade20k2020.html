@@ -357,6 +357,7 @@
 <span class="kn">from</span><span class="w"> </span><span class="nn">datumaro.util</span><span class="w"> </span><span class="kn">import</span> <span class="n">parse_json</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">datumaro.util.image</span><span class="w"> </span><span class="kn">import</span> <span class="n">IMAGE_EXTENSIONS</span><span class="p">,</span> <span class="n">find_images</span><span class="p">,</span> <span class="n">lazy_image</span><span class="p">,</span> <span class="n">load_image</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">datumaro.util.meta_file_util</span><span class="w"> </span><span class="kn">import</span> <span class="n">has_meta_file</span><span class="p">,</span> <span class="n">parse_meta_file</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">datumaro.util.os_util</span><span class="w"> </span><span class="kn">import</span> <span class="n">join_within_base</span>
 
 
 <div class="viewcode-block" id="Ade20k2020Path">
@@ -450,7 +451,7 @@
                 <span class="n">mask_path</span> <span class="o">=</span> <span class="n">osp</span><span class="o">.</span><span class="n">splitext</span><span class="p">(</span><span class="n">image_path</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="s2">"_parts_</span><span class="si">%s</span><span class="s2">.png"</span> <span class="o">%</span> <span class="p">(</span><span class="n">part_level</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
 
             <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">item_info</span><span class="p">:</span>
-                <span class="n">instance_path</span> <span class="o">=</span> <span class="n">osp</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">osp</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">image_path</span><span class="p">),</span> <span class="n">item</span><span class="p">[</span><span class="s2">"instance_mask"</span><span class="p">])</span>
+                <span class="n">instance_path</span> <span class="o">=</span> <span class="n">join_within_base</span><span class="p">(</span><span class="n">osp</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">image_path</span><span class="p">),</span> <span class="n">item</span><span class="p">[</span><span class="s2">"instance_mask"</span><span class="p">])</span>
                 <span class="k">if</span> <span class="ow">not</span> <span class="n">osp</span><span class="o">.</span><span class="n">isfile</span><span class="p">(</span><span class="n">instance_path</span><span class="p">):</span>
                     <span class="n">log</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">"Can`t find instance mask: </span><span class="si">%s</span><span class="s2">"</span> <span class="o">%</span> <span class="n">instance_path</span><span class="p">)</span>
                     <span class="k">continue</span>

@@ -352,7 +352,7 @@
 <span class="kn">from</span><span class="w"> </span><span class="nn">datumaro.components.media</span><span class="w"> </span><span class="kn">import</span> <span class="n">Image</span><span class="p">,</span> <span class="n">ImageFromFile</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">datumaro.util.image</span><span class="w"> </span><span class="kn">import</span> <span class="n">DEFAULT_IMAGE_META_FILE_NAME</span><span class="p">,</span> <span class="n">IMAGE_EXTENSIONS</span><span class="p">,</span> <span class="n">ImageMeta</span><span class="p">,</span> <span class="n">load_image_meta_file</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">datumaro.util.meta_file_util</span><span class="w"> </span><span class="kn">import</span> <span class="n">has_meta_file</span><span class="p">,</span> <span class="n">parse_meta_file</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">datumaro.util.os_util</span><span class="w"> </span><span class="kn">import</span> <span class="n">extract_subset_name_from_parent</span><span class="p">,</span> <span class="n">find_files</span><span class="p">,</span> <span class="n">split_path</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">datumaro.util.os_util</span><span class="w"> </span><span class="kn">import</span> <span class="n">extract_subset_name_from_parent</span><span class="p">,</span> <span class="n">find_files</span><span class="p">,</span> <span class="n">join_within_base</span><span class="p">,</span> <span class="n">split_path</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">.format</span><span class="w"> </span><span class="kn">import</span> <span class="n">YoloLoosePath</span><span class="p">,</span> <span class="n">YoloPath</span><span class="p">,</span> <span class="n">YoloUltralyticsPath</span>
 
@@ -413,7 +413,7 @@
 
         <span class="k">try</span><span class="p">:</span>
             <span class="n">image_size</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_image_info</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">item_id</span><span class="p">)</span>
-            <span class="n">image</span> <span class="o">=</span> <span class="n">Image</span><span class="o">.</span><span class="n">from_file</span><span class="p">(</span><span class="n">path</span><span class="o">=</span><span class="n">osp</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_path</span><span class="p">,</span> <span class="n">item</span><span class="p">),</span> <span class="n">size</span><span class="o">=</span><span class="n">image_size</span><span class="p">)</span>
+            <span class="n">image</span> <span class="o">=</span> <span class="n">Image</span><span class="o">.</span><span class="n">from_file</span><span class="p">(</span><span class="n">path</span><span class="o">=</span><span class="n">join_within_base</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_path</span><span class="p">,</span> <span class="n">item</span><span class="p">),</span> <span class="n">size</span><span class="o">=</span><span class="n">image_size</span><span class="p">)</span>
 
             <span class="n">anno_path</span> <span class="o">=</span> <span class="n">osp</span><span class="o">.</span><span class="n">splitext</span><span class="p">(</span><span class="n">image</span><span class="o">.</span><span class="n">path</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="s2">".txt"</span>
             <span class="n">annotations</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_parse_annotations</span><span class="p">(</span>
@@ -521,7 +521,7 @@
             <span class="k">raise</span> <span class="n">InvalidAnnotationError</span><span class="p">(</span><span class="s2">"Failed to parse names file path from config"</span><span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">_categories</span> <span class="o">=</span> <span class="p">{</span>
-            <span class="n">AnnotationType</span><span class="o">.</span><span class="n">label</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_load_categories</span><span class="p">(</span><span class="n">osp</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_path</span><span class="p">,</span> <span class="n">localize_path</span><span class="p">(</span><span class="n">names_path</span><span class="p">)))</span>
+            <span class="n">AnnotationType</span><span class="o">.</span><span class="n">label</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_load_categories</span><span class="p">(</span><span class="n">join_within_base</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_path</span><span class="p">,</span> <span class="n">localize_path</span><span class="p">(</span><span class="n">names_path</span><span class="p">)))</span>
         <span class="p">}</span>
 
         <span class="c1"># The original format is like this:</span>
@@ -541,7 +541,7 @@
             <span class="k">if</span> <span class="n">subset_name</span> <span class="o">!=</span> <span class="n">subset</span><span class="p">:</span>
                 <span class="k">continue</span>
 
-            <span class="n">list_path</span> <span class="o">=</span> <span class="n">osp</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_path</span><span class="p">,</span> <span class="n">localize_path</span><span class="p">(</span><span class="n">list_path</span><span class="p">))</span>
+            <span class="n">list_path</span> <span class="o">=</span> <span class="n">join_within_base</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_path</span><span class="p">,</span> <span class="n">localize_path</span><span class="p">(</span><span class="n">list_path</span><span class="p">))</span>
             <span class="k">if</span> <span class="ow">not</span> <span class="n">osp</span><span class="o">.</span><span class="n">isfile</span><span class="p">(</span><span class="n">list_path</span><span class="p">):</span>
                 <span class="k">raise</span> <span class="n">InvalidAnnotationError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Can't find '</span><span class="si">{</span><span class="n">subset_name</span><span class="si">}</span><span class="s2">' subset list file"</span><span class="p">)</span>
 

@@ -361,7 +361,7 @@
 
 
 <div class="viewcode-block" id="check_instruction_set">
-<a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.util.os_util.html#datumaro.plugins.data_formats.yolo.base.check_instruction_set">[docs]</a>
+<a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.util.os_util.html#datumaro.plugins.data_formats.datumaro.base.check_instruction_set">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">check_instruction_set</span><span class="p">(</span><span class="n">instruction</span><span class="p">):</span>
     <span class="k">return</span> <span class="n">instruction</span> <span class="o">==</span> <span class="nb">str</span><span class="o">.</span><span class="n">strip</span><span class="p">(</span>
         <span class="c1"># Let's ignore a warning from bandit about using shell=True.</span>
@@ -390,7 +390,7 @@
 
 
 <div class="viewcode-block" id="contains_unsafe_path_component">
-<a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.util.os_util.html#datumaro.plugins.data_formats.yolo.base.contains_unsafe_path_component">[docs]</a>
+<a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.util.os_util.html#datumaro.plugins.data_formats.datumaro.base.contains_unsafe_path_component">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">contains_unsafe_path_component</span><span class="p">(</span><span class="n">path</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">"""Check if any "/" or "\\"-separated component of `path` is (or, once</span>
 <span class="sd">    Win32's trailing dot/space trimming is accounted for, resolves to) the</span>
@@ -433,7 +433,7 @@
 
 
 <div class="viewcode-block" id="join_within_base">
-<a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.util.os_util.html#datumaro.plugins.data_formats.yolo.base.join_within_base">[docs]</a>
+<a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.util.os_util.html#datumaro.plugins.data_formats.datumaro.base.join_within_base">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">join_within_base</span><span class="p">(</span><span class="n">base_dir</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">*</span><span class="n">parts</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">"""Join `parts` onto `base_dir`, and reject the result if it escapes `base_dir`.</span>
 
@@ -455,7 +455,7 @@
 
 
 <div class="viewcode-block" id="ensure_within_base">
-<a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.util.os_util.html#datumaro.plugins.data_formats.yolo.base.ensure_within_base">[docs]</a>
+<a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.util.os_util.html#datumaro.plugins.data_formats.datumaro.base.ensure_within_base">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">ensure_within_base</span><span class="p">(</span><span class="n">path</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">base_dir</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">"""Validate that an already-constructed `path` (e.g. one supplied directly</span>
 <span class="sd">    by a caller instead of being composed from parts via `join_within_base`)</span>
@@ -468,7 +468,7 @@
 
 
 <div class="viewcode-block" id="import_foreign_module">
-<a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.util.os_util.html#datumaro.plugins.data_formats.yolo.base.import_foreign_module">[docs]</a>
+<a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.util.os_util.html#datumaro.plugins.data_formats.datumaro.base.import_foreign_module">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">import_foreign_module</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">path</span><span class="p">):</span>
     <span class="n">module</span> <span class="o">=</span> <span class="kc">None</span>
     <span class="n">default_path</span> <span class="o">=</span> <span class="n">sys</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
@@ -484,7 +484,7 @@
 
 
 <div class="viewcode-block" id="walk">
-<a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.util.os_util.html#datumaro.plugins.data_formats.yolo.base.walk">[docs]</a>
+<a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.util.os_util.html#datumaro.plugins.data_formats.datumaro.base.walk">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">walk</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">max_depth</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">min_depth</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
     <span class="k">if</span> <span class="n">max_depth</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">max_depth</span> <span class="o">=</span> <span class="n">DEFAULT_MAX_DEPTH</span>
@@ -505,7 +505,7 @@
 
 
 <div class="viewcode-block" id="find_files">
-<a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.util.os_util.html#datumaro.plugins.data_formats.yolo.base.find_files">[docs]</a>
+<a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.util.os_util.html#datumaro.plugins.data_formats.datumaro.base.find_files">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">find_files</span><span class="p">(</span>
     <span class="n">dirpath</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
     <span class="n">exts</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Iterable</span><span class="p">[</span><span class="nb">str</span><span class="p">]],</span>
@@ -538,7 +538,7 @@
 
 
 <div class="viewcode-block" id="copytree">
-<a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.util.os_util.html#datumaro.plugins.data_formats.yolo.base.copytree">[docs]</a>
+<a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.util.os_util.html#datumaro.plugins.data_formats.datumaro.base.copytree">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">copytree</span><span class="p">(</span><span class="n">src</span><span class="p">,</span> <span class="n">dst</span><span class="p">):</span>
     <span class="c1"># Serves as a replacement for shutil.copytree().</span>
     <span class="c1">#</span>
@@ -593,7 +593,7 @@
 
 
 <div class="viewcode-block" id="suppress_output">
-<a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.util.os_util.html#datumaro.plugins.data_formats.yolo.base.suppress_output">[docs]</a>
+<a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.util.os_util.html#datumaro.plugins.data_formats.datumaro.base.suppress_output">[docs]</a>
 <span class="nd">@contextmanager</span>
 <span class="k">def</span><span class="w"> </span><span class="nf">suppress_output</span><span class="p">(</span><span class="n">stdout</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span> <span class="n">stderr</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">):</span>
     <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">devnull</span><span class="p">,</span> <span class="s2">"w"</span><span class="p">)</span> <span class="k">as</span> <span class="n">devnull</span><span class="p">,</span> <span class="n">ExitStack</span><span class="p">()</span> <span class="k">as</span> <span class="n">es</span><span class="p">:</span>
@@ -607,7 +607,7 @@
 
 
 <div class="viewcode-block" id="catch_output">
-<a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.util.os_util.html#datumaro.plugins.data_formats.yolo.base.catch_output">[docs]</a>
+<a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.util.os_util.html#datumaro.plugins.data_formats.datumaro.base.catch_output">[docs]</a>
 <span class="nd">@contextmanager</span>
 <span class="k">def</span><span class="w"> </span><span class="nf">catch_output</span><span class="p">():</span>
     <span class="n">stdout</span> <span class="o">=</span> <span class="n">StringIO</span><span class="p">()</span>
@@ -619,7 +619,7 @@
 
 
 <div class="viewcode-block" id="dir_items">
-<a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.util.os_util.html#datumaro.plugins.data_formats.yolo.base.dir_items">[docs]</a>
+<a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.util.os_util.html#datumaro.plugins.data_formats.datumaro.base.dir_items">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">dir_items</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">ext</span><span class="p">,</span> <span class="n">truncate_ext</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
     <span class="n">items</span> <span class="o">=</span> <span class="p">[]</span>
     <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">os</span><span class="o">.</span><span class="n">listdir</span><span class="p">(</span><span class="n">path</span><span class="p">):</span>
@@ -633,7 +633,7 @@
 
 
 <div class="viewcode-block" id="split_path">
-<a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.util.os_util.html#datumaro.plugins.data_formats.yolo.base.split_path">[docs]</a>
+<a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.util.os_util.html#datumaro.plugins.data_formats.datumaro.base.split_path">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">split_path</span><span class="p">(</span><span class="n">path</span><span class="p">):</span>
     <span class="n">path</span> <span class="o">=</span> <span class="n">osp</span><span class="o">.</span><span class="n">normpath</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
     <span class="n">parts</span> <span class="o">=</span> <span class="p">[]</span>
@@ -653,7 +653,7 @@
 
 
 <div class="viewcode-block" id="is_subpath">
-<a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.util.os_util.html#datumaro.plugins.data_formats.yolo.base.is_subpath">[docs]</a>
+<a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.util.os_util.html#datumaro.plugins.data_formats.datumaro.base.is_subpath">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">is_subpath</span><span class="p">(</span><span class="n">path</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">base</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Tests if a path is subpath of another path or the paths are equal.</span>
@@ -666,7 +666,7 @@
 
 
 <div class="viewcode-block" id="make_file_name">
-<a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.util.os_util.html#datumaro.plugins.data_formats.yolo.base.make_file_name">[docs]</a>
+<a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.util.os_util.html#datumaro.plugins.data_formats.datumaro.base.make_file_name">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">make_file_name</span><span class="p">(</span><span class="n">s</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
     <span class="c1"># adapted from</span>
     <span class="c1"># https://docs.djangoproject.com/en/2.1/_modules/django/utils/text/#slugify</span>
@@ -682,7 +682,7 @@
 
 
 <div class="viewcode-block" id="generate_next_name">
-<a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.util.os_util.html#datumaro.plugins.data_formats.yolo.base.generate_next_name">[docs]</a>
+<a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.util.os_util.html#datumaro.plugins.data_formats.datumaro.base.generate_next_name">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">generate_next_name</span><span class="p">(</span>
     <span class="n">names</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span>
     <span class="n">basename</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
@@ -728,7 +728,7 @@
 
 
 <div class="viewcode-block" id="extract_subset_name_from_parent">
-<a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.util.os_util.html#datumaro.plugins.data_formats.yolo.base.extract_subset_name_from_parent">[docs]</a>
+<a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.util.os_util.html#datumaro.plugins.data_formats.datumaro.base.extract_subset_name_from_parent">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">extract_subset_name_from_parent</span><span class="p">(</span><span class="n">url</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">start</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">"""Extract subset name from the given url.</span>
 
@@ -760,7 +760,7 @@
 
 
 <div class="viewcode-block" id="get_all_file_extensions">
-<a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.util.os_util.html#datumaro.plugins.data_formats.yolo.base.get_all_file_extensions">[docs]</a>
+<a class="viewcode-back" href="../../../docs/reference/_autosummary/datumaro.util.os_util.html#datumaro.plugins.data_formats.datumaro.base.get_all_file_extensions">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">get_all_file_extensions</span><span class="p">(</span><span class="n">path</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">ignore_dirs</span><span class="p">:</span> <span class="n">Set</span><span class="p">[</span><span class="nb">str</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
     <span class="n">extensions</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
     <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">glob</span><span class="o">.</span><span class="n">iglob</span><span class="p">(</span><span class="n">osp</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="s2">"**"</span><span class="p">,</span> <span class="s2">"*.*"</span><span class="p">),</span> <span class="n">recursive</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
