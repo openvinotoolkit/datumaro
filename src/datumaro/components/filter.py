@@ -22,6 +22,7 @@ from datumaro.components.annotation import (
     Points,
     Polygon,
     PolyLine,
+    RleMask,
 )
 from datumaro.components.media import Image
 from datumaro.components.transformer import ItemTransform
@@ -119,26 +120,46 @@ class DatasetItemEncoder:
 
         # Expose the same geometry fields as the other shape annotations, so
         # that filters like '/item/annotation[area > 30]' can also match mask
-        # annotations. The mask is decoded once for both values. Annotations
-        # without decodable data keep the previous encoding (no geometry
-        # fields), since their area cannot be determined.
-        image = obj.image
-        if image is not None:
-            area = int(np.count_nonzero(image))
-            if area:
-                # Computed here instead of mask_tools.find_mask_bbox, which
-                # subtracts the inclusive last nonzero indices and therefore
-                # reports extents one pixel short in each dimension (see the
-                # referenced issue).
-                nonzero_cols = np.flatnonzero(np.any(image, axis=0))
-                nonzero_rows = np.flatnonzero(np.any(image, axis=1))
-                x = int(nonzero_cols[0])
-                y = int(nonzero_rows[0])
-                w = int(nonzero_cols[-1]) - x + 1
-                h = int(nonzero_rows[-1]) - y + 1
-                bbox_area = w * h
+        # annotations. RleMask geometry is read through its compressed
+        # accessors, which do not decode the mask, so large segmentation
+        # items do not pay for a full-image decode on every XPath filter.
+        # Ordinary masks are decoded once for both values. Masks whose data
+        # cannot be read (for example a lazy loader whose file is missing)
+        # keep the metadata-only encoding, so label and item-id filters
+        # still work on such items.
+        mask_geometry: Optional[tuple] = None
+        try:
+            if isinstance(obj, RleMask):
+                x, y, w, h = map(int, obj.get_bbox())
+                mask_geometry = (int(obj.get_area()), x, y, w, h)
             else:
-                x, y, w, h, bbox_area = 0, 0, 0, 0, 0
+                image = obj.image
+                if image is not None:
+                    area = int(np.count_nonzero(image))
+                    if area:
+                        # Computed here instead of mask_tools.find_mask_bbox,
+                        # which subtracts the inclusive last nonzero indices
+                        # and therefore reports extents one pixel short in
+                        # each dimension (see the referenced issue).
+                        nonzero_cols = np.flatnonzero(np.any(image, axis=0))
+                        nonzero_rows = np.flatnonzero(np.any(image, axis=1))
+                        x = int(nonzero_cols[0])
+                        y = int(nonzero_rows[0])
+                        w = int(nonzero_cols[-1]) - x + 1
+                        h = int(nonzero_rows[-1]) - y + 1
+                    else:
+                        x, y, w, h = 0, 0, 0, 0
+                    mask_geometry = (area, x, y, w, h)
+        except OSError as e:
+            # The mask data is unreadable, for example a lazy loader
+            # pointing at a missing file; the annotation keeps the
+            # metadata-only encoding.
+            log.debug("Mask annotation %s could not be read: %s", obj.id, e)
+            mask_geometry = None
+
+        if mask_geometry is not None:
+            area, x, y, w, h = mask_geometry
+            bbox_area = w * h
 
             ET.SubElement(ann_elem, "area").text = str(area)
 

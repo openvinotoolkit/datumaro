@@ -25,6 +25,7 @@ from datumaro.components.annotation import (
     Points,
     Polygon,
     PolyLine,
+    RleMask,
 )
 from datumaro.components.dataset import DEFAULT_FORMAT, Dataset, eager_mode
 from datumaro.components.dataset_base import DEFAULT_SUBSET_NAME, DatasetBase, DatasetItem, SubsetBase
@@ -2315,6 +2316,80 @@ class DatasetFilterTest(TestCase):
         )
 
         compare_datasets(self, expected, source)
+
+    def test_rle_mask_encoding_matches_dense_and_skips_decoding(self):
+        # An RleMask must expose the same geometry as the equivalent dense
+        # mask, but read it from the compressed representation, so that
+        # XPath filters do not pay for a full image decode per annotation.
+        from pycocotools import mask as mask_utils
+
+        image = np.array(
+            [
+                [0, 0, 0, 0, 0, 0],
+                [0, 0, 1, 1, 1, 0],
+                [0, 0, 1, 1, 1, 0],
+                [0, 0, 0, 0, 0, 0],
+                [0, 1, 1, 0, 0, 0],
+            ],
+            dtype=np.uint8,
+        )
+        rle = mask_utils.encode(np.asfortranarray(image))
+
+        # If the fast path is bypassed and the mask is decoded, the patched
+        # decoder fails the test instead of silently decoding.
+        with mock.patch.object(RleMask, "_decode", side_effect=AssertionError("the mask was decoded")):
+            encoded = DatasetItemEncoder.encode(DatasetItem(id=1, annotations=[RleMask(rle=rle, id=1)]))
+        ann = encoded.find("annotation")
+
+        # Same values as the dense encoding of the same mask: 8 nonzero
+        # pixels, covering bbox (1, 1, 4, 4).
+        dense = DatasetItemEncoder.encode(DatasetItem(id=1, annotations=[Mask(id=1, image=image)]))
+        dense_ann = dense.find("annotation")
+
+        self.assertEqual(dense_ann.find("area").text, ann.find("area").text)
+        self.assertEqual("8", ann.find("area").text)
+
+        bbox = ann.find("bbox")
+        dense_bbox = dense_ann.find("bbox")
+        for key in ("x", "y", "w", "h", "area"):
+            self.assertEqual(dense_bbox.find(key).text, bbox.find(key).text)
+        self.assertEqual([1, 1, 4, 4], [int(bbox.find(k).text) for k in ("x", "y", "w", "h")])
+        self.assertEqual("16", bbox.find("area").text)
+
+    def test_mask_encoding_with_unreadable_image_keeps_metadata(self):
+        # A mask whose lazy loader points at a missing file must not abort
+        # XPath filtering: it keeps the metadata-only encoding, so label and
+        # item-id filters keep working for such items.
+        unreadable = mock.Mock(side_effect=FileNotFoundError("missing mask file"))
+        item = DatasetItem(id=1, annotations=[Mask(id=1, label=0, image=unreadable)])
+
+        encoded = DatasetItemEncoder.encode(item)
+        ann = encoded.find("annotation")
+        self.assertIsNotNone(ann)
+        self.assertIsNone(ann.find("area"))
+        self.assertIsNone(ann.find("bbox"))
+        self.assertEqual("0", ann.find("label_id").text)
+
+        source = Dataset.from_iterable([item], categories=["a"])
+
+        filtered = XPathAnnotationsFilter(source, '/item/annotation[label = "a"]')
+        filtered_items = list(filtered)
+
+        self.assertEqual(1, len(filtered_items))
+        self.assertEqual(1, len(filtered_items[0].annotations))
+
+    def test_rle_mask_encoding_with_unreadable_rle_keeps_metadata(self):
+        # Same as above, through the compressed representation: a lazy RLE
+        # loader pointing at a missing file also keeps the metadata encoding.
+        unreadable = mock.Mock(side_effect=FileNotFoundError("missing rle file"))
+        item = DatasetItem(id=1, annotations=[RleMask(rle=unreadable, id=1, label=0)])
+
+        encoded = DatasetItemEncoder.encode(item)
+        ann = encoded.find("annotation")
+        self.assertIsNotNone(ann)
+        self.assertIsNone(ann.find("area"))
+        self.assertIsNone(ann.find("bbox"))
+        self.assertEqual("0", ann.find("label_id").text)
 
 
 class DatasetTransformTest:
